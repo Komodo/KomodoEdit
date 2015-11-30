@@ -163,7 +163,7 @@ diff -u -r1.156 win32/ScintillaWin.cxx
  			return 0;
  
  		case WM_IME_SETCONTEXT:
-@@ -1573,6 +1594,41 @@ bool ScintillaWin::PaintContains(PRectangle rc) {
+@@ -1573,6 +1594,47 @@ bool ScintillaWin::PaintContains(PRectangle rc) {
  	return true;
  }
  
@@ -180,7 +180,13 @@ diff -u -r1.156 win32/ScintillaWin.cxx
 +    Point dragMouse = LocationFromPosition(posDragPosition);
 +    int line = pdoc->LineFromPosition(posDragPosition);
 +    int currentVisibleLine = cs.DisplayFromDoc(line);
-+    int lastVisibleLine = Platform::Minimum(topLine + LinesOnScreen() - 1, pdoc->LinesTotal() - 1);
++    int lastVisibleLine = Platform::Minimum(topLine + LinesOnScreen(), cs.LinesDisplayed()) - 1;
++    if (Wrapping()) {
++        for (int i = topLine; i < lastVisibleLine; i++) {
++            lastVisibleLine -= WrapCount(i) - 1;
++        }
++		lastVisibleLine--; // in-case the last line is wrapped
++    }
 +
 +    if (currentVisibleLine <= topLine && topLine > 0) {
 +        ScrollTo( topLine - scrollSpeed );
