@@ -991,8 +991,11 @@ class PerlLangIntel(CitadelLangIntel,
             if trg.id[1] == TRG_FORM_DEFN and citdl_expr[0] == '$':
                 current_pos = trg.pos
                 lim = buf.accessor.length
-                while buf.accessor.style_at_pos(current_pos) == ScintillaConstants.SCE_PL_SCALAR and current_pos < lim:
+                style = buf.accessor.style_at_pos(current_pos)
+                while (style == ScintillaConstants.SCE_PL_SCALAR or 
+                       ScintillaConstants.SCE_PL_REGEX_VAR <= style <= ScintillaConstants.SCE_PL_STRING_QR_VAR) and current_pos < lim:
                     current_pos += 1
+                    style = buf.accessor.style_at_pos(current_pos)
                 c = buf.accessor.char_at_pos(current_pos)
                 if c == '[':
                     citdl_expr = '@' + citdl_expr[1:]
