@@ -336,7 +336,7 @@ class UDLBuffer(CitadelBuffer):
         lang = self.lang_from_pos(pos)
         try:
             blob = self.blob_from_lang[lang]
-        except KeyError:
+        except (KeyError, TypeError):
             return None
         line = self.accessor.line_from_pos(pos) + 1 # convert to 1-based
         return self.scoperef_from_blob_and_line(blob, line)
