@@ -278,16 +278,19 @@ class PerlClassifier(PerlCommonClassifier, shared_parser.CommonClassifier):
     
 
     def is_variable(self, tok):
-        return SCE_PL_SCALAR <= tok['style'] <= SCE_PL_SYMBOLTABLE
+        return SCE_PL_SCALAR <= tok['style'] <= SCE_PL_SYMBOLTABLE or \
+               SCE_PL_REGEX_VAR <= tok['style'] <= SCE_PL_STRING_QR_VAR
 
     # Types of variables
     def is_variable_array(self, tok, callback=None):
-        return tok['style'] == ScintillaConstants.SCE_PL_ARRAY and \
-            len(tok['text']) > 1 and tok['text'][1] != '$'
+        return (tok['style'] == ScintillaConstants.SCE_PL_ARRAY or \
+                SCE_PL_REGEX_VAR <= tok['style'] <= SCE_PL_STRING_QR_VAR) and \
+            len(tok['text']) > 1 and tok['text'][0] == '@' and tok['text'][1] != '$'
         
     def is_variable_scalar(self, tok, callback=None):
-        return tok['style'] == ScintillaConstants.SCE_PL_SCALAR and \
-            len(tok['text']) > 1 and tok['text'][1] != '$'
+        return (tok['style'] == ScintillaConstants.SCE_PL_SCALAR or \
+                SCE_PL_REGEX_VAR <= tok['style'] <= SCE_PL_STRING_QR_VAR) and \
+            len(tok['text']) > 1 and tok['text'][0] == '$' and tok['text'][1] != '$'
         
     # Accessors for where we'd rather work with a style than call a predicate fn
 

@@ -128,7 +128,16 @@ oranges 3
                                 sci_constants.SCE_PL_ARRAY,
                                 sci_constants.SCE_PL_HASH,
                                 sci_constants.SCE_PL_SYMBOLTABLE,
-                                sci_constants.SCE_PL_VARIABLE_INDEXER],
+                                sci_constants.SCE_PL_VARIABLE_INDEXER,
+                                sci_constants.SCE_PL_STRING_VAR,
+                                sci_constants.SCE_PL_STRING_QQ_VAR,
+                                sci_constants.SCE_PL_STRING_QX_VAR,
+                                sci_constants.SCE_PL_BACKTICKS_VAR,
+                                sci_constants.SCE_PL_HERE_QQ_VAR,
+                                sci_constants.SCE_PL_HERE_QX_VAR,
+                                sci_constants.SCE_PL_REGEX_VAR,
+                                sci_constants.SCE_PL_REGSUBST_VAR,
+                                sci_constants.SCE_PL_STRING_QR_VAR],
             )
         self.matchingSoftChars["`"] = ("`", self.softchar_accept_matching_backquote)
         self.matchingSoftChars["/"] = ("/", self.softchar_accept_matching_forward_slash)
