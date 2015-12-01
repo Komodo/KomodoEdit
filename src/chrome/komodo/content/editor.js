@@ -584,33 +584,6 @@ editor_editorController.prototype.do_cmd_addNextWordToCaretSet = function() {
         scimoz.searchFlags |= scimoz.SCFIND_WHOLEWORD;
     }
     scimoz.multipleSelectAddNext();
-    scimoz.sendUpdateCommands("select");
-};
-
-var is_cmd_removeAdditionalCaret_enabled_aux = function() {
-    var view = _getCurrentScimozView();
-    if (!view) {
-        return null;
-    }
-    var scimoz = view.scimoz;
-    if (!scimoz) {
-        return null;
-    }
-    return (scimoz.selections > 1) ? view : null;
-};
-
-editor_editorController.prototype.is_cmd_removePrevWordInCaretSet_enabled = function() {
-    return !!is_cmd_removeAdditionalCaret_enabled_aux();
-}
-  
-editor_editorController.prototype.do_cmd_removePrevWordInCaretSet = function() {
-    var view = is_cmd_removeAdditionalCaret_enabled_aux();
-    if (!view) {
-        return;
-    }
-    var scimoz = view.scimoz;
-    scimoz.dropSelectionN(scimoz.selections - 1);
-    scimoz.sendUpdateCommands("select");
 };
 
 editor_editorController.prototype._aux_is_cmd_rename_tag_enabled = function() {

@@ -1,4 +1,4 @@
-version 49
+version 48
 
 # Movement and selection
 binding cmd_left  Left
@@ -224,5 +224,3 @@ binding cmd_scope-openfiles Ctrl+<
 binding cmd_invokeHyperlink Ctrl+Shift+G
 
 binding cmd_addNextWordToCaretSet Ctrl+D
-binding cmd_removePrevWordInCaretSet Ctrl+Shift+D
-

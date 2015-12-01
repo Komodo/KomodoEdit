@@ -603,8 +603,6 @@
 <!ENTITY quitApplicationCmdMac.accesskey "Q">
 <!ENTITY quitApplicationCmdWin.label "Exit">
 <!ENTITY quitApplicationCmdWin.accesskey "x">
-<!ENTITY removePrevWordInCaretSet.label "Multiple Selection - Remove Previous Occurrence">
-<!ENTITY removePrevWordInCaretSet.desc "Editor: Remove Previous Word in a Multi-Caret Set">
 <!ENTITY rename.label "Rename...">
 <!ENTITY renameTag.label "Rename Tag">
 <!ENTITY renameTag.desc "Editor: Rename Start- and End-Tag Name Simultaneously">

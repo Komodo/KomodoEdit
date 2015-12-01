@@ -1,4 +1,4 @@
-version 49
+version 48
 
 # Needs a few things to be finished
 #  - ?? insert forward tab / insert backward tab
@@ -231,4 +231,3 @@ binding cmd_scope-openfiles Ctrl+<
 binding cmd_invokeHyperlink Ctrl+Shift+G
 
 #binding cmd_addNextWordToCaretSet Ctrl+K Ctrl+D
-#binding cmd_removePrevWordInCaretSet Ctrl+K Ctrl+D

@@ -278,9 +278,6 @@
                 <menuitem id="editor-context-addNextWordToCaretSet"
                           label="&addNextWordToCaretSet.label;"
                           observes="cmd_addNextWordToCaretSet"/>
-                <menuitem id="editor-context-removePrevWordInCaretSet"
-                          label="&removePrevWordInCaretSet.label;"
-                          observes="cmd_removePrevWordInCaretSet"/>
             </menupopup>
         </menu>
         <menuitem id="editor-context-find"
@@ -857,10 +854,6 @@
                                     <menuitem label="&addNextWordToCaretSet.label;"
                                               id="menu_addNextWordToCaretSet"
                                               observes="cmd_addNextWordToCaretSet"
-                                              />
-                                    <menuitem label="&removePrevWordInCaretSet.label;"
-                                              id="menu_removePrevWordInCaretSet"
-                                              observes="cmd_removePrevWordInCaretSet"
                                               />
                                 </menupopup>
                             </menu>
