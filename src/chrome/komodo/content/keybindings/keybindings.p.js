@@ -1048,7 +1048,7 @@ this.Manager.prototype._upgradeKeybingings = function (from_version,
             });
             break;
         case 48:
-// #if PLATFORM != 'darwin'
+// #if PLATFORM == 'darwin'
             this._remove_keybinding_sequences({
                 'cmd_expandAbbrev':  ["Meta+T"]
             });
