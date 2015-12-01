@@ -1,4 +1,4 @@
-version 49
+version 50
 
 # Movement and selection
 binding cmd_left  Left
