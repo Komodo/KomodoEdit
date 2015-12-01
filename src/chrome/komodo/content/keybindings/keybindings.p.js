@@ -331,6 +331,7 @@ function cloneObject(what) {
  *       existing keybindings to move to the state you're implementing for N+1
  *
  * Version history:
+ * 50: Komodo 9.3 - Fix key binding conflict between help and un-comment (now Meta+Ctrl+/)
  * 48: Komodo 9.3 - Ctrl+T is now used for new tabs
  * 47: Komodo 9.3 - Add keybindings for quick bookmarks
  *                  Juggle help (and friends) and commenting keybindings to
@@ -380,7 +381,7 @@ function cloneObject(what) {
  * 2: Komodo 4.2.0-beta2 and above
  * 1: Komodo 4.2.0-beta1 and before
  */
-const currentKeybindingVersionNumber = 48;
+const currentKeybindingVersionNumber = 50;
 
 /**
  * Remove this dictionary of keybinds.
@@ -1061,6 +1062,16 @@ this.Manager.prototype._upgradeKeybingings = function (from_version,
             this._add_keybinding_sequences({
                 'cmd_newTab':  ["Ctrl+T"]
             });
+// #endif
+            break;
+        case 50:
+// #if PLATFORM == 'darwin'
+            this._remove_keybinding_sequences({
+                    'cmd_uncomment': ["Meta+Shift+?"],
+                });
+            this._add_keybinding_sequences({
+                    'cmd_uncomment': ["Meta+Ctrl+/"],
+                });
 // #endif
             break;
         }
