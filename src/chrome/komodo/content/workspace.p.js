@@ -137,7 +137,8 @@ this.restore = function ko_workspace_restore()
                 urllist = [];
             }
             for (var i in urllist) {
-                ko.open.URI(urllist[i]);
+                // Sometimes urllist[i] can be an object
+                ko.open.URI(urllist[i].toString());
             }
         }
     }
