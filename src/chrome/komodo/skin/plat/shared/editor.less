@@ -91,6 +91,11 @@
             background-color: transparent !important;
         }
     }
+    
+    :-moz-any(textbox, menulist, button, checkbox):focus
+    {
+        outline: 1px dotted @hud-foreground;
+    }
 
     :not(button) > button:not(.button-plain),
     & > button:not(.button-plain)
