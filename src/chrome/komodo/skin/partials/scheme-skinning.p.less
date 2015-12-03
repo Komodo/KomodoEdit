@@ -164,6 +164,11 @@
             border-color: @border !important;
         }
     }
+    
+    :-moz-any(textbox, menulist, button, checkbox):focus
+    {
+        outline: 1px dotted @special !important;
+    }
 
     ::-moz-selection {
         color: @special-fore !important;
