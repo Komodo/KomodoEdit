@@ -198,7 +198,7 @@ this.memoryUsage = function() {
 if (!("launch" in ko)) {
 ko.launch = {};
 (function () {
-
+var _log = ko.logging.getLogger("ko.launch");
 
 this.findBrowser = function(args = {})
 {
@@ -494,11 +494,21 @@ this.checkForUpdates = function checkForUpdates()
 }
 
 
-this.newWindow = function newWindow(uri /* =null */)
+/**
+ * Open a new window
+ * @param {Array} a list of URI file paths to open in new window
+ * @returns {Window} returns the window created.
+ */
+this.newWindow = function newWindow(uris /* =null */)
 {
     var args = {};
-    if (typeof(uri) != "undefined") {
-        args.uris = [uri];
+    if (typeof(uris) != "undefined"){
+        if (typeof(uris) == "string"){
+            _log.deprecated("ko.launch.newWindow now takes an Array of URIs as of \
+                           Komodo 9.1.  Please update.");
+            uris = [uris];
+        }
+        args.uris = uris;
     }
     return ko.windowManager.openDialog("chrome://komodo/content",
                                 "_blank",
