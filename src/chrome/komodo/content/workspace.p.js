@@ -125,20 +125,24 @@ this.restore = function ko_workspace_restore()
             // There is no workspace to restore, but init window essentials
             ko.workspace.initializeEssentials(window);
             var urllist;
-            if ('uris' in arg) {
-                urllist = arg.uris; // Called from ko.launch.newWindow(uri)
-            } else if (arg instanceof Components.interfaces.nsIDialogParamBlock) {
-                var paramBlock = arg.QueryInterface(Components.interfaces.nsIDialogParamBlock);
-                urllist = paramBlock ? paramBlock.GetString(0).split('|') : [];
-            } else if (typeof(arg) == 'string') {
-                urllist = arg.split('|'); //see asCommandLineHandler.js
-            } else {
-                // arg is most likely an empty object
-                urllist = [];
-            }
-            for (var i in urllist) {
-                ko.open.URI(urllist[i]);
-            }
+            // Wait for places to full load bofore loading files
+            // or possibly projects.
+            this.waitForProjectManager(function(){
+                if ('uris' in arg) {
+                    urllist = arg.uris; // Called from ko.launch.newWindow(uri)
+                } else if (arg instanceof Components.interfaces.nsIDialogParamBlock) {
+                    var paramBlock = arg.QueryInterface(Components.interfaces.nsIDialogParamBlock);
+                    urllist = paramBlock ? paramBlock.GetString(0).split('|') : [];
+                } else if (typeof(arg) == 'string') {
+                    urllist = arg.split('|'); //see asCommandLineHandler.js
+                } else {
+                    // arg is most likely an empty object
+                    urllist = [];
+                }
+                for (var i in urllist) {
+                    ko.open.URI(urllist[i]);
+                }
+            });
         }
     }
 
