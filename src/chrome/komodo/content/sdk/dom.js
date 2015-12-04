@@ -110,7 +110,7 @@ if (typeof module === 'undefined') module = {}; // debugging helper
             {
                 if ( ! attributes.hasOwnProperty(key)) continue;
                 let value = attributes[key];
-                if (typeof value == "string") value = value.replace(/'/g,'\\\'')
+                if (typeof value == "string") value = $.escape(value)
                 selector += " " + key + "='"+value+"'";
             }
         }
@@ -132,6 +132,23 @@ if (typeof module === 'undefined') module = {}; // debugging helper
         
         return BS;
     };
+    
+    /**
+     * Escape given string (html entities encode)
+     * 
+     * @param   {String} str    The input string
+     * 
+     * @returns {String} 
+     */
+    $.escape = function(str)
+    {
+        str = str.replace(/[\u00A0-\u9999<>\&]/gim, function(i) {
+           return '&#'+i.charCodeAt(0)+';';
+        });
+        str = str.replace(/'/g,'&#39;');
+        str = str.replace(/"/g,'&quot;');
+        return str;
+    }
 
     /**
      * Manipulation helper for inserting DOM content
