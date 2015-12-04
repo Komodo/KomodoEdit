@@ -589,7 +589,17 @@ function updateLinterPopup() {
     if ( ! numResults.value)
         return;
     
-    for (let i=0;i<numResults.value;i++)
+    var maxLength = ko.prefs.getLong("linter-popup-max-length", 10);
+    var length = Math.min(numResults.value, maxLength);
+    
+    results.value = results.value.sort(function(a,b)
+    {
+        if (b.severity < a.severity) return -1;
+        if (b.severity > a.severity) return 1;
+        return 0;
+    });
+    
+    for (let i=0;i<length;i++)
     {
         let result = results.value[i];
         let prefix = result.lineStart;
@@ -602,7 +612,7 @@ function updateLinterPopup() {
         if (result.severity == result.SEV_ERROR)
             severity = "ERROR";
         
-        var elem = $($.create("menuitem", {label: prefix + ":" + result.description, acceltext: severity}).toString());
+        var elem = $($.create("menuitem", {label: prefix + ": " + result.description, acceltext: severity}).toString());
         elem.on("command", function(result)
         {
             var editor = require("ko/editor");
@@ -612,15 +622,11 @@ function updateLinterPopup() {
         wrapper.append(elem);
     }
     
-    wrapper.children().each(function()
+    if (numResults.value > length)
     {
-        var child = $(this);
-        var sibling = child.prev();
-        if ( ! sibling.length) return;
-        
-        if (child._lintResult.severity < sibling._lintResult.severity)
-            child.before(sibling);
-    });
+        var elem = $($.create("menuitem", {label: "...", disabled: true}).toString());
+        wrapper.append(elem);
+    }
     
     separator.show();
 }
