@@ -4168,6 +4168,62 @@ class IncludeEverythingTestCase(CodeIntelTestCase):
             [("function", "myfunc")])
         self.assertCalltipIs2(buf, test_positions[6],
             "myfunc()")
+            
+    def test_psr4_autoloading(self):
+        test_dir = join(self.test_dir, "test_psr4_autoloading")
+        test_content, test_positions = unmark_text(php_markup(dedent(r"""
+            use <1>Codecourse\<2>Repositories;
+            $user = new <3>UserRepository();
+            $user-><4>foo();
+            $authFilter = new \<5>Codecourse\<6>Filters\<7>AuthFilter();
+            $authFilter-><8>
+        """)))
+        manifest = [
+            (join(test_dir, "app", "Codecourse", "Repositories", "UserRepository.php"), php_markup(dedent(r"""
+                namespace Codecourse\Repositories;
+                class UserRepository {
+                    function foo() {
+                    }
+                }
+            """))),
+            (join(test_dir, "app", "Codecourse", "Filters", "AuthFilter.php"), php_markup(dedent(r"""
+                namespace Codecourse\Filters;
+                class AuthFilter {
+                    function bar() {
+                    }
+                }
+            """))),
+            (join(test_dir, "test.php"), test_content)
+        ]
+        for filepath, content in manifest:
+            writefile(filepath, content)
+            
+        extra_paths = [join(test_dir, "app"),]
+        env = SimplePrefsEnvironment(phpExtraPaths=os.pathsep.join(extra_paths))
+        
+        buf = self.mgr.buf_from_path(join(test_dir, "test.php"), lang=self.lang,
+                                     env=env)
+        
+        self.assertCompletionsInclude2(buf, test_positions[1],
+            [("namespace", "Codecourse")])
+        self.assertCompletionsAre2(buf, test_positions[2],
+            [("namespace", "Filters"),
+             ("namespace", "Repositories")])
+        self.assertCompletionsInclude2(buf, test_positions[3],
+            [("class", "UserRepository")])
+        self.assertCompletionsDoNotInclude2(buf, test_positions[3],
+            [("class", "AuthFilter")])
+        self.assertCompletionsAre2(buf, test_positions[4],
+            [("function", "foo")])
+        self.assertCompletionsInclude2(buf, test_positions[5],
+            [("namespace", "Codecourse")])
+        self.assertCompletionsAre2(buf, test_positions[6],
+            [("namespace", "Filters"),
+             ("namespace", "Repositories")])
+        self.assertCompletionsAre2(buf, test_positions[7],
+            [("class", "AuthFilter")])
+        self.assertCompletionsAre2(buf, test_positions[8],
+            [("function", "bar")])
 
 class DefnTestCase(CodeIntelTestCase):
     lang = "PHP"

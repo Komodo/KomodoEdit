@@ -157,6 +157,9 @@ class PHPTreeEvaluator(TreeEvaluator):
 
     # Whether this is a goto definition request.
     defn_request=False
+    
+    # State flag when evaluating completions.
+    attemptingPSR4Autoloading = False
 
     #TODO: candidate for base TreeEvaluator class
     _langintel = None
@@ -524,11 +527,37 @@ class PHPTreeEvaluator(TreeEvaluator):
         if not allowGlobalClasses and self._namespace_elem_from_scoperef(scoperef):
             # When inside a namespace, don't include global classes - bug 83192.
             lookup_scopes = ("locals", "namespace",)
-        return self._element_names_from_scope_starting_with_expr(expr,
+        classes = self._element_names_from_scope_starting_with_expr(expr,
                             scoperef,
                             "class",
                             lookup_scopes,
                             self.class_names_from_elem)
+        # Include PSR-4 autoloaded classes.
+        # Basically, given an imported namespace, if each class in that
+        # namespace is in its own file of the same name, that class should be
+        # automatically available (i.e. it does not need to be individually
+        # imported).
+        if self.trg.type == "classes":
+            for child in scoperef[0]:
+                if child.tag == "import" \
+                   and not child.get("module").endswith(".php") \
+                   and child.get("symbol"):
+                    module = "\\%s\\%s" % (child.get("module"), child.get("symbol"))
+                    self.attemptingPSR4Autoloading = True
+                    elem, scope = self._hit_from_citdl(module, scoperef)
+                    self.attemptingPSR4Autoloading = False
+                    if elem and scope:
+                        for subelem in elem:
+                            if subelem.get("ilk") == "class":
+                                class_name = subelem.get("name")
+                                file_name = scope[0].get("name")
+                                if file_name.endswith(".php") \
+                                   and class_name == file_name[:-4] \
+                                   and class_name not in classes:
+                                    classes.append(('class', class_name))
+                                break # PSR-4 allows only one class per file
+                            
+        return classes
 
     def _traits_from_scope(self, expr, scoperef, allowGlobalClasses=False):
         """Return all available class names beginning with expr"""
@@ -863,6 +892,13 @@ class PHPTreeEvaluator(TreeEvaluator):
                 # in this case we want to return all namespaces starting with
                 # this expr, which is handled in the eval_cplns() method.
                 return None, None
+            elif self.attemptingPSR4Autoloading:
+                # When attempting to autocomplete classes that have not
+                # specifically been imported, codeintel uses PSR-4
+                # specifications to try and locate those classes.
+                # At this point in time, a specific namespace or class was not
+                # found, but that's no reason to throw an error.
+                return None, None
             raise CodeIntelError("could not resolve first part of '%s'" % expr)
 
         self.debug("_hit_from_citdl:: first part: %r -> %r",
@@ -1176,6 +1212,27 @@ class PHPTreeEvaluator(TreeEvaluator):
                         if hit:
                             return ([hit], 1)
                         break
+                    elif alias is None and module \
+                         and not module.endswith(".php") and symbol \
+                         and first_token.find('\\') == -1:
+                        # Identify PSR-4 autoloaded classes.
+                        # For a given class name, search through all imported
+                        # namespaces for that class, then double-check the
+                        # class' filename matches the class name.
+                        expr = "%s\\%s\\%s" % (module, symbol, first_token)
+                        self.attemptingPSR4Autoloading = True
+                        hit = self._hit_from_citdl(expr, scoperef)
+                        self.attemptingPSR4Autoloading = False
+                        elem, scope = hit
+                        if elem and scope and elem.get("ilk") == "class":
+                            # TODO: technically PSR-4 requires only one class
+                            # per file. Ideally we'd check for that here, but
+                            # that's a bit more work that may not be worth it.
+                            class_name = elem.get("name")
+                            file_name = scope[0].get("name")
+                            if file_name.endswith(".php") \
+                               and class_name == file_name[:-4]:
+                                return ([hit], 1)
                 else:
                     if "\\" not in first_token and elem.get("ilk") == "namespace":
                         self.log("_hits_from_first_part:: checking for a FQN hit")
