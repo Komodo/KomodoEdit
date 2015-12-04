@@ -1431,6 +1431,7 @@ function updateWrapperHeight(repeat=true)
 
 function closeFindFrame()
 {
+    on_unload();
     opener.document.getElementById("findReplaceWrap").setAttribute("collapsed", "true");
     
     var editor = require("ko/editor");
