@@ -10,7 +10,6 @@
 <!-- Dialog for customizing the main window toolbar -->
 
 <?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
-<?xml-stylesheet href="chrome://komodo/skin/global/global.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/dialogs/customizeToolbar.css" type="text/css"?>
 
 <dialog id="dialog-customize-toolbar"

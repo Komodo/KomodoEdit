@@ -3,7 +3,6 @@
 <?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/unifiedWindow.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/sidebar.css" type="text/css"?>
-<?xml-stylesheet href="chrome://komodo/skin/toolbar.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/notifications.css" type="text/css"?>
 
 <!DOCTYPE page PUBLIC "-//MOZILLA//DTD XUL V1.0//EN" "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [

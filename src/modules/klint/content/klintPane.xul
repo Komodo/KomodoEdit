@@ -5,7 +5,6 @@
 ]>
 <?xml-stylesheet href="chrome://klint/skin/klint.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
-<?xml-stylesheet href="chrome://komodo/skin/toolbar.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/buttons.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/sidebar.css" type="text/css"?>
 

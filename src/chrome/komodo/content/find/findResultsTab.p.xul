@@ -6,10 +6,8 @@
   %debuggerDTD;
 ]>
 <?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
-<?xml-stylesheet href="chrome://komodo/skin/global/global.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/views.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/widgets.css" type="text/css"?>
-<?xml-stylesheet href="chrome://komodo/skin/toolbar.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/find.css" type="text/css"?>
 
 <page xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">

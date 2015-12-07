@@ -16,9 +16,6 @@
 
 <binding id="view-quickstart" display="xul:box"
          extends="chrome://komodo/content/bindings/views.xml#view-base">
-    <resources>
-        <stylesheet src="chrome://komodo/skin/global/global.css"/>
-    </resources>
     <content>
         
         <xul:vbox anonid="quickstart" pack="center" class="hud" flex="1">

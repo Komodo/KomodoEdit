@@ -43,7 +43,6 @@
 <!-- Generic OK/Cancel dialog: see "okCancel.js" documentation. -->
 
 <?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
-<?xml-stylesheet href="chrome://komodo/skin/global/global.css" type="text/css"?>
 
 <dialog id="dialog-okcancel"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"

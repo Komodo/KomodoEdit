@@ -41,7 +41,6 @@
  ***** END LICENSE BLOCK ***** -->
 
 <?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
-<?xml-stylesheet href="chrome://komodo/skin/global/global.css" type="text/css"?>
 
 <dialog xmlns:html="http://www.w3.org/1999/xhtml"
     xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"

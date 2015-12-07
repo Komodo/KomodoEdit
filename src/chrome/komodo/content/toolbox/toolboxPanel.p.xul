@@ -3,11 +3,9 @@
   <!ENTITY % komodoDTD SYSTEM "chrome://komodo/locale/komodo.dtd">
   %komodoDTD;
 ]>
-<?xml-stylesheet href="chrome://komodo/skin/global/global.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/sidebar.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/tabs/tabs.css" type="text/css"?>
-<?xml-stylesheet href="chrome://komodo/skin/toolbar.css" type="text/css"?>
 
 <page xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
     <vbox flex="1" id="toolbox2-hierarchy-vbox">
