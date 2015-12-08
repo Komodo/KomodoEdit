@@ -46,12 +46,10 @@
           </scope>
         </variable>
       </variable>
-      <scope attributes="__local__ private __ctor__" classrefs="YAHOO.widget.Overlay" doc="CONSTRUCTOR: The Menu class creates a container that holds a vertical list representing&#xA;a set of options or commands.  Menu is the base class for all&#xA;menu containers." ilk="function" line="81" lineend="105" name="(anonymous 1)" signature="(anonymous 1)()">
-        <variable attributes="__local__ private" citdl="YAHOO.util.CustomEvent" line="86" name="CustomEvent" />
-        <variable attributes="__local__ private" citdl="YAHOO.util.Dom" line="86" name="Dom" />
-        <variable attributes="__local__ private" citdl="YAHOO.util.Event" line="86" name="Event" />
-        <variable attributes="__local__ private" citdl="YAHOO.lang" line="86" name="Lang" />
-      </scope>
+      <variable attributes="__local__ private" citdl="YAHOO.util.CustomEvent" line="62" name="CustomEvent" />
+      <variable attributes="__local__ private" citdl="YAHOO.util.Dom" line="62" name="Dom" />
+      <variable attributes="__local__ private" citdl="YAHOO.util.Event" line="62" name="Event" />
+      <variable attributes="__local__ private" citdl="YAHOO.lang" line="62" name="Lang" />
     </scope>
   </file>
 </codeintel>

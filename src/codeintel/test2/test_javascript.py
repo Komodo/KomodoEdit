@@ -1142,7 +1142,7 @@ class CplnTestCase(CodeIntelTestCase):
         self.assertCompletionsInclude2(buf, pos[4],
             [("argument", "arg1"),
              ("argument", "arg2")])
-
+             
 class DOMTestCase(CodeIntelTestCase):
     lang = "JavaScript"
     @tag("bug86391")
@@ -1625,7 +1625,7 @@ class PrototypeTestCase(CodeIntelTestCase):
              "document body will be searched."),
             env=self.env)
 
-    @tag("bug63297", "knownfailure")
+    @tag("bug63297")
     def test_self_invoking_functions(self):
         # XXX - I'm still not 100% sure this is correct and viable js syntax
         content, positions = unmark_text(dedent("""\
@@ -1645,6 +1645,27 @@ class PrototypeTestCase(CodeIntelTestCase):
         self.assertCalltipIs(markup_text(content, pos=positions[1]),
             ("TestCode(a1)"))
         self.assertCompletionsInclude(markup_text(content, pos=positions[2]),
+            [("variable", "a1"),
+             ("variable", "c1"),
+             ("function", "test"),
+             ("variable", "enabled")])
+             
+    def test_non_self_invoking_function(self):
+        content, positions = unmark_text(dedent("""\
+            function() {
+              TestCode = function(a1) {
+                  this.a1 = a1;
+              }
+              TestCode.prototype = {
+                  c1: "c1",
+                  test: function() {},
+                  enabled: true
+              }
+            }.bind(this);
+            t = new TestCode("a1");
+            t.<1>c1 = "new c1";
+        """))
+        self.assertCompletionsDoNotInclude(markup_text(content, pos=positions[1]),
             [("variable", "a1"),
              ("variable", "c1"),
              ("function", "test"),

@@ -483,6 +483,27 @@ class CplnTestCase(CodeIntelTestCase):
             [("function", "writeContinue"),
              ("function", "writeHead"),
             ])
+            
+    def test_anon_func_call_this_module(self):
+        """
+        Test for handling anonymous function call wrapper around a module.
+        (This construct is used to prevent global namespace pollution.)
+        """
+        manifest = {
+            "test.js": """
+                require('./dummy').<1>;
+                """,
+            "dummy.js": """
+                (function() {
+                    module.exports = {
+                        method: function() {}
+                    };
+                }).call(this);
+                """,
+        }
+        buf, positions = write_files(self, manifest=manifest, name="anon_func_call_this_module")
+        self.assertCompletionsAre2(buf, positions[1],
+            [("function", "method"), ])
 
 class StdLibTestCase(CodeIntelTestCase):
     """ Code Completion test cases for the Node.js standard library"""

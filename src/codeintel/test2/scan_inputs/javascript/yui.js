@@ -54,6 +54,14 @@ YAHOO.widget = {};
 /*  Test an anonymous function   */
 /*********************************/
 
+    (function() {
+    
+    var Dom = YAHOO.util.Dom,
+        Event = YAHOO.util.Event,
+        CustomEvent = YAHOO.util.CustomEvent,
+        Lang = YAHOO.lang;
+    
+    
     /**
     * The Menu class creates a container that holds a vertical list representing 
     * a set of options or commands.  Menu is the base class for all 
@@ -78,14 +86,6 @@ YAHOO.widget = {};
     * @constructor
     * @extends YAHOO.widget.Overlay
     */
-    (function() {
-    
-    var Dom = YAHOO.util.Dom,
-        Event = YAHOO.util.Event,
-        CustomEvent = YAHOO.util.CustomEvent,
-        Lang = YAHOO.lang;
-    
-    
     YAHOO.widget.Menu = function(p_oElement, p_oConfig) {
     
         if(p_oConfig) {

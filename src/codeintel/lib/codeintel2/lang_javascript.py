@@ -1821,6 +1821,7 @@ class JavaScriptCiler:
 
         self._metadata = {}
         self._anonid = 0
+        self.topLevelAnonFuncPending = False
 
         # Document styles used for deciding what to do
         # Note: Can be customized by calling setStyleValues()
@@ -1891,6 +1892,17 @@ class JavaScriptCiler:
                         jsfunc.lineend = self.lineno
                         log.debug("Setting lineend: %d for scope %r",
                                  self.lineno, jsfunc)
+                elif isinstance(self.currentScope, JSFunction) and \
+                    self.currentScope.isAnonymous() and self.depth == 0:
+                    # Top-level anonymous functions may be immediately invoked.
+                    # In these cases the contents actually belong to another
+                    # scope. In the event the anonymous function is called, its
+                    # contents belong in the file scope. In the event the
+                    # anonymous function is applied to something, the contents
+                    # belong in that something's scope.
+                    self.topLevelAnonFuncPending = True
+                    log.debug("Top-level anonymous function %r's contents may be global. Analyzing subsequent tokens for invocation...",
+                              self.currentScope.name)
                 log.debug("Setting lineend: %d for scope %r",
                          self.lineno, self.currentScope.name)
             else:
@@ -3784,6 +3796,26 @@ class JavaScriptCiler:
                 elif text[3:5] == ["(", ")"]:
                     # Applied to the global namespace
                     self._handleFunctionApply()
+                    
+    def _handleTopLevelAnonFunctionCall(self, lineno):
+        """
+        The contents of top-level anonymous functions like:
+            (function() {...})();
+            (function() {...}).call(this);
+        should be exported to the file scope for proper codeintel support.
+        This method is called when such a call is made for the anonymous
+        function that ends on line number `lineno`.
+        @param lineno The line number invoking a top-level anonymous function.
+        """
+        scope = self.currentScope
+        for func in scope.anonymous_functions:
+            if func.lineend == lineno:
+                for attrname in ("classes", "members", "functions", "variables"):
+                    d = getattr(func, attrname, {})
+                    for k, v in d.items():
+                        getattr(scope, attrname, {})[k] = v
+                scope.anonymous_functions.remove(func)
+        self.topLevelAnonFuncPending = False
 
     def _findScopeFromContext(self, styles, text):
         """Determine from the text (a namelist) what scope the text is referring
@@ -3899,6 +3931,12 @@ class JavaScriptCiler:
             if style != self.JS_OPERATOR:
                 self.styles.append(style)
                 self.text.append(text)
+                if self.topLevelAnonFuncPending and text != "call":
+                    # There was a top-level '(function() {...}).' construct, but
+                    # the method after the trailing '.' was not 'call'.
+                    # Therefore that function is nothing special.
+                    self.topLevelAnonFuncPending = False
+                    log.debug("...Top-level anonymous function not invoked.")
             else:
                 if text == "(": # Only the "(", it's like above
                     # Check if this is of the form "(function { .... })"
@@ -3908,6 +3946,12 @@ class JavaScriptCiler:
                         log.debug("Ignoring initial brace: '(' on line %d",
                                   self.lineno)
                         return
+                if self.topLevelAnonFuncPending and text[0] != "(":
+                    # There was a top-level '(function() {...}).call' or
+                    # construct, but for whatever reason, there is no invoking
+                    # '('; the anonymous function is nothing special.
+                    self.topLevelAnonFuncPending = False
+                    log.debug("...Top-level anonymous function not invoked.")
                 #log.debug("token_next: line %d, %r, text: %r" % (self.lineno, text, self.text))
                 next_op_index = 0
                 while next_op_index < len(text):
@@ -3931,6 +3975,8 @@ class JavaScriptCiler:
                                 # with getters, setters and class prototypes.
                                 self.currentScope = newscope
                             self.argumentTextPosition = len(self.text)
+                            if self.topLevelAnonFuncPending:
+                                self._handleTopLevelAnonFunctionCall(start_line)
                         self.bracket_depth += 1
                     elif op == ")":
                         self.bracket_depth -= 1
@@ -4021,6 +4067,17 @@ class JavaScriptCiler:
                             log.debug("Leaving S_OBJECT_ARGUMENT state, entering S_IN_ARGS state, line: %d, col: %d", start_line, start_column)
                             #print "Leaving S_OBJECT_ARGUMENT state, entering S_IN_ARGS state, line: %d, col: %d" % (start_line, start_column)
                         self.decBlock()
+                        if self.topLevelAnonFuncPending:
+                            # Check to see if the function is immediately
+                            # invoked or has a trailing '.', which may indicate
+                            # a '.call()'. That case must be handled later.
+                            index = next_op_index
+                            if index < len(text) and text[index] == ')':
+                                index += 1 # skip trailing ')' in '(function() {...})'
+                            if index >= len(text) or (text[index] != '(' and \
+                                                      text[index] != '.'):
+                                self.topLevelAnonFuncPending = False
+                                log.debug("...Top-level anonymous function not invoked.")
                     elif op == "," and self.text[0] not in ("let", "var", "const"):
                         # Ignore when it's inside arguments
                         if self.state == S_IN_ARGS:
