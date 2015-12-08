@@ -16,9 +16,6 @@
       </scope>
       <scope ilk="function" line="29" lineend="35" name="case3" signature="case3(case3_xyz)">
         <variable citdl="Number" ilk="argument" line="29" name="case3_xyz" />
-        <scope attributes="__local__ private" ilk="function" line="30" lineend="34" name="(anonymous 3)" signature="(anonymous 3)()">
-          <scope attributes="__local__ private" ilk="function" line="31" lineend="33" name="(anonymous 4)" signature="(anonymous 4)()" />
-        </scope>
         <variable attributes="__local__ private" line="34" name="b" />
       </scope>
       <scope ilk="function" line="38" lineend="42" name="case4" signature="case4(case4_xyz)">

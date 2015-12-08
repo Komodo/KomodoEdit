@@ -1671,6 +1671,35 @@ class PrototypeTestCase(CodeIntelTestCase):
              ("function", "test"),
              ("variable", "enabled")])
 
+    def test_self_invoking_functions_nested(self):
+        # XXX - I'm still not 100% sure this is correct and viable js syntax
+        # Not only that, but this construct surely makes no sense. However,
+        # this test is purely for functionality. More reasonable use cases
+        # exist.
+        content, positions = unmark_text(dedent("""\
+            (function() {
+              (function() {
+                TestCode = function(a1) {
+                  this.a1 = a1;
+                }
+              }).call(this);
+              TestCode.prototype = {
+                  c1: "c1",
+                  test: function() {},
+                  enabled: true
+              }
+            })();
+            t = new TestCode(<1>"a1");
+            t.<2>c1 = "new c1";
+        """))
+        self.assertCalltipIs(markup_text(content, pos=positions[1]),
+            ("TestCode(a1)"))
+        self.assertCompletionsInclude(markup_text(content, pos=positions[2]),
+            [("variable", "a1"),
+             ("variable", "c1"),
+             ("function", "test"),
+             ("variable", "enabled")])
+             
     @tag("bug65197")
     def test_multiple_variable_assignment(self):
         content, positions = unmark_text(dedent("""\
