@@ -45,7 +45,7 @@ checkbox, radio, tabpanels, listitem, richlistitem, listheader
 
 *, ::-moz-tree-cell-text
 {
-    font-family: 'Droid Sans', 'Lucida Grande', 'Segoe UI', 'Open Sans', sans-serif;
+    font-family: 'Lucida Grande', 'Segoe UI', 'Droid Sans', 'Open Sans', sans-serif;
     font-size: 0.9rem;
 }
 
@@ -103,15 +103,9 @@ tab
     }
 }
 
-tabpanels + tabs,
-tabs + tabpanels
-{
-    border-top: 1px solid @border;
-}
-
 tabs
 {
-    box-shadow: inset 0px -4px 0px 0px @border;
+    box-shadow: inset 0px -2px 0px 0px @primary;
     
     tab
     {
@@ -122,31 +116,16 @@ tabs
     
     tab:not([selected])
     {
-        border-bottom: 4px solid transparent;
+        border-bottom: 2px solid transparent;
     }
     
     tab[selected]
     {
-        &, [selected]
-        {
-            background: @highlight;
-        }
-        
         position: relative;
         z-index: 100;
-        border-bottom: 4px solid @special;
+        border-bottom: 2px solid @special;
     }
 }
-
-ko-pane[type="icons"] tab
-{
-    padding: 6px;
-    .tab-icon
-    {
-        margin-right: 0;
-    }
-}
-
 
 /* Form Elements */
 
@@ -174,7 +153,7 @@ textbox, menulist
 
 treecol
 {
-    border-bottom: 2px solid @border;
+    background: @primary;
     
     label
     {
@@ -257,14 +236,6 @@ separator
     {
         height: 0.5rem;
     }
-}
-
-
-/* Menu's */
-
-menupopup
-{
-    border: 1px solid @border;
 }
 
 .menu-accel-container

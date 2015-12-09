@@ -6,7 +6,8 @@ toolbar[printpreview="true"] {
   -moz-binding: url("chrome://global/content/printPreviewBindings.xml#printpreviewtoolbar");
 }
 
-#main-toolboxrow {
+#main-toolboxrow,
+#second-toolboxrow {
   -moz-binding: url('chrome://komodo/content/bindings/toolbar.xml#toolboxrow-overflow');
 }
 
@@ -16,4 +17,8 @@ popup[type="tooltip"] {
 
 tree.codetree {
     -moz-binding: url('chrome://komodo/content/bindings/widgets.xml#cbtree');
+}
+
+#main-toolboxrow toolbar > toolbaritem > toolbarbutton[type=menu] {
+  -moz-binding: url("chrome://global/content/bindings/toolbarbutton.xml#menu-vertical");
 }

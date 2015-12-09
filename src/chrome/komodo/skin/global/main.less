@@ -1,54 +1,111 @@
 @import url("chrome://komodo/skin/global/global.less");
 /* Komodo Toolbox */
 
-#komodo_main:not(._tr_loaded)
-{
-    -moz-box-orient: horizontal;
-}
-
 #toolbox_main
 {
     background: @primary;
-    border-right: 1px solid @border;
-
-    & > vbox, #main-toolboxrow-wrapper
+    border: 0;
+    padding: 4px;
+    background: @special;
+    
+    toolbaritem
     {
-        -moz-box-flex: 1;
+        background: @button;
+        border-radius: 3px;
+        margin: 5px;
+        padding: 0;
+        
+        & > toolbarbutton
+        {
+            width: 18px;
+            margin: 0;
+            padding: 5px;
+            border-radius: 3px;
+            
+            &:hover
+            {
+                background: darken(@button, 10%);
+            }
+        }
     }
-
-    #main-toolboxrow-wrapper
-    {
-        -moz-box-pack: center;
-        -moz-box-align: center;
-        padding: 8px 0;
-    }
-
-    &, #main-toolboxrow-wrapper, toolbar, toolbaritem,
-    #main-toolboxrow > hbox
-    {
-        -moz-box-orient: vertical !important;
-    }
-
+    
     toolbar
     {
-        width: auto !important;
-        max-width: 50px;
+        width: auto;
         padding: 0;
     }
+    
+    toolboxrow > [first-overflow] ~ *,
+    toolboxrow > [first-overflow] [first-child-overflow],
+    toolboxrow > [first-overflow] [first-child-overflow] ~ * {
+      /* things that would overflow in the toolboxrow */
+      visibility: hidden;
+    }
+    
+    toolboxrow > .overflow-toolbarbutton > .toolbarbutton-menu-dropmarker {
+      /* the dropmarker on the toolboxrow overflow button */
+      visibility: collapse;
+    }
+}
 
-    #main-toolboxrow-wrapper > toolbar
+#main-toolboxrow,
+#second-toolboxrow
+{
+    width: ~"calc(50vw - 175px)";
+}
+
+#second-toolboxrow > hbox
+{
+    -moz-box-pack: end;
+}
+
+#toolbox_main #quickCommando
+{
+    width: 350px;
+    
+    #commando-search-quick
+    {
+        margin: 0 12px;
+        -moz-box-flex: 1;
+        height: 32px;
+        line-height: 32px;
+        font-size: 1.2rem;
+        text-align: center;
+        border: 0;
+        border-radius: 5px;
+        background: @textbox-special;
+        color: fade(@textbox-foreground-special, 60%);
+    }
+}
+
+/* Side Toolbar */
+
+#toolbox_side
+{
+    width: 48px;
+    background: @primary;
+    -moz-box-orient: vertical;
+    
+    toolbaritem
+    {
+        -moz-box-orient: vertical;
+        margin: 5px 0;
+        
+        & > toolbarbutton
+        {
+            margin: 5px 0;
+        }
+    }
+    
+    toolbaritem > toolbarbutton > dropmarker
+    {
+        width: 12px;
+        margin-right: -12px;
+    }
+    
+    #side-top-toolbar toolbarbutton[disabled="true"]
     {
         visibility: collapse;
-    }
-
-    toolbarbutton dropmarker
-    {
-        visibility: collapse;
-    }
-
-    toolbaritem > toolbarbutton
-    {
-        margin: 4px 0;
     }
 }
 
@@ -121,11 +178,41 @@ splitter
     /*background: @secondary !important;*/
 }
 
-/* Customizable Panes */
+/* Panels */
 
 ko-pane:not([customizing]) .pane-drop-target
 {
     display: none;
+}
+
+.pane-container tabs .tabstrip-box 
+{
+    /* Don't show buttons on pane tab bar */
+    & > toolbarbutton
+    {
+        visibility: collapse;
+    }
+}
+
+ko-pane[type="icons"] tab
+{
+    padding: 6px;
+    -moz-box-flex: 1;
+    
+    &:first-child
+    {
+        padding-left: 12px;
+    }
+    
+    &:last-child
+    {
+        padding-right: 12px;
+    }
+    
+    .tab-icon
+    {
+        margin-right: 0;
+    }
 }
 
 /* Pref Windows */
@@ -141,7 +228,7 @@ ko-pane:not([customizing]) .pane-drop-target
 {
     background: @primary;
     
-    &:not(.widget):not(.kodialog)
+    &:not(.widget):not(.kodialog):not([anonid="quickstart"])
     {
         border: 1px solid @border;
     }
@@ -190,13 +277,6 @@ ko-pane:not([customizing]) .pane-drop-target
 {
     width: 200px;
     height: 25px;
-}
-
-/* Editor tabs */
-
-#tabbed-view tabs
-{
-    margin-bottom: -1px;
 }
 
 /* Special Classes */

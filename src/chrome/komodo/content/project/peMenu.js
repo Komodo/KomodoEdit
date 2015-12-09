@@ -307,8 +307,9 @@ this.addToolbarFromPart = function peMenu_addToolbarFromPart(part) {
         var cmd_id = 'cmd_custom_toolbar_'+id;
         var visible = ! ko.projects.isToolbarRememberedAsHidden(id);
 
-        var toolbox = document.getElementById('main-toolboxrow');
-        if (toolbox.getElementsByAttribute('id', id).length >= 1) {
+        var toolbox = document.getElementById('second-toolboxrow');
+        
+        if (toolbox.firstChild.getElementsByAttribute('id', id).length >= 1) {
             // dump("peMenu.js -- Already have toolbox " + part.name + "\n");
             return;
         }
@@ -339,9 +340,8 @@ this.addToolbarFromPart = function peMenu_addToolbarFromPart(part) {
         // Append toolbaritem wrapper to which all children are appended
         // The toolbaritem wrapper is used primarily for styling
         var toolbaritem = document.createElement('toolbaritem');
-        toolbar.appendChild(toolbaritem);
-
-        toolbox.appendChild(toolbar);
+        toolbaritem.appendChild(toolbar);
+        toolbox.insertBefore(toolbaritem, toolbox.firstChild);
 
         _fillToolbarFromPart(toolbar, part);
 
@@ -611,10 +611,7 @@ function _fillToolbarFromPart(toolbar, part)
         toolbar.firstChild.appendChild(button);
     }
 
-    var toolboxRow = document.getElementById("main-toolboxrow");
-    if (toolboxRow) {
-        toolboxRow.dirty = true;
-    }
+    toolbar.parentNode.parentNode.dirty = true;
 }
 
 function _sortItems(a,b) {

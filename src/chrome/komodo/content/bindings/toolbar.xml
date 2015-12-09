@@ -187,11 +187,7 @@
                 if (this._updateTimerId) {
                     window.clearTimeout(this._updateTimerId);
                 }
-                this._updateTimerId = window.setTimeout(
-                        function(self) {
-                            self._updateChildVisibility_callback();
-                        },
-                        50, this);
+                this._updateTimerId = window.setTimeout(this._updateChildVisibility_callback.bind(this, event), 50);
               ]]>
               </body>
             </method>
@@ -279,6 +275,7 @@
               <parameter name="event" />
               <body>
               <![CDATA[
+                this.container.style.overflow = "hidden";
                 var scrollRect = this.container.getBoundingClientRect();
                 var children = Array.slice(this.childNodes); // XBL, so this.childNodes is right :|
                 var first_overflow = this.querySelector("[first-overflow]");
@@ -316,6 +313,7 @@
                         first_child_overflow.removeAttribute("first-child-overflow");
                         this.dirty = true;
                     }
+                    this.container.style.overflow = "visible";
                     return;
                 }
 

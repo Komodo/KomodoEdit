@@ -3,6 +3,14 @@
 @import url("chrome://komodo/skin/global/reset.less");
 @import url("chrome://komodo/skin/global/normalize.less");
 @import url("chrome://komodo/skin/global/bindings.less");
+@import url("chrome://komodo/skin/global/icons.less");
 
 @import url("chrome://komodo/skin/global/components/buttons.less");
 @import url("chrome://komodo/skin/global/components/scrolltabs.less");
+
+/* Don't show new tab button on anything but the buffer tabs */
+:not(#tabbed-view) > tabs toolbarbutton[anonid="tabs-new"]
+{
+    visibility: collapse;
+}
+

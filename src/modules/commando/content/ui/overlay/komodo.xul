@@ -141,15 +141,16 @@
                  kohidden="false"
                  persist="kohidden"
                  broadcaster="cmd_viewgotoanything"
-                 insertafter="findToolbar"
+                 insertafter="main-toolboxrow"
                 >
 
                 <label id="commando-search-quick"
                      tooltiptext="Quickly open/execute files, macros, tools, commands, etc"
                      placeholder="true"
                      placeholdervalue="Go To Anything"
-                     value="Go To Anything"
-                     style="min-height: 16px;"/>
+                     style="min-height: 16px;">
+                    Go To Anything
+                </label>
         </toolbar>
     </hbox>
     

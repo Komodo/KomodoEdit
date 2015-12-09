@@ -660,9 +660,9 @@
             {
                 log.debug("Store value to quickSearch");
                 elem("quickSearch").attr({
-                    placeholder: "false",
-                    value: searchValue
+                    placeholder: "false"
                 });
+                elem("quickSearch").text(searchValue);
             }
             else
             {
@@ -670,9 +670,9 @@
                 if (quickSearch.length)
                 {
                     quickSearch.attr({
-                        placeholder: "true",
-                        value: quickSearch.attr("placeholdervalue")
+                        placeholder: "true"
                     });
+                    quickSearch.text(quickSearch.attr("placeholdervalue"))
                 }
             }
 

@@ -1905,82 +1905,9 @@
 
                     </toolbaritem>
                 </toolbar>
-                <toolbar class="chromeclass-toolbar"
-                         id="toolsToolbar"
-                         toolboxid="toolbox_main"
-                         broadcaster="cmd_viewtoolstoolbar"
-                         grippyhidden="true"
-                         customizable="true"
-                         align="center"
-                         mode="icons"
-                         persist="kohidden collapsed buttonstyle mode"
-                         buttonstyle="pictures"
-                         tooltiptext="&toolsToolbar.tooltiptext;">
-                    <toolbaritem id="toolsToolbarGroup">
-                        <toolbarbutton id="buttonBrowserPreview"
-                                       tooltiptext="&previewBufferInBrowser.tooltiptext;"
-                                       type="menu-button"
-                                       persist="buttonstyle"
-                                       buttonstyle="pictures"
-                                       observes="cmd_browserPreview"
-                                       label="&preview.label;">
-                            <menupopup id="buttonBrowserPreviewPopup"
-                                       onpopupshowing="ko.uilayout.populatePreviewToolbarButton(this);"/>
-                        </toolbarbutton>
-                    </toolbaritem>
-                </toolbar>
-                <toolbar class="chromeclass-toolbar"
-                         id="workspaceToolbar"
-                         toolboxid="toolbox_main"
-                         broadcaster="cmd_viewworkspacetoolbar"
-                         grippyhidden="true"
-                         customizable="true"
-                         align="center"
-                         mode="icons"
-                         persist="kohidden collapsed buttonstyle mode"
-                         buttonstyle="pictures"
-                         tooltiptext="&workspaceToolbar.tooltiptext;">
-
-                    <toolbaritem>
-
-                        <toolbarbutton id="toggleLeftPane"
-                            tooltiptext="&showHideLeftPane.tooltiptext;"
-                            persist="buttonstyle kohidden"
-                            buttonstyle="pictures"
-                            type="checkbox"
-                            observes="cmd_viewLeftPane"
-                            label="&toggleLeft.label;">
-                        </toolbarbutton>
-                        <toolbarbutton id="toggleBottomPane"
-                            tooltiptext="&showHideBottomPane.tooltiptext;"
-                            persist="buttonstyle kohidden"
-                            buttonstyle="pictures"
-                            type="checkbox"
-                            observes="cmd_viewBottomPane"
-                            label="&toggleBottom.label;">
-                        </toolbarbutton>
-                        <toolbarbutton id="toggleRightPane"
-                            tooltiptext="&showHideRightPane.tooltiptext;"
-                            persist="buttonstyle kohidden"
-                            buttonstyle="pictures"
-                            type="checkbox"
-                            observes="cmd_viewRightPane"
-                            label="&toggleRight.label;">
-                        </toolbarbutton>
-                        <toolbarbutton id="tabPicker"
-                            tooltiptext="&showSpecificTab.tooltiptext;"
-                            type="menu"
-                            orient="horizontal"
-                            persist="buttonstyle"
-                            class="tabPicker-icon"
-                            buttonstyle="pictures"
-                            label="&showTab.label;">
-                            <menupopup onpopupshowing="ko.widgets.updateMenu(this);"
-                                       oncommand="ko.widgets.onMenuCommand(event);"/>
-                        </toolbarbutton>
-
-                    </toolbaritem>
-                </toolbar>
+            </toolboxrow>
+            
+            <toolboxrow id="second-toolboxrow" flex="1" pack="end" persist="hidden mode collapsed" mode="icons">
                 <toolbar class="chromeclass-toolbar"
                          id="macrosToolbar"
                          toolboxid="toolbox_main"
@@ -2043,129 +1970,80 @@
                     </toolbaritem>
 
                 </toolbar>
-                <toolbar id="komodoToolbar"
-                         broadcaster="cmd_viewkomodotoolbar"
+                
+                <toolbar class="chromeclass-toolbar"
+                         id="workspaceToolbar"
                          toolboxid="toolbox_main"
+                         broadcaster="cmd_viewworkspacetoolbar"
                          grippyhidden="true"
                          customizable="true"
                          align="center"
-                         class="chromeclass-toolbar"
                          mode="icons"
-                         kohidden="true"
                          persist="kohidden collapsed buttonstyle mode"
                          buttonstyle="pictures"
-                         tooltiptext="&komodoResourcesToolbar.tooltiptext;">
+                         tooltiptext="&workspaceToolbar.tooltiptext;">
 
                     <toolbaritem>
 
-                        <toolbarbutton id="komodoButtonCommunity"
-                                tooltiptext="&komodoCommunity.tooltiptext;"
-                                observes="cmd_helpCommunity"
-                                persist="buttonstyle"
-                                class="komodo-button-community"
-                                buttonstyle="pictures"
-                                label="&community.label;"/>
-                        <toolbarbutton id="komodoButtonMaillist"
-                                tooltiptext="&komodoEmailLists.tooltiptext;"
-                                persist="buttonstyle"
-                                buttonstyle="pictures"
-                                observes="cmd_helpKomodoMailLists"
-                                class="komodo-button-maillist"
-                                label="&mailLists.label;"/>
-                        <toolbarbutton id="komodoButtonBugDB"
-                                tooltiptext="&komodoBugDatabase.tooltiptext;"
-                                persist="buttonstyle"
-                                buttonstyle="pictures"
-                                class="komodo-button-bugs"
-                                observes="cmd_helpViewBugs"
-                                label="&bugs.label;"/>
+                        <toolbarbutton id="toggleLeftPane"
+                            tooltiptext="&showHideLeftPane.tooltiptext;"
+                            persist="buttonstyle kohidden"
+                            buttonstyle="pictures"
+                            type="checkbox"
+                            observes="cmd_viewLeftPane"
+                            label="&toggleLeft.label;">
+                        </toolbarbutton>
+                        <toolbarbutton id="toggleBottomPane"
+                            tooltiptext="&showHideBottomPane.tooltiptext;"
+                            persist="buttonstyle kohidden"
+                            buttonstyle="pictures"
+                            type="checkbox"
+                            observes="cmd_viewBottomPane"
+                            label="&toggleBottom.label;">
+                        </toolbarbutton>
+                        <toolbarbutton id="toggleRightPane"
+                            tooltiptext="&showHideRightPane.tooltiptext;"
+                            persist="buttonstyle kohidden"
+                            buttonstyle="pictures"
+                            type="checkbox"
+                            observes="cmd_viewRightPane"
+                            label="&toggleRight.label;">
+                        </toolbarbutton>
+                        <toolbarbutton id="tabPicker"
+                            tooltiptext="&showSpecificTab.tooltiptext;"
+                            type="menu"
+                            orient="horizontal"
+                            persist="buttonstyle"
+                            class="tabPicker-icon"
+                            buttonstyle="pictures"
+                            label="&showTab.label;">
+                            <menupopup onpopupshowing="ko.widgets.updateMenu(this);"
+                                       oncommand="ko.widgets.onMenuCommand(event);"/>
+                        </toolbarbutton>
 
                     </toolbaritem>
-
                 </toolbar>
+                
+                <toolbarbutton id="unifiedMenuButton"
+                    tooltiptext="&menu.tooltiptext;"
+                    type="menu"
+                    orient="horizontal"
+                    class="menu-icon"
+                    buttonstyle="pictures"
+                    collapsed="true"
+                >
+                    <menupopup id="unifiedMenuPopup">
+                        <hbox id="unifiedMenuPopupHbox">
+                            <vbox id="unifiedMenuPrimaryPane"/>
+                            <vbox id="unifiedMenuSecondaryPane">
+                                <menuseparator id="unifiedMenuMruSeparator" ordinal="9999" preserve="true"/>
+                                <vbox id="unifiedMenuMru" preserve="true" ordinal="9999"></vbox>
+                            </vbox>
+                        </hbox>
+                    </menupopup>
+                </toolbarbutton>
+                
             </toolboxrow>
-
-            <toolbar id="findToolbar"
-                     align="end"
-                     valign="middle"
-                     broadcaster="cmd_viewfindtoolbar"
-                     mode="icons"
-                     persist="kohidden collapsed buttonstyle mode"
-                     kohidden="true"
-                     tooltiptext="&findInFilesToolbar.label;"
-                    >
-                <hbox class="unified-textbox-wrapper">
-                    <textbox id="textbox_find"
-                             tooltiptext="&pressEnterToFind.tooltiptext;"
-                             placeholder="&komodoFindToolbarFind.label;"
-                             type="autocomplete"
-                             style="min-height: 16px;"
-                             class="search-box"
-                             flex="1"
-                             maxrows="10"
-                             size="20"
-                             autocompletesearch="mru"
-                             autocompletepopup="popupTextboxAutoComplete"
-                             autocompletesearchparam="find-patternMru"
-                             enablehistory="true"
-                             tabscrolling="true"
-                             completeselectedindex="true"
-                             onfocus="event.currentTarget.parentNode.classList.add('focus')"
-                             onblur="event.currentTarget.parentNode.classList.remove('focus')"
-                             ontextentered="this.focus();
-                                            this.setSelectionRange(0, this.textLength);"
-                             onkeypress="ko.findtoolbar.findTextboxKeyPress(this, event);"
-                             accesskey="&findLabel.accesskey;"
-                         />
-                    <textbox id="textbox_findInFiles"
-                             tooltiptext="&pressEnterToFindInFiles.tooltiptext;"
-                             placeholder="&komodoFindToolbarIn.label;"
-                             type="autocomplete"
-                             style="min-height: 16px;"
-                             class="search-box-no-icon"
-                             flex="1"
-                             size="20"
-                             maxrows="10"
-                             autocompletesearch="mru_and_filepath"
-                             autocompletepopup="popupTextboxAutoComplete"
-                             autocompletesearchparam="mru: find_findInFilesFieldMru; maxmru: 5"
-                             enablehistory="true"
-                             completeselectedindex="true"
-                             tabscrolling="true"
-                             onmousedown="this.searchParam = ko.stringutils.updateSubAttr(
-                                            this.searchParam, 'cwd', ko.window.getCwd());"
-                             ontextentered="this.focus();
-                                            this.setSelectionRange(0, this.textLength);"
-                             onkeypress="ko.findtoolbar.findFilesKeyPress(this, event);"
-                             onfocus="ko.findtoolbar.findFilesOnFocus(this, event);
-                                      event.currentTarget.parentNode.classList.add('focus');"
-                             onblur="event.currentTarget.parentNode.classList.remove('focus')"
-                    />
-                </hbox>
-                <toolbarbutton id="find-toolbar-browsedirectory"
-                               class="native_open_icon solo-button"
-                               tooltiptext="&browseForDirectoriesToAddToSearchList.tooltiptext;"
-                               oncommand="ko.findtoolbar.addBrowsedDirectory();"/>
-            </toolbar>
-
-            <toolbarbutton id="unifiedMenuButton"
-                tooltiptext="&menu.tooltiptext;"
-                type="menu"
-                orient="horizontal"
-                class="menu-icon"
-                buttonstyle="pictures"
-                collapsed="true"
-            >
-                <menupopup id="unifiedMenuPopup">
-                    <hbox id="unifiedMenuPopupHbox">
-                        <vbox id="unifiedMenuPrimaryPane"/>
-                        <vbox id="unifiedMenuSecondaryPane">
-                            <menuseparator id="unifiedMenuMruSeparator" ordinal="9999" preserve="true"/>
-                            <vbox id="unifiedMenuMru" preserve="true" ordinal="9999"></vbox>
-                        </vbox>
-                    </hbox>
-                </menupopup>
-            </toolbarbutton>
 
             <!-- #if PLATFORM == "darwin" -->
                 <toolbarbutton id="fullscreen-restore-button" fullscreencontrol="true"
@@ -2183,6 +2061,60 @@
     <deck id="komodo-box" selectedIndex="0" flex="1">
     <vbox id="komodo-vbox" flex="1">
         <hbox id="komodo-hbox" flex="1">
+            <toolbox id="toolbox_side"
+                     context="context-toolbox-menu"
+                     persist="mode"
+                     mode="icons">
+                <toolbar
+                         id="side-top-toolbar"
+                         flex="1"
+                         pack="center"
+                         toolboxid="toolbox_side"
+                         broadcaster="cmd_viewtoolstoolbar"
+                         grippyhidden="true"
+                         customizable="true"
+                         align="start"
+                         mode="icons"
+                         persist="kohidden collapsed buttonstyle mode"
+                         buttonstyle="pictures">
+                    <toolbaritem id="toolsPreviewGroup">
+                        <toolbarbutton id="buttonBrowserPreview"
+                                       tooltiptext="&previewBufferInBrowser.tooltiptext;"
+                                       type="menu-button"
+                                       persist="buttonstyle"
+                                       buttonstyle="pictures"
+                                       observes="cmd_browserPreview"
+                                       label="&preview.label;">
+                            <menupopup id="buttonBrowserPreviewPopup"
+                                       onpopupshowing="ko.uilayout.populatePreviewToolbarButton(this);"/>
+                        </toolbarbutton>
+                    </toolbaritem>
+                </toolbar>
+                <toolbar 
+                         id="side-bottom-toolbar"
+                         flex="1"
+                         pack="center"
+                         toolboxid="toolbox_side"
+                         broadcaster="cmd_viewtoolstoolbar"
+                         grippyhidden="true"
+                         customizable="true"
+                         align="end"
+                         mode="icons"
+                         persist="kohidden collapsed buttonstyle mode"
+                         buttonstyle="pictures">
+                    <toolbaritem id="toolsToolbarGroup">
+        <!-- #if WITH_RX -->
+                        <toolbarbutton id="buttonRxToolkit"
+                                       class="rx-icon"
+                                       label="&rx.label;"
+                                       tooltiptext="&rxToolkit.tooltiptext;"
+                                       persist="buttonstyle"
+                                       buttonstyle="pictures"
+                                       observes="cmd_toolsRx"/>
+        <!-- #endif -->
+                    </toolbaritem>
+                </toolbar>
+            </toolbox>
             <ko-pane id="workspace_left_area"
                      width="200"
                      rotation="270"

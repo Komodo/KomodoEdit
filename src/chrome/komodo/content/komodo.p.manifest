@@ -20,3 +20,8 @@ category agent-style-sheets scrollbar-skinning less://komodo/skin/global/scrollb
 override chrome://global/skin/global.css less://komodo/skin/global/global.less
 override chrome://komodo/skin/komodo.css less://komodo/skin/global/main.less
 
+# Discard mozilla CSS sheets
+override chrome://global/skin/menu.css chrome://komodo/skin/global/void.css
+override chrome://global/skin/button.css chrome://komodo/skin/global/void.css
+override chrome://global/skin/tabbox.css chrome://komodo/skin/global/void.css
+override chrome://global/skin/toolbarbutton.css chrome://komodo/skin/global/void.css

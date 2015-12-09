@@ -339,7 +339,7 @@ this.updateToolbarArrangement = function uilayout_updateToolbarArrangement(butto
         fromloading = true;
     }
     _buttonTextShowing = buttonTextShowing;
-    var toolbars = document.getElementById('main-toolboxrow').querySelectorAll('toolbar');
+    var toolbars = document.getElementById('main-toolboxrow-wrapper').querySelectorAll('toolbar');
     var i;
     for (i = 0; i < toolbars.length; i++ ) {
         // Note: this can include custom toolbars
@@ -392,9 +392,10 @@ this.customizeToolbars = function uilayout_customizeToolbars(aToolbox) {
 
         // make the overflow button rebuild the next time it's open
         var toolboxRow = document.getElementById("main-toolboxrow");
-        if (toolboxRow) {
-            toolboxRow.dirty = true;
-        }
+        if (toolboxRow) toolboxRow.dirty = true;
+        
+        toolboxRow = document.getElementById("second-toolboxrow");
+        if (toolboxRow) toolboxRow.dirty = true;
     }).bind(this);
 
     // set up drag-and-drop states
@@ -560,6 +561,7 @@ this._updateToolbarViewStates = (function uilayout__updateToolbarViewStates(tool
     // when the visible children have changed but no overflow events
     // were fired
     document.getElementById('main-toolboxrow')._updateChildVisibility();
+    document.getElementById('second-toolboxrow')._updateChildVisibility();
 
 }).bind(this);
 
@@ -1817,6 +1819,9 @@ function uilayout_upgrade() {
     // We should therefore remove the collapsed state (if any) on the main toolbox
     // This can probably be removed by Komodo 8.*
     removePersistAttributes("main-toolboxrow",
+                            ['collapsed','kohidden', 'hidden']);
+    
+    removePersistAttributes("second-toolboxrow",
                             ['collapsed','kohidden', 'hidden']);
 
     // As of Komodo 8.0, the side pane collapsed states are managed by prefs.
