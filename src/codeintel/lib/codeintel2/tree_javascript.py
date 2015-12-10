@@ -488,13 +488,18 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
 
             # Deal with __file_local__ hits, which are special unresolved
             # file-level holders that get created whilst scanning.
+            # However, if the scope is "module.exports" or simply "exports", do
+            # not ignore the __file_local__ hit, as it is a CommonJS module
+            # feature that should not be considered file-local.
             if self.buf:
                 curr_blob = self.buf.blob_from_lang.get(self.trg.lang, {})
             else:
                 curr_blob = None
             new_hits = []
             for elem, scoperef in hits:
-                if "__file_local__" in elem.get("attributes", "").split():
+                if "__file_local__" in elem.get("attributes", "").split() and \
+                   scoperef[1] != ["module", "exports"] and \
+                   scoperef[1] != ["exports"]:
                     if scoperef[0] != curr_blob:
                         # Ignore all __file_local__ hits in other files.
                         continue
@@ -899,9 +904,32 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
         #
         # TODO: Get these from node using "require.extensions".
         requirename += ".js"
+        import os
         from codeintel2.database.langlib import LangDirsLib
         from codeintel2.database.multilanglib import MultiLangDirsLib
         from codeintel2.database.catalog import CatalogLib
+        
+        # Check to see if 'requirename' contains a namespace to be mapped.
+        # Mapping preferences (key-value pairs) are each separated by '::',
+        # while a mapping's key and value are separated by '##'.
+        # Thus "foo##bar::baz##qux" contains two namespace mappings: "foo" to
+        # "bar" and "baz" to "qux".
+        namespaceMapped = None
+        for pref in self.buf.env.get_all_prefs(self.langintel.namespaceMappingPrefName):
+            if not pref: continue
+            for mapping in pref.split("::"):
+                namespace, dir = mapping.split('##')
+                if namespace[:-1] != '/': namespace += '/'
+                if dir[:-1] != '/': dir += '/'
+                dir = dir.replace("file://", "") # handle URI
+                if requirename.startswith(namespace):
+                    self.log("Mapped namespace '%s' to '%s'; trying that.", namespace, dir)
+                    namespaceMapped = requirename.replace(namespace, dir, 1)
+                    requirename = os.path.basename(requirename)
+                    break
+            if namespaceMapped:
+                break
+        
         hits = []
         for lib in self.libs:
             blobs = None
@@ -912,6 +940,9 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
                 if blob is not None:
                     blobs = [blob]
             for blob in blobs or []:
+                if namespaceMapped and os.path.normpath(blob.get("src")) != namespaceMapped:
+                    # wrong file
+                    continue
                 exports = blob.names.get("exports")
                 if exports is not None and exports.tag == "variable":
                     hits += self._hits_from_variable_type_inference(exports, [blob, ["exports"]])

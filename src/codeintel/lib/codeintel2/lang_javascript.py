@@ -189,6 +189,7 @@ class JavaScriptLangIntel(CitadelLangIntel,
     lang = lang
     _evaluatorClass = JavaScriptTreeEvaluator
     extraPathsPrefName = "javascriptExtraPaths"
+    namespaceMappingPrefName = "javascriptNamespaceMapping"
 
     # The way namespacing is done with variables in JS means that grouping
     # global vars is just annoying.

@@ -79,6 +79,16 @@
                       prefwidget="true"
                       prefstring="javascriptExtraPaths"/>
         </groupbox>
+        
+        <groupbox orient="vertical" >
+            <caption label="&javascriptNamespaceMapping.label;"/>
+            <description>
+                &javascriptNamespaceMapping.description;
+            </description>
+            <mappededitor id="mappings"
+                    pref="true" prefwidget="true"
+                    prefstring="javascriptNamespaceMapping" flex="1"/>
+        </groupbox>
 
     </vbox>
 

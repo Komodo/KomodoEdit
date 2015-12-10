@@ -1143,6 +1143,83 @@ class CplnTestCase(CodeIntelTestCase):
             [("argument", "arg1"),
              ("argument", "arg2")])
              
+    def test_namespace_mapping(self):
+        """
+        Test namespace mapping support.
+        Note none of these modules use "module.exports", but just "exports". The
+        NodeJS test suite uses a mixture of "module.exports" and "exports". I
+        assume there is a distinction.
+        """
+        test_dir = join(self.test_dir, "test_javascript_namespace_mapping")
+        content, positions = unmark_text(dedent("""\
+                require('ko/editor').<1>;
+                require('ko/menu').<2>;
+                require('ko/benchmark').<3>;
+                require('ko/dom').<4>;
+                """))
+        manifest = {
+            "test.js": content,
+            "sdk/editor.js": """
+                /**
+                 * The editor sdk.
+                 *
+                 * @module ko/editor
+                 */
+                var sdkEditor = function(_scintilla, _scimoz) {
+                    this.scimoz = function() { }
+                    this.scintilla = function() { }
+                };
+                
+                exports = new sdkEditor();
+                """,
+            "sdk/menu.js": """
+                /**
+                 * The menu SDK allows you to easily register new menu items
+                 *
+                 * @module ko/menu
+                 */
+                (function() {
+                    this.register = function() {}
+                    this.unregister = function() {}
+                }).apply(exports)
+                """,
+            "sdk/benchmark.js": """
+                exports.startTiming = function() {}
+                exports.endTiming = function() {}
+            """,
+            "sdk/dom.js": """
+                (function() {
+                    var $ = function(query, parent) {}
+                    $.createElement = function() {}
+                    $.create = function() {}
+                    exports = $;
+                })();
+            """
+        }
+        for file, content in manifest.items():
+            path = join(test_dir, file)
+            writefile(path, content)
+        ns_mapping = {
+            "ko": join(test_dir, "sdk")
+        }
+        ns_mapping = "::".join(["##".join([k, v]) for k, v in ns_mapping.items()])
+        buf = self.mgr.buf_from_path(join(test_dir, "test.js"),
+                                     lang="JavaScript",
+                                     env=SimplePrefsEnvironment(javascriptNamespaceMapping=ns_mapping,
+                                                                javascriptExtraPaths=join(test_dir, "sdk")))
+        self.assertCompletionsInclude2(buf, positions[1],
+            [("function", "scimoz"),
+             ("function", "scintilla")])
+        self.assertCompletionsInclude2(buf, positions[2],
+            [("function", "register"),
+             ("function", "unregister")])
+        self.assertCompletionsInclude2(buf, positions[3],
+            [("function", "startTiming"),
+             ("function", "endTiming")])
+        self.assertCompletionsInclude2(buf, positions[4],
+            [("function", "create"),
+             ("function", "createElement")])
+             
 class DOMTestCase(CodeIntelTestCase):
     lang = "JavaScript"
     @tag("bug86391")

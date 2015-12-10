@@ -307,6 +307,7 @@ adding an additional caret at the clicked position.">
 <!ENTITY invisible.label "Invisible">
 <!ENTITY javaScript.label "JavaScript">
 <!ENTITY javaScriptDirectories.label "JavaScript Directories">
+<!ENTITY javascriptNamespaceMapping.label "JavaScript Namespace Mapping">
 <!ENTITY javaScriptNodeSyntaxSettings.label "JavaScript/Node.js Syntax-Checking Settings">
 <!ENTITY jsJavaScript.label ".js: JavaScript">
 <!ENTITY keyBindings.label "Key Bindings">
@@ -698,6 +699,7 @@ adding an additional caret at the clicked position.">
 <!ENTITY lintJavaScriptEnableWarnings.label "Enable warning messages">
 <!ENTITY lintJavaScriptEnableStrict.label "Enable strict warning messages">
 <!ENTITY javascriptFolder.description "Specify any directories that you want Komodo to use for autocomplete and calltips. Komodo will recursively scan these directories for information.">
+<!ENTITY javascriptNamespaceMapping.description "Specify any custom namespace mappings for Komodo to use when looking up modules in 'require' statements for code intelligence. These mappings are useful for projects that have non-standard module locations.">
 <!ENTITY lintJavaScriptWithJSLint.label "Check Code With JSLint">
 <!ENTITY JSLint.label "JSLint">
 <!ENTITY lintJSLint_Explanation.descr "Use a format like bitwise=false debug=true maxerr=5 predef=['document','window']">
@@ -722,6 +724,7 @@ adding an additional caret at the clicked position.">
 <!ENTITY noNodejsInterpreter.description "No node.js interpreter was found on your system. If you would like to debug and run node.js programs in Komodo you will need to install node.js.">
 <!ENTITY nodejsDirectories.label "Node.js Directories">
 <!ENTITY nodejsFolder.description "Specify any directories you want to load Node modules from. Komodo will recursively scan these directories for autocomplete and calltip information.">
+<!ENTITY nodejsNamespaceMapping.label "Node.js Namespace Mapping">
 
 <!-- JSHint, a fork of jshint -->
 <!ENTITY JSHint.label "JSHint">

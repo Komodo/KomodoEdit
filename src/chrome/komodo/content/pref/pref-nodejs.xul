@@ -68,6 +68,17 @@
                       prefwidget="true"
                       prefstring="nodejsExtraPaths"/>
         </groupbox>
+        <groupbox orient="vertical" >
+            <caption label="&nodejsNamespaceMapping.label;"/>
+            <!-- Javascript and NodeJS are the same in this case, so the -->
+            <!-- same description may be used. -->
+            <description>
+                &javascriptNamespaceMapping.description;
+            </description>
+            <mappededitor id="mappings"
+                    pref="true" prefwidget="true"
+                    prefstring="nodejsNamespaceMapping" flex="1"/>
+        </groupbox>
 
     </vbox>
 

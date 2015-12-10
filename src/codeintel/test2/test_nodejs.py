@@ -58,12 +58,13 @@ from distutils.version import LooseVersion
 
 log = logging.getLogger("test")
 
-def write_files(test_case, manifest={}, name="unnamed"):
+def write_files(test_case, manifest={}, name="unnamed", env=None):
     """
     Wrapper to write out the files for testing
     @param hash of file name to text content
         The file "test.js" will be run through unmark_text
     @param name the name of the test
+    @param env Optional environment for test.js file.
     @return tuple (buf, positions)
         buf is a buffer of the resulting test.js
         positions is the positions returned from unmark_text
@@ -79,7 +80,7 @@ def write_files(test_case, manifest={}, name="unnamed"):
             content, positions = unmark_text(content)
             test_js = path
         writefile(path, content)
-    buf = test_case.mgr.buf_from_path(test_js, lang="Node.js", encoding="utf-8")
+    buf = test_case.mgr.buf_from_path(test_js, lang="Node.js", encoding="utf-8", env=env)
     # Our files may include subdirectories, which won't get scanned by
     # default (because curdirlib doesn't want to be recursive).  Manually
     # ensure everything is scanned here.
@@ -505,6 +506,71 @@ class CplnTestCase(CodeIntelTestCase):
         self.assertCompletionsAre2(buf, positions[1],
             [("function", "method"), ])
 
+    def test_namespace_mapping(self):
+        """Test namespace mapping support."""
+        manifest = {
+            "test.js": """
+                require('ko/editor').<1>;
+                require('ko/menu').<2>;
+                require('ko/benchmark').<3>;
+                require('ko/dom').<4>;
+                """,
+            "sdk/editor.js": """
+                /**
+                 * The editor sdk.
+                 *
+                 * @module ko/editor
+                 */
+                var sdkEditor = function(_scintilla, _scimoz) {
+                    this.scimoz = function() { }
+                    this.scintilla = function() { }
+                };
+                
+                module.exports = new sdkEditor();
+                """,
+            "sdk/menu.js": """
+                /**
+                 * The menu SDK allows you to easily register new menu items
+                 *
+                 * @module ko/menu
+                 */
+                (function() {
+                    this.register = function() {}
+                    this.unregister = function() {}
+                }).apply(module.exports)
+                """,
+            "sdk/benchmark.js": """
+                exports.startTiming = function() {}
+                exports.endTiming = function() {}
+            """,
+            "sdk/dom.js": """
+                (function() {
+                    var $ = function(query, parent) {}
+                    $.createElement = function() {}
+                    $.create = function() {}
+                    module.exports = $;
+                })();
+            """
+        }
+        ns_mapping = {
+            "ko": join(os.getcwd(), "tmp", "test_nodejs_namespace_mapping", "sdk")
+        }
+        ns_mapping = "::".join(["##".join([k, v]) for k, v in ns_mapping.items()])
+        buf, positions = write_files(self, manifest=manifest, name="namespace_mapping",
+                                     env=SimplePrefsEnvironment(nodejsNamespaceMapping=ns_mapping))
+        self.assertCompletionsInclude2(buf, positions[1],
+            [("function", "scimoz"),
+             ("function", "scintilla")])
+        self.assertCompletionsInclude2(buf, positions[2],
+            [("function", "register"),
+             ("function", "unregister")])
+        self.assertCompletionsInclude2(buf, positions[3],
+            [("function", "startTiming"),
+             ("function", "endTiming")])
+        self.assertCompletionsInclude2(buf, positions[4],
+            [("function", "create"),
+             ("function", "createElement")])
+             
 class StdLibTestCase(CodeIntelTestCase):
     """ Code Completion test cases for the Node.js standard library"""
     lang = "Node.js"

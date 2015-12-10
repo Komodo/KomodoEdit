@@ -215,6 +215,25 @@ class NodeJSTreeEvaluator(JavaScriptTreeEvaluator):
             if hits is not None:
                 return hits
 
+        # Check to see if 'requirename' contains a namespace to be mapped.
+        # Mapping preferences (key-value pairs) are each separated by '::',
+        # while a mapping's key and value are separated by '##'.
+        # Thus "foo##bar::baz##qux" contains two namespace mappings: "foo" to
+        # "bar" and "baz" to "qux".
+        for pref in self.buf.env.get_all_prefs(self.langintel.namespaceMappingPrefName):
+            if not pref: continue
+            for mapping in pref.split("::"):
+                namespace, dir = mapping.split('##')
+                if namespace[:-1] != '/': namespace += '/'
+                if dir[:-1] != '/': dir += '/'
+                dir = dir.replace("file://", "") # handle URI
+                if requirename.startswith(namespace):
+                    self.log("Mapped namespace '%s' to '%s'; trying that.", namespace, dir)
+                    hits = load_as_file(requirename.replace(namespace, dir, 1) + ".js")
+                    if hits is not None:
+                        return hits
+                    break
+
         # last-ditch: try the extradirs pref
         extra_dirs = []
         for pref in self.buf.env.get_all_prefs(self.langintel.extraPathsPrefName):
@@ -246,6 +265,7 @@ class NodeJSLangIntel(JavaScriptLangIntel):
     _evaluatorClass = NodeJSTreeEvaluator
     interpreterPrefName = "nodejsDefaultInterpreter"
     extraPathsPrefName = "nodejsExtraPaths"
+    namespaceMappingPrefName = "nodejsNamespaceMapping"
 
     def _get_nodejs_version_from_env(self, env=None):
         import process

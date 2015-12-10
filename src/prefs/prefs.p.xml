@@ -173,6 +173,12 @@
   <string id="python3ExtraPaths"></string>
   <string id="perlExtraPaths"></string>
 
+  <!-- Namespace mappings for Codeintel. These are stored as-->
+  <!-- '::'-separated local paths. Keys and values are-->
+  <!-- stored as '##'-separated.-->
+  <string id="javascriptNamespaceMapping"></string>
+  <string id="nodejsNamespaceMapping"></string>
+
   <!-- CoffeeScript linting options -->
   <boolean id="lint_coffee_script">1</boolean>
 
