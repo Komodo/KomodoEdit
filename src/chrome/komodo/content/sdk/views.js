@@ -57,6 +57,8 @@
         {
             var result = view;
             
+            if (!arguments.length) return view;
+            
             for (let x=0; x<arguments.length;x++)
             {
                 if ( ! result || ! (arguments[x] in result))

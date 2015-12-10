@@ -15,19 +15,19 @@
          xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
-    <script src="chrome://breadcrumbs/content/breadcrumbs.js"
+    <script src="chrome://breadcrumbs/content/bootstrap.js"
             type="application/x-javascript;version=1.7"/>
 
-    <hbox id="statusbar-message-deck-default">
-        <hbox id="breadcrumbBarWrap" flex="1">
+    <panel id="hidden-placeholder">
+        <hbox id="breadcrumbBarWrap" anonid="breadcrumbBarWrap" flex="1">
             <toolbar
-                id="breadcrumbBar"
+                anonid="breadcrumbBar"
                 class="native-icons"
                 flex="1"
                 grippyhidden="true">
 
                 <toolbarbutton
-                    id="breadcrumbOverflowBtn"
+                    anonid="breadcrumbOverflowBtn"
                     class="breadcrumb-overflow-button"
                     label="..."
                     type="menu"
@@ -41,29 +41,28 @@
             <!-- Templates -->
             <box collapsed="true">
                 <toolbarbutton
-                    id="breadcrumbTemplateFolder"
-                    anonid="breadcrumbFolder"
+                    anonid="breadcrumbTemplateFolder"
                     class="breadcrumb folder breadcrumb-folder-icon">
                 </toolbarbutton>
 
                 <toolbarbutton
-                    id="breadcrumbTemplateFile"
-                    anonid="breadcrumbFile"
+                    anonid="breadcrumbTemplateFile"
                     class="breadcrumb file breadcrumb-file-icon"
                     native-image="chrome://komodo/skin/images/existing_file.png"/>
 
                 <menuitem
-                    id="breadcrumbMenuFileTemplate"
+                    anonid="breadcrumbMenuFileTemplate"
                     class="menuitem-iconic file-item"
                     oncommand="ko.breadcrumbs.onCommandMenuItem('Select', this)"
                     image="chrome://komodo/skin/images/existing_file.png"/>
 
                 <menu
-                    id="breadcrumbMenuFolderTemplate"
+                    anonid="breadcrumbMenuFolderTemplate"
                     class="menu-iconic folder-item breadcrumb-folder-icon"/>
 
                 <menupopup
-                    id="breadcrumbMenupopupTemplate"
+                    position="after_start"
+                    anonid="breadcrumbMenupopupTemplate"
                     ignorekeys="true">
 
                     <menuseparator anonid="reloadSeparator" preserve="true" />
@@ -101,11 +100,11 @@
                 </menupopup>
 
                 <menu
-                    id="overflowMenuTemplate"
+                    anonid="overflowMenuTemplate"
                     class="menu-iconic folder-item breadcrumb-folder-icon"/>
             </box>
         </hbox>
-    </hbox>
+    </panel>
 
     <broadcasterset id="broadcasterset_global">
 

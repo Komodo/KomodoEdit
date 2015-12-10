@@ -35,7 +35,10 @@
  
  ***** END LICENSE BLOCK ***** -->
 
-<!DOCTYPE bindings PUBLIC "-//MOZILLA//DTD XBL V1.0//EN" "http://www.mozilla.org/xbl">
+<!DOCTYPE bindings PUBLIC "-//MOZILLA//DTD XBL V1.0//EN" "http://www.mozilla.org/xbl" [
+  <!ENTITY % komodoDTD SYSTEM "chrome://komodo/locale/komodo.dtd">
+  %komodoDTD;
+]>
 
 <bindings
     xmlns="http://www.mozilla.org/xbl"
@@ -47,6 +50,97 @@
     extends="chrome://komodo/content/bindings/views-buffer.xml#view-buffer-base">
     <content orient="vertical" flex="6">
     <!--<xul:vbox anonid="scintilla-vbox" flex="6">-->
+        <xul:statusbar orient="horizontal">
+            
+            <xul:statusbarpanel anonid="statusbar-message-panel" flex="1">
+                <xul:deck anonid="statusbar-message-deck" class="for-vi-mode" selectedIndex="0" flex="1">
+                    <xul:hbox anonid="statusbar-message-deck-default">
+                        <xul:sectionlist anonid="statusbar-sectionlist" flex="1" />
+                    </xul:hbox>
+                </xul:deck>
+            </xul:statusbarpanel>
+
+            <xul:statusbarpanel anonid="statusbar-encoding"
+                                style="min-width: 5rem"
+                            tooltiptext="&fileEncoding.tooltiptext;"
+                            >
+                <xul:toolbarbutton class="statusbar-label"
+                      anonid="statusbar-encoding-label"
+                      flex="1"
+                      orient="horizontal"
+                      type="menu"
+                      persist="buttonstyle"
+                      label="--"
+                      buttonstyle="text">
+                    <xul:menupopup anonid="statusbar-encoding-menupopup"
+                               onpopupshowing="ko.statusBar.setupEncodingMenu(this);" />
+                </xul:toolbarbutton>
+            </xul:statusbarpanel>
+
+            <xul:statusbarpanel anonid="statusbar-language"
+                                style="min-width: 5rem"
+                            pack="end"
+                            >
+                <xul:toolbarbutton class="statusbar-label languageicon"
+                      anonid="statusbar-language-menu"
+                      tooltiptext="&fileType.tooltiptext;"
+                      flex="1"
+                      orient="horizontal"
+                      type="menu"
+                      persist="buttonstyle"
+                      label="--"
+                      buttonstyle="text">
+                    <xul:menupopup anonid="statusbar-filetype-menu"
+                               position="before_end"
+                               onpopupshowing="ko.uilayout.updateViewAsLanguageMenu(this);" />
+                </xul:toolbarbutton>
+            </xul:statusbarpanel>
+
+            <xul:statusbarpanel anonid="statusbar-line-col"
+                            tooltiptext="&filePosition.tooltiptext;"
+                            align="center"/>
+            <xul:statusbarpanel anonid="statusbar-selection"
+                            label="&noSelection.label;"
+                            tooltiptext="&selectionInformation.tooltiptext;"
+                            align="center"/>
+            
+            <xul:statusbarpanel anonid="statusbar-throbber">
+                <xul:box anonid="statusbar-throbber-inner"></xul:box>
+            </xul:statusbarpanel>
+
+            <xul:statusbarpanel anonid="statusbar-checker"
+                            style="min-width: 36px;">
+                <xul:toolbarbutton anonid="statusbar-check"
+                               tooltiptext="&syntaxCheckingStatus.tooltiptext;"
+                               orient="horizontal"
+                               type="menu"
+                               persist="buttonstyle"
+                               buttonstyle="pictures"
+                               onclick="if (event.button == 2)
+                                ko.lint.jumpToNextLintResult();">
+                    <xul:menupopup anonid="context_lint" position="before_end">
+                        <xul:vbox anonid="context_lint_results"/>
+                        <xul:menuseparator anonid="context_lint_separator"/>
+                        <xul:menuitem anonid="context_doLint"
+                                  class="statusbar-label"
+                                  label="&checkSyntaxNow.label;"
+                                  observes="cmd_lintNow"
+                                  />
+                        <xul:menuitem anonid="context_describeResults"
+                                  class="statusbar-label"
+                                  label="&jumpToNextResult.label;"
+                                  observes="cmd_nextLintResult"
+                                  />
+                        <xul:menuitem anonid="context_clearResults"
+                                  class="statusbar-label"
+                                  label="&clearWarningErrorSquigglies.label;"
+                                  observes="cmd_lintClearResults"
+                                  />
+                    </xul:menupopup>
+                </xul:toolbarbutton>
+            </xul:statusbarpanel>
+            
+        </xul:statusbar>
         <xul:scintilla xbl:inherits="flex,focused,context,mozcontext" flex="1"
                        anonid="scintilla"
                        allowIME="true"

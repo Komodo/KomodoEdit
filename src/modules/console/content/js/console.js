@@ -462,7 +462,7 @@ window.app = {};
         var type = typeof ob;
         
         if (Array.isArray(ob)) type = "array";
-        else if (ob instanceof HTMLElement && ob.tagName) type = "element";
+        else if ((ob instanceof HTMLElement || ob instanceof XULElement) && ob.tagName) type = "element";
         else if (ob instanceof Error) type = "exception";
         else if (ob === null) type = 'null';
         else if (typeof ob == "object")

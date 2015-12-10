@@ -86,7 +86,11 @@ class KoConsoleLogger:
         'Unexpected value  parsing y1 attribute',
         'Unexpected value  parsing y2 attribute',
         'Unexpected value  parsing x1 attribute',
-        'Unexpected value  parsing x2 attribute'
+        'Unexpected value  parsing x2 attribute',
+        'Unknown property \'speak\'',
+        'Unknown property \'-moz-osx-font-smoothing\'',
+        'element contained an inline _moz_generated_content_before child',
+        'Unknown pseudo-class or pseudo-element \'moz-tree-cell\''
     ]
     def _handleScriptError(self, error):
         try:

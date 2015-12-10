@@ -933,6 +933,47 @@ if (typeof module === 'undefined') module = {}; // debugging helper
         {
             return new queryObject(query, this.element());
         },
+        
+        findAnonymous: function(attr, value)
+        {
+            var childNodes = function (el)
+            {
+                var children = [];
+                var _children = document.getAnonymousNodes(el);
+                if (_children) children = Array.prototype.slice.call(_children);
+                
+                if (el.childNodes.length)
+                {
+                    children = children.concat(Array.prototype.slice.call(el.childNodes))
+                }
+                
+                return children;
+            }
+            
+            var children = childNodes(this.element());
+            
+            if ( ! children) return new queryObject([]);
+            
+            var child = children.shift();
+            var matched = [];
+            while (child)
+            {
+                if (child instanceof window.XULElement)
+                {
+                    if (child.getAttribute(attr) == value)
+                    {
+                        matched.push(child);
+                        if (attr == "anonid") return new queryObject(child);
+                    }
+                        
+                    let _children = childNodes(child);
+                    if (_children) children = children.concat(_children);
+                }
+                child = children.shift();
+            }
+            
+            return new queryObject(matched);
+        },
 
         /**
          * Get child nodes

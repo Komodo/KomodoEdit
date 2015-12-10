@@ -52,6 +52,11 @@
 #second-toolboxrow
 {
     width: ~"calc(50vw - 175px)";
+    
+    toolbar
+    {
+        -moz-binding: url("chrome://browser/content/customizableui/toolbar.xml#toolbar-drag");
+    }
 }
 
 #second-toolboxrow > hbox
@@ -113,7 +118,8 @@
 
 statusbar
 {
-    border-top: 1px solid @border;
+    height: 32px;
+    border-bottom: 1px solid @border;
     background: @primary;
 
     statusbarpanel > label

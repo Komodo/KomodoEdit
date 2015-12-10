@@ -75,55 +75,46 @@ var _updateLintMessageTimer = null;
 
 //---- helper functions
 
+function getXulView(view)
+{
+    view = view || ko.views.manager.currentView;
+    if ( ! view || view.getAttribute("type") != "editor") return;
+    var $ = require("ko/dom");
+    return $(view);
+}
+
 function _updateEncoding(view) {
     if (!view || view.getAttribute("type") != "editor") {
-        _clearEncoding();
         return;
     }
+    var xv = getXulView(view);
+    
     try {
         var encoding = view.koDoc.encoding.short_encoding_name;
-        var encodingWidget = document.getElementById('statusbar-encoding');
-        var encodingLabel = document.getElementById('statusbar-encoding-label');
+        var encodingWidget = xv.findAnonymous('anonid', 'statusbar-encoding').element();
+        var encodingLabel = xv.findAnonymous('anonid', 'statusbar-encoding-label').element();
         encodingWidget.removeAttribute("collapsed");
         encodingLabel.setAttribute("label", encoding);
     } catch(e) {
-        _clearEncoding();
     }
 }
-
-function _clearEncoding() {
-    var encodingWidget = document.getElementById('statusbar-encoding');
-    var encodingLabel = document.getElementById('statusbar-encoding-label');
-    encodingWidget.setAttribute("collapsed", "true");
-    encodingLabel.removeAttribute("label");
-}
-
 
 function _updateLanguage(view) {
     if (!view || view.getAttribute("type") != "editor") {
-        _clearLanguage();
         return;
     }
+    var xv = getXulView(view);
     try {
-        var languageWidget = document.getElementById('statusbar-language');
-        var languageMenu = document.getElementById('statusbar-language-menu');
+        var languageWidget = xv.findAnonymous('anonid', 'statusbar-language').element();
+        var languageMenu = xv.findAnonymous('anonid', 'statusbar-language-menu').element();
         var language = view.koDoc.language;
         languageMenu.setAttribute("label", language);
         languageMenu.setAttribute('language', language);
         languageWidget.removeAttribute('collapsed');
     } catch(e) {
-        _clearLanguage();
     }
 }
 
-
-function _clearLanguage() {
-    var languageWidget = document.getElementById('statusbar-language');
-    var languageMenu = document.getElementById('statusbar-language-menu');
-    languageWidget.setAttribute("collapsed", "true");
-    languageMenu.setAttribute("label", "");
-    languageMenu.setAttribute("language", "");
-}
 
 function _updateLintMessage(view) {
     // The timeout has been called, remove the setTimeout id
@@ -236,16 +227,19 @@ function _updateSelectionInformation(view) {
         }
 // #endif
     }
-    var selectionWidget = document.getElementById("statusbar-selection");
+    var xv = getXulView(view);
+    var selectionWidget = xv.findAnonymous('anonid', "statusbar-selection").element();
     selectionWidget.label = selectionLabel;
     selectionWidget.removeAttribute("collapsed");
 }
 
 function _updateLineCol(view, currentLine, currentColumn) {
     if (!view || view.getAttribute("type") != "editor") {
-        _clearLineColAndSelection();
+        _clearSelection();
         return;
     }
+    var xv = getXulView(view);
+    
     if (typeof(currentLine)=='undefined')
         currentLine = view.currentLine;
     if (typeof(currentColumn)=='undefined')
@@ -254,12 +248,12 @@ function _updateLineCol(view, currentLine, currentColumn) {
     try {
         var lineColText = lazy.bundle.formatStringFromName("lineColCount.label",
             [currentLine, currentColumn], 2);
-        var lineColWidget = document.getElementById('statusbar-line-col');
+        var lineColWidget = xv.findAnonymous('anonid', 'statusbar-line-col').element();
         lineColWidget.setAttribute('label', lineColText);
         lineColWidget.removeAttribute("collapsed");
     } catch(ex) {
         // not a view that supports these
-        _clearLineColAndSelection();
+        _clearSelection();
         return;
     }
 
@@ -279,26 +273,22 @@ function _updateLineCol(view, currentLine, currentColumn) {
 }
 
 
-function _clearLineColAndSelection() {
-    var lineColWidget = document.getElementById('statusbar-line-col');
-    lineColWidget.setAttribute("collapsed", "true");
-    lineColWidget.removeAttribute("label");
-    document.getElementById("statusbar-selection").setAttribute("collapsed", "true");
+function _clearSelection() {
+    var view = getXulView();
+    if ( ! view) return;
+    var sel = view.findAnonymous("anonid", "statusbar-selection").element();
+    sel.attr("collapsed", "true")
 }
 
-
-function _clearCheck() {
-    var checkWidget = document.getElementById('statusbar-check');
-    checkWidget.setAttribute('class', 'syntax-okay');
-}
 
 function _updateCheck(view) {
 try {
-    if (typeof(view)=='undefined' || !view || !view.prefs)
+    var xv = getXulView(view);
+    if (!xv || !view.prefs)
         return;
-
+    
     // Update the status bar for the current check status.
-    var checkWidget = document.getElementById('statusbar-check');
+    var checkWidget = xv.findAnonymous("anonid", 'statusbar-check').element();
 
     // Only have linting for some view types (currently only 'editor').
     if (typeof(view.lintBuffer) == "undefined"
@@ -310,7 +300,7 @@ try {
         return;
     }
     checkWidget.removeAttribute('collapsed');
-
+    
     // Is linting enabled?
     var checkingEnabled = view.koDoc.getEffectivePrefs().getBooleanPref("editUseLinting");
 
@@ -431,10 +421,7 @@ function _updateCheckNewLintResult() {
 }
 
 function _clear() {
-    _clearEncoding();
-    _clearLanguage();
-    _clearLineColAndSelection();
-    _clearCheck();
+    _clearSelection();
 }
 
 //---- local classes
@@ -452,8 +439,6 @@ function StatusBarObserver() {
                             this.handle_current_view_linecol_changed, false);
     window.addEventListener('current_view_lint_results_done',
                             this.handle_current_lint_results_done, false);
-    window.addEventListener('view_closed',
-                            this.handle_current_view_open_or_closed, false);
     ko.main.addWillCloseHandler(this.destroy, this);
 };
 
@@ -476,8 +461,6 @@ StatusBarObserver.prototype.destroy = function()
                                this.handle_current_view_language_changed, false);
     window.removeEventListener('current_view_linecol_changed',
                                this.handle_current_view_linecol_changed, false);
-    window.removeEventListener('view_closed',
-                               this.handle_current_view_open_or_closed, false);
 
     _observer = null;
     _prefObserver = null;
@@ -523,10 +506,6 @@ StatusBarObserver.prototype.handle_current_view_linecol_changed = function(event
     _updateLineCol(event.originalTarget,
                    event.detail["line"]+1,    // Human line num start at 1.
                    event.detail["column"]+1); // Human column num start at 1.
-};
-
-StatusBarObserver.prototype.handle_current_view_open_or_closed = function(event) {
-    _clear()
 };
 
 function _addMessage(msg, category, timeout, highlight,
@@ -633,12 +612,6 @@ function updateLinterPopup() {
 
 //---- public functions
 
-/**
- * ClearCheck
- *
- * clear the syntax checking status
- */
-this.ClearCheck = function() { _clearCheck(); }
 
 this.AddMessage = function(msg, category, timeout, highlight, interactive, log /* true */) {
     _addMessage(msg, category, timeout, highlight, interactive, log);
@@ -663,12 +636,14 @@ this.setupEncodingMenu = function(menupopup)
     if (typeof(view)=='undefined' || !view || !view.koDoc) {
         return;
     }
+    var xv = getXulView(view);
+    
     if (!_encodingMenuInitialized) {
         var encodingSvc = Components.classes["@activestate.com/koEncodingServices;1"].
                            getService(Components.interfaces.koIEncodingServices);
     
         //var encodingName = view.koDoc.encoding.short_encoding_name;
-        var encodingMenupopup = document.getElementById('statusbar-encoding-menupopup');
+        var encodingMenupopup = xv.findAnonymous('anonid', 'statusbar-encoding-menupopup').element();
         // Build the menupopup.
         var tempMenupopup = ko.widgets.getEncodingPopup(encodingSvc.encoding_hierarchy,
                                                         true /* toplevel */,
@@ -751,7 +726,8 @@ window.addEventListener("komodo-ui-started", function() {
     // Update for the current view.
     update_view_information();
     
-    document.getElementById("context_lint").addEventListener("popupshowing", updateLinterPopup.bind(ko.statusbar));
+    // TODO
+    //document.getElementById("context_lint").addEventListener("popupshowing", updateLinterPopup.bind(ko.statusbar));
 });
 
 }).apply(ko.statusBar);
