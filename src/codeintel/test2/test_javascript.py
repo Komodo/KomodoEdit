@@ -1220,6 +1220,16 @@ class CplnTestCase(CodeIntelTestCase):
             [("function", "create"),
              ("function", "createElement")])
              
+class CalltipTestCase(CodeIntelTestCase):
+    lang = "JavaScript"
+    def test_default_args(self):
+        content, positions = unmark_text(dedent("""
+            function foo(bar, baz = {}, qux = default) {}
+            foo(<1>)
+        """))
+        self.assertCalltipIs(
+            markup_text(content, pos=positions[1]), "foo(bar, baz, qux)")
+             
 class DOMTestCase(CodeIntelTestCase):
     lang = "JavaScript"
     @tag("bug86391")

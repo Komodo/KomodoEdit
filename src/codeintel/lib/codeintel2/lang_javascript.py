@@ -2815,6 +2815,15 @@ class JavaScriptCiler:
             while pos < len(styles):
                 if styles[pos] == self.JS_IDENTIFIER:
                     ids.append(text[pos])
+                elif styles[pos] == self.JS_OPERATOR and text[pos] == '=':
+                    # Skip over default argument value.
+                    # TODO: complicated default values that include commas will
+                    # not be parsed correctly.
+                    while pos < len(styles) and not \
+                          (styles[pos] == self.JS_OPERATOR and \
+                           (text[pos] == ',' or text[pos] == ')')):
+                        pos += 1
+                    continue
                 elif styles[pos] != self.JS_OPERATOR or text[pos] != ",":
                     break
                 pos += 1
