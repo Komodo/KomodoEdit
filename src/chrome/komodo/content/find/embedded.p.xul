@@ -94,7 +94,7 @@
                     
                     <!-- label-options -->
                     <checkbox id="opt-repl" label="&replace.label;" class="unstyled"
-                              tooltiptext="&replace.label;" tabindex="250"
+                              tooltiptext="&replace.label;" 
                               accesskey="&replace.accesskey;" oncommand="update('replace')"/>
                     
                     <!-- fields -->
@@ -254,16 +254,16 @@
                               true        smart-case    Smart case
                           -->
                         <checkbox id="opt-case" label="&matchCase.label;" class="unstyled"
-                                  checked="true" value="match-case" tabindex="100"
+                                  checked="true" value="match-case" 
                                   accesskey="&matchCase.accesskey;" oncommand="update('case')"/>
                         <checkbox id="opt-word" label="&word.label;" accesskey="&word.accesskey;"
-                                  tooltiptext="&matchWholeWords.tooltiptext;" class="unstyled" tabindex="100"
+                                  tooltiptext="&matchWholeWords.tooltiptext;" class="unstyled"
                                   oncommand="update('word')"/>
                         <checkbox id="opt-multiline" label="&multiline.label;"
-                                  tooltiptext="&multiline.tooltiptext;" class="unstyled" tabindex="100"
+                                  tooltiptext="&multiline.tooltiptext;" class="unstyled"
                                   accesskey="&multiline.accesskey;" oncommand="update('multiline')"/>
                         <checkbox id="opt-regex" label="&regex.label;" accesskey="&regex.accesskey;"
-                                  tooltiptext="&regex.tooltiptext;" class="unstyled" tabindex="100"
+                                  tooltiptext="&regex.tooltiptext;" class="unstyled"
                                   oncommand="update('regex')"/>
                         
                         <button style="width: 1px !important; max-width: 1px; overflow: hidden; opacity: 0" class="unstyled" tabindex="300" onfocus="document.getElementById('pattern').focus()"/>
@@ -410,8 +410,7 @@
                                 label="&searchInSubDir.label;"
                                 tooltiptext="&searchInSubDir.label;"
                                 accesskey="&searchInSubDir.accesskey;"
-                                oncommand="update('search-in-subdirs');"
-                                tabindex="250"/>
+                                oncommand="update('search-in-subdirs');"/>
                     
                     <!--fields -->
                     <hbox>
