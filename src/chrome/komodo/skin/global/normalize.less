@@ -32,9 +32,13 @@ checkbox, radio, tabpanels, listitem, richlistitem, listheader
     color: @foreground; 
 }
 
-:root, menupopup, popup, panel, tree
+menupopup, popup, panel, tree, :root > deck,
+:root[hidechrome="true"] .window-wrapper, :root:not([hidechrome="true"])
 {
-    background: @background;
+    &:not(#komodo_main)
+    {
+        background: @background;
+    }
     color: @foreground;
 }
 

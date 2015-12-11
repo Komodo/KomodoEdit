@@ -1878,6 +1878,10 @@ this.onload = function uilayout_onload()
     
     this.updateViewRef();
     
+    var root = document.documentElement;
+    var hide = _gPrefs.getBoolean("ui.hide.chrome");
+    if (hide) root.setAttribute("hidechrome", true);
+    
     // preload the embedded find replace frame (no rush)
     setTimeout(function() {
         var findBrowser = document.getElementById("findReplaceBrowser");
@@ -2063,6 +2067,11 @@ _PrefObserver.prototype.observe = function(prefSet, prefName, prefSetID)
         var bottomTabStyle = _gPrefs.getStringPref("ui.tabs.sidepanes.bottom.layout");
         var bottomTabbox = document.getElementById("workspace_bottom_area");
         ko.uilayout._setTabPaneLayoutForTabbox(bottomTabStyle, bottomTabbox, "bottom");
+    } else if (prefName == "ui.hide.chrome") {
+        var hide = _gPrefs.getBoolean("ui.hide.chrome");
+        var root = document.documentElement;
+        document.getElementById('toolbox_main')._draggable = hide;
+        root.setAttribute("hidechrome", hide);
     }
 };
 
@@ -2071,6 +2080,7 @@ _PrefObserver.topics = [
     "ui.tabs.sidepanes.left.layout",
     "ui.tabs.sidepanes.right.layout",
     "ui.tabs.sidepanes.bottom.layout",
+    "ui.hide.chrome"
 ];
 
 _PrefObserver.prototype.init = function() {
@@ -2081,98 +2091,5 @@ _PrefObserver.prototype.destroy = function() {
     _gPrefs.prefObserverService.removeObserverForTopics(this, _PrefObserver.topics.length, _PrefObserver.topics, false);
 }
 
-}).apply(ko.uilayout);
-
-// Chromeless window code
-(function() {
-    
-    var dragging = false;
-    var pos;
-    
-    this.hideChrome = function(w)
-    {
-        w = w || window;
-        var root = w.document.documentElement;
-        root.setAttribute("hidechrome", true);
-        
-        var $ = require("ko/dom");
-        var dragHandlers = $(".windowDragHandler");
-        dragHandlers.on("mousedown", onDragMouseDown);
-        dragHandlers.on("mouseup", onDragMouseUp);
-        dragHandlers.on("mousemove", onDragMouseMove);
-    }
-    
-    var recordPos = function(e)
-    {
-        console.log('record');
-        //var w = e.target.ownerDocument.defaultView;
-        pos = {
-            clientX: e.clientX,
-            clientY: e.clientY
-        }
-    }
-    
-    var validDragMouseEvent = function(e)
-    {
-        if (e.buttons != 1)
-            return false;
-        if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey)
-            return false;
-        var validElems = ["window","hbox","vbox","box","toolbar","toolbox","toolboxrow"];
-        var target = e.target;
-        if (validElems.indexOf(e.target.nodeName) == -1)
-            return false;
-        
-        while (target)
-        {
-            if (target.classList.contains('windowDragHandler'))
-                return true;
-            target = target.parentNode;
-        }
-        
-        return false;
-    }
-    
-    var onDragMouseDown = function(e)
-    {
-        if ( ! validDragMouseEvent(e)) return;
-        recordPos(e);
-        dragging = true;
-    }
-    
-    var onDragMouseUp = function (e)
-    {
-        if (e.button != 1) return;
-        
-        dragging = false;
-    }
-    
-    var onDragMouseMove = function (e, now)
-    {
-        if ( ! dragging || e.buttons != 1) {
-            dragging = false;
-            return;
-        }
-        
-        if ( ! now && onDragMouseMove.timer)
-            return;
-        if ( ! now)
-        {
-            onDragMouseMove.timer = setTimeout(onDragMouseMove.bind(this, e, true), 50);
-            return;
-        }
-        delete onDragMouseMove.timer;
-        
-        var w = e.target.ownerDocument.defaultView;
-        
-        newX = e.screenX - pos.clientX;
-        newY = e.screenY - pos.clientY;
-        
-        console.log(e.screenX);
-        //console.log(newX + " : " + newY);
-        
-        w.moveTo(newX, newY);
-    }
-    
 }).apply(ko.uilayout);
 

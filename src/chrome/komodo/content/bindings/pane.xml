@@ -51,7 +51,7 @@
   - Panes for sidebars and the like
   - See kd 0272 for specifications
   -->
-
+    
   <binding id="pane" extends="chrome://global/content/bindings/tabbox.xml#tabbox">
     <content>
       <xul:deck anonid="pane-dummy-container" flex="1">

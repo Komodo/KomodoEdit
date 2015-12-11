@@ -122,6 +122,22 @@
             </method>
         </implementation>
     </binding>
+    
+    <binding id="toolbox-drag"
+             extends="chrome://komodo/content/bindings/toolbar.xml#toolbox">
+    <implementation>
+      <field name="_draggable">true</field>
+      <constructor>
+        this._draggable = require("ko/prefs").getBoolean("ui.hide.chrome");
+        if (!this._draggableStarted) {
+          this._draggableStarted = true;
+          try {
+            new require("ko/windows/draggable")(this);
+          } catch (e) {}
+        }
+      </constructor>
+    </implementation>
+    </binding>
 
     <!-- A toolbar that will allow overflowed items to be accessible through
          a separate menu dropdown widget at the edge of the toolbar.

@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+
+<!-- Copyright (c) 2015-2016 ActiveState Software Inc. -->
+<!-- See the file LICENSE.txt for licensing information. -->
+
+<!DOCTYPE bindings PUBLIC "-//MOZILLA//DTD XBL V1.0//EN" "http://www.mozilla.org/xbl" [
+  <!ENTITY % bindingsDTD SYSTEM "chrome://komodo/locale/bindings.dtd">
+  %bindingsDTD;
+]>
+
+<bindings xmlns="http://www.mozilla.org/xbl"
+          xmlns:xbl="http://www.mozilla.org/xbl"
+          xmlns:html="http://www.w3.org/1999/xhtml"
+          xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+    <binding id="window-chromeless"
+             extends="chrome://global/content/bindings/general.xml#root-element">
+    <content>
+      <xul:vbox class="window-wrapper" flex="1">
+        <xul:titlebar pack="center" align="center">
+          <xul:label xbl:inherits="value=title"/>
+        </xul:titlebar>
+        <children/>
+      </xul:vbox>
+    </content>
+    <implementation>
+      <field name="_draggable">true</field>
+      <field name="_tophandle">true</field>
+      <constructor>
+        <![CDATA[
+        if (window.parent && ! window.opener)
+        {
+          this._draggable = false;
+          return;
+        }
+        
+        var hideChrome = require("ko/prefs").getBoolean("ui.hide.chrome");
+        var showTitleBar = require("ko/prefs").getBoolean("ui.show.titlebar");
+        
+        if ( ! showTitleBar)
+        {
+            this.setAttribute("titlebar", false);
+        }
+        
+        this._draggable = hideChrome;
+        if (!this._draggableStarted) {
+          this._draggableStarted = true;
+          try {
+            new require("ko/windows/draggable")(this);
+          } catch (e) {}
+        }
+        
+        if (hideChrome) this.setAttribute("hidechrome", true);
+        ]]>
+      </constructor>
+    </implementation>
+    </binding>
+    
+</bindings>

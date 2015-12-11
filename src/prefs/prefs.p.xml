@@ -80,6 +80,8 @@
   <string id="ui.tabs.sidepanes.left.layout">icons</string>
   <string id="ui.tabs.sidepanes.right.layout">icons</string>
   <string id="ui.tabs.sidepanes.bottom.layout">horizontal</string>
+  <boolean id="ui.hide.chrome">1</boolean>
+  <boolean id="ui.show.titlebar">0</boolean>
 
   <long id="mruProjectSize">15</long>
   <long id="mruFileSize">30</long>

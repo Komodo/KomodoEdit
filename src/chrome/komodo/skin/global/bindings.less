@@ -1,5 +1,10 @@
+window:not(#komodo_main)
+{
+  -moz-binding: url("chrome://komodo/content/bindings/windows.xml#window-chromeless");
+}
+
 #toolbox_main {
-  -moz-binding: url("chrome://komodo/content/bindings/toolbar.xml#toolbox");
+  -moz-binding: url("chrome://komodo/content/bindings/toolbar.xml#toolbox-drag");
 }
 
 toolbar[printpreview="true"] {
