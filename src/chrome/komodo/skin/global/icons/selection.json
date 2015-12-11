@@ -4,6 +4,30 @@
 		{
 			"icon": {
 				"paths": [
+					"M128 256h768v86h-768v-86zM128 554v-84h768v84h-768zM128 768v-86h768v86h-768z"
+				],
+				"attrs": [],
+				"isMulticolor": false,
+				"tags": [
+					"menu"
+				],
+				"grid": 0
+			},
+			"attrs": [],
+			"properties": {
+				"order": 1,
+				"id": 1,
+				"prevSize": 24,
+				"code": 59650,
+				"name": "menu4"
+			},
+			"setIdx": 0,
+			"setId": 5,
+			"iconIdx": 0
+		},
+		{
+			"icon": {
+				"paths": [
 					"M298 426h428l-214 214z"
 				],
 				"attrs": [],
@@ -17,13 +41,13 @@
 			"properties": {
 				"order": 1,
 				"id": 0,
-				"prevSize": 12,
+				"prevSize": 24,
 				"code": 59649,
 				"name": "down-tiny"
 			},
 			"setIdx": 0,
 			"setId": 5,
-			"iconIdx": 0
+			"iconIdx": 1
 		},
 		{
 			"icon": {
@@ -41,7 +65,7 @@
 			"properties": {
 				"order": 2,
 				"id": 0,
-				"prevSize": 12,
+				"prevSize": 24,
 				"code": 59648,
 				"name": "markdown"
 			},
@@ -67,7 +91,7 @@
 				"id": 0,
 				"order": 3,
 				"ligatures": "",
-				"prevSize": 12,
+				"prevSize": 24,
 				"code": 57344,
 				"name": "save"
 			},
@@ -93,7 +117,7 @@
 				"id": 1,
 				"order": 4,
 				"ligatures": "",
-				"prevSize": 12,
+				"prevSize": 24,
 				"code": 57345,
 				"name": "save-all"
 			},
@@ -119,7 +143,7 @@
 				"id": 24,
 				"order": 5,
 				"ligatures": "",
-				"prevSize": 12,
+				"prevSize": 24,
 				"code": 57368,
 				"name": "layout-left"
 			},
@@ -145,7 +169,7 @@
 				"id": 25,
 				"order": 6,
 				"ligatures": "",
-				"prevSize": 12,
+				"prevSize": 24,
 				"code": 57369,
 				"name": "layout-right"
 			},
@@ -171,7 +195,7 @@
 				"id": 26,
 				"order": 7,
 				"ligatures": "",
-				"prevSize": 12,
+				"prevSize": 24,
 				"code": 57370,
 				"name": "layout-bottom"
 			},
@@ -197,7 +221,7 @@
 				"id": 27,
 				"order": 8,
 				"ligatures": "",
-				"prevSize": 12,
+				"prevSize": 24,
 				"code": 57371,
 				"name": "layout-top"
 			},
@@ -223,7 +247,7 @@
 				"id": 28,
 				"order": 35,
 				"ligatures": "",
-				"prevSize": 12,
+				"prevSize": 24,
 				"code": 57372,
 				"name": "tab-down"
 			},
@@ -249,7 +273,7 @@
 				"id": 29,
 				"order": 9,
 				"ligatures": "",
-				"prevSize": 12,
+				"prevSize": 24,
 				"code": 57373,
 				"name": "inspect"
 			},
@@ -276,7 +300,7 @@
 				"id": 30,
 				"order": 10,
 				"ligatures": "",
-				"prevSize": 12,
+				"prevSize": 24,
 				"code": 57374,
 				"name": "regexp"
 			},
@@ -302,7 +326,7 @@
 				"id": 31,
 				"order": 11,
 				"ligatures": "",
-				"prevSize": 12,
+				"prevSize": 24,
 				"code": 57375,
 				"name": "menu"
 			},
@@ -328,7 +352,7 @@
 				"id": 32,
 				"order": 12,
 				"ligatures": "",
-				"prevSize": 12,
+				"prevSize": 24,
 				"code": 57376,
 				"name": "menu2"
 			},
@@ -354,7 +378,7 @@
 				"id": 33,
 				"order": 13,
 				"ligatures": "",
-				"prevSize": 12,
+				"prevSize": 24,
 				"code": 57377,
 				"name": "commit"
 			},
@@ -380,7 +404,7 @@
 				"id": 34,
 				"order": 14,
 				"ligatures": "",
-				"prevSize": 12,
+				"prevSize": 24,
 				"code": 57378,
 				"name": "add"
 			},
@@ -406,7 +430,7 @@
 				"id": 35,
 				"order": 15,
 				"ligatures": "",
-				"prevSize": 12,
+				"prevSize": 24,
 				"code": 57379,
 				"name": "edit"
 			},
@@ -432,7 +456,7 @@
 				"id": 36,
 				"order": 16,
 				"ligatures": "",
-				"prevSize": 12,
+				"prevSize": 24,
 				"code": 57380,
 				"name": "edit2"
 			},
@@ -458,7 +482,7 @@
 				"id": 37,
 				"order": 17,
 				"ligatures": "",
-				"prevSize": 12,
+				"prevSize": 24,
 				"code": 57381,
 				"name": "revert"
 			},
@@ -484,7 +508,7 @@
 				"id": 38,
 				"order": 18,
 				"ligatures": "",
-				"prevSize": 12,
+				"prevSize": 24,
 				"code": 57382,
 				"name": "remove"
 			},
@@ -510,7 +534,7 @@
 				"id": 39,
 				"order": 19,
 				"ligatures": "",
-				"prevSize": 12,
+				"prevSize": 24,
 				"code": 57383,
 				"name": "update"
 			},
@@ -536,7 +560,7 @@
 				"id": 40,
 				"order": 20,
 				"ligatures": "",
-				"prevSize": 12,
+				"prevSize": 24,
 				"code": 57384,
 				"name": "diff"
 			},
@@ -562,7 +586,7 @@
 				"id": 41,
 				"order": 21,
 				"ligatures": "",
-				"prevSize": 12,
+				"prevSize": 24,
 				"code": 57385,
 				"name": "history"
 			},
@@ -588,7 +612,7 @@
 				"id": 42,
 				"order": 22,
 				"ligatures": "",
-				"prevSize": 12,
+				"prevSize": 24,
 				"code": 57386,
 				"name": "history2"
 			},
@@ -614,7 +638,7 @@
 				"id": 43,
 				"order": 23,
 				"ligatures": "",
-				"prevSize": 12,
+				"prevSize": 24,
 				"code": 57387,
 				"name": "checkout"
 			},
@@ -640,7 +664,7 @@
 				"id": 44,
 				"order": 24,
 				"ligatures": "",
-				"prevSize": 12,
+				"prevSize": 24,
 				"code": 57388,
 				"name": "push"
 			},
@@ -666,7 +690,7 @@
 				"id": 45,
 				"order": 25,
 				"ligatures": "",
-				"prevSize": 12,
+				"prevSize": 24,
 				"code": 57389,
 				"name": "check"
 			},
@@ -692,7 +716,7 @@
 				"id": 46,
 				"order": 26,
 				"ligatures": "",
-				"prevSize": 12,
+				"prevSize": 24,
 				"code": 57390,
 				"name": "perl"
 			},
@@ -718,7 +742,7 @@
 				"id": 47,
 				"order": 27,
 				"ligatures": "",
-				"prevSize": 12,
+				"prevSize": 24,
 				"code": 57391,
 				"name": "step-into"
 			},
@@ -744,7 +768,7 @@
 				"id": 48,
 				"order": 28,
 				"ligatures": "",
-				"prevSize": 12,
+				"prevSize": 24,
 				"code": 57392,
 				"name": "step-over"
 			},
@@ -770,7 +794,7 @@
 				"id": 49,
 				"order": 29,
 				"ligatures": "",
-				"prevSize": 12,
+				"prevSize": 24,
 				"code": 57393,
 				"name": "step-out"
 			},
@@ -796,7 +820,7 @@
 				"id": 50,
 				"order": 30,
 				"ligatures": "",
-				"prevSize": 12,
+				"prevSize": 24,
 				"code": 57394,
 				"name": "record"
 			},
@@ -822,7 +846,7 @@
 				"id": 51,
 				"order": 31,
 				"ligatures": "",
-				"prevSize": 12,
+				"prevSize": 24,
 				"code": 57395,
 				"name": "save-circle"
 			},
@@ -848,7 +872,7 @@
 				"id": 52,
 				"order": 32,
 				"ligatures": "",
-				"prevSize": 12,
+				"prevSize": 24,
 				"code": 57396,
 				"name": "database"
 			},
@@ -875,7 +899,7 @@
 				"id": 53,
 				"order": 33,
 				"ligatures": "",
-				"prevSize": 12,
+				"prevSize": 24,
 				"code": 57397,
 				"name": "markup"
 			},
@@ -902,7 +926,7 @@
 				"id": 54,
 				"order": 34,
 				"ligatures": "",
-				"prevSize": 12,
+				"prevSize": 24,
 				"code": 57398,
 				"name": "code"
 			},

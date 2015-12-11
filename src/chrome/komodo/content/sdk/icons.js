@@ -281,7 +281,7 @@
             if (svgPresetFile.exists())
             {
                 log.debug("Creating icon from SVG Preset: " + svgPresetFile.path);
-                icons.createPngFromSvg(svgPresetFile.path, pngFile.path, {}, {size: info.size}, function()
+                icons.createPngFromSvg(svgPresetFile.path, pngFile.path, {}, {size: info.size || 16}, function()
                 {
                     callback(pngFile);
                 });

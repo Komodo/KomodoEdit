@@ -89,6 +89,14 @@
 .komodo-button-maillist { .icon(); .icon-envelop(); }
 .komodo-button-bugs { .icon(); .icon-bug(); }
 
+.menu-icon > .toolbarbutton-text {
+    visibility: visible; .icon(); .icon-menu4();
+    font-size: 24px;
+    text-shadow: 2px 2px 0 @button;
+    margin: 0 6px;
+}
+.menu-icon > dropmarker { visibility: collapse; }
+
 tab[widget] { .icon(); }
 tab[widget="placesViewbox"] { .icon(); .icon-folder-open(); }
 tab[widget="openfilesViewbox"] { .icon(); .icon-files-empty2(); }
@@ -102,6 +110,28 @@ tab[widget="runoutput-desc-tabpanel"] { .icon(); .icon-terminal(); }
 tab[widget="projectUnitTestsResults_tabpanel"] { .icon(); .icon-lab(); }
 tab[widget="notifications-widget"] { .icon(); .icon-info2(); }
 tab[widget="console-widget"] { .icon(); .icon-display2(); }
+
+treechildren::-moz-tree-twisty {
+    -moz-appearance: none;
+    width: 14px;
+    height: 14px;
+    margin-right: -4px;
+    list-style-image: url("koicon://ko-svg/chrome/komodo/skin/images/trees/twisty-right.svg?size=14&color=@{escaped-icons}");
+}
+
+treechildren::-moz-tree-twisty(open) {
+    list-style-image: url("koicon://ko-svg/chrome/komodo/skin/images/trees/twisty-down.svg?size=14&color=@{escaped-icons}");
+}
+
+treechildren#places-files-tree-body::-moz-tree-cell-text(places_folder_open),
+treechildren#places-files-tree-body::-moz-tree-cell-text(places_folder_closed) {
+    color: darken(@foreground, 40%);
+}
+
+treechildren#places-files-tree-body::-moz-tree-image(places_folder_open) {
+}
+treechildren#places-files-tree-body::-moz-tree-image(places_folder_closed) {
+}
 
 dropmarker {
     .icon();

@@ -1,3 +1,6 @@
+$cons->InstallAs("$imagesDir/trees/twisty-right.svg", "icons/trees/twisty-right.svg");
+$cons->InstallAs("$imagesDir/trees/twisty-down.svg", "icons/trees/twisty-down.svg");
+
 #!/usr/local/bin/perl
 # ***** BEGIN LICENSE BLOCK *****
 # Version: MPL 1.1/GPL 2.0/LGPL 2.1

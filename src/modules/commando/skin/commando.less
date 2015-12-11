@@ -1,6 +1,5 @@
-@import url("chrome://komodo/skin/_config/window.less");
-@import url("chrome://komodo/skin/_config/editor.less");
-@import url("chrome://komodo/skin/_config/toolbars.less");
+@import url("chrome://komodo/skin/global/colors.less");
+@import url("resource://profile/colors.less");
 
 #commando-panel
 {
@@ -17,7 +16,7 @@
     
     &.previewing:not(.maximized) #commando-preview
     {
-        border-left: @hud-border;
+        border-left: @border;
         width: 600px;
     }
     
@@ -58,7 +57,6 @@
         border: 0;
         margin: 0;
         background-color: transparent !important;
-        color: @hud-selection-foreground;
         -moz-appearance: none;
     }
 
@@ -120,7 +118,7 @@
 
     &.loading #commando-search-wrapper
     {
-        background-image: linear-gradient(to right, rgba(0,0,0,0.0) 0, @hud-loader-color 200px, @hud-loader-color 300px, rgba(0,0,0,0.0) 500px);
+        background-image: linear-gradient(to right, rgba(0,0,0,0.0) 0, @special 200px, @special 300px, rgba(0,0,0,0.0) 500px);
         background-repeat: no-repeat;
         animation: loading 1s infinite cubic-bezier(1.0, 0.3, 0.5, 1.0);
         transform: translateZ(0);
@@ -128,7 +126,7 @@
     
     &.previewing.loading #commando-search-wrapper
     {
-        background-image: linear-gradient(to right, rgba(0,0,0,0.0) 0, @hud-loader-color 100px, @hud-loader-color 150px, rgba(0,0,0,0.0) 250px);
+        background-image: linear-gradient(to right, rgba(0,0,0,0.0) 0, @special 100px, @special 150px, rgba(0,0,0,0.0) 250px);
         animation: loadingWithPreview 1s infinite cubic-bezier(1.0, 0.3, 0.5, 1.0);
     }
 
@@ -323,12 +321,8 @@
     margin: 0;
     width: 200px;
     
-    background: @main-toolbox-findtoolbar-background;
     border-radius: 4px;
-    border: @main-toolbox-findtoolbar-border;
-    box-shadow: @main-toolbox-findtoolbar-shadow;
     cursor: text;
-    color: @main-toolbox-findtoolbar-color;
     
     &[placeholder="true"]
     {
@@ -341,8 +335,6 @@
         border-radius: 0;
         
         width: 480px;
-        background-color: @hud-selection-background;
-        color: @hud-selection-foreground;
     }
     
 }

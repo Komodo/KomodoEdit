@@ -5,10 +5,6 @@
  * CSS for Places UI
  */
 
-@import url("chrome://komodo/skin/_config/window.less");
-@import url("chrome://komodo/skin/_config/panes.less");
-@import url("chrome://komodo/skin/plat/shared/icons_depend.less");
-
 @icon-folder-explore: url("chrome://komodo-places/skin/folder_explore.png");
 
 /**
@@ -24,13 +20,6 @@ treechildren#places-files-tree-body::-moz-tree-image {
 /* #if PLATFORM == "darwin" */
   margin-left: 0 !important; 
 /* #endif */
-}
-
-treechildren#places-files-tree-body::-moz-tree-image(places_folder_open) {
-  list-style-image: @icon-folder-open;
-}
-treechildren#places-files-tree-body::-moz-tree-image(places_folder_closed) {
-  list-style-image: @icon-folder-closed;
 }
 
 treechildren#places-files-tree-body::-moz-tree-image {
@@ -53,62 +42,48 @@ treechildren#places-files-tree-body::-moz-tree-cell-text(disabled) {
   color: grey;
 }
 treechildren#places-files-tree-body:-moz-tree-cell-text(places_file, sccOk) {
-  background-image: @icon-scc-ok;
 }
 
 treechildren#places-files-tree-body:-moz-tree-cell-text(places_file, sccSync) {
-  background-image: @icon-scc-sync;
 }
 
 treechildren#places-files-tree-body:-moz-tree-cell-text(places_file, sccConflict) {
-  background-image: @icon-scc-conflict;
 }
 
 treechildren#places-files-tree-body:-moz-tree-cell-text(places_file, sccAdd) {
-  background-image: @icon-scc-add;
 }
 
 treechildren#places-files-tree-body:-moz-tree-cell-text(places_file, sccDelete) {
-  background-image: @icon-scc-delete;
 }
 
 
 treechildren#places-files-tree-body:-moz-tree-cell-text(places_file, sccBranch) {
   /* XXX fixme */
-  background-image: @icon-scc-branch;
 }
 
 /* XXX fixme integrate icons are needed, currently they match the edit icons */
 treechildren#places-files-tree-body:-moz-tree-cell-text(places_file, sccIntegrate) {
-  background-image: @icon-scc-integrate;
 }
 
 treechildren#places-files-tree-body:-moz-tree-cell-text(places_file, sccOk, sccIntegrate) {
-  background-image: @icon-scc-integrate-ok;
 }
 
 treechildren#places-files-tree-body:-moz-tree-cell-text(places_file, sccSync, sccIntegrate) {
-  background-image: @icon-scc-integrate-sync;
 }
 
 treechildren#places-files-tree-body:-moz-tree-cell-text(places_file, sccConflict, sccIntegrate) {
-  background-image: @icon-scc-integrate-conflict;
 }
 
 treechildren#places-files-tree-body:-moz-tree-cell-text(places_file, sccEdit) {
-  background-image: @icon-scc-edit;
 }
 
 treechildren#places-files-tree-body:-moz-tree-cell-text(places_file, sccOk, sccEdit) {
-  background-image: @icon-scc-edit-ok;
 }
 
 treechildren#places-files-tree-body:-moz-tree-cell-text(places_file, sccSync, sccEdit) {
-  background-image: @icon-scc-edit-sync;
 }
 
 treechildren#places-files-tree-body:-moz-tree-cell-text(places_file, sccConflict, sccEdit) {
-  background-image: @icon-scc-edit-conflict;
 }
 
 /* bindings */
@@ -122,24 +97,8 @@ tree.projectPlacesTree {
   -moz-binding: url('chrome://komodo-places/content/widgets-places.xml#projectPlacesTree_b');
 }
 
-/* Copied from skin/toolbar.p.css, which uses an ID */
-undo-button {
-  list-style-image : @icon-undo;
-}
-
-#placesParentDirectories.folderPicker-icon {
-  list-style-image : @icon-folder-explore;
-}
-
-
 /* ---- Places subpanel ---- */
 
-#placesSubpanelToggle[state="open"] {
-  list-style-image : @icon-close-subpanel;
-}
-#placesSubpanelToggle[state="collapsed"] {
-  list-style-image : @icon-open-subpanel;
-}
 
 /* No default grippy image. Splitter-like cursor as appropriate. */
 #placesSubpanelSplitter {
@@ -150,7 +109,6 @@ undo-button {
 #placesSubpanelSplitterHboxBorder {
   -moz-box-orient: horizontal;
   height: 1px;
-  background: @widget-splitter-background;
   margin: 0 10px;
 }
 #placesSubpanelSplitter > grippy {
