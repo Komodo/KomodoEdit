@@ -971,9 +971,7 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
         # From the local scope, walk up the parent chain including matches as
         # we go.
         # XXX - Can we skip the global (stdlib) blob in here?
-        loopcount = -1
         while scoperef and scoperef[0] is not None:
-            loopcount += 1
             # Iterate over the contents of the scope.
             self.log("_completion_names_from_scope:: checking scoperef: %r",
                      scoperef)
@@ -986,9 +984,9 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
                 if name and name.startswith(expr):
                     if name not in all_completions:
                         hit_elem = elem.names[name]
-                        if loopcount and "__local__" in hit_elem.get("attributes", "").split():
-                            # Skip things that should only be local to the
-                            # original scope.
+                        if elem.get("name") == "*" and "__local__" in hit_elem.get("attributes", "").split():
+                            # Skip any locals in the global namespace, but
+                            # ensure locals are included (e.g. via closures).
                             #self.log("_completion_names_from_scope:: skipping local %r",
                             #         name)
                             continue

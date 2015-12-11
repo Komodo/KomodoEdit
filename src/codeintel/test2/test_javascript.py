@@ -1240,6 +1240,29 @@ class CplnTestCase(CodeIntelTestCase):
             [("variable", "sectionlistController")])
         self.assertCompletionsAre(markup_text(content, positions[2]),
             [("function", "initialize")])
+            
+    def test_closure(self):
+        """
+        Scoped variables in class constructors should be closures accessible
+        from class functions and throughout the constructor.
+        """
+        content, positions = unmark_text(dedent("""\
+            function History(element){
+                var self = this;
+                var stack = [];
+                var stack_position = -1;
+                var stack_length = 0;
+                this.push = function() {
+                    sta<1>
+                }
+                sta<2>
+            }
+        """))
+        for i in xrange(2):
+            self.assertCompletionsInclude(markup_text(content, positions[i+1]),
+                [("variable", "stack"),
+                 ("variable", "stack_length"),
+                 ("variable", "stack_position")])
              
 class CalltipTestCase(CodeIntelTestCase):
     lang = "JavaScript"
