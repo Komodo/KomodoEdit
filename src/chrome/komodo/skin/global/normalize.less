@@ -32,13 +32,9 @@ checkbox, radio, tabpanels, listitem, richlistitem, listheader
     color: @foreground; 
 }
 
-menupopup, popup, panel, tree, :root > deck,
-:root[hidechrome="true"] .window-wrapper, :root:not([hidechrome="true"])
+menupopup, popup, panel, tree
 {
-    &:not(#komodo_main)
-    {
-        background: @background;
-    }
+    background: @background;
     color: @foreground;
 }
 
@@ -146,7 +142,7 @@ checkbox, radio
 
 textbox, menulist
 {
-    background: @textbox;
+    background: @primary;
     padding: 4px;
     border-radius: 2px;
     margin: 4px;
@@ -173,16 +169,6 @@ treecolpicker
 
 ::-moz-tree-row {
     min-height: 1.6rem;
-}
-
-:root:not(#komodo_main):not(.widget)
-{
-    tree:not(.bg_transparent),
-    listbox:not(.bg_transparent),
-    richlistbox:not(.bg_transparent)
-    {
-        background: @textbox;
-    }
 }
 
 treechildren::-moz-tree-row(selected)
@@ -363,6 +349,24 @@ scrollbar
 tree, listbox, richlistbox
 {
     &:not(.bg_transparent) scrollbar thumb
+    {
+        background: @background;
+    }
+}
+
+/* Modals */
+
+:root.dialog, :root.pref-window
+{
+    tabs
+    {
+        box-shadow-color: @background;
+    }
+
+    treecol, textbox, menulist,
+    tree:not(.bg_transparent),
+    listbox:not(.bg_transparent),
+    richlistbox:not(.bg_transparent)
     {
         background: @background;
     }

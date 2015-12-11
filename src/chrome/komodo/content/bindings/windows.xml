@@ -16,12 +16,35 @@
     <binding id="window-chromeless"
              extends="chrome://global/content/bindings/general.xml#root-element">
     <content>
-      <xul:vbox class="window-wrapper" flex="1">
-        <xul:titlebar pack="center" align="center">
-          <xul:label xbl:inherits="value=title"/>
-        </xul:titlebar>
-        <children/>
-      </xul:vbox>
+        
+      <xul:hbox class="resizer-box">
+        <xul:resizer dir="topleft"/>
+        <xul:resizer dir="top" flex="1"   />
+        <xul:resizer dir="topright"/>
+      </xul:hbox>
+      <xul:hbox class="resizer-box" flex="1">
+        <xul:resizer dir="left"/>
+        <xul:vbox xbl:inherits="orient" class="window-wrapper" flex="1">
+            <xul:hbox id="titlebar" pack="center" align="center">
+                <xul:spacer></xul:spacer>
+                
+                <xul:label xbl:inherits="value=title" flex="1" style="text-align: center"/>
+              
+                <xul:hbox id="windowButtons" align="center" pack="end">
+                    <xul:toolbarbutton buttonstyle="pictures" class="icon-minus-circle2" onclick="window.minimize();"/>
+                    <xul:toolbarbutton buttonstyle="pictures" class="icon-plus-circle2" onclick="window.windowState === 1 ? window.restore() : window.maximize();"/>
+                    <xul:toolbarbutton buttonstyle="pictures" class="icon-cancel-circle2" onclick="window.close();"/>
+                </xul:hbox>
+            </xul:hbox>
+            <children/>
+        </xul:vbox>
+        <xul:resizer dir="right"/>
+      </xul:hbox>
+      <xul:hbox class="resizer-box">
+        <xul:resizer dir="bottomleft"/>
+        <xul:resizer dir="bottom" flex="1"   />
+        <xul:resizer dir="bottomright"/>
+      </xul:hbox>
     </content>
     <implementation>
       <field name="_draggable">true</field>
@@ -55,5 +78,6 @@
       </constructor>
     </implementation>
     </binding>
+    
     
 </bindings>
