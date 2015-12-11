@@ -2488,15 +2488,14 @@ class JavaScriptCiler:
             # Fix starting line number
             if jsfunc.line < jsclass.line:
                 jsclass.line = jsfunc.line
-            # Copy over non-local variables from the function to the class,
-            # all the local variables stay inside the function scope.
+            # Copy over non-argument variables from the function to the class.
+            # All the local variables are closures and should be in the class
+            # scope.
             for varName, v in jsfunc.variables.items():
-                isLocal = "__local__" in v.attributes or isinstance(v, JSArgument)
-                if not isLocal:
+                if not isinstance(v, JSArgument):
                     # Add to class and remove from the function
-                    jsclass.variables[varName] = JSVariable(varName, jsclass, v.line,
-                                                            v.depth, v.type, v.doc,
-                                                            isLocal=isLocal, path=self.path)
+                    v.setParent(jsclass)
+                    jsclass.variables[varName] = v
                     del jsfunc.variables[varName]
         parent = jsfunc.parent
         for var in jsfunc._parent_assigned_vars:

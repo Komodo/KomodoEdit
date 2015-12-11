@@ -1220,6 +1220,27 @@ class CplnTestCase(CodeIntelTestCase):
             [("function", "create"),
              ("function", "createElement")])
              
+    def test_scoped_variable_class_constructor(self):
+        """
+        Scoped variables in class constructors should not be in the global
+        namespace.
+        """
+        content, positions = unmark_text(dedent("""\
+            ko.sectionlist = {};
+            (function() {
+                var sectionlistController;
+                this.initialize = function() {
+                    sectionlistController = new SectionListController();
+                }
+            }).apply(ko.sectionlist);
+            sec<1>
+            ko.sectionlist.<2>
+        """))
+        self.assertCompletionsDoNotInclude(markup_text(content, positions[1]),
+            [("variable", "sectionlistController")])
+        self.assertCompletionsAre(markup_text(content, positions[2]),
+            [("function", "initialize")])
+             
 class CalltipTestCase(CodeIntelTestCase):
     lang = "JavaScript"
     def test_default_args(self):
