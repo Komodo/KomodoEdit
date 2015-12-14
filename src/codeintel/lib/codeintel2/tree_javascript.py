@@ -499,7 +499,10 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
             for elem, scoperef in hits:
                 if "__file_local__" in elem.get("attributes", "").split() and \
                    scoperef[1] != ["module", "exports"] and \
-                   scoperef[1] != ["exports"]:
+                   scoperef[1] != ["exports"] and \
+                   not (scoperef[1] == ["module"] and
+                        elem.get("name") == "exports" and
+                        elem.tag == "variable"):
                     if scoperef[0] != curr_blob:
                         # Ignore all __file_local__ hits in other files.
                         continue

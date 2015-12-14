@@ -113,7 +113,16 @@ class NodeJSTreeEvaluator(JavaScriptTreeEvaluator):
                     if module is not None:
                         exports = module.names.get("exports")
                         if exports is not None and exports.tag == "variable":
-                            hits += self._hits_from_variable_type_inference(exports, [blob, ["module", "exports"]])
+                            for hit in self._hits_from_variable_type_inference(exports, [blob, ["module", "exports"]]):
+                                if hit[0] != exports:
+                                    hits.append(hit)
+                                else:
+                                    # Rather than resolving to a particular
+                                    # object, "exports" resolved to
+                                    # "module.exports.exports". In that case,
+                                    # remove the extra "exports" or there will
+                                    # be compounded resolution errors.
+                                    hits.append((exports, [blob, ["module"]]))
             return hits or None
 
         def load_as_file(path):
