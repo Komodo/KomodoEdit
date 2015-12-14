@@ -17,6 +17,7 @@
         extends="chrome://global/content/bindings/toolbarbutton.xml#toolbarbutton">
         <content>
             <children includes="observes|template|menupopup|panel|tooltip"/>
+            <xul:box class="breadcrumb-icon"/>
             <xul:image class="toolbarbutton-icon" xbl:inherits="validate,src=image,label"/>
             <xul:label class="toolbarbutton-text" crop="right" flex="1" xbl:inherits="value=label,accesskey,crop"/>
             <xul:box class="breadcrumb-arrow"/>

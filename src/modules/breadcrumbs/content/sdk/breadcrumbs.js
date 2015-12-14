@@ -136,7 +136,6 @@ var breadcrumbs = function(view) {
             button.parentNode.removeChild(button);
         }
 
-        var view = ko.views.manager.currentView;
         if ( ! view) {
             log.debug("No view, cancelling load");
             return;
@@ -191,9 +190,11 @@ var breadcrumbs = function(view) {
 
         /* DOM Events */
         window.addEventListener('resize',
-                                this.checkOverflow.bind(this, false));
+                                this.checkOverflow.bind(this));
         window.addEventListener('sectionlist-updated',
-                                this.checkOverflow.bind(this, false));
+                                this.checkOverflow.bind(this));
+        window.addEventListener('current_view_changed',
+                                this.checkOverflow.bind(this));
         window.addEventListener('keydown',
                                 this.onCrumbMenuKeypress.bind(this));
 
@@ -1119,7 +1120,7 @@ var breadcrumbs = function(view) {
 
         // Set basic crumb attributes
         crumb.setAttribute('id' , uid);
-        crumb.setAttribute('label', (name || "(root)") + "/");
+        crumb.setAttribute('label', (name || "(root)"));
         crumb.setAttribute(
             'style',
             'z-index: ' +
@@ -1130,7 +1131,7 @@ var breadcrumbs = function(view) {
             ko.prefs.getBoolean("native_mozicons_available", false))
         {
             crumb.setAttribute(
-                'image', "koicon://" + file.getFilename() + "?size=16"
+                'image', "koicon://" + file.getFilename() + "?size=14"
             );
         }
 
@@ -1252,8 +1253,18 @@ var breadcrumbs = function(view) {
      *
      * @returns {Void} 
      */
-    this.checkOverflow = function breadcrumbs_checkOverflow()
+    this.checkOverflow = function breadcrumbs_checkOverflow(noDelay = false)
     {
+        if ( ! noDelay)
+        {
+            clearTimeout(this.checkOverflow._timer);
+            this.checkOverflow._timer = setTimeout(this.checkOverflow.bind(this, true), 100);
+            return;
+        }
+        
+        if (view != require("ko/views").current().get())
+            return;
+        
         // Start off with resetting everything to normal
         overflowBtn.setAttribute("collapsed", true);
         breadcrumbBar.classList.remove("overflown");

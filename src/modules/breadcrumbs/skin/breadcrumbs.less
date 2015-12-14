@@ -1,10 +1,13 @@
 [anonid="statusbar-message-deck-default"]
+@import url("chrome://komodo/skin/global/colors.less");
+@import url("chrome://komodo/skin/global/icons.less");
+
 [anonid="breadcrumbBar"]
 {
     overflow: hidden;
     -moz-appearance: none;
     background: transparent;
-    margin: 0;
+    margin: 0 0 0 4px;
     padding: 0;
     border: 0;
 
@@ -12,9 +15,25 @@
     {
         -moz-binding: url("chrome://breadcrumbs/content/bindings/toolbarbutton.xml#toolbarbutton");
         position: relative;
-        padding: 0 !important;
         margin-left: 0 !important;
         margin-right: 0 !important;
+        
+        &.folder 
+        {
+            .breadcrumb-icon
+            {
+                .icon();
+                .icon-folder();
+                
+                font-size: 14px;
+                margin-right: 2px;
+            }
+            
+            .toolbarbutton-icon
+            {
+                visibility: collapse;
+            }
+        }
         
         &:empty
         {
@@ -33,26 +52,28 @@
 
         .toolbarbutton-text
         {
-            padding: 0;
+            padding: 2px;
+            border-radius: 2px;
         }
         
-        .file-scc,
+        &:hover .toolbarbutton-text
+        {
+           background: @button;
+           color: @button-fg;
+        }
+        
         .toolbarbutton-icon
         {
-            visibility: collapse;
-            /*margin-right: 4px !important;*/
+            margin-right: 4px !important;
         }
         
         .breadcrumb-arrow
         {
-            visibility: collapse;
-            //background-image: @icon-breadcrumb-arrow;
-            //background-size: 16px;
-            //margin-right: -16px;
-            //width: 16px;
-            //max-width: 16px;
-            //height: 16px;
-            //opacity: 0.6;
+            .icon();
+            .icon-chevron-right();
+            font-size: 14px;
+            color: @special;
+            margin: 0 2px 0 2px;
         }
     }
 

@@ -3,17 +3,14 @@ require.setRequirePath("breadcrumbs/", "chrome://breadcrumbs/content/sdk/");
 
 (function() {
   
-    var viewChanged = function()
+    var viewChanged = function(e)
     {
-        var view = require("ko/views").current().get();
-        if ( ! view || view._breadcrumbsInit) return;
+        var view = e.detail.view;
+        if ( ! view && view._breadcrumbsInit) return;
         view._breadcrumbsInit = true;
-        
         require("breadcrumbs/breadcrumbs").init(view);
     }
     
-    window.addEventListener('current_view_changed', viewChanged);
-    window.addEventListener('workspace_restored', viewChanged);
-    window.addEventListener('project_opened', viewChanged);
+    window.addEventListener('editor_view_opened', viewChanged);
     
 })();

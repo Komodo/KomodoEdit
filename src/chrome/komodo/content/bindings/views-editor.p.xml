@@ -104,6 +104,7 @@
                             tooltiptext="&selectionInformation.tooltiptext;"
                             align="center"/>
             
+            <!--
             <xul:statusbarpanel anonid="statusbar-throbber">
                 <xul:box anonid="statusbar-throbber-inner"></xul:box>
             </xul:statusbarpanel>
@@ -139,6 +140,7 @@
                     </xul:menupopup>
                 </xul:toolbarbutton>
             </xul:statusbarpanel>
+            -->
             
         </xul:statusbar>
         <xul:scintilla xbl:inherits="flex,focused,context,mozcontext" flex="1"
@@ -180,6 +182,8 @@
                 return null;
             ]]></getter>
         </property>
+        
+        <property name="sectionlist"  onget="return require('ko/dom')(this).findAnonymous('anonid', 'statusbar-sectionlist').element();"/>
 
         <field name="lintingEnabled">false</field>
         <field name="_everLinted">false</field>
@@ -448,7 +452,9 @@
             this.initPrefs();
 
             this._setupHighlightColors(this.scintilla);
+            
             xtk.domutils.fireEvent(this, 'current_view_changed');
+            
             this.addEventListener('current_view_linecol_changed',
                                     this.handle_current_view_linecol_changed, false);
             this._hookSciMozEvents(SME.SME_UPDATEUI | SME.SME_MARGINCLICK);
@@ -478,6 +484,9 @@
         this.log.debug('document code page after initWithDoc is '+this.koDoc.codePage);
         this._setWrapSelectionDelimiters(); // initialize
         this.enableAutoAbbreviations = ko.prefs.getBooleanPref("enableAutoAbbreviations");
+        
+        var evt = new CustomEvent("editor_view_opened", { detail: { view: this } });
+        window.dispatchEvent(evt);
         ]]>
         </body>
         </method>
