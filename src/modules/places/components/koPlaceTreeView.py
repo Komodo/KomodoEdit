@@ -250,7 +250,7 @@ class _kplFile(_kplNonFolder):
     @property
     def cellImageURL(self):
         if self._cellImageURL is None:
-            self._cellImageURL = "koicon://" + self.koFile.baseName + "?size=16"
+            self._cellImageURL = "koicon://" + self.koFile.baseName + "?size=14"
         return self._cellImageURL
 
 class _kplOther(_kplNonFolder):

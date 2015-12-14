@@ -14,7 +14,7 @@
 <page xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   <vbox flex="1" id="placesViewbox_placesWrapper">
     <vbox flex="99" id="placesViewbox_places">
-      <hbox align="center" id="placesToolbar" class="toolbar-box">
+      <hbox align="center" id="placesToolbar" class="toolbar-box status-toolbar">
         <toolbarbutton id="placesRootButton"
                        class="normal"
                        context="places-files-popup"
