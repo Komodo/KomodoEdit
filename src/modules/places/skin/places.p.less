@@ -7,37 +7,6 @@
 
 @icon-folder-explore: url("chrome://komodo-places/skin/folder_explore.png");
 
-/**
-   Places tree icons, see bug 80523:
-    * we display native file icons in Places (see the Places tree view), this
-      uses the -moz-tree-image to set the cell icon.
-    * we then overlay with the native file icon with a status icon (such as
-      SCC status icon), this uses the -moz-tree-cell-text and adds the image
-      using the background-image CSS property.
- */
-treechildren#places-files-tree-body::-moz-tree-image {
-  margin-right: 5px;
-/* #if PLATFORM == "darwin" */
-  margin-left: 0 !important; 
-/* #endif */
-}
-
-treechildren#places-files-tree-body::-moz-tree-image {
-    margin-left: 3px;
-}
-
-treechildren#places-files-tree-body::-moz-tree-cell-text {
-  /**
-   * These settings are used to show both a background native file image, as
-   * well as a status icon (on top of the native icon).
-   * Note: the 21px for margin-left is:
-   *    16px for width of native icon
-   *    5px for half overlap of status icon (status icons are usually 9px).
-   */
-  padding-right: 16px;
-  background-repeat: no-repeat;
-  background-position: center right;
-}
 treechildren#places-files-tree-body::-moz-tree-cell-text(disabled) {
   color: grey;
 }
@@ -90,7 +59,6 @@ treechildren#places-files-tree-body:-moz-tree-cell-text(places_file, sccConflict
 
 tree.placestree {
   -moz-binding: url('chrome://komodo-places/content/widgets-places.xml#places_tree_b');
-  margin-left: 2px !important;
 }
 
 tree.projectPlacesTree {

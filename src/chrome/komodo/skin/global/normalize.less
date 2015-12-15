@@ -178,6 +178,32 @@ treechildren::-moz-tree-row(selected)
     background: @selected;
 }
 
+treechildren::-moz-tree-twisty {
+    -moz-appearance: none;
+    width: 14px;
+    height: 14px;
+    margin-right: -6px;
+}
+
+treechildren::-moz-tree-cell {
+    margin-left: 4px;
+}
+
+treechildren::-moz-tree-cell-text(container)
+{
+    color: darken(@foreground, 30%);
+}
+
+treechildren::-moz-tree-cell-text
+{
+    padding-left: 4px;
+}
+
+treechildren::-moz-tree-image
+{
+    margin-left: -14px;
+}
+
 richlistitem, listitem, row /* :any is too flaky */
 {
     &[selected="true"]

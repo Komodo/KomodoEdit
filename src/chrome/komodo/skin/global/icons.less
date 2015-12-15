@@ -120,25 +120,11 @@ tab[widget="notifications-widget"] { .icon(); .icon-info2(); }
 tab[widget="console-widget"] { .icon(); .icon-display2(); }
 
 treechildren::-moz-tree-twisty {
-    -moz-appearance: none;
-    width: 14px;
-    height: 14px;
-    margin-right: -4px;
     list-style-image: url("koicon://ko-svg/chrome/komodo/skin/images/trees/twisty-right.svg?size=14&color=@{escaped-icons}");
 }
 
 treechildren::-moz-tree-twisty(open) {
     list-style-image: url("koicon://ko-svg/chrome/komodo/skin/images/trees/twisty-down.svg?size=14&color=@{escaped-icons}");
-}
-
-treechildren#places-files-tree-body::-moz-tree-cell-text(places_folder_open),
-treechildren#places-files-tree-body::-moz-tree-cell-text(places_folder_closed) {
-    color: darken(@foreground, 40%);
-}
-
-treechildren#places-files-tree-body::-moz-tree-image(places_folder_open) {
-}
-treechildren#places-files-tree-body::-moz-tree-image(places_folder_closed) {
 }
 
 dropmarker {
