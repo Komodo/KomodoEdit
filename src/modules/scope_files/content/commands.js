@@ -199,7 +199,7 @@
 
         item.data.path = newpath;
         item.name = newName;
-        item.icon  = item.data.type == 'dir' ? item.icon : "koicon://" + newpath + "?size=16",
+        item.icon  = item.data.type == 'dir' ? item.icon : "koicon://" + newpath + "?size=14",
 
         commando.setSubscope(item, false);
         commando.reSearch();

@@ -10,14 +10,14 @@
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    version="1.1"
-   width="16"
-   height="16"
-   viewBox="0 0 16 16"
+   width="12"
+   height="14"
+   viewBox="0 0 12 14"
    id="svg2"
-   inkscape:version="0.48.5 r10040"
+   inkscape:version="0.91 r13725"
    sodipodi:docname="menu.svg">
   <metadata
-     id="metadata14">
+     id="metadata10">
     <rdf:RDF>
       <cc:Work
          rdf:about="">
@@ -28,7 +28,7 @@
     </rdf:RDF>
   </metadata>
   <defs
-     id="defs12" />
+     id="defs8" />
   <sodipodi:namedview
      pagecolor="#ffffff"
      bordercolor="#666666"
@@ -38,32 +38,20 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="640"
+     inkscape:window-width="772"
      inkscape:window-height="480"
-     id="namedview10"
+     id="namedview6"
      showgrid="false"
-     inkscape:zoom="14.75"
-     inkscape:cx="8"
-     inkscape:cy="8"
-     inkscape:window-x="607"
-     inkscape:window-y="206"
+     inkscape:zoom="16.857143"
+     inkscape:cx="-4.3813559"
+     inkscape:cy="6.0508475"
+     inkscape:window-x="0"
+     inkscape:window-y="25"
      inkscape:window-maximized="0"
      inkscape:current-layer="svg2" />
-  <g
-     id="g4">
-    <line
-       stroke-width="1"
-       x1=""
-       y1=""
-       x2=""
-       y2=""
-       stroke="#449FDB"
-       opacity=""
-       id="line6" />
-  </g>
   <path
-     d="M1 3h14v3h-14zM1 7h14v3h-14zM1 11h14v3h-14z"
-     fill="#000000"
-     id="path8"
-     style="fill:#4d4d4d" />
+     fill="#444444"
+     d="M12 10.5v1q0 0.203-0.148 0.352t-0.352 0.148h-11q-0.203 0-0.352-0.148t-0.148-0.352v-1q0-0.203 0.148-0.352t0.352-0.148h11q0.203 0 0.352 0.148t0.148 0.352zM12 6.5v1q0 0.203-0.148 0.352t-0.352 0.148h-11q-0.203 0-0.352-0.148t-0.148-0.352v-1q0-0.203 0.148-0.352t0.352-0.148h11q0.203 0 0.352 0.148t0.148 0.352zM12 2.5v1q0 0.203-0.148 0.352t-0.352 0.148h-11q-0.203 0-0.352-0.148t-0.148-0.352v-1q0-0.203 0.148-0.352t0.352-0.148h11q0.203 0 0.352 0.148t0.148 0.352z"
+     id="path4"
+     style="fill:#9e9e9e;fill-opacity:1" />
 </svg>

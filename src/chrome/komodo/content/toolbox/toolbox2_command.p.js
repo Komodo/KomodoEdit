@@ -565,7 +565,7 @@ this.getContainerForIndex = function(index) {
             return parentIndex;
         } else if (this.manager.view.getLevel(index) == 0
                    && (this.manager.view.getImageSrc(index, None)
-                       != 'chrome://fugue/skin/icons/toolbox.png')) {
+                       != 'chrome://komodo/skin/images/toolbox/toolbox.svg')) {
             // It's a top-level node in the std toolbox?
             dump("Looks like we're dropping into the std toolbox\n");
             return -1;

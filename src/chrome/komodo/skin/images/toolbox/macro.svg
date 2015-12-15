@@ -10,14 +10,14 @@
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    version="1.1"
-   width="16"
-   height="16"
-   viewBox="0 0 16 16"
+   width="13"
+   height="14"
+   viewBox="0 0 13 14"
    id="svg2"
-   inkscape:version="0.48.5 r10040"
-   sodipodi:docname="play.svg">
+   inkscape:version="0.91 r13725"
+   sodipodi:docname="macro.svg">
   <metadata
-     id="metadata14">
+     id="metadata10">
     <rdf:RDF>
       <cc:Work
          rdf:about="">
@@ -28,7 +28,7 @@
     </rdf:RDF>
   </metadata>
   <defs
-     id="defs12" />
+     id="defs8" />
   <sodipodi:namedview
      pagecolor="#ffffff"
      bordercolor="#666666"
@@ -38,32 +38,20 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="738"
+     inkscape:window-width="772"
      inkscape:window-height="480"
-     id="namedview10"
+     id="namedview6"
      showgrid="false"
-     inkscape:zoom="14.75"
-     inkscape:cx="8"
-     inkscape:cy="8"
+     inkscape:zoom="16.857143"
+     inkscape:cx="6.5"
+     inkscape:cy="6.5254237"
      inkscape:window-x="0"
-     inkscape:window-y="29"
+     inkscape:window-y="25"
      inkscape:window-maximized="0"
      inkscape:current-layer="svg2" />
-  <g
-     id="g4">
-    <line
-       stroke-width="1"
-       x1=""
-       y1=""
-       x2=""
-       y2=""
-       stroke="#449FDB"
-       opacity=""
-       id="line6" />
-  </g>
   <path
-     d="M8 0c-4.418 0-8 3.582-8 8s3.582 8 8 8 8-3.582 8-8-3.582-8-8-8zM8 14.5c-3.59 0-6.5-2.91-6.5-6.5s2.91-6.5 6.5-6.5 6.5 2.91 6.5 6.5-2.91 6.5-6.5 6.5zM6 4.5l6 3.5-6 3.5z"
-     fill="#000000"
-     id="path8"
-     style="fill:#156b6b;fill-opacity:1" />
+     fill="#444444"
+     d="M11.867 6.063q0.484 0 0.809 0.316t0.324 0.793q0 0.758-0.727 1.016l-1.344 0.461 0.438 1.305q0.055 0.164 0.055 0.367 0 0.461-0.328 0.797t-0.789 0.336q-0.367 0-0.668-0.211t-0.418-0.563l-0.43-1.289-2.422 0.828 0.43 1.281q0.062 0.187 0.062 0.367 0 0.461-0.328 0.797t-0.797 0.336q-0.367 0-0.664-0.211t-0.414-0.563l-0.43-1.273-1.195 0.414q-0.227 0.070-0.391 0.070-0.477 0-0.793-0.312t-0.316-0.789q0-0.367 0.215-0.664t0.559-0.414l1.219-0.414-0.82-2.445-1.219 0.422q-0.203 0.062-0.375 0.062-0.469 0-0.789-0.316t-0.32-0.785q0-0.367 0.215-0.664t0.559-0.414l1.227-0.414-0.414-1.242q-0.062-0.187-0.062-0.367 0-0.469 0.328-0.801t0.797-0.332q0.367 0 0.664 0.211t0.414 0.563l0.422 1.25 2.422-0.82-0.422-1.25q-0.062-0.187-0.062-0.367 0-0.461 0.332-0.797t0.793-0.336q0.367 0 0.668 0.215t0.418 0.559l0.414 1.258 1.266-0.43q0.164-0.047 0.336-0.047 0.469 0 0.801 0.309t0.332 0.77q0 0.352-0.234 0.637t-0.578 0.402l-1.227 0.422 0.82 2.469 1.281-0.438q0.187-0.062 0.359-0.062zM5.664 8.109l2.422-0.82-0.82-2.461-2.422 0.836z"
+     id="path4"
+     style="fill:#8bc34a;fill-opacity:1" />
 </svg>

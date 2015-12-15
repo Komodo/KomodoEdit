@@ -194,7 +194,7 @@
             var info = {
                 ext: "?",
                 language: "Unknown",
-                size: params.size || 16,
+                size: params.size || 14,
                 color: preset ? preset.color : randomColor({luminosity: 'dark'},"Unknown")
             };
 
@@ -281,7 +281,7 @@
             if (svgPresetFile.exists())
             {
                 log.debug("Creating icon from SVG Preset: " + svgPresetFile.path);
-                icons.createPngFromSvg(svgPresetFile.path, pngFile.path, {}, {size: info.size || 16}, function()
+                icons.createPngFromSvg(svgPresetFile.path, pngFile.path, {}, {size: info.size || 14}, function()
                 {
                     callback(pngFile);
                 });
@@ -315,7 +315,7 @@
             
             // Generate unique id for query based on the params
             var params = sdkQuery.parse(url.search.substr(1));
-            params.size = Math.round((params.size || 16) * window.devicePixelRatio);
+            params.size = Math.round((params.size || 14) * window.devicePixelRatio);
             
             if ( ! ("fill" in params) &&  ! ("color" in params))
             {
@@ -429,7 +429,7 @@
         if (attribute == "scaleAuto")
         {
             var sizeFrom = svgData.match(/width="(\d+)/);
-            sizeFrom = sizeFrom ? parseInt(sizeFrom[1]) : 16;
+            sizeFrom = sizeFrom ? parseInt(sizeFrom[1]) : 14;
             if (value == sizeFrom) return false;
             var scale = value / sizeFrom;
             return this.forceSvgAttribute(svgData, "transform", 'scale('+scale+')');
@@ -479,7 +479,7 @@
         log.debug(templatePath);
 
         if (("size" in vars) && ! ("scale" in vars))
-            vars.scale = vars.size / 16;
+            vars.scale = vars.size / 14;
 
         // Read and parse template
         readFile(templatePath, function(data)
@@ -587,8 +587,8 @@
         }
 
         var canvas = document.getElementById('canvas-proxy').cloneNode();
-        canvas.setAttribute("width", attrs.width || 16);
-        canvas.setAttribute("height", attrs.height || 16);
+        canvas.setAttribute("width", attrs.width || 14);
+        canvas.setAttribute("height", attrs.height || 14);
         var ctx = canvas.getContext('2d');
 
         var img = new window.Image();

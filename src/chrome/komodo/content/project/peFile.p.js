@@ -451,7 +451,7 @@ this.setFileStatusAttributesFromFile = function peFile_setFileStatusAttributesFr
     // file_readonly = [readonly]
 
     // File image url.
-    element.setAttribute('file_image_url', 'koicon://' + koFile.baseName + '?size=16');
+    element.setAttribute('file_image_url', 'koicon://' + koFile.baseName + '?size=14');
 
     // Readonly status.
     if (!koFile.exists || koFile.isWriteable) {
@@ -499,7 +499,7 @@ this.setFileStatusAttributesFromView = function peFile_setFileStatusAttributesFr
         } else {
             if (view.koDoc) {
                 // Deal with untitled documents (that do not have a koFile).
-                element.setAttribute('file_image_url', 'koicon://' + view.koDoc.baseName + '?size=16');
+                element.setAttribute('file_image_url', 'koicon://' + view.koDoc.baseName + '?size=14');
             } else {
                 element.removeAttribute('file_image_url');
             }

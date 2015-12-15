@@ -37,20 +37,20 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="1280"
-     inkscape:window-height="751"
+     inkscape:window-width="1920"
+     inkscape:window-height="1030"
      id="namedview6"
      showgrid="false"
      inkscape:zoom="7.375"
-     inkscape:cx="16"
+     inkscape:cx="-7.7288136"
      inkscape:cy="16"
      inkscape:window-x="0"
-     inkscape:window-y="0"
+     inkscape:window-y="25"
      inkscape:window-maximized="1"
      inkscape:current-layer="svg2" />
   <path
      d="m 29.793459,5.9272385 -27.5869187,0 c -1.28181925,0 -2.32409954,1.0422797 -2.32409954,2.3240998 l 0,15.4973227 c 0,1.28182 1.04228029,2.3241 2.32409954,2.3241 l 27.5869187,0 c 1.28182,0 2.3241,-1.04228 2.3241,-2.3241 l 0,-15.4973227 c 0,-1.2818201 -1.04228,-2.3240998 -2.3241,-2.3240998 z M 18.014695,22.04052 l -4.02939,0.0043 0,-6.044085 -3.022756,3.873975 -3.0227549,-3.873975 0,6.044085 -4.0293894,0 0,-12.0881695 4.0293894,0 3.0227549,4.0293895 3.022756,-4.0293895 4.02939,-0.0043 0,12.0881695 z m 6.015568,1.00806 -5.007507,-7.047867 3.021329,0 0,-6.0440845 4.029389,0 0,6.0440845 3.02133,0 -5.065967,7.047867 z"
      id="path4"
      inkscape:connector-curvature="0"
-     style="fill:#917c6f" />
+     style="fill:#616161;fill-opacity:1" />
 </svg>

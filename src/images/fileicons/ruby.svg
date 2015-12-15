@@ -36,20 +36,20 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="1280"
-     inkscape:window-height="751"
+     inkscape:window-width="1920"
+     inkscape:window-height="1030"
      id="namedview6"
      showgrid="false"
      inkscape:zoom="14.75"
-     inkscape:cx="-0.47457627"
+     inkscape:cx="-12.271186"
      inkscape:cy="8"
      inkscape:window-x="0"
-     inkscape:window-y="0"
+     inkscape:window-y="25"
      inkscape:window-maximized="1"
      inkscape:current-layer="svg2" />
   <path
      d="m 4.6,14.55 0,0 0,0 0.1,0 0,0 9,0.4 -12.3,0 z m 6.4,-4.9 3.7,5 -9.6,-0.4 z m 4,4.9 -3.8,-5.2 3.3,-6.1 z M 1.1,13.35 1.5,9.15 2.2,9.85 1,13.55 Z m 1.4,-3 1.9,3.8 -3.2,0.4 z m 1.9,2.9 -1.8,-3.5 2.5,-1.6 z m 6.2,-4 -5.9,4.7 0.8,-5.7 z m -2.3,-4.5 2.2,4.2 -5,-1.1 z m 0.4,0 5.2,-1.4 -3,5.6 z m -0.2,-0.4 0.7,-1.8 4.1,0.6 z m 6,-1.4 -4.4,-0.7 3.5,-1.2 z M 12.2,1.05 8.9,2.15 8.3,1.95 Z M 8,4.35 5.1,7.65 2.4,9.35 1.7,8.75 l 1,-2 2.5,-2.8 2.4,-1.7 1.1,0.3 z"
      id="path4"
      inkscape:connector-curvature="0"
-     style="fill:#d40000" />
+     style="fill:#f44336;fill-opacity:1" />
 </svg>

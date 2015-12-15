@@ -1208,14 +1208,9 @@ var breadcrumbs = function(view) {
             if (child.isFile())
             {
                 var elem = this._getTemplate('crumbMenuFile');
-
-                // Set native file icon if available
-                if (ko.prefs.getBoolean("native_mozicons_available", false))
-                {
-                    elem.setAttribute(
-                        'image', "koicon://" + child.getFilename() + "?size=16"
-                    );
-                }
+                elem.setAttribute(
+                    'image', "koicon://" + child.getFilename() + "?size=14"
+                );
             }
             else
             {

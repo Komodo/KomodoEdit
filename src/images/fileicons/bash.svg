@@ -14,7 +14,7 @@
    height="32"
    id="svg2"
    inkscape:version="0.91 r13725"
-   sodipodi:docname="terminal.svg">
+   sodipodi:docname="bash.svg">
   <metadata
      id="metadata10">
     <rdf:RDF>
@@ -37,20 +37,20 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="1280"
-     inkscape:window-height="751"
+     inkscape:window-width="1920"
+     inkscape:window-height="1030"
      id="namedview6"
      showgrid="false"
      inkscape:zoom="7.375"
-     inkscape:cx="16"
+     inkscape:cx="-7.5932203"
      inkscape:cy="16"
      inkscape:window-x="0"
-     inkscape:window-y="0"
+     inkscape:window-y="25"
      inkscape:window-maximized="1"
      inkscape:current-layer="svg2" />
   <path
      d="m 29.589888,2.4101117 -27.1797769,0 c -1.2508106,0 -2.26498134,1.0141708 -2.26498134,2.2649814 l 0,22.6498139 c 0,1.25081 1.01417074,2.264981 2.26498134,2.264981 l 27.1797769,0 c 1.250811,0 2.264982,-1.014171 2.264982,-2.264981 l 0,-22.6498139 c 0,-1.2508106 -1.014171,-2.2649814 -2.264982,-2.2649814 z M 4.6750925,18.264981 9.2050549,13.735018 4.6750925,9.2050561 6.9400742,6.9400743 13.735018,13.735018 6.9400742,20.529963 4.6750925,18.264981 Z m 18.1198515,2.264982 -9.059926,0 0,-2.264982 9.059926,0 0,2.264982 z"
      id="path4"
      inkscape:connector-curvature="0"
-     style="fill:#917c6f" />
+     style="fill:#607d8b;fill-opacity:1" />
 </svg>

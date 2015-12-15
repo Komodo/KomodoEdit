@@ -809,7 +809,7 @@ if (typeof ko.openfiles == 'undefined')
             // Override file icon with one that is relevant to the type of file
             listItem.querySelector('.file-icon').setAttribute(
                 'src',
-                "koicon://" + editorView.title + "?size=16"
+                "koicon://" + editorView.title + "?size=14"
             );
             
             listItem.querySelector('.file-close-button').addEventListener(

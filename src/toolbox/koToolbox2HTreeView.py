@@ -139,7 +139,7 @@ class _KoFolderHView(_KoContainerHView):
 
     def getImageSrc(self, index, column):
         if self.isToolboxRow(index):
-            return 'chrome://fugue/skin/icons/toolbox.png'
+            return 'chrome://komodo/skin/images/toolbox/toolbox.svg'
         else:
             return self.get_iconurl()
 

@@ -28,14 +28,14 @@ import koToolbox2
 #---- Globals
 
 log = logging.getLogger("koTools")
-#log.setLevel(logging.DEBUG)
+log.setLevel(logging.DEBUG)
 
 eol = None
 
 _toolsManager = None
 
 _icons = {
-    'folder'    :   'chrome://komodo/skin/images/folder-closed.png',
+    'folder'    :   '',
     'menu'      :   'chrome://komodo/skin/images/toolbox/menu.svg',
     'toolbar'   :   'chrome://komodo/skin/images/toolbox/toolbar.svg',
     'terminal'  :   'chrome://komodo/skin/images/toolbox/command.svg',
@@ -44,16 +44,6 @@ _icons = {
     'template'  :   'chrome://komodo/skin/images/toolbox/template.svg',
     'url'       :   'chrome://komodo/skin/images/toolbox/browser.svg'
 }
-
-if sys.platform == 'darwin':
-    _icons.update({
-        'folder'    :   'chrome://global/skin/dirListing/folder.png'
-    })
-    
-if sys.platform.startswith('linux'):
-    _icons.update({
-        'folder'    :   'moz-icon://stock/gtk-directory?size=16'
-    })
 
 #---- `koITool` class hierarchy
 

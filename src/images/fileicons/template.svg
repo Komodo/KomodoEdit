@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" height="{{size}}" width="{{size}}" transform="scale({{scale}})" version="1.1">
- <path id="path4" fill="#888a85" d="m14.116 3.1161c0.43 0.4296 0.79 1.2293 0.868 1.8839h-4.9841v-4.9841c0.65466 0.078094 1.4543 0.43844 1.8839 0.868zm-5.116 2.8839v-6h-6.75c-0.6875 0-1.25 0.5625-1.25 1.25v13.5c0 0.688 0.5625 1.25 1.25 1.25h11.5c0.688 0 1.25-0.562 1.25-1.25v-8.75z"/>
- <rect id="rect4138" rx="0" height="7" width="16" y="8" x="0" fill="{{color}}"/>
- <text id="text4140" style="text-anchor:middle" font-family="'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Droid Sans Mono', Monospace" font-size="7px" y="14" x="8" text-anchor="middle" font-weight="bold" fill="#ffffff">{{ext}}</text>
+<svg id="svg2" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg" height="{{size}}" width="{{size}}" version="1.1" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" transform="scale({{scale}})">
+ <path id="path4" style="fill:#cdcdcd" d="m9.0085 4v-3.687q0.172 0.109 0.281 0.219l3.188 3.188q0.109 0.109 0.219 0.281h-3.687zm-1 0.25q0 0.312 0.219 0.531t0.531 0.219h4.25v8.25q0 0.312-0.219 0.531t-0.531 0.219h-10.5q-0.3115 0-0.5305-0.219t-0.219-0.531v-12.5q0-0.312 0.219-0.531t0.531-0.219h6.25v4.25z"/>
+ <rect id="rect4138" rx="0" height="7" width="14" y="6" x="0" fill="{{color}}"/>
+ <text id="text4140" style="font-size:6px;font-weight:bold;font-family:&apos;DejaVu Sans Mono&apos;, &apos;Bitstream Vera Sans Mono&apos;, &apos;Droid Sans Mono&apos;, Monospace;text-anchor:middle;fill:#ffffff" font-size="6px" y="11.3" x="7.1101718" font-weight="bold">{{ext}}</text>
 </svg>

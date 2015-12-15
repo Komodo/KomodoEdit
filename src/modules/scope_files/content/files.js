@@ -382,7 +382,7 @@
                     id: path,
                     name: name,
                     description: description,
-                    icon: type == 'dir' ? folderIcon : "koicon://" + encodeURIComponent(name) + "?size=16",
+                    icon: type == 'dir' ? folderIcon : "koicon://" + encodeURIComponent(name) + "?size=14",
                     isScope: type == 'dir',
                     weight: weight,
                     scope: "scope-files",

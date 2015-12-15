@@ -10,12 +10,32 @@
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    version="1.1"
-   width="16"
-   height="16"
-   viewBox="0 0 16 16"
+   width="14"
+   height="14"
+   viewBox="0 0 14 14"
    id="svg2"
-   inkscape:version="0.48.5 r10040"
+   inkscape:version="0.91 r13725"
    sodipodi:docname="toolbar.svg">
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1030"
+     inkscape:window-height="746"
+     id="namedview10"
+     showgrid="false"
+     inkscape:zoom="14.75"
+     inkscape:cx="-3.8644068"
+     inkscape:cy="6.9152542"
+     inkscape:window-x="614"
+     inkscape:window-y="193"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg2" />
   <metadata
      id="metadata14">
     <rdf:RDF>
@@ -29,41 +49,21 @@
   </metadata>
   <defs
      id="defs12" />
-  <sodipodi:namedview
-     pagecolor="#ffffff"
-     bordercolor="#666666"
-     borderopacity="1"
-     objecttolerance="10"
-     gridtolerance="10"
-     guidetolerance="10"
-     inkscape:pageopacity="0"
-     inkscape:pageshadow="2"
-     inkscape:window-width="640"
-     inkscape:window-height="480"
-     id="namedview10"
-     showgrid="false"
-     inkscape:zoom="14.75"
-     inkscape:cx="8"
-     inkscape:cy="8"
-     inkscape:window-x="614"
-     inkscape:window-y="193"
-     inkscape:window-maximized="0"
-     inkscape:current-layer="svg2" />
   <g
      id="g4">
     <line
-       stroke-width="1"
-       x1=""
-       y1=""
-       x2=""
-       y2=""
-       stroke="#449FDB"
+       style="stroke:#449fdb;stroke-width:1"
+       id="line6"
        opacity=""
-       id="line6" />
+       y2="0"
+       x2="0"
+       y1="0"
+       x1="0" />
   </g>
   <path
-     d="m 15,5.3220339 0,5.6271191 -4,0 0,-5.6271191 z m -5,0 0,5.6271191 -4,0 0,-5.6271191 z m -5,0 0,5.6271191 -4,0 0,-5.6271191 z"
-     id="path8"
+     transform="matrix(1.000000,0.000000,0.000000,1.000000,0.000000,0.000000)"
+     style="fill:#9e9e9e;fill-opacity:1"
      inkscape:connector-curvature="0"
-     style="fill:#4d4d4d" />
+     id="path8"
+     d="M14.0 4.0L14.0 10.0L10.0 10.0L10.0 4.0ZM9.0 4.0L9.0 10.0L5.0 10.0L5.0 4.0ZM4.0 4.0L4.0 10.0L0.0 10.0L0.0 4.0Z" />
 </svg>

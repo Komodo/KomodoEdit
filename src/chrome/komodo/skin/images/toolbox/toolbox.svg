@@ -10,14 +10,14 @@
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    version="1.1"
-   width="16"
-   height="16"
-   viewBox="0 0 16 16"
+   width="14"
+   height="14"
+   viewBox="0 0 14 14"
    id="svg2"
-   inkscape:version="0.48.5 r10040"
-   sodipodi:docname="briefcase.svg">
+   inkscape:version="0.91 r13725"
+   sodipodi:docname="toolbox.svg">
   <metadata
-     id="metadata14">
+     id="metadata10">
     <rdf:RDF>
       <cc:Work
          rdf:about="">
@@ -28,7 +28,7 @@
     </rdf:RDF>
   </metadata>
   <defs
-     id="defs12" />
+     id="defs8" />
   <sodipodi:namedview
      pagecolor="#ffffff"
      bordercolor="#666666"
@@ -38,32 +38,20 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="1017"
-     inkscape:window-height="591"
-     id="namedview10"
+     inkscape:window-width="772"
+     inkscape:window-height="480"
+     id="namedview6"
      showgrid="false"
-     inkscape:zoom="14.75"
-     inkscape:cx="11.322034"
-     inkscape:cy="8"
-     inkscape:window-x="500"
-     inkscape:window-y="330"
+     inkscape:zoom="16.857143"
+     inkscape:cx="7"
+     inkscape:cy="6.5254237"
+     inkscape:window-x="0"
+     inkscape:window-y="25"
      inkscape:window-maximized="0"
      inkscape:current-layer="svg2" />
-  <g
-     id="g4">
-    <line
-       stroke-width="1"
-       x1=""
-       y1=""
-       x2=""
-       y2=""
-       stroke="#449FDB"
-       opacity=""
-       id="line6" />
-  </g>
   <path
-     d="M15 4h-4v-1c0-0.55-0.45-1-1-1h-4c-0.55 0-1 0.45-1 1v1h-4c-0.55 0-1 0.45-1 1v9c0 0.55 0.45 1 1 1h14c0.55 0 1-0.45 1-1v-9c0-0.55-0.45-1-1-1zM6 3.002c0.001-0.001 0.001-0.001 0.002-0.002h3.996c0.001 0.001 0.001 0.001 0.002 0.002v0.998h-4v-0.998zM15 8h-2v1.5c0 0.275-0.225 0.5-0.5 0.5h-1c-0.275 0-0.5-0.225-0.5-0.5v-1.5h-6v1.5c0 0.275-0.225 0.5-0.5 0.5h-1c-0.275 0-0.5-0.225-0.5-0.5v-1.5h-2v-1h14v1z"
-     fill="#000000"
-     id="path8"
-     style="fill:#ca1010;fill-opacity:1" />
+     fill="#444444"
+     d="M5 2h4v-1h-4v1zM14 7v3.75q0 0.516-0.367 0.883t-0.883 0.367h-11.5q-0.516 0-0.883-0.367t-0.367-0.883v-3.75h5.25v1.25q0 0.203 0.148 0.352t0.352 0.148h2.5q0.203 0 0.352-0.148t0.148-0.352v-1.25h5.25zM8 7v1h-2v-1h2zM14 3.25v3h-14v-3q0-0.516 0.367-0.883t0.883-0.367h2.75v-1.25q0-0.312 0.219-0.531t0.531-0.219h4.5q0.312 0 0.531 0.219t0.219 0.531v1.25h2.75q0.516 0 0.883 0.367t0.367 0.883z"
+     id="path4"
+     style="fill:#f44336;fill-opacity:1" />
 </svg>
