@@ -16,7 +16,7 @@ module.exports = function(elem) {
         return "_draggable" in this ? this._draggable : true;
     },
     this.dragTags = ["box", "hbox", "vbox", "spacer", "label", "statusbarpanel", "stack",
-            "toolbox", "toolboxrow",
+            "toolbox", "toolboxrow", "description", "toolbaritem",
             "toolbaritem", "toolbarseparator", "toolbarspring", "toolbarspacer",
             "radiogroup", "deck", "scrollbox", "arrowscrollbox", "tabs"
     ],

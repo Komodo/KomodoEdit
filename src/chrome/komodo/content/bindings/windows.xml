@@ -79,5 +79,41 @@
     </implementation>
     </binding>
     
+    <binding id="dialog-chromeless"
+             extends="chrome://global/content/bindings/dialog.xml#dialog">
+    <implementation>
+      <field name="_draggable">true</field>
+      <constructor>
+        <![CDATA[
+        if (window.parent && ! window.opener)
+        {
+          this._draggable = false;
+          return;
+        }
+        
+        var hideChrome = require("ko/prefs").getBoolean("ui.hide.chrome");
+        var showTitleBar = require("ko/prefs").getBoolean("ui.show.titlebar");
+        
+        if ( ! showTitleBar)
+        {
+            this.setAttribute("titlebar", false);
+        }
+        
+        this._draggable = hideChrome;
+        if (!this._draggableStarted) {
+          this._draggableStarted = true;
+          try {
+            new require("ko/windows/draggable")(this);
+          } catch (e) {}
+        }
+        
+        if (hideChrome) this.setAttribute("hidechrome", true);
+        
+        setTimeout(this.centerWindowOnScreen.bind(this), 250);
+        ]]>
+      </constructor>
+    </implementation>
+    </binding>
+    
     
 </bindings>

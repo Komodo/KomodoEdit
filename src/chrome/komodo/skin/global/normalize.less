@@ -49,6 +49,24 @@ popup, panel, tree
     color: @foreground;
 }
 
+dialog
+{
+    background: @special;
+    color: @foreground;
+    padding: 6px;
+    
+    .dialog-button-box
+    {
+        -moz-box-pack: center;
+        -moz-box-align: center;
+        
+        spacer
+        {
+            visibility: collapse;
+        }
+    }
+}
+
 menupopup
 {
     background: @primary;
