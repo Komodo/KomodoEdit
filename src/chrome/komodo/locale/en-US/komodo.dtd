@@ -234,8 +234,10 @@
 <!ENTITY filePosition.tooltiptext "File Position">
 <!ENTITY filePreferences.label "File Preferences">
 <!ENTITY fileType.tooltiptext "File Type">
+<!ENTITY filterSymbols.placeholder "Filter Symbols ..">
 <!ENTITY find.label "Find...">
 <!ENTITY findAllFunctions.label "Find All Functions">
+<!ENTITY findFilter.placeholder "Filter Tools ..">
 <!ENTITY findFilter.tooltiptext "Only show matches containing these space-separated words. Use minus '-' at the start of a word to exclude matches.">
 <!ENTITY search.tooltiptext "Search Again..">
 <!ENTITY findFind.desc "Find: Find...">

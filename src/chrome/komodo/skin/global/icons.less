@@ -27,6 +27,15 @@
     }
 }
 
+.icon-reset
+{
+	font-family: inherit;
+	font-style: inherit;
+	font-weight: inherit;
+	font-variant: inherit;
+	line-height: inherit;
+}
+
 #historyRecentLocations
 {
     padding-left: 0 !important;
@@ -118,6 +127,72 @@ tab[widget="runoutput-desc-tabpanel"] { .icon(); .icon-terminal(); }
 tab[widget="projectUnitTestsResults_tabpanel"] { .icon(); .icon-lab(); }
 tab[widget="notifications-widget"] { .icon(); .icon-info2(); }
 tab[widget="console-widget"] { .icon(); .icon-display2(); }
+
+.textbox-search-icons {
+    .icon();
+    .icon-search();
+    
+    & > image
+    {
+        visibility: collapse;
+        width: 0;
+    }
+}
+
+.file-close-button
+{
+    .icon();
+    .icon-cross3();
+    font-size: 16px;
+}
+
+#invoketool_toolbar_options,
+#domviewer-settings-button,
+.collab-sessions-menu-icon,
+.codeintel-settings-button,
+.project-tools-icon,
+.preferences-icon,
+page .cog-icon,
+{
+    .icon();
+    
+    & > .toolbarbutton-text
+    {
+        .icon();
+        .icon-cog();
+    }
+}
+
+#dbx_button_addDatabase
+{
+    .icon();
+    .icon-plus();
+}
+
+checkbox
+{
+    .checkbox-spacer-box
+    {
+        .icon();
+        margin-right: 4px;
+    }
+    
+    .icon();
+    &:not([checked="true"]) .checkbox-spacer-box { .icon-square(); }
+    &[checked="true"] .checkbox-spacer-box { .icon-check-square(); }
+}
+
+radio 
+{
+    .radio-spacer-box
+    {
+        .icon();
+        margin-right: 4px;
+    }
+    
+    &:not([selected="true"]) .radio-spacer-box { .icon-circle(); }
+    &[selected="true"] .radio-spacer-box { .icon-check-circle(); }
+}
 
 treechildren::-moz-tree-twisty {
     list-style-image: url("koicon://ko-svg/chrome/komodo/skin/images/trees/twisty-right.svg?size=14&color=@{escaped-icons}");

@@ -34,8 +34,8 @@
         image.file-icon
         {
             margin-left: 2px;
-            height: 16px;
-            max-height: 16px;
+            height: 14px;
+            max-height: 14px;
         }
     }
     
@@ -64,6 +64,21 @@
         }
     }
     
+    richlistitem
+    {
+        toolbarbutton.file-close-button
+        {
+            visibility: hidden;
+            margin: 0 10px 0 0;
+            padding: 0;
+        }
+        
+        &:hover toolbarbutton.file-close-button
+        {
+            visibility: visible;
+        }
+    }
+    
     richlistitem.split-item
     {
         height: 1px;
@@ -75,34 +90,6 @@
         {
             display: none;
         }
-    }
-}
-
-toolbarbutton.file-close-button
-{
-    -moz-appearance: none;
-    opacity: 0;
-    margin: 0 10px 0 0;
-    padding: 0;
-    list-style-image: url("chrome://global/skin/icons/close.png");
-    -moz-image-region: rect(0px, 16px, 16px, 0px);
-    -moz-transition: opacity 0.15s ease;
-    
-    &:hover
-    {
-        opacity: 1;
-        -moz-image-region: rect(0px, 32px, 16px, 16px);
-        border-color: transparent;
-    }
-    
-    &:focus
-    {
-        outline: none !important;
-    }
-    
-    &:active
-    {
-        -moz-image-region: rect(0px, 48px, 16px, 32px);
     }
 }
 

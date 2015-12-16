@@ -10,7 +10,7 @@
 <page xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
     <vbox flex="1" id="toolbox2-hierarchy-vbox">
         <!-- #if 1 -->
-        <hbox id="toolbox2-hierarchy-toolbar-a" >
+        <hbox id="toolbox2-hierarchy-toolbar-a" class="status-toolbar">
             <!-- the cog -->
             <textbox id="toolbox2-filter-textbox"
                        style="min-width:40px;"
@@ -20,6 +20,7 @@
                        onfocus="this.select();"
                        onkeypress="ko.toolbox2.onFilterKeypress(event)"
                        oncommand="ko.toolbox2.updateFilter()"
+                       placeholder="&findFilter.placeholder;"
                        tooltiptext="&findFilter.tooltiptext;"/>
             <toolbarbutton    id="toolbox2_tools-a"
                     tooltiptext="&tools.label;"
@@ -58,7 +59,7 @@
         <!-- #endif -->
         <tree flex="1"
               id="toolbox2-hierarchy-tree"
-              class="bg_transparent"
+              class="bg_transparent twisty-only"
               ondblclick="ko.toolbox2.onDblClick(event);"
               onclick="ko.toolbox2.onTreeClick(event);"
               seltype="multiple"

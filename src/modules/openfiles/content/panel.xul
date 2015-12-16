@@ -11,7 +11,7 @@
 <page xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
     <vbox flex="1" id="openfilesWrapper">
         <vbox flex="99">
-            <hbox id="openfilesPrefHbox" align="center">
+            <hbox id="openfilesPrefHbox" class="status-toolbar" align="center">
                 <label
                        id="openFilesPaneLabel"
                        value="&openFiles.label;: 0"

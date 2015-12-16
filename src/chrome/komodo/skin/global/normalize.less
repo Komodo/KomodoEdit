@@ -32,10 +32,26 @@ checkbox, radio, tabpanels, listitem, richlistitem, listheader
     color: @foreground; 
 }
 
-menupopup, popup, panel, tree
+input.textbox-input
+{
+    padding: inherit;
+    border: inherit;
+    background-color: inherit;
+    color: inherit;
+    font: inherit;
+    line-height: inherit;
+    
+}
+
+popup, panel, tree
 {
     background: @background;
     color: @foreground;
+}
+
+menupopup
+{
+    background: @primary;
 }
 
 ::-moz-tree-cell-text
@@ -143,6 +159,7 @@ checkbox, radio
 
 textbox, menulist
 {
+    color: @foreground;
     background: @primary;
     padding: 4px;
     border-radius: 2px;
@@ -199,7 +216,7 @@ treechildren::-moz-tree-cell-text
     padding-left: 4px;
 }
 
-treechildren::-moz-tree-image
+tree.twisty-only treechildren::-moz-tree-image
 {
     margin-left: -14px;
 }
@@ -237,7 +254,7 @@ splitter[orient="vertical"]
 
 splitter:not(.workspace_splitter)
 {
-    background-color: @border;
+    background-color: @primary;
 }    
 
 separator

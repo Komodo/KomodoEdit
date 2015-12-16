@@ -129,7 +129,7 @@
             ondragend="ko.places.viewMgr.doEndDrag(event, this);"
             context="places-files-popup"
             hidecolumnpicker="true"
-            class="placestree bg_transparent"
+            class="placestree bg_transparent twisty-only"
             persist="class"
             seltype="multiple">
           <treecols id="places-files-treecols">
@@ -169,6 +169,7 @@
       <vbox flex="1">
         <hbox id="placesSubpanelSplitterHboxBorder"></hbox>
         <hbox id="placesSubpanelSplitterHbox"
+              class="status-toolbar"
               flex="1"
               align="center">
           <!-- Using a deck inside a splitter causes layout problems on Linux,
