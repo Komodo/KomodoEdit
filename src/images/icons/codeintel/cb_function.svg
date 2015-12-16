@@ -7,11 +7,39 @@
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    version="1.1"
-   width="16"
-   height="16"
-   viewBox="0 0 16 16"
-   id="svg2">
+   width="14"
+   height="14"
+   viewBox="0 0 14 14"
+   id="svg2"
+   inkscape:version="0.91 r13725"
+   sodipodi:docname="cb_function.svg">
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1319"
+     inkscape:window-height="822"
+     id="namedview12"
+     showgrid="true"
+     inkscape:zoom="14.75"
+     inkscape:cx="8"
+     inkscape:cy="7.4576271"
+     inkscape:window-x="408"
+     inkscape:window-y="74"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg2">
+    <inkscape:grid
+       type="xygrid"
+       id="grid4140" />
+  </sodipodi:namedview>
   <metadata
      id="metadata13">
     <rdf:RDF>
@@ -20,7 +48,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -35,28 +63,29 @@
     </linearGradient>
   </defs>
   <g
-     id="icomoon-ignore">
+     id="icomoon-ignore"
+     transform="translate(-1.0169492,-1.0169492)">
     <line
        id="line5"
-       stroke="#449FDB"
        y2="0"
        x2="0"
        y1="0"
        x1="0"
-       stroke-width="1"
        style="stroke:#449fdb;stroke-width:1" />
   </g>
   <path
-     d="M 12,2 4.00025,2 C 2.9,2 2,2.9 2,4.00025 l 0,7.9995 C 2,13.10075 2.9,14 4.00025,14 l 7.9995,0 C 13.1,14 14,13.10075 14,11.99975 l 0,-7.9995 C 14.00025,2.9 13.10025,2 12,2 z"
+     d="m 10.983045,0.98305099 -7.999744,0 c -1.10025,0 -2.00025001,0.90000001 -2.00025001,2.00025001 l 0,7.999494 c 0,1.101 0.90000001,2.00025 2.00025001,2.00025 l 7.999494,0 c 1.10025,0 2.00025,-0.89925 2.00025,-2.00025 l 0,-7.999494 c 2.5e-4,-1.10025 -0.89975,-2.00025001 -2,-2.00025001 z"
      id="path7"
-     style="fill:#4b9f62;fill-opacity:1" />
+     style="fill:#8bc34a;fill-opacity:1"
+     inkscape:connector-curvature="0" />
   <g
-     transform="matrix(1.1151544,0,0,0.90395227,-0.73499866,0.71335676)"
+     transform="matrix(1.1151544,0,0,0.90395227,-1.7519477,-0.30359239)"
      id="text3752"
-     style="font-size:9.75362587px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;font-family:Monospace;-inkscape-font-specification:Monospace">
+     style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:9.75362587px;line-height:125%;font-family:Monospace;-inkscape-font-specification:Monospace;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none">
     <path
        d="m 6.936258,11.379631 0.00737,-3.3187593 -0.8967369,0 0,-0.7900245 0.8967369,0 -0.00737,-0.8265508 C 6.9331321,6.0931922 7.0441429,5.6622104 7.1416808,5.4346202 7.2392148,5.2005393 7.3660122,5.0119694 7.5220722,4.8689099 7.6846304,4.7258633 7.8699491,4.6250759 8.0780289,4.5665475 c 0.2145769,-0.058515 0.43891,-0.087776 0.6730002,-0.087783 0.2340834,6.8e-6 0.4681702,0.026016 0.702261,0.078029 0.2405852,0.052026 0.4649184,0.1137989 0.6729999,0.1853189 L 9.9799859,5.4346202 C 9.8369283,5.3630995 9.658112,5.3013266 9.4435365,5.2493014 9.2289529,5.1972881 9.0111222,5.1712784 8.7900436,5.1712724 c -0.136554,6e-6 -0.2666023,0.019513 -0.3901451,0.058522 C 8.2828522,5.2623122 8.1788136,5.3240851 8.0877825,5.415113 7.9967461,5.4996502 7.9252196,5.6166936 7.8732027,5.7662435 7.821181,5.909302 7.8329924,6.2329729 7.8329948,6.45405 l 0.00737,0.8167972 1.786107,0 0,0.7900245 -1.786107,0 -0.00737,3.3187593 -0.8967368,0"
        id="path5303"
-       style="fill:#ffffff;font-family:Ubuntu Mono;-inkscape-font-specification:Ubuntu Mono" />
+       style="font-family:'Ubuntu Mono';-inkscape-font-specification:'Ubuntu Mono';fill:#ffffff"
+       inkscape:connector-curvature="0" />
   </g>
 </svg>

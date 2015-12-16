@@ -177,7 +177,7 @@
                 }
 
                 log.debug("Generating color based on language");
-                info.color = randomColor({luminosity: 'dark'},info.language);
+                info.color = randomColor({luminosity: 'light'}, info.language);
             }
 
             return info;

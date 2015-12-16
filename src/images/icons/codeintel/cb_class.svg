@@ -7,11 +7,39 @@
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    version="1.1"
-   width="16"
-   height="16"
-   viewBox="0 0 16 16"
-   id="svg2">
+   width="14"
+   height="14"
+   viewBox="0 0 14 14"
+   id="svg2"
+   inkscape:version="0.91 r13725"
+   sodipodi:docname="cb_class.svg">
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1347"
+     inkscape:window-height="909"
+     id="namedview12"
+     showgrid="true"
+     inkscape:zoom="14.75"
+     inkscape:cx="8"
+     inkscape:cy="7.4576271"
+     inkscape:window-x="254"
+     inkscape:window-y="47"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg2">
+    <inkscape:grid
+       type="xygrid"
+       id="grid4140" />
+  </sodipodi:namedview>
   <metadata
      id="metadata13">
     <rdf:RDF>
@@ -20,7 +48,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -35,28 +63,29 @@
     </linearGradient>
   </defs>
   <g
-     id="icomoon-ignore">
+     id="icomoon-ignore"
+     transform="translate(-1.0169492,-1.0169492)">
     <line
-       stroke-width="1"
        x1="0"
        y1="0"
        x2="0"
        y2="0"
-       stroke="#449FDB"
        id="line5"
        style="stroke:#449fdb;stroke-width:1" />
   </g>
   <path
-     d="M 11.99975,2 4.00025,2 C 2.9,2 2,2.9 2,4.00025 l 0,7.9995 C 2,13.10075 2.9,14 4.00025,14 l 7.9995,0 C 13.1,14 14,13.10075 14,11.99975 l 0,-7.9995 C 14,2.9 13.1,2 11.99975,2 z"
+     d="m 10.982795,0.98305099 -7.999494,0 c -1.10025,0 -2.00025001,0.90000001 -2.00025001,2.00025001 l 0,7.999494 c 0,1.101 0.90000001,2.00025 2.00025001,2.00025 l 7.999494,0 c 1.10025,0 2.00025,-0.89925 2.00025,-2.00025 l 0,-7.999494 c 0,-1.10025 -0.9,-2.00025001 -2.00025,-2.00025001 z"
      id="path7"
-     style="fill:#ad6952;fill-opacity:1" />
+     style="opacity:1;fill:#ff5722;fill-opacity:1"
+     inkscape:connector-curvature="0" />
   <g
-     transform="matrix(0.87074838,0,0,0.89982424,-1.1419178,2.2470395)"
+     transform="matrix(0.87074838,0,0,0.89982424,-2.1588668,1.2300905)"
      id="text4279"
-     style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;font-family:Monospace;-inkscape-font-specification:Monospace">
+     style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12px;line-height:125%;font-family:Monospace;-inkscape-font-specification:Monospace;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none">
     <path
        d="M 11.137592,9.7274113 C 10.211808,9.7274112 9.491106,9.4442083 8.9754829,8.8778019 8.459857,8.3074907 8.2020448,7.4910853 8.2020454,6.4285831 8.2020448,5.3504624 8.4618101,4.5203851 8.9813423,3.9383488 9.5047779,3.3524175 10.248918,3.0594491 11.213764,3.0594425 c 0.312496,6.6e-6 0.62109,0.03321 0.925781,0.099609 0.308589,0.062506 0.562495,0.1445376 0.761719,0.2460937 L 12.578999,4.2840519 C 12.036025,4.0809324 11.573135,3.97937 11.190327,3.9793644 10.541886,3.97937 10.063371,4.1844479 9.7547798,4.5945988 9.4461842,5.0008534 9.2918874,5.6082746 9.2918892,6.4168644 c -1.8e-6,0.7773462 0.154295,1.3730487 0.4628906,1.7871094 0.3085912,0.4101572 0.7656222,0.6152351 1.3710942,0.6152343 0.566402,8e-7 1.123042,-0.124999 1.669921,-0.375 l 0,0.9375 c -0.445317,0.2304688 -0.998051,0.3457031 -1.658203,0.3457032"
        id="path4284"
-       style="fill:#ffffff;font-family:Ubuntu Sans Mono;-inkscape-font-specification:Ubuntu Sans Mono" />
+       style="font-family:'Ubuntu Sans Mono';-inkscape-font-specification:'Ubuntu Sans Mono';fill:#ffffff"
+       inkscape:connector-curvature="0" />
   </g>
 </svg>
