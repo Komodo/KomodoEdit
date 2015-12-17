@@ -545,8 +545,12 @@ if (typeof ko.openfiles == 'undefined')
         {
             var editorView      = e.originalTarget;
             var dirtyIndicator  = listbox.querySelector(
-                'richlistitem[id="'+editorView.uid.number+'"] .file-dirty'
-            );
+                'richlistitem[id="'+editorView.uid.number+'"] .file-dirty');
+
+            var item = listbox.querySelector('richlistitem[id="'+view.uid.number+'"]');
+            if (!item) {
+                return;
+            }
             
             if (editorView.koDoc.isDirty)
             {

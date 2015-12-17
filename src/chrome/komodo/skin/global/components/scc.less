@@ -1,0 +1,35 @@
+:-moz-any(richlistitem, listitem, tab)[file_scc_status="scc_ok"],
+treechildren::-moz-tree-cell-text(sccOk)
+{
+    color: @scc-ok;
+}
+
+:-moz-any(richlistitem, listitem, tab)[file_scc_status_extra="scc_needSync"],
+treechildren::-moz-tree-cell-text(sccSync) {
+    color: @scc-sync;
+}
+
+:-moz-any(richlistitem, listitem, tab)[file_scc_status_extra="scc_conflict"],
+treechildren::-moz-tree-cell-text(sccConflict) {
+    color: @scc-conflict;
+}
+
+:-moz-any(richlistitem, listitem, tab)[file_scc_status="scc_add"],
+treechildren::-moz-tree-cell-text(sccAdd) {
+    color: @scc-new;
+}
+
+:-moz-any(richlistitem, listitem, tab)[file_scc_status="scc_delete"],
+treechildren::-moz-tree-cell-text(sccDelete) {
+    color: @scc-deleted;
+}
+
+:-moz-any(richlistitem, listitem, tab)[file_scc_status="scc_edit"],
+treechildren::-moz-tree-cell-text(sccEdit) {
+    color: @scc-modified;
+}
+
+.tab-icon.file-status-icon,
+.tab-icon.file-scc-status-extra-icon {
+    visibility: collapse;
+}
