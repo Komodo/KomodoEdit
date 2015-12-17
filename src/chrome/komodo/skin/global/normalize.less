@@ -51,14 +51,24 @@ popup, panel, tree
 
 dialog
 {
-    background: @special;
     color: @foreground;
-    padding: 6px;
+    
+    .dialog-content-box
+    {
+        background: @primary;
+        border-top-left-radius: 5px;
+        border-top-right-radius: 5px;
+        padding: 6px;
+    }
     
     .dialog-button-box
     {
         -moz-box-pack: center;
         -moz-box-align: center;
+        background: @primary;
+        border-bottom-left-radius: 3px;
+        border-bottom-right-radius: 3px;
+        padding: 6px;
         
         spacer
         {
@@ -166,10 +176,14 @@ tabs
         min-height: 32px;
     }
     
-    tab:not([selected])
+    tab:not([selected]) 
     {
-        color: fade(@foreground, 70%);
         border-bottom: 2px solid transparent;
+        
+        label.tab-text
+        {
+            opacity: 0.7;
+        }
     }
     
     tab[selected]
