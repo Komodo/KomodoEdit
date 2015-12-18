@@ -7,9 +7,14 @@
 
 #toolbox_main, #toolbox_side
 {
-    .icon, [class^="icon-"], [class*=" icon-"], [class$="-icon"], [class*="-icon "]
+    toolbarbutton
     {
         font-size: 16px !important;
+        
+        label.toolbarbutton-text
+        {
+            font-size: inherit;
+        }
     }
 }
 
@@ -108,7 +113,7 @@
 
 .menu-icon > .toolbarbutton-text {
     visibility: visible; .icon(); .icon-menu4();
-    font-size: 24px;
+    font-size: 24px !important;
     text-shadow: 2px 2px 0 @button;
     margin: 0 6px;
 }

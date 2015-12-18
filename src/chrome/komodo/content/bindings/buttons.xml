@@ -123,5 +123,53 @@ use moz bindings with CSS to acheive everything we have here.
       </xul:hbox>
     </content>
   </binding>
+  
+    <binding id="dynamic-toolbarbutton" extends="chrome://global/content/bindings/toolbarbutton.xml#toolbarbutton">
+    <content>
+        <children/>
+        <xul:label class="toolbarbutton-counter" crop="none" xbl:inherits="value=counter"/>
+        <xul:image class="toolbarbutton-icon" xbl:inherits="validate,src=image,label,consumeanchor"/>
+    </content>
+    </binding>
+    
+    <binding id="dynamic-toolbarbutton-menu" extends="chrome://global/content/bindings/toolbarbutton.xml#menu-button">
+    <content>
+      <children includes="observes|template|menupopup|panel|tooltip"/>
+      <xul:vbox align="center" pack="center" flex="1">
+        <xul:hbox align="center" pack="center" flex="1">
+          <xul:toolbarbutton class="box-inherit toolbarbutton-menubutton-button"
+                             anonid="button" flex="1" allowevents="true"
+                             xbl:inherits="disabled,crop,image,accesskey,command,wrap,
+                                           align,dir,pack,orient,tooltiptext=buttontooltiptext,counter"/>
+          <xul:dropmarker type="menu-button" class="toolbarbutton-menubutton-dropmarker"
+                          anonid="dropmarker" xbl:inherits="align,dir,pack,orient,disabled,label,open"/>
+        </xul:hbox>
+        <xul:label class="toolbarbutton-text" crop="right" flex="1"
+                   xbl:inherits="value=label,accesskey,crop,dragover-top,wrap"/>
+      </xul:vbox>
+    </content>
+    <implementation>
+        <field name="button">
+            document.getAnonymousElementByAttribute(this, "anonid", "button")
+        </field>
+        <constructor>
+          <![CDATA[
+            var classes = this.getAttribute("class").split(/\s+/);
+            for (let cls of classes) {
+                if (cls.indexOf("icon-") === 0)
+                {
+                    this.classList.remove(cls);
+                    
+                    setTimeout(function() {
+                        this.button.classList.add(cls);
+                    }.bind(this), 0)
+                    
+                    break;
+                }
+            }
+          ]]>
+        </constructor>
+    </implementation>
+    </binding>
 
 </bindings>

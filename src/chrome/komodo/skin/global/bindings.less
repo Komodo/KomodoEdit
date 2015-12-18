@@ -49,3 +49,12 @@ checkbox {
 radio {
   -moz-binding: url("chrome://global/skin/globalBindings.xml#radio-with-spacing");
 }
+
+toolbarbutton:not([type="menu-button"]).dynamic-button,
+toolbarbutton[type="menu-button"].dynamic-button .toolbarbutton-menubutton-button {
+  -moz-binding: url('chrome://komodo/content/bindings/buttons.xml#dynamic-toolbarbutton');
+}
+
+toolbarbutton[type="menu-button"].dynamic-button {
+  -moz-binding: url('chrome://komodo/content/bindings/buttons.xml#dynamic-toolbarbutton-menu');
+}

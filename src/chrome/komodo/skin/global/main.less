@@ -85,6 +85,11 @@
     background: @primary;
     -moz-box-orient: vertical;
     
+    toolbar
+    {
+        -moz-box-orient: vertical;
+    }
+    
     toolbaritem
     {
         -moz-box-orient: vertical;
@@ -96,7 +101,7 @@
         }
     }
     
-    toolbaritem > toolbarbutton > dropmarker
+    toolbaritem > toolbarbutton dropmarker.toolbarbutton-menubutton-dropmarker
     {
         width: 12px;
         margin-right: -12px;
@@ -106,6 +111,37 @@
     {
         visibility: collapse;
     }
+    
+    toolbarbutton[type="menu-button"].dynamic-button:before,
+    .dynamic-button label.toolbarbutton-counter:not([value])
+    {
+        visibility: collapse;
+    }
+    
+    .dynamic-button.show-label .toolbarbutton-text[value]
+    {
+        display: inherit;
+        text-align: center;
+        padding: 4px 0;
+    }
+    
+    .dynamic-button label.toolbarbutton-counter
+    {
+        background: @state-info;
+        border-radius: 12px;
+        padding: 1px;
+        width: 16px;
+        max-width: 16px;
+        margin-left: -24px;
+        text-align: center;
+        font-size: 10px;
+        font-weight: bold;
+    }
+    
+    .dynamic-button.error label.toolbarbutton-counter { background: @state-error; }
+    .dynamic-button.warning label.toolbarbutton-counter { background: @state-warning; }
+    .dynamic-button.info label.toolbarbutton-counter { background: @state-info; }
+    .dynamic-button.ok label.toolbarbutton-counter { background: @state-ok; }
 }
 
 /* Statusbar */

@@ -2083,12 +2083,12 @@
                 <toolbar
                          id="side-top-toolbar"
                          flex="1"
-                         pack="center"
                          toolboxid="toolbox_side"
                          broadcaster="cmd_viewtoolstoolbar"
                          grippyhidden="true"
                          customizable="true"
-                         align="start"
+                         align="center"
+                         pack="start"
                          mode="icons"
                          persist="kohidden collapsed buttonstyle mode"
                          buttonstyle="pictures">
@@ -2108,12 +2108,12 @@
                 <toolbar 
                          id="side-bottom-toolbar"
                          flex="1"
-                         pack="center"
                          toolboxid="toolbox_side"
                          broadcaster="cmd_viewtoolstoolbar"
                          grippyhidden="true"
                          customizable="true"
-                         align="end"
+                         align="center"
+                         pack="end"
                          mode="icons"
                          persist="kohidden collapsed buttonstyle mode"
                          buttonstyle="pictures">
