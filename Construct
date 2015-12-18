@@ -445,6 +445,7 @@ Build(
     "$build/modules/icomoon/Conscript",
     "$build/modules/fontawesome/Conscript",
 
+    "$build/modules/lintresults/Conscript",
     "$build/modules/check_compatibility/Conscript",
 
     # 3rd-party contributed code in contrib/...

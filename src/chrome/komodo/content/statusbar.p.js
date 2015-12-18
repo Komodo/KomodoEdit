@@ -280,146 +280,6 @@ function _clearSelection() {
     sel.attr("collapsed", "true")
 }
 
-
-function _updateCheck(view) {
-try {
-    var xv = getXulView(view);
-    if (!xv || !view.prefs)
-        return;
-    
-    // Update the status bar for the current check status.
-    var checkWidget = xv.findAnonymous("anonid", 'statusbar-check').element();
-
-    // Only have linting for some view types (currently only 'editor').
-    if (typeof(view.lintBuffer) == "undefined"
-        || !view.lintBuffer
-        || !view.lintBuffer.canLintLanguage()) {
-        checkWidget.setAttribute('collapsed', 'true');
-        checkWidget.setAttribute("tooltiptext",
-                lazy.bundle.GetStringFromName("syntaxCheckingStatus.tooltip"));
-        return;
-    }
-    checkWidget.removeAttribute('collapsed');
-    
-    // Is linting enabled?
-    var checkingEnabled = view.koDoc.getEffectivePrefs().getBooleanPref("editUseLinting");
-
-    if (typeof(view.lintBuffer)=='undefined' || !view.lintBuffer)
-        return;
-
-    // Is there an error in the linter?
-    var lintError = view.lintBuffer.errorString;
-    if (lintError) {
-        checkWidget.setAttribute('class', 'syntax-error');
-        checkWidget.setAttribute("tooltiptext",lintError);
-        return;
-    }
-
-    // If so, get the lintResults.
-    //   lintResults == null        -> inprogress
-    //   lintResults.length == 0    -> ok
-    //   lintResults.length > 0     -> errors/warnings
-    /** @type {Components.interfaces.koILintResults} */
-    var lintResults = view.lintBuffer.lintResults;
-    if (!lintResults) {
-        if (checkingEnabled) {
-            checkWidget.setAttribute("tooltiptext",
-                lazy.bundle.GetStringFromName("syntaxCheckingStatusInProgress.tooltip"));
-            checkWidget.setAttribute('class', 'syntax-in-progress');
-        } else {
-            checkWidget.setAttribute("tooltiptext",
-                lazy.bundle.GetStringFromName("automaticSyntaxCheckingDisabled.tooltip"));
-            checkWidget.setAttribute('class', 'syntax-okay');
-        }
-    } else {
-        var numErrors = lintResults.getNumErrors();
-        var numWarnings = lintResults.getNumWarnings();
-        if (numErrors <= 0 && numWarnings <= 0) {
-            checkWidget.setAttribute('class', 'syntax-okay');
-            checkWidget.setAttribute("tooltiptext",
-                lazy.bundle.GetStringFromName("syntaxCheckingStatusOk.tooltip"));
-        } else {
-            if (numErrors > 0) {
-                checkWidget.setAttribute('class', 'syntax-error');
-            } else {
-                checkWidget.setAttribute('class', 'syntax-warning');
-            }
-            checkWidget.setAttribute("tooltiptext",
-                lazy.bundle.formatStringFromName("syntaxCheckingStatusErrors.tooltip",
-                    [numErrors, numWarnings], 2));
-        }
-    }
-    
-    _updateCheckNewLintResult();
-} catch(ex) {
-    _log.exception(ex);
-}
-}
-
-var _lintSuppressNext = false;
-var _lintResults = {};
-function _updateCheckNewLintResult() {
-    var view = require("ko/views").current();
-    var res = view.get("lintBuffer", "lintResults");
-    
-    if ( ! res) {
-        _lintResults = {};
-        _lintSuppressNext = false;
-        return;
-    }
-    
-    var results = {}, numResults = {};
-    res.getResults(results, numResults);
-    
-    if ( ! numResults.value) {
-        _lintResults = {};
-        _lintSuppressNext = false;
-        return;
-    }
-    
-    var topResult;
-    var __lintResults = {};
-    for (let i=0;i<numResults.value;i++)
-    {
-        let result = results.value[i];
-        let id = "" + result.lineStart + result.lineEnd + result.columnStart + result.columnEnd + result.severity;
-        
-        if ( ! (id in _lintResults) && ! _lintSuppressNext)
-        {
-            if ( ! topResult || topResult.severity < result.severity)
-                topResult = result;
-        }
-        
-        __lintResults[id] = true;
-    }
-    
-    if (topResult)
-    {
-        let prefix = "Ln: " + topResult.lineStart;
-        if (topResult.lineEnd != topResult.lineStart)
-            prefix += "-" + topResult.lineEnd;
-        
-        let severity = "INFO";
-        if (topResult.severity == topResult.SEV_WARNING)
-            severity = "WARNING";
-        if (topResult.severity == topResult.SEV_ERROR)
-            severity = "ERROR";
-        
-        require("notify/notify").send(
-            prefix + ", " + topResult.description + " (" + severity + ")",
-            "lint",
-            {command: function(topResult)
-            {
-                var editor = require("ko/editor");
-                editor.setCursor({line: topResult.lineStart, ch: topResult.columnStart});
-            }.bind(this, topResult)
-        });
-    }
-    
-    _lintResults = __lintResults;
-    _lintSuppressNext = false;
-}
-
 function _clear() {
     _clearSelection();
 }
@@ -429,16 +289,12 @@ function _clear() {
 function StatusBarObserver() {
     window.addEventListener('current_view_changed',
                             this.handle_current_view_changed, false);
-    window.addEventListener('current_view_check_status',
-                            this.handle_current_view_check_status, false);
     window.addEventListener('current_view_encoding_changed',
                             this.handle_current_view_encoding_changed, false);
     window.addEventListener('current_view_language_changed',
                             this.handle_current_view_language_changed, false);
     window.addEventListener('current_view_linecol_changed',
                             this.handle_current_view_linecol_changed, false);
-    window.addEventListener('current_view_lint_results_done',
-                            this.handle_current_lint_results_done, false);
     ko.main.addWillCloseHandler(this.destroy, this);
 };
 
@@ -451,10 +307,6 @@ StatusBarObserver.prototype.destroy = function()
 
     window.removeEventListener('current_view_changed',
                                this.handle_current_view_changed, false);
-    window.removeEventListener('current_view_lint_results_done',
-                               this.handle_current_lint_results_done, false);
-    window.removeEventListener('current_view_check_status',
-                               this.handle_current_view_check_status, false);
     window.removeEventListener('current_view_encoding_changed',
                                this.handle_current_view_encoding_changed, false);
     window.removeEventListener('current_view_language_changed',
@@ -473,7 +325,6 @@ function update_view_information(view) {
     _updateEncoding(view);
     _updateLanguage(view);
     _updateLineCol(view);
-    _updateCheck(view);
 }
 
 StatusBarObserver.prototype.handle_current_view_changed = function(event) {
@@ -484,14 +335,6 @@ StatusBarObserver.prototype.handle_current_view_changed = function(event) {
     } else {
         update_view_information(event.originalTarget);
     }
-};
-
-StatusBarObserver.prototype.handle_current_view_check_status = function(event) {
-    _updateCheck(ko.views.manager.currentView);
-};
-
-StatusBarObserver.prototype.handle_current_lint_results_done = function(event) {
-    _updateCheck(ko.views.manager.currentView);
 };
 
 StatusBarObserver.prototype.handle_current_view_encoding_changed = function(event) {
@@ -517,97 +360,6 @@ function _addMessage(msg, category, timeout, highlight,
     require("notify/notify").send(msg, category, {
         priority: highlight ? 'warning' : 'info'
     });
-}
-
-function StatusBarPrefObserver()
-{
-    var prefSvc = Components.classes["@activestate.com/koPrefService;1"].
-                  getService(Components.interfaces.koIPrefService);
-    prefSvc.prefs.prefObserverService.addObserver(this,'editUseLinting',0);
-    ko.main.addWillCloseHandler(this.destroy, this);
-};
-
-StatusBarPrefObserver.prototype.destroy = function()
-{
-    var prefSvc = Components.classes["@activestate.com/koPrefService;1"].
-                  getService(Components.interfaces.koIPrefService);
-    prefSvc.prefs.prefObserverService.removeObserver(this,'editUseLinting');
-}
-StatusBarPrefObserver.prototype.observe = function(prefSet, prefName, prefSetID)
-{
-    _log.debug("StatusBar: observed pref '"
-            + prefName + "' change (prefSet="
-            + prefSet + ", prefSetID="
-            + prefSetID)
-    switch (prefName) {
-    case 'editUseLinting':
-        var view = ko.views.manager.currentView;
-        if (view) {
-            _updateCheck(view);
-        }
-        break;
-    }
-};
-
-function updateLinterPopup() {
-    var $ = require("ko/dom");
-    var wrapper = $("#context_lint_results");
-    var separator = $("#context_lint_separator");
-    wrapper.empty();
-    separator.hide();
-    
-    var view = require("ko/views").current();
-    var res = view.get("lintBuffer", "lintResults");
-    
-    if ( ! res)
-        return;
-    
-    var results = {}, numResults = {};
-    res.getResults(results, numResults);
-    
-    if ( ! numResults.value)
-        return;
-    
-    var maxLength = ko.prefs.getLong("linter-popup-max-length", 10);
-    var length = Math.min(numResults.value, maxLength);
-    
-    results.value = results.value.sort(function(a,b)
-    {
-        if (b.severity < a.severity) return -1;
-        if (b.severity > a.severity) return 1;
-        return 0;
-    });
-    
-    for (let i=0;i<length;i++)
-    {
-        let result = results.value[i];
-        let prefix = result.lineStart;
-        if (result.lineEnd != result.lineStart)
-            prefix += "-" + result.lineEnd;
-        
-        var severity = "INFO";
-        if (result.severity == result.SEV_WARNING)
-            severity = "WARNING";
-        if (result.severity == result.SEV_ERROR)
-            severity = "ERROR";
-        
-        var elem = $($.create("menuitem", {label: prefix + ": " + result.description, acceltext: severity}).toString());
-        elem.on("command", function(result)
-        {
-            var editor = require("ko/editor");
-            editor.setCursor({line: result.lineStart, ch: result.columnStart});
-        }.bind(this, result));
-        elem._lintResult = result;
-        wrapper.append(elem);
-    }
-    
-    if (numResults.value > length)
-    {
-        var elem = $($.create("menuitem", {label: "...", disabled: true}).toString());
-        wrapper.append(elem);
-    }
-    
-    separator.show();
 }
 
 //---- public functions
@@ -722,7 +474,6 @@ this.changeEncoding = function(menuitem)
 
 window.addEventListener("komodo-ui-started", function() {
     _observer = new StatusBarObserver();
-    _prefObserver = new StatusBarPrefObserver();
     // Update for the current view.
     update_view_information();
     
