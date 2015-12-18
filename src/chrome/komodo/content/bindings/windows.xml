@@ -91,6 +91,14 @@
           return;
         }
         
+        if (typeof require == "undefined")
+        {
+            var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+                        .getService(Components.interfaces.nsIWindowMediator);
+            var w = wm.getMostRecentWindow("Komodo");
+            var require = w.require;
+        }
+        
         var hideChrome = require("ko/prefs").getBoolean("ui.hide.chrome");
         var showTitleBar = require("ko/prefs").getBoolean("ui.show.titlebar");
         
