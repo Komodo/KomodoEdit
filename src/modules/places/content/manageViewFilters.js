@@ -76,7 +76,8 @@ function wrapOnLoad() {
             isNew:            false,
             __EOF_:           null // allow comma on last real item.
         };
-        if (prefName == CURRENT_PROJECT_FILTER_NAME) {
+        if (prefName == CURRENT_PROJECT_FILTER_NAME &&
+            opener.ko.projects.manager.currentProject) {
             // Re-synchronize with project prefs. This is necessary because
             // project filters are stored in project files while places filters
             // are stored in the user's preferences file.
