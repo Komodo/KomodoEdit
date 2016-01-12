@@ -521,7 +521,7 @@ var sdkEditor = function(_scintilla, _scimoz) {
      */
     this.lineCount = function()
     {
-        return scimoz().lineCount + 1;
+        return scimoz().lineCount;
     };
 
     /** ****** Buffer Manipulation ****** **/
