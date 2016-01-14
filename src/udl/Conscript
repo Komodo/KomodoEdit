@@ -230,6 +230,12 @@ my @lexers = (
                udl_path => "mustache-mainlex.udl",
                skel => "skel/Mustache",
               },
+              {
+               language_name => "JSX",
+               codename => "jsx_language",
+               udl_path => "jsx-mainlex.udl",
+               skel => "skel/JSX",
+              },
              );
 foreach my $info (@lexers) {
     my $language_name = $info->{language_name};

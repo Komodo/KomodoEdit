@@ -1,0 +1,19 @@
+language JSX
+
+initial IN_M_DEFAULT_TRANSITION
+
+include "jsx/jsx2html.udl"
+include "jsx/html2jsx.udl"
+include "html2css.udl"
+include "css2html.udl"
+
+include "jslex.udl"
+include "html.udl"
+include "csslex.udl"
+
+family markup
+
+# Immediately hand lexing off to JavaScript since it starts in markup by
+# default.
+state IN_M_DEFAULT_TRANSITION:
+/./: redo => IN_CSL_DEFAULT

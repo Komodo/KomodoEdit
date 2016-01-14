@@ -1,0 +1,34 @@
+
+family markup
+
+# If the HTML tag is stand-alone, transition immediately back to JSX instead of
+# waiting for the corresponding end tag.
+state IN_M_STAG_POST_TAGNAME:
+'/>': paint(upto, M_TAGSPACE), paint(include, M_EMP_TAGC) => IN_CSL_DEFAULT
+state IN_M_STAG_POST_ATTRNAME_2:
+'/>': paint(upto, M_TAGSPACE), paint(include, M_EMP_TAGC) => IN_CSL_DEFAULT
+
+# When in HTML, look for the beginning of a closing tag. The tag will need to be
+# checked to see if it is a delimiter.
+state IN_M_DEFAULT:
+'</': paint(upto, M_DEFAULT), paint(include, M_ETAGO) => IN_M_ETAG_JSX
+
+# At the beginning of a closing tag. Check for delimiter. If so, we'll need to
+# confirm it stands alone (i.e. only whitespace or '>' after it). If there is no
+# delimiter, fall back on the default HTML handling.
+state IN_M_ETAG_JSX:
+delimiter: keep_delimiter, paint(upto, M_TAGNAME) => IN_M_ETAG_DELIM
+/./: redo => IN_M_ETAG_1 # fall back on the default
+
+# At the beginning of a closing delimiter. Verify it indeed is the delimiter
+# we're looking for and make the transition back to JSX.
+state IN_M_ETAG_DELIM:
+/\s+/: # stay
+'>': clear_delimiter, paint(include, M_ETAGC) => IN_CSL_DEFAULT
+/./: redo => IN_M_ETAG_1
+
+# When in HTML, look for a '{', which transitions back to JSX.
+state IN_M_DEFAULT:
+'{': paint(upto, M_DEFAULT), spush_check(IN_M_DEFAULT), redo => IN_CSL_DEFAULT
+state IN_M_STAG_POST_ATTRNAME_2:
+'{': paint(upto, M_DEFAULT), spush_check(IN_M_STAG_POST_TAGNAME), redo => IN_CSL_DEFAULT

@@ -1,0 +1,11 @@
+
+family csl
+
+# Look for the beginning of an HTML tag and mark it as a delimiter. In HTML now.
+state IN_CSL_DEFAULT:
+/<([\w:-]+)/: paint(upto, CSL_DEFAULT), set_delimiter(1), redo => IN_M_DEFAULT
+
+# When '{' transitioned from HTML to JSX, look for the matching '}' to
+# transition back to HTML.
+state IN_CSL_DEFAULT:
+'}': paint(upto, CSL_DEFAULT), paint(include, SSL_OPERATOR), spop_check => IN_CSL_DEFAULT
