@@ -314,6 +314,10 @@ class CoffeeScriptLangInfo(_JSLikeLangInfo):
                          'yes'])
     
     keywords = _inherited_keywords.union(_compiler_reserved_words).union(_new_keywords)
+    
+class JSXLangInfo(LangInfo):
+    name = "JSX"
+    exts = ['.js']
 
 class CLangInfo(LangInfo):
     #TODO: rationalize with C++ and Komodo's usage
