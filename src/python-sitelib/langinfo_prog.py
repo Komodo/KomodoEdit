@@ -317,6 +317,7 @@ class CoffeeScriptLangInfo(_JSLikeLangInfo):
     
 class JSXLangInfo(LangInfo):
     name = "JSX"
+    conforms_to_bases = ["Text"]
     exts = ['.js']
 
 class CLangInfo(LangInfo):
