@@ -1880,7 +1880,11 @@ this.onload = function uilayout_onload()
     
     var root = document.documentElement;
     var hide = _gPrefs.getBoolean("ui.hide.chrome");
-    if (hide) root.setAttribute("hidechrome", true);
+    if (hide)
+    {
+        root.setAttribute("drawintitlebar", true);
+        root.setAttribute("hidechrome", true);
+    }
     
     // preload the embedded find replace frame (no rush)
     setTimeout(function() {
@@ -2071,6 +2075,7 @@ _PrefObserver.prototype.observe = function(prefSet, prefName, prefSetID)
         var hide = _gPrefs.getBoolean("ui.hide.chrome");
         var root = document.documentElement;
         document.getElementById('toolbox_main')._draggable = hide;
+        root.setAttribute("drawintitlebar", hide);
         root.setAttribute("hidechrome", hide);
     }
 };

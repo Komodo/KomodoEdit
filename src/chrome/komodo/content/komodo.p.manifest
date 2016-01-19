@@ -28,3 +28,7 @@ override chrome://global/skin/toolbarbutton.css chrome://komodo/skin/global/void
 override chrome://global/skin/textbox.css chrome://komodo/skin/global/void.css
 override chrome://global/skin/checkbox.css chrome://komodo/skin/global/void.css
 override chrome://global/skin/radio.css chrome://komodo/skin/global/void.css
+override chrome://global/skin/resizer.css chrome://komodo/skin/global/void.css
+override chrome://global/skin/dropmarker.css chrome://komodo/skin/global/void.css
+override chrome://global/skin/toolbar.css chrome://komodo/skin/global/void.css
+

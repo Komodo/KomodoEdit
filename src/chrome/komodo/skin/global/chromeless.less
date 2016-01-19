@@ -97,6 +97,14 @@ resizer
     background: @primary;
 }
 
+/**
+ * On Windows and OSX we want to offset the top padding for the size used by the resizer
+ */
+#komodo_main[hidechrome="true"]:-moz-any(window[os-name="Windows_NT"], window[os-name="Linux"]) #komodo_main[hidechrome="true"] #toolbox_main
+{
+    padding-top: 0 !important;
+}
+
 #komodo_main[hidechrome="true"]
 {
     /**
@@ -104,8 +112,6 @@ resizer
      */
     #toolbox_main
     {
-        padding-top: 0 !important;
-        
         resizer
         {
             background: @special !important;
@@ -140,4 +146,12 @@ resizer
     {
         background: @background !important;
     }
+}
+
+/**
+ * Make room for the window buttons
+ */
+#komodo_main[hidechrome="true"][os-name="Darwin"] #main-toolboxrow
+{
+    padding-left: 64px;
 }
