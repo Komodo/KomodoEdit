@@ -38,16 +38,16 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="772"
-     inkscape:window-height="480"
+     inkscape:window-width="1920"
+     inkscape:window-height="1031"
      id="namedview4"
      showgrid="true"
      inkscape:zoom="16.857143"
-     inkscape:cx="7"
-     inkscape:cy="6.5254237"
-     inkscape:window-x="468"
-     inkscape:window-y="147"
-     inkscape:window-maximized="0"
+     inkscape:cx="-18.983051"
+     inkscape:cy="6.525424"
+     inkscape:window-x="1280"
+     inkscape:window-y="1"
+     inkscape:window-maximized="1"
      inkscape:current-layer="svg2">
     <inkscape:grid
        type="xygrid"
@@ -56,6 +56,6 @@
   <path
      id="path4"
      style="fill:#444444"
-     d="m 8.486948,7.5 q 0,0.102 -0.078,0.18 l -3.641,3.641 q -0.078,0.078 -0.18,0.078 -0.102,0 -0.18,-0.078 l -0.391,-0.391 q -0.078,-0.078 -0.078,-0.18 0,-0.102 0.078,-0.18 l 3.07,-3.07 -3.07,-3.07 q -0.078,-0.078 -0.078,-0.18 0,-0.102 0.078,-0.18 l 0.391,-0.391 q 0.078,-0.078 0.18,-0.078 0.102,0 0.18,0.078 l 3.641,3.641 q 0.078,0.078 0.078,0.18 z"
+     d="m 5.487,7.5 q 0,0.102 -0.078,0.18 l -3.641,3.641 q -0.078,0.078 -0.18,0.078 -0.102,0 -0.18,-0.078 L 1.017,10.93 q -0.078,-0.078 -0.078,-0.18 0,-0.102 0.078,-0.18 L 4.087,7.5 1.017,4.43 Q 0.939,4.352 0.939,4.25 0.939,4.148 1.017,4.07 L 1.408,3.679 q 0.078,-0.078 0.18,-0.078 0.102,0 0.18,0.078 L 5.409,7.32 Q 5.487,7.398 5.487,7.5 Z"
      inkscape:connector-curvature="0" />
 </svg>
