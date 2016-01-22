@@ -517,6 +517,50 @@ function javaScriptInfo(languageName) {
     };
 }
 
+function jsx_setup() {
+    if (!('JSX' in dialog)) {
+        dialog.JSX = {};
+        [
+         "lint_jsx",
+         "lint_jsx_failure"].forEach(function(name) {
+            dialog.JSX[name] = document.getElementById(name);
+        });
+        languageInfo.JSX = JSXInfo();
+    }
+    languageInfo.JSX.updateUI();
+}
+
+languageSetup.JSX = jsx_setup;
+function JSXInfo() {
+    return {
+      hasJSX: null,
+      
+      updateUI: function() {
+            if (this.hasJSX === null) {
+                var koSysUtils = Components.classes["@activestate.com/koSysUtils;1"].getService(Components.interfaces.koISysUtils);
+                var jsx = koSysUtils.Which("jsxhint");
+                this.hasJSX = !!jsx;
+            }
+            var checkbox = dialog.JSX.lint_jsx;
+            var failureNode = dialog.JSX.lint_jsx_failure;
+            if (this.hasJSX) {
+                failureNode.setAttribute("class", "pref_hide");
+                checkbox.disabled = false;
+            } else {
+                checkbox.checked = false;
+                checkbox.disabled = true;
+                if (!failureNode.firstChild) {
+                    var text = bundleLang.GetStringFromName("Cant find jsxhint, update the PATH to include it, and restart Komodo");
+                    var textNode = document.createTextNode(text);
+                    failureNode.appendChild(textNode);
+                }
+                failureNode.setAttribute("class", "pref_show");
+            }
+        }
+    };
+}
+
+
 function Less_setup() {
     if (!('Less' in dialog)) {
         dialog.Less = {};

@@ -208,6 +208,9 @@
   <boolean id="lintWithJSHint">false</boolean>
   <string id="jshintOptions"></string>
 
+  <!-- JSX linting options -->
+  <boolean id="lint_jsx">1</boolean>
+
   <!-- HTML linters -->
   <boolean id="lintHTMLTidy">true</boolean>
   <boolean id="lintHTML5Lib">false</boolean>

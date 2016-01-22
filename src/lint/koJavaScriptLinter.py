@@ -537,3 +537,74 @@ class KoCoffeeScriptLinter(object):
                 koLintResult.createAddResult(results, textlines, severity,
                                              lineNo, desc, columnStart=colNo)
         return results
+
+class KoJSXLinter(object):
+    _com_interfaces_ = [components.interfaces.koILinter]
+    _reg_desc_ = "Komodo JSX Linter"
+    _reg_clsid_ = "{82afea07-d218-43f5-83f4-6b307ee4a1bf}"
+    _reg_contractid_ = "@activestate.com/koLinter?language=JSX&type=;1"
+    _reg_categories_ = [
+         ("category-komodo-linter", 'JSX'),
+         ]
+
+    def __init__(self):
+        try:
+            self._userPath = koprocessutils.getUserEnv()["PATH"].split(os.pathsep)
+        except:
+            msg = "KoJSXLinter: can't get user path"
+            if msg not in _complained:
+                _complained[msg] = None
+                log.exception(msg)
+            self._userPath = None
+        
+    def lint(self, request):
+        text = request.content.encode(request.encoding.python_encoding_name)
+        return self.lint_with_text(request, text)
+
+    def lint_with_text(self, request, text):
+        if not text:
+            return None
+        prefset = request.prefset
+        if not prefset.getBooleanPref("lint_jsx"):
+            return
+        try:
+            jsxHintExe = which.which("jsxhint", path=self._userPath)
+            if not jsxHintExe:
+                return
+            if sys.platform.startswith("win") and os.path.exists(jsxHintExe + ".cmd"):
+                jsxHintExe += ".cmd"
+        except which.WhichError:
+            msg = "jsxhint not found"
+            if msg not in _complained:
+                _complained[msg] = None
+                log.error(msg)
+            return
+        tmpfilename = tempfile.mktemp() + '.jsx'
+        fout = open(tmpfilename, 'wb')
+        fout.write(text)
+        fout.close()
+        textlines = text.splitlines()
+        cwd = request.cwd
+        cmd = [jsxHintExe, '--reporter=unix', tmpfilename]
+        # We only need the stdout result.
+        try:
+            p = process.ProcessOpen(cmd, cwd=cwd, stdin=None)
+            stdout, _ = p.communicate()
+            warnLines = stdout.splitlines(0) # Don't need the newlines.
+        except:
+            log.exception("Problem running %s", jsxHintExe)
+            warnLines = []
+        finally:
+            os.unlink(tmpfilename)
+        ptn = re.compile(r'^[^:]+:(\d+):(\d+): ([^\r\n]+)')
+        results = koLintResults()
+        for line in warnLines:
+            m = ptn.match(line)
+            if m:
+                lineNo = int(m.group(1))
+                colNo = int(m.group(2))
+                desc = "%s (on column %d)" % (m.group(3), colNo)
+                severity = koLintResult.SEV_ERROR
+                koLintResult.createAddResult(results, textlines, severity,
+                                             lineNo, desc, columnStart=colNo)
+        return results

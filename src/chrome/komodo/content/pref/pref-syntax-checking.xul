@@ -213,6 +213,15 @@
         
             </vbox>
             
+            <vbox id="langSyntaxCheck-JSX">
+                <groupbox orient="vertical">
+                    <checkbox id="lint_jsx"
+                              label="&basicChecking.label;"
+                              pref="true" />
+                  <description id="lint_jsx_failure" class="pref_hide" />
+                </groupbox>
+            </vbox>
+            
             <vbox id="langSyntaxCheck-HTML">
               <groupbox orient="vertical">
                   <caption label="&HTMLTidy.label;"/>
