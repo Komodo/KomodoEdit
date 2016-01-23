@@ -6,6 +6,8 @@
 @import url("chrome://komodo/skin/global/chromeless.less");
 @import url("chrome://komodo/skin/global/icons.less");
 
+@import url("chrome://komodo/skin/global/scrollbars.less");
+
 @import url("chrome://komodo/skin/global/components/buttons.less");
 @import url("chrome://komodo/skin/global/components/scrolltabs.less");
 @import url("chrome://komodo/skin/global/components/scc.less");
@@ -14,6 +16,20 @@
 :not(#tabbed-view) > tabs toolbarbutton[anonid="tabs-new"]
 {
     visibility: collapse;
+}
+
+.widgetToolbarWrap
+{
+    height: 27px;
+    background: @primary;
+    -moz-box-pack: center;
+    -moz-box-align: center;
+    
+    textbox, toolbarbutton, menulist
+    {
+        margin-top: 0;
+        margin-bottom: 0;
+    }
 }
 
 .status-toolbar

@@ -78,12 +78,7 @@ TreeInfoItem.prototype.getChildren = function() {
     if (!(this.url in treeItemsByURI)) {
         return [];
     }
-    if (prefs.getBoolean("prefs_show_advanced", false)) {
-        return treeItemsByURI[this.url];
-    }
-    return treeItemsByURI[this.url].filter(function(row) {
-        return !row.advanced;
-    });
+    return treeItemsByURI[this.url];
 };
 
 TreeInfoItem.prototype.hasChildren = function() {
@@ -327,10 +322,7 @@ PrefTreeView.prototype.removeFilter = function() {
     this.filtering = false;
     this._applyFilter(false);
     var oldCount = this._rows.length;
-    var showAdvanced = prefs.getBoolean("prefs_show_advanced", false);
-    this._rows = this._unfilteredRows.filter(function(row) {
-        return showAdvanced || ! row.advanced;
-    });
+    this._rows = this._unfilteredRows;
     this.tree.rowCountChanged(oldCount, this._rows.length - oldCount);
     this.tree.invalidate();
 };
@@ -346,7 +338,6 @@ PrefTreeView.prototype.updateFilter = function(urls) {
     var i, j, i1, row;
     var originalRows = this._rows;
     var oldCount = this._rows.length;
-    var showAdvanced = prefs.getBoolean("prefs_show_advanced", false);
     // assign the total rows to this._rows so getParentIndex can work
     this._rows = this._totalRows;
     this._rows.forEach(function(rowItem) {
@@ -358,7 +349,7 @@ PrefTreeView.prototype.updateFilter = function(urls) {
     var lim = this._rows.length;
     for (i = lim - 1; i >= 0; i--) {
         row = this._rows[i];
-        if (row.filteredOut && urls.indexOf(row.url) != -1 && (showAdvanced || !row.advanced)) {
+        if (row.filteredOut && urls.indexOf(row.url) != -1) {
             row.filteredOut = false;
             i1 = i;
             while ((j = this.getParentIndex(i1)) != -1) {

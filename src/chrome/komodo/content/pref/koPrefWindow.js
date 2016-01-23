@@ -212,7 +212,7 @@ koPrefWindow.prototype =
     },
 
     observe: function(subject, topic, data) {
-        if (typeof(prefLog) != "undefined" && prefLog && topic.indexOf("prefs_show_advanced") !== 0) {
+        if (typeof(prefLog) != "undefined" && prefLog) {
             prefLog.warn("The '"+topic+"' preference has changed while the pref window was open. "+
                          "If you get this message, a pref panel is incorrectly modifying prefs "+
                          "and the modified value will be lost.");
@@ -824,10 +824,8 @@ koPrefWindow.prototype =
             this.deck.appendChild(this.contentFrame);
 
             this.contentFrame.addEventListener("load", function() {
-                var showAdvanced = this.prefset.getBoolean("prefs_show_advanced", false);
                 var docElem = this.contentFrame.contentWindow.document.documentElement;
                 docElem.classList.add("pref-window");
-                if (showAdvanced) docElem.classList.add("show-advanced");
             }.bind(this), true);
             
             var detail = this.contentFrame.contentWindow;

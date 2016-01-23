@@ -105,6 +105,7 @@
         if ( ! showTitleBar)
         {
             this.setAttribute("titlebar", false);
+            this.setAttribute("drawintitlebar", true);
         }
         
         this._draggable = hideChrome;

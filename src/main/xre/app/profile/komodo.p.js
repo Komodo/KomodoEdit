@@ -204,3 +204,6 @@ pref("plugin.default.state", 1);
 pref("plugin.state.scimoz", 2);
 pref("plugin.state.npscimoz", 2);
 pref("plugin.state.libnpscimoz", 2);
+
+// Always show scrollbars 
+pref("layout.testing.overlay-scrollbars.always-visible", true);

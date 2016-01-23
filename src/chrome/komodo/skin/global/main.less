@@ -83,6 +83,7 @@
 {
     width: 48px;
     background: @primary;
+    border-right: 1px solid @border;
     -moz-box-orient: vertical;
     
     toolbar
@@ -263,14 +264,6 @@ ko-pane[type="icons"] tab
     }
 }
 
-.widgetToolbarWrap
-{
-    background: @primary;
-    border-top: 1px solid @border;
-    -moz-box-pack: center;
-    -moz-box-align: center;
-}
-
 /* Quicklaunch */
 
 #quicklaunch :not(button) > button
@@ -289,7 +282,7 @@ ko-pane[type="icons"] tab
 
 .statusbar
 {
+    height: 27px;
     border: 0;
-    border-top: 1px solid @border !important;
     background: @primary;
 }

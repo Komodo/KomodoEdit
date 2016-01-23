@@ -16,7 +16,7 @@ module.exports = function(elem) {
         return "_draggable" in this ? this._draggable : true;
     },
     this.dragTags = ["box", "hbox", "vbox", "spacer", "label", "statusbarpanel", "stack",
-            "toolbox", "toolboxrow", "description", "toolbaritem",
+            "toolbox", "toolboxrow", "description", "toolbaritem", "groupbox", "window",
             "toolbaritem", "toolbarseparator", "toolbarspring", "toolbarspacer",
             "radiogroup", "deck", "scrollbox", "arrowscrollbox", "tabs"
     ],
@@ -25,30 +25,33 @@ module.exports = function(elem) {
             this._window.fullScreen || !this.mouseDownCheck.call(this._elem, aEvent) ||
             aEvent.defaultPrevented)
             return false;
-
-        let target = aEvent.originalTarget, parent = aEvent.originalTarget;
+        
+        let target = aEvent.originalTarget || aEvent.target;
+        let parent = target;
 
         // The target may be inside an embedded iframe or browser. (bug 615152)
-        if (target.ownerDocument.defaultView != this._window)
-            return false;
+        //if (target.ownerDocument.defaultView != this._window)
+        //    return false;
         
         if (this._elem._tophandle) {
             if (aEvent.pageY > 30) return false;
         }
 
-        while (parent != this._elem) {
-            let mousethrough = parent.getAttribute("mousethrough");
+        while (parent && parent != this._elem) {
+            let mousethrough = parent.getAttribute ? parent.getAttribute("mousethrough") : null;
             if (mousethrough == "always")
                 target = parent.parentNode;
             else if (mousethrough == "never")
                 break;
             parent = parent.parentNode;
         }
-        while (target != this._elem) {
+        
+        while (target.localName && target != this._elem) {
             if (this.dragTags.indexOf(target.localName) == -1)
                 return false;
             target = target.parentNode;
         }
+        
         return true;
     };
 

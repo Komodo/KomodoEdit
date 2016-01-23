@@ -3,6 +3,17 @@
 @import url("chrome://komodo/skin/global/colors.less");
 @import url("resource://profile/colors.less");
 
+page.widget[containerOrient="vertical"] scrollbar
+{
+    margin-left: -15px;
+}
+
+.autoscroll
+{
+    overflow: -moz-scrollbars-vertical;
+    overflow-y: scroll !important;
+}
+
 scrollbar
 {
     -moz-appearance: none !important;
@@ -22,20 +33,35 @@ scrollbar
 
     slider
     {
-        -moz-appearance: none;
+        -moz-appearance: none !important;
         border: 0;
     }
 
     thumb
     {
-        -moz-appearance: none;
+        -moz-appearance: none !important;
         background: @secondary;
         border: 0;
     }
+}
 
-    thumb:hover
+/* Modals */
+
+dialog, :root.dialog, :root.pref-window
+{
+    scrollbar thumb
     {
-        -moz-appearance: none;
-        background: @secondary;
+        background: @background;
+    }
+    
+    treecol, textbox, menulist,
+    tree:not(.bg_transparent),
+    listbox:not(.bg_transparent),
+    richlistbox:not(.bg_transparent)
+    {
+        scrollbar thumb
+        {
+            background: @secondary;
+        }
     }
 }

@@ -49,52 +49,6 @@ popup, panel, tree
     color: @foreground;
 }
 
-dialog
-{
-    color: @foreground;
-    
-    .dialog-content-box
-    {
-        background: @primary;
-        border-top-left-radius: 5px;
-        border-top-right-radius: 5px;
-        padding: 6px;
-    }
-    
-    .dialog-button-box
-    {
-        -moz-box-pack: center;
-        -moz-box-align: center;
-        background: @primary;
-        border-bottom-left-radius: 3px;
-        border-bottom-right-radius: 3px;
-        padding: 6px;
-        
-        spacer
-        {
-            visibility: collapse;
-        }
-    }
-}
-
-dialog
-{
-    background: @special;
-    color: @foreground;
-    padding: 6px;
-    
-    .dialog-button-box
-    {
-        -moz-box-pack: center;
-        -moz-box-align: center;
-        
-        spacer
-        {
-            visibility: collapse;
-        }
-    }
-}
-
 menupopup
 {
     background: @primary;
@@ -395,51 +349,6 @@ button.unstyled
     }
 }
 
-
-/* Scrollbars */
-
-page.widget[containerOrient="vertical"] scrollbar
-{
-    margin-left: -15px;
-}
-
-scrollbar
-{
-    -moz-appearance: none;
-    border: 0;
-    background: transparent;
-    opacity: 1.0 !important;
-    
-    &[orient="vertical"]
-    {
-        min-width: 15px;
-    }
-    
-    &[orient="horizontal"]
-    {
-        min-height: 15px;
-    }
-
-    slider
-    {
-        -moz-appearance: none;
-        border: 0;
-    }
-
-    thumb
-    {
-        -moz-appearance: none;
-        background: @secondary;
-        border: 0;
-    }
-
-    thumb:hover
-    {
-        -moz-appearance: none;
-        background: @secondary;
-    }
-}
-
 tree, listbox, richlistbox
 {
     &:not(.bg_transparent) scrollbar thumb
@@ -450,8 +359,33 @@ tree, listbox, richlistbox
 
 /* Modals */
 
-:root.dialog, :root.pref-window
+dialog, :root.dialog, :root.pref-window
 {
+    color: @foreground;
+    
+    .dialog-content-box
+    {
+        background: @primary;
+        border-top-left-radius: 5px;
+        border-top-right-radius: 5px;
+        padding: 6px;
+    }
+    
+    .dialog-button-box
+    {
+        -moz-box-pack: center;
+        -moz-box-align: center;
+        background: @primary;
+        border-bottom-left-radius: 3px;
+        border-bottom-right-radius: 3px;
+        padding: 6px;
+        
+        spacer
+        {
+            visibility: collapse;
+        }
+    }
+    
     tabs
     {
         box-shadow-color: @background;
@@ -464,4 +398,9 @@ tree, listbox, richlistbox
     {
         background: @background;
     }
+}
+
+:root.pref-window
+{
+    padding: 0 10px;
 }

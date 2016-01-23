@@ -408,12 +408,6 @@
                     <treechildren id="panelChildrenDynamic" flex="1" />
                 </tree>
             </deck>
-            <hbox style="padding-top: 5px">
-                <checkbox id="toggleAdvanced" label="&showAdvanced.label;"
-                      oncommand="toggleAdvanced()" style="font-weight: bold;"/>
-                <!-- Ensure same height as buttons box -->
-                <button label="X" style="visibility: hidden"/> 
-            </hbox>
         </vbox>
         <splitter orient="horizontal"/>
         <!-- Main prefs panel -->
