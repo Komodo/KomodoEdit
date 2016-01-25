@@ -1418,7 +1418,7 @@ class CSSCile:
                 # '{' encountered without a valid selector.
                 self.blockLevel += 1
             elif text == ')':
-                self.parenLevel = min(self.parenLevel - 1, 0)
+                self.parenLevel = max(self.parenLevel - 1, 0)
             elif text == '$':
                 # SCSS variable; stop looking for selectors until encountering
                 # ';'.
