@@ -1894,7 +1894,7 @@ class koDocumentBase(object):
                                             ('%lang/useTabs', 'getBoolean'),
                                             ('useTabs', 'getBoolean'))
             assert pref is not None, "Should have default useTabs pref"
-            if pref == 'useSmartTabs':
+            if pref == 'useSmartTabs' and value:
                 self._guessFileIndentation()
             else:
                 self._useTabs = value
@@ -1911,7 +1911,7 @@ class koDocumentBase(object):
             pref, value = self._getLangPref(('useSmartTabs', 'getBoolean'),
                                             ('%lang/indentWidth', 'getLong'),
                                             ('indentWidth', 'getLong'))
-            if pref == 'useSmartTabs':
+            if pref == 'useSmartTabs' and value:
                 self._guessIndentWidth()
             else:
                 self._indentWidth = value
