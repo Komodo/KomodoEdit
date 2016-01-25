@@ -118,7 +118,10 @@ this.create = function _FindResultsTab_Create(id, searchAgain, callback)
         });
         
         tab.addEventListener("close-tab", function(e) {
-            manager.stopSearch();
+            var findSvc = Components.classes["@activestate.com/koFindService;1"].
+                      getService(Components.interfaces.koIFindService);
+            findSvc.stopfindreplaceinfiles(id);
+            
             ko.widgets.unregisterWidget(widget);
             delete this.managers[id];
             
