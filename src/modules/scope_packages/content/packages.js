@@ -615,12 +615,21 @@
                     // Verify the package's latest release has an artifact.
                     // This is to ensure a package marked upgradable can
                     // actually download and apply an update.
-                    let release = upstreamPkg.releases[0];
-                    if (!(release.assets) || release.assets.length == 0)
+                    let release = null;
+                    for (let rel of upstreamPkg.releases) {
+                        if (!(rel.assets) || rel.assets.length == 0)
+                            continue;
+                        
+                        if ( ! release || release.id < rel.id)
+                            release = rel;
+                    }
+                    
+                    if ( ! release)
                     {
                         //log.debug("Package has no upstream releases; ignoring.");
                         continue;
                     }
+                    
                     // Compare the versions and if the current version is not
                     // the upstream version, mark the package as upgradable.
                     // (Comparing versions is not possible due to the semantics
@@ -821,39 +830,42 @@
                 return asset.browser_download_url;
         }
         
-        // Iterate over and validate releases
-        for (let release of pkg.releases)
-        {
-            if ( ! release.assets || ! release.assets.length)
-            {
+        let release = null;
+        for (let rel of pkg.releases) {
+            if (!(rel.assets) || rel.assets.length == 0)
                 continue;
-            }
             
-            // Iterate over and validate assets
-            for (let asset of release.assets)
+            if ( ! release || release.id < rel.id)
+                release = rel;
+        }
+        
+        if ( ! release)
+            return false;
+        
+        // Iterate over and validate assets
+        for (let asset of release.assets)
+        {
+            switch (pkg.kind)
             {
-                switch (pkg.kind)
-                {
-                    case ADDONS:
-                    case SKINS:
-                    case LANGS:
-                        if (asset.browser_download_url.substr(-4) == '.xpi')
-                            return result(release, asset);
-                        break;
-                    case TOOLBOX:
-                    case MACROS:
-                        if (asset.browser_download_url.substr(-11) == '.komodotool')
-                            return result(release, asset);
-                        break;
-                    case SCHEMES:
-                        if (asset.browser_download_url.substr(-4) == '.ksf')
-                            return result(release, asset);
-                        break;
-                    case KEYBINDS:
-                        if (asset.browser_download_url.substr(-4) == '.kkf')
-                            return result(release, asset);
-                        break;
-                }
+                case ADDONS:
+                case SKINS:
+                case LANGS:
+                    if (asset.browser_download_url.substr(-4) == '.xpi')
+                        return result(release, asset);
+                    break;
+                case TOOLBOX:
+                case MACROS:
+                    if (asset.browser_download_url.substr(-11) == '.komodotool')
+                        return result(release, asset);
+                    break;
+                case SCHEMES:
+                    if (asset.browser_download_url.substr(-4) == '.ksf')
+                        return result(release, asset);
+                    break;
+                case KEYBINDS:
+                    if (asset.browser_download_url.substr(-4) == '.kkf')
+                        return result(release, asset);
+                    break;
             }
         }
 
