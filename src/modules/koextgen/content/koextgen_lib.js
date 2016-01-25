@@ -140,7 +140,7 @@ this.updateProject = function(projectDirPath, targetName, vars) {
         var origContents;
         var rawPtn, newVars = {}, replVal;
         // Moz is picky about what can do in an extension name
-        vars.name = vars.name.replace(/\W+/, "").toLowerCase();
+        vars.name = vars.name.replace(/\W+/g, "").toLowerCase();
         vars.id = vars.id.toLowerCase();
         for (var p in vars) {
             if (p in varEquivalents) {
