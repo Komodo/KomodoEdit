@@ -2009,7 +2009,7 @@ class GenericCommandHandler:
                 break
         if currentIndentWidth == 0 and shift == -1:
             return # nothing to do, nothing's indented!
-        numIndents, extras = divmod(currentIndentWidth, sm.indent)
+        numIndents, extras = divmod(currentIndentWidth, sm.tabWidth)
         if shift == 1:
             numIndents += 1
         elif shift == -1 and numIndents and not extras:
