@@ -975,7 +975,7 @@
             } else {
                 rightOffset = 0;
             }
-            var ptn = '((?:[Ee][\\-\\+]?|\\d+|\\.|\\w)+)';
+            var ptn = '((?:[Ee][\\-\\+]?|\\d+|\\.|[a-df-zA-DF-Z_])+)';
             var m = (new RegExp(ptn + "$")).exec(textLeft);
             var numTextLeft = m ? m[1] : "";
             m = (new RegExp("^" + ptn)).exec(textRight);
