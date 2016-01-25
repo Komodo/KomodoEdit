@@ -14,7 +14,7 @@
 
   <boolean id="startupMaximized">0</boolean>
   <boolean id="startupFullScreen">0</boolean>
-  <long id="tabWidth">4</long>
+  <long id="tabWidth" validate="value > 0">4</long>
   <long id="indentWidth" validate="value > 0">4</long>
   <boolean id="useTabs">0</boolean>
   <boolean id="useSmartTabs">1</boolean>
