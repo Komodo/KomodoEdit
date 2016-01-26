@@ -40,6 +40,7 @@ import sys
 import json
 import logging
 import tempfile
+import re
 
 from xpcom import components
 
@@ -111,13 +112,13 @@ class KoCSSLinter:
         fn = tempfile.mktemp()
         try:
             file(fn, 'wb').write(text)
-            return self.parse(fn, cwd=cwd)
+            return self.parse(fn, cwd=cwd, text=text)
         except Exception, e:
             log.exception(e)
         finally:
             os.unlink(fn)
 
-    def parse(self, filepath, cwd=None):
+    def parse(self, filepath, cwd=None, text=None):
         results = koLintResults()
 
         entries = []
@@ -133,16 +134,25 @@ class KoCSSLinter:
         except:
             log.exception("Problem running xcshell: %r\n,output:%r\n", cmd, stdout)
             return results
+            
+        lines = text.split('\n')
 
         for entry in entries:
             # Convert to Komodo lint result object.
             #print 'entry: %r' % (entry, )
+            line_start = entry.get('lineStart', 0)
+            column_start = entry.get('columnStart', 0)
+            column_end = entry.get('columnEnd', 0)
+            if column_start + 1 == column_end:
+                word = re.search('\\w+$', lines[line_start - 1][0:column_end - 1])
+                if word:
+                    column_start = word.start() + 1
             results.addResult(KoLintResult(description=entry.get('description', ''),
                                            severity=entry.get('severity', 1),
-                                           lineStart=entry.get('lineStart', 0),
+                                           lineStart=line_start,
                                            lineEnd=entry.get('lineEnd', -1),
-                                           columnStart=entry.get('columnStart', 0),
-                                           columnEnd=entry.get('columnEnd', 0)))
+                                           columnStart=column_start,
+                                           columnEnd=column_end))
 
         return results
 
