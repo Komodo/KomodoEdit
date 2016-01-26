@@ -51,6 +51,49 @@ popup, panel, tree
 
 menupopup
 {
+    background: transparent;
+    
+    /* We don't use menu icons, unless otherwise specified */
+    menuitem:not(.force-icon) > * > .menu-iconic-icon
+    {
+        visibility: collapse;
+    }
+    
+    menuitem:not(.force-icon):before
+    {
+        visibility: collapse;
+        display: none;
+    }
+    
+    menuitem:first-child,
+    menu:first-child
+    {
+        border-top-left-radius: 2px;
+        border-top-right-radius: 2px;
+    }
+    
+    menuitem:last-child,
+    menu:last-child
+    {
+        border-bottom-left-radius: 2px;
+        border-bottom-right-radius: 2px;
+    }
+    
+    menu > .menu-right
+    {
+        color: @special;
+    }
+    
+    menu:hover > .menu-right
+    {
+        color: @foreground;
+    }
+}
+
+menupopup > .popup-internal-box
+{
+    border-radius: 2px;
+    border: 1px solid @background;
     background: @primary;
 }
 
@@ -74,7 +117,7 @@ menupopup
 
 .disabled, [disabled="true"]
 {
-    opacity: 0.6;
+    opacity: 0.5;
 }
 
 
@@ -292,7 +335,7 @@ menupopup menuitem:hover
 menuseparator
 {
     height: 1px;
-    background: @border;
+    background: @background;
 }
 
 .menu-iconic-left
