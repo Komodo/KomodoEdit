@@ -353,6 +353,53 @@ class koPreferenceSetBase(object):
         if self.inheritFrom is not None:
             mine.update(self.inheritFrom.getAllPrefIds())
         return sorted(mine)
+    
+    def _validate(self, prefid, pref_type, pref):
+        """Check that the given prefid can be set as a child pref
+        (i.e. that any existing prefs of the same name has the same type)
+        @param prefid {str} The name of the child pref
+        @param pref_type {str} The type of the pref
+        @param pref {any} The new value of the preference
+        
+        This function is almost identical to _checkPrefType except that it returns
+        a boolean and returns true if the pref does not exist or doesnt have
+        validation
+        """
+        try:
+            old_val, old_type = self.prefs[prefid]
+        except KeyError:
+            return True
+
+        # If this pref has a validation expression (i.e. a 'validation'
+        # attribute in it XML representation), then ensure that returns
+        # true.
+        if prefid in _validations:
+            log.debug("Validating %s with value %s" % (prefid, pref))
+            
+            _validationNamespace['value'] = pref
+            validation = _validations[prefid]
+            
+            try:
+                isValid = eval(validation, _validationNamespace)
+            except Exception, ex:
+                exstr = str(ex)
+                if exstr.startswith("invalid syntax"):
+                    log.debug("Validation failed due to invalid syntax")
+                    msg = ("The validation expression for pref '%s' is "
+                           "not a valid Python expression: %s"
+                           % (prefid, validation))
+                    lastErrorSvc.setLastError(0, msg)
+                    raise COMException(nsError.NS_ERROR_UNEXPECTED, msg)
+                else:
+                    log.debug("Validation failed due to invalid value")
+                    # Invalid value, eg. string for a long
+                    return False
+                
+            if not isValid:
+                log.debug("Validation failed due to validation rule")
+                return False
+            
+        return True
 
     def _checkPrefType(self, prefid, pref_type, must_exist, pref):
         """Check that the given prefid can be set as a child pref
@@ -449,10 +496,10 @@ class koPreferenceSetBase(object):
     setBooleanPref = setBoolean
 
     def validateString(self, prefName, value):
-        self._checkPrefType(prefName, "string", 0, pref)
+        return self._validate(prefName, "string", value)
 
     def validateLong(self, prefName, value):
-        self._checkPrefType(prefName, "long", 0, pref)
+        return self._validate(prefName, "long", value)
 
     def _getPref(self, prefName, expectedPrefType, defaultPref=None):
         """get a pref from the current set, else retrieve inherited pref"""
