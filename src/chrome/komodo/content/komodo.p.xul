@@ -2043,7 +2043,7 @@
                     buttonstyle="pictures"
                     collapsed="true"
                 >
-                    <menupopup id="unifiedMenuPopup">
+                    <menupopup id="unifiedMenuPopup" position="after_end">
                         <hbox id="unifiedMenuPopupHbox">
                             <vbox id="unifiedMenuPrimaryPane"/>
                             <vbox id="unifiedMenuSecondaryPane">
