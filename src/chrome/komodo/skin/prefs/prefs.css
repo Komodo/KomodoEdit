@@ -52,3 +52,9 @@ groupbox#pref-languages-primary-selector-groupbox.collapse {
 #docSyntaxCheckByLang > vbox:not([active]) {
     visibility: collapse;
 }
+
+/* Todo: Implement in platform/global CSS */
+*[invalid="true"]
+{
+    outline: 1px solid red;
+}

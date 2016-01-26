@@ -715,7 +715,7 @@ koPrefWindow.prototype =
             throw new Error("Unknown preference type ("+actualPrefType+")");
         }
     },
-
+    
     savePrefs: function () {
         // first, remove our observer at this point so we do not get
         // erroneous messages about prefs getting updated
@@ -891,6 +891,7 @@ koPrefWindow.prototype =
         var prefs = this._getCurrentPrefSet();
         for (i = 0; i < elements.length; i++) {
             var element = elements[i];
+            element.removeAttribute("invalid");
             var prefData = this._prefDataFromElement(element);
             var prefIds = prefData.ids;
             var prefTypes = prefData.types;
@@ -913,7 +914,8 @@ koPrefWindow.prototype =
                 } else /* prefIds.length == 1 */ {
                     widgetValues = [this._getPrefValueFromElement(element)];
                 }
-
+                
+                var prefIdsToSet = [];
                 for (j = 0; j < prefIds.length; j++) {
                     var prefValue = this.getPref(prefIds[j], null, prefTypes[j], prefDefaults[j]);
                     if (prefDefaults[j] !== null &&
@@ -930,8 +932,25 @@ koPrefWindow.prototype =
                         //dump("savesinglepageprefs: setting preference ID '" +
                         //     prefIds[j] + "' to value '" +
                         //     widgetValues[j] +"'\n");
-                        this.setPref(prefIds[j], widgetValues[j], prefTypes[j]);
+                        let valid = true;
+                        let type = prefTypes[j];
+                        if (type == "long") {
+                            valid = this.prefset.validateLong(prefIds[j], widgetValues[j]);
+                        } else if (type == "string") {
+                            valid = this.prefset.validateString(prefIds[j], widgetValues[j]);
+                        }
+                        
+                        if (!valid) {
+                            element.setAttribute("invalid", "true");
+                            return false;
+                        }
+                        
+                        prefIdsToSet.push(k);
                     }
+                }
+                
+                for (j of prefIdsToSet) {
+                    this.setPref(prefIdsToSet[j], widgetValues[j], prefTypes[j]);
                 }
             } catch (e) {
                 prefLog.error("Could not save prefs '" + prefIds.join(',') +
