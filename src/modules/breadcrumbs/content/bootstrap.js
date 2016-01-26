@@ -8,7 +8,7 @@ require.setRequirePath("breadcrumbs/", "chrome://breadcrumbs/content/sdk/");
         var view = e.detail.view;
         if ( ! view && view._breadcrumbsInit) return;
         view._breadcrumbsInit = true;
-        require("breadcrumbs/breadcrumbs").init(view);
+        view._breadcrumbs = require("breadcrumbs/breadcrumbs").init(view);
     }
     
     window.addEventListener('editor_view_opened', viewChanged);

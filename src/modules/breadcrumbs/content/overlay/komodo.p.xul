@@ -42,7 +42,7 @@
             <box collapsed="true">
                 <toolbarbutton
                     anonid="breadcrumbTemplateFolder"
-                    class="breadcrumb folder breadcrumb-folder-icon">
+                    class="breadcrumb folder">
                 </toolbarbutton>
 
                 <toolbarbutton
@@ -52,16 +52,16 @@
 
                 <menuitem
                     anonid="breadcrumbMenuFileTemplate"
-                    class="menuitem-iconic file-item"
-                    oncommand="ko.breadcrumbs.onCommandMenuItem('Select', this)"
+                    class="menuitem-iconic file-item force-icon"
+                    oncommand="ko.views.manager.currentView._breadcrumbs.onCommandMenuItem('Select', this)"
                     image="chrome://komodo/skin/images/existing_file.png"/>
 
                 <menu
                     anonid="breadcrumbMenuFolderTemplate"
-                    class="menu-iconic folder-item breadcrumb-folder-icon"/>
+                    class="menu-iconic folder-item"/>
 
                 <menupopup
-                    position="after_start"
+                    position="end_before"
                     anonid="breadcrumbMenupopupTemplate"
                     ignorekeys="true">
 
@@ -69,13 +69,13 @@
                     <menuitem
                         anonid="fastOpenHere"
                         label="&fastopenHere.label;"
-                        oncommand="ko.breadcrumbs.onCommandMenuItem('FastOpen', this)"
+                        oncommand="ko.views.manager.currentView._breadcrumbs.onCommandMenuItem('FastOpen', this)"
                         acceltext="Ctrl+Shift+Click"
                         preserve="true"/>
                     <menuitem
                         anonid="findInFolder"
                         label="&findInFolder.label;"
-                        oncommand="ko.breadcrumbs.onCommandMenuItem('Find', this)"
+                        oncommand="ko.views.manager.currentView._breadcrumbs.onCommandMenuItem('Find', this)"
 <!-- #if PLATFORM == "darwin" -->
                         acceltext="Cmd+Click"
 <!-- #else -->
@@ -85,12 +85,12 @@
                     <menuitem
                         anonid="showInPlaces"
                         label="&showInPlaces.label;"
-                        oncommand="ko.breadcrumbs.onCommandMenuItem('ShowPlaces', this)"
+                        oncommand="ko.views.manager.currentView._breadcrumbs.onCommandMenuItem('ShowPlaces', this)"
                         acceltext="Shift+Click"
                         preserve="true"/>
                     <menuitem
                         label="&reload.label;"
-                        oncommand="ko.breadcrumbs.reload()"
+                        oncommand="ko.views.manager.currentView._breadcrumbs.reload()"
                         preserve="true"/>
                     <menuseparator anonid="filterSeparator" preserve="true" />
                     <textbox

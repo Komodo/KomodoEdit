@@ -1,6 +1,5 @@
 [anonid="statusbar-message-deck-default"]
 @import url("chrome://komodo/skin/global/colors.less");
-@import url("chrome://komodo/skin/global/icons.less");
 
 [anonid="breadcrumbBar"]
 {
@@ -22,10 +21,6 @@
         {
             .breadcrumb-icon
             {
-                .icon();
-                .icon-folder();
-                
-                font-size: 14px;
                 margin-right: 2px;
             }
             
@@ -69,8 +64,6 @@
         
         .breadcrumb-arrow
         {
-            .icon();
-            .icon-chevron-right();
             font-size: 14px;
             color: @special;
             margin: 0 2px 0 2px;
@@ -79,6 +72,17 @@
 
     menuitem, menu
     {
+        color: @foreground;
+        
+        &.folder-item
+        {
+            & > .menu-iconic-text,
+            & > .menu-iconic-left
+            {
+                color: darken(@foreground, 30%);
+            }
+        }
+        
         .menu-iconic-left
         {
             visibility: visible; /* Override OS preference */
