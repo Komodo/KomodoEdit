@@ -185,28 +185,23 @@
   <!-- JavaScript linting options -->
   <!-- Note that all Node.js files use the JS linter options.  If they didn't,
        switching a file's language from JS to Node would lose its doc-specific
-       syntax-checking options, and people using jslint/jshint are likely to
+       syntax-checking options, and people using jshint are likely to
        end up with many doc-specific options.
        
        Also note that Komodo will automatically add a node=true option to
-       jshint or jslint when linting a Node.js file.  User can override by
+       jshint when linting a Node.js file.  User can override by
        putting 'node=false' in the options box.
   -->
   <boolean id="lintJavaScriptEnableWarnings">1</boolean>
   <boolean id="lintJavaScriptEnableStrict">1</boolean>
   <boolean id="lintJavaScript_SpiderMonkey">1</boolean>
-  <!-- JSLint linting options -->
-  <boolean id="lintWithJSLint">false</boolean>
-  <string id="jslintOptions"></string> <!-- initially use all jslint defaults -->
-  <string id="jslint_linter_chooser"></string> <!-- radiogroup for choosing default or custom jslint.js -->
-  <string id="jslint_linter_specific"></string> <!-- path to alternate jslint to use -->
-  <string id="jshint_linter_chooser"></string> <!-- radiogroup for choosing default or custom jshint.js -->
-  <string id="jshint_linter_specific"></string> <!-- path to alternate jshint to use -->
 
   <!-- jshint is a popular fork of jslint, see github.com/jshint -->
   <!-- JSHint linting options -->
   <boolean id="lintWithJSHint">false</boolean>
   <string id="jshintOptions"></string>
+  <string id="jshint_linter_chooser"></string> <!-- radiogroup for choosing default or custom jshint.js -->
+  <string id="jshint_linter_specific"></string> <!-- path to alternate jshint to use -->
 
   <!-- JSX linting options -->
   <boolean id="lint_jsx">1</boolean>

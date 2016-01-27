@@ -1,15 +1,15 @@
 /* Copyright (c) 2000-2011 ActiveState Software Inc.
    See the file LICENSE.txt for licensing information. */
 
-// Populate with jslint defaults
+// Populate with jshint defaults
 var options = {
         rhino: true,
         forin: true,
         passfail: false
 };
 var includePath = "";
-var includeBaseName = "fulljslint.js";
-var i, arg, idx, argName, argValue, isJSHint = false;
+var includeBaseName = "jshint.js";
+var i, arg, idx, argName, argValue;
 var badArgs = false;
 //print("arg len: " + arguments.length + "\n");
 i = 0;
@@ -22,10 +22,6 @@ while (i < args.length) {
             includePath = args[i + 1];
             i += 1;
             //print("includePath(1: " + includePath + "\n");
-        } else if (arg == "--jshint") {
-            isJSHint = true;
-            includeBaseName = "jshint.js";
-            //options.adsafe = false; // otherwise jshint gives weird "ADsafe" warnings
         } else if (arg.indexOf("--include") == 0) {
             idx = arg.indexOf("=");
             if (idx > -1) {
@@ -34,16 +30,7 @@ while (i < args.length) {
                 print("**** Unrecognized argument(1): " + arg);
                 badArgs = true;
             }
-        } else if (arg.indexOf("--jslint-basename") == 0) {
-            idx = arg.indexOf("=");
-            if (idx > -1) {
-                includeBaseName = arg.substr(idx + 1);
-            } else {
-                print("**** Unrecognized argument(3): " + arg);
-                badArgs = true;
-            }
         } else if (arg.indexOf("--jshint-basename") == 0) {
-            isJSHint = true;
             idx = arg.indexOf("=");
             if (idx > -1) {
                 includeBaseName = arg.substr(idx + 1);
@@ -80,7 +67,6 @@ while (i < args.length) {
 
 if (!badArgs) {
     load(includePath + includeBaseName);
-    const MAIN_OBJECT = isJSHint ? JSHINT : JSLINT;
     (function(options) {
         var input = "";
         var line, lines = [];
@@ -97,39 +83,36 @@ if (!badArgs) {
         var input = lines.join("\n");
         var stoppingLineRE = /Stopping\.\s*\(\d+\%\s+scanned/;
         var printedHeader = false;
-        if (!MAIN_OBJECT(input, options)) {
-            print("++++JSLINT OUTPUT:");  // Handler expects this line.
+        if (!JSHINT(input, options)) {
+            print("++++JSHINT OUTPUT:");  // Handler expects this line.
             printedHeader = true;
-            for (var i = 0; i < MAIN_OBJECT.errors.length; i += 1) {
-                var e = MAIN_OBJECT.errors[i];
+            for (var i = 0; i < JSHINT.errors.length; i += 1) {
+                var e = JSHINT.errors[i];
                 if (e) {
                     if (stoppingLineRE.test(e.reason)) {
                         // Do nothing
                     } else {
-                        print('jslint error: at line ' + (e.line) + ' column ' + (e.character) + ': ' + e.reason);
+                        print('jshint error: at line ' + (e.line) + ' column ' + (e.character) + ': ' + e.reason);
                         print(e.evidence || "");
                     }
                 }
             }
         }
         try {
-            var jsData = MAIN_OBJECT.data();
+            var jsData = JSHINT.data();
             var unusedVars = jsData.unused;
             if (unusedVars) {
                 if (unusedVars.length && !printedHeader) {
-                    print("++++JSLINT OUTPUT:");  // Handler expects this line.
+                    print("++++JSHINT OUTPUT:");  // Handler expects this line.
                     printedHeader = true;
                 }
                 for each (var unusedVar in unusedVars) {
-                        var msg = ('jslint error: at line '
+                        var msg = ('jshint error: at line '
                                    + unusedVar.line
                                    + ' column 1: unused var: '
                                    + unusedVar.name);
                         if (unusedVar['function']) {
                             var funcName = unusedVar['function'];
-                            // jslint likes single-quotes
-                            // jshint likes double-quotes
-                            // settle on one so we can fold duplicate hits
                             funcName = funcName.replace(/^[\"\']/, '').replace(/[\"\']$/, '');
                             if (!/'?anonymous'?/.test(funcName)) {
                                 msg += ", defined in '" + funcName + "'";

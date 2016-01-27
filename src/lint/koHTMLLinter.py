@@ -1066,8 +1066,6 @@ class _invokePerlLinter(object):
             return
             
                 
-        # 'jslint' error reports come in this form:
-        # jslint error: at line \d+ column \d+: explanation
         results = koLintResults()
         if perlLinterBasename == "htmltidy.pl":
             hasStatus = True

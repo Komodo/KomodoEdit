@@ -304,49 +304,50 @@ class KoJavaScriptLinter(CommonJSLinter):
          ("category-komodo-linter", 'Node.js&type=jsShell'),
          ]
 
-class GenericJSLinter(CommonJSLinter):
-
+class KoJSHintLinter(CommonJSLinter):
+    """
+    JSHint is a fork of JSLint.  It's supposedly more flexible, and
+    supports a different set of options.
+    """
+    _com_interfaces_ = [components.interfaces.koILinter]
+    _reg_desc_ = "Komodo JSHint Linter"
+    _reg_clsid_ = "{41491bd5-a68f-4397-a66d-22eda3aa8314}"
+    _reg_contractid_ = "@activestate.com/koLinter?language=JavaScript&type=JSHint;1"
+    _reg_categories_ = [
+         ("category-komodo-linter", 'JavaScript&type=jshint'),
+         ("category-komodo-linter", 'Node.js&type=jshint'),
+         ]
+        
     def lint(self):
         text = request.content.encode(request.encoding.python_encoding_name)
         return self.lint_with_text(request, text)
 
     strict_option_re = re.compile(r'\bstrict=')
-    def _jslint_with_text(self, request, text, prefSwitchName, prefOptionsName):
+    def lint_with_text(self, request, text):
         if not text:
             #log.debug("<< no text")
             return
         prefset = request.prefset
-        if not prefset.getBooleanPref(prefSwitchName):
-            return
         jsfilename, isMacro, datalines = self._make_tempfile_from_text(request, text)
         jsInterp = self._get_js_interp_path()
         jsLintDir = os.path.join(self.koDirs.supportDir, "lint", "javascript")
         jsLintApp = os.path.join(jsLintDir, "lintWrapper.js")
         jsLintBasename = None
-        if prefSwitchName == "lintWithJSLint":
-            appName = "jslint"
-        else:
-            appName = "jshint"
         try:
-            customJSLint = prefset.getStringPref(appName + "_linter_chooser")
+            customJSLint = prefset.getStringPref("jshint_linter_chooser")
             if customJSLint == "specific":
-                p = prefset.getStringPref(appName + "_linter_specific")
+                p = prefset.getStringPref("jshint_linter_specific")
                 if p and os.path.exists(p):
                     jsLintDir = os.path.dirname(p) + "/"
                     jsLintBasename = os.path.basename(p)
         except:
             log.exception("Problem finding the custom lintjs file")
-        options = prefset.getStringPref(prefOptionsName).strip()
+        options = prefset.getStringPref("jshintOptions").strip()
         # Lint the temp file, the jsInterp options are described here:
         # https://developer.mozilla.org/en/Introduction_to_the_JavaScript_shell
         cmd = [jsInterp, jsLintApp, "--include=" + jsLintDir]
         if jsLintBasename:
-            if prefSwitchName == "lintWithJSLint":
-                cmd.append("--jslint-basename=" + jsLintBasename)
-            else:
-                cmd.append("--jshint-basename=" + jsLintBasename)
-        elif prefSwitchName == "lintWithJSHint":
-            cmd.append("--jshint")
+            cmd.append("--jshint-basename=" + jsLintBasename)
         if options:
             # Drop empty parts.
             otherParts = [s for s in re.compile(r'\s+').split(options)]
@@ -354,8 +355,7 @@ class GenericJSLinter(CommonJSLinter):
         if request.koDoc.language == "Node.js":
             if not "node=" in options:
                 cmd.append("node=1")
-        if (prefSwitchName == "lintWithJSHint"
-            and not self.strict_option_re.match(options)
+        if (not self.strict_option_re.match(options)
             and 'globalstrict=' not in options):
             # jshint tests options.strict !== false, otherwise strict is on
             # Other options are tested as simply !options.strict
@@ -368,12 +368,12 @@ class GenericJSLinter(CommonJSLinter):
             p = process.ProcessOpen(cmd, cwd=cwd, env=self._setLDLibraryPath(), stdin=fd)
             stdout, stderr = p.communicate()
             if stderr:
-                log.warn("Error in jslint/jshint: stderr: %s, command was: %s",
+                log.warn("Error in jshint: stderr: %s, command was: %s",
                          stderr, cmd)
-            #log.debug("jslint(%s): stdout: %s, stderr: %s", prefSwitchName, stdout, stderr)
+            #log.debug("jshint: stdout: %s, stderr: %s", stdout, stderr)
             warnLines = stdout.splitlines() # Don't need the newlines.
             i = 0
-            outputStart = "++++JSLINT OUTPUT:"
+            outputStart = "++++JSHINT OUTPUT:"
             while i < len(warnLines):
                 if outputStart in warnLines[i]:
                     warnLines = warnLines[i + 1:]
@@ -391,10 +391,10 @@ class GenericJSLinter(CommonJSLinter):
             except:
                 log.error("Problem deleting file des(%s)", jsfilename)
                 
-        # 'jslint' error reports come in this form:
-        # jslint error: at line \d+ column \d+: explanation
+        # 'jshint' error reports come in this form:
+        # jshint error: at line \d+ column \d+: explanation
         results = koLintResults()
-        msgRe = re.compile("^jslint error: at line (?P<lineNo>\d+) column (?P<columnNo>\d+):\s*(?P<desc>.*?)$")
+        msgRe = re.compile("^jshint error: at line (?P<lineNo>\d+) column (?P<columnNo>\d+):\s*(?P<desc>.*?)$")
         numDataLines = len(datalines)
         if len(warnLines) % 2 == 1:
             warnLines.append("")
@@ -432,40 +432,6 @@ class GenericJSLinter(CommonJSLinter):
 
         return results
 
-
-class KoJSLintLinter(GenericJSLinter):
-    _com_interfaces_ = [components.interfaces.koILinter]
-    _reg_desc_ = "Komodo JSLint Linter"
-    _reg_clsid_ = "{6048c9c2-b197-4fca-a718-c0a73d252876}"
-    _reg_contractid_ = "@activestate.com/koLinter?language=JavaScript&type=JSLint;1"
-    _reg_categories_ = [
-         ("category-komodo-linter", 'JavaScript&type=jslint'),
-         ("category-komodo-linter", 'Node.js&type=jslint'),
-         ]
-        
-    def lint_with_text(self, request, text):
-        return self._jslint_with_text(request, text,
-                                      prefSwitchName="lintWithJSLint",
-                                      prefOptionsName="jslintOptions")
-
-class KoJSHintLinter(GenericJSLinter):
-    """
-    JSHint is a fork of JSLint.  It's supposedly more flexible, and
-    supports a different set of options.
-    """
-    _com_interfaces_ = [components.interfaces.koILinter]
-    _reg_desc_ = "Komodo JSHint Linter"
-    _reg_clsid_ = "{41491bd5-a68f-4397-a66d-22eda3aa8314}"
-    _reg_contractid_ = "@activestate.com/koLinter?language=JavaScript&type=JSHint;1"
-    _reg_categories_ = [
-         ("category-komodo-linter", 'JavaScript&type=jshint'),
-         ("category-komodo-linter", 'Node.js&type=jshint'),
-         ]
-        
-    def lint_with_text(self, request, text):
-        return self._jslint_with_text(request, text,
-                                      prefSwitchName="lintWithJSHint",
-                                      prefOptionsName="jshintOptions")
 
 class KoCoffeeScriptLinter(object):
     _com_interfaces_ = [components.interfaces.koILinter]

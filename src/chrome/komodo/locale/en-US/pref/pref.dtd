@@ -700,22 +700,6 @@ adding an additional caret at the clicked position.">
 <!ENTITY lintJavaScriptEnableStrict.label "Enable strict warning messages">
 <!ENTITY javascriptFolder.description "Specify any directories that you want Komodo to use for autocomplete and calltips. Komodo will recursively scan these directories for information.">
 <!ENTITY javascriptNamespaceMapping.description "Specify any custom namespace mappings for Komodo to use when looking up modules in 'require' statements for code intelligence. These mappings are useful for projects that have non-standard module locations.">
-<!ENTITY lintJavaScriptWithJSLint.label "Check Code With JSLint">
-<!ENTITY JSLint.label "JSLint">
-<!ENTITY lintJSLint_Explanation.descr "Use a format like bitwise=false debug=true maxerr=5 predef=['document','window']">
-<!ENTITY lintJSLint_WebSiteLabel.label "See all allowed options at: ">
-<!ENTITY lintJSLintOptions.label "JSLint Options">
-<!ENTITY chooseACustomOrUpdatedJslint.js.label "Choose a custom or updated jslint.js">
-<!ENTITY defaultJslintLinterWithDate.label "Default linter (2012-04-15)">
-<!ENTITY customJslintLinter.label "Custom linter">
-
-<!-- pref-jshint-options.xul -->
-<!ENTITY optionsPicker.label "Options Picker">
-<!ENTITY allOptions.label "All Options">
-<!ENTITY predefinedNames.label "Predefined Globals:">
-<!ENTITY setStrictSettings.label "Set Strict Settings">
-<!ENTITY setRecommendedSettings.label "Set Recommended Settings">
-<!ENTITY tolerateEverything.label "Tolerate Everything">
 
 <!--pref-nodejs.xul-->
 <!ENTITY nodejs.label "Node.js">
@@ -730,11 +714,10 @@ adding an additional caret at the clicked position.">
 <!ENTITY JSHint.label "JSHint">
 <!ENTITY lintJavaScriptWithJSHint.label "Check Code With JSHint">
 <!ENTITY lintJSHintOptions.label "JSHint Options">
-<!ENTITY lintJSHint_OptionWizard.label "Option Wizard">
-<!ENTITY lintJSHint_Explanation.descr "Use a format like bitwise=false debug=true maxerr=5 predef=['document','window']">
+<!ENTITY lintJSHint_Explanation.descr "Use a format like bitwise=false debug=true esnext=true maxerr=5 predef=['document','window']">
 <!ENTITY lintJSHint_WebSiteLabel.label "See all allowed options at: ">
 <!ENTITY chooseACustomOrUpdatedJshint.js.label "Choose a custom or updated jshint.js">
-<!ENTITY defaultJshintLinter.label "Default linter">
+<!ENTITY defaultJshintLinter.label "Default linter (version 2.6.3)">
 <!ENTITY customJshintLinter.label "Custom linter">
 <!ENTITY separateNamesWithCommas.tooltip "Separate names with commas and/or spaces.">
 

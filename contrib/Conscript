@@ -418,8 +418,7 @@ $consLocal->InstallRecursive($landmark,
                         cwd()."/contrib/html5lib/html5lib",
                         ('\.svn'));
 
-# jslint
-$consLocal->Install("$supportDir/lint/javascript", "jslint/fulljslint.js");
+# jshint
 $consLocal->Install("$supportDir/lint/javascript", "jslint/jshint.js");
 
 # ejs

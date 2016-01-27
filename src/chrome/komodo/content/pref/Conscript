@@ -175,7 +175,5 @@ $cons->InstallInChrome('file-properties.js');
 $cons->InstallInChrome('file-permissions.xul');
 $cons->InstallInChrome('pref-syntax-checking.xul');
 $cons->InstallInChrome('pref-syntax-checking.js');
-$cons->InstallInChrome('pref-jshint-options.xul');
-$cons->InstallInChrome('pref-jshint-options.js');
 $cons->InstallInChrome('preview-properties.js');
 $cons->InstallInChrome('preview-properties.xul');
