@@ -31,4 +31,5 @@ override chrome://global/skin/radio.css chrome://komodo/skin/global/void.css
 override chrome://global/skin/resizer.css chrome://komodo/skin/global/void.css
 override chrome://global/skin/dropmarker.css chrome://komodo/skin/global/void.css
 override chrome://global/skin/toolbar.css chrome://komodo/skin/global/void.css
+override chrome://global/skin/menulist.css chrome://komodo/skin/global/void.css
 

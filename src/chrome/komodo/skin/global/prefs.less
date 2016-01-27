@@ -1,7 +1,7 @@
 .colorpicker
 {
     cursor: pointer;
-    border: 1px solid rgba(0,0,0,0.3);
+    border: 1px solid @border;
     padding: 2px;
     border-radius: 2px;
     
@@ -41,5 +41,18 @@
     {
         margin-top: 15px;
         font-weight: bold;
+    }
+}
+
+#filteredPrefsTree
+{
+    background: @background;
+}
+
+.pref-window:not(#prefWindow) /* embedded pref windows */
+{
+    & > *
+    {
+        padding: 0 24px;
     }
 }

@@ -1,3 +1,5 @@
+.normalize-colors(main);
+
 /* Fonts and colors */
 :root
 {
@@ -10,26 +12,36 @@ label, description, button, toolbarbutton, textbox
 }
 
 description, listitem, richlistitem, label[id], treecol label, listheader,
+checkbox, radio
 {
     padding: 0.2rem 4px;
 }
 
-caption 
+popup, panel
 {
-    margin-top: 1rem;
+    background: @background;
+    color: @foreground;
+}
+
+caption
+{
+    margin-top: 1.5rem;
     
     label
     {
         font-size: 1.2rem;
-        color: @caption;
         font-weight: bold;
     }
 }
 
-description, tab, textbox, menulist, menuitem, menu, treecol, button, toolbarbutton,
-checkbox, radio, tabpanels, listitem, richlistitem, listheader
+groupbox
 {
-    color: @foreground; 
+    padding: 5px;
+    
+    .groupbox-body
+    {
+        padding-left: 10px;
+    }
 }
 
 input.textbox-input
@@ -43,15 +55,16 @@ input.textbox-input
     
 }
 
-popup, panel, tree
-{
-    background: @background;
-    color: @foreground;
-}
-
 menupopup
 {
     background: transparent;
+    
+    & > .popup-internal-box
+    {
+        border-radius: 2px;
+        border: 1px solid @background;
+        background: @contrast;
+    }
     
     /* We don't use menu icons, unless otherwise specified */
     menuitem:not(.force-icon) > * > .menu-iconic-icon
@@ -65,18 +78,9 @@ menupopup
         display: none;
     }
     
-    menuitem:first-child,
-    menu:first-child
+    menuitem, menu
     {
-        border-top-left-radius: 2px;
-        border-top-right-radius: 2px;
-    }
-    
-    menuitem:last-child,
-    menu:last-child
-    {
-        border-bottom-left-radius: 2px;
-        border-bottom-right-radius: 2px;
+        border-radius: 2px;
     }
     
     menu > .menu-right
@@ -88,18 +92,6 @@ menupopup
     {
         color: @foreground;
     }
-}
-
-menupopup > .popup-internal-box
-{
-    border-radius: 2px;
-    border: 1px solid @background;
-    background: @primary;
-}
-
-::-moz-tree-cell-text
-{
-    color: @foreground;
 }
 
 *, ::-moz-tree-cell-text
@@ -164,7 +156,7 @@ tab
 
 tabs
 {
-    box-shadow: inset 0px -2px 0px 0px @primary;
+    /* box-shadow defined in normalize-colors() */
     
     tab
     {
@@ -206,20 +198,22 @@ checkbox, radio
 
 textbox, menulist
 {
-    color: @foreground;
-    background: @primary;
-    padding: 4px;
+    padding: 0 4px;
     border-radius: 2px;
-    margin: 4px;
+    margin: 2px;
+    
+    min-height: 1.5rem;
 }
 
+menulist > .menulist-label-box 
+{
+    -moz-box-align: center;
+}
 
 /* Trees & listboxes */
 
 treecol
 {
-    background: @primary;
-    
     label
     {
         padding: 0.5rem 4px;
@@ -236,12 +230,6 @@ treecolpicker
     min-height: 1.6rem;
 }
 
-treechildren::-moz-tree-row(selected)
-{
-    color: @selected-fg;
-    background: @selected;
-}
-
 treechildren::-moz-tree-twisty {
     -moz-appearance: none;
     width: 14px;
@@ -253,11 +241,6 @@ treechildren::-moz-tree-cell {
     margin-left: 4px;
 }
 
-treechildren::-moz-tree-cell-text(container)
-{
-    color: darken(@foreground, 30%);
-}
-
 treechildren::-moz-tree-cell-text
 {
     padding-left: 2px;
@@ -266,25 +249,6 @@ treechildren::-moz-tree-cell-text
 tree.twisty-only treechildren::-moz-tree-image
 {
     margin-left: -14px;
-}
-
-richlistitem, listitem, row /* :any is too flaky */
-{
-    &[selected="true"]
-    {
-        color: @selected-fg;
-        background: @selected;
-        
-        description, label
-        {
-            color: @selected-fg;
-        }
-    }
-}
-
-treechildren::-moz-tree-cell-text(selected)
-{
-    color: @selected-fg;
 }
 
 /* Splitters */
@@ -298,11 +262,6 @@ splitter[orient="vertical"]
 {
     min-height: 1px;
 }
-
-splitter:not(.workspace_splitter)
-{
-    background-color: @primary;
-}    
 
 separator
 {
@@ -323,13 +282,17 @@ separator
 
 menu, menuitem
 {
-    padding: 0.5rem 6px;
+    min-height: 1.6rem; /* Consistent with trees, listboxes, etc */
+    -moz-box-align: center;
+    
+    padding: 0 6px;
 }
 
 menupopup menu:hover,
 menupopup menuitem:hover
 {
-    background: @highlight;
+    background: @special;
+    color: @foreground-special;
 }
 
 menuseparator
@@ -370,45 +333,23 @@ button.unstyled
 :not(button) > button:not(.button-toolbar-a):not(.unstyled)
 {
     -moz-appearance: none;
-    background: @button;
-    color: @button-fg;
     margin: 4px;
     padding: 0.3rem 1.5rem;
     border-radius: 2px;
-    
-    label.button-text
-    {
-        color: @button-fg;
-    }
-    
-    &.primary, &[default="true"]
-    {
-        background: @button-primary;
-    }
-    
-    &:hover
-    {
-        
-    }
-}
-
-tree, listbox, richlistbox
-{
-    &:not(.bg_transparent) scrollbar thumb
-    {
-        background: @background;
-    }
 }
 
 /* Modals */
 
+:root[hidechrome="true"].dialog .window-wrapper,
+:root:not([hidechrome="true"]).dialog,
 dialog, :root.dialog, :root.pref-window
 {
     color: @foreground;
+    background: @contrast;
     
     .dialog-content-box
     {
-        background: @primary;
+        background: @contrast;
         border-top-left-radius: 5px;
         border-top-right-radius: 5px;
         padding: 6px;
@@ -418,7 +359,7 @@ dialog, :root.dialog, :root.pref-window
     {
         -moz-box-pack: center;
         -moz-box-align: center;
-        background: @primary;
+        background: @contrast;
         border-bottom-left-radius: 3px;
         border-bottom-right-radius: 3px;
         padding: 6px;
@@ -429,21 +370,14 @@ dialog, :root.dialog, :root.pref-window
         }
     }
     
-    tabs
-    {
-        box-shadow-color: @background;
-    }
-
-    treecol, textbox, menulist,
-    tree:not(.bg_transparent),
-    listbox:not(.bg_transparent),
-    richlistbox:not(.bg_transparent)
+    .normalize-colors(modal);
+    
+    tabbox tabpanel
     {
         background: @background;
+        color: @foreground;
+        padding: 10px;
+        
+        .normalize-colors(main);
     }
-}
-
-:root.pref-window
-{
-    padding: 0 10px;
 }

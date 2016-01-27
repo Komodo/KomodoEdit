@@ -40,7 +40,7 @@ scrollbar
     thumb
     {
         -moz-appearance: none !important;
-        background: @secondary;
+        background: @contrast;
         border: 0;
     }
 }
@@ -61,7 +61,15 @@ dialog, :root.dialog, :root.pref-window
     {
         scrollbar thumb
         {
-            background: @secondary;
+            background: @button;
         }
+    }
+}
+
+#commando-panel
+{
+    scrollbar thumb
+    {
+        background: @selected;
     }
 }

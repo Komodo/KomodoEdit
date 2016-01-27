@@ -1,24 +1,51 @@
 @dark: 1;
+
+/* Main Window */
 @background: #28282E;
 @foreground: #FFF;
-@primary: #202024;
-@secondary: #202024;
-@special: #3F8AFF;
+@contrast: #202024;
+
+/* Elements */
 @border: #303036;
-@highlight: #3F8AFF;
 @selected: #326ECD;
-@selected-fg: #FFF;
-@folder: #FFF;
-@textbox-special: #FFF;
-@textbox-foreground-special: #444444;
-@caption: #FFF;
+@selected-foreground: #FFF;
 @button-primary: #326ECD;
 @button: #326ECD;
-@button-fg: #FFF;
+@button-foreground: #FFF;
 @icons: #FFF;
-@icons-selected: #FFF;
-@icons-special: #3F8AFF;
+@textbox: #202024;
+@textbox-foreground: #FFF;
 
+/* Modal Window */
+@background-modal: #202024;
+@foreground-modal: #FFF;
+@contrast-modal: #28282E;
+
+/* Elements */
+@selected-modal: #326ECD;
+@selected-foreground-modal: #FFF;
+@button-primary-modal: #326ECD;
+@button-modal: #326ECD;
+@button-foreground-modal: #FFF;
+@textbox-modal: #28282E;
+@textbox-foreground-modal: #FFF;
+
+/* Special Windows */
+@special: #3F8AFF;
+@foreground-special: #FFF;
+@contrast-special: #326ECD;
+
+/* Special Elements */
+@button-primary-special: #326ECD;
+@button-special: #326ECD;
+@button-foreground-special: #FFF;
+@selected-special: #326ECD;
+@selected-foreground-special: #FFF;
+@textbox-special: #FFF;
+@textbox-foreground-special: #444444;
+@icons-special: #FFF;
+
+/* SCC */
 @scc-ok: #C5CAE9;
 @scc-new: #CDDC39;
 @scc-modified: #03A9F4; 
@@ -26,12 +53,19 @@
 @scc-sync: #009688;
 @scc-conflict: #FF5722;
 
+/* Misc */
 @state-error: #D32F2F;
 @state-warning: #F57C00;
 @state-info: #1976D2;
 @state-ok: #689F38;
 
+/* Escaped versions of above, cause LESS can't do this apparently */
 @escaped-icons: %23FFF;
-@escaped-icons-selected: %23FFF;
-@escaped-folder: %23FFF;
 @escaped-icons-special: %23FFF;
+
+/* Helpers for mixins - DONT TOUCH */
+@background-main: @background; @foreground-main: @foreground; @contrast-main: @contrast;
+@border-main: @border; @selected-main: @selected; @selected-foreground-main: @selected-foreground;
+@button-primary-main: @button-primary; @button-main: @button; @button-foreground-main: @button-foreground;
+@background-special: @special; @special-special: @contrast-special; @special-main: @special;
+@textbox-main: @textbox; @textbox-foreground-main: @textbox-foreground; @special-modal: @special;
