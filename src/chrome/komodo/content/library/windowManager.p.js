@@ -99,7 +99,13 @@ ko.windowManager = {
             newArgs[i] = arguments[i];
           }
         }
-        return window.openDialog.apply(window, ko.windowManager.fixupOpenDialogArgs(newArgs));
+        var win = window.openDialog.apply(window, ko.windowManager.fixupOpenDialogArgs(newArgs));
+        
+        win.addEventListener("load", function() {
+            win.document.documentElement.classList.add("dialog");
+        });
+        
+        return win;
     },
 
     /**
@@ -119,7 +125,13 @@ ko.windowManager = {
         for (var i = 0; i < arguments.length; i++) {
             args[i] = arguments[i];
         }
-        return window.openDialog.apply(window, args);
+        var win = window.openDialog.apply(window, args);
+        
+        win.addEventListener("load", function() {
+            win.document.documentElement.classList.add("dialog");
+        });
+        
+        return win;
     },
 
     /**
