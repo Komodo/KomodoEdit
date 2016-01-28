@@ -364,11 +364,7 @@
                 return;
             }
 
-            var folderIcon = "chrome://komodo/skin/images/folder-closed.png";
-            if (system.platform == "darwin")
-                folderIcon = "chrome://global/skin/dirListing/folder.png"
-            if (system.platform == "linux")
-                folderIcon = "moz-icon://stock/gtk-directory?size=16";
+            var folderIcon = "koicon://ko-svg/chrome/fontawesome/skin/folder.svg?size=16";
 
             var _results = [];
             var encodeURIComponent = window.encodeURIComponent;
@@ -384,6 +380,7 @@
                     description: description,
                     icon: type == 'dir' ? folderIcon : "koicon://" + encodeURIComponent(name) + "?size=14",
                     isScope: type == 'dir',
+                    classList: type == 'dir' ? "" : "small-icon",
                     weight: weight,
                     scope: "scope-files",
                     descriptionPrefix: isInSubscope ? subscope.name : descriptionPrefix,

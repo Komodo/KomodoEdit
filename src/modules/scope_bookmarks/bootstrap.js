@@ -10,7 +10,7 @@ function loadIntoWindow(window) {
         commando.registerScope("scope-bookmarks", {
             name: "Bookmarks",
             description: "Navigate through your code bookmarks",
-            icon: "koicon://ko-svg/chrome/icomoon/skin/star6.svg",
+            icon: "koicon://ko-svg/chrome/fontawesome/skin/star.svg?size=16",
             handler: "scope-bookmarks/bookmarks"
         });
     } catch (e) {

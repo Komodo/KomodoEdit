@@ -122,16 +122,75 @@
 tab[widget] { .icon(); .tab-text { margin-left: 4px; } }
 tab[widget="placesViewbox"] { .icon(); .icon-folder-open(); }
 tab[widget="openfilesViewbox"] { .icon(); .icon-files-empty2(); }
-tab[widget="collab-panel"] { .icon(); .icon-users2(); }
+tab[widget="collab-panel"] { .icon(); .icon-group(); }
 tab[widget="dbexplorer_viewbox"] { .icon(); .icon-database(); }
-tab[widget="toolbox2viewbox"] { .icon(); .icon-briefcase3(); }
+tab[widget="toolbox2viewbox"] { .icon(); .icon-briefcase(); }
 tab[widget="codebrowserviewbox"] { .icon(); .icon-circle-css(); }
 tab[widget="DOMviewbox"] { .icon(); .icon-circle-code(); }
 tab[widget="breakpoints-tabpanel"] { .icon(); .icon-bug(); }
-tab[widget="runoutput-desc-tabpanel"] { .icon(); .icon-terminal(); }
+tab[widget="runoutput-desc-tabpanel"] { .icon(); .icon-terminal2(); }
 tab[widget="projectUnitTestsResults_tabpanel"] { .icon(); .icon-lab(); }
 tab[widget="notifications-widget"] { .icon(); .icon-info2(); }
-tab[widget="console-widget"] { .icon(); .icon-display2(); }
+tab[widget="console-widget"] { .icon(); .icon-display3(); }
+tab[widget^="debugsession"]:not([dbg_status="interactive"]) { .icon(); .icon-play(); }
+tab[widget^="debugsession"][dbg_status="interactive"] { .icon(); .icon-play-circle(); }
+tab[widget^="findresults_tabpanel"] { .icon(); .icon-binoculars(); }
+
+/* Breakpoints */
+.breakpoint-new-icon > .box-inherit
+{
+    .icon();
+    .icon-plus-circle3();
+    
+    & > .toolbarbutton-text { margin-left: 4px; }
+    & > .toolbarbutton-icon { display: none; }
+}
+
+#breakpoints-tabpanel-hbox > toolbar > toolbarbutton > .toolbarbutton-icon
+{
+    display: none;
+}
+
+.breakpoint-delete-icon { .icon-minus-circle(); }
+.breakpoint-delete-all-icon { .icon-trash(); }
+.breakpoint-toggle-state-icon { .icon-circle-o(); }
+.breakpoint-go-to-source-code-icon { .icon-arrow-circle-right(); }
+.breakpoint-properties-icon { .icon-cog(); }
+
+/* Unit Testing */
+
+#testresults-button-box > toolbarbutton > .toolbarbutton-icon
+{
+    display: none;
+}
+
+#sleuthPane
+{
+    .debug-continue-icon { .icon-play-circle(); }
+    .debug-stop-icon { .icon-stop-circle(); }
+    .edit-testplan-icon { .icon-cog(); }
+}
+
+/* Notifications */
+
+#notificationWidget
+{
+    .solo-toolbaritem > toolbarbutton > .toolbarbutton-icon
+    {
+        display: none;
+    }
+    
+    #filter-error { .icon(); .icon-times-circle(); }
+    #filter-warning { .icon(); .icon-exclamation-circle(); }
+    #filter-info { .icon(); .icon-info-circle(); }
+    #filter-progress { .icon(); .icon-clock-o(); }
+}
+
+.tab-close-button > .toolbarbutton-icon
+{
+    visibility: collapse;
+    display: none;
+}
 
 .textbox-search-icons {
     .icon();
@@ -144,11 +203,14 @@ tab[widget="console-widget"] { .icon(); .icon-display2(); }
     }
 }
 
+.tab-close-button,
 .file-close-button
 {
     .icon();
     .icon-cross3();
     font-size: 16px;
+    padding: 0 !important;
+    margin: 0 !important;
 }
 
 #invoketool_toolbar_options,

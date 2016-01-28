@@ -1,1 +1,59 @@
-<svg width="2048" height="2048" viewBox="-128 -128 2048 2048" xmlns="http://www.w3.org/2000/svg"><path d="M1728 608v704q0 92-66 158t-158 66h-1216q-92 0-158-66t-66-158v-960q0-92 66-158t158-66h320q92 0 158 66t66 158v32h672q92 0 158 66t66 158z"/></svg>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="16"
+   height="16"
+   viewBox="0 0 16 16"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.91 r13725"
+   sodipodi:docname="folder.svg">
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1637"
+     inkscape:window-height="900"
+     id="namedview6"
+     showgrid="true"
+     inkscape:zoom="14.75"
+     inkscape:cx="-11.828577"
+     inkscape:cy="4.4270522"
+     inkscape:window-x="0"
+     inkscape:window-y="25"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg2">
+    <inkscape:grid
+       type="xygrid"
+       id="grid4138" />
+  </sodipodi:namedview>
+  <metadata
+     id="metadata10">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs8" />
+  <path
+     transform="matrix(1.000000,0.000000,0.000000,1.000000,0.000000,0.000000)"
+     inkscape:connector-curvature="0"
+     d="M15.0 6.0L15.0 12.0909086764Q15.0 12.8749994813 14.4447123016 13.4374997406Q13.8894235917 14.0 13.1153842322 14.0L2.88461556552 14.0Q2.11057691408 14.0 1.55528840647 13.4374997406Q1.0 12.8749994813 1.0 12.0909086764L1.0 3.90909081129Q1.0 3.12500041626 1.55528840647 2.56249995197Q2.11057691408 2.0 2.88461556552 2.0L5.57692308276 2.0Q6.3509617342 2.0 6.90624993836 2.56249995197Q7.0 3.12500041626 7.0 3.90909081129L7.0 4.0L13.1153842322 4.0Q13.8894235917 4.18181858236 14.4447123016 4.74431853433Q15.0 5.21590888773 15.0 6.0Z"
+     id="path4" />
+</svg>

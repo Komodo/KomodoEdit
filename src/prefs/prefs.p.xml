@@ -965,14 +965,9 @@
       <boolean id="koSkin_scheme_skinning">1</boolean>
   
   <!-- Todo: This is ugly and redundant, the icon system needs an overhaul to simplify eeeverything -->
-  <!-- #if PLATFORM == "darwin" -->
-      <string id="iconset-base-color">#7B7B7B</string>
-      <string id="iconset-toolbar-color">#595959</string>
-      <string id="iconset-selected-color">#FFFFFF</string>
-  <!-- #else -->
-      <string id="iconset-base-color">#4B4B4B</string>
-      <string id="iconset-selected-color">#375A91</string>
-  <!-- #endif -->
+      <string id="icon-base-color">#FFF</string>
+      <string id="icon-modal-color">#FFF</string>
+      <string id="icon-special-color">#FFF</string>
 
   <!-- Record the custom manifests that need to be loaded at runtime (startup) -->
   <!-- #if PLATFORM == "darwin" -->

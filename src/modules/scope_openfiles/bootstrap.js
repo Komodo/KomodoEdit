@@ -12,7 +12,7 @@ function loadIntoWindow(window) {
         commando.registerScope("scope-openfiles", {
             name: "Open Files",
             description: "Access your opened files",
-            icon: "koicon://ko-svg/chrome/icomoon/skin/files.svg",
+            icon: "koicon://ko-svg/chrome/fontawesome/skin/folder-open.svg?size=16",
             handler: "scope-openfiles/openfiles"
         });
     } catch (e) {

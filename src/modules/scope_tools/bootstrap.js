@@ -10,7 +10,7 @@ function loadIntoWindow(window) {
         commando.registerScope("scope-tools", {
             name: "Tools",
             description: "Run your toolbox items (snippets, macro's, etc)",
-            icon: "koicon://ko-svg/chrome/icomoon/skin/tools.svg",
+            icon: "koicon://ko-svg/chrome/fontawesome/skin/scissors.svg?size=16",
             handler: "scope-tools/tools"
         });
     } catch (e) {

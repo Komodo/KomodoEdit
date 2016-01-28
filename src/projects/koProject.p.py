@@ -97,16 +97,8 @@ _icons = {
     'file'          :   'chrome://komodo/skin/images/file_icon.png',
     'folder'        :   'chrome://komodo/skin/images/folder-closed.png',
     'live-folder'   :   'chrome://komodo/skin/images/folder-closed-blue.png',
-    'project'       :   'chrome://komodo/skin/images/project_icon.png'
+    'project'       :   'koicon://ko-svg/chrome/fontawesome/skin/home.svg?size=16'
 }
-
-if sys.platform.startswith('linux'):
-    _icons.update({
-        'file'          :   'moz-icon://stock/gtk-file?size=16',
-        'project'       :   'moz-icon://stock/gtk-home?size=16',
-        'folder'        :   'chrome://fugue/skin/icons/box.png',
-        'live-folder'   :   'moz-icon://stock/gtk-directory?size=16',
-    })
 
 #---- support routines
 

@@ -12,7 +12,7 @@ function loadIntoWindow(window) {
         commando.registerScope("scope-files", {
             name: "Files",
             description: "Search through your project files",
-            icon: "koicon://ko-svg/chrome/icomoon/skin/file5.svg",
+            icon: "koicon://ko-svg/chrome/fontawesome/skin/file.svg?size=16",
             handler: "scope-files/files",
             keybindTransit: "cmd_goToFile"
         });

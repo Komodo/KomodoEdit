@@ -56,6 +56,7 @@
                 name: editorView.title,
                 description: path, // todo: highlight matched portions
                 icon: "koicon://" + path + "?size=14",
+                classList: "small-icon",
                 weight: weight,
                 scope: "scope-openfiles",
                 descriptionPrefix: descriptionPrefix,

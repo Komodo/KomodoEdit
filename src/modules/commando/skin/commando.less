@@ -92,10 +92,10 @@
         .icon
         {
             background-repeat: no-repeat;
-            width: 14px;
-            height: 14px;
-            background-size: 14px;
-            max-height: 14px;
+            width: 16px;
+            height: 16px;
+            background-size: 16px;
+            max-height: 16px;
             padding-top: 3px;
             margin-right: 4px;
         }
@@ -192,15 +192,13 @@
             
             .menulist-icon
             {
-                width: 14px;
+                width: 16px;
             }
         }
         
         .menulist-dropmarker
         {
-            background: transparent;
-            border: 0;
-            padding: 0;
+            display: none;
         }
         
         menuitem .menu-iconic-left
@@ -242,13 +240,29 @@
             {
                 min-height: 1.5rem;
             }
-            .icon
+            
+            &:not(.small-icon)
             {
-                background-repeat: no-repeat;
-                width: 14px;
-                height: 14px;
-                max-height: 14px;
-                background-size: 14px 14px;
+                .icon
+                {
+                    background-repeat: no-repeat;
+                    width: 16px;
+                    height: 16px;
+                    max-height: 16px;
+                    background-size: 16px 16px;
+                }
+            }
+            
+            &.small-icon
+            {
+                .icon
+                {
+                    background-repeat: no-repeat;
+                    width: 14px;
+                    height: 14px;
+                    max-height: 14px;
+                    background-size: 14px 14px;
+                }
             }
             
             .number-wrapper

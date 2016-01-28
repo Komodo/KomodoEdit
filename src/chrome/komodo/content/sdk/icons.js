@@ -320,43 +320,14 @@
             if ( ! ("fill" in params) &&  ! ("color" in params))
             {
                 var preset = ("preset" in params) ? params.preset : 'base';
-                if (preset == "hud")
+                if (prefs.getString("icon-" + preset + "-color", '-1') == '-1')
                 {
-                    log.debug("Using hud preset");
-                    
-                    var schemeService = Cc['@activestate.com/koScintillaSchemeService;1'].getService();
-                    var scheme = schemeService.getScheme(prefs.getString("editor-scheme"));
-                    params.fill = scheme.foregroundColor;
+                    preset = "base";
                 }
-                else if (preset == "hud-selected")
-                {
-                    log.debug("Using hud preset");
-                    
-                    var schemeService = Cc['@activestate.com/koScintillaSchemeService;1'].getService();
-                    var scheme = schemeService.getScheme(prefs.getString("editor-scheme"));
-                    params.fill = scheme.getCommon("keywords", "fore");
-                }
-                else if (prefs.getString("iconset-" + preset + "-defs", '-1') != '-1')
-                {
-                    log.debug("Using "+preset+" preset defs");
-                    params.defs = prefs.getStringPref("iconset-" + preset + "-defs");
-                }
-                else if (prefs.getString("iconset-base-defs", '-1') != '-1')
-                {
-                    log.debug("Using base preset defs");
-                    params.defs = prefs.getStringPref("iconset-base-defs");
-                }
-                else 
-                {
-                    if (prefs.getString("iconset-" + preset + "-color", '-1') == '-1')
-                    {
-                        preset = "base";
-                    }
-                    
-                    log.debug("Using "+preset+" preset color");
-                    
-                    params.fill = prefs.getStringPref("iconset-" + preset + "-color");
-                }
+                
+                log.debug("Using "+preset+" preset color");
+                
+                params.fill = prefs.getString("icon-" + preset + "-color", "#FFF");
             }
 
             if ("color" in params)

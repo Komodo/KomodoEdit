@@ -10,7 +10,7 @@ function loadIntoWindow(window) {
         commando.registerScope("scope-commands", {
             name: "Commands",
             description: "Run commands or invoke menu's",
-            icon: "koicon://ko-svg/chrome/icomoon/skin/command.svg",
+            icon: "koicon://ko-svg/chrome/fontawesome/skin/cogs.svg?size=16",
             handler: "scope-commands/commands"
         });
     } catch (e) {

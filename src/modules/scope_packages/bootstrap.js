@@ -10,7 +10,7 @@ function loadIntoWindow(window) {
         commando.registerScope("scope-packages", {
             name: "Packages",
             description: "Install Komodo packages",
-            icon: "koicon://ko-svg/chrome/icomoon/skin/box-add.svg",
+            icon: "koicon://ko-svg/chrome/fontawesome/skin/archive.svg?size=16",
             handler: "scope-packages/packages"
         });
         
