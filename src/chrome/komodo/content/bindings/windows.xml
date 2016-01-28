@@ -36,6 +36,12 @@
                     <xul:toolbarbutton buttonstyle="pictures" class="icon-cancel-circle2" onclick="window.close();"/>
                 </xul:hbox>
             </xul:hbox>
+            <xul:hbox id="closebar" pack="center" align="center">
+                <xul:spacer flex="1"></xul:spacer>
+                <xul:hbox id="windowButtons" align="center" pack="end">
+                    <xul:toolbarbutton buttonstyle="pictures" class="icon-cancel-circle2" onclick="window.close();"/>
+                </xul:hbox>
+            </xul:hbox>
             <children/>
         </xul:vbox>
         <xul:resizer dir="right"/>
