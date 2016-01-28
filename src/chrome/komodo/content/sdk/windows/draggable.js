@@ -20,6 +20,7 @@ module.exports = function(elem) {
             "toolbaritem", "toolbarseparator", "toolbarspring", "toolbarspacer",
             "radiogroup", "deck", "scrollbox", "arrowscrollbox", "tabs"
     ],
+    this.dragTagsAlways = ["box", "hbox", "vbox", "spacer"],
     this.shouldDrag = function(aEvent) {
         if (aEvent.button != 0 ||
             this._window.fullScreen || !this.mouseDownCheck.call(this._elem, aEvent) ||
@@ -33,7 +34,19 @@ module.exports = function(elem) {
         //if (target.ownerDocument.defaultView != this._window)
         //    return false;
         
-        if (this._elem._tophandle) {
+        var inDragTagsAlways = false;
+        
+        var _target = target;
+        while (_target.localName && _target != this._elem) {
+            if (this.dragTags.indexOf(_target.localName) != -1)
+            {
+                inDragTagsAlways = true;
+                break;
+            }
+            _target = _target.parentNode;
+        }
+        
+        if (this._elem._tophandle && ! inDragTagsAlways) {
             if (aEvent.pageY > 30) return false;
         }
 
