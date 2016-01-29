@@ -1,0 +1,24 @@
+
+#!/usr/local/bin/perl
+# Copyright (c) 2000-2010 ActiveState Software Inc.
+# See the file LICENSE.txt for licensing information.
+
+
+Import(
+    'cons',
+    'mozChromeDir',
+    'mozComponentsDir',
+    'ranRegxpcomStateFileName',
+    'platform',
+    'productType',
+    'buildFlavour',
+    'komodoTitleBarName',
+    'unsiloedPythonExe',
+    'mozVersion',
+    'withSCC',
+    'withSharedSupport',
+    'withDebugging',
+    'withCodeBrowser',
+);
+
+$cons->InstallInChrome('page.js');

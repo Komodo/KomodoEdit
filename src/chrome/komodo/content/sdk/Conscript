@@ -43,6 +43,7 @@ $cons->InstallInChrome('windows/draggable.js');
 $cons->InstallInChrome('debug.js');
 $cons->InstallInChrome('dynamic-button.js');
 $cons->InstallInChrome('colorscheme.js');
+$cons->InstallInChrome('wizard.js');
 
 if ($buildFlavour eq "dev") {
     $cons->InstallInChrome('benchmark.js');
