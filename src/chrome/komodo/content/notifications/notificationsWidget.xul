@@ -15,7 +15,7 @@
 <page id="notificationWidget" title="(Notifications Widget)"
       xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   <vbox flex="1">
-    <richlistbox id="message-container" seltype="multiple" flex="999"/>
+    <richlistbox id="message-container" class="bg_transparent" seltype="multiple" flex="999"/>
     <box class="widgetToolbarWrap centered">
         <textbox id="filter-search" flex="1"
 		 emptytext="&filterSearchEmpty;" type="search"

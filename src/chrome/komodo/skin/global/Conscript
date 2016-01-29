@@ -49,7 +49,6 @@ $cons->InstallInChrome('bindings.less');
 $cons->InstallInChrome('colors.less');
 $cons->InstallInChrome('chromeless.less');
 $cons->InstallInChrome('normalize.less');
-$cons->InstallInChrome('normalize-mixins.less');
 $cons->InstallInChrome('prefs.less');
 $cons->InstallInChrome('reset.less');
 $cons->InstallInChrome('scrollbars.less');

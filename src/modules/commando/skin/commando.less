@@ -1,8 +1,6 @@
 @import url("chrome://komodo/skin/global/colors.less");
 @import url("resource://profile/colors.less");
 
-@import url("chrome://komodo/skin/global/normalize-mixins.less");
-
 #commando-panel
 {
     border: 0;
@@ -11,13 +9,10 @@
     -moz-box-orient: horizontal;
     border-radius: 2px;
     
-    .normalize-colors(special);
-    
     label,
     description
     {
         font-size: 1rem !important;
-        color: @selected-foreground-special;
     }
 
     &.blocked
@@ -212,7 +207,7 @@
     richlistbox#commando-results
     {
         -moz-appearance: none;
-        background: transparent !important;
+        background: @special;
         border: 0;
         margin: 0;
         
@@ -229,6 +224,12 @@
         richlistitem
         {
             padding: 3px 4px 3px 10px;
+            
+            &[selected="true"]
+            {
+                color: @selected-foreground-special;
+                background: @selected-special;
+            }
             
             label, description
             {

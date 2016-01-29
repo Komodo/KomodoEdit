@@ -570,6 +570,17 @@
 <binding id="view-base"
     extends="chrome://komodo/content/bindings/views.xml#view-list-base">
     <implementation name="viewbase" implements="koIView">
+        
+        <constructor>
+        <![CDATA[
+        this.addEventListener("focus", function() {
+            this.setAttribute("focused", "true");
+        }.bind(this));
+        this.addEventListener("blur", function() {
+            this.removeAttribute("focused");
+        }.bind(this));
+        ]]>
+        </constructor>
 
         <field name="koDoc">null</field>
 

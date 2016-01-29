@@ -1,9 +1,13 @@
-.normalize-colors(main);
-
 /* Fonts and colors */
 :root
 {
     font: message-box;
+}
+
+description, tab, textbox, menulist, menuitem, menu, treecol, button, toolbarbutton,
+checkbox, radio, tabpanels, listitem, richlistitem, listheader
+{
+    color: @foreground; 
 }
 
 label, description, button, toolbarbutton, textbox
@@ -38,9 +42,18 @@ groupbox
 {
     padding: 5px;
     
+    .groupbox-title
+    {
+        caption
+        {
+            margin: 0;
+        }
+    }
+    
     .groupbox-body
     {
         padding-left: 10px;
+        margin-bottom: 1.5rem;
     }
 }
 
@@ -58,6 +71,11 @@ input.textbox-input
 menupopup
 {
     background: transparent;
+    
+    menuseparator
+    {
+        background: @background;
+    }
     
     & > .popup-internal-box
     {
@@ -91,6 +109,19 @@ menupopup
     menu:hover > .menu-right
     {
         color: @foreground;
+    }
+    
+    menu:hover,
+    menuitem:hover
+    {
+        background: @special !important;
+        color: @foreground !important;
+    }
+    
+    & > menu,
+    & > menuitem
+    {
+        background: @contrast;
     }
 }
 
@@ -156,7 +187,7 @@ tab
 
 tabs
 {
-    /* box-shadow defined in normalize-colors() */
+    box-shadow: inset 0px -2px 0px 0px @contrast;
     
     tab
     {
@@ -196,13 +227,55 @@ checkbox, radio
     -moz-box-align: center;
 }
 
+checkbox.label-only
+{
+    &[checked="true"]
+    {
+        color: @special;
+    }
+    
+    &:hover
+    {
+        color: @contrast-special;
+        cursor: pointer;
+    }
+    
+    .checkbox-icon
+    {
+        display: none;
+    }
+}
+
 textbox, menulist
 {
+    color: @textbox-foreground;
+    background: @textbox;
     padding: 0 4px;
     border-radius: 2px;
     margin: 2px;
     
     min-height: 1.5rem;
+    
+    .textbox-textarea
+    {
+        color: @textbox-foreground;
+    }
+    
+    &:not([disabled="true"]):not([readonly])
+    {
+        &:focus, &:active, &[focused]
+        {
+            box-shadow: 0px 0px 0px 2px @special;
+        }
+    }
+}
+
+:root:not(#komodo_main) view
+{
+    &:focus, &:active, &[focused]
+    {
+        box-shadow: 0px 0px 0px 2px @special;
+    }
 }
 
 menulist > .menulist-label-box 
@@ -212,8 +285,35 @@ menulist > .menulist-label-box
 
 /* Trees & listboxes */
 
+tree, listbox, richlistbox
+{
+    &.bg_transparent
+    {
+        color: @foreground;
+        background: @background;
+        
+        ::-moz-tree-cell-text
+        {
+            color: @foreground;
+        }
+    }
+    
+    &:not(.bg_transparent)
+    {
+        color: @textbox-foreground;
+        background: @textbox;
+        
+        ::-moz-tree-cell-text
+        {
+            color: @textbox-foreground;
+        }
+    }
+}
+
 treecol
 {
+    background: @contrast;
+    
     label
     {
         padding: 0.5rem 4px;
@@ -230,15 +330,19 @@ treecolpicker
     min-height: 1.6rem;
 }
 
-treechildren::-moz-tree-twisty {
-    -moz-appearance: none;
-    width: 14px;
-    height: 14px;
-    margin-right: -6px;
-}
-
 treechildren::-moz-tree-cell {
     margin-left: 4px;
+}
+
+treechildren::-moz-tree-cell-text(container)
+{
+    color: darken(@foreground, 30%);
+}
+
+treechildren::-moz-tree-row(selected)
+{
+    color: @selected-foreground;
+    background: @selected;
 }
 
 treechildren::-moz-tree-cell-text
@@ -246,12 +350,48 @@ treechildren::-moz-tree-cell-text
     padding-left: 2px;
 }
 
+treechildren::-moz-tree-cell-text(selected)
+{
+    color: @selected-foreground;
+}
+
+treechildren::-moz-tree-twisty {
+    -moz-appearance: none;
+    width: 14px;
+    height: 14px;
+    margin-right: -6px;
+}
+
 tree.twisty-only treechildren::-moz-tree-image
 {
     margin-left: -14px;
 }
 
+richlistitem, listitem, row /* :any is too flaky */
+{
+    &[selected="true"]
+    {
+        color: @selected-foreground;
+        background: @selected;
+        
+        description, label
+        {
+            color: @selected-foreground;
+        }
+    }
+}
+
 /* Splitters */
+
+splitter
+{
+    background-image: none;
+}
+
+splitter:not(.workspace_splitter)
+{
+    background-color: @contrast;
+}
 
 splitter[orient="horizontal"]
 {
@@ -261,6 +401,20 @@ splitter[orient="horizontal"]
 splitter[orient="vertical"]
 {
     min-height: 1px;
+}
+
+splitter#row-splitter,
+splitter.row-splitter
+{
+    background-color: transparent;
+    border-bottom: 1px dashed @contrast;
+}
+
+splitter#column-splitter,
+splitter.column-splitter
+{
+    background-color: transparent;
+    border-right: 1px dashed @contrast;
 }
 
 separator
@@ -288,17 +442,9 @@ menu, menuitem
     padding: 0 6px;
 }
 
-menupopup menu:hover,
-menupopup menuitem:hover
-{
-    background: @special;
-    color: @foreground-special;
-}
-
 menuseparator
 {
     height: 1px;
-    background: @background;
 }
 
 .menu-iconic-left
@@ -336,6 +482,27 @@ button.unstyled
     margin: 4px;
     padding: 0.3rem 1.5rem;
     border-radius: 2px;
+    background: @button;
+    color: @button-foreground;
+    
+    label.button-text
+    {
+        color: @button-foreground;
+    }
+    
+    &:hover
+    {
+        background: @button-special;
+        color: @button-foreground-special;
+    }
+}
+
+/* Groupboxes */
+
+.groupbox-body
+{
+    background: @contrast;
+    padding: 10px;
 }
 
 /* Modals */
@@ -369,15 +536,52 @@ dialog, :root.pref-window
             visibility: collapse;
         }
     }
-    
-    .normalize-colors(modal);
-    
-    tabbox tabpanel
+}
+
+.dialog, dialog, :root.pref-window
+{
+    tabbox tabpanels,
+    .groupbox-body
     {
         background: @background;
         color: @foreground;
         padding: 10px;
         
-        .normalize-colors(main);
+        /* Todo: Properly implement using defined colors */
+        .groupbox-body
+        {
+            background: lighten(@background, 5%);
+        }
     }
+    
+    menupopup
+    {
+        & > menu,
+        & > menuitem
+        {
+            background: @background;
+        }
+    
+        .popup-internal-box
+        {
+            border: 1px solid @contrast;
+            background: @background;
+        }
+        
+        menuseparator
+        {
+            background: @contrast;
+        }
+    }
+    
+    splitter.row-splitter
+    {
+        border-bottom: 1px dashed @background;
+    }
+    
+    splitter.column-splitter
+    {
+        border-right: 1px dashed @background;
+    }
+
 }

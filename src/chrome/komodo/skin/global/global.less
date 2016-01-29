@@ -2,7 +2,6 @@
 @import url("resource://profile/colors.less");
 @import url("chrome://komodo/skin/global/reset.less");
 @import url("chrome://komodo/skin/global/normalize.less");
-@import url("chrome://komodo/skin/global/normalize-mixins.less");
 @import url("chrome://komodo/skin/global/bindings.less");
 @import url("chrome://komodo/skin/global/chromeless.less");
 @import url("chrome://komodo/skin/global/prefs.less");
@@ -27,6 +26,8 @@
     -moz-box-pack: center;
     -moz-box-align: center;
     
+    padding: 0 4px;
+    
     textbox, toolbarbutton, menulist
     {
         margin-top: 0;
@@ -45,6 +46,7 @@
     textbox
     {
         margin: 0;
+        background: @contrast;
     }
 }
 
@@ -55,4 +57,16 @@
     #filter-error { color: @state-error; }
     #filter-warning { color: @state-warning; }
     #filter-info { color: @state-info; }
+}
+
+/* Tools */
+
+#results-area[rxx_status="failure"] #results-titlebar {
+    color: @state-error;
+}
+
+#results-area[rxx_status="failure"] #results-message,
+#results-area[rxx_status="failure"] #results-lex-error-message
+{
+    color: @state-error;
 }

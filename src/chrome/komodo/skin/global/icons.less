@@ -111,10 +111,16 @@
 .komodo-button-maillist { .icon(); .icon-envelop(); }
 .komodo-button-bugs { .icon(); .icon-bug(); }
 
+.help-icon > .toolbarbutton-text { .icon(); .icon-question-circle(); }
+
+.regex-shortcuts-button > .toolbarbutton-text { .icon(); .icon-external-link-square(); }
+.regex-shortcuts-button > .toolbarbutton-icon { display: none; }
+.regex-delimiters-button { .icon(); .icon-code(); }
+
 .menu-icon > .toolbarbutton-text {
     visibility: visible; .icon(); .icon-menu4();
     font-size: 24px !important;
-    text-shadow: 2px 2px 0 @button;
+    text-shadow: 2px 2px 0 @button-special;
     margin: 0 6px;
 }
 .menu-icon > dropmarker { visibility: collapse; }
@@ -236,7 +242,7 @@ page .cog-icon,
     .icon-plus();
 }
 
-checkbox
+checkbox:not(.label-only)
 {
     .checkbox-spacer-box
     {
@@ -245,6 +251,7 @@ checkbox
     }
     
     .icon();
+    
     &:not([checked="true"]) .checkbox-spacer-box { .icon-square(); }
     &[checked="true"] .checkbox-spacer-box { .icon-check-square(); }
 }

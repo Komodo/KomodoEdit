@@ -8,11 +8,9 @@
     padding: 4px;
     background: @special;
     
-    .normalize-colors(special);
-    
     toolbaritem
     {
-        background: @button;
+        background: @button-special;
         border-radius: 3px;
         margin: 5px;
         padding: 0;
@@ -23,10 +21,11 @@
             margin: 0;
             padding: 5px;
             border-radius: 3px;
+            color: @button-foreground-special;
             
             &:hover
             {
-                background: darken(@button, 10%);
+                background: darken(@button-special, 10%);
             }
         }
     }
