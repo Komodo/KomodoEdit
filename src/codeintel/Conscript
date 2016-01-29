@@ -196,6 +196,7 @@ my @catalog_files = (
     "lib/codeintel2/catalogs/html5.cix",
     "lib/codeintel2/catalogs/ext.cix",
     "lib/codeintel2/catalogs/xbl.cix",
+    "lib/codeintel2/catalogs/ember.cix",
     #TODO: "lib/codeintel2/catalogs/pecl.cix",
     #TODO: "lib/codeintel2/catalogs/drupal.cix",
     "lib/codeintel2/catalogs/xpcom.cix",
