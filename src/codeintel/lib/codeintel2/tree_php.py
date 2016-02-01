@@ -286,8 +286,8 @@ class PHPTreeEvaluator(TreeEvaluator):
                 elif trg.extra.get('ilk') == "function":
                     cplns = [c for c in cplns if c[0] in ("namespace", "function")]
                 else:
-                    # Filter out anything that isn't a namespace or a class.
-                    cplns = [c for c in cplns if c[0] in ("namespace", "class")]
+                    # Filter out anything that isn't a namespace, class, or interface.
+                    cplns = [c for c in cplns if c[0] in ("namespace", "class", "interface")]
             # Return additional sub-namespaces that start with this prefix.
             if hits and hits[0][0] is not None:
                 # We hit a namespace, return additional namespaces that
