@@ -318,7 +318,7 @@ class CoffeeScriptLangInfo(_JSLikeLangInfo):
 class JSXLangInfo(LangInfo):
     name = "JSX"
     conforms_to_bases = ["Text"]
-    exts = ['.js', '.jsx'] # Note: .jsx is not advocated
+    exts = ['.jsx'] # Note: .jsx is not advocated, but adding .js throws off codeintel
 
 class CLangInfo(LangInfo):
     #TODO: rationalize with C++ and Komodo's usage
