@@ -4710,7 +4710,40 @@ class DefnTestCase(CodeIntelTestCase):
         self.assertCompletionsAre(markup_text(content, pos=positions[1]),
             [("function", "bar"),
              ("function", "foo")])
-    
+             
+    @tag("bug 176")
+    def test_interface_name_completions(self):
+        test_dir = join(self.test_dir, "test_php_interface_name_completions")
+        baz_content, baz_positions = unmark_text(php_markup(dedent("""\
+            namespace Baz;
+            use Foo\<1>Foo;
+            use Foo\<2>
+        """)))
+
+        manifest = [
+            ("foo.php", php_markup(dedent("""
+                namespace Foo;
+                class Foo {
+                    // pass
+                }
+                """))),
+            ("bar.php", php_markup(dedent("""
+                namespace Foo;
+                interface Bar {
+                    // pass
+                }
+                """))),
+            ("baz.php", baz_content),
+        ]
+        for file, content in manifest:
+            path = join(test_dir, file)
+            writefile(path, content)
+
+        buf = self.mgr.buf_from_path(join(test_dir, "baz.php"))
+        for i in xrange(2):
+            self.assertCompletionsAre2(buf, baz_positions[i + 1],
+                [("interface", "Bar"),
+                 ("class", "Foo")])
 
 class EscapingTestCase(CodeIntelTestCase):
     lang = "PHP"
