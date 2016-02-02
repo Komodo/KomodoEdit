@@ -29,26 +29,19 @@ popup, panel
 
 caption
 {
-    margin-top: 1.5rem;
-    
     label
     {
+        color: @caption;
         font-size: 1.2rem;
+        line-height: 1.5rem;
         font-weight: bold;
+        padding: 5px 0;
     }
 }
 
 groupbox
 {
     padding: 5px;
-    
-    .groupbox-title
-    {
-        caption
-        {
-            margin: 0;
-        }
-    }
     
     .groupbox-body
     {
@@ -166,7 +159,12 @@ toolbarbutton.menu-icon > label
     visibility: collapse;
 }
 
-toolbarbutton:not(.box-inherit)
+toolbarbutton[checked="true"]
+{
+    color: @special;
+}
+
+toolbarbutton:not(.box-inherit):not(.button)
 {
     padding: 2px;
     margin: 2px;
@@ -290,7 +288,12 @@ tree, listbox, richlistbox
     &.bg_transparent
     {
         color: @foreground;
-        background: @background;
+        
+        &:not(tree),
+        .tree-bodybox
+        {
+            background: @background;
+        }
         
         ::-moz-tree-cell-text
         {
@@ -301,18 +304,28 @@ tree, listbox, richlistbox
     &:not(.bg_transparent)
     {
         color: @textbox-foreground;
-        background: @textbox;
+        
+        &:not(tree),
+        .tree-bodybox
+        {
+            background: @textbox;
+        }
         
         ::-moz-tree-cell-text
         {
             color: @textbox-foreground;
         }
     }
+    
+    textbox, menulist
+    {
+        box-shadow: 0px 0px 0px 1px fade(@special, 50%);
+    }
 }
 
 treecol
 {
-    background: @contrast;
+    color: @caption;
     
     label
     {
@@ -406,15 +419,23 @@ splitter[orient="vertical"]
 splitter#row-splitter,
 splitter.row-splitter
 {
+    background-image: none;
     background-color: transparent;
     border-bottom: 1px dashed @contrast;
+    margin: 5px 0 10px;
+    height: 5px;
+    min-height: 0;
 }
 
 splitter#column-splitter,
 splitter.column-splitter
 {
+    background-image: none;
     background-color: transparent;
     border-right: 1px dashed @contrast;
+    width: 5px;
+    margin: 0 10px 0 5px;
+    min-width: 0;
 }
 
 separator
@@ -476,7 +497,8 @@ button.unstyled
     -moz-appearance: none;
 }
 
-:not(button) > button:not(.button-toolbar-a):not(.unstyled)
+:not(button) > button:not(.button-toolbar-a):not(.unstyled),
+.button
 {
     -moz-appearance: none;
     margin: 4px;
@@ -583,5 +605,5 @@ dialog, :root.pref-window
     {
         border-right: 1px dashed @background;
     }
-
+    
 }
