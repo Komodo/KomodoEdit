@@ -88,6 +88,13 @@ my @lexers = (
                skel => "skel/EJS",
               },
               {
+               language_name => "JSERB",
+               codename => "jserb_language",
+               udl_path => "jserb-mainlex.udl",
+               ext => ".js.erb",
+               skel => "skel/JSERB",
+              },
+              {
                language_name => "Komodo Snippet",
                codename => "komodo_snippet_language",
                udl_path => "ko-snippet-mainlex.udl",

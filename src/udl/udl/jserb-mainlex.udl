@@ -1,0 +1,27 @@
+# Describe a lexer for Jserb (JS-based embedded JS) files
+# Like EJS, but the base language is the CSL, not HTML
+# Except JSERB uses erb to convert .js.erb files to .js, and erb
+# uses Ruby in templates
+
+language JSERB
+
+# Which of the following two do we need: initial M, redo to CSL
+# Or can we just declare CSL
+
+family markup
+initial IN_M_DEFAULT
+
+# Need to get into a state with keywords -- use CSL
+state IN_M_DEFAULT:
+/./ : redo, => IN_CSL_DEFAULT
+
+family csl # client-side language
+
+# We have to specify the min and max styles we'll be referring to
+start_style CSL_DEFAULT
+end_style CSL_REGEX
+
+include "js2ruby.udl"  # transition on <% in js code...
+include "ruby2js.udl"  # transition from ruby to js on %>
+include "ecmascript_262.udl" # jslex is for html-based files.
+include "rubylex.udl"
