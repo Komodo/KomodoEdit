@@ -64,6 +64,7 @@ function TailOnLoad() {
         if (!gDoc) alert('no doc');
         gDoc.load();
         var buffer = gDoc.buffer;
+        gView.scintilla.symbolMargin = false;
         gView.initWithBuffer(buffer, gDoc.language);
         gView.scimoz.gotoLine(gView.scimoz.lineCount-1);
         var filepath = ko.uriparse.URIToLocalPath(url);
