@@ -365,10 +365,6 @@ class koPreferenceSetBase(object):
         a boolean and returns true if the pref does not exist or doesnt have
         validation
         """
-        try:
-            old_val, old_type = self.prefs[prefid]
-        except KeyError:
-            return True
 
         # If this pref has a validation expression (i.e. a 'validation'
         # attribute in it XML representation), then ensure that returns
