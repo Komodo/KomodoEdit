@@ -9,7 +9,7 @@
 /**
  * "declaration" of the Row class.  Uses the init() function as a constructor
  */
-function Panel(options) { this.init(options) };
+function Panel($element = {}, options = {}) { this.init($element = {}, options = {}) };
 (function()
     {
         var $ = require("ko/dom");
@@ -18,23 +18,23 @@ function Panel(options) { this.init(options) };
         /**
          * Initialize the properties of the object being passed to the user
          */
-        this.init = function(element = {}, options = {})
+        this.init = function($element = {}, options = {})
         {
              // The only arg passed in might only be options
-            if (!element.koDom)
+            if (!$element.koDom)
             {
-                options = element;
+                options = $element;
             }
             
-            var columnElem = $.create(this.type, options.attributes || {})
-            var $element = $(columnElem.toString());
+            var newElem = $.create(this.type, options.attributes || {})
+            var $newElem = $(newElem.toString());
             // if content has been provided append it to the element
-            if(element && element.koDom)
+            if($element && $element.koDom)
             {
-                $element.append(element);
+                $newElem.append($element);
             }
-            this.$ = $element; // koDom object
-            this.element = this.$.element(); // Actual DOM object
+            this.$ = $newElem; // koDom object
+            this.element = this.$.element; // Actual DOM object
         };
         
         /**
@@ -42,9 +42,9 @@ function Panel(options) { this.init(options) };
          *
          * @param {koDom} content, a koDom object to be inserted into the panel
          */
-        this.addContent = function(content)
+        this.addContent = function($content)
         {
-            this.$.append(content);
+            this.$.append($content);
         }
         
         /**
@@ -64,15 +64,15 @@ function Panel(options) { this.init(options) };
          *    ref: https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XUL/Method/openPopup
          * 
          */
-        this.open = function(options = {})
+        this.open = function(args = {})
         {
-            var anchor =  options.anchor || null;
-            var position = options.position || null;
-            var x = options.x || 0;
-            var y = options.y || 0;
-            var isContextMenu = options.isContextMenu || false;
-            var attributesOverride = options.attributesOverride || false;
-            var triggerEvent = options.triggerEvent || null;
+            var anchor =  args.anchor || null;
+            var position = args.position || null;
+            var x = args.x || 0;
+            var y = args.y || 0;
+            var isContextMenu = args.isContextMenu || false;
+            var attributesOverride = args.attributesOverride || false;
+            var triggerEvent = args.triggerEvent || null;
             this.element.openPopup(anchor,
                                    position,
                                    x,
@@ -92,7 +92,7 @@ function Panel(options) { this.init(options) };
  * @returns {Object} Row,  object which contains the koDom object of a
  * row (a.k.a hbox) element in the element property.
  */
-module.exports.create = function create_panel (options)
+module.exports.create = function create_panel ($element = {}, options = {})
 {
-    return new Panel(options);
+    return new Panel($element = {}, options = {});
 };

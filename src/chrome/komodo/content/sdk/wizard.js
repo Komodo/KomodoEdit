@@ -6,29 +6,29 @@
  *
  */
 
-function Wizard(element, options) { this.init(element, options); }
+function Wizard($element = {}, options = {}) { this.init($element = {}, options = {}); }
 (function()
     {
         const $ = require("ko/dom");
         this.type = "wizard";
    
-        this.init = function(element = {}, options = {})
+        this.init = function($element = {}, options = {})
         {
             // The only arg passed in might only be options
-            if (!element.koDom)
+            if (!$element.koDom)
             {
-                options = element;
+                options = $element;
             }
             
-            var columnElem = $.create(this.type, options.attributes || {})
-            var $element = $(columnElem.toString());
+            var newElem = $.create(this.type, options.attributes || {})
+            var $newElem = $(newElem.toString());
             // if content has been provided append it to the element
-            if(element && element.koDom)
+            if($element && $element.koDom)
             {
-                $element.append(element);
+                $newElem.append($element);
             }
-            this.$ = $element; // koDom object
-            this.element = this.$.element(); // Actual DOM object
+            this.$ = $newElem; // koDom object
+            this.element = this.$.element; // Actual DOM object
         };
    
        /**
@@ -39,25 +39,64 @@ function Wizard(element, options) { this.init(element, options); }
         *
         * @returns {DOM Object} ko/UI SDK object
         */
-       this.addPage = function($ = {}, options = {})
+       this.addPage = function($element = {}, options = {})
        {
            // The only arg passed in might only be options
-           if (!$.koDom)
+           if (!$element.koDom)
            {
-               options = $;
+               options =$element;
            }
            
-           var columnElem;
            // Create it with options or not
            var page = require("ko/wizard/page").create(options.attributes = {});
            
-           if($ && $.koDom)
+           if($element && $element.koDom)
            {
-               page.$.append($);
+               page.$.append($element);
            }
            this.$.append(page.$);
            return page;
         };
+        
+        /**
+         * Open the wizard dialog in a particular location on the screen.
+         *  Example of args object to open Wizard with:
+         *  {
+         *      args:
+         *      {
+         *          anchor: element to attach to,
+         *          position: position relative to anchor,
+         *          x: relative to top left of anchor,
+         *          y: relative to top left of anchor
+         *      }
+         *  }
+         *
+         *  You can also pass attributes in using the same object.  These are
+         *  used on the Panel created by this method to house the wizard:
+         *  {
+         *      args:
+         *      {
+         *          ...    
+         *      },
+         *      attributes:
+         *      {
+         *          ...
+         *      }
+         *  }
+         *  
+         * @param {object} options, args and attributes for opening the wizard
+         *
+         * @returns {koDom} panel, a handle to the panel object created.
+         * 
+         */
+        this.open = function(options = {})
+        {
+            var panel = require("ko/ui/panel").create(options.attributes = {});
+            panel.$.append(this.$);
+            this.parent = panel;
+            panel.open(options.args = {});
+            return this.parent;
+        }
     }
 ).apply(Wizard.prototype);
 
@@ -75,7 +114,7 @@ function Wizard(element, options) { this.init(element, options); }
 // same for addPage
 //  Add similar functionality for other UI-ish SDKs
 
-module.exports.create = function(options)
+module.exports.create = function($element = {}, options = {})
 {
-    return new Wizard(options);
+    return new Wizard($element = {}, options = {});
 }

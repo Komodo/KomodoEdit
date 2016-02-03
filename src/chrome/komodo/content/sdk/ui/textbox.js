@@ -9,30 +9,30 @@
 /**
  * "declaration" of the Row class.  Uses the init() function as a constructor
  */
-function Textbox(options) { this.init(options); }
+function Textbox($element = {}, options = {}) { this.init($element = {}, options = {}); }
 
 (function()
     {
         var $ = require("ko/dom");
         this.type = "textbox.js";
         
-        this.init = function(element = {}, options = {})
+        this.init = function($element = {}, options = {})
         {
              // The only arg passed in might only be options
-            if (!element.koDom)
+            if (!$element.koDom)
             {
-                options = element;
+                options = $element;
             }
             
-            var columnElem = $.create(this.type, options.attributes || {})
-            var $element = $(columnElem.toString());
+            var newElem = $.create(this.type, options.attributes || {})
+            var $newElem = $(newElem.toString());
             // if content has been provided append it to the element
-            if(element && element.koDom)
+            if($element && $element.koDom)
             {
-                $element.append(element);
+                $newElem.append($element);
             }
-            this.$ = $element; // koDom object
-            this.element = this.$.element(); // Actual DOM object
+            this.$ = $newElem; // koDom object
+            this.element = this.$.element; // Actual DOM object
         };
     }
 ).apply(Textbox.prototype);
@@ -43,7 +43,7 @@ function Textbox(options) { this.init(options); }
  * @returns {Object} Textbox,  object which contains the koDom object of a
  * row (a.k.a hbox) element in the element property.
  */
-module.exports.create = function create_row (options)
+module.exports.create = function create_row ($element = {}, options = {})
 {
-    return new Textbox(options);
+    return new Textbox($element = {}, options = {});
 }
