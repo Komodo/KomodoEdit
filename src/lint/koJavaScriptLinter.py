@@ -403,20 +403,12 @@ class KoJSHintLinter(CommonJSLinter):
             evidenceLine = warnLines[i + 1]
             m = msgRe.match(msgLine)
             if m:
-                lineNo = int(m.group("lineNo"))
+                lineNo = int(m.group("lineNo")) - 1
+                if lineNo >= numDataLines:
+                    lineNo = numDataLines - 1
                 #columnNo = int(m.group("columnNo"))
                 # build lint result object
                 result = KoLintResult()
-                evidenceLineNo = lineNo
-                if evidenceLineNo >= numDataLines:
-                    evidenceLineNo = numDataLines - 1
-                if evidenceLine in datalines[evidenceLineNo]:
-                    lineNo = evidenceLineNo
-                    pass
-                elif evidenceLineNo > 0 and evidenceLine in datalines[evidenceLineNo - 1]:
-                    lineNo = evidenceLineNo - 1
-                elif lineNo >= numDataLines:
-                    lineNo = numDataLines - 1
                 # if the error is on the last line, work back to the last
                 # character of the first nonblank line so we can display
                 # the error somewhere
