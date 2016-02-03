@@ -402,7 +402,13 @@ class _CommonHTMLLinter(object):
         htmlAllowedNames = ("HTML", "HTML5", "CSS", "JavaScript", "XML")
         currState = self._IN_M
         prevText = ""
-        prevLanguageFamily = "M"
+        startLang = languageNamesAtTransitionPoints[0]
+        if startLang in htmlAllowedNames:
+            prevLanguageFamily = {"JavaScript":"CSL", "CSS":"CSS"}.get(startLang, "M")
+        else:
+            #XXX: One day, distinguish SSL from TPL
+            prevLanguageFamily = "SSL"
+            
         currLineNum = 1
         js_func_num = 0
         js_func_name_prefix = "__kof_"
@@ -521,7 +527,7 @@ class _CommonHTMLLinter(object):
                             bytesByLang.replace_ending_white_space(name, "function %s%d() {" % (js_func_name_prefix, js_func_num), currLineNum)
                             self._emittedCodeLineNumbers.add(currLineNum)
                             currState |= self._IN_JS_FUNCTION_DEF
-                        else:
+                        elif prevLanguageFamily == "M":
                             log.debug("Hit weird block of JS (%s) starting with HTML %s", self._trim(currText), self._trim(prevText))
                             currState |= self._IN_JS_SQUELCH
                         m = self._starts_with_cdata_re.match(currText)
