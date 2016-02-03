@@ -945,12 +945,12 @@ koPrefWindow.prototype =
                             return false;
                         }
                         
-                        prefIdsToSet.push(k);
+                        prefIdsToSet.push(j);
                     }
                 }
                 
                 for (j of prefIdsToSet) {
-                    this.setPref(prefIdsToSet[j], widgetValues[j], prefTypes[j]);
+                    this.setPref(prefIds[j], widgetValues[j], prefTypes[j]);
                 }
             } catch (e) {
                 prefLog.error("Could not save prefs '" + prefIds.join(',') +
