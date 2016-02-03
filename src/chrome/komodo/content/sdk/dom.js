@@ -585,6 +585,45 @@ if (typeof module === 'undefined') module = {}; // debugging helper
                 this.style.visibility = "collapse";
             });
         },
+        
+        fadeIn: function(callback)
+        {
+            this.each(function()
+            {
+                this.style.opacity = 0;
+                this.style.visibility = "visible";
+            });
+        
+            this.animate( { opacity: 1 },
+                {
+                    start: {opacity: 0},
+                    duration: 200
+                },
+                callback
+            );
+        },
+        
+        fadeOut: function(callback)
+        {
+            this.each(function()
+            {
+                this.style.opacity = 1;
+                this.style.visibility = "visible";
+            });
+        
+            this.animate( { opacity: 0 },
+                {
+                    start: {opacity: 1},
+                    duration: 200
+                },
+                function()
+                {
+                    console.log('cb1');
+                    this.hide();
+                    if (callback) callback();
+                }.bind(this)
+            );
+        },
 
         /**
          * Check if element is visible
