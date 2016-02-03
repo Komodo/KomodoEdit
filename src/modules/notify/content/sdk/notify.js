@@ -12,7 +12,6 @@
     const log       = logging.getLogger("notify");
     const _window   = require("ko/windows").getMain();
     const _         = require("contrib/underscore");
-    //log.setLevel(require("ko/logging").LOG_DEBUG);
     
     const _document = _window.document;
     const _ko = _window.ko;
@@ -46,9 +45,16 @@
     }
 
     this.categories = require("./categories.js");
+    
+    var el = {
+        widget: () => { return $("#notification-widget", _window); },
+        widgetDefault: () => { return $("#notification-widget-default", _window); },
+        widgetActive: () => { return $("#notification-widget-active", _window); }
+    };
 
     var templates = {
-        "panel": () => { return $("#tpl-notify-panel", _window); }
+        panel: () => { return $("#tpl-notify-panel", _window); },
+        widget: () => { return $("#tpl-notify-widget", _window); }
     }
 
     templates.get = function(name, params)
@@ -127,9 +133,12 @@
         {
             log.debug("Category doesnt exist: " + category);
         }
-
+        
         opts = _.extend(_defaultOpts, opts || {});
         opts.message = message;
+        
+        if ( ! opts.from && opts.generic && el.widget().visible())
+            opts.from = "widget";
         
         opts.id = opts.id || Date.now();
         
@@ -354,9 +363,15 @@
         {
             log.debug("Reached end of queue");
             queue[from].active = false;
+            
+            if (from == "widget")
+            {
+                el.widgetActive().hide();
+                el.widgetDefault().fadeIn();
+            }
         }
     }
-
+    
     this.showNotification = (notif) =>
     {
         log.debug("Showing notification");
@@ -373,13 +388,16 @@
 
         this.showNotification._no = this.showNotification._no ? this.showNotification._no++ : 1;
 
-        var panel = $(templates.get("panel", notif.opts));
+        var panel = $(templates.get(notif.opts.from == "widget" ? "widget" : "panel", notif.opts));
         this.bindActions(notif, panel);
         
-        panel.focusedElement = document.commandDispatcher.focusedElement;
+        if (notif.from != "widget")
+            panel.focusedElement = document.commandDispatcher.focusedElement;
 
         queue[notif.opts.from].activeId = notif.opts.id;
         queue[notif.opts.from].activePanel = panel;
+        
+        log.debug("ID: " + notif.opts.id);
 
         if (notif.opts.command)
         {
@@ -401,23 +419,53 @@
         }
 
         panel.element().style.visibility = "hidden";
-        $("#komodoMainPopupSet", _window).append(panel);
         
-        panel.on("popupshown", function(e)
+        if (notif.opts.from != "widget")
         {
-            if (e.target != panel.element()) return;
-            this.doShowNotification(notif, animate && ! replace);
-        }.bind(this));
-        
-        // Calculate initial pos, this will have to be re-calculated
-        // once the panel is actually visible as the actual position
-        // depends on the size of the panel, but giving it an approximate
-        // initial position makes things look less glitchy
-        // When opacity works this is a non-issue
-        var pos = this._calculatePosition(notif.opts.from || null, panel);
-        panel.element().openPopup($("#komodo-vbox", _window).element(), pos.x, animate ? pos.y + 30 : pos.y);
+            $("#komodoMainPopupSet", _window).append(panel);
+            panel.on("popupshown", function(e)
+            {
+                if (e.target != panel.element()) return;
+                this.doShowNotification(notif, animate && ! replace);
+            }.bind(this));
+            
+            // Calculate initial pos, this will have to be re-calculated
+            // once the panel is actually visible as the actual position
+            // depends on the size of the panel, but giving it an approximate
+            // initial position makes things look less glitchy
+            // When opacity works this is a non-issue
+            var pos = this._calculatePosition(notif.opts.from || null, panel);
+            panel.element().openPopup($("#komodo-vbox", _window).element(), pos.x, animate ? pos.y + 30 : pos.y);
+        }
+        else
+        {
+            log.debug("Showing widget notification");
+            
+            if (el.widgetDefault().visible())
+            {
+                log.debug("Default widget is active, hiding it and showing notification");
+                el.widgetDefault().fadeOut(function() {
+                    el.widgetActive().append(panel);
+                    el.widgetActive().show();
+                    panel.fadeIn();
+                });
+            }
+            else
+            {
+                log.debug("Default widget is inactive, show notification right away");
+                el.widgetActive().append(panel);
+                panel.fadeIn();
+            }
+            
+            var time = notif.opts.duration || prefs.getLong("notify_duration", 4000);
+            panel.timeout = timers.setTimeout(function()
+            {
+                log.debug("Calling callback from timeout");
+                this.hideNotification(notif);
+            }.bind(this), time);
+        }
     }
-
+    
     this.doShowNotification = (notif, animate = true) =>
     {
         log.debug("doShowing: " + notif.message);
@@ -525,7 +573,8 @@
     
     this.hideNotificationsByProp = (prop, value) =>
     {
-        //log.debug("Hide notification by prop " + prop + ": " + value);
+        log.debug("Hide notification by prop " + prop + ": " + value);
+        
         for (let k in activeNotifs)
         {
             let notif = activeNotifs[k];
@@ -538,7 +587,7 @@
     
     this.hideNotification = (notif, animate) =>
     {
-        log.debug("Hiding Notification");
+        log.debug("Hiding Notification: " + notif.opts.id);
         
         if ( ! notif)
         {
@@ -581,18 +630,28 @@
         }
         else
         {
-            panel.animate(
-                {
-                    opacity: 0,
-                    panelY: panel.element().boxObject.screenY + 30,
-                },
-                { duration: 100 },
-                function()
-                {
+            if (notif.opts.from == "widget")
+            {
+                panel.fadeOut(function() {
                     panel.remove();
                     this.queue.process(notif.opts.from);
-                }.bind(this)
-            );
+                }.bind(this));
+            }
+            else
+            {
+                panel.animate(
+                    {
+                        opacity: 0,
+                        panelY: panel.element().boxObject.screenY + 30,
+                    },
+                    { duration: 100 },
+                    function()
+                    {
+                        panel.remove();
+                        this.queue.process(notif.opts.from);
+                    }.bind(this)
+                );
+            }
         }
     }
 

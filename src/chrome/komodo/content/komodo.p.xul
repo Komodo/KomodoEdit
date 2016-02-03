@@ -1918,6 +1918,25 @@
                 </toolbar>
             </toolboxrow>
             
+            <toolboxrow id="middle-toolboxrow" pack="center" persist="hidden mode collapsed" mode="icons">
+                <toolbar id="notification-widget"
+                         align="end"
+                         valign="middle"
+                         kohidden="false"
+                         persist="kohidden"
+                         broadcaster="cmd_viewgotoanything"
+                         insertafter="main-toolboxrow"
+                        >
+                        
+                        <hbox id="notification-widget-textbox">
+                            <hbox id="notification-widget-default" flex="1" align="center">
+                                <label anonid="notification-widget-text" flex="1" value="No Notifications"/>
+                                <button anonid="notification-widget-button" class="notification-icon" oncommand="ko.uilayout.toggleTab('notifications-widget', false)"/>
+                            </hbox>
+                        </hbox>
+                </toolbar>
+            </toolboxrow>
+            
             <toolboxrow id="second-toolboxrow" flex="1" pack="end" persist="hidden mode collapsed" mode="icons">
                 <toolbar class="chromeclass-toolbar"
                          id="macrosToolbar"

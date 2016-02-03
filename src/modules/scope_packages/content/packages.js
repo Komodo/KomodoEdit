@@ -122,7 +122,7 @@
             if ( ! _cache.upgradeable.length) return;
             var msg = _cache.upgradeable.length + " package updates are available";
             if (_cache.upgradeable.length == 1) msg = "Package update available";
-            require('notify/notify').interact(msg, 'packages', {
+            require('notify/notify').send(msg, 'packages', {
                 command: function ()
                 {
                     this.openCategory('packages-update', "Update Packages");

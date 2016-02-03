@@ -50,5 +50,34 @@
             </tooltip>
         </script>
     </popupset>
+    
+    <hbox id="notification-widget-textbox">
+        <hbox id="notification-widget-active" flex="1" collapsed="true"></hbox>
+        
+        <script id="tpl-notify-widget" type="x-dot-template">
+            <hbox class="wrapper {{=it.classlist}}" flex="1" align="center">
+                {{?it.icon}}
+                    <vbox pack="center">
+                        <image class="icon" src="{{=it.icon}}?preset=hud"></image>
+                    </vbox>
+                {{?}}
+                <label anonid="notification-widget-text" flex="1" class="description" crop="right" value="{{!it.message}}"/>
+                {{?it.undo}}
+                    <button class="undo button-plain plain"/>
+                {{?}}
+                {{?!it.noMenu}}
+                <button type="menu" class="menu button-plain plain">
+                    <menupopup position="after_end">
+                        <menuitem   anonid="disableCategory"
+                                    label="&disableNotificationsOfType.label;"/>
+                        <!--<menuitem   anonid="preferences"
+                                    label="&notifyPrefs.label;"/>-->
+                    </menupopup>
+                </button>
+                {{?}}
+                <button anonid="notification-widget-button" class="notification-icon" oncommand="ko.uilayout.toggleTab('notifications-widget', false)"/>
+            </hbox>
+        </script>
+    </hbox>
 
 </overlay>

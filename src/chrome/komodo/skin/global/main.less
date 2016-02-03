@@ -60,22 +60,47 @@
     -moz-box-pack: end;
 }
 
-#toolbox_main #quickCommando
+#notification-widget #notification-widget-textbox
 {
     width: 350px;
+    max-width: 350px;
+    margin: 0 12px;
+    padding: 0 8px;
+    height: 32px;
+    border: 0;
+    border-radius: 5px;
+    background: @textbox-special;
     
-    #commando-search-quick
+    label[anonid="notification-widget-text"]
     {
-        margin: 0 12px;
-        -moz-box-flex: 1;
-        height: 32px;
-        line-height: 32px;
+        margin: 0 8px;
         font-size: 1.2rem;
         text-align: center;
-        border: 0;
-        border-radius: 5px;
-        background: @textbox-special;
-        color: fade(@textbox-foreground-special, 60%);
+        color: @textbox-foreground-special;
+    }
+    
+    button
+    {
+        background: transparent;
+        color: @textbox-foreground-special;
+        margin: 0 2px;
+        padding: 0;
+        min-width: 0;
+    }
+    
+    .p-error > label, .p-error > .notification-icon { color: @state-error; }
+    .p-warning > label, .p-warning > .notification-icon { color: @state-warning; }
+    .p-notification > label, .p-notification > .notification-icon { color: @state-info; }
+    .p-info > label, .p-info > .notification-icon { color: @state-info; }
+    
+    .clickable > label
+    {
+        cursor: pointer;
+        
+        &:hover
+        {
+            text-decoration: underline;
+        }
     }
 }
 

@@ -134,26 +134,6 @@
         </panel>
     </popupset>
     
-    <hbox id="main-toolboxrow-wrapper">
-        <toolbar id="quickCommando"
-                 align="end"
-                 valign="middle"
-                 kohidden="false"
-                 persist="kohidden"
-                 broadcaster="cmd_viewgotoanything"
-                 insertafter="main-toolboxrow"
-                >
-
-                <label id="commando-search-quick"
-                     tooltiptext="Quickly open/execute files, macros, tools, commands, etc"
-                     placeholder="true"
-                     placeholdervalue="Go To Anything"
-                     style="min-height: 16px;">
-                    Go To Anything
-                </label>
-        </toolbar>
-    </hbox>
-    
     <menupopup id="popup_toolbars">
         <menuitem label="&gotoAnythingToolbar.label;"
                   id="menu_viewgotoanything"
