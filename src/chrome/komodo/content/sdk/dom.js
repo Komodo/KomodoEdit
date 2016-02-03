@@ -618,7 +618,6 @@ if (typeof module === 'undefined') module = {}; // debugging helper
                 },
                 function()
                 {
-                    console.log('cb1');
                     this.hide();
                     if (callback) callback();
                 }.bind(this)
