@@ -140,6 +140,8 @@ above steps is *meant to be sufficient* to get Komodo building.
 
 #### Linux Prerequisites
 
+ * Subversion if it's not already installed. Installing from package installers such as apt-get on Ubuntu or yum on Redhat/Fedora is ok.
+
 ##### Ubuntu
 
   `sudo apt-get build-dep firefox`
@@ -156,7 +158,7 @@ above steps is *meant to be sufficient* to get Komodo building.
    If you prefer, your distro's Python 2.7 should be sufficient.
 
  * Everything mentioned in the
-   [Mozilla Linux build prerequisites](http://developer.mozilla.org/en/docs/Linux_Build_Prerequisites):
+   [Mozilla Linux build prerequisites](http://developer.mozilla.org/en/docs/Linux_Build_Prerequisites): 
 
 #### Building Steps
 
@@ -165,14 +167,66 @@ above steps is *meant to be sufficient* to get Komodo building.
  * Using the terminal, enter your checkout directory and run:
 
    ```
-    cd komodo/mozilla
-    python build.py configure -k 9.10
-    python build.py distclean all
+    1) cd komodo/mozilla
+    
+    2) python build.py configure -k 9.10
+    
+    3) python build.py all
+    
+       or 
+    
+       python build.py distclean all
+       (to delete and re-download Mozilla again)
    ```
 
    This will configure and build mozilla and can take anywhere from 30 minutes
    to several hours to complete (depending on your specs). For most modern
    machines it should be about an hour.
+   
+   ** Building with GCC 5.0 and higher **
+   If you are using GCC 5.0, the build may fail. If it does,
+   there are changes that need to be made to two files. However, if you are running
+   a clean build for the first time, you need to allow this part of the build to fail
+   first. This is because the files are in the Mozilla part of the build which has to
+   be downloaded first.
+   
+   These files need to be changed:
+   1) /KomodoEdit/mozilla/build/moz3500-ko9.10/mozilla/configure.in
+   
+   ```
+    @@ -7509,8 +7509,6 @@
+    eval $(CXX="$CXX" HOST_CXX="$HOST_CXX" $PYTHON -m mozbuild.configure.libstdcxx)
+    AC_SUBST(MOZ_LIBSTDCXX_TARGET_VERSION)
+    AC_SUBST(MOZ_LIBSTDCXX_HOST_VERSION)
++   CXXFLAGS="$CXXFLAGS -D_GLIBCXX_USE_CXX11_ABI=0"
++   HOST_CXXFLAGS="$HOST_CXXFLAGS -D_GLIBCXX_USE_CXX11_ABI=0"
+ fi
+   ```
+   
+   See [bug #1153109](https://bugzilla.mozilla.org/show_bug.cgi?id=1153109) in Mozilla's bug database for more information.
+   
+   2) /KomodoEdit/mozilla/build/moz3500-ko9.10/mozilla/dom/ipc/Blob.cpp
+
+   ```
+   @@ -3874,7 +3874,7 @@
+   // Make sure we can't overflow.
+   if (NS_WARN_IF(UINT64_MAX - aLength < aStart)) {
+     ASSERT_UNLESS_FUZZING();
+-    return nullptr;
++    return false;
+   }
+ 
+   ErrorResult errorResult;
+   @@ -3883,7 +3883,7 @@
+ 
+   if (NS_WARN_IF(aStart + aLength > blobLength)) {
+     ASSERT_UNLESS_FUZZING();
+-    return nullptr;
++    return false;
+   }
+   ```
+   
+   See [Porting to GCC 5](https://gcc.gnu.org/gcc-5/porting_to.html) for more information.
 
  * After mozilla is built successfully go back to the main repo directory and
    build komodo:
@@ -180,6 +234,8 @@ above steps is *meant to be sufficient* to get Komodo building.
    ```
     cd ..
     export PATH=`pwd`/util/black:$PATH   # Komodo's "bk" build tool
+    git submodule update --init
+    git submodule update --remote
     bk configure -V 9.10.0-devel
     bk build
    ```
