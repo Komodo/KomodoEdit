@@ -10,25 +10,53 @@ function Page(options) { this.init(options); }
 (function()
     {
         var $ = require("ko/dom");
-        
+        this.type = "wizardpage";
         // should this take content too?
-        this.init = function(options = {})
+        this.init = function(element = {}, options = {})
         {
-            var element = $.create("wizardpage", options.attributes || {})
-            this.element = $(element.toString());
+             // The only arg passed in might only be options
+            if (!element.koDom)
+            {
+                options = element;
+            }
+            
+            var columnElem = $.create(this.type, options.attributes || {})
+            var $element = $(columnElem.toString());
+            // if content has been provided append it to the element
+            if(element && element.koDom)
+            {
+                $element.append(element);
+            }
+            this.$ = $element; // koDom object
+            this.element = this.$.element(); // Actual DOM object
         };
         
         /**
          * Insert a row of content to the page
          *
-         * @param {object} options, the attributes to add to the row
-         * @param {object} content, a DOM object to be insert into the row 
+         * @param {koDom} element, content to append to element on creation.
+         * @param {object} options, options to be used on element, OPTIONAL
+         *
+         * @returns {DOM Object} ko/UI SDK object
          */
-        this.addRow = function(options = {}, content = {})
+        this.addRow = function($ = {}, options = {})
         {
-            var row = require("ko/ui/row").create(options);
-            row.element.appendChild(content);
-            this.element.appendChild(row.element())
+            // The only arg passed in might only be options
+            if (!$.koDom)
+            {
+                options = $;
+            }
+            
+            var columnElem;
+            // Create it with options or not
+            var row = require("ko/ui/row").create(options.attributes = {});
+            
+            if($ && $.koDom)
+            {
+                row.$.append($);
+            }
+            this.$.append(row.$);
+            return row;
         };
     }
 ).apply(Page.prototype);

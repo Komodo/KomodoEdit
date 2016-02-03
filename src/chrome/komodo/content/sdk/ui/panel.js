@@ -13,12 +13,76 @@ function Panel(options) { this.init(options) };
 (function()
     {
         var $ = require("ko/dom");
-        
-        this.init = function(options = {})
+        this.type = "panel";
+
+        /**
+         * Initialize the properties of the object being passed to the user
+         */
+        this.init = function(element = {}, options = {})
         {
-            var element = $.create("panel", options.attributes || {})
-            this.element = $(element.toString());
+             // The only arg passed in might only be options
+            if (!element.koDom)
+            {
+                options = element;
+            }
+            
+            var columnElem = $.create(this.type, options.attributes || {})
+            var $element = $(columnElem.toString());
+            // if content has been provided append it to the element
+            if(element && element.koDom)
+            {
+                $element.append(element);
+            }
+            this.$ = $element; // koDom object
+            this.element = this.$.element(); // Actual DOM object
         };
+        
+        /**
+         * Insert content to the panel
+         *
+         * @param {koDom} content, a koDom object to be inserted into the panel
+         */
+        this.addContent = function(content)
+        {
+            this.$.append(content);
+        }
+        
+        /**
+         * Show the panel.
+         *
+         * @param {object} options, options object should contain the following:
+         *   
+         *    {
+         *        anchor : dom object to anchor to,
+         *        position:   "before_start, before_end, after_start, after_end, start_before, start_after, end_before, end_after, overlap, and after_pointer",
+         *        x : number,
+         *        y : number,
+         *        isContextMenu : bool,
+         *        attributesOverride : bool,
+         *        triggerEvent : event)
+         *    }
+         *    ref: https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XUL/Method/openPopup
+         * 
+         */
+        this.open = function(options = {})
+        {
+            var anchor =  options.anchor || null;
+            var position = options.position || null;
+            var x = options.x || 0;
+            var y = options.y || 0;
+            var isContextMenu = options.isContextMenu || false;
+            var attributesOverride = options.attributesOverride || false;
+            var triggerEvent = options.triggerEvent || null;
+            this.element.openPopup(anchor,
+                                   position,
+                                   x,
+                                   y,
+                                   isContextMenu,
+                                   attributesOverride,
+                                   triggerEvent)
+        };
+        
+        
     }
 ).apply(Panel.prototype);
 

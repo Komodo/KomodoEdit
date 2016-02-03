@@ -24,4 +24,5 @@ Import(
 $cons->InstallInChrome('row.js');
 $cons->InstallInChrome('col.js');
 $cons->InstallInChrome('panel.js');
+$cons->InstallInChrome('textbox.js');
 
