@@ -632,7 +632,17 @@ if (typeof module === 'undefined') module = {}; // debugging helper
          */
         visible: function()
         {
-            return ["","visible","initial", "inherit"].indexOf(this.element().style.visibility) != -1;
+            var el = this.element();
+            var elInPos = el.ownerDocument.elementFromPoint(el.boxObject.x + (el.boxObject.width/2), el.boxObject.y + (el.boxObject.height/2));
+            
+            while (elInPos)
+            {
+                if (el == elInPos)
+                    return true;
+                elInPos = elInPos.parentNode;
+            }
+            
+            return false;
         },
 
         /**
