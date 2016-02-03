@@ -12,6 +12,12 @@ module.exports = function(elem) {
     this._elem = elem;
     this._window = elem.ownerDocument.defaultView;
     
+    if (elem.ownerDocument.readyState != "complete")
+    {
+        this._window.addEventListener("load", module.exports.bind(this, elem));
+        return;
+    }
+    
     this.mouseDownCheck = function(e) {
         return "_draggable" in this ? this._draggable : true;
     },
