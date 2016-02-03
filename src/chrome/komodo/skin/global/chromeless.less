@@ -55,8 +55,6 @@
 }
 
 :root[hidechrome="true"]:not([titlebar="false"]) #closebar,
-#prefWindow #closebar,
-#prefWindow #titlebar
 {
     visibility: collapse;
 }
@@ -71,7 +69,7 @@
  * have to put the background one node lower
  */
 #komodo_main > #komodo-box,
-:root:not([hidechrome="true"]):not(.pref-window)
+:root:not([hidechrome="true"])
 {
     &:not(#komodo_main)
     {
