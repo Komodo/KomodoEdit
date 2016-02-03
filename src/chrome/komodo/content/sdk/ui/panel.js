@@ -42,7 +42,7 @@ function Panel($element = {}, options = {}) { this.init($element = {}, options =
          *
          * @param {koDom} content, a koDom object to be inserted into the panel
          */
-        this.addContent = function($content)
+        this.addContent = function panel_addContent($content)
         {
             this.$.append($content);
         }
@@ -64,7 +64,7 @@ function Panel($element = {}, options = {}) { this.init($element = {}, options =
          *    ref: https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XUL/Method/openPopup
          * 
          */
-        this.open = function(args = {})
+        this.open = function panel_open(args = {})
         {
             var anchor =  args.anchor || null;
             var position = args.position || null;
@@ -92,7 +92,7 @@ function Panel($element = {}, options = {}) { this.init($element = {}, options =
  * @returns {Object} Row,  object which contains the koDom object of a
  * row (a.k.a hbox) element in the element property.
  */
-module.exports.create = function create_panel ($element = {}, options = {})
+module.exports.create = function panel_create($element = {}, options = {})
 {
     return new Panel($element = {}, options = {});
 };

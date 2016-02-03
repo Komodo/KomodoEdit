@@ -43,7 +43,7 @@ function Textbox($element = {}, options = {}) { this.init($element = {}, options
  * @returns {Object} Textbox,  object which contains the koDom object of a
  * row (a.k.a hbox) element in the element property.
  */
-module.exports.create = function create_row ($element = {}, options = {})
+module.exports.create = function textbox_create($element = {}, options = {})
 {
     return new Textbox($element = {}, options = {});
 }

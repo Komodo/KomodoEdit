@@ -39,7 +39,7 @@ function Page($element = {}, options = {}) { this.init($element = {}, options = 
          *
          * @returns {DOM Object} ko/UI SDK object
          */
-        this.addRow = function($element = {}, options = {})
+        this.addRow = function page_addRow($element = {}, options = {})
         {
             // The only arg passed in might only be options
             if (!$element.koDom)
@@ -66,7 +66,7 @@ function Page($element = {}, options = {}) { this.init($element = {}, options = 
          *
          * @returns {DOM Object} ko/UI SDK object
          */
-        this.addColumn = function($element = {}, options = {})
+        this.addColumn = function page_addColumn($element = {}, options = {})
         {
             // The only arg passed in might only be options
             if (!$element.koDom)
@@ -96,7 +96,7 @@ function Page($element = {}, options = {}) { this.init($element = {}, options = 
  * @return {object} wizardpage, object which contains the koDom object of a
  * wizardpage (a.k.a <wizardpage ...>) element in the element property.
  */
-module.exports.create = function create_page ($element = {}, options = {})
+module.exports.create = function page_create($element = {}, options = {})
 {
     return new Page($element = {}, options = {});
 }

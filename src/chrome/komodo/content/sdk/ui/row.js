@@ -40,7 +40,7 @@ function Row($element = {}, options = {}) { this.init($element = {}, options = {
          *
          * @returns {DOM Object} ko/UI SDK object
          */
-        this.addColumn = ($element = {}, options = {})
+        this.addColumn = function row_addColumn($element = {}, options = {})
         {
             // The only arg passed in might only be options
             if (!$element.koDom)
@@ -69,7 +69,7 @@ function Row($element = {}, options = {}) { this.init($element = {}, options = {
  * @returns {Object} Row,  object which contains the koDom object of a
  * row (a.k.a hbox) element in the element property.
  */
-module.exports.create = function create_row ($element = {}, options = {})
+module.exports.create = function row_create($element = {}, options = {})
 {
     return new Row($element = {}, options = {});
 }

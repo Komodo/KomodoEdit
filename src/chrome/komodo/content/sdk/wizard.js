@@ -39,7 +39,7 @@ function Wizard($element = {}, options = {}) { this.init($element = {}, options 
         *
         * @returns {DOM Object} ko/UI SDK object
         */
-       this.addPage = function($element = {}, options = {})
+       this.addPage = function wizard_addPage($element = {}, options = {})
        {
            // The only arg passed in might only be options
            if (!$element.koDom)
@@ -80,6 +80,8 @@ function Wizard($element = {}, options = {}) { this.init($element = {}, options 
          *      },
          *      attributes:
          *      {
+         *          consumeoutsideclicks: true, //default
+         *          backdrag = options.attributes.backdrag || true //default
          *          ...
          *      }
          *  }
@@ -87,10 +89,16 @@ function Wizard($element = {}, options = {}) { this.init($element = {}, options 
          * @param {object} options, args and attributes for opening the wizard
          *
          * @returns {koDom} panel, a handle to the panel object created.
-         * 
+         *
          */
         this.open = function(options = {})
         {
+            if(!options.attributes)
+            {
+                options.attributes = {};
+            }
+            options.attributes.consumeoutsideclicks = options.attributes.consumeoutsideclicks || true;
+            options.attributes.backdrag = options.attributes.backdrag || true;
             var panel = require("ko/ui/panel").create(options.attributes = {});
             panel.$.append(this.$);
             this.parent = panel;
@@ -114,7 +122,7 @@ function Wizard($element = {}, options = {}) { this.init($element = {}, options 
 // same for addPage
 //  Add similar functionality for other UI-ish SDKs
 
-module.exports.create = function($element = {}, options = {})
+module.exports.create = function wizard_create($element = {}, options = {})
 {
     return new Wizard($element = {}, options = {});
 }
