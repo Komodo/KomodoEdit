@@ -2577,8 +2577,19 @@ var gCancelKeyHandler = function (event) {
     ko.keybindings.manager.cancelPrefix(msg)
 }
 
+this.Manager.prototype._commando = function() {
+    if (typeof this._commando_cached === 'undefined') {
+        //console.log("First call: cache Commando object");
+        this._commando_cached = require('commando');
+    }
+    return this._commando_cached;
+}
+
 this.Manager.prototype.keypressHandler = function (event, ignorePhase) {
     try {
+        if (this._commando().isOpen()) {
+            return;
+        }
         //dump("keybindingManager::keypressHandler: key event "+event.type+" keycode "+event.keyCode+" phase "+event.eventPhase+"\n");
 
         // Vi mode does not need to check this.
