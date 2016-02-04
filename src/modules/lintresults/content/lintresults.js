@@ -9,7 +9,6 @@
     
     this.init = function()
     {
-        console.log(this);
         button = dynamicb.register("Syntax Checking Result", {
             icon: "circle-code",
             enabled: this.isEnabled.bind(this),

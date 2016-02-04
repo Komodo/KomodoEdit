@@ -1642,7 +1642,6 @@
     
             if (document.activeElement.nodeName != "html:input")
             {
-                console.log("Retrying in 100..");
                 log.debug("Can't grab focus, retrying");
                 timer = 100;
             }
