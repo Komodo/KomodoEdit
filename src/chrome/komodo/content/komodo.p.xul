@@ -2073,15 +2073,15 @@
                     </menupopup>
                 </toolbarbutton>
                 
-                <!-- #if PLATFORM != "darwin" -->
-                <hbox id="windowButtons" align="center" pack="right">
-                    <toolbarbutton buttonstyle="pictures" class="icon-minus-circle2" onclick="window.minimize();"/>
-                    <toolbarbutton buttonstyle="pictures" class="icon-plus-circle2" onclick="window.windowState === 1 ? window.restore() : window.maximize();"/>
-                    <toolbarbutton buttonstyle="pictures" class="icon-cancel-circle2" onclick="ko.commands.doCommandAsync('cmd_quit', event)"/>
-                </hbox>
-                <!-- #endif -->
-                
             </toolboxrow>
+            
+            <!-- #if PLATFORM != "darwin" -->
+            <hbox id="windowButtons" align="center" pack="right">
+                <toolbarbutton buttonstyle="pictures" class="icon-minus-circle2" onclick="window.minimize();"/>
+                <toolbarbutton buttonstyle="pictures" class="icon-plus-circle2" onclick="window.windowState === 1 ? window.restore() : window.maximize();"/>
+                <toolbarbutton buttonstyle="pictures" class="icon-cancel-circle2" onclick="ko.commands.doCommandAsync('cmd_quit', event)"/>
+            </hbox>
+            <!-- #endif -->
 
             <!-- #if PLATFORM == "darwin" -->
                 <toolbarbutton id="fullscreen-restore-button" fullscreencontrol="true"
