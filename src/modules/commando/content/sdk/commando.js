@@ -118,7 +118,10 @@
         
         /* Notification widget & quick search */
         $("#notification-widget-default-text").value("Go to Anything");
-        $('label[anonid="notification-widget-text"]').on("click", onQuickSearchFocus);
+        elem("notifyWidget").on("click", function(e) {
+            if (e.target.nodeName == "label" && e.target.getAttribute("anonid") == "notification-widget-text")
+                onQuickSearchFocus();
+        });
         
         if (window == _window)
         {
