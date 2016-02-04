@@ -1930,7 +1930,7 @@
                         
                         <hbox id="notification-widget-textbox">
                             <hbox id="notification-widget-default" flex="1" align="center">
-                                <label anonid="notification-widget-text" flex="1" value="No Notifications"/>
+                                <label anonid="notification-widget-text" id="notification-widget-default-text" flex="1" value=""/>
                                 <button anonid="notification-widget-button" class="notification-icon" oncommand="ko.uilayout.toggleTab('notifications-widget', false)"/>
                             </hbox>
                         </hbox>

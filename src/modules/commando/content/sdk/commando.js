@@ -21,6 +21,9 @@
     const c = this;
 
     //log.setLevel(require("ko/logging").LOG_DEBUG);
+    
+    var widgetWidth = 350;
+    var panelWidth = 500;
 
     var local = {
         scopes: {},
@@ -61,13 +64,12 @@
         subscopeWrap: function() { return $("#commando-subscope-wrap"); },
         results: function() { return $("#commando-results"); },
         search: function() { return $("#commando-search"); },
-        quickSearch: function() { return $("#commando-search-quick"); },
-        quickSearchToolbar: function() { return $("#quickCommando"); },
         scopePopup: function() { return $("commando-scope-menupopup"); },
         scopesSeparator: function() { return $("#scope-separator"); },
         menuItem: function() { return $("#menu_show_commando"); },
         tip: function() { return $("#commando-tip"); },
         preview: function() { return $("#commando-preview"); },
+        notifyWidget: function() { return $("#notification-widget-textbox"); },
         template: {
             scopeMenuItem: function() { return $("#tpl-co-scope-menuitem"); },
             scopeNavMenuItem: function() { return $("#tpl-co-scope-nav-menuitem"); },
@@ -114,14 +116,9 @@
         elem('results').on("keydown", onKeyNav.bind(this));
         elem('results').on("dblclick", onSelectResult.bind(this));
         
-        if (elem('quickSearch').length)
-        {
-            elem('quickSearch').on("input", onSearch.bind(this));
-            elem('quickSearch').on("keydown", onKeyNav.bind(this));
-            elem('quickSearch').on("keyup", onKeyUp.bind(this));
-            elem('quickSearch').on("focus", onQuickSearchFocus);
-            elem('quickSearch').on("click", onQuickSearchFocus);
-        }
+        /* Notification widget & quick search */
+        $("#notification-widget-default-text").value("Go to Anything");
+        $('label[anonid="notification-widget-text"]').on("click", onQuickSearchFocus);
         
         if (window == _window)
         {
@@ -153,8 +150,8 @@
         {
             if (e.originalTarget != panel.element()) return;
             
+            elem('notifyWidget').css("min-width", 0);
             local.open = false;
-            elem("quickSearch").removeAttr("open");
             local.useQuickScope = false;
         });
 
@@ -476,8 +473,6 @@
     {
         if (local.open) return;
         
-        elem("quickSearch").attr("open", true);
-        
         setTimeout(function() {
             c.show(undefined, true);
             c.search();
@@ -499,9 +494,18 @@
         c.show(scope);
     }
     
-    this.show = function(scope, quickSearch = false)
+    this.show = function(scope, quickSearch)
     {
         log.debug("Showing Commando");
+        
+        if (quickSearch === undefined)
+        {
+            var wm = Cc["@mozilla.org/appshell/window-mediator;1"].getService(Ci.nsIWindowMediator);
+            var recentWindow = wm.getMostRecentWindow(null);
+            
+            if (_window == recentWindow && elem("notifyWidget").visible())
+                quickSearch = true;
+        }
         
         local.quickSearch = quickSearch;
         
@@ -525,16 +529,22 @@
         
         var panel = elem('panel');
         var search = elem('search');
+        var widget = elem('notifyWidget');
         
         var left, top;
         if (local.quickSearch)
         {
-            var qs = elem('quickSearch').element().boxObject;
-            top = qs.y - 5;
-            left = qs.x + qs.width - panel.element().width + 2;
-            
             panel.addClass("quick-search");
-            panel.element().openPopup(elem('quickSearch').element(), "after_end", undefined, 0-qs.height);
+            
+            var body = _window.document.documentElement;
+            $(body).css("max-width", body.width + "px");
+            
+            panel.on("popupshown", function() {
+                $(body).css("max-width", "");
+            });
+            
+            widget.css("min-width", (panelWidth-10) + "px");
+            panel.element().openPopup(widget.element(), "topcenter");
         }
         else
         {
@@ -653,28 +663,6 @@
 
             log.debug("Event: onSearch");
             var searchValue = elem('search').value();
-            
-            // Update quick search value
-            var preserve = prefs.getBooleanPref('commando_preserve_query');
-            if (preserve && searchValue.length)
-            {
-                log.debug("Store value to quickSearch");
-                elem("quickSearch").attr({
-                    placeholder: "false"
-                });
-                elem("quickSearch").text(searchValue);
-            }
-            else
-            {
-                var quickSearch = elem("quickSearch");
-                if (quickSearch.length)
-                {
-                    quickSearch.attr({
-                        placeholder: "true"
-                    });
-                    quickSearch.text(quickSearch.attr("placeholdervalue"))
-                }
-            }
 
             local.searchingUuid = uuid;
             local.prevSearchValue = searchValue;
@@ -1387,7 +1375,6 @@
             return log.error("Subscope does not exist: " + subscope.scope);
         
         elem('search').removeAttr("placeholder");
-        elem("quickSearch").removeAttr("placeholder");
     
         if (subscope)
         {
@@ -1410,7 +1397,6 @@
             elem('panel').addClass("subscoped");
             
             elem('search').attr("placeholder", subscope.placeholder || "");
-            elem('quickSearch').attr("placeholder", subscope.placeholder || "");
         }
         else
         {
@@ -1588,7 +1574,6 @@
     {
         elem("panel").addClass("blocked");
         elem("search").attr("disabled", true);
-        elem("quickSearch").attr("disabled", true);
         local.blocked = true;
     }
     
@@ -1596,7 +1581,6 @@
     {
         elem("panel").removeClass("blocked");
         elem("search").removeAttr("disabled");
-        elem("quickSearch").removeAttr("disabled");
         local.blocked = false;
     }
 
@@ -1650,16 +1634,18 @@
     // XUL panel focus is buggy as hell, so we have to get crafty
     this.focus = function(times=0, timer = 10)
     {
-        if ( ! elem('search').visible()) return;
-        
-        window.focus();
-        elem('panel').focus();
-        elem('search').focus();
-
-        if (document.activeElement.nodeName != "html:input")
+        if (elem('search').visible())
         {
-            log.debug("Can't grab focus, retrying");
-            timer = 100;
+            window.focus();
+            elem('panel').focus();
+            elem('search').focus();
+    
+            if (document.activeElement.nodeName != "html:input")
+            {
+                console.log("Retrying in 100..");
+                log.debug("Can't grab focus, retrying");
+                timer = 100;
+            }
         }
 
         if (times < 10)

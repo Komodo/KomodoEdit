@@ -632,16 +632,22 @@ if (typeof module === 'undefined') module = {}; // debugging helper
         visible: function()
         {
             var el = this.element();
-            var elInPos = el.ownerDocument.elementFromPoint(el.boxObject.x + (el.boxObject.width/2), el.boxObject.y + (el.boxObject.height/2));
+            var w = el.ownerDocument.defaultView;
             
-            while (elInPos)
+            if ( ! el) return false;
+            
+            while (el && (el instanceof w.HTMLElement || el instanceof w.XULElement))
             {
-                if (el == elInPos)
-                    return true;
-                elInPos = elInPos.parentNode;
+                let v = w.getComputedStyle(el, null).getPropertyValue("visibility");
+                let d = w.getComputedStyle(el, null).getPropertyValue("display");
+                
+                if (v == "hidden" || v == "collapse" || d == "none")
+                    return false;
+                
+                el = el.parentNode;
             }
             
-            return false;
+            return true;
         },
 
         /**

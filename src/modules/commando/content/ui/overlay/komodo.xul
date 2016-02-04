@@ -55,6 +55,11 @@
                         </menupopup>
                     </menulist>
                     <textbox flex="1" id="commando-search" class="transparent"/>
+                    <hbox class="spinner">
+                        <hbox class="rect1"/>
+                        <hbox class="rect2"/>
+                        <hbox class="rect3"/>
+                    </hbox>
                 </hbox>
                 <vbox id="commando-subscope-wrap" pack="start"></vbox>
                 <script id="tpl-co-subscope" type="x-dot-template">
@@ -144,7 +149,7 @@
                   insertafter="menu_viewfindtoolbar"
                   />
     </menupopup>
-
+    
     <broadcasterset id="broadcasterset_global">
 
         <broadcaster

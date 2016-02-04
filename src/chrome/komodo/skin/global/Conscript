@@ -55,6 +55,7 @@ $cons->InstallInChrome('scrollbars.less');
 $cons->InstallInChrome('main.less');
 $cons->InstallInChrome('global.less');
 $cons->InstallInChrome('icons.less');
+$cons->InstallInChrome('mixins.less');
 
 $cons->InstallInChrome('components/buttons.less');
 $cons->InstallInChrome('components/languages.less');

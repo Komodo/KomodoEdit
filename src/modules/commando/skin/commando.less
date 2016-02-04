@@ -1,5 +1,6 @@
 @import url("chrome://komodo/skin/global/colors.less");
 @import url("resource://profile/colors.less");
+@import url("chrome://komodo/skin/global/mixins.less");
 
 #commando-panel
 {
@@ -7,7 +8,7 @@
     background: @special;
     color: @foreground-special;
     -moz-box-orient: horizontal;
-    border-radius: 2px;
+    border-radius: 5px;
     
     label,
     description
@@ -52,13 +53,17 @@
     
     #commando-search-wrapper
     {
-        margin: 4px;
         background: @textbox-special;
         color: @textbox-foreground-special;
+        border-top-right-radius: 5px;
+        border-top-left-radius: 5px;
+        height: 32px;
         
         textbox
         {
             color: @textbox-foreground-special;
+            font-size: 1.2rem;
+            padding: 8px;
         }
     }
     
@@ -115,6 +120,8 @@
         padding: 4px;
         background: @contrast-special;
         opacity: 0.6;
+        border-bottom-left-radius: 5px;
+        border-bottom-right-radius: 5px;
         
         &[tip-type="error"]
         {
@@ -127,52 +134,19 @@
         max-width: 240px;
     }
     
-    #commando-loader
+    .spinner
     {
-        height: 1px;
-        width: 100%;
+        visibility: collapse;
         opacity: 0;
-        transition: opacity 0.2s linear;
-        visibility: hidden;
-        transform: translateZ(0);
+        transition: 0.2s ease-in-out opacity;
+        .spinner(@contrast-special);
+        width: 24px;
     }
 
-    &.loading #commando-search-wrapper
+    &.loading .spinner
     {
-        background-image: linear-gradient(to right, rgba(0,0,0,0.0) 0, @special 200px, @special 300px, rgba(0,0,0,0.0) 500px);
-        background-repeat: no-repeat;
-        animation: loading 1s infinite cubic-bezier(1.0, 0.3, 0.5, 1.0);
-        transform: translateZ(0);
-    }
-    
-    &.previewing.loading #commando-search-wrapper
-    {
-        background-image: linear-gradient(to right, rgba(0,0,0,0.0) 0, @special 100px, @special 150px, rgba(0,0,0,0.0) 250px);
-        animation: loadingWithPreview 1s infinite cubic-bezier(1.0, 0.3, 0.5, 1.0);
-    }
-
-    @keyframes loading {
-        0% {
-           background-position: -300px 0;
-        }
-        50% {
-           background-position: 300px 0;
-        }
-        100% {
-           background-position: -300px 0;
-        }
-    }
-    
-    @keyframes loadingWithPreview {
-        0% {
-           background-position: -150px 0;
-        }
-        50% {
-           background-position: 150px 0;
-        }
-        100% {
-           background-position: -150px 0;
-        }
+        visibility: visible;
+        opacity: 1;
     }
     
     menulist#commando-scope
@@ -348,13 +322,6 @@
     }
 }
 
-#quickCommando /* toolbar */
-{
-    -moz-appearance: none;
-    border: 0 !important;
-    padding-right: 4px;
-}
-
 #commando-search-quick
 {
     -moz-appearance: none;
@@ -378,4 +345,11 @@
         width: 480px;
     }
     
+}
+
+/* Notification Widget */
+
+label[anonid="notification-widget-text"]
+{
+    cursor: text;
 }
