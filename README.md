@@ -183,14 +183,14 @@ above steps is *meant to be sufficient* to get Komodo building.
    to several hours to complete (depending on your specs). For most modern
    machines it should be about an hour.
    
-   ** Building with GCC 5.0 and higher **
+##### ** Building with GCC 5.0 and higher **
    If you are using GCC 5.0, the build may fail. If it does,
    there are changes that need to be made to two files. However, if you are running
    a clean build for the first time, you need to allow this part of the build to fail
    first. This is because the files are in the Mozilla part of the build which has to
    be downloaded first.
    
-   These files need to be changed:
+###### These files need to be changed:
    1) /KomodoEdit/mozilla/build/moz3500-ko9.10/mozilla/configure.in
    
    ```
@@ -228,7 +228,7 @@ above steps is *meant to be sufficient* to get Komodo building.
    
    See [Porting to GCC 5](https://gcc.gnu.org/gcc-5/porting_to.html) for more information.
 
- * After mozilla is built successfully go back to the main repo directory and
+ * After mozilla is built successfully, go back to the main repo directory and
    build komodo:
 
    ```
