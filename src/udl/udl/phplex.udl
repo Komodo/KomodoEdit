@@ -590,6 +590,13 @@ fold "?>" SSL_OPERATOR -
 fold "{" SSL_OPERATOR +
 fold "}" SSL_OPERATOR -
 
+fold "/*region" SSL_COMMENT +
+fold "/*endregion" SSL_COMMENT -
+
+fold "/*region" SSL_COMMENTBLOCK +
+fold "/*endregion" SSL_COMMENTBLOCK -
+
+
 fold "{{{" SSL_COMMENT +
 fold "}}}" SSL_COMMENT -
 
