@@ -42,7 +42,7 @@
   %prefDTD;
 ]>
 
-<?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
+<?xml-stylesheet href="less://komodo/skin/global/global.less" type="text/css"?>
 
 <prefwindow id="ConnectionsDialog"
             xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"

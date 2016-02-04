@@ -5,7 +5,7 @@
   <!ENTITY % komodoDTD SYSTEM "chrome://komodo/locale/komodo.dtd">
   %komodoDTD;
 ]>
-<?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
+<?xml-stylesheet href="less://komodo/skin/global/global.less" type="text/css"?>
 <?xml-stylesheet href="less://openfiles/skin/openfiles.less" type="text/css" ?>
  
 <page xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">

@@ -1,3 +1,4 @@
+<?xml-stylesheet href="less://komodo/skin/global/global.less" type="text/css"?>
 <?xml version="1.0"?>
 <!DOCTYPE window SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
   <!ENTITY % prefDTD SYSTEM "chrome://komodo/locale/pref/pref.dtd">

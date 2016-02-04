@@ -45,7 +45,7 @@
      See "authenticate.js" for documentation on how to use this dialog.
   -->
 
-<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
+<?xml-stylesheet href="less://komodo/skin/global/global.less" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/autocomplete.css" type="text/css"?>
 
 <dialog id="dialog-authenticate"

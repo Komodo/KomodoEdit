@@ -42,7 +42,7 @@
 
 <!-- Generic OK/Cancel dialog: see "alert.js" documentation. -->
 
-<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
+<?xml-stylesheet href="less://komodo/skin/global/global.less" type="text/css"?>
 
 <dialog id="dialog-alert"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"

@@ -17,7 +17,7 @@
 <!-- #define ENTER_FILETYPES_TO_EXCLUDE_ENTITY &enterFiletypesToExcludeUnix.tooltiptext; -->
 <!-- #endif -->
 
-<?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
+<?xml-stylesheet href="less://komodo/skin/global/global.less" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/buttons.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/autocomplete.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/dialogs/find2.css" type="text/css"?>

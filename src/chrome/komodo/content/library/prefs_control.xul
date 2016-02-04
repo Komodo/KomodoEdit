@@ -42,7 +42,7 @@
 
 <!-- Komodo Prefs control panel -->
 
-<?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
+<?xml-stylesheet href="less://komodo/skin/global/global.less" type="text/css"?>
 
 <window id="komodo_prefs_control"
         xmlns:html="http://www.w3.org/1999/xhtml"

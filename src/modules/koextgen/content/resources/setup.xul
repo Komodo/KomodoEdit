@@ -3,7 +3,7 @@
   <!ENTITY % setupDTD SYSTEM "chrome://koextgen/locale/setup.dtd">
   %setupDTD;
 ]>
-<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<?xml-stylesheet href="less://komodo/skin/global/global.less" type="text/css"?>
 
 <wizard
   id="test"

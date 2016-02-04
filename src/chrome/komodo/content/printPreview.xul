@@ -36,8 +36,8 @@
  
  ***** END LICENSE BLOCK ***** -->
 
-<?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
 
+<?xml-stylesheet href="less://komodo/skin/global/global.less" type="text/css"?>
 <!DOCTYPE window PUBLIC "-//MOZILLA//DTD XUL V1.0//EN" "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
   <!ENTITY % komodoDTD SYSTEM "chrome://komodo/locale/komodo.dtd">
   %komodoDTD;

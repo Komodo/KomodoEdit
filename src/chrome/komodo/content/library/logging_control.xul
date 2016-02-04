@@ -42,7 +42,7 @@
 
 <!-- Komodo Logging control panel -->
 
-<?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
+<?xml-stylesheet href="less://komodo/skin/global/global.less" type="text/css"?>
 
 <dialog id="komodo_logging_control"
         title="&loggingControl.title;"

@@ -71,7 +71,6 @@ var koLess = function koLess()
             this.initialising = true;
             self = this;
             log = logging.getLogger('koLess');
-            //log.setLevel(10); // debug
 
             this.debug('Initializing koLess');
            

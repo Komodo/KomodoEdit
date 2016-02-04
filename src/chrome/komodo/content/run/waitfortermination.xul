@@ -51,7 +51,7 @@
   cleanly" or "killed" to indicate how the process finished.
   -->
 
-<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
+<?xml-stylesheet href="less://komodo/skin/global/global.less" type="text/css"?>
 
 <dialog id="dialog-waitfortermination"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"

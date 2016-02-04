@@ -7,7 +7,7 @@
   <!ENTITY % komodoInternalDTD SYSTEM "chrome://komodo/locale/komodo-internal.dtd">
   %komodoInternalDTD;
 ]>
-<?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
+<?xml-stylesheet href="less://komodo/skin/global/global.less" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/sidebar.css" type="text/css"?>
 <?xml-stylesheet href="less://komodo-places/skin/places.less" type="text/css" ?>
 

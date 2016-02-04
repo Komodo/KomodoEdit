@@ -42,7 +42,7 @@
 
 <!-- Komodo's New File dialog -->
 
-<?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
+<?xml-stylesheet href="less://komodo/skin/global/global.less" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/autocomplete.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/templates/new.css" type="text/css"?>
 

@@ -7,6 +7,7 @@
 @import url("chrome://komodo/skin/global/prefs.less");
 @import url("chrome://komodo/skin/global/icons.less");
 @import url("chrome://komodo/skin/global/mixins.less");
+@import url("chrome://komodo/skin/global/main.less");
 
 @import url("chrome://komodo/skin/global/scrollbars.less");
 
@@ -84,3 +85,24 @@
 .box-state-info { color: @state-foreground; background-color: @state-info; }
 .box-state-ok { color: @state-foreground; background-color: @state-ok; }
 
+/* Special Classes */
+
+.editor-field
+{
+    color: @foreground;
+    background: @background;
+}
+
+.statusbar
+{
+    height: 27px;
+    border: 0;
+    background: @contrast;
+}
+
+/* HUD elements */
+
+.hud, #editorTooltip
+{
+    background: @contrast;
+}

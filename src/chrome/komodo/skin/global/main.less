@@ -1,4 +1,4 @@
-@import url("chrome://komodo/skin/global/global.less");
+#komodo_main {
 
 /* Komodo Toolbox */
 
@@ -179,7 +179,7 @@ statusbar
     height: 28px;
     padding-bottom: 2px;
     border-bottom: 1px solid @background;
-    background: @contrast;
+    background: @contrast !important;
 
     statusbarpanel > label
     {
@@ -256,13 +256,6 @@ ko-pane[type="icons"] tab
     }
 }
 
-/* HUD elements */
-
-.hud, #editorTooltip
-{
-    background: @contrast;
-}
-
 /* Quicklaunch */
 
 #quicklaunch :not(button) > button
@@ -271,17 +264,4 @@ ko-pane[type="icons"] tab
     height: 25px;
 }
 
-/* Special Classes */
-
-.editor-field
-{
-    color: @foreground;
-    background: @background;
-}
-
-.statusbar
-{
-    height: 27px;
-    border: 0;
-    background: @contrast;
 }

@@ -42,7 +42,7 @@
 
 <!-- Komodo's About dialog box -->
 
-<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
+<?xml-stylesheet href="less://komodo/skin/global/global.less" type="text/css"?>
 
 <window id="dialog-about"
         window_type="komodo_about"

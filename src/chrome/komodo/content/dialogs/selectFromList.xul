@@ -43,7 +43,7 @@
 <!-- Generic OK/Cancel dialog from which the user can select from a list of
      items. See "selectedFromList" documentation. -->
 
-<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
+<?xml-stylesheet href="less://komodo/skin/global/global.less" type="text/css"?>
 
 <dialog id="dialog_selectFromList"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
