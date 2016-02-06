@@ -409,7 +409,6 @@ viewMgrClass.prototype = {
                    ko.prefs.getBoolean('pref_places_singleClickOpen', false) &&
                    event.which === 1) {
             var uri = this.view.getURIForRow(index);
-            log.warn(uri);
             if (uri) {
                 ko.open.URI(uri);
             }
