@@ -65,6 +65,10 @@
                 observes="cmd_places_singleClickExpand"
                 label="&singleClickExpand.label;"
                 type="checkbox" />
+            <menuitem id="places_singleClickOpen"
+                observes="cmd_places_singleClickOpen"
+                label="&singleClickOpen.label;"
+                type="checkbox" />
             <menuseparator id="places_view_separator" />
             <menuitem id="placeView_defaultView"
                 observes="cmd_placeView_defaultView"

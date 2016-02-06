@@ -405,6 +405,14 @@ viewMgrClass.prototype = {
 
         if (this.view.isContainer(index) && ko.prefs.getBoolean('pref_places_singleClickExpand', false)) {
             this.view.toggleOpenState(index);
+        } else if (!this.view.isContainer(index) &&
+                   ko.prefs.getBoolean('pref_places_singleClickOpen', false) &&
+                   event.which === 1) {
+            var uri = this.view.getURIForRow(index);
+            log.warn(uri);
+            if (uri) {
+                ko.open.URI(uri);
+            }
         }
     },
 

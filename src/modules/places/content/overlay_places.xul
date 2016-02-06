@@ -121,6 +121,12 @@
           disabled="true"
           desc="&singleClickExpand.desc;"/>
       <command
+          id="cmd_places_singleClickOpen"
+          key="key_cmd_places_singleClickOpen"
+          oncommand="ko.commands.doCommand('cmd_places_singleClickOpen', event)"
+          disabled="true"
+          desc="&singleClickOpen.desc;"/>
+      <command
           id="cmd_placeView_defaultView"
           key="key_cmd_placeView_defaultView"
           oncommand="ko.commands.doCommand('cmd_placeView_defaultView', event)"

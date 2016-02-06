@@ -314,6 +314,26 @@ PlacesController.prototype.do_cmd_places_singleClickExpand = function() {
     }
 }
 
+PlacesController.prototype.is_cmd_places_singleClickOpen_enabled = function() {
+    if (ko.prefs.getBoolean('pref_places_singleClickOpen', false)) {
+        document.getElementById('places_singleClickOpen').setAttribute('checked', 'true');
+    }
+
+    return true;
+}
+
+PlacesController.prototype.do_cmd_places_singleClickOpen = function() {
+    var value = ko.prefs.getBoolean('pref_places_singleClickOpen', true);
+
+    if (value) {
+        ko.prefs.setBooleanPref('pref_places_singleClickOpen', false);
+    }
+    else
+    {
+        ko.prefs.setBooleanPref('pref_places_singleClickOpen', true);
+    }
+}
+
 // Add SCC controller items
 
 PlacesController.prototype.is_cmd_placeView_undoTreeOperation_enabled = function() {
