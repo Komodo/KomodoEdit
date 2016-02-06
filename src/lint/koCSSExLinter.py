@@ -182,7 +182,7 @@ class KoLessLinter(KoCSSLinter):
          ("category-komodo-linter", 'Less'),
          ]
             
-    _less_emsg_ptn = re.compile(r'^.*?Error:\s*(.*?)\s+on\s+line\s+(\d+)\s+in\s')
+    _less_emsg_ptn = re.compile(r'^.*?Error:\s*(.*?)\s+in\s+.*?\s+on\s+line\s+(\d+),\s+column\s+(\d+)')
     def lint_with_text(self, request, text):
         try:
             prefset = request.prefset
@@ -249,6 +249,7 @@ class KoLessLinter(KoCSSLinter):
             if m:
                 lineNo = int(m.group(2))
                 desc = m.group(1)
-                koLintResult.createAddResult(results, textlines, severity, lineNo, desc)
+                column = int(m.group(3))
+                koLintResult.createAddResult(results, textlines, severity, lineNo, desc, columnStart=column)
         return results
 
