@@ -2298,7 +2298,9 @@ class PHPParser:
                                           fromPHPDoc=fromPHPDoc)
                 self.currentFunction.variables[name] = phpVariable
                 already_existed = False
-        elif self.currentClass:
+        elif self.currentClass and \
+             not (self.currentClass.name.startswith('(anonymous ') and \
+                  self.currentClass.name == vartype):
             pass
             # XXX this variable is local to a class method, what to do with it?
             #if m.group('name') not in self.currentClass.variables:
@@ -2590,6 +2592,20 @@ class PHPParser:
                 p += 1
                 if keyword == "new":
                     typeNames, p = self._getIdentifiersFromPos(styles, text, p)
+                    if not typeNames and styles[p] == self.PHP_WORD and \
+                       text[p] == "class":
+                        # Anonymous classes: new in PHP 7.
+                        p += 1
+                        extends = self._getExtendsArgument(styles, text, p)
+                        implements = self._getImplementsArgument(styles, text, p)
+                        #print "extends: %r" % (extends)
+                        #print "implements: %r" % (implements)
+                        self._anonid += 1
+                        self.addClass("(anonymous %d)" % self._anonid,
+                                      extends=extends, attributes=[],
+                                      interfaces=implements, doc=self.comment,
+                                      isTrait=False)
+                        typeNames = ["(anonymous %d)" % self._anonid]
                     #if not typeNames:
                     #    typeNames = ["object"]
                 elif keyword in ("true", "false"):

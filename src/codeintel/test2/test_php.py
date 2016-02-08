@@ -4744,6 +4744,20 @@ class DefnTestCase(CodeIntelTestCase):
             self.assertCompletionsAre2(buf, baz_positions[i + 1],
                 [("interface", "Bar"),
                  ("class", "Foo")])
+                 
+    @tag("bug 1047")
+    def test_anonymous_class_completions(self):
+        content, positions = unmark_text(php_markup(dedent("""\
+            $anon = new class {
+                public function anonTest() {
+                    echo "I'm anonymous";
+                }
+            };
+
+            $anon-><1>
+        """)))
+        self.assertCompletionsAre(markup_text(content, pos=positions[1]),
+            [("function", "anonTest")])
 
 class EscapingTestCase(CodeIntelTestCase):
     lang = "PHP"
