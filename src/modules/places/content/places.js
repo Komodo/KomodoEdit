@@ -402,8 +402,10 @@ viewMgrClass.prototype = {
         } else {
             this.view.markRow(index);
         }
-
-        if (this.view.isContainer(index) && ko.prefs.getBoolean('pref_places_singleClickExpand', false)) {
+        if (this.view.isContainer(index) &&
+            ko.prefs.getBoolean('pref_places_singleClickExpand', false) &&
+            event.buttons === 1 &&
+            !(event.shiftKey || event.ctrlKey || event.altKey)) {
             this.view.toggleOpenState(index);
         }
     },
