@@ -1,0 +1,192 @@
+ko-pane:not([customizing]) .pane-drop-target
+{
+    display: none;
+}
+
+ko-pane .pane-drop-target
+{
+    background-color: fade(@contrast, 70%);
+}
+
+ko-pane .pane-empty-container description
+{
+    width: 0;
+    margin: 2em;
+    text-align: center;
+}
+
+/* Draggable Widget */
+ko-pane:not([ko-pane-drag-status]) .pane-drop-placeholders > :not(splitter)
+{
+    background-image: url("koicon://ko-svg/chrome/icomoon/skin/move.svg?size=48&color=@{escaped-special}");
+    background-position: center;
+    background-repeat: no-repeat;
+    border: 2px dashed @border;
+    margin: 2px;
+    cursor: pointer;
+    
+    &:hover
+    {
+        border-color: @special;
+    }
+}
+
+/* Drop Area */
+ko-pane[ko-pane-drag-status] .pane-drop-placeholders
+{
+    background-image: url("koicon://ko-svg/chrome/icomoon/skin/download3.svg?size=48&color=@{escaped-special}");
+    background-position: center;
+    background-repeat: no-repeat;
+    margin: 2px;
+    cursor: move;
+}
+
+/* Drop area on hover */
+ko-pane[ko-pane-drag-status="dragover"] .pane-drop-feedback
+{
+    border: 2px dashed @special;
+}
+
+#dialog-customize-toolbar
+{
+    #main-toolbar, #second-toolbar
+    {
+        max-height: 50vh;
+    }
+    
+    .wrapper
+    {
+        max-height: 600px;
+    }
+    
+    richlistbox
+    {
+        margin-bottom: 10px;
+        border-radius: 3px;
+        
+        .scrollbox-innerbox
+        {
+            background: @special;
+            border-radius: 3px;
+        }
+        
+        richlistitem
+        {
+            border-radius: 3px;
+            margin: 5px;
+            background: @button-special;
+            color: @button-foreground-special;
+            -moz-box-align: center;
+            -moz-box-pack: center;
+            
+            &[ishidden="true"]
+            {
+                background: fade(@button-special, 40%);
+            }
+            
+            & > separator
+            {
+                -moz-box-flex: 1;
+                border-right: 1px solid @special;
+            }
+            
+            & > button
+            {
+                text-align: center;
+                background: transparent;
+                margin: 0 2px;
+                min-width: 0;
+                padding: 5px;
+                border-radius: 3px;
+                
+                .icon();
+                
+                &.move
+                {
+                    display: none;
+                    .icon-arrows-alt();
+                }
+                
+                &.toggle
+                {
+                    .icon-eye();
+                }
+                
+                &:hover
+                {
+                    background: darken(@button-special, 10%);
+                }
+            }
+            
+            &[ishidden="true"] > button.toggle
+            {
+                .icon-eye-slash();
+            }
+            
+            & > vbox
+            {
+                -moz-box-align: center;
+                -moz-box-pack: center;
+                
+                border-radius: 3px;
+                
+                &:hover
+                {
+                    background: @special;
+                }
+                    
+                & > *
+                {
+                    padding: 5px;
+                    border-radius: 0;
+                    -moz-box-align: center;
+                    -moz-box-pack: center;
+                    -moz-box-flex: 1;
+                }
+                
+                & > toolbarbutton
+                {
+                    width: 18px;
+                    height: 26px;
+                    margin: 0;
+                    font-size: 16px;
+                    
+                    label { display: none; }
+                }
+                
+                & > button
+                {
+                    text-align: center;
+                    border-top: 1px solid @special;
+                    border-bottom-left-radius: 3px;
+                    border-bottom-right-radius: 3px;
+                    background: transparent;
+                    margin: 0;
+                    min-width: 0;
+                    width: 26px;
+                    
+                    .icon();
+                    .icon-eye();
+                    
+                    &:hover
+                    {
+                        background: darken(@button-special, 10%);
+                    }
+                }
+                
+                &[ishidden="true"]
+                {
+                    & > toolbarbutton
+                    {
+                        opacity: 0.4;
+                    }
+                    
+                    & > button
+                    {
+                        .icon-eye-slash();
+                    }
+                }
+            }
+        }
+    }
+}

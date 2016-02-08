@@ -398,57 +398,13 @@ this.customizeToolbars = function uilayout_customizeToolbars(aToolbox) {
         if (toolboxRow) toolboxRow.dirty = true;
     }).bind(this);
 
-    // set up drag-and-drop states
-    var toolboxrow = toolbox.querySelector("toolboxrow");
-    if (toolboxrow) {
-        Array.slice(toolboxrow.childNodes).forEach(function(elem) {
-            if ((elem instanceof Element) && elem.localName == "toolbar") {
-                elem.setAttribute("can-drag", "true");
-            }
-        });
-    }
-
-    const DIALOG_URL = "chrome://komodo/content/dialogs/customizeToolbar.xul";
-    var sheet = document.getElementById("customizeToolbarSheetPopup");
-    var useSheet = false, dialog = null;
-    try {
-        Components.utils.import("resource://gre/modules/Services.jsm");
-        useSheet = Services.prefs.getBoolPref("toolbar.customization.usesheet");
-    } catch (e) {
-        // failed to get pref, use default of true
-    }
-    if (sheet && useSheet) {
-        var sheetFrame = sheet.firstElementChild;
-        sheetFrame.hidden = false;
-        sheetFrame.toolbox = toolbox;
-        sheetFrame.onCustomizeFinished = function(toolbox) {
-            syncUIWithReality(toolbox);
-            sheet.hidePopup();
-        };
-
-        // Load the dialog if it hasn't been loaded. If it _has_ been loaded,
-        // force a reload anyway, to make sure it finds the right toolbox
-        if (sheetFrame.getAttribute("src") == DIALOG_URL) {
-            sheetFrame.contentWindow.location.reload();
-        } else {
-            sheetFrame.setAttribute("src", DIALOG_URL);
-        }
-
-        // only show things when we're all ready
-        sheet.style.visibility = "hidden";
-        sheetFrame.addEventListener("ready", function _() {
-            sheetFrame.removeEventListener("ready", _, false);
-            sheet.style.visibility = "";
-        }, false);
-        sheet.openPopup(toolbox, "after_start", 0, 0, false, false, null);
-        dialog = sheetFrame.contentWindow;
-    } else {
-        dialog = window.openDialog(DIALOG_URL,
-                                   "",
-                                   "chrome,dependent,centerscreen",
-                                   toolbox,
-                                   syncUIWithReality);
-    }
+    const DIALOG_URL = "chrome://komodo/content/dialogs/customizeToolbar.xul?v2";
+    var dialog = null;
+    dialog = window.openDialog(DIALOG_URL,
+                               "",
+                               "chrome,dependent,centerscreen",
+                               toolbox,
+                               syncUIWithReality);
 
     if (dialog && !dialog.closed) {
         dialog.addEventListener("customize", syncUIWithReality, false);
@@ -502,6 +458,7 @@ this._customizeComplete = (function uilayout__customizeComplete() {
         }
         delete this.customize._state;
     }
+    
 }).bind(this);
 
 /**
@@ -549,7 +506,7 @@ this._updateToolbarViewStates = (function uilayout__updateToolbarViewStates(tool
             }
             toolbar.classList.add('last-child');
 
-	    var previousLastChild = toolbar;
+            var previousLastChild = toolbar;
         } else {
             toolbarItem.setAttribute("kohidden", "true");
             toolbarItem.classList.add('no-children');

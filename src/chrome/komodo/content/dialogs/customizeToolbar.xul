@@ -16,24 +16,17 @@
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml"
         title="&customizeToolbar.title;"
-        width="400" height="600" persist="width,height"
+        width="400"
         buttons="accept,cancel"
+        resizable="0"
         buttonlabelextra1="&customizeToolbar.extra1.label;"
-        ondialogaccept="onCustomizeToolbarFinished(true);"
-        ondialogcancel="onCustomizeToolbarFinished(false);">
+        ondialogaccept="onConfirmDialog();">
 
-    <tree id="toolbarTree" flex="1" hidecolumnpicker="true" seltype="single">
-        <treecols>
-            <treecol id="colCheck" type="checkbox" cycler="true" hideheader="true"/>
-            <treecol id="colName" primary="true" flex="1" crop="end" hideheader="true"/>
-        </treecols>
-        <treechildren/>
-    </tree>
-    <box hidden="true" align="start">
-        <html:img id="image"/>
-        <html:canvas id="canvas"/>
-    </box>
-    <script src="chrome://xtk/content/treeview.js"/>
+    <vbox class="wrapper" flex="1">
+        <richlistbox id="main-toolbar"></richlistbox>
+        <richlistbox id="second-toolbar"></richlistbox>
+    </vbox>
+    
     <script src="customizeToolbar.js"/>
 
 </dialog>

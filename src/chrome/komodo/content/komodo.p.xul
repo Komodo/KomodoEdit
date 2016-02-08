@@ -41,6 +41,8 @@
 
  ***** END LICENSE BLOCK ***** -->
 
+<?xml-stylesheet href="less://komodo/skin/global/global.less" type="text/css"?>
+
 <?xml-stylesheet href="chrome://komodo/skin/bindings/buttons.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/views.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/scintilla.css" type="text/css"?>
@@ -208,9 +210,6 @@
     </popupset>
 
     <popupset id="komodoMainPopupSet">
-        <panel id="customizeToolbarSheetPopup" noautohide="true">
-            <iframe flex="1" style="width: 90ch; height: 40em;"/>
-        </panel>
     </popupset>
     
     <panel id="hidden-placeholder" collapsed="true">
@@ -1767,7 +1766,7 @@
 
         <hbox id="main-toolboxrow-wrapper" class="windowDragHandler" persist="collapsed">
             <toolboxrow id="main-toolboxrow" flex="1" align="start" persist="hidden mode collapsed" mode="icons">
-
+                
                 <toolbar
                     id="standardToolbar"
                     class="chromeclass-toolbar"

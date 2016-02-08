@@ -301,21 +301,3 @@ menuitem.menuitem-file-status {
   visibility: hidden;
   width: 12px;
 }
-
-/* View overlay */
-#customizingPlaceHolder button
-{
-  margin-top: 1em;
-}
-
-/* Menu & toolbar Overlay */
-:root[customizing] > #toolbox_main {
-  opacity: 0.25;
-}
-:root[customizing] #toolbox_main {
-  display: -moz-stack;
-}
-:root[customizing] #toolbox_main > [anonid="hover-box"] {
-  visibility: visible;
-  background-color: rgba(255, 255, 255, 0.25);
-}

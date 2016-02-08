@@ -497,23 +497,29 @@ if (typeof module === 'undefined') module = {}; // debugging helper
          * 
          * @returns {Element} matched element
          */
-        clone: function(deep = true)
+        clone: function(deep = true, events = true)
         {
-            var el = this.element();
-            var result = $(el.cloneNode(deep));
+            var cloned = [];
             
-            if ("__koListeners" in el)
-            {
-                for (let event in el.__koListeners)
+            this.each(function() {
+                var el = this;
+                var result = $(el.cloneNode(deep));
+                
+                if ("__koListeners" in el && events)
                 {
-                    if ( ! el.__koListeners.hasOwnProperty(event)) continue;
-                    el.__koListeners[event].forEach(function(action) {
-                        result.on(event, action);
-                    });
+                    for (let event in el.__koListeners)
+                    {
+                        if ( ! el.__koListeners.hasOwnProperty(event)) continue;
+                        el.__koListeners[event].forEach(function(action) {
+                            result.on(event, action);
+                        });
+                    }
                 }
-            }
+                
+                cloned.push(result.element());
+            });
             
-            return result;
+            return new queryObject(cloned);
         },
 
         /**

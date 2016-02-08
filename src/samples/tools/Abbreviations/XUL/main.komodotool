@@ -3,7 +3,7 @@
   "name": "main", 
   "value": [
     "<?xml version=\"1.0\"?>", 
-    "<?xml-stylesheet href=\"chrome://global/skin/\" type=\"text/css\"?>", 
+    "<?xml-stylesheet href=\"chrome://komodo/skin/global/\" type=\"text/css\"?>", 
     "", 
     "<window", 
     "    id=\"[[%tabstop:id]]\"", 
