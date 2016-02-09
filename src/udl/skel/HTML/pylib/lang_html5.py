@@ -39,9 +39,9 @@ class HTML5Buffer(HTMLBuffer):
         if self._xml_default_dataset_info is None:
             import koXMLDatasetInfo
             datasetSvc = koXMLDatasetInfo.getService()
-            self._xml_default_dataset_info = (datasetSvc.getDefaultPublicId(lang, self.env),
+            self._xml_default_dataset_info = (datasetSvc.getDefaultPublicId(self.lang, self.env),
                                               None,
-                                              datasetSvc.getDefaultNamespace(lang, self.env))
+                                              datasetSvc.getDefaultNamespace(self.lang, self.env))
         return self._xml_default_dataset_info
 
 class HTML5CILEDriver(HTMLCILEDriver):

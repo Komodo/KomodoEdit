@@ -1,0 +1,4 @@
+family markup
+
+state IN_M_DEFAULT:
+/\{\{/ : paint(upto, M_DEFAULT), paint(include, CSL_OPERATOR), => IN_CSL_DEFAULT

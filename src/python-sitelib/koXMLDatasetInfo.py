@@ -132,6 +132,7 @@ class DatasetHandlerService:
     def __init__(self):
         self._default_public_ids = {
             "HTML": "-//W3C//DTD HTML 5//EN",
+            "AngularJS": "-//ANGULARJS//DTD HTML 5 NG//EN",
         }
         self._default_namespace_ids = {}
         self.defaultHandler = EmptyDatasetHandler()

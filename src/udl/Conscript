@@ -243,6 +243,12 @@ my @lexers = (
                udl_path => "jsx-mainlex.udl",
                skel => "skel/JSX",
               },
+              {
+               language_name => "AngularJS",
+               codename => "angularjs_language",
+               udl_path => "angularjs-mainlex.udl",
+               skel => "skel/AngularJS",
+              }
              );
 foreach my $info (@lexers) {
     my $language_name = $info->{language_name};

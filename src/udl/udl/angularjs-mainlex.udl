@@ -1,0 +1,13 @@
+language AngularJS
+
+include "angularjs/html2angularjs.udl"
+include "html2js.udl"
+include "html2css.udl"
+include "css2html.udl"
+include "angularjs/angularjs2html.udl"
+include "js2html.udl"
+
+include "html.udl"
+include "csslex.udl"
+include "jslex.udl"
+

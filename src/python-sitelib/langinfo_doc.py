@@ -85,6 +85,8 @@ class HTML5LangInfo(HTMLLangInfo):
          "http://www.w3.org/TR/html5/html5.dtd"),
     ]
     
+class AngularJSLangInfo(HTMLLangInfo):
+    name = "AngularJS"
 
 class XHTMLLLangInfo(LangInfo):
     name = "XHTML"

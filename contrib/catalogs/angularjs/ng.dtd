@@ -1,0 +1,1510 @@
+<!--
+   AngularJS DTD.
+
+   This is the same as HTML 5 except for directives defined by Angular.
+-->
+
+<!--================ Character mnemonic entities =========================-->
+
+<!ENTITY % HTMLlat1 PUBLIC
+   "-//W3C//ENTITIES Latin 1 for XHTML//EN"
+   "html5-lat1.ent">
+%HTMLlat1;
+
+<!ENTITY % HTMLsymbol PUBLIC
+   "-//W3C//ENTITIES Symbols for XHTML//EN"
+   "html5-symbol.ent">
+%HTMLsymbol;
+
+<!ENTITY % HTMLspecial PUBLIC
+   "-//W3C//ENTITIES Special for XHTML//EN"
+   "html5-special.ent">
+%HTMLspecial;
+
+<!--================== Imported Names ====================================-->
+
+<!ENTITY % ContentType "CDATA">
+    <!-- media type, as per [RFC2045] -->
+
+<!ENTITY % ContentTypes "CDATA">
+    <!-- comma-separated list of media types, as per [RFC2045] -->
+
+<!ENTITY % Charset "CDATA">
+    <!-- a character encoding, as per [RFC2045] -->
+
+<!ENTITY % Charsets "CDATA">
+    <!-- a space separated list of character encodings, as per [RFC2045] -->
+
+<!ENTITY % LanguageCode "NMTOKEN">
+    <!-- a language code, as per [RFC3066] -->
+
+<!ENTITY % Character "CDATA">
+    <!-- a single character, as per section 2.2 of [XML] -->
+
+<!ENTITY % Number "CDATA">
+    <!-- one or more digits -->
+
+<!ENTITY % Date "CDATA">
+    <!-- one or more digits -->
+
+<!ENTITY % LinkTypes "(alternate | archives | author | bookmark | contact | external | first | help | icon | index | last | license | next | nofollow | noreferrer | pingback | prefetch | prev | search | stylesheet | sidebar | tag | up)">
+    <!-- space-separated list of link types -->
+
+<!ENTITY % MediaDesc "(all|braille|embossed|handheld|print|projection|screen|speech|tty|tv)">
+    <!-- single or comma-separated list of media descriptors -->
+
+<!ENTITY % URI "CDATA">
+    <!-- a Uniform Resource Identifier, see [RFC2396] -->
+
+<!ENTITY % UriList "CDATA">
+    <!-- a space separated list of Uniform Resource Identifiers -->
+
+<!ENTITY % Datetime "CDATA">
+    <!-- date and time information. ISO date format -->
+
+<!ENTITY % Script "CDATA">
+    <!-- script expression -->
+
+<!ENTITY % StyleSheet "CDATA">
+    <!-- style sheet data -->
+
+<!ENTITY % Text "CDATA">
+    <!-- used for titles etc. -->
+
+<!ENTITY % FrameTarget "(_blank | _parent | _self | _top)">
+    <!-- render in this frame -->
+
+<!ENTITY % Length "CDATA">
+    <!-- nn for pixels or nn% for percentage length -->
+
+<!ENTITY % MultiLength "CDATA">
+    <!-- pixel, percentage, or relative -->
+
+<!ENTITY % Pixels "CDATA">
+    <!-- integer representing length in pixels -->
+
+<!ENTITY % Boolean "(true|false)">
+
+<!-- these are used for image maps -->
+
+<!ENTITY % Shape "(rect|circle|poly|default)">
+
+<!ENTITY % Coords "CDATA">
+    <!-- comma separated list of lengths -->
+
+<!-- a color using sRGB: #RRGGBB as Hex values -->
+<!ENTITY % Color "CDATA">
+
+<!-- There are also 16 widely known color names with their sRGB values:
+
+    Black  = #000000    Green  = #008000
+    Silver = #C0C0C0    Lime   = #00FF00
+    Gray   = #808080    Olive  = #808000
+    White  = #FFFFFF    Yellow = #FFFF00
+    Maroon = #800000    Navy   = #000080
+    Red    = #FF0000    Blue   = #0000FF
+    Purple = #800080    Teal   = #008080
+    Fuchsia= #FF00FF    Aqua   = #00FFFF
+-->
+
+<!--=================== Generic Attributes ===============================-->
+
+<!-- core attributes common to most elements
+  id       document-wide unique id
+  class    space separated list of classes
+  style    associated style info
+  title    advisory title/amplification
+-->
+<!ENTITY % coreattrs
+ "id          ID             #IMPLIED
+  class       CDATA          #IMPLIED
+  style       %StyleSheet;   #IMPLIED
+  title       %Text;         #IMPLIED"
+  >
+
+<!-- internationalization attributes
+  lang        language code (backwards compatible)
+  xml:lang    language code (as per XML 1.0 spec)
+  dir         direction for weak/neutral text
+-->
+<!ENTITY % i18n
+ "lang        %LanguageCode; #IMPLIED
+  xml:lang    %LanguageCode; #IMPLIED
+  dir         (ltr|rtl)      #IMPLIED"
+  >
+
+<!-- attributes for common UI events
+  onclick     a pointer button was clicked
+  ondblclick  a pointer button was double clicked
+  onmousedown a pointer button was pressed down
+  onmouseup   a pointer button was released
+  onmousemove a pointer was moved onto the element
+  onmouseout  a pointer was moved away from the element
+  onkeypress  a key was pressed and released
+  onkeydown   a key was pressed down
+  onkeyup     a key was released
+-->
+<!ENTITY % events
+ "onclick     %Script;       #IMPLIED
+  ondblclick  %Script;       #IMPLIED
+  onmousedown %Script;       #IMPLIED
+  onmouseup   %Script;       #IMPLIED
+  onmouseover %Script;       #IMPLIED
+  onmousemove %Script;       #IMPLIED
+  onmouseout  %Script;       #IMPLIED
+  onkeypress  %Script;       #IMPLIED
+  onkeydown   %Script;       #IMPLIED
+  onkeyup     %Script;       #IMPLIED
+<!-- HTML 5 Mouse Events - Events triggered by a mouse, or similar user actions: -->
+  ondrag        %Script;      #IMPLIED      <!-- Script to be run when an element is dragged -->
+  ondragend     %Script;      #IMPLIED      <!-- Script to be run at the end of a drag operation -->
+  ondragenter   %Script;      #IMPLIED      <!-- Script to be run when an element has been dragged to a valid drop target -->
+  ondragleave   %Script;      #IMPLIED      <!-- Script to be run when an element leaves a valid drop target -->
+  ondragover    %Script;      #IMPLIED      <!-- Script to be run when an element is being dragged over a valid drop target -->
+  ondragstart   %Script;      #IMPLIED      <!-- Script to be run at the start of a drag operation -->
+  ondrop        %Script;      #IMPLIED      <!-- Script to be run when dragged element is being dropped -->
+  onmousewheel  %Script;      #IMPLIED      <!-- Script to be run when the mouse wheel is being rotated -->
+  onscroll      %Script;      #IMPLIED      <!-- Script to be run when an element's scrollbar is being scrolled -->
+ "
+  >
+
+<!-- attributes for elements that can get the focus
+  accesskey   accessibility key character
+  tabindex    position in tabbing order
+  onfocus     the element got the focus
+  onblur      the element lost the focus
+-->
+<!ENTITY % focus
+ "accesskey   %Character;    #IMPLIED
+  tabindex    %Number;       #IMPLIED
+  onfocus     %Script;       #IMPLIED
+  onblur      %Script;       #IMPLIED"
+  >
+
+<!-- HTML 5 core attributes -->
+<!ENTITY % html5attrs
+ "contenteditable    %Boolean;     #IMPLIED
+  contextmenu        ID            #IMPLIED
+  draggable          (true | false | auto) #IMPLIED
+  hidden             (hidden)      #IMPLIED
+  item               CDATA         #IMPLIED
+  itemprop           CDATA         #IMPLIED
+  spellcheck         %Boolean;     #IMPLIED
+  subject            ID            #IMPLIED
+  contextmenu        ID            #IMPLIED
+  contextmenu        ID            #IMPLIED
+  contextmenu        ID            #IMPLIED
+  contextmenu        ID            #IMPLIED
+ "
+  >
+
+
+<!-- Angular core directives -->
+<!ENTITY % angulardirectives
+ "ng-jq CDATA #IMPLIED
+  ng-app CDATA #IMPLIED
+  ng-strict-di (true | false) #IMPLIED
+  ng-form CDATA #IMPLIED
+  ng-bind CDATA #IMPLIED
+  ng-bind-template CDATA #IMPLIED
+  ng-bind-html CDATA #IMPLIED
+  ng-class CDATA #IMPLIED
+  ng-class-odd CDATA #IMPLIED
+  ng-class-even CDATA #IMPLIED
+  ng-cloak CDATA #IMPLIED
+  ng-controller CDATA #IMPLIED
+  ng-csp CDATA #IMPLIED
+  ng-click CDATA #IMPLIED
+  ng-dblclick CDATA #IMPLIED
+  ng-mousedown CDATA #IMPLIED
+  ng-mouseup CDATA #IMPLIED
+  ng-mouseover CDATA #IMPLIED
+  ng-mouseenter CDATA #IMPLIED
+  ng-mouseleave CDATA #IMPLIED
+  ng-mousemove CDATA #IMPLIED
+  ng-keydown CDATA #IMPLIED
+  ng-keyup CDATA #IMPLIED
+  ng-keypress CDATA #IMPLIED
+  ng-if CDATA #IMPLIED
+  ng-include CDATA #IMPLIED
+  ng-init CDATA #IMPLIED
+  ng-non-bindable CDATA #IMPLIED
+  ng-repeat CDATA #IMPLIED
+  ng-repeat-start CDATA #IMPLIED
+  ng-repeat-end CDATA #IMPLIED
+  ng-show CDATA #IMPLIED
+  ng-hide CDATA #IMPLIED
+  ng-style CDATA #IMPLIED
+  ng-switch CDATA #IMPLIED
+  on CDATA #IMPLIED
+  ng-switch-when CDATA #IMPLIED
+  ng-transclude CDATA #IMPLIED
+  ng-animate-children CDATA #IMPLIED
+  ng-animate-swap CDATA #IMPLIED
+  ng-message CDATA #IMPLIED
+  ng-message-exp CDATA #IMPLIED
+  ng-messages CDATA #IMPLIED
+  ng-messages-include CDATA #IMPLIED
+  ng-view CDATA #IMPLIED
+  ng-swipe-left CDATA #IMPLIED
+  ng-swipe-right CDATA #IMPLIED"
+  >
+
+<!-- Media Events - Events triggered by medias like videos, images and audio.
+     Applies to all HTML 5 elements, but is most common in media elements, such
+     as audio, embed, img, object, and video. -->
+
+<!ENTITY % html5mediaevents
+ "onabort               %Script;      #IMPLIED  <!-- Script to be run on an abort event -->
+  oncanplay             %Script;      #IMPLIED  <!-- Script to be run when media can start play, but might has to stop for buffering -->
+  oncanplaythrough      %Script;      #IMPLIED  <!-- Script to be run when media can be played to the end, without stopping for buffering -->
+  ondurationchange      %Script;      #IMPLIED  <!-- Script to be run when the length of the media is changed -->
+  onemptied             %Script;      #IMPLIED  <!-- Script to be run when a media resource element suddenly becomes empty (network errors, errors on load etc.) -->
+  onended               %Script;      #IMPLIED  <!-- Script to be run when media has reach the end -->
+  onerror               %Script;      #IMPLIED  <!-- Script to be run when an error occurs during the loading of an element -->
+  onloadeddata          %Script;      #IMPLIED  <!-- Script to be run when media data is loaded -->
+  onloadedmetadata      %Script;      #IMPLIED  <!-- Script to be run when the duration and other media data of a media element is loaded -->
+  onloadstart           %Script;      #IMPLIED  <!-- Script to be run when the browser starts to load the media data -->
+  onpause               %Script;      #IMPLIED  <!-- Script to be run when media data is paused -->
+  onplay                %Script;      #IMPLIED  <!-- Script to be run when media data is going to start playing -->
+  onplaying             %Script;      #IMPLIED  <!-- Script to be run when media data has start playing -->
+  onprogress            %Script;      #IMPLIED  <!-- Script to be run when the browser is fetching the media data -->
+  onratechange          %Script;      #IMPLIED  <!-- Script to be run when the media data's playing rate has changed -->
+  onreadystatechange    %Script;      #IMPLIED  <!-- Script to be run when the ready-state changes -->
+  onseeked              %Script;      #IMPLIED  <!-- Script to be run when a media element's seeking attribute is no longer true, and the seeking has ended -->
+  onseeking             %Script;      #IMPLIED  <!-- Script to be run when a media element's seeking attribute is true, and the seeking has begun -->
+  onstalled             %Script;      #IMPLIED  <!-- Script to be run when there is an error in fetching media data (stalled) -->
+  onsuspend             %Script;      #IMPLIED  <!-- Script to be run when the browser has been fetching media data, but stopped before the entire media file was fetched -->
+  ontimeupdate          %Script;      #IMPLIED  <!-- Script to be run when media changes its playing position -->
+  onvolumechange        %Script;      #IMPLIED  <!-- Script to be run when media changes the volume, also when volume is set to "mute" -->
+  onwaiting             %Script;      #IMPLIED  <!-- Script to be run when media has stopped playing, but is expected to resume -->
+ "
+>
+
+
+
+
+
+
+
+<!ENTITY % attrs "%coreattrs; %i18n; %events; %html5attrs; %angulardirectives;">
+
+<!--=================== Text Elements ====================================-->
+
+<!ENTITY % special.extra
+   "object | img | map | iframe">
+	
+<!ENTITY % special.basic
+	"br | span | bdo">
+
+<!ENTITY % special
+   "%special.basic; | %special.extra;">
+
+<!ENTITY % fontstyle.basic "small | i | b | u">
+
+<!ENTITY % fontstyle "%fontstyle.basic;">
+
+<!ENTITY % phrase.extra "sub | sup">
+<!ENTITY % phrase.basic "em | strong | dfn | code | q |
+                   samp | kbd | var | cite | abbr | acronym">
+
+<!ENTITY % phrase "%phrase.basic; | %phrase.extra;">
+
+<!ENTITY % inline.forms "input | output | select | textarea | label | button |
+                         datetime | datetime-local | data | month | week |
+                         time | number | range | email | url | menu |
+                         datalist">
+
+<!-- these can occur at block or inline level -->
+<!ENTITY % misc.inline "ins | del | script">
+
+<!-- these can only occur at block level -->
+<!ENTITY % misc "noscript | %misc.inline;">
+
+<!ENTITY % inline "a | %special; | %fontstyle; | %phrase; | %inline.forms;">
+
+<!-- %Inline; covers inline or "text-level" elements -->
+<!ENTITY % Inline "(#PCDATA | %inline; | %misc.inline;)*">
+
+<!--================== Block level elements ==============================-->
+
+<!ENTITY % heading "h1|h2|h3|h4|h5|h6">
+<!ENTITY % lists "ul | ol | dl">
+<!ENTITY % blocktext "pre | hr | blockquote | address | article | aside |
+                      summary | mark">
+
+<!ENTITY % block
+    "p | %heading; | div | %lists; | %blocktext; | fieldset | table |
+    header | footer | section | hgroup | main | nav | dialog | figure |
+    datagrid | canvas | audio | video | source | embed | keygen |
+    progress | ruby">
+
+<!-- %Flow; mixes block and inline and is used for list items etc. -->
+<!ENTITY % Flow "(#PCDATA | %block; | form | %inline; | %misc;)*">
+
+<!--================== Content models for exclusions =====================-->
+
+<!-- a elements use %Inline; excluding a -->
+
+<!ENTITY % a.content
+   "(#PCDATA | %special; | %fontstyle; | %phrase; | %inline.forms; | %misc.inline;)*">
+
+<!-- pre uses %Inline excluding img, object, big, small -->
+
+<!ENTITY % pre.content
+   "(#PCDATA | a | %special.basic; | %fontstyle.basic; | %phrase.basic; |
+	   %inline.forms; | %misc.inline;)*">
+
+<!-- form uses %Flow; excluding form -->
+
+<!ENTITY % form.content "(#PCDATA | %block; | %inline; | %misc;)*">
+
+<!-- button uses %Flow; but excludes a, form, form controls, iframe -->
+
+<!ENTITY % button.content
+   "(#PCDATA | p | %heading; | div | %lists; | %blocktext; |
+      table | datagrid | br | span | bdo | object | img | map |
+      %fontstyle; | %phrase; | %misc;)*">
+
+<!--================ Document Structure ==================================-->
+
+<!-- the namespace URI designates the document profile -->
+
+<!ELEMENT html (head, body)>
+<!ATTLIST html
+  %i18n;
+  id          ID             #IMPLIED
+  xmlns       %URI;          #FIXED 'http://www.w3.org/1999/xhtml'
+  <!-- HTML 5 attributes -->
+  manifest    %URI;          #IMPLIED
+  <!-- Angular attributes -->
+  %angulardirectives;
+  >
+
+<!--================ Document Head =======================================-->
+
+<!ENTITY % head.misc "(script|style|meta|link|object)*">
+
+<!-- content model is %head.misc; combined with a single
+     title and an optional base element in any order -->
+
+<!ELEMENT head (%head.misc;,
+     ((title, %head.misc;, (base, %head.misc;)?) |
+      (base, %head.misc;, (title, %head.misc;))))>
+
+<!ATTLIST head
+  %i18n;
+  id          ID             #IMPLIED
+  profile     %URI;          #IMPLIED
+  >
+
+<!-- The title element is not considered part of the flow of text.
+       It should be displayed, for example as the page header or
+       window title. Exactly one title is required per document.
+    -->
+<!ELEMENT title (#PCDATA)>
+<!ATTLIST title 
+  %i18n;
+  id          ID             #IMPLIED
+  <!-- Angular attributes -->
+  %angulardirectives;
+  >
+
+<!-- document base URI -->
+
+<!ELEMENT base EMPTY>
+<!ATTLIST base
+  id          ID             #IMPLIED
+  href        %URI;          #IMPLIED
+  target      %FrameTarget;  #IMPLIED
+  >
+
+<!-- generic metainformation -->
+<!ELEMENT meta EMPTY>
+<!ATTLIST meta
+  %i18n;
+  id          ID             #IMPLIED
+  http-equiv  CDATA          #IMPLIED
+  name        CDATA          #IMPLIED
+  content     CDATA          #REQUIRED
+  <!-- HTML 5 attributes -->
+  charset     %Charset;      #IMPLIED
+  >
+
+<!--
+  Relationship values can be used in principle:
+
+   a) for document specific toolbars/menus when used
+      with the link element in document head e.g.
+        start, contents, previous, next, index, end, help
+   b) to link to a separate style sheet (rel="stylesheet")
+   c) to make a link to a script (rel="script")
+   d) by stylesheets to control how collections of
+      html nodes are rendered into printed documents
+   e) to make a link to a printable version of this document
+      e.g. a PostScript or PDF version (rel="alternate" media="print")
+-->
+
+<!ELEMENT link EMPTY>
+<!ATTLIST link
+  %attrs;
+  href        %URI;          #IMPLIED
+  hreflang    %LanguageCode; #IMPLIED
+  type        %ContentType;  #IMPLIED
+  rel         %LinkTypes;    #IMPLIED
+  media       %MediaDesc;    #IMPLIED
+  <!-- HTML 5 attributes -->
+  sizes       %Number;       #IMPLIED
+  >
+
+<!-- style info, which may include CDATA sections -->
+<!ELEMENT style (#PCDATA)>
+<!ATTLIST style
+  %i18n;
+  id          ID             #IMPLIED
+  type        (text/css)     #REQUIRED
+  media       %MediaDesc;    #IMPLIED
+  <!-- HTML 5 attributes -->
+  scoped      (scoped)       #IMPLIED
+  >
+
+<!-- script statements, which may include CDATA sections -->
+<!ELEMENT script (#PCDATA)>
+<!ATTLIST script
+  id          ID             #REQUIRED
+  charset     %Charset;      #IMPLIED
+  type        (text/javascript | text/ng-template)  #REQUIRED
+  language    CDATA          #IMPLIED
+  src         %URI;          #IMPLIED
+  defer       (defer)        #IMPLIED
+  <!-- HTML 5 attributes -->
+  async       (async)        #IMPLIED
+  >
+
+<!-- alternate content container for non script-based rendering -->
+
+<!ELEMENT noscript %Flow;>
+<!ATTLIST noscript
+  %attrs;
+  >
+
+<!--======================= Frames =======================================-->
+
+<!-- inline subwindow -->
+
+<!ELEMENT iframe %Flow;>
+<!ATTLIST iframe
+  %coreattrs;
+  %html5attrs;
+  name        NMTOKEN        #IMPLIED
+  src         %URI;          #IMPLIED
+  height      %Length;       #IMPLIED
+  width       %Length;       #IMPLIED
+  <!-- HTML 5 attributes -->
+  sandbox     (allow-forms | allow-same-origin | allow-scripts)        #IMPLIED
+  seamless    CDATA          #IMPLIED
+  srcdoc      CDATA          #IMPLIED
+  >
+
+<!--=================== Document Body ====================================-->
+
+<!ELEMENT body %Flow;>
+<!ATTLIST body
+  %attrs;
+  onload      %Script;       #IMPLIED
+  onunload    %Script;       #IMPLIED
+<!-- HTML 5 Window Event Attributes -->
+  onafterprint    %Script;   #IMPLIED        <!-- Script to be run after the document is printed -->
+  onbeforeprint   %Script;   #IMPLIED        <!-- Script to be run before the document is printed -->
+  onbeforeonload  %Script;   #IMPLIED        <!-- Script to be run before the document loads -->
+  onerror         %Script;   #IMPLIED        <!-- Script to be run when an error occur -->
+  onhaschange     %Script;   #IMPLIED        <!-- Script to be run when the document has change -->
+  onmessage       %Script;   #IMPLIED        <!-- Script to be run when the message is triggered -->
+  onoffline       %Script;   #IMPLIED        <!-- Script to be run when the document goes offline -->
+  ononline        %Script;   #IMPLIED        <!-- Script to be run when the document comes online -->
+  onpagehide      %Script;   #IMPLIED        <!-- Script to be run when the window is hidden -->
+  onpageshow      %Script;   #IMPLIED        <!-- Script to be run when the window becomes visible -->
+  onpopstate      %Script;   #IMPLIED        <!-- Script to be run when the window's history changes -->
+  onredo          %Script;   #IMPLIED        <!-- Script to be run when the document performs a redo -->
+  onresize        %Script;   #IMPLIED        <!-- Script to be run when the window is resized -->
+  onstorage       %Script;   #IMPLIED        <!-- Script to be run when a document loads -->
+  onundo          %Script;   #IMPLIED        <!-- Script to be run when a document performs an undo -->
+  onunload        %Script;   #IMPLIED        <!-- Script to be run when the user leaves the document -->
+  >
+
+<!ELEMENT div %Flow;>  <!-- generic language/style container -->
+<!ATTLIST div
+  %attrs;
+  >
+
+<!--=================== Paragraphs =======================================-->
+
+<!ELEMENT p %Inline;>
+<!ATTLIST p
+  %attrs;
+  >
+
+<!--=================== Headings =========================================-->
+
+<!--
+  There are six levels of headings from h1 (the most important)
+  to h6 (the least important).
+-->
+
+<!ELEMENT h1  %Inline;>
+<!ATTLIST h1
+  %attrs;
+  >
+
+<!ELEMENT h2 %Inline;>
+<!ATTLIST h2
+  %attrs;
+  >
+
+<!ELEMENT h3 %Inline;>
+<!ATTLIST h3
+  %attrs;
+  >
+
+<!ELEMENT h4 %Inline;>
+<!ATTLIST h4
+  %attrs;
+  >
+
+<!ELEMENT h5 %Inline;>
+<!ATTLIST h5
+  %attrs;
+  >
+
+<!ELEMENT h6 %Inline;>
+<!ATTLIST h6
+  %attrs;
+  >
+
+<!--=================== Lists ============================================-->
+
+
+<!-- Unordered list -->
+
+<!ELEMENT ul (li)+>
+<!ATTLIST ul
+  %attrs;
+  >
+
+<!-- Ordered (numbered) list -->
+
+<!ELEMENT ol (li)+>
+<!ATTLIST ol
+  %attrs;
+  start       %Number;       #IMPLIED
+  <!-- HTML 5 attributes -->
+  reversed    (reversed)     #IMPLIED
+  >
+
+<!-- list item -->
+
+<!ELEMENT li %Flow;>
+<!ATTLIST li
+  %attrs;
+  value       %Number;       #IMPLIED
+  >
+
+<!-- definition lists - dt for term, dd for its definition -->
+
+<!ELEMENT dl (dt|dd)+>
+<!ATTLIST dl
+  %attrs;
+  >
+
+<!ELEMENT dt %Inline;>
+<!ATTLIST dt
+  %attrs;
+  >
+
+<!ELEMENT dd %Flow;>
+<!ATTLIST dd
+  %attrs;
+  >
+
+<!--=================== Address ==========================================-->
+
+<!-- information on author -->
+
+<!ELEMENT address (#PCDATA | %inline; | %misc.inline; | p)*>
+<!ATTLIST address
+  %attrs;
+  >
+
+<!--=================== Horizontal Rule ==================================-->
+
+<!ELEMENT hr EMPTY>
+<!ATTLIST hr
+  %attrs;
+  >
+
+<!--=================== Preformatted Text ================================-->
+
+<!-- content is %Inline; excluding 
+        "img|object|small|sub|sup" -->
+
+<!ELEMENT pre %pre.content;>
+<!ATTLIST pre
+  %attrs;
+  >
+
+<!--=================== Block-like Quotes ================================-->
+
+<!ELEMENT blockquote %Flow;>
+<!ATTLIST blockquote
+  %attrs;
+  cite        %URI;          #IMPLIED
+  >
+
+<!--=================== Inserted/Deleted Text ============================-->
+
+<!--
+  ins/del are allowed in block and inline content, but its
+  inappropriate to include block content within an ins element
+  occurring in inline content.
+-->
+<!ELEMENT ins %Flow;>
+<!ATTLIST ins
+  %attrs;
+  cite        %URI;          #IMPLIED
+  datetime    %Datetime;     #IMPLIED
+  >
+
+<!ELEMENT del %Flow;>
+<!ATTLIST del
+  %attrs;
+  cite        %URI;          #IMPLIED
+  datetime    %Datetime;     #IMPLIED
+  >
+
+<!--================== The Anchor Element ================================-->
+
+<!-- content is %Inline; except that anchors shouldn't be nested -->
+
+<!ELEMENT a %a.content;>
+<!ATTLIST a
+  %attrs;
+  %focus;
+  href        %URI;          #IMPLIED
+  hreflang    %LanguageCode; #IMPLIED
+  rel         %LinkTypes;    #IMPLIED
+  target      %FrameTarget;  #IMPLIED
+  <!-- HTML 5 attributes -->
+  media       CDATA          #IMPLIED
+  ping        %URI;          #IMPLIED
+  type        %ContentType;  #IMPLIED
+  <!-- Angular directives -->
+  ng-href     CDATA          #IMPLIED
+  ng-focus    CDATA          #IMPLIED
+  ng-blur     CDATA          #IMPLIED
+  ng-copy     CDATA          #IMPLIED
+  ng-cut      CDATA          #IMPLIED
+  ng-paste    CDATA          #IMPLIED
+  >
+
+<!--===================== Inline Elements ================================-->
+
+<!ELEMENT span %Inline;> <!-- generic language/style container -->
+<!ATTLIST span
+  %attrs;
+  >
+
+<!ELEMENT bdo %Inline;>  <!-- I18N BiDi over-ride -->
+<!ATTLIST bdo
+  %coreattrs;
+  %html5attrs;
+  %events;
+  lang        %LanguageCode; #IMPLIED
+  xml:lang    %LanguageCode; #IMPLIED
+  dir         (ltr|rtl)      #REQUIRED
+  >
+
+<!ELEMENT br EMPTY>   <!-- forced line break -->
+<!ATTLIST br
+  %coreattrs;
+  %html5attrs;
+  >
+
+<!ELEMENT em %Inline;>   <!-- emphasis -->
+<!ATTLIST em %attrs;>
+
+<!ELEMENT strong %Inline;>   <!-- strong emphasis -->
+<!ATTLIST strong %attrs;>
+
+<!ELEMENT dfn %Inline;>   <!-- definitional -->
+<!ATTLIST dfn %attrs;>
+
+<!ELEMENT code %Inline;>   <!-- program code -->
+<!ATTLIST code %attrs;>
+
+<!ELEMENT samp %Inline;>   <!-- sample -->
+<!ATTLIST samp %attrs;>
+
+<!ELEMENT kbd %Inline;>  <!-- something user would type -->
+<!ATTLIST kbd %attrs;>
+
+<!ELEMENT var %Inline;>   <!-- variable -->
+<!ATTLIST var %attrs;>
+
+<!ELEMENT cite %Inline;>   <!-- citation -->
+<!ATTLIST cite %attrs;>
+
+<!ELEMENT abbr %Inline;>   <!-- abbreviation -->
+<!ATTLIST abbr %attrs;>
+
+<!ELEMENT q %Inline;>   <!-- inlined quote -->
+<!ATTLIST q
+  %attrs;
+  cite        %URI;          #IMPLIED
+  >
+
+<!ELEMENT sub %Inline;> <!-- subscript -->
+<!ATTLIST sub %attrs;>
+
+<!ELEMENT sup %Inline;> <!-- superscript -->
+<!ATTLIST sup %attrs;>
+
+<!ELEMENT i %Inline;>   <!-- italic font -->
+<!ATTLIST i %attrs;>
+
+<!ELEMENT b %Inline;>   <!-- bold font -->
+<!ATTLIST b %attrs;>
+
+<!ELEMENT small %Inline;>   <!-- smaller font -->
+<!ATTLIST small %attrs;>
+
+<!--==================== Object ======================================-->
+<!--
+  object is used to embed objects as part of HTML pages.
+  param elements should precede other content. Parameters
+  can also be expressed as attribute/value pairs on the
+  object element itself when brevity is desired.
+-->
+
+<!ELEMENT object (#PCDATA | param | %block; | form | %inline; | %misc;)*>
+<!ATTLIST object
+  %attrs;
+  %html5mediaevents;
+  data        %URI;          #IMPLIED
+  type        %ContentType;  #IMPLIED
+  height      %Length;       #IMPLIED
+  width       %Length;       #IMPLIED
+  usemap      %URI;          #IMPLIED
+  name        NMTOKEN        #IMPLIED
+  tabindex    %Number;       #IMPLIED
+  <!-- HTML 5 attributes -->
+  form        CDATA          #IMPLIED
+  >
+
+<!--
+  param is used to supply a named property value.
+  In XML it would seem natural to follow RDF and support an
+  abbreviated syntax where the param elements are replaced
+  by attribute value pairs on the object start tag.
+-->
+<!ELEMENT param EMPTY>
+<!ATTLIST param
+  id          ID             #IMPLIED
+  name        CDATA          #REQUIRED
+  value       CDATA          #IMPLIED
+  >
+
+<!--=================== Images ===========================================-->
+
+<!--
+   To avoid accessibility problems for people who aren't
+   able to see the image, you should provide a text
+   description using the alt and longdesc attributes.
+   In addition, avoid the use of server-side image maps.
+-->
+
+<!ELEMENT img EMPTY>
+<!ATTLIST img
+  %attrs;
+  %html5mediaevents;
+  src         %URI;          #REQUIRED
+  alt         %Text;         #REQUIRED
+  name        NMTOKEN        #IMPLIED
+  longdesc    %URI;          #IMPLIED
+  height      %Length;       #IMPLIED
+  width       %Length;       #IMPLIED
+  usemap      %URI;          #IMPLIED
+  ismap       (ismap)        #IMPLIED
+  <!-- Angular directives -->
+  ng-src      CDATA          #IMPLIED
+  ng-srcset   CDATA          #IMPLIED
+  >
+
+<!-- usemap points to a map element which may be in this document
+  or an external document, although the latter is not widely supported -->
+
+<!--================== Client-side image maps ============================-->
+
+<!-- These can be placed in the same document or grouped in a
+     separate document although this isn't yet widely supported -->
+
+<!ELEMENT map ((%block; | form | %misc;)+ | area+)>
+<!ATTLIST map
+  %i18n;
+  %events;
+  id          ID             #REQUIRED
+  class       CDATA          #IMPLIED
+  style       %StyleSheet;   #IMPLIED
+  title       %Text;         #IMPLIED
+  name        CDATA          #IMPLIED
+  >
+
+<!ELEMENT area EMPTY>
+<!ATTLIST area
+  %attrs;
+  %focus;
+  shape       %Shape;        "rect"
+  coords      %Coords;       #IMPLIED
+  href        %URI;          #IMPLIED
+  alt         %Text;         #REQUIRED
+  target      %FrameTarget;  #IMPLIED
+  <!-- HTML 5 attributes -->
+  hreflang    %LanguageCode; #IMPLIED
+  media       CDATA          #IMPLIED
+  ping        %URI;          #IMPLIED
+  rel         %LinkTypes;    #IMPLIED
+  type        CDATA          #IMPLIED
+  >
+
+<!--================ Forms ===============================================-->
+
+<!ELEMENT form %form.content;>   <!-- forms shouldn't be nested -->
+
+<!ATTLIST form
+  %attrs;
+  action      %URI;          #REQUIRED
+  method      (get|post)     "get"
+  name        NMTOKEN        #IMPLIED
+  enctype     %ContentType;  "application/x-www-form-urlencoded"
+  onsubmit    %Script;       #IMPLIED
+  accept-charset %Charsets;  #IMPLIED
+  target      %FrameTarget;  #IMPLIED
+  <!-- HTML 5 Attributes -->
+  autocomplete (on|off)      #IMPLIED
+  novalidate   CDATA         #IMPLIED
+  <!-- HTML 5 Form Events
+      Applies to all HTML 5 elements, but is most common in form elements:
+   -->
+  oncontextmenu %Script;     #IMPLIED
+  onformchange  %Script;     #IMPLIED
+  onforminput   %Script;     #IMPLIED
+  onforminput   %Script;     #IMPLIED
+  oninput       %Script;     #IMPLIED
+  onforminput   %Script;     #IMPLIED
+  oninvalid     %Script;     #IMPLIED
+  <!-- Angular directives -->
+  ng-submit     CDATA        #IMPLIED
+  >
+
+<!--
+  Each label must not contain more than ONE field
+  Label elements shouldn't be nested.
+-->
+<!ELEMENT label %Inline;>
+<!ATTLIST label
+  %attrs;
+  for         IDREF          #IMPLIED
+  <!-- HTML 5 attributes -->
+  form        CDATA          #IMPLIED
+  >
+
+<!ENTITY % InputType
+  "(button | checkbox | color | date | datetime | datetime-local |
+    email | file | hidden | image | month | number |
+    password | radio | range | reset | submit |
+    tel | text | time | url | week)"
+   >
+
+<!-- the name attribute is required for all but submit & reset -->
+
+<!ELEMENT input EMPTY>     <!-- form control -->
+<!ATTLIST input
+  %attrs;
+  %focus;
+  type        %InputType;    "text"
+  name        CDATA          #IMPLIED
+  value       CDATA          #IMPLIED
+  checked     (checked)      #IMPLIED
+  disabled    (disabled)     #IMPLIED
+  readonly    (readonly)     #IMPLIED
+  maxlength   %Number;       #IMPLIED
+  src         %URI;          #IMPLIED
+  alt         CDATA          #IMPLIED
+  usemap      %URI;          #IMPLIED
+  onselect    %Script;       #IMPLIED
+  onchange    %Script;       #IMPLIED
+  accept      %ContentTypes; #IMPLIED
+  <!-- HTML 5 attributes -->
+  autocomplete  (on|off)          #IMPLIED
+  autofocus     CDATA          #IMPLIED
+  form          CDATA          #IMPLIED
+  formaction    %URI;          #IMPLIED
+  formemctype (application/x-www-form-urlencoded | multipart/form-data | text/plain)          #IMPLIED
+  formmethod  (delete | get | post | put)          #IMPLIED
+  formvalidate CDATA           #IMPLIED
+  formtarget  (_blank | _self | _parent | _top)    #IMPLIED
+  height        %Pixels;       #IMPLIED
+  list          ID             #IMPLIED
+  max           %Number;       #IMPLIED
+  min           %Number;       #IMPLIED
+  multiple      CDATA          #IMPLIED
+  pattern       CDATA          #IMPLIED
+  placeholder   CDATA          #IMPLIED
+  required      CDATA          #IMPLIED
+  step          %Number;       #IMPLIED
+  width         %Pixels;       #IMPLIED
+  <!-- Angular directives -->
+  ng-disabled       CDATA           #IMPLIED
+  ng-checked        CDATA           #IMPLIED
+  ng-readonly       CDATA           #IMPLIED
+  ng-model          CDATA           #REQUIRED
+  ng-required       CDATA           #IMPLIED
+  ng-minlength      %Number;        #IMPLIED
+  ng-maxlength      %Number;        #IMPLIED
+  ng-pattern        CDATA           #IMPLIED
+  ng-change         CDATA           #IMPLIED
+  ng-trim           (true | false)  "true"
+  ng-value          CDATA           #IMPLIED
+  ng-change         CDATA           #IMPLIED
+  ng-focus          CDATA           #IMPLIED
+  ng-blur           CDATA           #IMPLIED
+  ng-copy           CDATA           #IMPLIED
+  ng-cut            CDATA           #IMPLIED
+  ng-paste          CDATA           #IMPLIED
+  ng-list           CDATA           #IMPLIED
+  ng-model-options  CDATA           #IMPLIED
+  <!-- Angular input-specific directives -->
+  ng-true-value     CDATA           #IMPLIED
+  ng-false-value    CDATA           #IMPLIED
+  ng-min            CDATA           #IMPLIED
+  ng-max            CDATA           #IMPLIED
+  >
+
+<!ELEMENT select (optgroup|option)+>  <!-- option selector -->
+<!ATTLIST select
+  %attrs;
+  name        CDATA          #IMPLIED
+  multiple    (multiple)     #IMPLIED
+  disabled    (disabled)     #IMPLIED
+  tabindex    %Number;       #IMPLIED
+  onfocus     %Script;       #IMPLIED
+  onblur      %Script;       #IMPLIED
+  onchange    %Script;       #IMPLIED
+  <!-- HTML 5 attributes -->
+  autofocus   (autofocus)    #IMPLIED
+  form        CDATA          #IMPLIED
+  <!-- Angular directives -->
+  ng-focus          CDATA          #IMPLIED
+  ng-blur           CDATA          #IMPLIED
+  ng-copy           CDATA          #IMPLIED
+  ng-cut            CDATA          #IMPLIED
+  ng-paste          CDATA          #IMPLIED
+  ng-model          CDATA          #REQUIRED
+  ng-model-options  CDATA          #IMPLIED
+  ng-options        CDATA          #IMPLIED
+  required          CDATA          #IMPLIED
+  ng-required       CDATA          #IMPLIED
+  ng-change         CDATA          #IMPLIED
+  >
+
+<!ELEMENT optgroup (option)+>   <!-- option group -->
+<!ATTLIST optgroup
+  %attrs;
+  disabled    (disabled)     #IMPLIED
+  label       %Text;         #REQUIRED
+  >
+
+<!ELEMENT option (#PCDATA)>     <!-- selectable choice -->
+<!ATTLIST option
+  %attrs;
+  selected    (selected)     #IMPLIED
+  disabled    (disabled)     #IMPLIED
+  label       %Text;         #IMPLIED
+  value       CDATA          #IMPLIED
+  <!-- Angular directives -->
+  ng-selected  CDATA         #IMPLIED
+  ng-options   CDATA         #IMPLIED
+  >
+
+<!ELEMENT textarea (#PCDATA)>     <!-- multi-line text field -->
+<!ATTLIST textarea
+  %attrs;
+  %focus;
+  name        CDATA          #IMPLIED
+  rows        %Number;       #REQUIRED
+  cols        %Number;       #REQUIRED
+  disabled    (disabled)     #IMPLIED
+  readonly    (readonly)     #IMPLIED
+  onselect    %Script;       #IMPLIED
+  onchange    %Script;       #IMPLIED
+  <!-- HTML 5 attributes -->
+  autofocus     CDATA          #IMPLIED
+  cols          %Number;       #IMPLIED
+  form          CDATA          #IMPLIED
+  maxlength     %Number;       #IMPLIED
+  placeholder   CDATA          #IMPLIED
+  required      CDATA          #IMPLIED
+  wrap          (hard | soft)  "soft"
+  <!-- Angular directives -->
+  ng-model          CDATA           #REQUIRED
+  required          CDATA           #IMPLIED
+  ng-required       CDATA           #IMPLIED
+  ng-minlength      %Number;        #IMPLIED
+  ng-maxlength      %Number;        #IMPLIED
+  ng-pattern        CDATA           #IMPLIED
+  ng-change         CDATA           #IMPLIED
+  ng-trim           (true | false)  "true"
+  ng-focus          CDATA           #IMPLIED
+  ng-blur           CDATA           #IMPLIED
+  ng-copy           CDATA           #IMPLIED
+  ng-cut            CDATA           #IMPLIED
+  ng-paste          CDATA           #IMPLIED
+  ng-model-options  CDATA           #IMPLIED
+  >
+
+<!--
+  The fieldset element is used to group form fields.
+  Only one legend element should occur in the content
+  and if present should only be preceded by whitespace.
+-->
+<!ELEMENT fieldset (#PCDATA | legend | %block; | form | %inline; | %misc;)*>
+<!ATTLIST fieldset
+  %attrs;
+  <!-- HTML 5 attributes -->
+  disabled    CDATA          #IMPLIED
+  form        CDATA          #IMPLIED
+  name        CDATA          #IMPLIED
+  >
+
+<!ENTITY % LAlign "(top|bottom|left|right)">
+
+<!ELEMENT legend %Inline;>     <!-- fieldset label -->
+<!ATTLIST legend
+  %attrs;
+  accesskey   %Character;    #IMPLIED
+  >
+
+<!--
+ Content is %Flow; excluding a, form, form controls, iframe
+--> 
+<!ELEMENT button %button.content;>  <!-- push button -->
+<!ATTLIST button
+  %attrs;
+  %focus;
+  name        CDATA          #IMPLIED
+  value       CDATA          #IMPLIED
+  type        (button|submit|reset) "submit"
+  disabled    (disabled)     #IMPLIED
+  <!-- HTML 5 attributes -->
+  autofocus   CDATA          #IMPLIED
+  form        CDATA          #IMPLIED
+  formaction  %URI;          #IMPLIED
+  formemctype (application/x-www-form-urlencoded | multipart/form-data | text/plain)          #IMPLIED
+  formmethod  (delete | get | post | put)          #IMPLIED
+  formvalidate CDATA          #IMPLIED
+  formtarget  (_blank | _self | _parent | _top)    #IMPLIED
+  >
+
+<!--======================= Tables =======================================-->
+
+<!-- Derived from IETF HTML table standard, see [RFC1942] -->
+
+<!ELEMENT table
+     (caption?, (col*|colgroup*), thead?, tfoot?, (tbody+|tr+))>
+<!ELEMENT caption  %Inline;>
+<!ELEMENT thead    (tr)+>
+<!ELEMENT tfoot    (tr)+>
+<!ELEMENT tbody    (tr)+>
+<!ELEMENT colgroup (col)*>
+<!ELEMENT col      EMPTY>
+<!ELEMENT tr       (th|td)+>
+<!ELEMENT th       %Flow;>
+<!ELEMENT td       %Flow;>
+
+<!ATTLIST table
+  %attrs;
+  summary     %Text;         #IMPLIED
+  >
+
+<!ATTLIST caption
+  %attrs;
+  >
+
+<!--
+colgroup groups a set of col elements. It allows you to group
+several semantically related columns together.
+-->
+<!ATTLIST colgroup
+  %attrs;
+  span        %Number;       "1"
+  >
+
+<!--
+ col elements define the alignment properties for cells in
+ one or more columns.
+
+ The span attribute causes the attributes of one
+ col element to apply to more than one column.
+-->
+<!ATTLIST col
+  %attrs;
+  span        %Number;       "1"
+  >
+
+<!--
+    Use thead to duplicate headers when breaking table
+    across page boundaries, or for static headers when
+    tbody sections are rendered in scrolling panel.
+
+    Use tfoot to duplicate footers when breaking table
+    across page boundaries, or for static footers when
+    tbody sections are rendered in scrolling panel.
+
+    Use multiple tbody sections when rules are needed
+    between groups of table rows.
+-->
+<!ATTLIST thead
+  %attrs;
+  >
+
+<!ATTLIST tfoot
+  %attrs;
+  >
+
+<!ATTLIST tbody
+  %attrs;
+  >
+
+<!ATTLIST tr
+  %attrs;
+  >
+
+<!-- Scope is simpler than headers attribute for common tables -->
+<!ENTITY % Scope "(row|col|rowgroup|colgroup)">
+
+<!-- th is for headers, td for data and for cells acting as both -->
+
+<!ATTLIST th
+  %attrs;
+  colspan     %Number;       "1"
+  headers     IDREFS         #IMPLIED
+  rowspan     %Number;       "1"
+  scope       %Scope;        #IMPLIED
+  >
+
+<!ATTLIST td
+  %attrs;
+  colspan     %Number;       "1"
+  headers     IDREFS         #IMPLIED
+  rowspan     %Number;       "1"
+  >
+
+<!--======================= HTML 5 new elements ===========================-->
+
+<!-- HTML 5 sections -->
+
+<!ELEMENT article (#PCDATA)>
+<!ATTLIST article
+  %attrs;
+  cite      %URI;   #IMPLIED
+  pubdate   %Date;  #IMPLIED
+>
+
+<!ELEMENT aside (#PCDATA)>
+<!ATTLIST aside %attrs;>
+
+<!ELEMENT dialog (#PCDATA)>
+<!ATTLIST dialog %attrs;>
+
+<!ELEMENT figcaption EMPTY>
+<!ATTLIST figcaption %attrs;>
+
+<!ELEMENT figure (#PCDATA | figcaption)>
+<!ATTLIST figure %attrs;>
+
+<!ELEMENT footer (#PCDATA)>
+<!ATTLIST footer %attrs;>
+
+<!ELEMENT header (#PCDATA)>
+<!ATTLIST header %attrs;>
+
+<!ELEMENT hgroup (#PCDATA)>
+<!ATTLIST hgroup %attrs;>
+
+<!ELEMENT main (#PCDATA)>
+<!ATTLIST main %attrs;>
+
+<!ELEMENT nav (#PCDATA)>
+<!ATTLIST nav %attrs;>
+
+<!ELEMENT section (#PCDATA)>
+<!ATTLIST section
+  %attrs;
+  cite      %URI;   #IMPLIED
+>
+
+<!ELEMENT summary (#PCDATA)>
+<!ATTLIST summary %attrs; >
+
+
+<!-- HTML 5 media controls -->
+
+<!ELEMENT audio EMPTY>
+<!ATTLIST audio
+  %attrs;
+  %html5mediaevents;
+  autoplay    CDATA   #IMPLIED
+  controls    CDATA   #IMPLIED
+  preload     CDATA    #IMPLIED
+  src         %URI;        #IMPLIED
+>
+
+<!ELEMENT source EMPTY>
+<!ATTLIST source
+  %attrs;
+  %html5mediaevents;
+  media    CDATA    #IMPLIED
+  src      %URI;    #IMPLIED
+  type     %Number; #IMPLIED
+>
+
+<!ELEMENT video EMPTY>
+<!ATTLIST video
+  %attrs;
+  %html5mediaevents;
+  autoplay    CDATA      #IMPLIED
+  controls    CDATA      #IMPLIED
+  height      %Pixels;   #IMPLIED
+  loop        CDATA      #IMPLIED
+  preload     CDATA      #IMPLIED
+  src         %URI;      #IMPLIED
+  width       %Pixels;   #IMPLIED
+>
+
+<!ELEMENT embed EMPTY>
+<!ATTLIST embed
+  %attrs;
+  %html5mediaevents;
+  height   %Pixels;   #IMPLIED
+  src      %URI;      #IMPLIED
+  type     CDATA      #IMPLIED
+  width    %Pixels;   #IMPLIED
+>
+
+<!ELEMENT canvas EMPTY>
+<!ATTLIST canvas
+  %attrs;
+  height   %Pixels;   #IMPLIED
+  width    %Pixels;   #IMPLIED
+>
+
+
+<!-- HTML 5 form input controls -->
+
+<!ELEMENT datetime (#PCDATA)>
+<!ATTLIST datetime %attrs;>
+
+<!ELEMENT datetime-local (#PCDATA)>
+<!ATTLIST datetime-local %attrs;>
+
+<!ELEMENT date (#PCDATA)>
+<!ATTLIST date %attrs;>
+
+<!ELEMENT month (#PCDATA)>
+<!ATTLIST month %attrs;>
+
+<!ELEMENT week (#PCDATA)>
+<!ATTLIST week %attrs;>
+
+<!ELEMENT time (#PCDATA)>
+<!ATTLIST time
+  %attrs;
+  datetime    %Date;   #IMPLIED
+>
+
+<!ELEMENT number (#PCDATA)>
+<!ATTLIST number %attrs;>
+
+<!ELEMENT range (#PCDATA)>
+<!ATTLIST range %attrs;>
+
+<!ELEMENT email (#PCDATA)>
+<!ATTLIST email %attrs;>
+
+<!ELEMENT url (#PCDATA)>
+<!ATTLIST url %attrs;>
+
+
+<!-- HTML 5 miscellaneous -->
+
+<!ELEMENT keygen EMPTY>
+<!ATTLIST keygen
+  %attrs;
+  autofocus   (disabled)   #IMPLIED
+  challenge   CDATA        #IMPLIED
+  disabled    CDATA        #IMPLIED
+  form        CDATA        #IMPLIED
+  keytype     (rsa)        #IMPLIED
+  name        CDATA        #IMPLIED
+>
+
+<!ELEMENT mark (#PCDATA)>
+<!ATTLIST mark %attrs;>
+
+<!ELEMENT meter EMPTY>
+<!ATTLIST meter
+  %attrs;
+  high     %Number;        #IMPLIED
+  low      %Number;        #IMPLIED
+  max      %Number;        "1"
+  min      %Number;        "0"
+  optimum  %Number;        #IMPLIED
+  value    %Number;        #IMPLIED
+>
+
+<!ELEMENT menu (#PCDATA | command)>
+<!ATTLIST menu
+  %attrs;
+  label       CDATA      #IMPLIED
+  type        (context|toolbar|list)  "list"
+>
+
+<!ELEMENT command EMPTY>
+<!ATTLIST command
+  %attrs;
+  checked     CDATA      #IMPLIED
+  disabled    CDATA      #IMPLIED
+  icon        %URI;      #IMPLIED
+  label       CDATA      #IMPLIED
+  radiogroup  CDATA      #IMPLIED
+  type       (checkbox|command|radio)  "command"
+>
+
+<!ELEMENT datagrid (#PCDATA)>
+<!ATTLIST datagrid %attrs;>
+
+<!ELEMENT datalist (#PCDATA)>
+<!ATTLIST datalist %attrs;>
+
+<!ELEMENT details (#PCDATA)>
+<!ATTLIST details
+  %attrs;
+  open   CDATA   #IMPLIED
+  <!-- Angular directives -->
+  ng-open CDATA  #IMPLIED
+>
+
+<!ELEMENT datatemplate (#PCDATA)>
+<!ATTLIST datatemplate %attrs;>
+
+<!ELEMENT rule (#PCDATA)>
+<!ATTLIST rule %attrs;>
+
+<!ELEMENT nest (#PCDATA)>
+<!ATTLIST nest %attrs;>
+
+<!ELEMENT event-source (#PCDATA)>
+<!ATTLIST event-source %attrs;>
+
+<!ELEMENT output EMPTY>
+<!ATTLIST output
+  %attrs;
+  for    ID      #IMPLIED
+  form   CDATA   #IMPLIED
+  name   CDATA   #IMPLIED
+>
+
+<!ELEMENT progress (#PCDATA)>
+<!ATTLIST progress
+  %attrs;
+  max     %Number;   #IMPLIED
+  value   %Number;   #IMPLIED
+>
+
+<!ELEMENT ruby (rt+|rp+)>
+<!ELEMENT rt (#PCDATA | rp)>
+<!ELEMENT rp (#PCDATA)>
+
+<!ATTLIST ruby %attrs;>
+<!ATTLIST rt %attrs;>
+<!ATTLIST rp %attrs;>
+
+<!--======================== Angular elements =============================-->
+
+<!-- Angular forms can be nested -->
+<!ELEMENT ng-form "(#PCDATA | %block; | ng-form | %inline; | %misc;)*">
+<!ATTLIST ng-form
+  %attrs;
+  action      %URI;          #REQUIRED
+  method      (get|post)     "get"
+  name        NMTOKEN        #IMPLIED
+  enctype     %ContentType;  "application/x-www-form-urlencoded"
+  onsubmit    %Script;       #IMPLIED
+  accept-charset %Charsets;  #IMPLIED
+  target      %FrameTarget;  #IMPLIED
+  <!-- HTML 5 Attributes -->
+  autocomplete (on|off)      #IMPLIED
+  novalidate   CDATA         #IMPLIED
+  <!-- HTML 5 Form Events
+      Applies to all HTML 5 elements, but is most common in form elements:
+   -->
+  oncontextmenu %Script;     #IMPLIED
+  onformchange  %Script;     #IMPLIED
+  onforminput   %Script;     #IMPLIED
+  onforminput   %Script;     #IMPLIED
+  oninput       %Script;     #IMPLIED
+  onforminput   %Script;     #IMPLIED
+  oninvalid     %Script;     #IMPLIED
+  <!-- Angular directives -->
+  ng-submit     CDATA        #IMPLIED
+>
+
+<!ELEMENT ng-pluralize %Inline;>
+<!ATTLIST ng-pluralize
+  count CDATA #REQUIRED
+  when CDATA #REQUIRED
+  offset CDATA #IMPLIED
+>
+
+<!ELEMENT ng-transclude %Inline;>
+<!ATTLIST ng-transclude
+  ng-transclude-slot CDATA #REQUIRED
+>
+
+<!ELEMENT ng-animate-children %Flow;>
+<!ATTLIST ng-animate-children
+  ng-animate-children CDATA #REQUIRED
+>
+
+<!ELEMENT ng-message %Inline;>
+<!ATTLIST ng-message
+  when CDATA #IMPLIED
+  when-exp CDATA #IMPLIED
+>
+
+<!ELEMENT ng-messages-include %Inline;>
+<!ATTLIST ng-messages-include
+  src CDATA #REQUIRED
+>
+
+<!ELEMENT ng-messages "(ng-message | ng-messages-include)*">
+<!ATTLIST ng-messages
+  for CDATA #REQUIRED
+  role CDATA #IMPLIED
+  multiple (true | false) #IMPLIED
+>
+
+<!ELEMENT ng-view %Flow;>
+<!ATTLIST ng-view
+  onload CDATA #IMPLIED
+  autoscroll CDATA #IMPLIED
+>

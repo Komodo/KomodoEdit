@@ -1,0 +1,18 @@
+AngularJS defines custom HTML attributes (called "directives"). In order for
+Komodo's codeintel to pick them up, an XML DTD catalog needs to be defined for
+Angular. Angular does not provide one, so the seemingly easiest way to do this
+was to piggy-back off of the HTML5 DTD and add Angular directives to that.
+
+Those directives can be found here:
+
+    https://docs.angularjs.org/api/ng/directive
+
+All I've done is copied the html5 catalog's files, renamed "html5.dtd" to
+"ng.dtd", modified "catalog.xml" appropriately, and added by hand each directive
+to "ng.dtd". When I say "added by hand", I had to look up each directive, and
+infer based on its documentation which HTML elements it could be added to.
+Obviously you could just add all directives to the "coreattrs" HTML 5 entity and
+call it a day. That is not "code intelligence" though.
+
+Any subsequent updates to Angular will need to be reflected here and done so by
+hand.

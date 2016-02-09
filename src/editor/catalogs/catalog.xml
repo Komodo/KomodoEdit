@@ -49,5 +49,6 @@
     <nextCatalog catalog="docbook44/catalog.xml"/>
 
     <nextCatalog catalog="html5/catalog.xml"/>
+    <nextCatalog catalog="angularjs/catalog.xml"/>
 
 </catalog>

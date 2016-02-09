@@ -1,0 +1,18 @@
+<?xml version='1.0'?>
+<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog" prefer="public">
+
+    <!--<public publicId="-//MOZILLA//DTD XBL V1.0//EN"-->
+    <!--        uri="xbl.dtd"/>-->
+    <!--<system systemId="http://www.mozilla.org/xbl"-->
+    <!--        uri="xbl.dtd"/>-->
+    <!--<uri name="http://www.w3.org/1999/xhtml"-->
+    <!--     uri="sgml-lib/REC-xhtml11-20010531/xhtml11-flat.dtd"/>-->
+
+    <public publicId="-//ANGULARJS//DTD HTML 5 NG//EN"
+            uri="ng.dtd"/>
+    <system systemId="http://www.angularjs.org"
+            uri="ng.dtd"/>
+    <uri name="http://www.angularjs.org"
+         uri="ng.dtd"/>
+
+</catalog>
