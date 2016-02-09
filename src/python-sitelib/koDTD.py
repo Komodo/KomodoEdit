@@ -223,7 +223,7 @@ class dtd_element:
         stream.write("    CHILDREN %r\n" % self.elements)
 
 class dtd_attlist:
-    _attr_line = re.compile('(?P<name>\w+)\s+(?P<type>[A-Za-z]+|\(.*?\))\s+(?P<default>#REQUIRED|#IMPLIED|\w+|(?:#FIXED)?((?:")([^"]*?)(?:")|(?:\')([^\']*?)(?:\')))\s*(?:--(?P<comment>.*?)--)?', re.S|re.U)
+    _attr_line = re.compile('(?P<name>[\w-]+)\s+(?P<type>[A-Za-z]+|\(.*?\))\s+(?P<default>#REQUIRED|#IMPLIED|\w+|(?:#FIXED)?((?:")([^"]*?)(?:")|(?:\')([^\']*?)(?:\')))\s*(?:--(?P<comment>.*?)--)?', re.S|re.U)
     def __init__(self, d, el=None, casename=False):
         self.name = d['name']
         self.data = d
