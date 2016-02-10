@@ -1,5 +1,4 @@
 # Copyright 2016 ActiveState Software Inc. See LICENSE.txt for license details.
-# Requires yuidoc (npm install yuidocjs).
 """
 Pulls the latest Angular.js library from the internet and parses that library's
 documentation into a Komodo API catalog.
