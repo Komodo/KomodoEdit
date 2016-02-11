@@ -1112,7 +1112,7 @@ _Observer.prototype.observe = function(subject, topic, data)
         ko.uilayout.updateTitlebar(ko.views.manager.currentView);
         break;
 	case 'status_message':
-		if (subject instanceof Ci.koINotificationProgress)
+		if (subject instanceof Ci.koINotificationProgress && subject.summary)
 		{
             var progress = (subject.progress / subject.maxProgress) * 100;
             var opts = { id: subject.identifier };
