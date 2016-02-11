@@ -331,6 +331,7 @@ function cloneObject(what) {
  *       existing keybindings to move to the state you're implementing for N+1
  *
  * Version history:
+ * 51: Komodo 10 - remove toggle button text command
  * 50: Komodo 9.3 - Fix key binding conflict between help and un-comment (now Meta+Ctrl+/)
  * 49: Komodo 10.0 - add Ctrl+Shift+D for cmd_removePrevWordInCaretSet
  * 48: Komodo 9.3 - Ctrl+T is now used for new tabs
@@ -382,7 +383,7 @@ function cloneObject(what) {
  * 2: Komodo 4.2.0-beta2 and above
  * 1: Komodo 4.2.0-beta1 and before
  */
-const currentKeybindingVersionNumber = 50;
+const currentKeybindingVersionNumber = 51;
 
 /**
  * Remove this dictionary of keybinds.
@@ -1078,6 +1079,16 @@ this.Manager.prototype._upgradeKeybingings = function (from_version,
             this._add_keybinding_sequences({
                     'cmd_uncomment': ["Meta+Ctrl+/"],
                 });
+            break;
+        case 51:
+// #if PLATFORM != 'darwin'
+            this._remove_keybinding_sequences({
+                'cmd_toggleButtonText':  ["Ctrl+Shift+B"]
+            });
+// #else
+            this._remove_keybinding_sequences({
+                'cmd_toggleButtonText':  ["Meta+Shift+B"]
+            });
 // #endif
             break;
         }

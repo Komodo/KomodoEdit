@@ -1,4 +1,4 @@
-version 50
+version 51
 
 binding cmd_back  Shift+Backspace
 binding cmd_backSmart  Backspace
@@ -165,7 +165,6 @@ binding cmd_startIncrementalSearch Meta+I
 binding cmd_startIncrementalSearchBackwards Meta+Shift+I
 binding cmd_startMacroMode Ctrl+K (
 binding cmd_stopMacroMode Ctrl+K )
-binding cmd_toggleButtonText Meta+Shift+B
 binding cmd_toggleInteractiveShell  Meta+Escape
 binding cmd_toggleOvertype  Insert 
 binding cmd_toolsRunCommand Meta+R

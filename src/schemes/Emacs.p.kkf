@@ -1,4 +1,4 @@
-version 50
+version 51
 
 # Needs a few things to be finished
 #  - ?? insert forward tab / insert backward tab
@@ -72,7 +72,6 @@ binding cmd_paste Ctrl+Y
 binding cmd_pasteAndSelect Ctrl+Shift+V
 binding cmd_tabAwarePaste Alt+Ctrl+V
 #binding cmd_blockSelect Ctrl+B
-binding cmd_toggleButtonText Ctrl+Shift+B
 # Emacs-only keybinding, moves to column zero
 binding cmd_homeAbsolute Ctrl+A
 binding cmd_selectHomeAbsolute Ctrl+Shift+A

@@ -5,19 +5,6 @@
     font-size: 14px;
 }
 
-#toolbox_main, #toolbox_side
-{
-    toolbarbutton
-    {
-        font-size: 16px !important;
-        
-        label.toolbarbutton-text
-        {
-            font-size: inherit;
-        }
-    }
-}
-
 .icon
 {
     background-image: none;
@@ -45,17 +32,6 @@
 {
     padding-left: 0 !important;
     width: 12px !important;
-    
-     & > hbox
-     {
-        .icon();
-        .icon-down-tiny();
-        
-        dropmarker
-        {
-            visibility: collapse;
-        }
-     }
 }
 
 .history-back-icon { .icon(); .icon-arrow-left2(); }
@@ -110,8 +86,8 @@
 .komodo-button-community { .icon(); .icon-users4(); }
 .komodo-button-maillist { .icon(); .icon-envelop(); }
 .komodo-button-bugs { .icon(); .icon-bug(); }
-
-.help-icon > .toolbarbutton-text { .icon(); .icon-question-circle(); }
+.native-print-icon { .icon-printer3(); }
+.help-icon { .icon-question4(); }
 
 .regex-shortcuts-button > .toolbarbutton-text { .icon(); .icon-external-link-square(); }
 .regex-shortcuts-button > .toolbarbutton-icon { display: none; }

@@ -102,13 +102,6 @@
             checked="true"
             autoCheck="false" />
         <broadcaster
-            id="cmd_toggleButtonText" key="key_cmd_toggleButtonText"
-            desc="&userInterfaceShowHideToolbarButtonText.desc;"
-            oncommand="ko.commands.doCommandAsync('cmd_toggleButtonText', event)"
-            persist="checked"
-            checked="false"
-            autoCheck="false" />
-        <broadcaster
             id="cmd_viewedittoolbar" key="key_cmd_viewedittoolbar"
             desc="&userInterfaceShowHideStandardToolbar.desc;"
             autoCheck="false"

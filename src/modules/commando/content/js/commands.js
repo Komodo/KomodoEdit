@@ -31,11 +31,6 @@
             document.getElementById('commando-search-quick').dispatchEvent(new CustomEvent('click'));
         },
         
-        do_cmd_viewgotoanything: function()
-        {
-            ko.uilayout.toggleToolbarVisibility('quickCommando');
-        },
-        
         /**
          * Check whether command is supported
          *

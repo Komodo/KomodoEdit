@@ -309,7 +309,7 @@ this.addToolbarFromPart = function peMenu_addToolbarFromPart(part) {
 
         var toolbox = document.getElementById('second-toolboxrow');
         
-        if (toolbox.firstChild.getElementsByAttribute('id', id).length >= 1) {
+        if (toolbox.getElementsByAttribute('id', id).length >= 1) {
             // dump("peMenu.js -- Already have toolbox " + part.name + "\n");
             return;
         }
@@ -327,21 +327,22 @@ this.addToolbarFromPart = function peMenu_addToolbarFromPart(part) {
         toolbar.setAttribute('buttonstyle', "pictures");
         toolbar.setAttribute('grippyhidden', "true");
         toolbar.setAttribute('customizable', "true");
-        toolbar.setAttribute('toolboxid', "toolbox_main");
         toolbar.setAttribute('tooltiptext', part.name);
         toolbar.setAttribute('broadcaster', cmd_id);
         if (! visible) {
             toolbar.setAttribute('kohidden', 'true');
         }
         toolbar.setAttribute('mode', toolbox.getAttribute('mode'));
+        toolbar.setAttribute('_mode', toolbox.getAttribute('_mode'));
         var ordinal = base_ordinal + part.getLongAttribute('priority');
         toolbar.ordinal = ordinal;
         
         // Append toolbaritem wrapper to which all children are appended
         // The toolbaritem wrapper is used primarily for styling
         var toolbaritem = document.createElement('toolbaritem');
-        toolbaritem.appendChild(toolbar);
-        toolbox.insertBefore(toolbaritem, toolbox.firstChild);
+        toolbaritem.classList.add("custom-toolbar");
+        toolbar.appendChild(toolbaritem);
+        toolbox.insertBefore(toolbar, toolbox.firstChild);
 
         _fillToolbarFromPart(toolbar, part);
 
@@ -373,17 +374,6 @@ this.addToolbarFromPart = function peMenu_addToolbarFromPart(part) {
         //          checked="true"
         //          type="checkbox"
         //          />
-        var menuitem = document.createElement('menuitem');
-        menuitem.setAttribute('id', 'menu_custom_toolbar_'+id);
-        menuitem.setAttribute('label', part.name);
-        menuitem.setAttribute('type', 'checkbox');
-        menuitem.setAttribute('persist', 'checkbox');
-        if (visible) {
-            menuitem.setAttribute('checked', 'true');
-        }
-        menuitem.setAttribute('observes', cmd_id);
-        menuitem.ordinal = ordinal;
-        menu.insertBefore(menuitem, separator.nextSibling);
         
         ko.uilayout._updateToolbarViewStates();
 
@@ -406,8 +396,6 @@ this.onToolboxLoaded = function(toolboxDir) {
     tools.map(function(part) {
             this_.addToolbarFromPart(part);
         });
-    // Bug 100445: update any views on custom toolbars
-    ko.uilayout.updateToolbarArrangement();
 }
 
 this.onToolboxUnloaded = function(toolboxDir) {
@@ -498,9 +486,6 @@ function _createToolbaritemFromPart(toolbar, part)
   try {
     var button, name;
     button = document.createElement('toolbarbutton');
-    if (!ko.uilayout.isButtonTextShowing()) {
-        button.setAttribute('buttonstyle', 'pictures');
-    }
 
     name = part.name;
     switch (part.type) {

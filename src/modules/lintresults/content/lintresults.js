@@ -117,6 +117,9 @@
         var view = views.current();
         var res = view.get("lintBuffer", "lintResults");
         
+        if ( ! res)
+            return items;
+        
         var results = {}, numResults = {};
         res.getResults(results, numResults);
         

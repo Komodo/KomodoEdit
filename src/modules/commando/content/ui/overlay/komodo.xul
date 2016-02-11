@@ -139,17 +139,6 @@
         </panel>
     </popupset>
     
-    <menupopup id="popup_toolbars">
-        <menuitem label="&gotoAnythingToolbar.label;"
-                  id="menu_viewgotoanything"
-                  observes="cmd_viewgotoanything"
-                  persist="checked"
-                  checked="false"
-                  type="checkbox"
-                  insertafter="menu_viewfindtoolbar"
-                  />
-    </menupopup>
-    
     <broadcasterset id="broadcasterset_global">
 
         <broadcaster
@@ -165,14 +154,6 @@
             key="key_cmd_focusQuickCommando"
             desc="&focusQuickCommando.desc;"
             autoCheck="false"/>
-        
-        <broadcaster
-            id="cmd_viewgotoanything" key="key_cmd_viewgotoanything"
-            desc="&showHideGotoAnythingToolbar.desc;"
-            autoCheck="false"
-            checked="false"
-            persist="checked"
-            oncommand="ko.commands.doCommandAsync('cmd_viewgotoanything', event)"/>
 
     </broadcasterset>
 

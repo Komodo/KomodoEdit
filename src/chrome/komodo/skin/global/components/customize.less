@@ -47,33 +47,40 @@ ko-pane[ko-pane-drag-status="dragover"] .pane-drop-feedback
     border: 2px dashed @special;
 }
 
-#dialog-customize-toolbar
+:root[customizing="true"]
 {
-    #main-toolbar, #second-toolbar
+    #main-toolboxrow,
+    #middle-toolboxrow,
+    #second-toolboxrow,
+    #toolbox_side
     {
-        max-height: 50vh;
+        opacity: 0.2;
+    }
+}
+
+#window-customize-toolbar
+{
+    caption
+    {
+        margin-top: 10px;
     }
     
     .wrapper
     {
-        max-height: 600px;
+        padding: 10px;
     }
     
-    richlistbox
+    .list-box
     {
-        margin-bottom: 10px;
+        display: block;
         border-radius: 3px;
+        background: @special;
         
-        .scrollbox-innerbox
+        .list-item
         {
-            background: @special;
+            margin: 3px;
+            padding: 2px;
             border-radius: 3px;
-        }
-        
-        richlistitem
-        {
-            border-radius: 3px;
-            margin: 5px;
             background: @button-special;
             color: @button-foreground-special;
             -moz-box-align: center;
@@ -88,13 +95,15 @@ ko-pane[ko-pane-drag-status="dragover"] .pane-drop-feedback
             {
                 -moz-box-flex: 1;
                 border-right: 1px solid @special;
+                height: 45px;
+                margin: 0 3px;
             }
             
             & > button
             {
                 text-align: center;
                 background: transparent;
-                margin: 0 2px;
+                margin: 0 3px 0 0;
                 min-width: 0;
                 padding: 5px;
                 border-radius: 3px;
@@ -109,7 +118,14 @@ ko-pane[ko-pane-drag-status="dragover"] .pane-drop-feedback
                 
                 &.toggle
                 {
-                    .icon-eye();
+                    height: 45px;
+                    -moz-box-align: center;
+                    
+                    & > .box-inherit
+                    {
+                        .icon();
+                        .icon-eye();
+                    }
                 }
                 
                 &:hover
@@ -118,7 +134,12 @@ ko-pane[ko-pane-drag-status="dragover"] .pane-drop-feedback
                 }
             }
             
-            &[ishidden="true"] > button.toggle
+            & > button:last-child
+            {
+                margin: 0;
+            }
+            
+            &[ishidden="true"] > button.toggle > .box-inherit
             {
                 .icon-eye-slash();
             }
@@ -187,6 +208,21 @@ ko-pane[ko-pane-drag-status="dragover"] .pane-drop-feedback
                     }
                 }
             }
+        }
+    }
+    
+    .row
+    {
+        & > *
+        {
+            margin: 0;
+            margin-right: 10px;
+            margin-bottom: 5px;
+        }
+        
+        &, hbox
+        {
+            -moz-box-align: center;
         }
     }
 }

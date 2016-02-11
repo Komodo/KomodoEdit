@@ -1,4 +1,4 @@
-version 50
+version 51
 
 # Movement and selection
 binding cmd_left  Left
@@ -184,8 +184,6 @@ binding cmd_viewPlaces Ctrl+Shift+P
 binding cmd_viewToolbox Ctrl+Shift+L
 
 binding cmd_reopenLastClosedTab Ctrl+Shift+T
-
-binding cmd_toggleButtonText Ctrl+Shift+B
 
 # Zoom
 binding cmd_fontZoomIn Ctrl++

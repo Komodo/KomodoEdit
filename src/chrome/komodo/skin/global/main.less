@@ -50,6 +50,53 @@
     }
 }
 
+#toolbox_main, #toolbox_side
+{
+    toolbarbutton
+    {
+        font-size: 16px !important;
+        
+        dropmarker
+        {
+            font-size: 16px;
+        }
+        
+        label.toolbarbutton-text
+        {
+            font-size: 0.9rem;
+        }
+    }
+    
+    /* Because we are using toolbaritem > toolbarbutton the text mode is bugged
+       and we have to work around the issue */
+    toolbar[_mode="text"]
+    {
+        toolbarbutton
+        {
+            min-height: 20px;
+        }
+        
+        toolbarbutton:before, toolbarbutton > .toolbarbutton-icon:before
+        {
+            visibility: hidden;
+            font-size: 0.001px;
+            width: 0;
+            height: 0;
+            max-width: 0;
+            max-height: 0;
+            overflow: hidden;
+        }
+    }
+    
+    toolbar[_mode="full"]
+    {
+        label.toolbarbutton-text
+        {
+            margin-left: 4px;
+        }
+    }
+}
+
 #main-toolboxrow,
 #second-toolboxrow
 {
@@ -124,6 +171,21 @@
         -moz-box-orient: vertical;
     }
     
+    toolbar[_mode="text"] toolbaritem
+    {
+        & > toolbarbutton
+        {
+            padding: 2px;
+            width: 50px;
+            min-width: 50px;
+        }
+        
+        toolbarbutton:before, toolbarbutton > .toolbarbutton-icon:before
+        {
+            position: absolute;
+        }
+    }
+    
     toolbaritem
     {
         -moz-box-orient: vertical;
@@ -132,6 +194,17 @@
         & > toolbarbutton
         {
             margin: 5px 0;
+            
+            .toolbarbutton-text
+            {
+                font-size: 0.7rem;
+            }
+            
+            &:hover
+            {
+                background: @background;
+                border-radius: 3px;
+            }
         }
     }
     
@@ -139,6 +212,14 @@
     {
         width: 12px;
         margin-right: -12px;
+    }
+    
+    toolbar[_mode="text"]
+    {
+        toolbaritem > toolbarbutton dropmarker.toolbarbutton-menubutton-dropmarker
+        {
+            margin-right: 0;
+        }
     }
     
     #side-top-toolbar toolbarbutton[disabled="true"]
@@ -170,6 +251,14 @@
         text-align: center;
         font-size: 10px;
         font-weight: bold;
+    }
+    
+    toolbar[_mode="text"]
+    {
+        .dynamic-button label.toolbarbutton-counter
+        {
+            margin-left: 0;
+        }
     }
     
     .dynamic-button.error label.toolbarbutton-counter { background: @state-error; }

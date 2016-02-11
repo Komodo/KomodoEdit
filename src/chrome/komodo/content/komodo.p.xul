@@ -1163,13 +1163,6 @@
                             </menu>
                             <menu id="menu_toolbars" label="&toolbars.label;">
                                 <menupopup id="popup_toolbars">
-<!-- #if PLATFORM != "darwin" -->
-                                    <menuitem label="&showMenubar.label;"
-                                              id="menu_toggleMenubar"
-                                              command="cmd_toggleMenubar"
-                                              type="checkbox"
-                                              />
-<!-- #endif -->
                                     <menuitem label="&showToolbars.label;"
                                               id="menu_toggleToolbars"
                                               observes="cmd_toggleToolbars"
@@ -1177,76 +1170,21 @@
                                               persist="checked"
                                               type="checkbox"
                                               />
-                                    <menuitem label="&showButtonText.label;"
-                                              id="menu_toggleButtonText"
-                                              observes="cmd_toggleButtonText"
-                                              checked="true"
-                                              persist="checked"
+<!-- #if PLATFORM != "darwin" -->
+                                    <menuitem label="&showMenubar.label;"
+                                              id="menu_toggleMenubar"
+                                              command="cmd_toggleMenubar"
                                               type="checkbox"
                                               />
+<!-- #endif -->
+                                    <menuseparator id="popup_toolbars_custom_separator"
+                                                   collapsed="true"/>
+                                    <menuseparator ordinal="9991"/>
                                     <menuitem id="menu_customizeToolbars"
                                               command="cmd_CustomizeToolbars"
                                               label="&customizeToolbars.menu.label;"
-                                              accesskey="&customizeToolbars.menu.accesskey;"/>
-
-                                    <menuseparator id="popup_toolbars_category_separator"/>
-
-                                    <menuitem label="&standard.label;"
-                                              id="menu_viewedittoolbar"
-                                              observes="cmd_viewedittoolbar"
-                                              persist="checked"
-                                              checked="true"
-                                              type="checkbox"
-                                              />
-                                    <menuitem id="menu_viewtoolstoolbar"
-                                              label="&tools.label;"
-                                              observes="cmd_viewtoolstoolbar"
-                                              persist="checked"
-                                              checked="true"
-                                              type="checkbox"
-                                              />
-                                    <menuitem id="menu_viewworkspacetoolbar"
-                                              label="&workspace.label;"
-                                              observes="cmd_viewworkspacetoolbar"
-                                              persist="checked"
-                                              checked="true"
-                                              type="checkbox"
-                                              />
-                                    <menuitem label="&macro.label;"
-                                              id="menu_viewmacrotoolbar"
-                                              observes="cmd_viewmacrotoolbar"
-                                              persist="checked"
-                                              checked="false"
-                                              type="checkbox"
-                                              />
-                                    <menuitem label="&komodoResources.label;"
-                                              id="menu_viewkomodotoolbar"
-                                              observes="cmd_viewkomodotoolbar"
-                                              persist="checked"
-                                              checked="false"
-                                              type="checkbox"
-                                              />
-                                    <menuitem label="&findInFilesToolbar.label;"
-                                              id="menu_viewfindtoolbar"
-                                              observes="cmd_viewfindtoolbar"
-                                              persist="checked"
-                                              checked="true"
-                                              type="checkbox"
-                                              />
-                                    <menuseparator id="popup_toolbars_custom_separator"
-                                                   collapsed="true"/>
-                                    <!-- #if PLATFORM != "darwin" -->
-                                        <menuseparator id="popup_toolbars_fullscreen_separator"
-                                                       fullscreencontrol="true"
-                                                       ordinal="1073741824"/>
-                                        <menuitem id="menu_toolbars_fullscreen_autohide"
-                                                  fullscreencontrol="true"
-                                                  label="&menuViewToolbarsAutoHide.label;"
-                                                  type="checkbox"
-                                                  persist="checked"
-                                                  ordinal="1073741824"
-                                                  oncommand="ko.uilayout.toggleFullScreenToolboxAutoHide();"/>
-                                    <!-- #endif -->
+                                              accesskey="&customizeToolbars.menu.accesskey;"
+                                              ordinal="9993"/>
                                 </menupopup>
                             </menu>
                             <menuitem id="menu_previewInBrowser"
@@ -1780,7 +1718,7 @@
                     broadcaster="cmd_viewedittoolbar"
                     tooltiptext="&standardToolbar.tooltiptext;">
 
-                    <toolbaritem>
+                    <toolbaritem id="standard-toolbaritem1" persist="kohidden">
 
                         <toolbarbutton id="historyBackButton"
                                 tooltiptext="&historyBack.tooltiptext;"
@@ -1822,7 +1760,7 @@
 
                     </toolbaritem>
 
-                    <toolbaritem>
+                    <toolbaritem id="standard-toolbaritem2" persist="kohidden">
 
                         <toolbarbutton id="newTabButton"
                                 kohidden="true" 
@@ -1864,7 +1802,7 @@
                                 label="&saveAll.label;"/>
 
                     </toolbaritem>
-                    <toolbaritem>
+                    <toolbaritem id="standard-toolbaritem3" persist="kohidden">
 
                         <toolbarbutton id="cutButton"
                                 tooltiptext="&cut.tooltiptext;"
@@ -1892,7 +1830,7 @@
                                 label="&paste.label;"/>
 
                     </toolbaritem>
-                    <toolbaritem>
+                    <toolbaritem id="standard-toolbaritem4" persist="kohidden">
 
                         <toolbarbutton id="printButton"
                                 tooltiptext="&print.tooltiptext;"
@@ -1915,13 +1853,11 @@
                 </toolbar>
             </toolboxrow>
             
-            <toolboxrow id="middle-toolboxrow" pack="center" persist="hidden mode collapsed" mode="icons">
+            <toolboxrow id="middle-toolboxrow" pack="center" persist="kohidden mode collapsed" mode="icons">
                 <toolbar id="notification-widget"
                          align="end"
                          valign="middle"
                          kohidden="false"
-                         persist="kohidden"
-                         broadcaster="cmd_viewgotoanything"
                          insertafter="main-toolboxrow"
                         >
                         
@@ -1934,20 +1870,19 @@
                 </toolbar>
             </toolboxrow>
             
-            <toolboxrow id="second-toolboxrow" flex="1" pack="end" persist="hidden mode collapsed" mode="icons">
+            <toolboxrow id="second-toolboxrow" flex="3" pack="end" persist="hidden mode collapsed" mode="icons">
                 <toolbar class="chromeclass-toolbar"
                          id="macrosToolbar"
                          toolboxid="toolbox_main"
-                         broadcaster="cmd_viewmacrotoolbar"
                          grippyhidden="true"
-                         customizable="true"
                          align="center"
                          mode="icons"
-                         persist="kohidden collapsed buttonstyle mode"
+                         ordinal="1000"
+                         persist="buttonstyle mode"
                          buttonstyle="pictures"
                          tooltiptext="&macroToolbar.tooltiptext;">
 
-                    <toolbaritem>
+                    <toolbaritem id="macro-toolbaritem1" persist="kohidden">
 
                         <toolbarbutton id="macroNew"
                                 label="&macroNew.toolbar.label;"
@@ -2001,16 +1936,15 @@
                 <toolbar class="chromeclass-toolbar"
                          id="workspaceToolbar"
                          toolboxid="toolbox_main"
-                         broadcaster="cmd_viewworkspacetoolbar"
                          grippyhidden="true"
-                         customizable="true"
                          align="center"
+                         ordinal="2000"
                          mode="icons"
-                         persist="kohidden collapsed buttonstyle mode"
+                         persist="buttonstyle mode"
                          buttonstyle="pictures"
                          tooltiptext="&workspaceToolbar.tooltiptext;">
 
-                    <toolbaritem>
+                    <toolbaritem id="workspace-toolbaritem1" persist="kohidden">
 
                         <toolbarbutton id="toggleLeftPane"
                             tooltiptext="&showHideLeftPane.tooltiptext;"
@@ -2051,26 +1985,26 @@
                     </toolbaritem>
                 </toolbar>
                 
-                <toolbarbutton id="unifiedMenuButton"
-                    tooltiptext="&menu.tooltiptext;"
-                    type="menu"
-                    orient="horizontal"
-                    class="menu-icon"
-                    buttonstyle="pictures"
-                    collapsed="true"
-                >
-                    <menupopup id="unifiedMenuPopup" position="after_end">
-                        <hbox id="unifiedMenuPopupHbox">
-                            <vbox id="unifiedMenuPrimaryPane"/>
-                            <vbox id="unifiedMenuSecondaryPane">
-                                <menuseparator id="unifiedMenuMruSeparator" ordinal="9999" preserve="true"/>
-                                <vbox id="unifiedMenuMru" preserve="true" ordinal="9999"></vbox>
-                            </vbox>
-                        </hbox>
-                    </menupopup>
-                </toolbarbutton>
-                
             </toolboxrow>
+            
+            <toolbarbutton id="unifiedMenuButton"
+                tooltiptext="&menu.tooltiptext;"
+                type="menu"
+                orient="horizontal"
+                class="menu-icon"
+                buttonstyle="pictures"
+                collapsed="true"
+            >
+                <menupopup id="unifiedMenuPopup" position="after_end">
+                    <hbox id="unifiedMenuPopupHbox">
+                        <vbox id="unifiedMenuPrimaryPane"/>
+                        <vbox id="unifiedMenuSecondaryPane">
+                            <menuseparator id="unifiedMenuMruSeparator" ordinal="9999" preserve="true"/>
+                            <vbox id="unifiedMenuMru" preserve="true" ordinal="9999"></vbox>
+                        </vbox>
+                    </hbox>
+                </menupopup>
+            </toolbarbutton>
             
             <!-- #if PLATFORM != "darwin" -->
             <hbox id="windowButtons" align="center" pack="right">
@@ -2110,15 +2044,13 @@
                          id="side-top-toolbar"
                          flex="1"
                          toolboxid="toolbox_side"
-                         broadcaster="cmd_viewtoolstoolbar"
                          grippyhidden="true"
-                         customizable="true"
                          align="center"
                          pack="start"
                          mode="icons"
-                         persist="kohidden collapsed buttonstyle mode"
+                         persist="buttonstyle mode"
                          buttonstyle="pictures">
-                    <toolbaritem id="toolsPreviewGroup">
+                    <toolbaritem id="toolsPreviewGroup" persist="kohidden">
                         <toolbarbutton id="buttonBrowserPreview"
                                        tooltiptext="&previewBufferInBrowser.tooltiptext;"
                                        type="menu-button"
@@ -2135,15 +2067,13 @@
                          id="side-bottom-toolbar"
                          flex="1"
                          toolboxid="toolbox_side"
-                         broadcaster="cmd_viewtoolstoolbar"
                          grippyhidden="true"
-                         customizable="true"
                          align="center"
                          pack="end"
                          mode="icons"
-                         persist="kohidden collapsed buttonstyle mode"
+                         persist="buttonstyle mode"
                          buttonstyle="pictures">
-                    <toolbaritem id="toolsToolbarGroup">
+                    <toolbaritem id="toolsToolbarGroup" persist="kohidden">
         <!-- #if WITH_RX -->
                         <toolbarbutton id="buttonRxToolkit"
                                        class="rx-icon"
@@ -2190,9 +2120,12 @@
                             <!-- This box is used in the widget/pane customization mode
                                - (hiding the main text editing area).
                                -->
-                            <description>&pane.customize.placeholder.label;</description>
-                            <button label="&pane.customize.done.label;"
-                                    oncommand="ko.uilayout._customizeComplete(true);"/>
+                            <browser src="chrome://komodo/content/dialogs/customizeToolbar.xul" flex="1" style="width: 100vw"/>
+                            <hbox pack="center">
+                                <description>&pane.customize.placeholder.label;</description>
+                                <button label="&pane.customize.done.label;"
+                                        oncommand="ko.uilayout._customizeComplete(true);"/>
+                            </hbox>
                         </vbox>
                     </deck>
                     

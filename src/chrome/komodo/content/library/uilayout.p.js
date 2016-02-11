@@ -114,43 +114,25 @@ this.toggleToolbarVisibility = function uilayout_toggleToolbarVisibility(toolbar
     this._updateToolbarViewStates();
 }
 
-// 'toolbarId' is the id of the toolbar that should be affected
-// 'show' is a boolean -- true means show the text.
-function _setToolbarButtonText(toolbarId, buttonTextShowing)
-{
-    var toolbar = document.getElementById(toolbarId);
-    if (!toolbar) {
-        _log.error("Could not find toolbar with id: " + toolbarId);
-        return;
-    }
-    try {
-        toolbar.setAttribute('mode', buttonTextShowing ? 'full' : 'icons');
-    } catch(e) {
-        _log.error(e);
-    }
-}
-
 // Toggle all toolbars
-this.toggleToolbars = function uilayout_toggleToolbars()
+this.toggleToolbars = function uilayout_toggleToolbars(toolboxId = "main-toolboxrow-wrapper")
 {
-    var toolbarsShowing;
-    var broadcaster = document.getElementById('cmd_toggleToolbars');
-    if (broadcaster.hasAttribute('checked') && broadcaster.getAttribute('checked') == 'true') {
-        toolbarsShowing = false;
-    } else {
-        toolbarsShowing = true;
-    }
-
-    this.setToolbarsVisibility(toolbarsShowing);
+    var toolboxrow = document.getElementById(toolboxId);
+    var showToolbars = toolboxrow.getAttribute("collapsed") == "true";
+    
+    this.setToolbarsVisibility(showToolbars);
 }
 
-this.setToolbarsVisibility = function uilayout_setToolbarsVisibility(toolbarsShowing)
+this.setToolbarsVisibility = function uilayout_setToolbarsVisibility(showToolbars, toolboxId = "main-toolboxrow-wrapper")
 {
-    var broadcaster = document.getElementById('cmd_toggleToolbars');
-    broadcaster.setAttribute("checked", toolbarsShowing);
+    if (toolboxId == "main-toolboxrow-wrapper")
+    {
+        var broadcaster = document.getElementById('cmd_toggleToolbars');
+        broadcaster.setAttribute("checked", showToolbars);
+    }
 
-    var toolboxrow = document.getElementById('main-toolboxrow-wrapper');
-    if (toolbarsShowing)
+    var toolboxrow = document.getElementById(toolboxId);
+    if (showToolbars)
     {
         toolboxrow.removeAttribute('collapsed');
     }
@@ -159,38 +141,16 @@ this.setToolbarsVisibility = function uilayout_setToolbarsVisibility(toolbarsSho
         toolboxrow.setAttribute('collapsed', 'true');
     }
 
-    document.persist('cmd_toggleToolbars', 'checked');
+    if (toolboxId == "main-toolboxrow-wrapper")
+    {
+        document.documentElement.setAttribute("show-toolbar", showToolbars ? "true" : "false");
+        document.persist('komodo_main', 'show-toolbar');
+        document.persist('cmd_toggleToolbars', 'checked');
+    }
 
 // #if PLATFORM != "darwin"
-        ko.uilayout.ensureMenuButtonVisible();
         ko.uilayout.updateToolboxVisibility();
 // #endif
-}
-
-var _buttonTextShowing = false;
-this.isButtonTextShowing = function() {
-    return _buttonTextShowing;
-}
-
-// Toggle whether text is shown on toolbar buttons
-this.toggleButtons = function uilayout_toggleButtons()
-{
-    var buttonTextShowing;
-    var broadcaster = document.getElementById('cmd_toggleButtonText');
-    if (broadcaster.hasAttribute('checked') && broadcaster.getAttribute('checked') == 'true') {
-        broadcaster.setAttribute("checked", "false");
-        buttonTextShowing = false;
-    } else {
-        broadcaster.setAttribute("checked", "true");
-        buttonTextShowing = true;
-    }
-    _buttonTextShowing = buttonTextShowing;
-    _setToolbarButtonText('toolbox_main', buttonTextShowing);
-    _setToolbarButtonText('standardToolbar', buttonTextShowing);
-    _setToolbarButtonText('debuggerToolbar', buttonTextShowing);
-    _setToolbarButtonText('workspaceToolbar', buttonTextShowing);
-    ko.uilayout.updateToolbarArrangement(buttonTextShowing);
-    document.persist('cmd_toggleButtonText', 'checked');
 }
 
 // #if PLATFORM != "darwin"
@@ -273,38 +233,8 @@ this.setMenubarVisibility = function uilayout_setMenubarVisibility(menubarShowin
         UpdateUnifiedMenuMru();
     }
 
-	ko.uilayout.ensureMenuButtonVisible();
     ko.uilayout.updateToolboxVisibility();
 };
-
-this.ensureMenuButtonVisible = function uilayout_ensureMenuButtonVisible()
-{
-	var broadcaster = document.getElementById('cmd_toggleMenubar');
-	var menubarShowing = (broadcaster.getAttribute('checked') == 'true');
-
-    broadcaster = document.getElementById('cmd_toggleToolbars');
-	var toolbarShowing = (broadcaster.getAttribute('checked') == 'true');
-
-	var menuButton = document.getElementById('unifiedMenuButton');
-
-	if ( ! toolbarShowing && ! menubarShowing)
-	{
-		var statusbar = document.getElementById("statusbarviewbox");
-		var panel = document.createElement("statusbarpanel");
-		panel.setAttribute("id", "menubuttonpanel");
-		panel.appendChild(menuButton);
-		statusbar.insertBefore(panel, statusbar.firstChild);
-	}
-	else if ( ! menubarShowing && menuButton.parentNode.nodeName == "statusbarpanel")
-	{
-		var toolboxWrap = document.getElementById("main-toolboxrow-wrapper");
-		toolboxWrap.appendChild(menuButton);
-
-		var statusbar = document.getElementById("statusbarviewbox");
-		var panel = document.getElementById("menubuttonpanel");
-		statusbar.removeChild(panel);
-	}
-}
 
 this.updateToolboxVisibility = function uilayout_updateToolboxVisibility()
 {
@@ -327,89 +257,15 @@ this.updateToolboxVisibility = function uilayout_updateToolboxVisibility()
 
 // #endif
 
-this.updateToolbarArrangement = function uilayout_updateToolbarArrangement(buttonTextShowing /* default: look it up */)
-{
-    var menuItem = document.getElementById('menu_toggleButtonText');
-    var fromloading = false;
-    var contextMenuItem = document.getElementById('menu_toggleButtonText');
-    if (typeof(buttonTextShowing) == 'undefined') {
-        var broadcaster = document.getElementById('cmd_toggleButtonText');
-        buttonTextShowing = broadcaster.hasAttribute('checked') &&
-                            broadcaster.getAttribute('checked') == 'true';
-        fromloading = true;
-    }
-    _buttonTextShowing = buttonTextShowing;
-    var toolbars = document.getElementById('main-toolboxrow-wrapper').querySelectorAll('toolbar');
-    var i;
-    for (i = 0; i < toolbars.length; i++ ) {
-        // Note: this can include custom toolbars
-        _setToolbarButtonText(toolbars[i].id, buttonTextShowing);
-    }
-}
 
 /**
  * Start toolbar customization
  *
  * @param   {<toolbox>} aToolbox [optional] The toolbox to customize
  */
-this.customizeToolbars = function uilayout_customizeToolbars(aToolbox) {
-    var toolbox = aToolbox;
-    if (!(toolbox instanceof Element)) {
-        toolbox = document.getElementById(aToolbox);
-    }
-    if (!toolbox) {
-        _log.error("ko.uilayout.customizeToolbars: can't find toolbox " + aToolbox);
-    }
 
-    /**
-     * Update the UI to sync with the customization changes
-     */
-    var syncUIWithReality = (function syncUIWithReality() {
-        var toolbars = Array.slice(toolbox.childNodes).concat(toolbox.externalToolbars);
-
-        // Update hidden / visible state of toolbar items
-        // and set relevant ancestry classes
-        this._updateToolbarViewStates(toolbox);
-
-        // Hide separators if all elements before or after it in the toolbar
-        // are hidden
-        this._updateToolbarSeparators(toolbox);
-
-        // Update the menu states
-        for each (var toolbar in toolbars) {
-            var broadcasterId = toolbar.getAttribute("broadcaster");
-            if (broadcasterId) {
-                var broadcaster = document.getElementById(broadcasterId);
-                if (broadcaster) {
-                    if (toolbar.getAttribute("kohidden") == "true") {
-                        broadcaster.removeAttribute("checked");
-                    } else {
-                        broadcaster.setAttribute("checked", "true");
-                    }
-                }
-            }
-        }
-
-        // make the overflow button rebuild the next time it's open
-        var toolboxRow = document.getElementById("main-toolboxrow");
-        if (toolboxRow) toolboxRow.dirty = true;
-        
-        toolboxRow = document.getElementById("second-toolboxrow");
-        if (toolboxRow) toolboxRow.dirty = true;
-    }).bind(this);
-
-    const DIALOG_URL = "chrome://komodo/content/dialogs/customizeToolbar.xul?v2";
-    var dialog = null;
-    dialog = window.openDialog(DIALOG_URL,
-                               "",
-                               "chrome,dependent,centerscreen",
-                               toolbox,
-                               syncUIWithReality);
-
-    if (dialog && !dialog.closed) {
-        dialog.addEventListener("customize", syncUIWithReality, false);
-    }
-    return dialog;
+this.customizeToolbars = function uilayout_customizeToolbars() {
+    this.customize();
 };
 
 /**
@@ -490,10 +346,13 @@ this._updateToolbarViewStates = (function uilayout__updateToolbarViewStates(tool
         }
 
         children = Array.slice(toolbarItem.querySelectorAll(":not([kohidden='true']):not(toolbarseparator):not(spacer)"));
-        children = children.filter(function(child) child.parentNode === toolbarItem && child.parentNode.parentNode.getAttribute("kohidden") !== "true");
+        children = children.filter(function(child) {
+            return child.parentNode === toolbarItem &&
+                    child.parentNode.parentNode.getAttribute("kohidden") !== "true";
+        });
 
         if (children.length > 0) {
-            toolbarItem.removeAttribute("kohidden");
+            toolbarItem.removeAttribute("collapsed");
             toolbarItem.classList.remove('no-children');
             toolbarItem.classList.add('has-children');
             children[0].classList.add("first-child");
@@ -508,7 +367,7 @@ this._updateToolbarViewStates = (function uilayout__updateToolbarViewStates(tool
 
             var previousLastChild = toolbar;
         } else {
-            toolbarItem.setAttribute("kohidden", "true");
+            toolbarItem.setAttribute("collapsed", "true");
             toolbarItem.classList.add('no-children');
             toolbarItem.classList.remove('has-children');
         }
@@ -1798,7 +1657,6 @@ this.onload = function uilayout_onload()
         _gPrefs.setLong("uilayout_version", uilayout_version);
     }
 
-    ko.uilayout.updateToolbarArrangement();
     _gNeedToUpdateFileMRUMenu = true;
     _gNeedToUpdateProjectMRUMenu = true;
     _gNeedToUpdateTemplateMRUMenu = true;

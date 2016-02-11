@@ -10,9 +10,8 @@
 <!-- Dialog for customizing the main window toolbar -->
 
 <?xml-stylesheet href="less://komodo/skin/global/global.less" type="text/css"?>
-<?xml-stylesheet href="chrome://komodo/skin/dialogs/customizeToolbar.css" type="text/css"?>
 
-<dialog id="dialog-customize-toolbar"
+<window id="window-customize-toolbar"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml"
         title="&customizeToolbar.title;"
@@ -22,11 +21,56 @@
         buttonlabelextra1="&customizeToolbar.extra1.label;"
         ondialogaccept="onConfirmDialog();">
 
-    <vbox class="wrapper" flex="1">
-        <richlistbox id="main-toolbar"></richlistbox>
-        <richlistbox id="second-toolbar"></richlistbox>
+    <vbox class="wrapper autoscroll" flex="1">
+        <caption label="Main Toolbar - Left"/>
+        <hbox id="main-toolbar" class="list-box"></hbox>
+        
+        <caption label="Main Toolbar - Right"/>
+        <hbox id="second-toolbar" class="list-box"></hbox>
+        
+        <groupbox>
+            <caption label="Options"/>
+            <hbox class="row">
+                <checkbox id="show-chrome"
+                          label="Show Platform Window Decorations"/>
+                <checkbox id="show-menubar"
+                          label="Show Menu Bar"/>
+                <checkbox id="show-tabs"
+                          label="Show Editor Tabs"/>
+            </hbox>
+            <hbox class="row">
+                <checkbox id="show-toolbar"
+                          label="Show Main Toolbar"/>
+                <checkbox id="show-side-toolbar"
+                          label="Show Side Toolbar"/>
+                <checkbox id="show-notification"
+                          label="Show Notification Box"/>
+            </hbox>
+            <hbox class="row">
+                <hbox>
+                    <label value="Main Toolbar Mode: "/>
+                    <menulist id="toolbar-mode">
+                        <menupopup>
+                            <menuitem label="Icons" value="icons"/>
+                            <menuitem label="Text" value="text"/>
+                            <menuitem label="Icons &amp; Text" value="full"/>
+                        </menupopup>
+                    </menulist>
+                </hbox>
+                <hbox>
+                    <label value="Side Toolbar Mode: "/>
+                    <menulist id="side-toolbar-mode">
+                        <menupopup>
+                            <menuitem label="Icons" value="icons"/>
+                            <menuitem label="Text" value="text"/>
+                            <menuitem label="Icons &amp; Text" value="full"/>
+                        </menupopup>
+                    </menulist>
+                </hbox>
+            </hbox>
+        </groupbox>
     </vbox>
     
     <script src="customizeToolbar.js"/>
 
-</dialog>
+</window>
