@@ -327,6 +327,7 @@ function update_view_information(view) {
     _updateLineCol(view);
 }
 
+_lintSuppressNext = false;
 StatusBarObserver.prototype.handle_current_view_changed = function(event) {
     _lintSuppressNext = true;
     if (ko.views.manager.batchMode) {

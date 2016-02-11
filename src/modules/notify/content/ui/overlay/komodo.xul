@@ -20,7 +20,7 @@
     <popupset id="komodoMainPopupSet">
         <script id="tpl-notify-panel" type="x-dot-template">
             <tooltip  anonid="notify-panel"
-                    class="notify-panel {{=it.classlist}}">
+                    class="notify-panel {{=it.classlist}}" notify-from="{{=it.from}}">
                 <hbox class="wrapper">
                     {{?it.icon}}
                         <vbox pack="center">
@@ -55,7 +55,7 @@
         <hbox id="notification-widget-active" flex="1" collapsed="true"></hbox>
         
         <script id="tpl-notify-widget" type="x-dot-template">
-            <hbox class="wrapper {{=it.classlist}}" flex="1" align="center">
+            <hbox class="wrapper {{=it.classlist}}" flex="1" align="center" notify-from="{{=it.from}}">
                 {{?it.icon}}
                     <vbox pack="center">
                         <image class="icon" src="{{=it.icon}}?preset=hud"></image>

@@ -1114,19 +1114,22 @@ _Observer.prototype.observe = function(subject, topic, data)
 	case 'status_message':
 		if (subject instanceof Ci.koINotificationProgress)
 		{
-			var throbber = document.getElementById("statusbar-throbber");
-			if (subject.maxProgress == Ci.koINotificationProgress.PROGRESS_INDETERMINATE ||
-				subject.maxProgress > subject.progress)
-			{
-				throbber.setAttribute("active", true);
-				throbber.setAttribute("tooltiptext", subject.summary);
-			}
-			else
-			{
-				throbber.removeAttribute("active");
-				throbber.setAttribute("tooltiptext", "");
-			}
+            var progress = (subject.progress / subject.maxProgress) * 100;
+            var opts = { id: subject.identifier };
+            
+            if (isNaN(progress)) progress = 0;
+            if (subject.maxProgress == -1)
+            {
+                progress = 100;
+                opts.duration = 2000;
+            }
+            
+            require("notify/notify").send(Math.floor(progress) + "% " + subject.summary, "progress-message", opts);
 		}
+        else if (subject.summary)
+        {
+            require("notify/notify").send(subject.summary, "status-message", { id: subject.identifier });
+        }
 		break;
     }
 }

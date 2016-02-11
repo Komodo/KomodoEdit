@@ -94,7 +94,6 @@ categories.register("unittest", { label: "Unit Testing" });
 
 categories.register("lint", { label: "Linter", opts: {
     priority: "info",
-    from: "bottom-right",
     classlist: "lint",
     duration: 6000,
     icon: "koicon://ko-svg/chrome/icomoon/skin/cancel-circle2.svg"
@@ -113,5 +112,9 @@ categories.register("dev", { label: "Development" });
 categories.register("packages", { label: "Packages", opts: { duration: 5000, alwaysShow: true } });
 
 categories.register("find", { label: "Find/Replace" });
+
+categories.register("status-message", { label: "Status Message" });
+
+categories.register("progress-message", { label: "Progress Message", opts: { duration: 10000 } });
 
 module.exports = categories;

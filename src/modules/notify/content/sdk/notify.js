@@ -115,11 +115,11 @@
             // If called multiple time synchronously then notifications are incapable
             // of replacing one another, this works around that issue and allows us
             // to assume that two notifications are never called on the same pulse
-            delay = delay + 100;
+            delay = delay + 20;
             timers.setTimeout(this.send.bind(this, message, category, opts, true), delay);
             
             timers.clearTimeout(delayTimer);
-            delayTimer = timers.setTimeout(function() { delay = 0; }, 150);
+            delayTimer = timers.setTimeout(function() { delay = 0; }, delay + 20);
             return;
         }
         
@@ -138,7 +138,10 @@
         opts.message = message;
         
         if ( ! opts.from && opts.generic && el.widget().visible())
+        {
             opts.from = "widget";
+            opts.ignoreFocus = true;
+        }
         
         opts.id = opts.id || Date.now();
         
@@ -254,6 +257,7 @@
                 active: false,
                 activeId: null,
                 activePanel: null,
+                timeout: null,
                 items: []
             };
         }
@@ -363,12 +367,6 @@
         {
             log.debug("Reached end of queue");
             queue[from].active = false;
-            
-            if (from == "widget")
-            {
-                el.widgetActive().hide();
-                el.widgetDefault().fadeIn();
-            }
         }
     }
     
@@ -384,6 +382,11 @@
         {
             log.debug("Forcefully removing active panel");
             queue[notif.opts.from].activePanel.stop().remove();
+            $('[notify-from="'+notif.opts.from+'"]', window).stop().remove();
+            timers.clearTimeout(queue[notif.opts.from].timeout);
+            
+            if (notif.opts.from == "widget")
+                el.widgetActive().empty();
         }
 
         this.showNotification._no = this.showNotification._no ? this.showNotification._no++ : 1;
@@ -391,7 +394,7 @@
         var panel = $(templates.get(notif.opts.from == "widget" ? "widget" : "panel", notif.opts));
         this.bindActions(notif, panel);
         
-        if (notif.from != "widget")
+        if (notif.opts.from != "widget")
             panel.focusedElement = document.commandDispatcher.focusedElement;
 
         queue[notif.opts.from].activeId = notif.opts.id;
@@ -409,7 +412,7 @@
             });
         }
         
-        var animate = prefs.getBoolean("notify_use_animations", true);
+        var animate = ! replace || prefs.getBoolean("notify_use_animations", true);
 
         // Some Linux distro's have problems with setting *any* opacity on a popup -
         // as it can make the popup invisible/disappear.
@@ -444,21 +447,35 @@
             if (el.widgetDefault().visible())
             {
                 log.debug("Default widget is active, hiding it and showing notification");
-                el.widgetDefault().fadeOut(function() {
+                if (animate)
+                {
+                    el.widgetDefault().fadeOut(function() {
+                        el.widgetActive().append(panel);
+                        el.widgetActive().show();
+                        panel.fadeIn();
+                    });
+                }
+                else
+                {
+                    el.widgetDefault().hide();
                     el.widgetActive().append(panel);
                     el.widgetActive().show();
-                    panel.fadeIn();
-                });
+                    panel.show();
+                }
             }
             else
             {
                 log.debug("Default widget is inactive, show notification right away");
                 el.widgetActive().append(panel);
-                panel.fadeIn();
+                
+                if (animate)
+                    panel.fadeIn();
+                else
+                    panel.show();
             }
             
             var time = notif.opts.duration || prefs.getLong("notify_duration", 4000);
-            panel.timeout = timers.setTimeout(function()
+            queue[notif.opts.from].timeout = timers.setTimeout(function()
             {
                 log.debug("Calling callback from timeout");
                 this.hideNotification(notif);
@@ -501,7 +518,7 @@
         }
 
         var time = notif.opts.duration || prefs.getLong("notify_duration", 4000);
-        panel.timeout = timers.setTimeout(function()
+        queue[notif.opts.from].timeout = timers.setTimeout(function()
         {
             log.debug("Calling callback from timeout");
             this.hideNotification(notif);
@@ -602,7 +619,7 @@
         }
         
         var panel = queue[notif.opts.from].activePanel;
-        if (panel && panel.timeout) timers.clearTimeout(panel.timeout);
+        if (panel && queue[notif.opts.from].timeout) timers.clearTimeout(queue[notif.opts.from].timeout);
         if ( ! panel || ! panel.exists())
         {
             log.warn("Notification panel has already been removed, callback is likely called twice");
@@ -615,6 +632,7 @@
         
         queue[notif.opts.from].activeId = null;
         queue[notif.opts.from].activePanel = null;
+        queue[notif.opts.from].timeout = null;
         
         //if (panel.element().hasFocus)
         //{
@@ -623,19 +641,39 @@
         //}
         
         if (animate === undefined) animate = prefs.getBoolean("notify_use_animations", true);
-        if ( ! animate)
+        if (notif.opts.from == "widget")
         {
-            panel.remove();
-            this.queue.process(notif.opts.from);
+            var self = this;
+            var _hideWidgetNotification = function ()
+            {
+                panel.remove();
+                
+                if ( ! queue["widget"].length)
+                {
+                    el.widgetActive().hide();
+                    el.widgetDefault().fadeIn();
+                }
+                
+                self.queue.process(notif.opts.from);
+            }
+            
+            if ( ! animate)
+            {
+                _hideWidgetNotification();
+            }
+            else
+            {
+                panel.fadeOut(function() {
+                    _hideWidgetNotification();
+                }.bind(this));
+            }
         }
         else
         {
-            if (notif.opts.from == "widget")
+            if ( ! animate)
             {
-                panel.fadeOut(function() {
-                    panel.remove();
-                    this.queue.process(notif.opts.from);
-                }.bind(this));
+                panel.remove();
+                this.queue.process(notif.opts.from);
             }
             else
             {
