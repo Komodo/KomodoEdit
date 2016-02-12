@@ -23,7 +23,7 @@ module.exports = function(elem) {
     },
     this.dragTags = ["box", "hbox", "vbox", "spacer", "label", "statusbarpanel", "stack",
             "toolbox", "toolboxrow", "description", "toolbaritem", "groupbox", "window",
-            "toolbaritem", "toolbarseparator", "toolbarspring", "toolbarspacer",
+            "toolbaritem", "toolbarseparator", "toolbarspring", "toolbarspacer", "toolbar",
             "radiogroup", "deck", "scrollbox", "arrowscrollbox", "tabs"
     ],
     this.dragTagsAlways = ["box", "hbox", "vbox", "spacer"],
@@ -40,19 +40,18 @@ module.exports = function(elem) {
         //if (target.ownerDocument.defaultView != this._window)
         //    return false;
         
-        var inDragTagsAlways = false;
-        
+        var inDragTags = false;
         var _target = target;
         while (_target.localName && _target != this._elem) {
             if (this.dragTags.indexOf(_target.localName) != -1)
             {
-                inDragTagsAlways = true;
+                inDragTags = true;
                 break;
             }
             _target = _target.parentNode;
         }
         
-        if (this._elem._tophandle && ! inDragTagsAlways) {
+        if (this._elem._tophandle && ! inDragTags) {
             if (aEvent.pageY > 30) return false;
         }
 
@@ -67,7 +66,9 @@ module.exports = function(elem) {
         
         while (target.localName && target != this._elem) {
             if (this.dragTags.indexOf(target.localName) == -1)
+            {
                 return false;
+            }
             target = target.parentNode;
         }
         
