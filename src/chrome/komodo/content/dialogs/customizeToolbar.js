@@ -20,7 +20,10 @@
         {
             elem: $("#show-chrome", window),
             checked: function() ! prefs.getBoolean("ui.hide.chrome"),
-            onToggle: function() prefs.setBoolean("ui.hide.chrome", ! this.elem.element().checked)
+            onToggle: function() {
+                prefs.setBoolean("ui.hide.chrome", ! this.elem.element().checked);
+                ko.uilayout.updateToolboxVisibility();
+            }
         },
         {
             elem: $("#show-menubar", window),

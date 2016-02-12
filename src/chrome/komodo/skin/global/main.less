@@ -6,6 +6,7 @@
 {
     border: 0;
     padding: 4px;
+    color: @foreground-special;
     background: @special;
     
     toolbaritem
@@ -37,14 +38,11 @@
         padding: 0;
     }
     
-    toolboxrow > [first-overflow] ~ *,
-    toolboxrow > [first-overflow] [first-child-overflow],
-    toolboxrow > [first-overflow] [first-child-overflow] ~ * {
-      /* things that would overflow in the toolboxrow */
-      visibility: hidden;
+    toolboxrow [overflown="true"] {
+      visibility: collapse;
     }
     
-    toolboxrow > .overflow-toolbarbutton > .toolbarbutton-menu-dropmarker {
+    .overflow-toolbarbutton > .toolbarbutton-menu-dropmarker {
       /* the dropmarker on the toolboxrow overflow button */
       visibility: collapse;
     }
@@ -52,6 +50,11 @@
 
 #toolbox_main, #toolbox_side
 {
+    .overflows
+    {
+        visibility: collapse;
+    }
+    
     toolbarbutton
     {
         font-size: 16px !important;
@@ -103,9 +106,14 @@
     width: ~"calc(50vw - 175px)";
 }
 
-#second-toolboxrow > hbox
+#second-toolboxrow 
 {
-    -moz-box-pack: end;
+    -moz-box-direction: reverse;
+    
+    & > hbox
+    {
+        -moz-box-pack: end;
+    }
 }
 
 #notification-widget #notification-widget-textbox

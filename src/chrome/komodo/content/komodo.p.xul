@@ -222,6 +222,16 @@
                onpopupshowing="ko.uilayout.updateToolboxContextMenu();">
         <!-- This menu is built on popup showing by cloning #popup_toolbars -->
     </menupopup>
+    
+    <menupopup id="unifiedMenuPopup" position="after_end">
+        <hbox id="unifiedMenuPopupHbox">
+            <vbox id="unifiedMenuPrimaryPane"/>
+            <vbox id="unifiedMenuSecondaryPane">
+                <menuseparator id="unifiedMenuMruSeparator" ordinal="9999" preserve="true"/>
+                <vbox id="unifiedMenuMru" preserve="true" ordinal="9999"></vbox>
+            </vbox>
+        </hbox>
+    </menupopup>
 
     <!-- this toolbox is used to provide a document link to menus we dynamicaly display -->
     <menu id="hidden-toolbox" collapsed="true">
@@ -542,7 +552,26 @@
              class="chromeclass-toolbar toolbox-top">
         <!-- #if PLATFORM != "darwin" -->
         <resizer dir="top" flex="1"/>
+        
+        <hbox id="titlebar" pack="center" align="center">
+            <spacer></spacer>
+            
+            <label id="alt-title" flex="1" style="text-align: center" value="Komodo"/>
+          
+            <hbox id="windowButtons" align="center" pack="end">
+                <toolbarbutton id="unifiedMenuButtonTitlebar"
+                    tooltiptext="&menu.tooltiptext;"
+                    class="menu-icon"
+                    oncommand="document.getElementById('unifiedMenuPopup').openPopup(event.target, 'after_end')"
+                    buttonstyle="pictures"
+                />
+                <toolbarbutton buttonstyle="pictures" class="icon-minus-circle2" oncommand="window.minimize();"/>
+                <toolbarbutton buttonstyle="pictures" class="icon-plus-circle2" oncommand="window.windowState === 1 ? window.restore() : window.maximize();"/>
+                <toolbarbutton buttonstyle="pictures" class="icon-cancel-circle2" oncommand="window.close();"/>
+            </hbox>
+        </hbox>
         <!-- #endif -->
+        
         <toolbar id="toolbar-menubar"
                  type="menubar"
                  autohide="true"
@@ -1179,7 +1208,6 @@
 <!-- #endif -->
                                     <menuseparator id="popup_toolbars_custom_separator"
                                                    collapsed="true"/>
-                                    <menuseparator ordinal="9991"/>
                                     <menuitem id="menu_customizeToolbars"
                                               command="cmd_CustomizeToolbars"
                                               label="&customizeToolbars.menu.label;"
@@ -1989,22 +2017,11 @@
             
             <toolbarbutton id="unifiedMenuButton"
                 tooltiptext="&menu.tooltiptext;"
-                type="menu"
-                orient="horizontal"
                 class="menu-icon"
                 buttonstyle="pictures"
+                oncommand="document.getElementById('unifiedMenuPopup').openPopup(event.target, 'after_end')"
                 collapsed="true"
-            >
-                <menupopup id="unifiedMenuPopup" position="after_end">
-                    <hbox id="unifiedMenuPopupHbox">
-                        <vbox id="unifiedMenuPrimaryPane"/>
-                        <vbox id="unifiedMenuSecondaryPane">
-                            <menuseparator id="unifiedMenuMruSeparator" ordinal="9999" preserve="true"/>
-                            <vbox id="unifiedMenuMru" preserve="true" ordinal="9999"></vbox>
-                        </vbox>
-                    </hbox>
-                </menupopup>
-            </toolbarbutton>
+            />
             
             <!-- #if PLATFORM != "darwin" -->
             <hbox id="windowButtons" align="center" pack="right">

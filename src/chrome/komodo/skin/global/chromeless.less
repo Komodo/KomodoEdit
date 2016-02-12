@@ -16,7 +16,7 @@
     border-top-right-radius: 5px;
 }
 
-:root[hidechrome="true"] .window-wrapper
+:not(#komodo_main):root[hidechrome="true"] .window-wrapper
 {
     padding: 5px;
     
@@ -62,6 +62,45 @@
 #komodo_main:not([hidechrome="true"]) resizer
 {
     visibility: collapse;
+}
+
+#komodo_main
+{
+    #titlebar
+    {
+        visibility: collapse;
+        
+        & > spacer, #windowButtons
+        {
+            width: 90px;
+            
+            toolbarbutton, .toolbarbutton-text
+            {
+                font-size: 12px !important;
+            }
+        }
+    }
+    
+    &:not([hidechrome="true"])
+    {
+        #windowButtons
+        {
+            visibility: collapse;
+        }
+    }
+    
+    &[hidechrome="true"][show-toolbar="false"] 
+    {
+        #titlebar
+        {
+            visibility: visible;
+        }
+        
+        #toolbox_main
+        {
+            padding: 0 2px 2px;
+        }
+    }
 }
 
 /**

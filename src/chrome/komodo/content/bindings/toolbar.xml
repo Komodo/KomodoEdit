@@ -245,14 +245,15 @@
                       flex="1">
                 <children/>
             </xul:hbox>
-            <xul:toolbarbutton anonid="overflow-toolbarbutton"
-                               class="overflow-toolbarbutton"
-                               collapsed="true"
-                               type="menu"
-                               label="&#0187;">
-                <xul:menupopup anonid="overflow-menupopup"
-                               class="overflow-menupopup"/>
-            </xul:toolbarbutton>
+            <xul:toolbaritem>
+                <xul:toolbarbutton anonid="overflow-toolbarbutton"
+                                   class="overflow-toolbarbutton"
+                                   collapsed="true"
+                                   type="menu">
+                    <xul:menupopup anonid="overflow-menupopup"
+                                   class="overflow-menupopup"/>
+                </xul:toolbarbutton>
+            </xul:toolbaritem>
         </content>
 
         <implementation>
@@ -291,82 +292,49 @@
               <parameter name="event" />
               <body>
               <![CDATA[
-                this.container.style.overflow = "hidden";
-                var scrollRect = this.container.getBoundingClientRect();
-                var children = Array.slice(this.childNodes); // XBL, so this.childNodes is right :|
-                var first_overflow = this.querySelector("[first-overflow]");
-                var first_child_overflow = this.querySelector("[first-overflow] [first-child-overflow]");
+                var container = this.container;
+                var reverse = this.getAttribute("pack") == "end";
+                container.style.overflow = "hidden";
+                var children = Array.slice(this.querySelectorAll("toolbaritem > toolbarbutton")); // XBL, so this.childNodes is right :|
                 var overflow = false;
-
-                for (var [i, child] in Iterator(children)) {
-                    var childRect = child.getBoundingClientRect();
-                    if (childRect.right > scrollRect.right) {
-                        // overflowed
-                        child.setAttribute("first-overflow", true);
-                        if (child != first_overflow) {
-                            // the previously first overflowing element changed;
-                            // we're definitely dirty.
-                            if (first_overflow) {
-                                first_overflow.removeAttribute("first-overflow");
-                            }
-                            this.dirty = true;
-                        }
-                        overflow = true;
-                        first_overflow = child;
-                        break; // once a child overflows, the rest will too
-                    }
+                
+                var overflowable = this.querySelectorAll("toolbaritem, toolbaritem > toolbarbutton");
+                for (let i = 0; i < overflowable.length; ++i) {
+                    overflowable[i].setAttribute("overflown", "false");
                 }
+                
+                var isOverflowing = function() {
+                    return container.clientWidth < container.scrollWidth ||
+                           container.clientHeight < container.scrollHeight;
+                };
 
+                if (!reverse) children.reverse();
+                while (isOverflowing() && children.length)
+                {
+                    let child = children.shift();
+                    child.setAttribute("overflown", "true");
+                    overflow = true;
+                }
+                
                 if (!overflow) {
-                    // nothing overflowed at all
-                    if (first_overflow) {
-                        // ... but something previously did. (we got more space)
-                        first_overflow.removeAttribute("first-overflow");
-                        this.button.setAttribute("collapsed", true);
-                        this.dirty = true;
+                    this.button.setAttribute("collapsed", true);
+                    container.style.overflow = "visible";
+                } else {
+                    children = Array.slice(this.querySelectorAll("toolbaritem"));
+                    for (let child of children) {
+                        if ( ! child.querySelector('[overflown="false"]'))
+                            child.setAttribute("overflown", "true");
                     }
-                    if (first_child_overflow) {
-                        first_child_overflow.removeAttribute("first-child-overflow");
-                        this.dirty = true;
-                    }
-                    this.container.style.overflow = "visible";
-                    return;
+                    
+                    this.button.removeAttribute("collapsed");
+                    
+                    if (this._overflowTimer) clearTimeout(this._overflowTimer);
+                    this._overflowTimer = setTimeout(function() {
+                        container.style.overflow = "visible";
+                    }, 100);
                 }
-
-                // getting here means something overflowed
-                this.button.removeAttribute("collapsed");
-                switch (first_overflow.localName) {
-                    case "toolboxrow":
-                    case "toolbar":
-                    case "toolbaritem":
-                        // these are containers; we will look at its children
-                        // later to find the first item to hide.
-                        break;
-                    default:
-                        // the first overflowing item is a toolbaritem itself
-                        // don't look at its children
-                        if (first_child_overflow) {
-                            first_child_overflow.removeAttribute("first-child-overflow");
-                            this.dirty = true;
-                        }
-                        return;
-                }
-
-                // need to figure out which children to hide
-                children = Array.slice(first_overflow.childNodes);
-                for ([i, child] in Iterator(children)) {
-                    childRect = child.getBoundingClientRect();
-                    if (childRect.right > scrollRect.right) {
-                        if (child != first_child_overflow) {
-                            if (first_child_overflow) {
-                                first_child_overflow.removeAttribute("first-child-overflow");
-                            }
-                            this.dirty = true;
-                        }
-                        child.setAttribute("first-child-overflow", true);
-                        break;
-                    }
-                }
+                
+                this.dirty = true;
               ]]>
               </body>
             </method>
@@ -383,25 +351,18 @@
                     this.popup.removeChild(this.popup.firstChild);
                 }
                 
-                var build = (function build_(elem) {
-                    if (elem.getAttribute("kohidden")=="true" || elem.hasAttribute("hidden")) {
-                        // this item is hidden, don't do anything here
-                        return;
-                    }
-                    switch (elem.localName) {
-                        case "toolboxrow":
-                        case "toolbar":
-                        case "toolbaritem":
-                            // these elements are containers; create menuitems
-                            // for their children instead
-                            Array.slice(elem.childNodes).forEach(build);
-                            return;
-                        case "spacer":
-                        case "separator":
-                        case "toolbarseparator":
-                            // these can just be skipped
-                            return;
-                    }
+                var lastParent = null;
+                var overflown = Array.slice(this.querySelectorAll('toolbarbutton[overflown="true"]'));
+                for (let elem of overflown)
+                {
+                    if (elem.getAttribute("kohidden") == "true") 
+                        continue;
+                    
+                    if (lastParent && lastParent != elem.parentNode)
+                        this.popup.appendChild(document.createElement("menuseparator"));
+                    
+                    lastParent = elem.parentNode;
+
                     // build a single menu item
                     var item = document.createElement("menuitem");
                     item.setAttribute("label", elem.getAttribute("label"));
@@ -438,38 +399,8 @@
                         item.appendChild(observes);
                     }
                     this.popup.appendChild(item);
-                }).bind(this);
-                
-                /* Hide overflown elements */
-                
-                // First, check for the first overflown child and its next siblings
-                Array.slice(this.querySelectorAll(
-                    "[first-child-overflow], [first-child-overflow] ~ *"
-                )).forEach(build);
-                
-                // Then, check if the first overflown child is part of a larger
-                // set of toolbaritems, and process the next sibling toolbaritems
-                var firstChild = this.querySelector("[first-child-overflow]");
-                if (firstChild && firstChild.parentNode.localName == 'toolbaritem' &&
-                    firstChild.parentNode.parentNode.localName == 'toolbar') {
-                    var _build = false;
-                    for (var [i, parent] in Iterator(firstChild.parentNode.parentNode.childNodes)) {
-                        if (_build) {
-                            build(parent); // build knows how to handle toolbaritems
-                        }
-                        else if (parent == firstChild.parentNode) {
-                            _build = true;
-                            // We've passed the first-child-overflow's parent
-                            // subsequent loops will be passed to build()
-                        }
-                    }
                 }
                 
-                // Finally, check the toolbars following the first-overflow toolbar
-                Array.slice(this.querySelectorAll(
-                    "[first-overflow] ~ *" 
-                )).forEach(build);
-
                 this.dirty = false;
             ]]>
             </handler>

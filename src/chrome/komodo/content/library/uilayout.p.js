@@ -236,16 +236,25 @@ this.setMenubarVisibility = function uilayout_setMenubarVisibility(menubarShowin
     ko.uilayout.updateToolboxVisibility();
 };
 
+toolboxVisibile = null;
 this.updateToolboxVisibility = function uilayout_updateToolboxVisibility()
 {
+    var toolbox = document.getElementById('toolbox_main');
+    var windowNode = document.getElementById('komodo_main');
+    
+    if (_gPrefs.getBoolean("ui.hide.chrome"))
+    {
+        toolbox.collapsed = false;
+        windowNode.classList.remove("toolbox-hidden");
+        return;
+    }
+    
     var broadcaster = document.getElementById('cmd_toggleMenubar');
     var menubarShowing = (broadcaster && broadcaster.getAttribute('checked') == 'true');
     
     var broadcaster = document.getElementById('cmd_toggleToolbars');
     var toolbarsShowing = (broadcaster && broadcaster.getAttribute('checked') == 'true');
     
-    var toolbox = document.getElementById('toolbox_main');
-    var windowNode = document.getElementById('komodo_main');
     if ( ! menubarShowing && ! toolbarsShowing) {
         toolbox.collapsed = true;
         windowNode.classList.add("toolbox-hidden");
@@ -253,6 +262,15 @@ this.updateToolboxVisibility = function uilayout_updateToolboxVisibility()
         toolbox.collapsed = false;
         windowNode.classList.remove("toolbox-hidden");
     }
+    
+    // #if PLATFORM != "darwin"
+    if (toolboxVisibile != null && toolboxVisibile != !toolbox.collapsed && toolbox.collapsed)
+    {
+        require("notify/notify").interact("Toolbar & Menubar hidden, hit ALT to access the Komodo menu", "customization");
+    }
+    // #endif
+    
+    toolboxVisibile = !toolbox.collapsed;
 }
 
 // #endif
@@ -317,68 +335,10 @@ this._customizeComplete = (function uilayout__customizeComplete() {
     
 }).bind(this);
 
-/**
- * Update the toolbar classes to add first-child and last-child
- * to the first/last toolbar items that are not hidden
- * This is used to get the rounded corner effect
- * @param toolbox {<toolbox>} The toolbox to update
- */
-this._updateToolbarViewStates = (function uilayout__updateToolbarViewStates(toolbox)
+this._updateToolbarViewStates = (function uilayout__updateToolbarViewStates()
 {
-    if (!toolbox || !(toolbox instanceof Element)) {
-        // not a toolbox. Note that this can be used as an event listener, in
-        // which case the argument is an Event rather than a <toolbox>...
-        toolbox = document.getElementById("toolbox_main");
-    }
-
-    var buttonSets = toolbox.querySelectorAll("toolbar > toolbaritem > toolbarbutton:first-child");
-    for (var i=0;i<buttonSets.length;i++)
-    {
-        var toolbarItem     = buttonSets[i].parentNode;
-        var toolbar         = toolbarItem.parentNode;
-
-        var children = Array.slice(toolbarItem.querySelectorAll(".first-child, .last-child"));
-        for each (var child in children) {
-            if (child.parentNode == toolbarItem) {
-                child.classList.remove("first-child");
-                child.classList.remove("last-child");
-            }
-        }
-
-        children = Array.slice(toolbarItem.querySelectorAll(":not([kohidden='true']):not(toolbarseparator):not(spacer)"));
-        children = children.filter(function(child) {
-            return child.parentNode === toolbarItem &&
-                    child.parentNode.parentNode.getAttribute("kohidden") !== "true";
-        });
-
-        if (children.length > 0) {
-            toolbarItem.removeAttribute("collapsed");
-            toolbarItem.classList.remove('no-children');
-            toolbarItem.classList.add('has-children');
-            children[0].classList.add("first-child");
-            children[children.length - 1].classList.add("last-child");
-
-            if (i==0) {
-                toolbar.classList.add('first-child');
-            } else if (typeof previousLastChild != 'undefined') {
-                previousLastChild.classList.remove('last-child');
-            }
-            toolbar.classList.add('last-child');
-
-            var previousLastChild = toolbar;
-        } else {
-            toolbarItem.setAttribute("collapsed", "true");
-            toolbarItem.classList.add('no-children');
-            toolbarItem.classList.remove('has-children');
-        }
-    }
-
-    // Update toolbar child visibility as otherwise it does not get updated
-    // when the visible children have changed but no overflow events
-    // were fired
     document.getElementById('main-toolboxrow')._updateChildVisibility();
     document.getElementById('second-toolboxrow')._updateChildVisibility();
-
 }).bind(this);
 
 /**
@@ -517,6 +477,7 @@ this.toggleTab = function uilayout_toggleTab(widgetId, collapseIfFocused /* =tru
     } catch (e) {
         _log.exception(e);
     }
+    document.getElementById('alt-title').setAttribute("value", title);
 }
 
 
