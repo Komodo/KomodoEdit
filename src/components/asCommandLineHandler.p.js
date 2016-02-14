@@ -35,7 +35,7 @@
  * ***** END LICENSE BLOCK ***** */
 // adapted from browser/components/nsBrowserContentHandler.js
 
-const winOptions = 
+var winOptions = 
 // #if PLATFORM == "darwin"
   "chrome,resizable=yes,menubar,toolbar,status,all,dialog=no";
 // #else
@@ -138,6 +138,13 @@ komodoCmdLineHandler.prototype = {
 
   /* nsICommandLineHandler */
   handle : function dch_handle(cmdLine) {
+    var prefSvc = Components.classes["@activestate.com/koPrefService;1"].
+	  getService(Components.interfaces.koIPrefService);
+      
+    var hideChrome = prefSvc.prefs.getBoolean('ui.hide.chrome');
+    if (hideChrome) winOptions += ",titlebar=no";
+    winOptions += ",titlebar=no";
+    
     var urilist = [];
     try {
       var ar;

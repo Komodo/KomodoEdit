@@ -16,6 +16,7 @@
         secondTb: $("#second-toolbar", window)
     }
     
+    var warnedRestart = false;
     var checkboxes = [
         {
             elem: $("#show-chrome", window),
@@ -23,6 +24,15 @@
             onToggle: function() {
                 prefs.setBoolean("ui.hide.chrome", ! this.elem.element().checked);
                 ko.uilayout.updateToolboxVisibility();
+                
+                if (require("sdk/system").platform == 'darwin' && ! warnedRestart) {
+                    alert('Please restart Komodo in order for window decoration changes to take effect');
+                    
+                    warnedRestart = true;
+                    setTimeout(function() {
+                        warnedRestart = false;
+                    }, 300000);
+                }
             }
         },
         {

@@ -1661,7 +1661,7 @@ this.onload = function uilayout_onload()
     var hide = _gPrefs.getBoolean("ui.hide.chrome");
     if (hide)
     {
-        root.setAttribute("drawintitlebar", true);
+        //root.setAttribute("drawintitlebar", true);
         root.setAttribute("hidechrome", true);
     }
     
@@ -1854,7 +1854,7 @@ _PrefObserver.prototype.observe = function(prefSet, prefName, prefSetID)
         var hide = _gPrefs.getBoolean("ui.hide.chrome");
         var root = document.documentElement;
         document.getElementById('toolbox_main')._draggable = hide;
-        root.setAttribute("drawintitlebar", hide);
+        //root.setAttribute("drawintitlebar", hide);
         root.setAttribute("hidechrome", hide);
     }
 };

@@ -77,6 +77,8 @@
         ondrop="return ko.dragdrop.onDrop(event);"
         toggletoolbar="true"
         fullscreenbutton="true"
+        tabsintitlebar="true"
+        chromemargin="0,-1,-1,-1"
         >
 
     <script src="chrome://komodo/content/globals.js" type="application/x-javascript"/>
@@ -550,7 +552,6 @@
              persist="mode"
              mode="icons"
              class="chromeclass-toolbar toolbox-top">
-        <!-- #if PLATFORM != "darwin" -->
         <resizer dir="top" flex="1"/>
         
         <hbox id="titlebar" pack="center" align="center">
@@ -559,18 +560,20 @@
             <label id="alt-title" flex="1" style="text-align: center" value="Komodo"/>
           
             <hbox id="windowButtons" align="center" pack="end">
+                <!-- #if PLATFORM != "darwin" -->
                 <toolbarbutton id="unifiedMenuButtonTitlebar"
                     tooltiptext="&menu.tooltiptext;"
                     class="menu-icon"
                     oncommand="document.getElementById('unifiedMenuPopup').openPopup(event.target, 'after_end')"
                     buttonstyle="pictures"
                 />
+                <!-- #endif -->
+                        
                 <toolbarbutton buttonstyle="pictures" class="icon-minus-circle2" oncommand="window.minimize();"/>
                 <toolbarbutton buttonstyle="pictures" class="icon-plus-circle2" oncommand="window.windowState === 1 ? window.restore() : window.maximize();"/>
                 <toolbarbutton buttonstyle="pictures" class="icon-cancel-circle2" oncommand="window.close();"/>
             </hbox>
         </hbox>
-        <!-- #endif -->
         
         <toolbar id="toolbar-menubar"
                  type="menubar"
@@ -1712,7 +1715,6 @@
 <!-- #endif -->
                         </menupopup>
                     </menu>
-<!-- #if PLATFORM != "darwin" -->
                     <hbox id="fullscreenflex" flex="1" fullscreencontrol="true" ordinal="9998"/>
                     <hbox id="window-controls" fullscreencontrol="true"
                           ordinal="9999" align="center" pack="end">
@@ -1725,7 +1727,6 @@
                         <toolbarbutton id="close-button" class="rightarrow-button-a"
                                         oncommand="window.close();"/>
                     </hbox>
-<!-- #endif -->
                 </menubar>
             </toolbaritem>
         </toolbar>
@@ -2023,13 +2024,11 @@
                 collapsed="true"
             />
             
-            <!-- #if PLATFORM != "darwin" -->
             <hbox id="windowButtons" align="center" pack="right">
                 <toolbarbutton buttonstyle="pictures" class="icon-minus-circle2" onclick="window.minimize();"/>
                 <toolbarbutton buttonstyle="pictures" class="icon-plus-circle2" onclick="window.windowState === 1 ? window.restore() : window.maximize();"/>
                 <toolbarbutton buttonstyle="pictures" class="icon-cancel-circle2" onclick="ko.commands.doCommandAsync('cmd_quit', event)"/>
             </hbox>
-            <!-- #endif -->
 
             <!-- #if PLATFORM == "darwin" -->
                 <toolbarbutton id="fullscreen-restore-button" fullscreencontrol="true"
@@ -2047,12 +2046,10 @@
     <deck id="komodo-box" selectedIndex="0" flex="1">
     <vbox id="komodo-vbox" flex="1">
         <hbox id="komodo-hbox" flex="1">
-            <!-- #if PLATFORM != "darwin" -->
             <vbox class="resizer-box">
               <resizer dir="left" flex="1"   />
               <resizer dir="bottomleft"/>
             </vbox>
-            <!-- #endif -->
             <toolbox id="toolbox_side"
                      context="context-toolbox-menu"
                      persist="mode"
@@ -2200,18 +2197,14 @@
                          src="chrome://komodo/content/toolbox/toolboxPanel.xul"
                          icon="koicon://ko-svg/chrome/icomoon/skin/briefcase3.svg"/>
             </ko-pane>
-            <!-- #if PLATFORM != "darwin" -->
             <resizer dir="right"/>
-            <!-- #endif -->
         </hbox>
         
-        <!-- #if PLATFORM != "darwin" -->
         <hbox class="resizer-box bottom">
           <spacer></spacer>
           <resizer dir="bottom" flex="1"   />
           <resizer dir="bottomright"/>
         </hbox>
-        <!-- #endif -->
 
     </vbox> <!-- main window box -->
     <!-- we need a browser widget to do our printing for us, unfortunatly

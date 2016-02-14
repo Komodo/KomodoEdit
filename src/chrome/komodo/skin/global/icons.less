@@ -245,12 +245,22 @@ radio
     &[selected="true"] .radio-spacer-box { .icon-check-circle(); }
 }
 
+treechildren::-moz-tree-image,
+treechildren::-moz-tree-twisty
+{
+    width: 14px;
+    height: 14px;
+}
+
 treechildren::-moz-tree-twisty {
-    list-style-image: url("koicon://ko-svg/chrome/komodo/skin/images/trees/twisty-right.svg?size=14&color=@{escaped-icons}");
+    list-style-image: none !important;
+    background-image: url("koicon://ko-svg/chrome/komodo/skin/images/trees/twisty-right.svg?size=14&color=@{escaped-icons}");
+    background-size: 14px;
+    background-repeat: no-repeat;
 }
 
 treechildren::-moz-tree-twisty(open) {
-    list-style-image: url("koicon://ko-svg/chrome/komodo/skin/images/trees/twisty-down.svg?size=14&color=@{escaped-icons}");
+    background-image: url("koicon://ko-svg/chrome/komodo/skin/images/trees/twisty-down.svg?size=14&color=@{escaped-icons}");
 }
 
 dropmarker {
