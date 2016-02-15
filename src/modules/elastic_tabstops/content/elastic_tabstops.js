@@ -124,30 +124,43 @@
         return max_tabs;
     }
     
+    // In large files, this method is often a bottleneck. Reduce the calls to
+    // Scintilla as much as possible. This optimization is specific to this
+    // implementation of elastic tabstops.
     this._getNOfTabsBetween = function(scimoz, start, end) {
         var current_pos = {value: this._getLineStart(scimoz, start)};
         var max_tabs = 0;
         
+        var chars = scimoz.text; // store for optimization
         do {
-            var current_char = scimoz.getCharAt(current_pos.value);
-            var current_char_ends_line = this._isLineEnd(scimoz, current_pos.value);
+            //var current_char = scimoz.getCharAt(current_pos.value);
+            //var current_char_ends_line = this._isLineEnd(scimoz, current_pos.value);
+            var current_char = chars[current_pos.value];
+            var current_char_ends_line = current_char == '\r' || current_char == '\n';
             
             var tabs_on_line = 0;
             while (current_char && !current_char_ends_line) {
-                if (current_char == 9) { // '\t'
+                //if (current_char == 9) { // '\t'
+                if (current_char == '\t') { // 9
                     tabs_on_line++;
                     if (tabs_on_line > max_tabs) {
                         max_tabs = tabs_on_line;
                     }
                 }
-                current_pos.value = scimoz.positionAfter(current_pos.value);
-                current_char = scimoz.getCharAt(current_pos.value);
-                current_char_ends_line = this._isLineEnd(scimoz, current_pos.value);
+                //current_pos.value = scimoz.positionAfter(current_pos.value);
+                //current_char = scimoz.getCharAt(current_pos.value);
+                //current_char_ends_line = this._isLineEnd(scimoz, current_pos.value);
+                current_pos.value++;
+                current_char = chars[current_pos.value];
+                current_char_ends_line = current_char == '\r' || current_char == '\n';
             }
         } while (this._changeLine(scimoz, current_pos, true) && current_pos.value < end);
         return max_tabs;
     }
     
+    // In large files, this method is often a bottleneck. Reduce the calls to
+    // Scintilla as much as possible. This optimization is specific to this
+    // implementation of elastic tabstops.
     this._stretchTabstops = function(scimoz, block_start_linenum, block_nof_lines, max_tabs) {
         var lines = {};
         var grid = {};
@@ -160,6 +173,7 @@
         }
         
         // Get width of text in cells.
+        var chars = scimoz.text; // store for optimization
         for (let l = 0; l < block_nof_lines; l++) { // for each line
             var text_width_in_tab = 0;
             var current_line_num = block_start_linenum + l;
@@ -168,8 +182,10 @@
             
             var current_pos = scimoz.positionFromLine(current_line_num);
             var cell_start = current_pos;
-            var current_char = scimoz.getCharAt(current_pos);
-            var current_char_ends_line = this._isLineEnd(scimoz, current_pos);
+            //var current_char = scimoz.getCharAt(current_pos);
+            //var current_char_ends_line = this._isLineEnd(scimoz, current_pos);
+            var current_char = chars[current_pos];
+            var current_char_ends_line = current_char == '\r' || current_char == '\n';
             // maybe change this to search forwards for tabs/newlines
             
             while (current_char) {
@@ -193,9 +209,12 @@
                         cell_empty = false;
                     }
                 }
-                current_pos = scimoz.positionAfter(current_pos);
-                current_char = scimoz.getCharAt(current_pos);
-                current_char_ends_line = this._isLineEnd(scimoz, current_pos);
+                //current_pos = scimoz.positionAfter(current_pos);
+                //current_char = scimoz.getCharAt(current_pos);
+                //current_char_ends_line = this._isLineEnd(scimoz, current_pos);
+                current_pos++;
+                current_char = chars[current_pos];
+                current_char_ends_line = current_char == '\r' || current_char == '\n';
             }
         }
         
