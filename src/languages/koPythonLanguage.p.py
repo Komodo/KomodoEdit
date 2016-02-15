@@ -267,6 +267,48 @@ class Class:
             
         return self._atOpeningIndenter(scimoz, prevPos, style_info)
         
+    def _shouldIndent(self, scimoz, pos, style_info):
+        """
+        Determines whether or not the next line should be indented.
+        Python's autoindentation should kick in on ':{[('. However, autoindent
+        after ':' needs a second check because dictionary associations like
+        `key: [1, 2, 3],` can cause a miscalculation since parenthetical
+        statements are "skipped". For example, while `key: [1, 2, 3],` is
+        correctly ignored, a parenthetical skip also checks `key: `, which would
+        incorrectly trigger autoindent.
+        Note: the parenthetical skip is needed for multi-line statements like
+            foo = (bar and
+                   baz)
+        in order to restore indentation to the `foo =` line.
+        This method is identical to its superclass method except for an
+        additional check when an indenting character is found.
+        @param scimoz The Scintilla editor object.
+        @param pos The current buffer position (typically at the end of a line).
+        @param style_info The object that represents the current theme's styling
+            information.
+        @return a new indentation level or None to retain the current level
+        """
+        curLineNo = scimoz.lineFromPosition(pos)
+        lineStart = scimoz.positionFromLine(curLineNo)
+        data = scimoz.getStyledText(lineStart, pos+1)
+        for p in range(pos-1, lineStart-1, -1):
+            char = data[(p-lineStart)*2]
+            style = ord(data[(p-lineStart)*2+1])
+            #indentlog.debug("char = %s, style = %d", char, style)
+            #indentlog.debug("indent_open_chars = %r, indent_open_styles = %r", self._indent_open_chars, style_info._indent_open_styles)
+            if style in style_info._comment_styles:
+                indentlog.debug("skipping comment character")
+                continue
+            elif char in ' \t':
+                continue
+            elif (char in self._indent_open_chars and
+                  style in style_info._indent_open_styles):
+                if char == ':' and data[-2] in self._indent_open_chars:
+                    break
+                return KoLanguageBase._findIndentationBasedOnStartOfLogicalStatement(self, scimoz, pos, style_info, curLineNo)
+            break
+        return None
+
     def test_scimoz(self, scimoz):
         CommenterTestCase.lang = self
         testCases = [

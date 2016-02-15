@@ -1408,7 +1408,7 @@ class KoLanguageBase:
         # of line or a character.
         # if that character is an indenting brace, then indent.
 
-        # Note that koCoffeeScriptLanguage overrides this method.
+        # Note that koCoffeeScriptLanguage and koPythonLanguage override this method.
         curLineNo = scimoz.lineFromPosition(pos)
         lineStart = scimoz.positionFromLine(curLineNo)
         data = scimoz.getStyledText(lineStart, pos+1)
