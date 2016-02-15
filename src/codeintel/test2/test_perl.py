@@ -1507,7 +1507,19 @@ class CplnTestCase(CodeintelPerlTestCase):
              ("variable", "someElement"),
              ("variable", "otherElement")])
 
-
+    @tag("bug1084")
+    def test_private_functions_in_variable_completions(self):
+        content, positions = unmark_text(dedent(r"""
+            my $foobar = 1;
+            my $foobaz = sub {
+                # stuff
+            };
+            $<1>
+        """))
+        self.assertCompletionsAre(
+            markup_text(content, pos=positions[1]),
+            [("variable", "foobar"),
+             ("function", "foobaz")])
 
 class DefnTestCase(CodeintelPerlTestCase):
     lang = "Perl"

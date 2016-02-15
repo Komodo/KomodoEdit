@@ -7,8 +7,6 @@
       <variable citdl="LWP::UserAgent" line="14" name="$var3" />
       <variable line="16" name="var4" />
       <variable line="16" name="var5" />
-      <variable attributes="__local__" line="34" name="$a" />
-      <variable attributes="__local__" line="34" name="$closure" />
       <scope ilk="class" line="37" lineend="45" name="Buffer1">
         <import line="39" module="Digest::MD5" symbol="md5" />
         <import line="39" module="Digest::MD5" symbol="md5_hex" />
@@ -31,6 +29,10 @@
       <scope ilk="function" line="20" lineend="21" name="sub1" signature="sub1()" />
       <scope ilk="function" line="25" lineend="28" name="f" signature="f($code)">
         <variable ilk="argument" line="26" name="$code" />
+      </scope>
+      <scope ilk="function" line="34" lineend="34" name="$closure" signature="$closure($a)">
+        <variable ilk="argument" line="34" name="$a" />
+        <variable attributes="__local__" line="34" name="$closure" />
       </scope>
       <scope ilk="function" line="65" lineend="66" name="sub5" signature="sub5()" />
     </scope>

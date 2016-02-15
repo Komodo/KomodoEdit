@@ -30,7 +30,7 @@ sub f {
 # Skip the sub here
 f(sub { print 3 * $_[0], "\n" });
 
-# Skip the sub here
+# Do not skip the sub here (private function)
 my $closure = sub { my $a = shift; my $closure = 7; print $a + $closure, "\n"; };
 f($closure);
 
