@@ -1162,6 +1162,15 @@ class Parser:
             if package_name != "":
                 args['aType'] = {'assign': package_name}
                 self.moduleInfo.doSetVar(**args)
+        elif self.classifier.is_keyword(tok, 'sub'):
+            # Private function.
+            startLineNo = tok['start_line']
+            # Python doesn't have Perl's localizer, so we do this manually.
+            currFunction = self.moduleInfo.currentFunction
+            self.moduleInfo.doStartFn(FunctionInfo(name=identifier, lineNo=startLineNo))
+            self.process_sub_contents(False)
+            self.moduleInfo.doEndFn(lineNo=self.tokenizer.curr_line_no())
+            self.moduleInfo.currentFunction = currFunction
         else:
             self.moduleInfo.doSetVar(**args)
             if self.classifier.is_index_op(tok, self.find_open_indexer_re):

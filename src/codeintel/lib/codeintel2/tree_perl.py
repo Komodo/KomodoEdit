@@ -455,9 +455,11 @@ class PerlVariablesTreeEvaluator(PerlTreeEvaluatorBase):
             self.log("getting variables from scoperef %r", scoperef)
             elem = self._elem_from_scoperef(scoperef)
             for child in elem:
-                if child.tag == "variable":
+                if child.tag == "variable" or (child.tag == "scope" and \
+                                               child.get("ilk") == "function" and \
+                                               child.get("name").startswith('$')):
                     self.log("  found variable %r", child.get("name"))
-                    cplns.append(("variable", child.get("name").lstrip("$")))
+                    cplns.append((child.get("ilk", "variable"), child.get("name").lstrip("$")))
             scoperef = self.parent_scoperef_from_scoperef(scoperef)
 
         return cplns
