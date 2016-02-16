@@ -193,7 +193,8 @@
                     grid[l][current_tab_num].ends_in_tab = false;
                     text_width_in_tab = 0;
                     break;
-                } else if (current_char == 9) { // '\t'
+                //} else if (current_char == 9) { // '\t'
+                } else if (current_char == '\t') { // 9
                     if (!cell_empty) {
                         text_width_in_tab = this._getTextWidth(scimoz, cell_start, current_pos);
                     }
