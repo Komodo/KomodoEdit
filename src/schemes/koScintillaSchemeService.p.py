@@ -1665,6 +1665,7 @@ def _initializeLanguageStyles(languageName):
                 ScimozStyleNo2CommonName[key] = common_name
             ScimozStyleNo2SpecificName[key] = common_name
             languageStyles.append((scimoz_no, scimoz_name, common_name)) 
+    languageStyles.sort()
     ValidStyles[languageName] = languageStyles
     return languageStyles
 
