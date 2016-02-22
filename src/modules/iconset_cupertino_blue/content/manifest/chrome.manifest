@@ -1,2 +1,0 @@
-override chrome://komodo/skin/iconset/config.less chrome://iconset-cupertino-blue/skin/config.less
-override chrome://komodo/skin/iconset/rules.less chrome://iconset-cupertino-blue/skin/rules.less
