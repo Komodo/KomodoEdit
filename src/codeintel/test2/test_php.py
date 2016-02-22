@@ -4744,8 +4744,8 @@ class DefnTestCase(CodeIntelTestCase):
                 $subTest2-><2>
             }
         """)))
-        #self.assertCompletionsAre(markup_text(content, pos=positions[1]),
-            #[("variable", "name")])
+        self.assertCompletionsAre(markup_text(content, pos=positions[1]),
+            [("variable", "name")])
         self.assertCompletionsAre(markup_text(content, pos=positions[2]),
             [("variable", "name")])
     
