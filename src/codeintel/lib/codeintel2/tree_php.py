@@ -892,6 +892,15 @@ class PHPTreeEvaluator(TreeEvaluator):
                 # in this case we want to return all namespaces starting with
                 # this expr, which is handled in the eval_cplns() method.
                 return None, None
+            elif self.trg.type == "object-members" and len(tokens) == 1 and \
+                 tokens[0][-2:] == '[]':
+                # When a `foreach($x in $y)` is encountered, a '[]' is appended
+                # to "$x", yielding a citdl of "x[]". However, $x may have been
+                # assigned to a variable that is already an array. In that case,
+                # no hits will be found and a search on "x" will need to be
+                # performed, yielding the correct hit.
+                tokens[0] = tokens[0][:-2]
+                hits, nconsumed = self._hits_from_first_part(tokens, scoperef)
             elif self.attemptingPSR4Autoloading:
                 # When attempting to autocomplete classes that have not
                 # specifically been imported, codeintel uses PSR-4
@@ -899,7 +908,8 @@ class PHPTreeEvaluator(TreeEvaluator):
                 # At this point in time, a specific namespace or class was not
                 # found, but that's no reason to throw an error.
                 return None, None
-            raise CodeIntelError("could not resolve first part of '%s'" % expr)
+            if not hits:
+                raise CodeIntelError("could not resolve first part of '%s'" % expr)
 
         self.debug("_hit_from_citdl:: first part: %r -> %r",
                    tokens[:nconsumed], hits)

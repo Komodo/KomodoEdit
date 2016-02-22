@@ -4738,8 +4738,15 @@ class DefnTestCase(CodeIntelTestCase):
             // (do some setup here)
             foreach($test->subTests as $subTest) {
                 $subTest-><1>
+            }
+            $subTests = $test->subTests;
+            foreach($subTests as $subTest2) {
+                $subTest2-><2>
+            }
         """)))
-        self.assertCompletionsAre(markup_text(content, pos=positions[1]),
+        #self.assertCompletionsAre(markup_text(content, pos=positions[1]),
+            #[("variable", "name")])
+        self.assertCompletionsAre(markup_text(content, pos=positions[2]),
             [("variable", "name")])
     
     @tag("bug 751")
