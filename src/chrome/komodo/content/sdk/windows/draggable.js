@@ -5,7 +5,7 @@
 var sys = require("sdk/system");
 
 const {Cc, Ci} = require("chrome");
-const USE_HITTEST = /^(win|macosx)/i.test(sys.platform);
+const USE_HITTEST = /^macosx/i.test(sys.platform); // /^(win|macosx)/i.test(sys.platform);
 
 module.exports = function(elem) {
     
