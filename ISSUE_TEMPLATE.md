@@ -30,7 +30,10 @@
 --- Wrap your logs with these tildes ---
 ```
 
---- [Information on locating the Komodo error log](http://docs.komodoide.com/Troubleshooting/Where-does-Komodo-keep-settings-data#where-does-komodo-log-errors) ---
+--- 
+Information on locating the Komodo error log:
+http://docs.komodoide.com/Troubleshooting/Where-does-Komodo-keep-settings-data#where-does-komodo-log-errors
+---
 
 ### Screenshots / Screencasts
 
