@@ -349,6 +349,15 @@ treechildren::-moz-tree-cell {
     margin-left: 4px;
 }
 
+treechildren:not(.autocomplete-treebody)::-moz-tree-row
+{
+    -moz-border-top-colors: transparent;
+    -moz-border-right-colors: transparent;
+    -moz-border-left-colors: transparent;
+    -moz-border-bottom-colors: transparent;
+    outline: 0 !important;
+}
+
 treechildren::-moz-tree-cell-text(container)
 {
     color: darken(@foreground, 30%);
