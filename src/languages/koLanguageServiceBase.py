@@ -333,14 +333,18 @@ class KoCommenterLanguageService:
             endIndexLine = scimoz.lineFromPosition(endIndex)
             selStartColumn = scimoz.getColumn(selStart)
 
-            # apply the commenting change
-            scimoz.targetStart = startIndex
-            scimoz.targetEnd = workingEndIndex
+            # apply the commenting change one line at a time in order to
+            # preserve line markers (bookmarks, breakpoints, etc.)
+            scimoz.beginUndoAction()
+            for i in xrange(startIndexLine, endIndexLine + 1):
+                scimoz.targetStart = scimoz.positionFromLine(i)
+                scimoz.targetEnd = scimoz.getLineEndPosition(i)
+                scimoz.replaceTarget(replacementLines[i - startIndexLine].rstrip('\r\n'))
+            scimoz.endUndoAction()
             if self.DEBUG:
                 print "replacement length: naive=%r encoding-aware=%r"\
                       % (len(replacement),
                          self._sysUtilsSvc.byteLength(replacement))
-            scimoz.replaceTarget(replacement)
 
             # restore the selection and cursor position
             if scimoz.selectionMode == scimoz.SC_SEL_LINES:
@@ -391,10 +395,18 @@ class KoCommenterLanguageService:
             selStart = scimoz.selectionStart
             selEnd = scimoz.selectionEnd
 
-            # apply the commenting change
-            scimoz.targetStart = startIndex
+            # apply the commenting change by inserting the prefix and suffix
+            # at the beginning and end of the selection, respectively (do not
+            # replace with `replacement` since that might delete any existing
+            # line markers like bookmarks, breakpoints, etc.)
+            scimoz.beginUndoAction()
+            scimoz.targetStart = endIndex
             scimoz.targetEnd = endIndex
-            scimoz.replaceTarget(replacement)
+            scimoz.replaceTarget(suffix)
+            scimoz.targetStart = startIndex
+            scimoz.targetEnd = startIndex
+            scimoz.replaceTarget(prefix)
+            scimoz.endUndoAction()
 
             # restore the selection and cursor position
             scimoz.selectionStart = selStart + len(prefix)
@@ -522,10 +534,14 @@ class KoCommenterLanguageService:
             endIndexLine = scimoz.lineFromPosition(endIndex)
             selStartColumn = scimoz.getColumn(selStart)
 
-            # apply the commenting change
-            scimoz.targetStart = startIndex
-            scimoz.targetEnd = workingEndIndex
-            scimoz.replaceTarget(replacement)
+            # apply the commenting change one line at a time in order to
+            # preserve line markers (bookmarks, breakpoints, etc.)
+            scimoz.beginUndoAction()
+            for i in xrange(startIndexLine, endIndexLine + 1):
+                scimoz.targetStart = scimoz.positionFromLine(i)
+                scimoz.targetEnd = scimoz.getLineEndPosition(i)
+                scimoz.replaceTarget(replacementLines[i - startIndexLine].rstrip('\r\n'))
+            scimoz.endUndoAction()
             delta = len(replacement) - (workingEndIndex - startIndex)
 
             # restore the selection and cursor position
