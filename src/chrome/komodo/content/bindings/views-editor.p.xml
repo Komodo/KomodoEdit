@@ -2204,12 +2204,24 @@
                 && this.editSmartWrapSelection && charCodeChar !== null
                 && this.scimoz.selections == 1
                 && this.scimoz.selectionStart != this.scimoz.selectionEnd
-                && this.wrapSelectionDelimiters.indexOf(charCodeChar) >= 0
-                && (this.scimoz.selText.match(/^[\w_\s]+$/)
-                    || !this.wrapSelectionOnlyPlainText)) {
-                let pairs = {'(': ')', '[': ']', '{': '}', '<': '>'};
-                this.scimoz.replaceSel(charCodeChar + this.scimoz.selText + (pairs[charCodeChar] || charCodeChar));
-                return false;
+                && this.wrapSelectionDelimiters.indexOf(charCodeChar) >= 0) {
+                var wrap = true;
+                if (this.wrapSelectionOnlyPlainText) {
+                    // In order to be considered "plain-text", all text within
+                    // a selection must be of the same style.
+                    var style = this.scimoz.getStyleAt(this.scimoz.selectionStart);
+                    for (let i = this.scimoz.selectionStart + 1; i < this.scimoz.selectionEnd; i++) {
+                        if (this.scimoz.getStyleAt(i) != style) {
+                            wrap = false;
+                            break;
+                        }
+                    }
+                }
+                if (wrap) {
+                    let pairs = {'(': ')', '[': ']', '{': '}', '<': '>'};
+                    this.scimoz.replaceSel(charCodeChar + this.scimoz.selText + (pairs[charCodeChar] || charCodeChar));
+                    return false;
+                }
             } else if (this.enableAutoAbbreviations && charCodeChar !== null
                        && !this.scintilla.autocomplete.active
                        && this.scimoz.selections == 1
