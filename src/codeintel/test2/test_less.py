@@ -94,6 +94,10 @@ class Less_StraightTest(_BaseCSSTestCase):
             self.assertCompletionsAre(markup_text(content, pos=positions[i]),
                                   [("class", "box"),
                                    ("class", "box-shadow")])
+    
+    @tag("bug1091")
+    def test_no_trg_after_variable(self):
+        self.assertNoTrigger("@myvar:<|>")
 
 
 
