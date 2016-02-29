@@ -620,7 +620,7 @@ class PythonTreeEvaluator(TreeEvaluator):
                                 return hit, nconsumed
 
             elif (alias and alias == first_token) \
-                 or (module_name == first_token):
+                 or ((not alias or self.trg.form == TRG_FORM_DEFN) and module_name == first_token):
                 if allow_parentdirlib:
                     libs = self._add_parentdirlib(libs, module_name.split("."))
                 blob = import_handler.import_blob_name(
