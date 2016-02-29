@@ -129,6 +129,10 @@ class _NestedCSSLangIntel(CSSLangIntel):
                         style = None
                     if DEBUG:
                         print "  _trg_from_pos:: style: %r" % (style)
+                    if style and styleClassifier.is_directive(style, ac):
+                        # TODO: variables (e.g. "@myvar") are recognized as directives.
+                        # There should be no triggers for variable names.
+                        return None
                     if style is None or \
                        not styleClassifier.is_identifier(style, ac):
                     #if style is None or \

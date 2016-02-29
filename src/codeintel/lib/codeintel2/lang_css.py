@@ -193,6 +193,9 @@ class _StraightCSSStyleClassifier(object):
 
     def is_number(self, style, accessorCacheBack=None):
         return style in self.number_styles
+    
+    def is_directive(self, style, accessorCacheBack=None):
+        return style == ScintillaConstants.SCE_CSS_DIRECTIVE
 
     @property
     def default_styles(self):
