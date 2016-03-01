@@ -13,6 +13,49 @@
     
     var styleProperties =  {
 
+        'InterfaceStyles': {
+            locale: 'Interface',
+            fields: ['iface-back'],
+            properties: [
+                {
+                    name: 'window',
+                    fields: ['iface-face', 'iface-back', 'iface-fore', 'iface-size']
+                },
+                { name: 'contrast', fields: ['iface-back'] },
+                { name: 'border', fields: ['iface-back'] },
+                { name: 'selected', fields: ['iface-fore', 'iface-back'] },
+                { name: 'button', fields: ['iface-fore', 'iface-back'] },
+                { name: 'icons', fields: ['iface-fore'] },
+                { name: 'textbox', fields: ['iface-fore', 'iface-back'] },
+                { name: 'caption', fields: ['iface-fore'] },
+                { name: 'special', fields: ['iface-fore', 'iface-back'] },
+                { name: 'special contrast', fields: ['iface-back'] },
+                { name: 'button special', fields: ['iface-fore', 'iface-back'] },
+                { name: 'selected special', fields: ['iface-fore', 'iface-back'] },
+                { name: 'textbox special', fields: ['iface-fore', 'iface-back'] },
+                { name: 'icons special', fields: ['iface-fore'] },
+                { name: 'widget', fields: ['iface-fore', 'iface-back'] },
+                { name: 'selected widget', fields: ['iface-fore', 'iface-back'] },
+                { name: 'contrast widget', fields: ['iface-back'] },
+                { name: 'textbox widget', fields: ['iface-fore', 'iface-back'] },
+                { name: 'icons widget', fields: ['iface-fore'] },
+                { name: 'scc ok', fields: ['iface-fore'] },
+                { name: 'scc new', fields: ['iface-fore'] },
+                { name: 'scc modified', fields: ['iface-fore'] },
+                { name: 'scc deleted', fields: ['iface-fore'] },
+                { name: 'scc sync', fields: ['iface-fore'] },
+                { name: 'scc conflict', fields: ['iface-fore'] },
+                { name: 'state foreground', fields: ['iface-fore'] },
+                { name: 'state ok', fields: ['iface-back'] },
+                { name: 'state info', fields: ['iface-back'] },
+                { name: 'state warning', fields: ['iface-back'] },
+                { name: 'state error', fields: ['iface-back'] },
+                { name: 'window button close', fields: ['iface-back'] },
+                { name: 'window button maximize', fields: ['iface-back'] },
+                { name: 'window button minimize', fields: ['iface-back'] },
+            ]
+        },
+
         'CommonStyles': {
             locale: 'Common',
             fields: ['fore', 'back', 'bold', 'italic'],
@@ -99,7 +142,6 @@
         });
         $("#save").on("command", this.saveScheme);
         $("#apply").on("command", this.applyScheme);
-        $("#saveApply").on("command", () => { this.saveScheme(); this.applyScheme(); });
         
         for (let field in this.fields)
         {
@@ -184,12 +226,18 @@
         fontlistall.empty();
         fontlistmono.empty();
         
+        var fontlist2mono = $("#iface-face menu.mono menupopup");
+        var fontlist2all = $("#iface-face menu.all menupopup");
+        fontlist2all.empty();
+        fontlist2mono.empty();
+        
         var fonts = require("ko/fonts").getSystemFonts();
         for (let font of fonts)
         {
             let item = $("<menuitem>");
             item.attr("label", font);
             fontlistall.append(item);
+            fontlist2all.append(item.clone());
         }
         
         fonts = require("ko/fonts").getMonoFonts();
@@ -199,6 +247,7 @@
             item.attr("label", font);
             item.css("font-family", font);
             fontlistmono.append(item);
+            fontlist2mono.append(item.clone());
         }
     }
     
@@ -328,6 +377,9 @@
         var common = selectedScheme.getCommonName(selectedLanguage, styleno);
         if (! common)
             common = selectedScheme.getSpecificName(selectedLanguage, styleno);
+            
+        if (common == 'default' && $("#languageList").element().selection == "-1")
+            common = 'default_fixed';
         
         var item = $(`#propertyList listitem[name="${common}"]`);
         if ( ! item.length)
@@ -362,7 +414,10 @@
     this.onSelectProperty = () =>
     {
         var selected = $("#propertyList").element().selectedItem;
-        if (! selected) return;
+        if (! selected) return setTimeout(this.onSelectProperty, 10); // race condition
+        
+        $("#propertyList listitem[selected]").removeAttr("selected");
+        selected.setAttribute("selected", "true");
         
         var property = selected._property;
         
@@ -508,8 +563,8 @@
             reset: () => {
                 var property = this.getSelectedProperty();
                 var color = selectedScheme.getColor(property.name)
-                $("#color").css("background-color", fore);
-                $("#color").attr("color", fore);
+                $("#color").css("background-color", color);
+                $("#color").attr("color", color);
             }
         },
         lineSpacing: {
@@ -647,6 +702,74 @@
                 if (selectedScheme.caretLineVisible) $("#caretLineVisible").attr("checked", "true");
             }
         },
+        "iface-face": {
+            init: () => {
+                $("#iface-face").on("command", (e) => {
+                    this.ensureWriteable();
+                    var property = this.getSelectedProperty();
+                    var face = e.target.getAttribute("label");
+                    selectedScheme.setInterfaceStyle(property.name, "face", face);
+                    $("#iface-face").attr("label", face);
+                    $("#iface-face").css("font-family", face);
+                });
+            },
+            reset: () => {
+                var property = this.getSelectedProperty();
+                var face = selectedScheme.getInterfaceStyle(property.name, "face");
+                $("#iface-face").attr("label", face);
+                $("#iface-face").css("font-family", face);
+            }
+        },
+        "iface-size": {
+            init: () => {
+                $("#iface-size").on("command", () => {
+                    this.ensureWriteable();
+                    var property = this.getSelectedProperty();
+                    selectedScheme.setInterfaceStyle(property.name, "size", $("#iface-size").value());
+                });
+            },
+            reset: () => {
+                var property = this.getSelectedProperty();
+                var size = selectedScheme.getInterfaceStyle(property.name, "size");
+                $("#iface-size").element().value = size;
+            }
+        },
+        "iface-fore": {
+            init: () => {
+                $("#iface-fore").on("command", () => {
+                    this.ensureWriteable();
+                    this.pickColor($("#iface-fore"), (color) => {
+                        var property = this.getSelectedProperty();
+                        selectedScheme.setInterfaceStyle(property.name, "fore", color)
+                        $(`#propertyList listitem[name="${property.name}"]`).css("color", color);
+                    });
+                });
+            },
+            reset: () => {
+                var property = this.getSelectedProperty();
+                var fore = selectedScheme.getInterfaceStyle(property.name, "fore");
+                $("#iface-fore").css("background-color", fore);
+                $("#iface-fore").attr("color", fore);
+            }
+        },
+        "iface-back": {
+            init: () => {
+                $("#iface-back").on("command", () => {
+                    this.ensureWriteable();
+                    this.pickColor($("#iface-back"), (color) => {
+                        var property = this.getSelectedProperty();
+                        selectedScheme.setInterfaceStyle(property.name, "back", color);
+                        $(`#propertyList listitem[name="${property.name}"]`).css("background", color);
+                    });
+                });
+            },
+            reset: () => {
+                var property = this.getSelectedProperty();
+                var back = selectedScheme.getInterfaceStyle(property.name, "back");
+                $("#iface-back").css("background-color", back);
+                $("#iface-back").attr("color", back);
+            }
+        },
     }
     
     this.pickColor = (button, callback) =>
@@ -670,6 +793,7 @@
                                .getService(Components.interfaces.koIColorPickerAsync);
         }
         
+        color = color == "#" ? "#000000" : color;
         picker.pickColorAsync(function(newcolor) {
             if (newcolor) {
                 button.css("background-color", newcolor);
@@ -689,6 +813,12 @@
         
         if (fields.indexOf("back") != -1)
             style.background = selectedScheme.getBack(this.getSelectedLanguage(), property.name);
+            
+        if (fields.indexOf("iface-fore") != -1)
+            style.color = selectedScheme.getInterfaceStyle(property.name, "fore");
+        
+        if (fields.indexOf("iface-back") != -1)
+            style.background = selectedScheme.getInterfaceStyle(property.name, "back");
         
         if (fields.indexOf("indicator-color") != -1)
         {
@@ -718,10 +848,17 @@
     
     this.applyScheme = (callback) =>
     {
+        if (selectedScheme.writeable)
+            this.saveScheme(); 
+        
         var panel = $($.create("panel", {class: "scheme-apply", noautohide: true, level: "floating", width: 300},
-            $.create("checkbox", {label: "Apply scheme to editor", name: "editor"})
-                    ("checkbox", {label: "Apply scheme to inteface", name: "interface"})
-                    ("hbox", 
+            $.create("description", {value: "Apply to:"})
+                    ("hbox", {class: "checkboxes"}, 
+                        $.create("checkbox", {label: "Editor", name: "editor"})
+                                ("checkbox", {label: "Interface", name: "interface"})
+                                ("checkbox", {label: "Widgets", name: "editor-widgets"})
+                    )
+                    ("hbox", {class: "buttons"}, 
                         $.create("button", {label: "Ok"})
                                 ("button", {label: "Cancel"}))
         ).toString());
@@ -731,26 +868,27 @@
             
         if (prefs.getBoolean("cached.colorscheme-editor.apply.interface"))
             panel.find('checkbox[name="interface"]').attr("checked", "true");
+            
+        if (prefs.getBoolean("cached.colorscheme-editor.apply.editorwidgets"))
+            panel.find('checkbox[name="editor-widgets"]').attr("checked", "true");
         
         panel.find('button[label="Ok"]').on("command", () => {
             var applyEditor = !! panel.find('checkbox[name="editor"]').attr("checked");
             var applyInterface = !! panel.find('checkbox[name="interface"]').attr("checked");
+            var applyEditorWidgets = !! panel.find('checkbox[name="editor-widgets"]').attr("checked");
             
             prefs.setBoolean("cached.colorscheme-editor.apply.editor", applyEditor);
             prefs.setBoolean("cached.colorscheme-editor.apply.interface", applyInterface);
+            prefs.setBoolean("cached.colorscheme-editor.apply.editorwidgets", applyEditorWidgets);
             
             if (applyEditor)
-            {
-                prefs.setString("editor-scheme", selectedScheme.name);
-                var observerSvc = Cc["@mozilla.org/observer-service;1"].
-                                    getService(Ci.nsIObserverService);
-                observerSvc.notifyObservers(this, 'scheme-changed', selectedScheme.name);
-            }
+                require("ko/colorscheme").applyEditor(selectedScheme.name);
             
             if (applyInterface)
-            {
-                // ..
-            }
+                require("ko/colorscheme").applyInterface(selectedScheme.name);
+            
+            if (applyEditorWidgets)
+                require("ko/colorscheme").applyWidgets(selectedScheme.name);
             
             panel.element().hidePopup();
             panel.remove();

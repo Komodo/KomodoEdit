@@ -62,86 +62,42 @@
         
         <groupbox id="pref_appearance_interface">
             <caption label="&interface.caption;" />
-<!-- #if PLATFORM == "linux" -->
+        
             <hbox>
-                <spacer width="80"/>
-                <checkbox id="koSkin_use_gtk_detection"
-                          label="&useGtkDetection.label;"
-                          pref="true"
-                          preftype="boolean"
-                          prefdefault="true"
-                          prefattribute="checked"/>
-            </hbox>
-<!-- #endif -->
-            <!-- Skins -->
-            <hbox align="center" id="pref_appearance_skin_hbox">
-                <label id="pref_appearance_skin_label"
-                       value="&skin.label;"
-                        width="70"/>
-                <menulist id="koSkin_custom_skin"
+                <label value="Interface Colors: " />
+                <menulist id="interface-scheme"
                           pref="true"
                           preftype="string"
-                          prefdefault=""
-                          prefattribute="value"
-                          tooltiptext="&skin.tooltip;">
-                    <menupopup id="koSkin_custom_skin_menupopup">
-                        <menuitem id="pref_appearance_skin_default"
-                                  label="&skinDefault.label;"
-                                  value=""
-<!-- #if PLATFORM == "darwin" -->
-                                  iconset="cupertino"
-<!-- #else -->
-                                  iconset="dark"
-<!-- #endif -->
-                                  />
-<!-- #if PLATFORM == "linux" -->
-<!-- #endif -->
-                    </menupopup>
+                          width="300">
+                    <menupopup/>
                 </menulist>
-                <button class="packages-icon"
-                        tooltip="Get More Skins"
-                        oncommand="require('scope-packages/packages').openCategory('skins')"/>
             </hbox>
-            <!-- Icons -->
-            <hbox align="center">
-                <label id="pref_appearance_iconsets_label"
-                       value="&iconset.label;"
-                       width="70"/>
-                <menulist id="koSkin_custom_icons"
+
+            <hbox>
+                <label value="Widget Colors: " />
+                <menulist id="widget-scheme"
                           pref="true"
                           preftype="string"
-                          prefdefault="dark"
-                          prefattribute="value"
-                          tooltiptext="&iconset.tooltip;">
-                    <menupopup id="koSkin_custom_icons_menupopup">
-                    </menupopup>
+                          width="300">
+                    <menupopup/>
                 </menulist>
             </hbox>
             
-            <!-- HUD Skinning -->
             <hbox>
-                <spacer width="80"/>
-                <checkbox id="koSkin_scheme_skinning"
-                          label="&enableSchemeSkinning.label;"
+                <label value="Editor Colors: " />
+                <menulist id="editor-scheme"
                           pref="true"
-                          preftype="boolean"
-                          prefdefault="true"
-                          prefattribute="checked"/>
+                          preftype="string"
+                          width="300">
+                    <menupopup/>
+                </menulist>
             </hbox>
             
-            <!-- Scrollbar Skinning -->
-            <hbox>
-                <spacer width="80"/>
-                <checkbox id="koSkin_use_custom_scrollbars"
-                          label="&skinEditorScrollbars.label;"
-                          pref="true"
-                          preftype="boolean"
-                          prefdefault="true"
-                          prefattribute="checked"/>
-            </hbox>
-            
+            <checkbox id="link-schemes" pref="true" label="Use the same color scheme for everything"/>
+
         </groupbox>
 
+        <!--
         <groupbox id="ui.tabs.sidepanes.groupbox">
             <caption label="&sidePaneTabStyles.caption;" />
             <hbox id="ui.tabs.sidepanes.left.hbox"
@@ -212,11 +168,6 @@
                                   label="&uiPaneSidebars.menuitem.label;"
                                   value="sidebar"
                                   />
-                        <!-- No need for vertical tabs on the bottom pane. -->
-                        <!--<menuitem id="ui.tabs.sidepanes.bottom.vertical.menu"-->
-                        <!--          label="&uiPaneVerticalTabs.menuitem.label;"-->
-                        <!--          value="vertical"-->
-                        <!--          />-->
                         <menuitem id="ui.tabs.sidepanes.bottom.horizontal.menu"
                                   label="&uiPaneHorizontalTabs.menuitem.label;"
                                   value="horizontal"
@@ -229,6 +180,7 @@
                 </menulist>
             </hbox>
         </groupbox>
+        -->
 
         <groupbox class="advanced">
             <caption label="&mostRecentlyUsed.label;"/>

@@ -492,15 +492,6 @@ menuseparator
     margin-right: 4px;
 }
 
-/* Panes */
-
-page.widget listitem,
-page.widget richlistitem
-{
-    padding-left: 4px;
-    padding-right: 4px;
-}
-
 
 /* Buttons */
 
@@ -623,4 +614,114 @@ dialog, :root.pref-window
         border-right: 1px dashed @background;
     }
     
+}
+
+/* Widgets */
+
+.widgetToolbarWrap
+{
+    height: 27px;
+    background: @contrast;
+    -moz-box-pack: center;
+    -moz-box-align: center;
+    
+    padding: 0 4px;
+    
+    textbox, toolbarbutton, menulist
+    {
+        margin-top: 0;
+        margin-bottom: 0;
+    }
+}
+
+.status-toolbar
+{
+    height: 27px;
+    padding: 0 0 2px 0;
+    background: @contrast;
+    -mox-box-align: center;
+    -moz-box-pack: start;
+    
+    textbox
+    {
+        margin: 0;
+    }
+}
+
+page.widget listitem,
+page.widget richlistitem
+{
+    padding-left: 4px;
+    padding-right: 4px;
+}
+
+page.widget
+{
+    background: @widget !important;
+    color: @foreground-widget !important;
+    
+    tree, listbox, richlistbox
+    {
+        &, ::-moz-tree-cell-text
+        {
+            color: @foreground-widget;
+        }
+        
+        &:not(tree),
+        .tree-rows
+        {
+            background: @widget;
+        }
+    }
+    
+    treechildren::-moz-tree-row(selected)
+    {
+        background: @selected-widget;
+        color: @selected-foreground-widget;
+    }
+    
+    treechildren::-moz-tree-cell-text(selected)
+    {
+        color: @selected-foreground-widget;
+    }
+    
+    &[selected="true"]
+    {
+        background: @selected-widget;
+        color: @selected-foreground-widget;
+        
+        description, label
+        {
+            color: @selected-foreground-widget;
+        }
+    }
+    
+    .widgetToolbarWrap
+    {
+        background: @contrast-widget;
+    }
+    
+    .status-toolbar
+    {
+        background: @contrast-widget;
+    }
+    
+    textbox, menulist
+    {
+        color: @textbox-foreground-widget;
+        background: @textbox-widget;
+        
+        .textbox-textarea
+        {
+            color: @textbox-foreground-widget;
+        }
+        
+        &:not([disabled="true"]):not([readonly])
+        {
+            &:focus, &:active, &[focused]
+            {
+                box-shadow: 0px 0px 0px 2px @selected-widget;
+            }
+        }
+    }
 }

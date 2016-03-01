@@ -126,6 +126,31 @@
                         <button id="fontBack" class="colorpicker"/>
                     </hbox>
                     
+                    <hbox field="iface-face">
+                        <description value="&filePrefAllLangFontFamily.label;"/>
+                        <menulist id="iface-face" flex="1">
+                            <menupopup>
+                                <menu label="Monospace" class="mono"><menupopup/></menu>
+                                <menu label="All Fonts" class="all"><menupopup/></menu>
+                            </menupopup>
+                        </menulist>
+                    </hbox>
+                    
+                    <hbox field="iface-size">
+                        <description value="&filePrefAllLangSize.label;"/>
+                        <textbox id="iface-size" flex="1"/>
+                    </hbox>
+                    
+                    <hbox field="iface-fore">
+                        <description value="&filePrefAllLangForeground.label;"/>
+                        <button id="iface-fore" class="colorpicker"/>
+                    </hbox>
+                    
+                    <hbox field="iface-back">
+                        <description value="&filePrefAllLangBackground.label;"/>
+                        <button id="iface-back" class="colorpicker"/>
+                    </hbox>
+                    
                     <hbox field="bold">
                         <description value="Bold: "/>
                         <button id="fontBold"
@@ -233,7 +258,6 @@
             <button oncommand="window.close()" label="Cancel" class="button"/>
             <button id="save" label="Save" class="button"/>
             <button id="apply" label="Apply" class="button"/>
-            <button id="saveApply" label="Save and Apply" class="button"/>
         </hbox>
         
     </vbox>

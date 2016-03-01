@@ -4,16 +4,7 @@
 :root.primary-scheme
 {
     #deleteScheme,
-    #save,
-    #saveApply
-    {
-        visibility: collapse;
-    }
-}
-
-:root:not(.primary-scheme)
-{
-    #apply
+    #save
     {
         visibility: collapse;
     }
@@ -47,7 +38,9 @@ view
 #content
 {
     #fontlist label,
-    #fontlist .menulist-label-box
+    #fontlist .menulist-label-box,
+    #iface-face label,
+    #iface-face .menulist-label-box
     {
         font-family: inherit;
     }
@@ -102,6 +95,14 @@ view
         min-width: 20px;
         min-height: 20px;
     }
+    
+    listitem[selected="true"]
+    {
+        color: @selected-foreground !important;
+        background: @selected !important;
+        text-decoration: underline;
+        font-weight: bold;
+    }
 }
 
 panel.scheme-apply
@@ -114,7 +115,12 @@ panel.scheme-apply
         margin: 0;
     }
     
-    hbox
+    hbox.checkboxes
+    {
+        margin-left: 15px;
+    }
+    
+    hbox.buttons
     {
         -moz-box-align: center;
         -moz-box-pack: center;

@@ -980,7 +980,7 @@ class KoInitService(object):
             prefs.deletePref("autoSaveMinutes")
 
     # This value must be kept in sync with the value in "../prefs/prefs.p.xml"
-    _current_pref_version = 20
+    _current_pref_version = 21
 
     def _upgradeUserPrefs(self, prefs):
         """Upgrade any specific info in the user's prefs.xml.
@@ -1100,7 +1100,12 @@ class KoInitService(object):
                 prefs.deletePref("runtime_manifests")
                 prefs.setBoolean("removedAbyss", True)
                 prefs.setBoolean("forceSkinReload", True)
-
+                
+        if version < 21: # Komodo 10
+            prefs.setString("editor-scheme", "Default")
+            prefs.setStringPref("ui.tabs.sidepanes.left.layout", "icons")
+            prefs.setStringPref("ui.tabs.sidepanes.right.layout", "icons")
+            
         # Set the version so we don't have to upgrade again.
         prefs.setLongPref("version", self._current_pref_version)
 

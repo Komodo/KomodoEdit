@@ -1,98 +1,104 @@
+const {interfaces: Ci, classes: Cc} = Components;
+Components.utils.import("resource://gre/modules/Services.jsm");
+
+var schemeService = Cc['@activestate.com/koScintillaSchemeService;1'].getService();
+
+var $ = require("ko/dom");
+
+function OnPreferencePageOK()
+{
+    var colorscheme = require("ko/colorscheme");
+    colorscheme.applyEditor($(`#editor-scheme`, window).attr("value"));
+    colorscheme.applyInterface($(`#interface-scheme`, window).attr("value"));
+    colorscheme.applyWidgets($(`#widget-scheme`, window).attr("value"));
+    
+    return true;
+}
+
 function PrefUi_OnLoad() {
-    
-    const {interfaces: Ci} = Components;
-    Components.utils.import("resource://gre/modules/Services.jsm");
-
-    var iconSelector    = document.getElementById('koSkin_custom_icons');
-    var skinSelector    = document.getElementById('koSkin_custom_skin')
-
-    /*
-     * Update the selected icon set relative to the selected skin
-     */
-    var updateIconSetSel = function()
+    // todo: turn into UI sdk
+    var populateSchemeList = (id) =>
     {
-        var iconSet = skinSelector.selectedItem.getAttribute('iconset');
-        if ( ! iconSet)
-        {
-            return;
+        var schemes = new Array();
+        schemeService.getSchemeNames(schemes, new Object());
+        
+        var menuitem;
+        var s, scheme;
+        for (var i = 0; i < schemes.value.length; i++) {
+            scheme = schemes.value[i];
+            menuitem = document.createElement('menuitem');
+            s = schemeService.getScheme(scheme);
+            
+            if (! s) continue;
+            if (! s.writeable) 
+                menuitem.setAttribute('class','primary_menu_item');
+                
+            menuitem.setAttribute('label', scheme);
+            menuitem.setAttribute('id', scheme);
+            menuitem.setAttribute('value', scheme);
+            menuitem._isDark = s.isDarkBackground;
+            
+            $(menuitem).css({
+                "font-family": s.getCommon("default_fixed", "face"),
+                color: s.getCommon("default_fixed", "fore"),
+                background: s.getCommon("default_fixed", "back")
+            });
+            
+            $(`#${id} > menupopup`, window).append(menuitem);
         }
-
-        var iconSetElem = iconSelector.querySelector('menuitem#pref_appearance_iconset_' + iconSet);
-        if (iconSetElem)
+        
+        // sort by dark scheme
+        $(`#${id} > menupopup`, window).children().each(function ()
         {
-            iconSelector.selectedItem = iconSetElem;
-        }
-    };
-
-    // Update the selected iconset when a skin is changed (if required)
-    skinSelector.addEventListener('select', updateIconSetSel);
-
-    // Hide the skin selector if there are no skins
-    var items = skinSelector.querySelectorAll('menuitem');
-    document.getElementById('pref_appearance_skin_hbox').collapsed = (items.length == 0);
-
-    // If gtk detection is true, disable the skin selection
-    if (window.navigator.platform.toLowerCase().indexOf("linux") != -1)
-    {
-        var checkboxDetect  = document.getElementById('koSkin_use_gtk_detection');
-        var menuSkin        = document.getElementById('koSkin_custom_skin');
-        var menuIcons       = document.getElementById('koSkin_custom_icons');
-
-        var setSkinState = function()
-        {
-            menuSkin.disabled = checkboxDetect.checked;
-            menuIcons.disabled = checkboxDetect.checked;
-
-            // If gtk detection is enabled, detect the current gtk theme
-            // and select the relevant komodo skin (if available)
-            if (checkboxDetect.checked)
+            if (this._isDark)
             {
-                getKoObject('skin').gtk.getThemeInfo(function(themeInfo)
-                {
-                    var skinFile = getKoObject('skin').gtk.resolveSkin(themeInfo);
-                    var menuItemValue =  "";
-                    if (skinFile)
-                    {
-                        menuItemValue = skinFile;
-                    }
-
-                    var menuItem = skinSelector.querySelector('menuitem[value="' + menuItemValue + '"]');
-                    if (menuItem)
-                    {
-                        if (skinSelector.selectedItem == menuItem)
-                        {
-                            updateIconSetSel();
-                        }
-                        else
-                        {
-                            skinSelector.selectedItem = menuItem;
-                        }
-                    }
-                });
+                while (this.previousSibling && ! this.previousSibling._isDark) {
+                    this.parentNode.insertBefore(this, this.previousSibling);
+                }
             }
-        }
-
-        checkboxDetect.addEventListener('click', setSkinState);
+        });
+        
+        $(`#${id} > menupopup`, window).children().each(function ()
+        {
+            if ( ! this.classList.contains('primary_menu_item')) return;
+            while (this.previousSibling && ! this.previousSibling.classList.contains('primary_menu_item'))
+                this.parentNode.insertBefore(this, this.previousSibling);
+        });
+        
+        $(`#${id} > menupopup .primary_menu_item`, window).last().after($("<menuseparator/>"));
+        
+        //var schemeName = prefs.getString(id);
+        //$(`#${id}`).element().selectedItem = $(`#${id} menuitem[label="${schemeName}"]`).element();
     }
     
-    var ssCheck = document.getElementById('koSkin_scheme_skinning');
-    var csCheck = document.getElementById('koSkin_use_custom_scrollbars');
+    populateSchemeList("interface-scheme");
+    populateSchemeList("widget-scheme");
+    populateSchemeList("editor-scheme");
     
-    var setSchemeSkinningState = function()
-    {
-        if ( ! ssCheck.checked) csCheck.checked = false;
-        csCheck.disabled = ! ssCheck.checked;
-    }
-    
-    ssCheck.addEventListener('click', setSchemeSkinningState);
-
-    // Run default actions (load prefs and their selected state)
     parent.hPrefWindow.onpageload();
-
-    if (window.navigator.platform.toLowerCase().indexOf("linux") != -1)
+    
+    if ($("#link-schemes", window).attr("checked"))
     {
-        setSkinState();
+        $("#widget-scheme, #editor-scheme", window).attr("disabled", "true");
     }
     
-    setSchemeSkinningState();
+    $("#link-schemes", window).on("command", () =>
+    {
+        var checked = $("#link-schemes", window).attr("checked");
+        if (checked)
+            $("#widget-scheme, #editor-scheme", window).attr("disabled", "true");
+        else
+            $("#widget-scheme, #editor-scheme", window).removeAttr("disabled");
+    });
+    
+    $("#interface-scheme", window).on("command", () =>
+    {
+        var checked = $("#link-schemes", window).attr("checked");
+        if ( ! checked) return;
+        
+        var val = $("#interface-scheme", window).attr("value");
+        $(`#widget-scheme`, window).element().selectedItem = $(`#widget-scheme menuitem[label="${val}"]`, window).element();
+        $(`#editor-scheme`, window).element().selectedItem = $(`#editor-scheme menuitem[label="${val}"]`, window).element();
+    });
+    
 }

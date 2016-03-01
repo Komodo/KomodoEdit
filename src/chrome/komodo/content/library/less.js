@@ -33,6 +33,8 @@ var koLess = function koLess()
 
     const prefs             =   Cc['@activestate.com/koPrefService;1']
                                 .getService(Ci.koIPrefService).prefs;
+                                
+    var _loadSheetNo = 0;
 
     koLess.prototype =
     {
@@ -155,15 +157,54 @@ var koLess = function koLess()
             // avoid incorrect icons.  Bug 99717.
             // (The bug mainly happens when you switch away and back.)
             Services.tm.currentThread.dispatch(() => {
-                Cc["@mozilla.org/chrome/chrome-registry;1"]
-                  .getService(Ci.nsIXULChromeRegistry)
+                var wm = Cc["@mozilla.org/appshell/window-mediator;1"].getService(Ci.nsIWindowMediator);
+                var mw = wm.getMostRecentWindow("Komodo");
+                var require = mw.require;
+                
+                Components.classes["@mozilla.org/chrome/chrome-registry;1"]
+                  .getService(Components.interfaces.nsIXULChromeRegistry)
                   .refreshSkins();
+                
+                var suffix = (new  Date().valueOf());
+                var windows = require("ko/windows").getAll();
+                for (let w of windows)
+                {
+                    try {
+                        var body = w.document.documentElement;
+                        for (let child of Array.slice(body.parentNode.childNodes))
+                        {
+                            if (child.nodeName == "xml-stylesheet" && child.nodeValue.indexOf('.less') != -1)
+                            {
+                                child.nodeValue = child.nodeValue.replace(
+                                    /(href="[a-zA-Z0-9\/:\.\-\_]*\.less)(?:\?\d+|)/,
+                                    '$1?' + suffix);
+                            }
+                            
+                            if (child.nodeName == "xml-stylesheet" && child.nodeValue.indexOf('href="chrome://komodo/skin/"') != -1)
+                            {
+                                child.nodeValue = child.nodeValue.replace(
+                                    'href="chrome://komodo/skin/"',
+                                    'href="chrome://komodo/skin/global.less?' + suffix + '"');
+                            }
+                        }
+                        
+                        var links = body.getElementsByTagName("link");
+                        for (var link of links)
+                        {
+                            if (link.getAttribute("rel") != "stylesheet" ||
+                                link.href.indexOf('.less') == -1)
+                                continue;
+                            
+                                link.href = link.href.replace(
+                                    /([a-zA-Z0-9\/:\.\-\_]*\.less)(?:\?\d+|)/,
+                                    '$1?' + suffix);
+                        }
+                    } catch (e) {}
+                }
             }, Ci.nsIEventTarget.DISPATCH_NORMAL);
         },
 
-        _loadSheetNo: 0,
-        /**
-         * Load a specific stylesheet
+        /* Load a specific stylesheet
          *
          * @param   {Element}       sheet           xml-stylesheet element
          * @param   {Function}      callback       
@@ -179,14 +220,15 @@ var koLess = function koLess()
          */
         loadSheet: function koLess_loadSheet(sheet, callback = function() {}, isInternalCall = false, async = false, cache = true)
         {
-            var threadId = this._loadSheetNo++;
+            var threadId = _loadSheetNo++;
             
             if ( ! this.initialized)
             {
                 this.init(this.loadSheet.bind(this, sheet, callback, isInternalCall), async);
                 return;
             }
-
+            
+            sheet.href = sheet.href.replace(/\?.*/, '');
             if (isInternalCall)
             {
                 this.debug(threadId + " Loading: " + sheet.href);

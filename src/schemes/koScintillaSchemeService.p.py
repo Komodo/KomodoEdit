@@ -132,6 +132,7 @@ class Scheme(SchemeBase):
 
     def _loadSchemeSettings(self, namespace, upgradeSettings=True):
         self._commonStyles = namespace.get('CommonStyles', {})
+        self._interfaceStyles = namespace.get('InterfaceStyles', {})
         self._languageStyles = namespace.get('LanguageStyles', {})
         self._miscLanguageSettings = namespace.get('MiscLanguageSettings', {})
         self._colors = namespace.get('Colors', {})
@@ -358,6 +359,7 @@ class Scheme(SchemeBase):
             raise SchemeCreationException(_viewsBundle.formatStringFromName(
                                           "schemeFileNotCloned.template",
                                           [newname]))
+        clone._interfaceStyles = copy.deepcopy(self._interfaceStyles)
         clone._commonStyles = copy.deepcopy(self._commonStyles)
         clone._languageStyles = copy.deepcopy(self._languageStyles)
         clone._miscLanguageSettings = copy.deepcopy(self._miscLanguageSettings)
@@ -371,12 +373,13 @@ class Scheme(SchemeBase):
     def serialize(self):
         version = "Version = " + pprint.pformat(self._current_scheme_version)
         booleans = "Booleans = " + pprint.pformat(self._booleans)
+        interfaceStyles = "InterfaceStyles = " + pprint.pformat(self._interfaceStyles)
         commonStyles = "CommonStyles = " + pprint.pformat(self._commonStyles)
         languageStyles = "LanguageStyles = " + pprint.pformat(self._languageStyles)
         miscLanguageSettings = "MiscLanguageSettings = " + pprint.pformat(self._miscLanguageSettings)
         colors = "Colors = " + pprint.pformat(self._colors)
         indicators = "Indicators = " + pprint.pformat(self._indicators)
-        parts = [version, booleans, commonStyles, languageStyles, miscLanguageSettings, colors, indicators]
+        parts = [version, booleans, interfaceStyles, commonStyles, languageStyles, miscLanguageSettings, colors, indicators]
         s = '\n\n'.join(parts)
         return s
 
@@ -561,6 +564,33 @@ class Scheme(SchemeBase):
         scincolor = self._getAspect(language, style, 'fore')
         #print "asked for fore of ", language, style, "got", scincolor
         return scincolor2mozcolor(scincolor)
+    
+    def setInterfaceStyle(self, style, key, value):
+        log.info("setInterfaceStyle(%r, %r, %r)", style, key, value)
+        
+        if key in ["fore", "back"]:
+            value = mozcolor2scincolor(value)
+            
+        if style not in self._interfaceStyles:
+            self._interfaceStyles[style] = {}
+        
+        self._interfaceStyles[style][key] = value
+        self.isDirty = 1
+    
+    def getInterfaceStyle(self, style, key):
+        v = None
+        if style in self._interfaceStyles:
+             v = self._interfaceStyles[style].get(key, None)
+
+        if v:
+            if key in ["fore", "back"]:
+                return  scincolor2mozcolor(v)
+            elif key == "face":
+                return self._getFontEffective(v)
+            else:
+                return v
+        else:
+            return ""
 
     def getCommon(self, style, key):
         v = None

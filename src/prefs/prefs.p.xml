@@ -5,7 +5,7 @@
   <!-- This version field is used by Komodo to upgrade preferences.
        The value should be kept in sync with "../components/koInitService.p.py"
   -->
-  <long id="version">20</long>
+  <long id="version">21</long>
 
   <!-- "uilayout_version" is used by Komodo to upgrade ui layouts.
        Must keep in sync with "../chrome/komodo/content/library/uilayout.p.js"
@@ -772,7 +772,10 @@
        current project, if any. -->
   <boolean id="new_file_add_to_project">1</boolean>
 
-  <string id="editor-scheme">Tomorrow_Dark</string>
+  <string id="editor-scheme">Default</string>
+  <string id="interface-scheme">Default</string>
+  <string id="widget-scheme">Default</string>
+  <boolean id="link-schemes">1</boolean>
 
   <!-- #if PLATFORM == "darwin" -->
   <!-- Use a different fontQuality setting on the Mac - see bug 99891. -->
@@ -998,6 +1001,8 @@
     <string>ui.tabs.sidepanes.bottom.layout</string>
     <string>keybinding-scheme</string>
     <string>editor-scheme</string>
+    <string>interface-scheme</string>
+    <string>widget-scheme</string>
     <string>editor_font_quality</string>
   </ordered-preference>
 
