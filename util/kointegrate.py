@@ -161,6 +161,13 @@ class GitBranch(Branch):
         kwargs["env"]["LANG"] = "C"
         log.debug("git: %s", " ".join(args))
         return subprocess.check_call([self._git_exe] + list(args), **kwargs)
+    
+    def _executeCustom(self, *args, **kwargs):
+        kwargs.setdefault("cwd", self.base_dir)
+        kwargs["env"] = dict(kwargs.get("env", os.environ))
+        kwargs["env"]["LANG"] = "C"
+        log.debug("executeCustom: %s", " ".join(args))
+        return subprocess.check_call(list(args), **kwargs)
 
     def _capture_output(self, *args, **kwargs):
         kwargs.setdefault("cwd", self.base_dir)
@@ -243,6 +250,7 @@ class GitBranch(Branch):
             msg_file.write(message)
 
         # Apply the patch
+        paths = filter(self.filter_path, paths)
         all_changed_paths = set(path.src for path in paths)
         all_changed_paths |= set(path.dest for path in paths)
         all_changed_paths = filter(bool, all_changed_paths)
@@ -253,6 +261,31 @@ class GitBranch(Branch):
         if proc.returncode:
             raise IntegrationError("Failed to apply patch")
         return message
+    
+    def generate_reject_patches(self):
+        status = self._capture_output("status", "--porcelain")
+        status = status.split('\n')
+        
+        for line in status:
+            filepath = line.split()
+            if len(filepath) == 0:
+                continue
+            
+            filepath = filepath[-1]
+            if filepath[-3:] != "rej":
+                continue
+            
+            try:
+                self._executeCustom("mpatch", "-aMN", filepath[:-4], filepath)
+            except:
+                pass
+    
+    def filter_path(self, path):
+        if path.action == path.ADDED or path.dest:
+            return True
+        
+        return os.path.isfile(os.path.join(self.base_dir, path.src))
+        
 
     def commit(self, revision, paths, options):
         try:
@@ -262,6 +295,7 @@ class GitBranch(Branch):
             message = ""
         if not message.strip():
             message = revision.integration_message
+        paths = filter(self.filter_path, paths)
         all_changed_paths = set(path.src for path in paths)
         all_changed_paths |= set(path.dest for path in paths)
         all_changed_paths = filter(bool, all_changed_paths)
@@ -787,6 +821,9 @@ class Revision(object):
         except IntegrationError:
             log.info("")
             if options.force:
+                if options.rejectpatches:
+                    branch.generate_reject_patches()
+                    
                 if options.interactive:
                     message = ("There were issues integrating the patch; do "
                                "you want to force a commit anyway?  (You can "
@@ -1118,6 +1155,8 @@ def main(argv=None):
                              "(default)")
     parser.add_argument("-n", "--non-interactive", action="store_false",
                         dest="interactive", help="no interaction")
+    parser.add_argument("-r", "--reject-patches", action="store_true", dest="rejectpatches",
+                        help="generate reject patches using mpatch (must be on PATH)")
     parser.add_argument("-f", "--force", action="store_true",
                         help="force application of patches that won't apply "
                              "cleanly; ignore files missing in the target")
@@ -1143,7 +1182,7 @@ def main(argv=None):
                         nargs="+")
     parser.set_defaults(log_level=logging.INFO, exclude_outside_paths=False,
                         interactive=True, excludes=[], force=False,
-                        dry_run=False, skip_check=False)
+                        rejectpatches=False, dry_run=False, skip_check=False)
     args = parser.parse_args(argv)
     log.setLevel(args.log_level)
 
