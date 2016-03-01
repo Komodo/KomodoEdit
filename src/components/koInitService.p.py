@@ -336,12 +336,42 @@ class KoInitService(object):
         # delete your tools folder, Komodo will reinstall your tools
         if not os.path.isdir(os.path.join(currUserDataDir,"tools")) and not dataDirs:
             self.installSampleTools()
+            
+        self.registerProfileResource()
 
         self.installTemplates()
+        self.installDefaults()
         self.setPlatformErrorMode()
         self.setEncoding()
         self.checkDefaultEncoding()
         self.initProcessUtils()
+        
+    def registerProfileResource(self):
+        koDirSvc = components.classes["@activestate.com/koDirs;1"].getService()
+        userDataDir = koDirSvc.userDataDir
+        
+        ioService = components.classes['@mozilla.org/network/io-service;1'] \
+                        .getService(components.interfaces.nsIIOService)
+        resProt = ioService.getProtocolHandler('resource')\
+                        .QueryInterface(components.interfaces.nsIResProtocolHandler)
+        
+        aliasFile = components.classes["@mozilla.org/file/local;1"]\
+                          .createInstance(components.interfaces.nsILocalFile)
+        aliasFile.initWithPath(userDataDir)
+
+        aliasURI = ioService.newFileURI(aliasFile)
+        resProt.setSubstitution("profile", aliasURI)
+        
+    def installDefaults(self):
+        koDirSvc = components.classes["@activestate.com/koDirs;1"].getService()
+        dstFile = os.path.join(koDirSvc.userDataDir, "colors.less")
+        if not os.path.isfile(dstFile):
+            fhandle = open(dstFile, 'a')
+            try:
+                os.utime(dstFile, None)
+            finally:
+                fhandle.close()
+    
 
     def observe(self, subject, topic, data):
         # this exists soley for app-startup support

@@ -50,11 +50,7 @@ Import(
     'mozVersion',
 );
 
-$cons->Preprocess('komodo.p.css', 'komodo.css');
-$cons->InstallInChrome('komodo.css');
 $cons->InstallInChrome('splitter.css');
-$cons->Preprocess('toolbar.p.css', 'toolbar.css');
-$cons->InstallInChrome('toolbar.css');
 $cons->InstallInChrome('browser.css');
 $cons->InstallInChrome('extmgr.css');
 $cons->Preprocess('codeintel.p.css', 'codeintel.css');
@@ -76,53 +72,3 @@ $cons->InstallInChrome('prefs/pref-codeintel.css');
 
 $cons->InstallInChrome('dialogs/customizeToolbar.css');
 $cons->InstallInChrome('dialogs/find2.css');
-
-if ($platform eq "darwin") {
-    $cons->InstallRecursive("$mozChromeDir/komodo/skin/",
-                            cwd()."/src/chrome/komodo/skin/plat/mac/",
-                            ('\.svn', 'chrome\.manifest'));
-
-    $cons->InstallRecursive("$mozChromeDir/komodo/skin/plat/current/",
-                            cwd()."/src/chrome/komodo/skin/plat/mac/",
-                            ('\.svn', 'chrome\.manifest'));
-
-    $cons->InstallAs("$mozChromeDir/komodo/skin/plat/global.css",
-                     "$mozChromeDir/toolkit/skin/classic/global/global.css");
-} elsif ($platform eq "win") {
-    $cons->InstallRecursive("$mozChromeDir/komodo/skin/",
-                            cwd()."/src/chrome/komodo/skin/plat/win/",
-                            ('\.svn', 'chrome\.manifest'));
-
-    $cons->InstallRecursive("$mozChromeDir/komodo/skin/plat/current/",
-                            cwd()."/src/chrome/komodo/skin/plat/win/",
-                            ('\.svn', 'chrome\.manifest'));
-
-    $cons->InstallAs("$mozChromeDir/komodo/skin/plat/global.css",
-                     "$mozChromeDir/toolkit/skin/classic/global/global.css");
-} else {
-    $cons->InstallRecursive("$mozChromeDir/komodo/skin/",
-                            cwd()."/src/chrome/komodo/skin/plat/gnome/",
-                            ('\.svn', 'chrome\.manifest'));
-
-    $cons->InstallRecursive("$mozChromeDir/komodo/skin/plat/current/",
-                            cwd()."/src/chrome/komodo/skin/plat/gnome/",
-                            ('\.svn', 'chrome\.manifest'));
-
-    $cons->InstallAs("$mozChromeDir/komodo/skin/plat/global.css",
-                     "$mozChromeDir/toolkit/skin/classic/global/global.css");
-}
-
-$cons->InstallRecursive("$mozChromeDir/komodo/skin/plat/shared/",
-                        cwd()."/src/chrome/komodo/skin/plat/shared/",
-                        ('\.svn', 'chrome\.manifest'));
-
-$cons->InstallInChrome('iconset/config.less');
-$cons->InstallInChrome('iconset/rules.less');
-
-$cons->Preprocess('partials/scheme-skinning.p.less', 'partials/scheme-skinning.less');
-$cons->InstallInChrome('partials/scheme-skinning.less');
-
-$cons->InstallInChrome('filters.svg');
-
-$cons->InstallInChrome('svg/defs/cupertino.xml');
-$cons->InstallInChrome('svg/defs/cupertino-blue.xml');

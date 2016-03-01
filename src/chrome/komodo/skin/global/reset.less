@@ -1,0 +1,37 @@
+*:not(scrollbar), ::-moz-tree-row, menuseparator, tabpanels, toolboxrow
+{
+    -moz-appearance: none;
+    background: transparent;
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+::moz-tree-cell, ::moz-tree-row, ::moz-tree-image, ::moz-tree-cell-text, ::moz-tree-twisty
+{
+    margin: 0;
+    padding: 0;
+}
+
+button, toolbarbutton
+{
+    text-shadow: none;
+}
+
+description, label, button,tab, tabs, tabbox, panel, textbox, input {
+	vertical-align: baseline;
+    border-radius: inherit;
+}
+
+:root {
+	line-height: 1;
+}
+
+menupopup {
+    menu,
+    menuitem,
+    toolbarbutton,
+    autorepeatbutton {
+        list-style-image: none;
+    }
+}

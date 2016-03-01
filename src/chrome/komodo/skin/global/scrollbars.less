@@ -1,0 +1,41 @@
+/* Scrollbars */
+
+@import url("chrome://komodo/skin/global/colors.less");
+@import url("resource://profile/colors.less");
+
+scrollbar
+{
+    -moz-appearance: none !important;
+    border: 0;
+    background: transparent;
+    opacity: 1.0 !important;
+    
+    &[orient="vertical"]
+    {
+        min-width: 15px;
+    }
+    
+    &[orient="horizontal"]
+    {
+        min-height: 15px;
+    }
+
+    slider
+    {
+        -moz-appearance: none;
+        border: 0;
+    }
+
+    thumb
+    {
+        -moz-appearance: none;
+        background: @secondary;
+        border: 0;
+    }
+
+    thumb:hover
+    {
+        -moz-appearance: none;
+        background: @secondary;
+    }
+}

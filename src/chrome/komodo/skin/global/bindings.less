@@ -1,0 +1,19 @@
+#toolbox_main {
+  -moz-binding: url("chrome://komodo/content/bindings/toolbar.xml#toolbox");
+}
+
+toolbar[printpreview="true"] {
+  -moz-binding: url("chrome://global/content/printPreviewBindings.xml#printpreviewtoolbar");
+}
+
+#main-toolboxrow {
+  -moz-binding: url('chrome://komodo/content/bindings/toolbar.xml#toolboxrow-overflow');
+}
+
+popup[type="tooltip"] {
+  -moz-binding: url('chrome://komodo/content/bindings/widgets.xml#kotooltip');
+}
+
+tree.codetree {
+    -moz-binding: url('chrome://komodo/content/bindings/widgets.xml#cbtree');
+}

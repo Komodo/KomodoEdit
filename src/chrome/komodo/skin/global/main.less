@@ -1,0 +1,215 @@
+@import url("chrome://komodo/skin/global/global.less");
+/* Komodo Toolbox */
+
+#komodo_main:not(._tr_loaded)
+{
+    -moz-box-orient: horizontal;
+}
+
+#toolbox_main
+{
+    background: @primary;
+    border-right: 1px solid @border;
+
+    & > vbox, #main-toolboxrow-wrapper
+    {
+        -moz-box-flex: 1;
+    }
+
+    #main-toolboxrow-wrapper
+    {
+        -moz-box-pack: center;
+        -moz-box-align: center;
+        padding: 8px 0;
+    }
+
+    &, #main-toolboxrow-wrapper, toolbar, toolbaritem,
+    #main-toolboxrow > hbox
+    {
+        -moz-box-orient: vertical !important;
+    }
+
+    toolbar
+    {
+        width: auto !important;
+        max-width: 50px;
+        padding: 0;
+    }
+
+    #main-toolboxrow-wrapper > toolbar
+    {
+        visibility: collapse;
+    }
+
+    toolbarbutton dropmarker
+    {
+        visibility: collapse;
+    }
+
+    toolbaritem > toolbarbutton
+    {
+        margin: 4px 0;
+    }
+}
+
+/* Statusbar */
+
+statusbar
+{
+    border-top: 1px solid @border;
+    background: @primary;
+
+    statusbarpanel > label
+    {
+        margin: 2px;
+        padding: 3px;
+    }
+}
+
+/* Workspace splitter */
+
+splitter
+{
+    &.workspace_splitter
+    {
+        position: relative;
+        z-index: 100;
+
+        &[orient="horizontal"]
+        {
+            min-width: 5px;
+            width: 5px;
+        }
+
+        &[orient="vertical"]
+        {
+            min-height: 5px;
+            height: 5px;
+        }
+    }
+
+    &#workspace_left_splitter
+    {
+        border-right: 1px solid @border;
+        margin-left: -4px;
+    }
+
+    &#workspace_right_splitter
+    {
+        border-left: 1px solid @border;
+        margin-right: -4px;
+    }
+
+    &#bottom_splitter
+    {
+        border-top: 1px solid @border;
+        margin-bottom: -4px;
+    }
+}
+
+/* Places */
+
+#placesSubpanelSplitterHboxBorder
+{
+    margin: 0 !important;
+    background: transparent !important;
+}
+
+#placesSubpanelSplitter vbox,
+#placesSubpanelDeck
+{
+    /*background: @secondary !important;*/
+}
+
+/* Customizable Panes */
+
+ko-pane:not([customizing]) .pane-drop-target
+{
+    display: none;
+}
+
+/* Pref Windows */
+
+.pref-window:not(#prefWindow)
+{
+    padding: 0 24px;
+}
+
+/* HUD elements */
+
+.hud, #editorTooltip
+{
+    background: @primary;
+    
+    &:not(.widget):not(.kodialog)
+    {
+        border: 1px solid @border;
+    }
+}
+
+#commando-panel
+{
+    label,
+    description
+    {
+        font-size: 1rem !important;
+        color: @selected-fg;
+    }
+
+    separator
+    {
+        height: 1px;
+        background: @border;
+    }
+
+    #commando-tip
+    {
+        background: @secondary;
+    }
+}
+
+/* Toolbox */
+
+#toolbox2-hierarchy-tree treechildren::-moz-tree-image
+{
+    padding-right: 4px;
+    padding-left: 2px;
+}
+
+.widgetToolbarWrap
+{
+    background: @primary;
+    border-top: 1px solid @border;
+    -moz-box-pack: center;
+    -moz-box-align: center;
+}
+
+/* Quicklaunch */
+
+#quicklaunch :not(button) > button
+{
+    width: 200px;
+    height: 25px;
+}
+
+/* Editor tabs */
+
+#tabbed-view tabs
+{
+    margin-bottom: -1px;
+}
+
+/* Special Classes */
+
+.editor-field
+{
+    color: @foreground;
+    background: @background;
+}
+
+.statusbar
+{
+    border: 0;
+    border-top: 1px solid @border !important;
+    background: @primary;
+}

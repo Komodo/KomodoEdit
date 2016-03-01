@@ -43,8 +43,6 @@
 
 <?xml-stylesheet href="chrome://komodo/skin/" type="text/css"?>
 
-<?xml-stylesheet href="chrome://komodo/skin/toolbar.css" type="text/css"?>
-<?xml-stylesheet href="chrome://komodo/skin/global/global.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/buttons.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/views.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/scintilla.css" type="text/css"?>
@@ -127,7 +125,6 @@
     <script src="chrome://komodo/content/library/stringutils.js"          type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/treeutils.js"            type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/widgets.js"              type="application/x-javascript;version=1.7"/>
-    <script src="chrome://komodo/content/library/skin.js"                 type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/utils.js"                type="application/x-javascript;version=1.7"/>
 <!-- #if BUILD_FLAVOUR == "dev" -->
     <script src="chrome://komodo/content/library/test.js"                 type="application/x-javascript;version=1.7"/>

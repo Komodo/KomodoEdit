@@ -45,5 +45,18 @@ Import(
     'mozVersion',
 );
 
-$cons->Preprocess('global.p.css', 'global.css');
-$cons->InstallInChrome('global.css');
+$cons->InstallInChrome('bindings.less');
+$cons->InstallInChrome('colors.less');
+$cons->InstallInChrome('normalize.less');
+$cons->InstallInChrome('prefs.less');
+$cons->InstallInChrome('reset.less');
+$cons->InstallInChrome('scrollbars.less');
+$cons->InstallInChrome('main.less');
+$cons->InstallInChrome('global.less');
+
+$cons->InstallInChrome('components/buttons.less');
+$cons->InstallInChrome('components/languages.less');
+$cons->InstallInChrome('components/scrolltabs.less');
+
+#$cons->InstallAs("$mozChromeDir/komodo/skin/global/global.css",
+#                 "$mozChromeDir/toolkit/skin/classic/global/global.css");

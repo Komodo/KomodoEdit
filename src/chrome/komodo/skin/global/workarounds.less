@@ -1,0 +1,73 @@
+/* These CSS rules ideally should not exist, or should exist elsewhere (in the core of Komodo or a module) */
+
+/* Needs a separator */
+#unifiedMenuPrimaryPane
+{
+    border-right: 1px solid @border;
+}
+
+/* Why do these elements exist if they're not visible? */
+#unifiedMenuButton #window-controls,
+#unifiedMenuButton #fullscreenflex
+{
+    visibility: collapse;
+}
+
+/* Should be removed from openfiles.less */
+#openfilesListbox richlistitem.file-item label.file-title {
+    margin-left: 0 !important;
+}
+
+/* Should be added to openfiles.less */
+image + label
+{
+    padding-left: 4px;
+}
+
+/* Should be fixed by including chrome://komodo/skin/plat/shared/editor.less, as the rules are already
+ * defined in that file */
+scintilla[anonid="scintilla"] > panel[anonid="autocompletepopup"]
+{
+    & > hbox > grid
+    {
+        -moz-user-focus: normal;
+    }
+}
+
+/* This should be in icons_rules.less */
+menuitem[type="checkbox"],
+menuitem[type="radio"]
+{
+    & > .menu-iconic-left
+    {
+        visibility: visible;
+    }
+}
+
+/* Use @selected-fg color for selected item in autocomplete popup
+ * Not sure where it should be, but I put it here.
+ */
+.ko-autocomplete-item[selected="true"] {
+    box > text-wrapper > description {
+        color: @selected-fg;
+    }
+}
+
+/* breadcrumbs.less should not hardcore colors */
+#breadcrumbBar .breadcrumb .toolbarbutton-text {
+    color: @foreground !important;
+    font-family: 'Droid Sans', 'Lucida Grande', 'Segoe UI', 'Open Sans', sans-serif !important;
+    font-size: 0.9rem !important;
+}
+
+/* need to remove this rule from find2.css */
+#open-in-rx-btn, #pin-btn {
+    -moz-appearance: none !important;
+}
+
+/* make the value inside font size picker visible,
+ * small width causes that the value isn't visible
+ */
+#specificSize, #commonSize, #fontSize {
+    min-width: 50px;
+}

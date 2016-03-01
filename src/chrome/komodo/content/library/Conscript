@@ -91,8 +91,6 @@ $cons->InstallInChrome('snippets.js');
 $cons->InstallInChrome('tabstops.js');
 $cons->InstallInChrome('history.js');
 $cons->InstallInChrome('widgets.js');
-$cons->Preprocess('skin.p.js', 'skin.js');
-$cons->InstallInChrome('skin.js');
 $cons->InstallInChrome('less.js');
 $cons->InstallInChrome('utils.js');
 $cons->Preprocess('performance_tweaks.p.js', 'performance_tweaks.js');

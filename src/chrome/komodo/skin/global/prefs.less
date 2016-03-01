@@ -1,0 +1,45 @@
+.colorpicker
+{
+    cursor: pointer;
+    border: 1px solid rgba(0,0,0,0.3);
+    padding: 2px;
+    border-radius: 2px;
+    
+    & > box
+    {
+        width: 24px;
+        height: 24px;
+    }
+}
+
+#color_buttons
+{
+    margin-top: 15px;
+    width: 400px;
+    max-width: 400px; /* SERIOUSLY XUL! Grrrr */
+    -moz-box-align: center;
+    -moz-box-pack: center;
+    
+    separator
+    {
+        height: 100%;
+        width: 25px;
+    }
+}
+
+#skin_colors > vbox > hbox > vbox
+{
+    -moz-box-align: center;
+    -moz-box-pack: center;
+    min-width: 100px;
+    margin-bottom: 5px;
+}
+
+#skin_colors > vbox
+{
+    & > label
+    {
+        margin-top: 15px;
+        font-weight: bold;
+    }
+}

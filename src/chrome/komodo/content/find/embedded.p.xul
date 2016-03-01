@@ -460,12 +460,5 @@
 
     </vbox>
 
-    <script type="application/x-javascript;version=1.7">
-    (function() {
-        var w = require("ko/windows").getMain();
-        w.ko.skin._loadVirtualStyle("scheme-skinning-partial", window);
-    })();
-    </script>
-
 </window>
 

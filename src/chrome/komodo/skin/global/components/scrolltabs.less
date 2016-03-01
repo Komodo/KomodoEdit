@@ -1,0 +1,181 @@
+/* Copyright (c) 2000-2006 ActiveState Software Inc.
+   See the file LICENSE.txt for licensing information. */
+
+tabs[type="scrollable"]
+{
+    -moz-binding: url('chrome://komodo/content/bindings/scrolltabs.xml#tabs-scrollable');
+}
+
+tab[type="file-tab"]
+{
+    -moz-binding: url('chrome://komodo/content/bindings/scrolltabs.xml#file-status-tab');
+    max-width: 250px;
+}
+
+ko-pane[type="sidebar"] tabs:not([type])
+{
+    .tab-text + .tab-close-button
+    {
+        visibility: collapse;
+    }
+    
+    &[widget-id^="findresults_tabpanel"],
+    &[widget-id^="debugsession"]
+    {
+        .tab-text + .tab-close-button
+        {
+            visibility: visible;
+        }
+    }
+}
+
+tab[widget^="findresults_tabpanel"],
+tab[widget^="debugsession"]
+{
+    -moz-binding: url('chrome://komodo/content/bindings/scrolltabs.xml#tab-close-button');
+}
+
+.tabs-select-button
+{
+    margin: 0;
+    padding-left: 0;
+    padding-right: 0;
+    /* Avoid bgcolor alpha-channel tweaks for .tabs-select-button not
+         in a sidebar. */
+    background-color: inherit !important;
+
+    &:hover:active,
+    &[open="true"]
+    {
+        background-color: rgba(0,0,0,0.20);
+    }
+    
+    & > .toolbarbutton-menu-dropmarker
+    {
+        display: none;
+    }
+    
+    & > .toolbarbutton-text
+    {
+        display: none;
+    }
+    
+    & > .toolbarbutton-icon {
+        -moz-margin-end: 2px;
+    }
+}
+
+.scroll-arrow-right-icon
+{
+    list-style-image : url("chrome://komodo/skin/images/scrollArrowRight.png");
+    
+    &:hover
+    {
+        list-style-image : url("chrome://komodo/skin/images/scrollArrowRight_hover.png");
+    }
+    
+    &[disabled="true"],
+    &[disabled="true"]:hover,
+    &[disabled="true"]:hover:active
+    {
+        list-style-image : url("chrome://komodo/skin/images/scrollArrowRight_disable.png");
+    }
+}
+
+.scroll-arrow-left-icon
+{
+    list-style-image : url("chrome://komodo/skin/images/scrollArrowLeft.png");
+    
+    &:hover
+    {
+        list-style-image : url("chrome://komodo/skin/images/scrollArrowLeft_hover.png");
+    }
+    
+    &[disabled="true"],
+    &[disabled="true"]:hover,
+    &[disabled="true"]:hover:active
+    {
+        list-style-image : url("chrome://komodo/skin/images/scrollArrowLeft_disable.png");
+    }
+}
+
+.scroll-x-icon
+{
+    list-style-image : url("chrome://komodo/skin/images/small-x.png");
+    
+    &:hover
+    {
+        list-style-image : url("chrome://komodo/skin/images/small-x_hover.png");
+    }
+    
+    &[disabled="true"],
+    &[disabled="true"]:hover,
+    &[disabled="true"]:hover:active
+    {
+        list-style-image : url("chrome://komodo/skin/images/small-x_disable.png");
+    }
+}
+
+.scroll-minimize-left-icon
+{
+    list-style-image : url("chrome://komodo/skin/images/minimize_left.gif");
+    
+    &:hover
+    {
+        list-style-image : url("chrome://komodo/skin/images/minimize_left_hover.gif");
+    }
+    
+    &[disabled="true"],
+    &[disabled="true"]:hover,
+    &[disabled="true"]:hover:active
+    {
+        list-style-image : url("chrome://komodo/skin/images/minimize_left_disable.gif");
+    }
+}
+
+
+.scroll-minimize-right-icon
+{
+    list-style-image : url("chrome://komodo/skin/images/minimize_right.png");
+    
+    &:hover
+    {
+        list-style-image : url("chrome://komodo/skin/images/minimize_right_hover.png");
+    }
+    
+    &[disabled="true"],
+    &[disabled="true"]:hover,
+    &[disabled="true"]:hover:active
+    {
+        list-style-image : url("chrome://komodo/skin/images/minimize_right_disable.png");
+    }
+}
+
+
+.scroll-minimize-down-icon
+{
+    list-style-image : url("chrome://komodo/skin/images/minimize_down.gif");
+    
+    &:hover
+    {
+        list-style-image : url("chrome://komodo/skin/images/minimize_down_hover.gif");
+    }
+    
+    &[disabled="true"],
+    &[disabled="true"]:hover,
+    &[disabled="true"]:hover:active
+    {
+        list-style-image : url("chrome://komodo/skin/images/minimize_down_disable.gif");
+    }
+}
+
+.tab-icon {
+    padding: 0px;
+    margin: 0px;
+    margin-right: 4px;
+}
+
+/* Menuitem for the selected tab in the tabs-droplist. */
+tabs menuitem.selected {
+  font-weight: bold;
+}

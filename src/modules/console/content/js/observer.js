@@ -1,6 +1,5 @@
 window.addEventListener('load', function() {
     window.document.documentElement.classList.add("hud");
-    require("ko/windows").getMain().ko.skin._loadVirtualStyle("scheme-skinning-partial", window);
     
     var obs = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
     var consoleSdk = require("ko/console");

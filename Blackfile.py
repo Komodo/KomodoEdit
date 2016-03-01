@@ -2580,29 +2580,9 @@ def BuildQuickBuildDB(cfg, argv):
     else:
         skinPlat = 'gnome'
 
-    _addFiles(cfg, sourceSubdir='src/chrome/komodo/skin/plat/'+skinPlat,
-               targetSubdir=os.path.join(cfg.mozBin, 'chrome', 'komodo', 'skin'),
+    _addFiles(cfg, sourceSubdir='src/chrome/komodo/skin/global',
+              targetSubdir=os.path.join(cfg.mozBin, 'chrome', 'komodo', 'skin', 'global'),
                extensions=['css', 'less', 'png'],
-               preserveSubtrees=1)
-   
-    _addFiles(cfg, sourceSubdir='src/chrome/komodo/skin/plat/shared',
-               targetSubdir=os.path.join(cfg.mozBin, 'chrome', 'komodo', 'skin', 'plat', 'shared'), 
-               extensions=['css', 'less', 'png', 'manifest'],
-               preserveSubtrees=1)
-
-    _addFiles(cfg, sourceSubdir='src/chrome/komodo/skin/plat'+skinPlat,
-              targetSubdir=os.path.join(cfg.mozBin, 'chrome', 'komodo', 'skin', 'plat', 'current'),
-              extensions=['css', 'less', 'png'],
-              preserveSubtrees=1)
-
-    _addFiles(cfg, sourceSubdir='src/chrome/iconsets',
-               targetSubdir=os.path.join(cfg.mozBin, 'chrome', 'iconsets'),
-               extensions=['css', 'less', 'png', 'svg', 'manifest', 'jar'],
-               preserveSubtrees=1)
-     
-    _addFiles(cfg, sourceSubdir='src/images/icons/plat/'+skinPlat,
-               targetSubdir=os.path.join(cfg.mozBin, 'chrome', 'komodo', 'skin', 'images'),
-               extensions=['gif', 'png', 'xpm'],
                preserveSubtrees=1)
   
     pickle.dump(_table, open('qbtable.pik', 'w'))

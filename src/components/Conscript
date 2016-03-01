@@ -85,12 +85,6 @@ $cons->InstallXpcomComponent('asCommandLineHandler.js',
                              {'@activestate.com/komodo/final-clh;1' => "{07DCEAC7-31F6-11DA-BC61-000D935D3368}"},
                              ["command-line-handler", "m-komodo", '@activestate.com/komodo/final-clh;1']);
 
-# koManifestLoader
-$cons->InstallXpcomComponent('koManifestLoader.js',
-                             {'@activestate.com/koManifestLoader;1' => "{C1549B73-14A9-4C6E-BC1A-3D0698460378}"});
-$cons->Install($idlExportDir, 'koIManifestLoader.idl');
-$cons->BuildAndInstallXpt('koIManifestLoader.idl');
-
 # koResolve
 $cons->InstallXpcomComponent('koResolve.js',
                              {'@activestate.com/koResolve;1' => "{2584BC91-0AEE-4DB1-B73F-2F1610979ED1}"});
