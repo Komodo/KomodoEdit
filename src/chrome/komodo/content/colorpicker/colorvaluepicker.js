@@ -11,15 +11,9 @@ Refresh.Web.ColorValuePicker = function(id) {
 
 	this.onValuesChanged = null;
 
-	this._hueInput = document.getElementById(this.id + '_Hue');
-	this._valueInput = document.getElementById(this.id + '_Brightness');
-	this._saturationInput = document.getElementById(this.id + '_Saturation');
-
-	this._redInput = document.getElementById(this.id + '_Red');
-	this._greenInput = document.getElementById(this.id + '_Green');
-	this._blueInput = document.getElementById(this.id + '_Blue');
-
 	this._hexInput = document.getElementById(this.id + '_Hex');
+	this._rgbInput = document.getElementById(this.id + '_RGB');
+	this._hslInput = document.getElementById(this.id + '_HSL');
 
 	// assign events
 
@@ -41,24 +35,13 @@ Refresh.Web.ColorValuePicker = function(id) {
 		this_._onHexKeyUp(e);
 	}
 
-	// HSB
-	this._hueInput.addEventListener('keyup', this._event_onHsvKeyUp, false);
-	this._valueInput.addEventListener('keyup',this._event_onHsvKeyUp, false);
-	this._saturationInput.addEventListener('keyup',this._event_onHsvKeyUp, false);
-	this._hueInput.addEventListener('blur', this._event_onHsvBlur, false);
-	this._valueInput.addEventListener('blur',this._event_onHsvBlur, false);
-	this._saturationInput.addEventListener('blur',this._event_onHsvBlur, false);
-
-	// RGB
-	this._redInput.addEventListener('keyup', this._event_onRgbKeyUp, false);
-	this._greenInput.addEventListener('keyup', this._event_onRgbKeyUp, false);
-	this._blueInput.addEventListener('keyup', this._event_onRgbKeyUp, false);
-	this._redInput.addEventListener('blur', this._event_onRgbBlur, false);
-	this._greenInput.addEventListener('blur', this._event_onRgbBlur, false);
-	this._blueInput.addEventListener('blur', this._event_onRgbBlur, false);
-
-	// HEX
 	this._hexInput.addEventListener('keyup', this._event_onHexKeyUp, false);
+	this._rgbInput.addEventListener('keyup', this._event_onRgbKeyUp, false);
+	this._hslInput.addEventListener('keyup', this._event_onHsvKeyUp, false);
+	
+	this._hexInput.addEventListener('blur', this._event_onHexBlur, false);
+	this._rgbInput.addEventListener('blur', this._event_onRgbBlur, false);
+	this._hslInput.addEventListener('blur', this._event_onHsvBlur, false);
 	
 	this.color = new Refresh.Web.Color();
 	
@@ -69,14 +52,8 @@ Refresh.Web.ColorValuePicker = function(id) {
 		
 	// set the others based on initial value
 	this._hexInput.value = this.color.hex;
-	
-	this._redInput.value = this.color.r;
-	this._greenInput.value = this.color.g;
-	this._blueInput.value = this.color.b;
-	
-	this._hueInput.value = this.color.h;
-	this._saturationInput.value = this.color.s;
-	this._valueInput.value = this.color.v;
+	this._rgbInput.value = 'rgb(' + [this.color.r,this.color.g,this.color.b].join(',') + ')';
+	this._hslInput.value = 'hsl(' + [this.color.h,this.color.s,this.color.v].join(',') + ')';
 }
 
 Refresh.Web.ColorValuePicker.prototype = {
@@ -106,30 +83,50 @@ Refresh.Web.ColorValuePicker.prototype = {
 		if (e.target.value == '')
 			this.setValuesFromHsv();
 	},
+	_onHexBlur: function(e) {
+		if (e.target.value == '')
+			this.setValuesFromHsv();
+	},
 	HexBlur: function(e) {
 		if (e.target.value == '')
 			this.setValuesFromHsv();
 	},
 	validateRgb: function(e) {
 		if (!this._keyNeedsValidation(e)) return e;
-		this._redInput.value = this._setValueInRange(this._redInput.value,0,255);
-		this._greenInput.value = this._setValueInRange(this._greenInput.value,0,255);
-		this._blueInput.value = this._setValueInRange(this._blueInput.value,0,255);
+		var rgb = this._rgbInput.value.split(/(?:rgb\(|\))/)[1].split(/\s*,\s*/)
+		var _rgb = [];
+		
+		_rgb[0] = this._setValueInRange(rgb[0],0,255);
+		_rgb[1] = this._setValueInRange(rgb[1],0,255);
+		_rgb[2] = this._setValueInRange(rgb[2],0,255);
+		
+		if (rgb.join() != _rgb.join())
+			this._rgbInput.value = 'rgb(' + [_rgb[0],_rgb[1],_rgb[2]].join(',') + ')';
+		
 		return null;
 	},
 	validateHsv: function(e) {
 		if (!this._keyNeedsValidation(e)) return e;
-		this._hueInput.value = this._setValueInRange(this._hueInput.value,0,359);
-		this._saturationInput.value = this._setValueInRange(this._saturationInput.value,0,100);
-		this._valueInput.value = this._setValueInRange(this._valueInput.value,0,100);
+		
+		var hsv = this._hslInput.value.split(/(?:hsl\(|\))/)[1].split(/\s*,\s*/)
+		var _hsv = [];
+		
+		_hsv[0] = this._setValueInRange(hsv[0],0,359);
+		_hsv[1] = this._setValueInRange(hsv[1],0,100);
+		_hsv[2] = this._setValueInRange(hsv[2],0,100);
+		
+		if (hsv.join() != _hsv.join())
+			this._hslInput.value = 'hsl(' + [_hsv[0],_hsv[1],_hsv[2]].join(',') + ')';
+		
 		return null;
 	},
 	validateHex: function(e) {
 		if (!this._keyNeedsValidation(e)) return e;
-		var hex = new String(this._hexInput.value).toUpperCase();
-		hex = hex.replace(/[^A-F0-9]/g, '0');
+		var _hex = new String(this._hexInput.value);
+		var hex = _hex.toUpperCase();
+		hex = hex.replace(/[^A-F0-9]/g, '');
 		if (hex.length > 6) hex = hex.substring(0, 6);
-		this._hexInput.value = hex;
+		if (hex != _hex) this._hexInput.value = "#" + hex;
 		return null;
 	},
 	_keyNeedsValidation: function(e) {
@@ -159,29 +156,23 @@ Refresh.Web.ColorValuePicker.prototype = {
 		return value;
 	},
 	setValuesFromRgb: function() {
-		this.color.setRgb(this._redInput.value, this._greenInput.value, this._blueInput.value);
-		this._hexInput.value = this.color.hex;
-		this._hueInput.value = this.color.h;
-		this._saturationInput.value = this.color.s;
-		this._valueInput.value = this.color.v;
+		var rgb = this._rgbInput.value.split(/(?:rgb\(|\))/)[1].split(/\s*,\s*/)
+		this.color.setRgb(rgb[0],rgb[1],rgb[2]);
+		
+		this._hexInput.value = "#" + this.color.hex;
+		this._hslInput.value = 'hsl(' + [this.color.h,this.color.s,this.color.v].join(',') + ')';
 	},
 	setValuesFromHsv: function() {
-		this.color.setHsv(this._hueInput.value, this._saturationInput.value, this._valueInput.value);		
+		var hsv = this._hslInput.value.split(/(?:hsl\(|\))/)[1].split(/\s*,\s*/)
+		this.color.setHsv(hsv[0],hsv[1],hsv[2]);
 		
-		this._hexInput.value = this.color.hex;
-		this._redInput.value = this.color.r;
-		this._greenInput.value = this.color.g;
-		this._blueInput.value = this.color.b;
+		this._hexInput.value = "#" + this.color.hex;
+		this._rgbInput.value = 'rgb(' + [this.color.r,this.color.g,this.color.b].join(',') + ')';
 	},
 	setValuesFromHex: function() {
-		this.color.setHex(this._hexInput.value);
+		this.color.setHex(this._hexInput.value.substr(1));
 
-		this._redInput.value = this.color.r;
-		this._greenInput.value = this.color.g;
-		this._blueInput.value = this.color.b;
-		
-		this._hueInput.value = this.color.h;
-		this._saturationInput.value = this.color.s;
-		this._valueInput.value = this.color.v;
+		this._rgbInput.value = 'rgb(' + [this.color.r,this.color.g,this.color.b].join(',') + ')';
+		this._hslInput.value = 'hsl(' + [this.color.h,this.color.s,this.color.v].join(',') + ')';
 	}
 };

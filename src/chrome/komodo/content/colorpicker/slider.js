@@ -42,6 +42,10 @@ Refresh.Web.Slider = function(elem, settings) {
 	this._arrow.style.position = 'absolute';
 	this._arrow.style.top = '0px';
 	this._arrow.style.left = '0px';
+	
+	if (settings.width)
+		this._arrow.style.width = settings.width;
+	
 	document.body.appendChild(this._arrow);
 
 	// attach 'this' to html objects

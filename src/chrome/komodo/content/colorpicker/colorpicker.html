@@ -36,10 +36,6 @@
 			font-family: tahoma;
 			font-size: 10pt;
 		}
-		:root {
-			/* make sure this isn't transparent */
-			background-color: -moz-dialog;
-		}
 		</style>
 	
 		<script type="text/javascript" src="chrome://komodo/content/colorpicker/colormethods.js" ></script>
@@ -73,9 +69,15 @@
 			}, true);
 		</script>
 	</head>
-	<body>
+	<body class="editor-field">
 	
 		<table>
+            <tr>
+                <td colspan="2">
+                    <div id="cp1_Preview" style="width: 143px; height: 60px; padding: 0; margin: 0; border: 0; display: inline-block;"></div>
+                    <div id="cp1_Preview2" style="width: 143px; height: 60px; padding: 0; margin: 0; border: 0; display: inline-block;"></div>
+                </td>
+            </tr>
 			<tr>
 				<td valign="top">
 					<div id="cp1_ColorMap"></div>
@@ -83,111 +85,25 @@
 				<td valign="top">
 					<div id="cp1_ColorBar"></div>
 				</td>
-	
-				<td valign="top">
-	
-					<table>
-						<tr>
-							<td colspan="3">
-								<div id="cp1_Preview" style="width: 60px; height: 60px; padding: 0; margin: 0; border: solid 1px #000;">
-									<br />
-								</div>
-							</td>
-						</tr>
-						<tr>
-							<td>
-								<input type="radio" id="cp1_HueRadio" name="cp1_Mode" value="0" />
-							</td>
-							<td>
-								<label for="cp1_HueRadio">H:</label>
-							</td>
-							<td>
-								<input type="text" id="cp1_Hue" value="0" style="width: 40px;" /> &deg;
-							</td>
-						</tr>
-	
-						<tr>
-							<td>
-								<input type="radio" id="cp1_SaturationRadio" name="cp1_Mode" value="1" />
-							</td>
-							<td>
-								<label for="cp1_SaturationRadio">S:</label>
-							</td>
-							<td>
-								<input type="text" id="cp1_Saturation" value="100" style="width: 40px;" /> %
-							</td>
-						</tr>
-	
-						<tr>
-							<td>
-								<input type="radio" id="cp1_BrightnessRadio" name="cp1_Mode" value="2" />
-							</td>
-							<td>
-								<label for="cp1_BrightnessRadio">B:</label>
-							</td>
-							<td>
-								<input type="text" id="cp1_Brightness" value="100" style="width: 40px;" /> %
-							</td>
-						</tr>
-	
-						<tr>
-							<td colspan="3" height="5">
-	
-							</td>
-						</tr>
-	
-						<tr>
-							<td>
-								<input type="radio" id="cp1_RedRadio" name="cp1_Mode" value="r" />
-							</td>
-							<td>
-								<label for="cp1_RedRadio">R:</label>
-							</td>
-							<td>
-								<input type="text" id="cp1_Red" value="255" style="width: 40px;" />
-							</td>
-						</tr>
-	
-						<tr>
-							<td>
-								<input type="radio" id="cp1_GreenRadio" name="cp1_Mode" value="g" />
-							</td>
-							<td>
-								<label for="cp1_GreenRadio">G:</label>
-							</td>
-							<td>
-								<input type="text" id="cp1_Green" value="0" style="width: 40px;" />
-							</td>
-						</tr>
-	
-						<tr>
-							<td>
-								<input type="radio" id="cp1_BlueRadio" name="cp1_Mode" value="b" />
-							</td>
-							<td>
-								<label for="cp1_BlueRadio">B:</label>
-							</td>
-							<td>
-								<input type="text" id="cp1_Blue" value="0" style="width: 40px;" />
-							</td>
-						</tr>
-	
-	
-						<tr>
-							<td>
-								#:
-							</td>
-							<td colspan="2">
-								<input type="text" id="cp1_Hex" value="FF0000" style="width: 60px;" />
-							</td>
-						</tr>
-	
-					</table>
-				</td>
-			</tr>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <input type="text" id="cp1_Hex" value="#FF0000" style="text-align: center; letter-spacing: 2px; font-weight: bold; width: 290px;" />
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <input type="text" id="cp1_RGB" value="rgb(255,0,0)" style="text-align: center; letter-spacing: 2px; font-weight: bold; width: 290px;" />
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <input type="text" id="cp1_HSL" value="hsl(0,100%,100%)" style="text-align: center; letter-spacing: 2px; font-weight: bold; width: 290px;" />
+                </td>
+            </tr>
 		</table>
 	
-	<div>
+	<div style="text-align: center">
 		<input type="button" id="ok_button" accesskey="O" onclick="window.retval = 1; window.close();" value="OK" style="min-width: 70px">
 		<input type="button" id="cancel_button" accesskey="C" onclick="window.retval = 0; window.close();" value="Cancel" style="min-width: 70px">
 	</div>

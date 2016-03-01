@@ -73,7 +73,7 @@ koColorPicker.prototype = {
         var win = Components.classes['@mozilla.org/appshell/window-mediator;1']
                       .getService(Components.interfaces.nsIWindowMediator)
                       .getMostRecentWindow(null);
-        var windowFeatures = 'chrome,modal,titlebar,resizable';
+        var windowFeatures = 'modal,,resizable=no';
         if (screenX >= 0)
             windowFeatures += ",left=" + screenX;
         if (screenY >= 0)
@@ -132,7 +132,7 @@ koColorPicker.prototype = {
         var win = Components.classes['@mozilla.org/appshell/window-mediator;1']
                       .getService(Components.interfaces.nsIWindowMediator)
                       .getMostRecentWindow(null);
-        var windowFeatures = 'chrome,modal,titlebar,resizable';
+        var windowFeatures = 'modal,resizable=no';
         if (aScreenX !== 0 || aScreenY !== 0) {
             windowFeatures += ",left=" + aScreenX + ",top=" + aScreenY;
         }

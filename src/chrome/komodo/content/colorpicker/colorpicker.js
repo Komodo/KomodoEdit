@@ -30,41 +30,42 @@ Refresh.Web.ColorPicker = function(id, settings) {
 			this.settings.clientFilesPath = settings.clientFilesPath;
 	}
 
-	// attach radio & check boxes
-	this._hueRadio = document.getElementById(this.id + '_HueRadio');
-	this._saturationRadio = document.getElementById(this.id + '_SaturationRadio');
-	this._valueRadio = document.getElementById(this.id + '_BrightnessRadio');
-	
-	this._redRadio = document.getElementById(this.id + '_RedRadio');
-	this._greenRadio = document.getElementById(this.id + '_GreenRadio');
-	this._blueRadio = document.getElementById(this.id + '_BlueRadio');
-	//this._webSafeCheck = document.getElementById(this.id + '_WebSafeCheck');
-
-	this._hueRadio.value = 'h';
-	this._saturationRadio.value = 's';
-	this._valueRadio.value = 'v';
-	
-	this._redRadio.value = 'r';
-	this._greenRadio.value = 'g';
-	this._blueRadio.value = 'b';
+	//// attach radio & check boxes
+	//this._hueRadio = document.getElementById(this.id + '_HueRadio');
+	//this._saturationRadio = document.getElementById(this.id + '_SaturationRadio');
+	//this._valueRadio = document.getElementById(this.id + '_BrightnessRadio');
+	//
+	//this._redRadio = document.getElementById(this.id + '_RedRadio');
+	//this._greenRadio = document.getElementById(this.id + '_GreenRadio');
+	//this._blueRadio = document.getElementById(this.id + '_BlueRadio');
+	////this._webSafeCheck = document.getElementById(this.id + '_WebSafeCheck');
+	//
+	//this._hueRadio.value = 'h';
+	//this._saturationRadio.value = 's';
+	//this._valueRadio.value = 'v';
+	//
+	//this._redRadio.value = 'r';
+	//this._greenRadio.value = 'g';
+	//this._blueRadio.value = 'b';
 
 	// attach events to radio & checks
 
 	var this_ = this;
-	this._event_onRadioClicked = function(e) {
-		this_._onRadioClicked(e);
-	}
-
-	this._hueRadio.addEventListener('click', this._event_onRadioClicked, false);
-	this._saturationRadio.addEventListener('click', this._event_onRadioClicked, false);
-	this._valueRadio.addEventListener('click', this._event_onRadioClicked, false);
-	
-	this._redRadio.addEventListener('click', this._event_onRadioClicked, false);
-	this._greenRadio.addEventListener('click', this._event_onRadioClicked, false);
-	this._blueRadio.addEventListener('click', this._event_onRadioClicked, false);
+	//this._event_onRadioClicked = function(e) {
+	//	this_._onRadioClicked(e);
+	//}
+	//
+	//this._hueRadio.addEventListener('click', this._event_onRadioClicked, false);
+	//this._saturationRadio.addEventListener('click', this._event_onRadioClicked, false);
+	//this._valueRadio.addEventListener('click', this._event_onRadioClicked, false);
+	//
+	//this._redRadio.addEventListener('click', this._event_onRadioClicked, false);
+	//this._greenRadio.addEventListener('click', this._event_onRadioClicked, false);
+	//this._blueRadio.addEventListener('click', this._event_onRadioClicked, false);
 
 	// attach simple properties
 	this._preview = document.getElementById(this.id + '_Preview');
+	this._preview2 = document.getElementById(this.id + '_Preview2');
 	
 	
 	// MAP
@@ -73,7 +74,7 @@ Refresh.Web.ColorPicker = function(id, settings) {
 	this._mapBase.style.height = '256px';
 	this._mapBase.style.padding = 0;
 	this._mapBase.style.margin = 0;
-	this._mapBase.style.border = 'solid 1px #000';
+	this._mapBase.style.border = '0';
 	
 	this._mapL1 = Refresh.Element('img',{src:this.settings.clientFilesPath + 'blank.gif', width:256, height:256} ); //'blank.gif'});
 	this._mapL1.style.margin = '0px';
@@ -92,7 +93,7 @@ Refresh.Web.ColorPicker = function(id, settings) {
 	this._bar.style.height = '256px';
 	this._bar.style.padding = 0;
 	this._bar.style.margin = '0px 10px';
-	this._bar.style.border = 'solid 1px #000';		
+	this._bar.style.border = '0';		
 	
 	this._barL1 = Refresh.Element('img',{src:this.settings.clientFilesPath + 'blank.gif', width:20, height:256});
 	this._barL1.style.margin = '0px';
@@ -115,10 +116,38 @@ Refresh.Web.ColorPicker = function(id, settings) {
 	this._map = new Refresh.Web.Slider(this._mapL2, {xMaxValue: 255, yMinValue: 255, arrowImage: this.settings.clientFilesPath + 'mappoint.gif'});
 
 	// attach color slider
-	this._slider = new Refresh.Web.Slider(this._barL4, {xMinValue: 1,xMaxValue: 1, yMinValue: 255, arrowImage: this.settings.clientFilesPath + 'rangearrows.gif'});;
+	this._slider = new Refresh.Web.Slider(this._barL4, {xMinValue: 1,xMaxValue: 1, yMinValue: 255, arrowImage: this.settings.clientFilesPath + 'rangearrows.gif', width: "24px"});
 
 	// attach color values
 	this._cvp = new Refresh.Web.ColorValuePicker(this.id);
+	
+	this._cvp._hexInput.addEventListener("click", function(e) {
+		this_.setColorMode("h");
+	});
+	
+	this._cvp._rgbInput.addEventListener("click", function(e) {
+		if (e.target.selectionStart != e.target.selectionEnd)
+			return;
+		
+		var value = e.target.value;
+		value = value.substr(0, e.target.selectionStart).split(",");
+		
+		if (value.length == 1) this_.setColorMode("r");
+		if (value.length == 2) this_.setColorMode("g");
+		if (value.length == 3) this_.setColorMode("b");
+	});
+	
+	this._cvp._hslInput.addEventListener("click", function(e) {
+		if (e.target.selectionStart != e.target.selectionEnd)
+			return;
+		
+		var value = e.target.value;
+		value = value.substr(0, e.target.selectionStart).split(",");
+		
+		if (value.length == 1) this_.setColorMode("h");
+		if (value.length == 2) this_.setColorMode("s");
+		if (value.length == 3) this_.setColorMode("v");
+	});
 
 	// link up events
 	var cp = this;
@@ -138,6 +167,8 @@ Refresh.Web.ColorPicker = function(id, settings) {
 	this.setColorMode(this.settings.startMode);
 	this.setColorFromHex(this.settings.startHex);
 	this.color = null;
+	
+	this._preview2.style.backgroundColor = '#' + this.settings.startHex;
 }
 Refresh.Web.ColorPicker.prototype = {
 
@@ -148,7 +179,7 @@ Refresh.Web.ColorPicker.prototype = {
 		if (!hexValue) {
 			hexValue = '000000';
 		}
-		this._cvp._hexInput.value = hexValue;
+		this._cvp._hexInput.value = "#" + hexValue;
 		this._cvp.setValuesFromHex();
 
 		this.positionMapAndSliderArrows();
@@ -194,17 +225,17 @@ Refresh.Web.ColorPicker.prototype = {
 		resetImage(this, this._barL3);
 		resetImage(this, this._barL4);
 
-		this._hueRadio.checked = false;
-		this._saturationRadio.checked = false;
-		this._valueRadio.checked = false;
-		this._redRadio.checked = false;
-		this._greenRadio.checked = false;
-		this._blueRadio.checked = false;
+		//this._hueRadio.checked = false;
+		//this._saturationRadio.checked = false;
+		//this._valueRadio.checked = false;
+		//this._redRadio.checked = false;
+		//this._greenRadio.checked = false;
+		//this._blueRadio.checked = false;
 	
 
 		switch (colorMode) {
 			case 'h':
-				this._hueRadio.checked = true;
+				//this._hueRadio.checked = true;
 
 				// MAP
 				// put a color layer on the bottom
@@ -226,7 +257,7 @@ Refresh.Web.ColorPicker.prototype = {
 				break;
 				
 			case 's':
-				this._saturationRadio.checked = true;			
+				//this._saturationRadio.checked = true;			
 
 				// MAP
 				// bottom has saturation map
@@ -251,7 +282,7 @@ Refresh.Web.ColorPicker.prototype = {
 				break;
 				
 			case 'v':
-				this._valueRadio.checked = true;			
+				//this._valueRadio.checked = true;			
 
 				// MAP
 				// bottom: nothing
@@ -274,7 +305,7 @@ Refresh.Web.ColorPicker.prototype = {
 				break;
 				
 			case 'r':
-				this._redRadio.checked = true;
+				//this._redRadio.checked = true;
 				this.setImg(this._mapL2, this.settings.clientFilesPath + 'map-red-max.png');
 				this.setImg(this._mapL1, this.settings.clientFilesPath + 'map-red-min.png');
 				
@@ -286,7 +317,7 @@ Refresh.Web.ColorPicker.prototype = {
 				break;
 
 			case 'g':
-				this._greenRadio.checked = true;
+				//this._greenRadio.checked = true;
 				this.setImg(this._mapL2, this.settings.clientFilesPath + 'map-green-max.png');
 				this.setImg(this._mapL1, this.settings.clientFilesPath + 'map-green-min.png');
 				
@@ -298,7 +329,7 @@ Refresh.Web.ColorPicker.prototype = {
 				break;
 				
 			case 'b':
-				this._blueRadio.checked = true;
+				//this._blueRadio.checked = true;
 				this.setImg(this._mapL2, this.settings.clientFilesPath + 'map-blue-max.png');
 				this.setImg(this._mapL1, this.settings.clientFilesPath + 'map-blue-min.png');
 				
@@ -352,34 +383,34 @@ Refresh.Web.ColorPicker.prototype = {
 
 		switch(this.ColorMode) {
 			case 'h':
-				this._cvp._saturationInput.value = this._map.xValue;
-				this._cvp._valueInput.value = 100 - this._map.yValue;
+				this._cvp._hslInput.value = 'hsl(' + [this._cvp.color.h,
+													  this._map.xValue,
+													  100 - this._map.yValue].join(',') + ')';
 				break;
-				
 			case 's':
-				this._cvp._hueInput.value = this._map.xValue;
-				this._cvp._valueInput.value = 100 - this._map.yValue;
+				this._cvp._hslInput.value = 'hsl(' + [this._map.xValue,
+													  this._cvp.color.s,
+													  100 - this._map.yValue].join(',') + ')';
 				break;
-				
 			case 'v':
-				this._cvp._hueInput.value = this._map.xValue;
-				this._cvp._saturationInput.value = 100 - this._map.yValue;
+				this._cvp._hslInput.value = 'hsl(' + [this._map.xValue,
+													  100 - this._map.yValue,
+													  this._cvp.color.v].join(',') + ')';
 				break;
-								
 			case 'r':
-				this._cvp._blueInput.value = this._map.xValue;
-				this._cvp._greenInput.value = 256 - this._map.yValue;
+				this._cvp._rgbInput.value = 'rgb(' + [this._cvp.color.r,
+													  256 - this._map.yValue,
+													  this._map.xValue].join(',') + ')';
 				break;
-				
 			case 'g':
-				this._cvp._blueInput.value = this._map.xValue;
-				this._cvp._redInput.value = 256 - this._map.yValue;
+				this._cvp._rgbInput.value = 'rgb(' + [256 - this._map.yValue,
+													  this._cvp.color.g,
+													  this._map.xValue].join(',') + ')';
 				break;
-				
 			case 'b':
-				this._cvp._redInput.value = this._map.xValue;
-				this._cvp._greenInput.value = 256 - this._map.yValue;
-				break;				
+				this._cvp._rgbInput.value = 'rgb(' + [this._map.xValue,
+													  256 - this._map.yValue,
+													  this._cvp.color.b].join(',') + ')';
 		}
 		
 		switch(this.ColorMode) {
@@ -403,23 +434,35 @@ Refresh.Web.ColorPicker.prototype = {
 		
 		switch(this.ColorMode) {
 			case 'h':
-				this._cvp._hueInput.value = 360 - this._slider.yValue;
+				this._cvp._hslInput.value = 'hsl(' + [360 - this._slider.yValue,
+													  this._cvp.color.s,
+													  this._cvp.color.v].join(',') + ')';
 				break;
 			case 's':
-				this._cvp._saturationInput.value = 100 - this._slider.yValue;
+				this._cvp._hslInput.value = 'hsl(' + [this._cvp.color.h,
+													  100 - this._slider.yValue,
+													  this._cvp.color.v].join(',') + ')';
 				break;
 			case 'v':
-				this._cvp._valueInput.value = 100 - this._slider.yValue;
+				this._cvp._hslInput.value = 'hsl(' + [this._cvp.color.h,
+													  this._cvp.color.s,
+													  100 - this._slider.yValue].join(',') + ')';
 				break;
 				
 			case 'r':
-				this._cvp._redInput.value = 255 - this._slider.yValue;
+				this._cvp._rgbInput.value = 'rgb(' + [255 - this._slider.yValue,
+													  this._cvp.color.g,
+													  this._cvp.color.b].join(',') + ')';
 				break;
 			case 'g':
-				this._cvp._greenInput.value = 255 - this._slider.yValue;
+				this._cvp._rgbInput.value = 'rgb(' + [this._cvp.color.r,
+													  255 - this._slider.yValue,
+													  this._cvp.color.b].join(',') + ')';
 				break;
 			case 'b':
-				this._cvp._blueInput.value = 255 - this._slider.yValue;
+				this._cvp._rgbInput.value = 'rgb(' + [this._cvp.color.r,
+													  this._cvp.color.g,
+													  255 - this._slider.yValue].join(',') + ')';
 				break;				
 		}
 		
@@ -519,7 +562,9 @@ Refresh.Web.ColorPicker.prototype = {
 	updatePreview: function() {
 		try {
 			this._preview.style.backgroundColor = '#' + this._cvp.color.hex;
-		} catch (e) {}
+		} catch (e) {
+			alert(e.message);
+		}
 	},
 	updateMapVisuals: function() {
 		
@@ -577,15 +622,16 @@ Refresh.Web.ColorPicker.prototype = {
 				var hValue = 0;
 				var vValue = 0;
 				
+				var rgb = this._cvp._rgbInput.value.split(/(?:rgb\(|\))/)[1].split(/\s*,\s*/)
 				if (this.ColorMode == 'r') {
-					hValue = this._cvp._blueInput.value;
-					vValue = this._cvp._greenInput.value;
+					hValue = rgb[2];
+					vValue = rgb[1];
 				} else if (this.ColorMode == 'g') {
-					hValue = this._cvp._blueInput.value;
-					vValue = this._cvp._redInput.value;
+					hValue = rgb[2];
+					vValue = rgb[0];
 				} else if (this.ColorMode == 'b') {
-					hValue = this._cvp._redInput.value;
-					vValue = this._cvp._greenInput.value;
+					hValue = rgb[0];
+					vValue = rgb[1];
 				}
 			
 				var horzPer = (hValue /256)*100;
