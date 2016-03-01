@@ -5,7 +5,7 @@
  * @overview Page sub module for the wizard SDK module
  */
 
-function Page($element = {}, options = {}) { this.init($element = {}, options = {}); }
+function Page($element = {}, options = {}) { this.init($element, options); }
 
 (function()
     {
@@ -27,8 +27,8 @@ function Page($element = {}, options = {}) { this.init($element = {}, options = 
             {
                 $newElem.append($element);
             }
-            this.$ = $newElem; // koDom object
-            this.element = this.$.element; // Actual DOM object
+            this.$elem = $newElem; // koDom object
+            this.element = this.$elem.element; // Actual DOM object
         };
         
         /**
@@ -48,13 +48,13 @@ function Page($element = {}, options = {}) { this.init($element = {}, options = 
             }
             
             // Create it with options or not
-            var element = require("ko/ui/row").create(options.attributes = {});
+            var element = require("ko/ui/row").create(options.attributes || {});
             
             if($element && $element.koDom)
             {
-                element.$.append($element);
+                element.$elem.append($element);
             }
-            this.$.append(element.$);
+            this.$elem.append(element.$elem);
             return element;
         };
         
@@ -75,13 +75,13 @@ function Page($element = {}, options = {}) { this.init($element = {}, options = 
             }
             
             // Create it with options or not
-            var element = require("ko/ui/col").create(options.attributes = {});
+            var element = require("ko/ui/col").create(options.attributes || {});
             
             if($element && $element.koDom)
             {
-                element.$.append($element);
+                element.$elem.append($element);
             }
-            this.$.append(element.$);
+            this.$elem.append(element.$elem);
             return element;
         };
     }
@@ -98,5 +98,5 @@ function Page($element = {}, options = {}) { this.init($element = {}, options = 
  */
 module.exports.create = function page_create($element = {}, options = {})
 {
-    return new Page($element = {}, options = {});
+    return new Page($element, options);
 }

@@ -9,7 +9,7 @@
 /**
  * "declaration" of the Row class.  Uses the init() function as a constructor
  */
-function Column($element = {}, options = {}) { this.init($element = {}, options = {}); }
+function Column($element = {}, options = {}) { this.init($element, options); }
 
 (function()
     {
@@ -31,8 +31,8 @@ function Column($element = {}, options = {}) { this.init($element = {}, options 
             {
                 $newElem.append($element);
             }
-            this.$ = $newElem; // koDom object
-            this.element = this.$.element; // Actual DOM object
+            this.$elem = $newElem; // koDom object
+            this.element = this.$elem.element; // Actual DOM object
         };
         
         /**
@@ -52,13 +52,13 @@ function Column($element = {}, options = {}) { this.init($element = {}, options 
             }
             
             // Create it with options or not
-            var element = require("ko/ui/row").create(options.attributes = {});
+            var element = require("ko/ui/row").create(options.attributes || {});
             
             if($element && $element.koDom)
             {
-                element.$.append($element);
+                element.$elem.append($element);
             }
-            this.$.append(element.$);
+            this.$elem.append(element.$elem);
             return element;
         };
     }
@@ -75,5 +75,5 @@ function Column($element = {}, options = {}) { this.init($element = {}, options 
  */
 module.exports.create = function col_create($element = {}, options = {})
 {
-    return new Column($element = {}, options = {});
+    return new Column($element, options);
 }

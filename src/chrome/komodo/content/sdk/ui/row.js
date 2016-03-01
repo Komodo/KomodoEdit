@@ -6,7 +6,7 @@
  *
  */
 
-function Row($element = {}, options = {}) { this.init($element = {}, options = {}); }
+function Row($element = {}, options = {}) { this.init($element, options); }
 
 (function()
     {
@@ -28,8 +28,8 @@ function Row($element = {}, options = {}) { this.init($element = {}, options = {
             {
                 $newElem.append($element);
             }
-            this.$ = $newElem; // koDom object
-            this.element = this.$.element; // Actual DOM object
+            this.$elem = $newElem; // koDom object
+            this.element = this.$elem.element; // Actual DOM object
         };
         
         /**
@@ -49,12 +49,12 @@ function Row($element = {}, options = {}) { this.init($element = {}, options = {
             }
             
             // Create it with options or not
-            var col = require("ko/ui/col").create(options.attributes = {});
+            var col = require("ko/ui/col").create(options.attributes || {});
             if($element && $element.koDom)
             {
-                col.$.append($element);
+                col.$elem.append($element);
             }
-            this.$.append(col.$);
+            this.$elem.append(col.$elem);
             return col;
         };
     }
@@ -71,5 +71,5 @@ function Row($element = {}, options = {}) { this.init($element = {}, options = {
  */
 module.exports.create = function row_create($element = {}, options = {})
 {
-    return new Row($element = {}, options = {});
+    return new Row($element, options);
 }

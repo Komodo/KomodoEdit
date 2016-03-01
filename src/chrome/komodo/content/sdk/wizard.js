@@ -6,7 +6,7 @@
  *
  */
 
-function Wizard($element = {}, options = {}) { this.init($element = {}, options = {}); }
+function Wizard($element = {}, options = {}) { this.init($element, options); }
 (function()
     {
         const $ = require("ko/dom");
@@ -19,7 +19,6 @@ function Wizard($element = {}, options = {}) { this.init($element = {}, options 
             {
                 options = $element;
             }
-            
             var newElem = $.create(this.type, options.attributes || {})
             var $newElem = $(newElem.toString());
             // if content has been provided append it to the element
@@ -27,8 +26,8 @@ function Wizard($element = {}, options = {}) { this.init($element = {}, options 
             {
                 $newElem.append($element);
             }
-            this.$ = $newElem; // koDom object
-            this.element = this.$.element; // Actual DOM object
+            this.$elem = $newElem; // koDom object
+            this.element = this.$elem.element; // Actual DOM object
         };
    
        /**
@@ -48,13 +47,13 @@ function Wizard($element = {}, options = {}) { this.init($element = {}, options 
            }
            
            // Create it with options or not
-           var page = require("ko/wizard/page").create(options.attributes = {});
+           var page = require("ko/wizard/page").create(options.attributes || {});
            
            if($element && $element.koDom)
            {
-               page.$.append($element);
+               page.$elem.append($element);
            }
-           this.$.append(page.$);
+           this.$elem.append(page.$elem);
            return page;
         };
         
@@ -100,7 +99,7 @@ function Wizard($element = {}, options = {}) { this.init($element = {}, options 
             options.attributes.consumeoutsideclicks = options.attributes.consumeoutsideclicks || true;
             options.attributes.backdrag = options.attributes.backdrag || true;
             var panel = require("ko/ui/panel").create(options.attributes = {});
-            panel.$.append(this.$);
+            panel.$elem.append(this.$elem);
             this.parent = panel;
             panel.open(options.args = {});
             return this.parent;
@@ -124,5 +123,5 @@ function Wizard($element = {}, options = {}) { this.init($element = {}, options 
 
 module.exports.create = function wizard_create($element = {}, options = {})
 {
-    return new Wizard($element = {}, options = {});
+    return new Wizard($element, options);
 }

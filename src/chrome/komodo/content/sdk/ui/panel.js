@@ -9,7 +9,7 @@
 /**
  * "declaration" of the Row class.  Uses the init() function as a constructor
  */
-function Panel($element = {}, options = {}) { this.init($element = {}, options = {}) };
+function Panel($element = {}, options = {}) { this.init($element, options) };
 (function()
     {
         var $ = require("ko/dom");
@@ -33,8 +33,8 @@ function Panel($element = {}, options = {}) { this.init($element = {}, options =
             {
                 $newElem.append($element);
             }
-            this.$ = $newElem; // koDom object
-            this.element = this.$.element; // Actual DOM object
+            this.$elem = $newElem; // koDom object
+            this.element = this.$elem.element; // Actual DOM object
         };
         
         /**
@@ -44,7 +44,7 @@ function Panel($element = {}, options = {}) { this.init($element = {}, options =
          */
         this.addContent = function panel_addContent($content)
         {
-            this.$.append($content);
+            this.$elem.append($content);
         }
         
         /**
@@ -94,5 +94,5 @@ function Panel($element = {}, options = {}) { this.init($element = {}, options =
  */
 module.exports.create = function panel_create($element = {}, options = {})
 {
-    return new Panel($element = {}, options = {});
+    return new Panel($element, options);
 };

@@ -9,7 +9,7 @@
 /**
  * "declaration" of the Row class.  Uses the init() function as a constructor
  */
-function Textbox($element = {}, options = {}) { this.init($element = {}, options = {}); }
+function Textbox($element = {}, options = {}) { this.init($element, options); }
 
 (function()
     {
@@ -31,8 +31,8 @@ function Textbox($element = {}, options = {}) { this.init($element = {}, options
             {
                 $newElem.append($element);
             }
-            this.$ = $newElem; // koDom object
-            this.element = this.$.element; // Actual DOM object
+            this.$elem = $newElem; // koDom object
+            this.element = this.$elem.element; // Actual DOM object
         };
     }
 ).apply(Textbox.prototype);
@@ -45,5 +45,5 @@ function Textbox($element = {}, options = {}) { this.init($element = {}, options
  */
 module.exports.create = function textbox_create($element = {}, options = {})
 {
-    return new Textbox($element = {}, options = {});
+    return new Textbox($element, options);
 }
