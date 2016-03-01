@@ -15,7 +15,7 @@
 (function()
 {
     var ioFile      = require("sdk/io/file");
-    var mkCommon    = ko.moreKomodo.MoreKomodoCommon;
+    var mkCommon    = require("ko/windows").getMain().ko.moreKomodo.MoreKomodoCommon;
 
     var system      = require("sdk/system");
     
