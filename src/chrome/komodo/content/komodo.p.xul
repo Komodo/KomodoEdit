@@ -1887,6 +1887,7 @@
                          align="end"
                          valign="middle"
                          kohidden="false"
+                         not-draggable="true"
                          insertafter="main-toolboxrow"
                         >
                         

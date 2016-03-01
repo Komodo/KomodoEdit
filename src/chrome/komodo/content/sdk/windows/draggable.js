@@ -69,6 +69,10 @@ module.exports = function(elem) {
             {
                 return false;
             }
+            if (target.getAttribute("not-draggable") == "true")
+            {
+                return false;
+            }
             target = target.parentNode;
         }
         
