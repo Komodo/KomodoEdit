@@ -38,10 +38,9 @@ function Textbox($element = {}, options = {}) { this.init($element, options); }
 ).apply(Textbox.prototype);
 
 /**
- * Create an instance of a row object 
+ * Create an instance of a Textbox object 
  *
- * @returns {Object} Textbox,  object which contains the koDom object of a
- * row (a.k.a hbox) element in the element property.
+ * @returns {Object} Textbox,  object which contains the koDom object
  */
 module.exports.create = function textbox_create($element = {}, options = {})
 {
