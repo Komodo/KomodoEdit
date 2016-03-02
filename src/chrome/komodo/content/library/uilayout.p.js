@@ -236,7 +236,7 @@ this.setMenubarVisibility = function uilayout_setMenubarVisibility(menubarShowin
     ko.uilayout.updateToolboxVisibility();
 };
 
-toolboxVisibile = null;
+var toolboxVisibile = null;
 this.updateToolboxVisibility = function uilayout_updateToolboxVisibility()
 {
     var toolbox = document.getElementById('toolbox_main');

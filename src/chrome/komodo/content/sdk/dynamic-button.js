@@ -161,6 +161,7 @@
             buttons[k].update();
         }
     }
+    this.update._timer = null;
     
     this.register = function(label, opts)
     {

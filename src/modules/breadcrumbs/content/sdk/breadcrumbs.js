@@ -1321,6 +1321,7 @@ var breadcrumbs = function(view) {
             this.drawOverflowMenu();
         }
     };
+    this.checkOverflow._timer = null;
 
     /**
      * Create the overflow menu items
