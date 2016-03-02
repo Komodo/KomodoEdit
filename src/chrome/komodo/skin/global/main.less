@@ -48,7 +48,7 @@
     }
 }
 
-#toolbox_main, #toolbox_side
+#toolbox_main
 {
     .overflows
     {
@@ -74,6 +74,15 @@
        and we have to work around the issue */
     toolbar[_mode="text"]
     {
+        toolbaritem
+        {
+            & > toolbarbutton,
+            .toolbaritem > toolbarbutton
+            {
+                width: auto;
+            }
+        }
+        
         toolbarbutton
         {
             min-height: 20px;
@@ -96,6 +105,15 @@
         label.toolbarbutton-text
         {
             margin-left: 4px;
+        }
+        
+        toolbaritem
+        {
+            & > toolbarbutton,
+            .toolbaritem > toolbarbutton
+            {
+                width: auto;
+            }
         }
     }
 }
@@ -167,78 +185,43 @@
 
 /* Side Toolbar */
 
-#toolbox_side
+#side-top-toolbar
 {
-    width: 48px;
-    background: @contrast;
-    border-right: 1px solid @border;
-    -moz-box-orient: vertical;
-    
-    toolbar
+    &[_mode="text"] toolbaritem
     {
-        -moz-box-orient: vertical;
-    }
-    
-    toolbar[_mode="text"] toolbaritem
-    {
-        & > toolbarbutton
-        {
-            padding: 2px;
-            width: 50px;
-            min-width: 50px;
-        }
-        
         toolbarbutton:before, toolbarbutton > .toolbarbutton-icon:before
         {
             position: absolute;
         }
     }
-    
-    toolbaritem
-    {
-        -moz-box-orient: vertical;
-        margin: 5px 0;
-        
-        & > toolbarbutton
-        {
-            margin: 5px 0;
-            
-            .toolbarbutton-text
-            {
-                font-size: 0.7rem;
-            }
-            
-            &:hover
-            {
-                background: @background;
-                border-radius: 3px;
-            }
-        }
-    }
-    
+
     toolbaritem > toolbarbutton dropmarker.toolbarbutton-menubutton-dropmarker
     {
-        width: 12px;
-        margin-right: -12px;
+        margin-right: -6px;
     }
     
-    toolbar[_mode="text"]
+    &[_mode="text"]
     {
         toolbaritem > toolbarbutton dropmarker.toolbarbutton-menubutton-dropmarker
         {
             margin-right: 0;
         }
-    }
-    
-    #side-top-toolbar toolbarbutton[disabled="true"]
-    {
-        visibility: collapse;
+        
+        .dynamic-button label.toolbarbutton-counter
+        {
+            margin-left: 0;
+        }
     }
     
     toolbarbutton[type="menu-button"].dynamic-button:before,
     .dynamic-button label.toolbarbutton-counter:not([value])
     {
         visibility: collapse;
+    }
+    
+    .dynamic-button[disabled="true"]
+    {
+        display: none;
     }
     
     .dynamic-button.show-label .toolbarbutton-text[value]
@@ -252,21 +235,12 @@
     {
         background: @state-info;
         border-radius: 12px;
-        padding: 1px;
         width: 16px;
         max-width: 16px;
         margin-left: -24px;
         text-align: center;
         font-size: 10px;
         font-weight: bold;
-    }
-    
-    toolbar[_mode="text"]
-    {
-        .dynamic-button label.toolbarbutton-counter
-        {
-            margin-left: 0;
-        }
     }
     
     .dynamic-button.error label.toolbarbutton-counter { background: @state-error; }

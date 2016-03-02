@@ -22,10 +22,10 @@
         ondialogaccept="onConfirmDialog();">
 
     <vbox class="wrapper autoscroll" flex="1">
-        <caption label="Main Toolbar - Left"/>
+        <caption label="Toolbar - Left"/>
         <hbox id="main-toolbar" class="list-box"></hbox>
         
-        <caption label="Main Toolbar - Right"/>
+        <caption label="Toolbar - Right"/>
         <hbox id="second-toolbar" class="list-box"></hbox>
         
         <groupbox>
@@ -40,26 +40,12 @@
             </hbox>
             <hbox class="row">
                 <checkbox id="show-toolbar"
-                          label="Show Main Toolbar"/>
-                <checkbox id="show-side-toolbar"
-                          label="Show Side Toolbar"/>
+                          label="Show Toolbar"/>
                 <checkbox id="show-notification"
                           label="Show Notification Box"/>
-            </hbox>
-            <hbox class="row">
                 <hbox>
-                    <label value="Main Toolbar Mode: "/>
+                    <label value="Toolbar Mode: "/>
                     <menulist id="toolbar-mode">
-                        <menupopup>
-                            <menuitem label="Icons" value="icons"/>
-                            <menuitem label="Text" value="text"/>
-                            <menuitem label="Icons &amp; Text" value="full"/>
-                        </menupopup>
-                    </menulist>
-                </hbox>
-                <hbox>
-                    <label value="Side Toolbar Mode: "/>
-                    <menulist id="side-toolbar-mode">
                         <menupopup>
                             <menuitem label="Icons" value="icons"/>
                             <menuitem label="Text" value="text"/>

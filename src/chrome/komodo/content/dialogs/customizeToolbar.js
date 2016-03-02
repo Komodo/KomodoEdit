@@ -51,11 +51,6 @@
             onToggle: function() ko.uilayout.setToolbarsVisibility(this.elem.element().checked, 'main-toolboxrow-wrapper')
         },
         {
-            elem: $("#show-side-toolbar", window),
-            checked: function() $("#toolbox_side", w).attr("collapsed") != "true",
-            onToggle: function() ko.uilayout.setToolbarsVisibility(this.elem.element().checked, 'toolbox_side')
-        },
-        {
             elem: $("#show-notification", window),
             checked: function() $("#middle-toolboxrow", w).attr("kohidden") != "true",
             onToggle: function() $("#middle-toolboxrow", w).attr("kohidden", this.elem.element().checked ? "false" : "true")
@@ -78,30 +73,6 @@
                 
                 if (mode == "text") mode = "full";
                 $("#main-toolboxrow-wrapper toolbar").each(function() {
-                    var el = $(this);
-                    el.attr("mode", mode);
-                    el.attr("_mode", realMode);
-                    w.document.persist(el.attr("id"), "mode");
-                    w.document.persist(el.attr("id"), "_mode");
-                    self.updateToolbarViewState();
-                });
-            }
-        },
-        {
-            elem: $("#side-toolbar-mode", window),
-            value: function() $("#toolbox_side", w).attr("_mode"),
-            onChange: function() {
-                var menu = this;
-                var mode = menu.elem.element().value;
-                var realMode = mode;
-                var toolbox = $("#toolbox_side");
-                toolbox.attr("mode", mode);
-                toolbox.attr("_mode", realMode);
-                w.document.persist(toolbox.attr("id"), "mode");
-                w.document.persist(toolbox.attr("id"), "_mode");
-                
-                if (mode == "text") mode = "full";
-                $("#toolbox_side toolbar").each(function() {
                     var el = $(this);
                     el.attr("mode", mode);
                     el.attr("_mode", realMode);

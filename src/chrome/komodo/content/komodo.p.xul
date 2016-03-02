@@ -1880,6 +1880,31 @@
 
                     </toolbaritem>
                 </toolbar>
+                
+                <toolbar
+                         id="side-top-toolbar"
+                         flex="1"
+                         toolboxid="toolbox_main"
+                         grippyhidden="true"
+                         align="center"
+                         pack="start"
+                         mode="icons"
+                         persist="buttonstyle mode"
+                         buttonstyle="pictures">
+                    <toolbaritem id="toolsPreviewGroup" persist="kohidden">
+                        <toolbarbutton id="buttonBrowserPreview"
+                                       tooltiptext="&previewBufferInBrowser.tooltiptext;"
+                                       type="menu-button"
+                                       persist="buttonstyle"
+                                       buttonstyle="pictures"
+                                       observes="cmd_browserPreview"
+                                       label="&preview.label;">
+                            <menupopup id="buttonBrowserPreviewPopup"
+                                       onpopupshowing="ko.uilayout.populatePreviewToolbarButton(this);"/>
+                        </toolbarbutton>
+                    </toolbaritem>
+                </toolbar>
+                
             </toolboxrow>
             
             <toolboxrow id="middle-toolboxrow" pack="center" persist="kohidden mode collapsed" mode="icons">
@@ -2051,47 +2076,6 @@
               <resizer dir="left" flex="1"   />
               <resizer dir="bottomleft"/>
             </vbox>
-            <toolbox id="toolbox_side"
-                     context="context-toolbox-menu"
-                     persist="mode"
-                     mode="icons">
-                <toolbar
-                         id="side-top-toolbar"
-                         flex="1"
-                         toolboxid="toolbox_side"
-                         grippyhidden="true"
-                         align="center"
-                         pack="start"
-                         mode="icons"
-                         persist="buttonstyle mode"
-                         buttonstyle="pictures">
-                    <toolbaritem id="toolsPreviewGroup" persist="kohidden">
-                        <toolbarbutton id="buttonBrowserPreview"
-                                       tooltiptext="&previewBufferInBrowser.tooltiptext;"
-                                       type="menu-button"
-                                       persist="buttonstyle"
-                                       buttonstyle="pictures"
-                                       observes="cmd_browserPreview"
-                                       label="&preview.label;">
-                            <menupopup id="buttonBrowserPreviewPopup"
-                                       onpopupshowing="ko.uilayout.populatePreviewToolbarButton(this);"/>
-                        </toolbarbutton>
-                    </toolbaritem>
-                </toolbar>
-                <toolbar 
-                         id="side-bottom-toolbar"
-                         flex="1"
-                         toolboxid="toolbox_side"
-                         grippyhidden="true"
-                         align="center"
-                         pack="end"
-                         mode="icons"
-                         persist="buttonstyle mode"
-                         buttonstyle="pictures">
-                    <toolbaritem id="toolsToolbarGroup" persist="kohidden">
-                    </toolbaritem>
-                </toolbar>
-            </toolbox>
             <ko-pane id="workspace_left_area"
                      width="200"
                      rotation="270"
