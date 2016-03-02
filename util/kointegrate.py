@@ -276,8 +276,31 @@ class GitBranch(Branch):
                 continue
             
             try:
-                self._executeCustom("mpatch", "-aMN", filepath[:-4], filepath)
+                self._executeCustom("wiggle", "-lr", filepath[:-4], filepath)
             except:
+                pass
+            
+    def cleanup(self):
+        log.info("")
+        log.info("Cleaning up.. ")
+        
+        status = self._capture_output("status", "--porcelain")
+        status = status.split('\n')
+        
+        for line in status:
+            filepath = line.split()
+            if len(filepath) == 0:
+                continue
+            
+            filepath = filepath[-1]
+            if filepath[-3:] != "rej" and filepath[-5:] != "porig":
+                continue
+            
+            try:
+                log.info("Removing temp file %s " % filepath)
+                os.remove(os.path.join(self.base_dir, filepath))
+            except:
+                log.warn("File removal failed, you should manually remove %s" % filepath)
                 pass
     
     def filter_path(self, path):
@@ -305,6 +328,9 @@ class GitBranch(Branch):
                "--message", message,
                "--"] + all_changed_paths
         self._execute(*cmd)
+        
+        self.cleanup() # Cleanup .rej files
+        
         rev = self._capture_output("rev-parse", "HEAD").strip()
         return GitRevision(rev, self)
 
@@ -1156,7 +1182,7 @@ def main(argv=None):
     parser.add_argument("-n", "--non-interactive", action="store_false",
                         dest="interactive", help="no interaction")
     parser.add_argument("-r", "--reject-patches", action="store_true", dest="rejectpatches",
-                        help="generate reject patches using mpatch (must be on PATH)")
+                        help="generate reject patches using wiggle (must be on PATH)")
     parser.add_argument("-f", "--force", action="store_true",
                         help="force application of patches that won't apply "
                              "cleanly; ignore files missing in the target")
