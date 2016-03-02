@@ -14,7 +14,7 @@ function Textbox($element = {}, options = {}) { this.init($element, options); }
 (function()
     {
         var $ = require("ko/dom");
-        this.type = "textbox.js";
+        this.type = "textbox";
         
         this.init = function($element = {}, options = {})
         {
