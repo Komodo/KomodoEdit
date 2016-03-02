@@ -29,7 +29,7 @@ function Row($element = {}, options = {}) { this.init($element, options); }
                 $newElem.append($element);
             }
             this.$elem = $newElem; // koDom object
-            this.element = this.$elem.element; // Actual DOM object
+            this.element = this.$elem.element.bind(this.$elem); // Actual DOM object
         };
         
         /**
