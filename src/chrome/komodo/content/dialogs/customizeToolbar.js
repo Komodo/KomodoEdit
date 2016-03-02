@@ -103,6 +103,8 @@
         }
         
         window.onConfirmDialog = function() {};
+        
+        this.updateToolbarViewState();
     }
     
     this.populateList = function(which = "main")
@@ -112,14 +114,14 @@
             
             var listitem = $("<hbox class='list-item'/>");
             listitem.attr("ishidden", this.getAttribute("kohidden"));
-            listitem._originalElement = this;
+            listitem.element()._originalElement = this;
             el.append(listitem)
             
             $(this).children().each(function() {
                 var el = $(this).clone(true, false);
                 
                 var wrapper = $("<vbox><button/></vbox>");
-                wrapper._originalElement = this;
+                wrapper.element()._originalElement = this;
                 
                 wrapper.attr("ishidden", el.attr("kohidden"));
                 
@@ -150,9 +152,9 @@
         hide = hide ? "true" : "false";
         
         el.attr("ishidden", hide);
-        el._originalElement.setAttribute("kohidden", hide);
+        el.element()._originalElement.setAttribute("kohidden", hide);
         
-        el._originalElement.ownerDocument.persist(el._originalElement.id, "kohidden");
+        el.element()._originalElement.ownerDocument.persist(el.element()._originalElement.id, "kohidden");
         
         this.updateToolbarViewState();
     }
@@ -167,6 +169,26 @@
         // make the overflow button rebuild the next time it's open
         elems.mainTb.element().dirty = true;
         elems.secondTb.element().dirty = true;
+        
+        $(".list-item", window).each(function()
+        {
+            var allHidden = true;
+            for (let child of this.childNodes)
+            {
+                if (child.nodeName != "vbox")
+                    continue;
+                
+                if (child.getAttribute("ishidden") != "true")
+                    allHidden = false;
+            }
+            
+            if (allHidden)
+            {
+                this.setAttribute("ishidden", "true");
+                this._originalElement.setAttribute("kohidden", "true");
+                this._originalElement.ownerDocument.persist(this._originalElement.id, "kohidden");
+            }
+        });
     }
     
     w.addEventListener("komodo-post-startup", this.init.bind(this));
