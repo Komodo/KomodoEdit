@@ -21,7 +21,13 @@
                 class: "dynamic-button " + opts.classList
             });
             
-            button.on("command", opts.command);
+            if (typeof opts.command == "string")
+            {
+                button.attr("oncommand", "ko.commands.doCommandAsync('"+opts.command+"', event)");
+                button.attr("observes", opts.command);
+            }
+            else
+                button.on("command", opts.command);
             
             if (opts.icon)
                 button.addClass("icon-" + opts.icon);
@@ -54,7 +60,7 @@
         
         this.update = function()
         {
-            button.attr("collapsed", opts.enabled() ? "false" : "true")
+            button.attr("collapsed", opts.isEnabled() ? "false" : "true")
         }
         
         this.updateMenu = function ()
@@ -80,7 +86,7 @@
                 
                 menuitem = _.extend({
                     label: "unnamed",
-                    enabled: function() { return true },
+                    isEnabled: function() { return true },
                     command: function() {},
                     classList: "",
                     image: null,
@@ -93,7 +99,7 @@
                     class: menuitem.classList,
                     image: menuitem.image,
                     acceltext: menuitem.acceltext,
-                    disabled: menuitem.enabled() ? "false" : "true"
+                    disabled: menuitem.isEnabled() ? "false" : "true"
                 });
                 elem.on("command", menuitem.command);
                 
@@ -156,8 +162,16 @@
         }
     }
     
-    this.register = function(id, opts)
+    this.register = function(label, opts)
     {
+        if ((typeof label) == "object")
+        {
+            opts = label;
+            label = opts.label || opts.id;
+        }
+        
+        var id = (opts.id || label).replace(/\W+/g, "");
+        
         if (id in buttons)
         {
             throw new Error("A dynamic button with id " + id + " already exists");
@@ -166,13 +180,13 @@
         var icon = null
         if ( ! opts.image)
             icon = opts.icon || "question4";
-        
+            
         opts = _.extend({
             id: id,
             group: id,
-            label: id,
-            tooltip: opts.label || id,
-            enabled: function() { return false },
+            label: label,
+            tooltip: opts.tooltip || label,
+            isEnabled: function() { return false },
             command: function() {},
             menuitems: null,
             icon: icon,

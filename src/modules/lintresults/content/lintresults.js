@@ -3,7 +3,7 @@
     const {Cc, Ci}  = require("chrome");
     const prefs     = ko.prefs;
     const views     = require("ko/views");
-    const dynamicb  = require("ko/dynamic-button")
+    const dynamicb  = require("ko/dynamic-button");
     
     var button;
     
@@ -11,7 +11,7 @@
     {
         button = dynamicb.register("Syntax Checking Result", {
             icon: "circle-code",
-            enabled: this.isEnabled.bind(this),
+            isEnabled: this.isEnabled.bind(this),
             menuitems: this.updateMenu.bind(this),
             command: function() { ko.commands.doCommandAsync("cmd_nextLintResult"); },
             tooltip: "Jump to next syntax checking result",
