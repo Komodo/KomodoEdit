@@ -45,6 +45,7 @@ var winOptions =
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 
+
 function shouldLoadURI(aURI) {
   if (aURI && !aURI.schemeIs("chrome"))
     return true;
@@ -145,6 +146,32 @@ komodoCmdLineHandler.prototype = {
     if (hideChrome) winOptions += ",titlebar=no";
     winOptions += ",titlebar=no";
     
+    let {logging} = Components.utils.import("chrome://komodo/content/library/logging.js");
+    
+    try{
+        var wizPref = "wizard.finished";
+        if( ! prefSvc.prefs.hasPref(wizPref))
+        {
+            prefSvc.prefs.setBoolean(wizPref, false)
+        }
+        if(! prefSvc.prefs.getBoolean(wizPref))
+        {
+             var dialog = openWindow(null,
+                                //"chrome://komodo/content/dialogs/okCancel.xul",
+                                "chrome://komodo/content/startupWizard/startupWizard.xul",
+                                "_blank"
+                                );
+             
+             dialog.addEventListener("wizard.complete", this.handle.bind(this, cmdLine), false);
+             prefSvc.prefs.setBoolean("wizard.finished", true);
+             //setTimeout(handle.bind(this, cmdLine), 10000);
+             return;
+        }
+    } catch(e){
+        logging.getLogger("asCommandLineHandler-cgch")
+              .warn("somethings wrong: " + e);
+    }
+    
     var urilist = [];
     try {
       var ar;
@@ -158,7 +185,7 @@ komodoCmdLineHandler.prototype = {
 
     // Logging
     // Syntax: -log test:DEBUG -log foo:10,bar:20
-    let {logging} = Components.utils.import("chrome://komodo/content/library/logging.js");
+    //let {logging} = Components.utils.import("chrome://komodo/content/library/logging.js");
     while (null !== (ar = cmdLine.handleFlagWithParam("log", false))) {
       for (let pair of ar.split(",")) {
 	let [name, level] = pair.split(":").concat("");

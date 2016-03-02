@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+
+<!--
+This hidden window is only used on the Mac, see bug 85838.
+
+It's used to allow keyboard commands when using the File open dialog.
+
+This hiddenWindow is only used when the "browser.hiddenWindowChromeURL" pref is
+set to a chrome URL.
+-->
+
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+
+<?xul-overlay href="chrome://global/content/editMenuOverlay.xul"?>
+
+<wizard id="startup-wizard"
+        title="Komodo Startup Configuration"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        onload="onLoad();"
+        orient="vertical"
+        style="min-width: 40em;"
+        buttons="accept,cancel"
+        defaultButton="accept"
+        buttonalign="horizontal"
+        buttonorient="horizontal"
+        onwizardcancel="cancel()"
+        onwizardfinish="cancel()">
+    
+    <script src="chrome://komodo/content/startupWizard/startupWizard.js" type="application/x-javascript;version=1.7"/>
+
+    <stringbundleset id="stringbundleset"/>
+    
+    <commandset id="mainCommandSet"/>
+    <commandset id="baseMenuCommandSet"/>
+    <commandset id="placesCommands"/>
+    
+    <broadcasterset id="mainBroadcasterSet"/>
+    
+    <keyset id="mainKeyset"/>
+    <keyset id="baseMenuKeyset"/>
+    
+    <menubar id="main-menubar"/>
+
+</wizard>
