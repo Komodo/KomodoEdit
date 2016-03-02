@@ -471,14 +471,15 @@ Logger.prototype.exception = function(e, message="") {
         }
     } catch(ex) {
         dump("*** Error in logger.exception: "+ex+"\n");
-        if (typeof(e) == 'object' && 'stack' in e && e.stack)
-            dump(e.stack + "\n");
+        if (typeof(ex) == 'object' && 'stack' in ex && ex.stack)
+            dump(ex.stack + "\n");
         //dump("*** Original exception was: " + e + "\n");
         //dump("*** Original message was: " + message + "\n");
     }
 }
 
 Logger.prototype.report = function(e, message, level = "EXCEPTION") {
+    if (typeof require == "undefined") return;
     var prefs = require("ko/prefs");
     
     if ( ! prefs.getBooleanPref("analytics_enabled", false)) {

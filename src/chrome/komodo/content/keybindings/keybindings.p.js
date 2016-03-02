@@ -1079,6 +1079,7 @@ this.Manager.prototype._upgradeKeybingings = function (from_version,
             this._add_keybinding_sequences({
                     'cmd_uncomment': ["Meta+Ctrl+/"],
                 });
+// #endif
             break;
         case 51:
 // #if PLATFORM != 'darwin'

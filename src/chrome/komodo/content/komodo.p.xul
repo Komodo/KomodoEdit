@@ -2089,15 +2089,6 @@
                          persist="buttonstyle mode"
                          buttonstyle="pictures">
                     <toolbaritem id="toolsToolbarGroup" persist="kohidden">
-        <!-- #if WITH_RX -->
-                        <toolbarbutton id="buttonRxToolkit"
-                                       class="rx-icon"
-                                       label="&rx.label;"
-                                       tooltiptext="&rxToolkit.tooltiptext;"
-                                       persist="buttonstyle"
-                                       buttonstyle="pictures"
-                                       observes="cmd_toolsRx"/>
-        <!-- #endif -->
                     </toolbaritem>
                 </toolbar>
             </toolbox>

@@ -367,7 +367,6 @@ Build(
     "$build/chrome/komodo/skin/Conscript",
     "$build/chrome/komodo/skin/bindings/Conscript",
     "$build/chrome/komodo/skin/global/Conscript",
-    "$build/chrome/komodo/skin/global/images/Conscript",
     "$build/chrome/komodo/skin/images/Conscript",
     "$build/chrome/komodo/content/run/Conscript",
     "$build/chrome/komodo/content/hyperlinks/Conscript",
