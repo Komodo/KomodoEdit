@@ -99,3 +99,6 @@ $cons->InstallInChrome('customizeToolbar.xul');
 $cons->InstallInChrome('widgetFloating.xul');
 
 $cons->InstallInChrome('browser.xul');
+
+$cons->InstallInChrome('colorscheme.js');
+$cons->InstallInChrome('colorscheme.xul');

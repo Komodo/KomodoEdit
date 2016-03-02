@@ -563,12 +563,15 @@ class Scheme(SchemeBase):
         return scincolor2mozcolor(scincolor)
 
     def getCommon(self, style, key):
-        color = None
+        v = None
         if style in self._commonStyles:
-             color = self._commonStyles[style].get(key, None)
+             v = self._commonStyles[style].get(key, None)
 
-        if color:
-            return  scincolor2mozcolor(color)
+        if v:
+            if key in ["fore", "back"]:
+                return  scincolor2mozcolor(v)
+            else:
+                return v
         else:
             return ""
         
@@ -1030,7 +1033,7 @@ class Scheme(SchemeBase):
 
     def _hasLightColoredBackground(self):
         """Light refers to the background color of the scheme."""
-        return self._isDarkScintillaColor(self._defaultForeColor())
+        return not self._isDarkScintillaColor(self._defaultBackColor())
     def _hasDarkColoredBackground(self):
         return not self._hasLightColoredBackground()
 

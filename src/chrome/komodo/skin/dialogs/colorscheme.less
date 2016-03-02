@@ -1,0 +1,122 @@
+@import url("chrome://komodo/skin/global/colors.less");
+@import url("resource://profile/colors.less");
+
+:root.primary-scheme
+{
+    #deleteScheme,
+    #save,
+    #saveApply
+    {
+        visibility: collapse;
+    }
+}
+
+:root:not(.primary-scheme)
+{
+    #apply
+    {
+        visibility: collapse;
+    }
+}
+
+view
+{
+    border: 1px solid @background !important;
+}
+
+.primary_menu_item label[value]:after
+{
+    content: "*";
+}
+
+#schemeslist menuitem
+{
+    border-radius: 0;
+}
+
+#schemeslist menuseparator
+{
+    margin: 5px 0;
+}
+
+#schemeslist label
+{
+    font-family: inherit;
+}
+
+#content
+{
+    #fontlist label,
+    #fontlist .menulist-label-box
+    {
+        font-family: inherit;
+    }
+    
+    #languageList
+    {
+        margin-bottom: 5px;
+    }
+    
+    #propertyEditor .groupbox-body
+    {
+        margin: 0 5px !important;
+    }
+    
+    [field]
+    {
+        visibility: collapse;
+        margin: 0 0 10px 0;
+        -moz-box-align: center;
+        
+        & > description
+        {
+            width: 75px;
+        }
+        
+        & > checkbox
+        {
+            margin-left: 75px;
+        }
+    }
+    
+    .icon-bold,
+    .icon-italic
+    {
+        min-width: 0;
+        font-size: 12px;
+    }
+    
+    button, textbox, menulist, checkbox
+    {
+        margin: 0 !important;
+        padding: 2px !important;
+    }
+    
+    button
+    {
+        padding: 4px !important;
+    }
+    
+    button.colorpicker
+    {
+        min-width: 20px;
+        min-height: 20px;
+    }
+}
+
+panel.scheme-apply
+{
+    padding: 15px;
+    background: @contrast;
+    
+    checkbox
+    {
+        margin: 0;
+    }
+    
+    hbox
+    {
+        -moz-box-align: center;
+        -moz-box-pack: center;
+    }
+}

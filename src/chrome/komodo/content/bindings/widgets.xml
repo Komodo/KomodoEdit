@@ -49,7 +49,7 @@
     <binding id="lang-list">
         <content>
             <xul:menulist oncommand="document.getBindingParent(this).changedSelection(event);"
-                          xbl:inherits="class, selected, flex, disabled">
+                          xbl:inherits="class, selected, flex, disabled, width">
                 <xul:menupopup />
             </xul:menulist>
         </content>
@@ -83,6 +83,20 @@
                                     getService(Components.interfaces.koILanguageRegistryService);
                         var langHierarchy = langService.getLanguageHierarchy();
                         var popup = document.getAnonymousNodes(this)[0].firstChild;
+                        const XUL_NS = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
+                        
+                        if (this.hasAttribute("default"))
+                        {
+                            var prefix = this.getAttribute("prefix") || "";
+                            var menuitem = document.createElementNS(XUL_NS, 'menuitem');
+                            menuitem.setAttribute('label', prefix + this.getAttribute("default"));
+                            
+                            var value = this.getAttribute("default-value") || this.getAttribute("default");
+                            menuitem.setAttribute('value', value);
+                            
+                            popup.appendChild(menuitem);
+                        }
+                        
                         var items = this.buildMenuTree(langHierarchy, true);
                         for (var i=0;i<items.length;i++)  {
                             popup.appendChild(items[i]);
@@ -117,6 +131,7 @@
                                 menupopup = document.createElementNS(XUL_NS, 'menupopup');
                                 menupopup.setAttribute('class','menulist-menupopup');
                                 menu.setAttribute('label', hierarchy.name);
+                                menu.setAttribute('value', hierarchy.name);
                                 menu.setAttribute('class', 'menulist-subLevel');
                                 for (j=0;j<menuitems.length;j++)  {
                                     menupopup.appendChild(menuitems[j]);
@@ -129,6 +144,7 @@
                         else  {
                             menuitem = document.createElementNS(XUL_NS, 'menuitem');
                             menuitem.setAttribute('label', hierarchy.name);
+                            menuitem.setAttribute('value', hierarchy.name);
                             return menuitem;
                         }
                     ]]>
@@ -163,6 +179,7 @@
                         for (var i = 0; i < currentLanguageNames.length; i++) {
                             menuitem = document.createElementNS(XUL_NS, 'menuitem');
                             menuitem.setAttribute('label', currentLanguageNames[i]);
+                            menuitem.setAttribute('value', currentLanguageNames[i]);
                             popup.appendChild(menuitem);
                         }
                     ]]>
@@ -172,24 +189,28 @@
                 <parameter name="event"/>
                 <body>
                     <![CDATA[
+                        var prefix = this.getAttribute("prefix") || "";
                         var list = document.getAnonymousNodes(this)[0];
                         list.parentNode.setAttribute('data', this.selection);
-                        list.setAttribute('label', event.originalTarget.getAttribute('label'));
+                        list.setAttribute('label', prefix + event.originalTarget.getAttribute('label'));
+                        list.setAttribute('value', event.originalTarget.getAttribute('value'));
                     ]]>
                 </body>
             </method>
             <property name="selection">
                 <setter>
                     <![CDATA[
+                        var prefix = this.getAttribute("prefix") || "";
                         var list = document.getAnonymousNodes(this)[0];
-                        var item = document.getAnonymousElementByAttribute(list, 'label', val);
-                        list.setAttribute('label', item.getAttribute('label'));
+                        var item = document.getAnonymousElementByAttribute(list, 'value', val);
+                        list.setAttribute('label', prefix + item.getAttribute('label'));
+                        list.setAttribute('value', item.getAttribute('value'));
                     ]]>
                 </setter>
                 <getter>
                     <![CDATA[
                         var list = document.getAnonymousNodes(this)[0];
-                        return list.getAttribute('label');
+                        return list.getAttribute('value');
                     ]]>
                 </getter>
             </property>

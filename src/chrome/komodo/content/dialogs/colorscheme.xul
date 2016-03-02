@@ -1,0 +1,242 @@
+<?xml version="1.0"?>
+<!DOCTYPE window SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % prefDTD SYSTEM "chrome://komodo/locale/pref/pref.dtd">
+  %prefDTD;
+  <!ENTITY % prefDTD.INTERNAL SYSTEM "chrome://komodo/locale/pref-internal.dtd">
+  %prefDTD.INTERNAL;
+]>
+
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc.
+     See the file LICENSE.txt for licensing information. -->
+
+<?xml-stylesheet href="less://komodo/skin/global/global.less" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/buttons.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/widgets.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/colorpicker.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/views.css" type="text/css"?>
+<?xml-stylesheet href="less://komodo/skin/dialogs/colorscheme.less" type="text/css"?>
+<?xul-overlay href="chrome://komodo/content/bindings/scintilla-overlay.xul"?>
+
+<window id="font-window"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        orient="vertical"
+        width="800"
+        height="600"
+        title="Color Scheme Editor"
+        class="dialog">
+
+    <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://xtk/content/domutils.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/logging.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/dialogs.js" type="application/x-javascript;version=1.7"/>
+
+    <!-- Scintilla overlay - required files. -->
+    <script src="chrome://komodo/content/library/windowManager.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/timers.js"       type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/stringutils.js"  type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/commands.js"     type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/dragdrop.js"     type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/markers.js"              type="application/x-javascript;version=1.7"/>
+
+    <script src="chrome://komodo/content/dialogs/colorscheme.js" type="application/x-javascript;version=1.7"/>
+
+    <hbox id="scintillaOverlayXul"/>
+
+    <!-- This main vbox is to ensure *all* the pref widgets are accessible,
+         as it adds a scrollbar when the contents are too long. -->
+    <vbox id="fonts-prefs-vbox" flex="1">
+        
+        <vbox flex="1">
+            <!-- Scheme Selector -->
+            <hbox align="center" pack="center">
+                <description value="Color Scheme: "/>
+                <menulist id="schemeslist"
+                          width="300">
+                    <menupopup id="schemespopup"/>
+                </menulist>
+                <button id="newScheme"
+                        label="&new.label;"
+                        accesskey="&new.accesskey;"/>
+                <button id="deleteScheme"
+                        accesskey="&deleteScheme.accesskey;"
+                        label="&delete.label;"/>
+            </hbox>
+            
+            <separator/>
+            
+            <hbox flex="1" id="content">
+                <vbox>
+                    <langlist id="languageList" prefix="Language: " default="All" default-value="-1" width="250"/>
+                    <listbox id="propertyList" width="200" flex="1">
+                    </listbox>
+                </vbox>
+                
+                <groupbox id="propertyEditor" width="250">
+                    <hbox field="face">
+                        <description value="&filePrefAllLangFontFamily.label;"/>
+                        <menulist id="fontlist" flex="1">
+                            <menupopup>
+                                <menu label="Monospace" class="mono"><menupopup/></menu>
+                                <menu label="All Fonts" class="all"><menupopup/></menu>
+                            </menupopup>
+                        </menulist>
+                    </hbox>
+                    
+                    <hbox field="size">
+                        <description value="&filePrefAllLangSize.label;"/>
+                        <menulist id="fontSize" flex="1">
+                            <menupopup>
+                                <menuitem id="fontSize_4" value="4" label="&label.4;"/>
+                                <menuitem id="fontSize_5" value="5" label="&label.5;"/>
+                                <menuitem id="fontSize_6" value="6" label="&label.6;"/>
+                                <menuitem id="fontSize_7" value="7" label="&label.7;"/>
+                                <menuitem id="fontSize_8" value="8" label="&label.8;"/>
+                                <menuitem id="fontSize_9" value="9" label="&label.9;"/>
+                                <menuitem id="fontSize_10" value="10" label="&label.10;"/>
+                                <menuitem id="fontSize_11" value="11" label="&label.11;"/>
+                                <menuitem id="fontSize_12" value="12" label="&label.12;"/>
+                                <menuitem id="fontSize_13" value="13" label="&label.13;"/>
+                                <menuitem id="fontSize_14" value="14" label="&label.14;"/>
+                                <menuitem id="fontSize_15" value="15" label="&label.15;"/>
+                                <menuitem id="fontSize_16" value="16" label="&label.16;"/>
+                                <menuitem id="fontSize_18" value="18" label="&label.18;"/>
+                                <menuitem id="fontSize_20" value="20" label="&label.20;"/>
+                                <menuitem id="fontSize_24" value="24" label="&label.24;"/>
+                                <menuitem id="fontSize_26" value="26" label="&label.26;"/>
+                                <menuitem id="fontSize_28" value="28" label="&label.28;"/>
+                                <menuitem id="fontSize_32" value="32" label="&label.32;"/>
+                                <menuitem id="fontSize_36" value="36" label="&label.36;"/>
+                                <menuitem id="fontSize_40" value="40" label="&label.40;"/>
+                                <menuitem id="fontSize_48" value="48" label="&label.48;"/>
+                                <menuitem id="fontSize_56" value="56" label="&label.56;"/>
+                                <menuitem id="fontSize_64" value="64" label="&label.64;"/>
+                                <menuitem id="fontSize_72" value="72" label="&label.72;"/>
+                            </menupopup>
+                        </menulist>
+                    </hbox>
+                    
+                    <hbox field="fore">
+                        <description value="&filePrefAllLangForeground.label;"/>
+                        <button id="fontFore" class="colorpicker"/>
+                    </hbox>
+                    
+                    <hbox field="back">
+                        <description value="&filePrefAllLangBackground.label;"/>
+                        <button id="fontBack" class="colorpicker"/>
+                    </hbox>
+                    
+                    <hbox field="bold">
+                        <description value="Bold: "/>
+                        <button id="fontBold"
+                                type="checkbox"
+                                class="button icon-bold"/>
+                    </hbox>
+                    
+                    <hbox field="italic">
+                        <description value="Italic: "/>
+                        <button id="fontItalic"
+                                type="checkbox"
+                                class="button icon-italic"/>
+                    </hbox>
+                    
+                    <hbox field="lineSpacing">
+                        <description value="&lineSpacing.label;"/>
+                        <textbox id="fontLineSpacing"
+                                 type="number"
+                                 hidespinbuttons="true"
+                                 min="0"
+                                 max="99"
+                                 value="0"
+                                 size="2"/>
+                    </hbox>
+            
+                    <hbox field="indicator-style">
+                        <description value="&indicStyle.label;"/>
+                        <menulist id="indicator_style_menulist">
+                            <menupopup id="indicator_style_popup">
+                                <menuitem id="indicator_style_plain_menuitem_0"
+                                          value="0"
+                                          label="&indicStylePlain.label;" />
+                                <menuitem id="indicator_style_menuitem_1"
+                                          value="1"
+                                          label="&indicStyleSquiggle.label;" />
+                                <menuitem id="indicator_style_menuitem_13"
+                                          value="13"
+                                          label="&indicStyleSquigglePixmap.label;" />
+                                <menuitem id="indicator_style_menuitem_2"
+                                          value="2"
+                                          label="&indicStyleTT.label;" />
+                                <menuitem id="indicator_style_menuitem_3"
+                                          value="3"
+                                          label="&indicStyleDiagonal.label;" />
+                                <menuitem id="indicator_style_menuitem_4"
+                                          value="4"
+                                          label="&indicStyleStrike.label;" />
+                                <menuitem id="indicator_style_menuitem_5"
+                                          value="5"
+                                          label="&indicStyleHidden.label;" />
+                                <menuitem id="indicator_style_menuitem_6"
+                                          value="6"
+                                          label="&indicStyleBox.label;" />
+                                <menuitem id="indicator_style_menuitem_7"
+                                          value="7"
+                                          label="&indicStyleRoundBox.label;" />
+                                <menuitem id="indicator_style_menuitem_8"
+                                          value="8"
+                                          label="&indicStyleSquareBox.label;" />
+                            </menupopup>
+                        </menulist>
+                    </hbox>
+                    
+                    <hbox field="color">
+                        <description value="Color"/>
+                        <button id="color" class="colorpicker"/>
+                    </hbox>
+
+                    <hbox field="indicator-color">
+                        <description value="&indicColor.label;"/>
+                        <button id="indicator-color" class="colorpicker"/>
+                    </hbox>
+                    
+                    <hbox field="indicator-alpha">
+                        <description value="&indicAlpha.label;"/>
+                        <textbox id="indicator_alpha_textbox"
+                                 size="3"/>
+                    </hbox>
+
+                    <hbox field="indicator-draw_underneath">
+                        <checkbox id="indicator_draw_underneath_checkbox"
+                                  label="&indicDrawUnderneath.label;" />
+                    </hbox>
+                    
+                    <hbox field="useSelFore">
+                        <checkbox id="useSelFore"
+                                  label="&overrideTextColorInSelection.label;"/>
+                    </hbox>
+                    
+                    <hbox field="caretLineVisible">
+                        <checkbox id="caretLineVisible"
+                                  label="&highlightCurrentLine.label;"/>
+                    </hbox>
+                </groupbox> <!-- reference=property-editor -->
+                
+                <view id="sample" type="buffer" flex="1" style="min-width: 400px"/>
+                
+            </hbox>
+        </vbox>
+        
+        <separator/>
+        
+        <hbox align="center" pack="center">
+            <button id="ok" label="Ok" class="button"/>
+            <button oncommand="window.close()" label="Cancel" class="button"/>
+            <button id="save" label="Save" class="button"/>
+            <button id="apply" label="Apply" class="button"/>
+            <button id="saveApply" label="Save and Apply" class="button"/>
+        </hbox>
+        
+    </vbox>
+
+</window>
+

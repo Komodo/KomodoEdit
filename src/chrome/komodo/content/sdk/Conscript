@@ -31,6 +31,7 @@ $cons->InstallInChrome('console.js');
 $cons->InstallInChrome('menu.js');
 $cons->InstallInChrome('dialogs.js');
 $cons->InstallInChrome('file.js');
+$cons->InstallInChrome('fonts.js');
 $cons->InstallInChrome('prefs.js');
 $cons->InstallInChrome('button.js');
 $cons->InstallInChrome('ajax.js');

@@ -72,3 +72,5 @@ $cons->InstallInChrome('prefs/pref-codeintel.css');
 
 $cons->InstallInChrome('dialogs/customizeToolbar.css');
 $cons->InstallInChrome('dialogs/find2.css');
+
+$cons->InstallInChrome('dialogs/colorscheme.less');

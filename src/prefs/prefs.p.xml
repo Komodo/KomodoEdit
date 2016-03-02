@@ -933,7 +933,7 @@
   <boolean id="hyperlinksEnableColorPicker">1</boolean>
 
   <!-- Color picker -->
-  <string id="colorpicker_cid"></string>
+  <string id="colorpicker_cid">@activestate.com/koColorPicker;1</string>
 
   <!-- fastopen
       Really these prefs don't belong here, but I don't see a better way for the

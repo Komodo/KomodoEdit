@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<!DOCTYPE window SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % prefDTD SYSTEM "chrome://komodo/locale/pref/pref.dtd">
+  %prefDTD;
+  <!ENTITY % prefDTD.INTERNAL SYSTEM "chrome://komodo/locale/pref-internal.dtd">
+  %prefDTD.INTERNAL;
+]>
+
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc.
+     See the file LICENSE.txt for licensing information. -->
+
+<?xml-stylesheet href="less://komodo/skin/global/global.less" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/buttons.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/widgets.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/colorpicker.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/views.css" type="text/css"?>
+<?xml-stylesheet href="less://komodo/skin/colorscheme.less" type="text/css"?>
+<?xul-overlay href="chrome://komodo/content/bindings/scintilla-overlay.xul"?>
+
+<window id="font-window"
+        xmlns:html="http://www.w3.org/1999/xhtml"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        orient="vertical"
+        onload="OnLoad()">
+    
+    <hbox id="scintillaOverlayXul"/>
+
+    <!-- This main vbox is to ensure *all* the pref widgets are accessible,
+         as it adds a scrollbar when the contents are too long. -->
+    <vbox id="fonts-prefs-vbox" flex="1" align="center" pack="center">
+        <button style="margin: 25px !important"
+                id="openEditor"
+                label="Open Color Scheme Editor"/>
+    </vbox>
+    
+    <script src="chrome://komodo/content/pref/pref-alllangfonts.js" type="application/x-javascript;version=1.7"/>
+
+</window>
+

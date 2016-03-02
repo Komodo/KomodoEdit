@@ -44,31 +44,24 @@ button[type="button-toolbar-a"],
 {
     -moz-binding        : url("chrome://komodo/content/bindings/buttons.xml#button-toolbar-a");
     margin              : 1px;
-    border              : 1px solid transparent;
     min-width           : 0px;
     max-width           : 14em;
-    color               : WindowText;
     -moz-user-focus     : ignore;
 }
 
 .button-menu-a {
     -moz-binding        : url("chrome://komodo/content/bindings/buttons.xml#button-menu-a");
     margin              : 1px;
-    border              : 1px solid transparent;
     min-width           : 0px;
     max-width           : 14em;
-    color               : WindowText;
     -moz-user-focus     : ignore;
 }
 
 .button-menu-dropmarker,
 .button-menubutton-dropmarker {
   margin: 1px;
-  background-image: url("chrome://global/skin/arrow/arrow-dn.gif");
   min-width:11px;
   min-height:11px;
-  background-position: center;
-  background-repeat: no-repeat;
 }
 
 
@@ -78,9 +71,7 @@ button[type="button-toolbar-a"],
 {
     -moz-binding        : url("chrome://komodo/content/bindings/buttons.xml#button-toolbar-b");
     margin              : 1px;
-    border              : 1px solid transparent;
     min-width           : 0px;
-    color               : WindowText;
     -moz-user-focus     : ignore;
 }
 
@@ -95,9 +86,6 @@ button[type="button-toolbar-a"],
     min-width           : 40px;
     max-width           : 14em;
     margin              : 0px;
-    border              : 1px solid transparent;
-    color               : WindowText;
-    background-color    : transparent;
     -moz-user-focus     : ignore;
 }
 
@@ -107,11 +95,8 @@ button[type="button-toolbar-a"],
 {
     -moz-binding        : url("chrome://komodo/content/bindings/buttons.xml#button-toolbar-b");
     margin              : 0px;
-    border              : 1px solid transparent;
     min-width           : 0px;
     max-width           : 14em;
-    color               : WindowText;
-    background-color    : transparent;
     -moz-user-focus     : ignore;
 }
 
@@ -120,7 +105,6 @@ button[type="button-toolbar-a"],
 .button-toolbar-a > .button-internal-box,
 .button-toolbar-b > .button-internal-box
 {
-    border              : 1px solid transparent;
     padding             : 1px 1px 1px 1px;
 }
 
@@ -129,7 +113,6 @@ button[type="button-toolbar-a"],
 .button-toolbar-e > .button-internal-box
 {
     padding             : 1px 3px 1px 3px;
-    border              : 1px solid transparent;
 }
 
 /* disable text buttons for button-toolbar-a */
@@ -153,27 +136,17 @@ button[type="button-toolbar-a"],
 .button-toolbar-d:hover,
 .button-toolbar-e:hover
 {
-    border              : 1px solid ThreeDDarkShadow;
 }
 
 .button-menu-a:hover > .button-internal-box,
 .button-toolbar-a:hover > .button-internal-box,
 .button-toolbar-b:hover > .button-internal-box
 {
-    border-left         : 1px solid ThreeDHighlight;
-    border-top          : 1px solid ThreeDHighlight;
-    border-right        : 1px solid ThreeDShadow;
-    border-bottom       : 1px solid ThreeDShadow;
-    color               : #0000FF;
 }
 .button-toolbar-c:hover > .button-internal-box,
 .button-toolbar-d:hover > .button-internal-box,
 .button-toolbar-e:hover > .button-internal-box
 {
-    border-left         : 1px solid ThreeDHighlight;
-    border-top          : 1px solid ThreeDHighlight;
-    border-right        : 1px solid ThreeDShadow;
-    border-bottom       : 1px solid ThreeDShadow;
 }
 
 .button-menu-a:hover:active > .button-internal-box,
@@ -181,29 +154,18 @@ button[type="button-toolbar-a"],
 .button-toolbar-b:hover:active > .button-internal-box
 {
     padding             : 2px 0px 0px 2px;
-    border-left         : 1px solid ThreeDShadow;
-    border-top          : 1px solid ThreeDShadow;
-    border-right        : 1px solid ThreeDHighlight;
-    border-bottom       : 1px solid ThreeDHighlight;
-    color               : #000080;
 }
 .button-toolbar-c:hover:active > .button-internal-box,
 .button-toolbar-d:hover:active > .button-internal-box,
 .button-toolbar-e:hover:active > .button-internal-box
 {
     padding             : 2px 2px 0px 4px;
-    border-left         : 1px solid ThreeDShadow !important;
-    border-top          : 1px solid ThreeDShadow !important;
-    border-right        : 1px solid ThreeDHighlight !important;
-    border-bottom       : 1px solid ThreeDHighlight !important;
-    color               : #000080;
 }
 
 .button-menu-a[disabled="true"]:hover:active > .button-internal-box,
 .button-toolbar-a[disabled="true"]:hover:active > .button-internal-box,
 .button-toolbar-c[disabled="true"]:hover:active > .button-internal-box
 {
-    color               : GrayText;
 }
 
 .button-menu-a[disabled="true"],
@@ -225,8 +187,6 @@ button[type="button-toolbar-a"],
 .button-toolbar-e[disabled="true"]:hover,
 .button-toolbar-e[disabled="true"]:hover:active
 {
-    color               : GrayText;
-    border              : 1px solid transparent;
 }
 
 .button-menu-a[disabled="true"] > .button-internal-box,
@@ -239,9 +199,7 @@ button[type="button-toolbar-a"],
 .button-toolbar-b[disabled="true"]:hover > .button-internal-box,
 .button-toolbar-b[disabled="true"]:hover:active > .button-internal-box
 {
-    color               : GrayText;
     padding             : 1px 1px 1px 1px !important;
-    border              : 1px solid transparent !important;
 }
 .button-toolbar-c[disabled="true"] > .button-internal-box,
 .button-toolbar-c[disabled="true"]:hover > .button-internal-box,
@@ -254,8 +212,6 @@ button[type="button-toolbar-a"],
 .button-toolbar-e[disabled="true"]:hover:active > .button-internal-box
 {
     padding             : 1px 3px 1px 3px !important;
-    border              : 1px solid transparent !important;
-    color               : GrayText;
 }
 
 /* toggled toolbar styles (editor formatting toolbars, etc) */
@@ -263,26 +219,15 @@ button[type="button-toolbar-a"],
 .button-toolbar-d[checked="true"] > .button-internal-box,
 .button-toolbar-e[checked="true"] > .button-internal-box
 {
-    border-left         : 1px solid ThreeDShadow;
-    border-top          : 1px solid ThreeDShadow;
-    border-right        : 1px solid ThreeDHighlight;
-    border-bottom       : 1px solid ThreeDHighlight;
-    background-color	  : ThreeDHighlight;
 }
 .button-toolbar-e[checked="true"] > .button-internal-box
 {
-    background-color	  : ThreeDFace;
 }
 
 .button-toolbar-c[toggled="true"]:hover > .button-internal-box,
 .button-toolbar-d[checked="true"]:hover > .button-internal-box,
 .button-toolbar-e[checked="true"]:hover > .button-internal-box
 {
-    border-left         : 1px solid ThreeDShadow;
-    border-top          : 1px solid ThreeDShadow;
-    border-right        : 1px solid ThreeDHighlight;
-    border-bottom       : 1px solid ThreeDHighlight;
-    background-color	  : ThreeDFace;
 }
 
 
@@ -306,9 +251,7 @@ button[type="button-toolbar-a"],
     min-width           : 1px;
     margin              : 0px;
     padding             : 0px;
-    border              : none;
     display             : inline;
-    background-color    : transparent;
     -moz-user-focus     : ignore;
     text-decoration     : underline;
     cursor              : pointer;
@@ -334,9 +277,6 @@ button[type="button-toolbar-a"],
     -moz-binding        : url("chrome://komodo/content/bindings/buttons.xml#button-link-b");
     min-width           : 1px;
     margin              : 0px;
-    border              : none;
-    color               : WindowText;
-    background-color    : transparent;
     -moz-user-focus     : ignore;
     cursor              : pointer;
 }
@@ -347,12 +287,9 @@ button[type="button-toolbar-a"],
  **/
 .button-link-a
 {
-    -moz-appearance     : button;
     -moz-binding        : url("chrome://komodo/content/bindings/buttons.xml#button-toolbar-b");
     min-width           : 1px;
     margin              : 0px;
-    color               : WindowText;
-    background-color    : Window;
     -moz-user-focus     : ignore;
 }
 
@@ -365,12 +302,6 @@ button[type="button-toolbar-a"],
     -moz-binding        : url("chrome://komodo/content/bindings/buttons.xml#button-link-b");
     min-width           : 1px;
     margin              : 0px;
-    border-top          : 1px solid #eaeaea;
-    border-right	: 1px solid black;
-    border-bottom	: 1px solid black;
-    border-left		: 1px solid #dadada;
-    color               : WindowText;
-    background-color    : #F6F6F6;
     -moz-user-focus     : ignore;
 }
 
@@ -378,7 +309,6 @@ button[type="button-toolbar-a"],
 .button-link-a:hover,
 .button-link-b:hover
 {
-    color: #b82619;
     text-decoration:underline;
 }
 
@@ -386,12 +316,10 @@ button[type="button-toolbar-a"],
 .button-link-a > .button-internal-box
 {
     padding             : 2px 7px 2px 6px;
-    border              : 1px solid transparent;
 }
 .button-link-b > .button-internal-box
 {
     padding             : 2px 2px 2px 2px;
-    border		: 1px solid transparent;
 }
 
 .button-link-b > .button-internal-box > .button-icon
@@ -409,39 +337,32 @@ button[type="button-toolbar-a"],
 .button-link-b[disabled="true"]:hover,
 .button-link-b[disabled="true"]:hover:active
 {
-    color               : GrayText;
-    border              : 1px solid transparent;
 }
 
 .button-link[disabled="true"]:hover:active > .button-internal-box,
 .button-link-a[disabled="true"]:hover:active > .button-internal-box,
 .button-link-b[disabled="true"]:hover:active > .button-internal-box
 {
-    color               : GrayText;
 }
 
 .button-link:hover > .button-internal-box,
 .button-link-a:hover > .button-internal-box
 {
     padding             : 2px 7px 2px 6px;
-    border              : 1px solid transparent;
 }
 .button-link-b:hover > .button-internal-box
 {
     padding             : 2px 2px 2px 2px;
-    border              : 1px solid transparent;
 }
 
 .button-link:hover:active > .button-internal-box,
 .button-link-a:hover:active > .button-internal-box
 {
     padding             : 2px 7px 2px 6px;
-    border              : 1px solid transparent;
 }
 .button-link-b:hover:active > .button-internal-box
 {
     padding             : 2px 2px 2px 2px;
-    border              : 1px solid transparent;
 }
 
 .button-link[disabled="true"] > .button-internal-box,
@@ -452,14 +373,12 @@ button[type="button-toolbar-a"],
 .button-link-a[disabled="true"]:hover:active > .button-internal-box
 {
     padding             : 2px 7px 2px 6px !important;
-    border              : 1px solid transparent !important;
 }
 .button-link-b[disabled="true"] > .button-internal-box,
 .button-link-b[disabled="true"]:hover > .button-internal-box,
 .button-link-b[disabled="true"]:hover:active > .button-internal-box
 {
     padding             : 2px 2px 2px 2px !important;
-    border              : 1px solid transparent !important;
 }
 
 .button-link > .button-internal-box > .button-text-container,
@@ -472,7 +391,6 @@ button[type="button-toolbar-a"],
  */
 .rightarrow-button  {
     -moz-binding          : url("chrome://komodo/content/bindings/buttons.xml#rightarrow-button");
-    -moz-appearance       : button;
     margin		  : 1px;
     min-width		  : 0px;
     max-width		  : 14em;
@@ -482,36 +400,22 @@ button[type="button-toolbar-a"],
 .rightarrow-button > .button-internal-box,
 .rightarrow-button > .menubutton-internal-box
 {
-   border              : 1px solid transparent;
    padding             : 1px 3px 1px 3px;
    vertical-align      : middle;
 }
 
 .rightarrow-button:hover > .menubutton-internal-box  {
-    border-left         : 1px solid ThreeDHighlight;
-    border-top          : 1px solid ThreeDHighlight;
-    border-right        : 1px solid ThreeDShadow;
-    border-bottom       : 1px solid ThreeDShadow;
-	color               : buttonface;
 }
 
 .rightarrow-button:hover:active > .menubutton-internal-box  {
     padding             : 2px 2px 0px 4px;
-    border-left         : 1px solid ThreeDShadow;
-    border-top          : 1px solid ThreeDShadow;
-    border-right        : 1px solid ThreeDHighlight;
-    border-bottom       : 1px solid ThreeDHighlight;
-	color               : buttonface;
 }
 
 .rightarrow-button > .button-internal-box > .button-icon  {
-   list-style-image: url("chrome://komodo/skin/images/scrollArrowRight.png");
 }
 .rightarrow-button:hover > .button-internal-box > .button-icon {
-  list-style-image : url("chrome://komodo/skin/images/scrollArrowRight_hover.png");
 }
 .rightarrow-button[disabled="true"] > .button-internal-box > .button-icon,
 .rightarrow-button[disabled="true"]:hover > .button-internal-box > .button-icon,
 .rightarrow-button[disabled="true"]:hover:active > .button-internal-box > .button-icon{
-  list-style-image : url("chrome://komodo/skin/images/scrollArrowRight_disable.png");
 }
