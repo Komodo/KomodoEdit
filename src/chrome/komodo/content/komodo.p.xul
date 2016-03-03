@@ -1891,18 +1891,6 @@
                          mode="icons"
                          persist="buttonstyle mode"
                          buttonstyle="pictures">
-                    <toolbaritem id="toolsPreviewGroup" persist="kohidden">
-                        <toolbarbutton id="buttonBrowserPreview"
-                                       tooltiptext="&previewBufferInBrowser.tooltiptext;"
-                                       type="menu-button"
-                                       persist="buttonstyle"
-                                       buttonstyle="pictures"
-                                       observes="cmd_browserPreview"
-                                       label="&preview.label;">
-                            <menupopup id="buttonBrowserPreviewPopup"
-                                       onpopupshowing="ko.uilayout.populatePreviewToolbarButton(this);"/>
-                        </toolbarbutton>
-                    </toolbaritem>
                 </toolbar>
                 
             </toolboxrow>

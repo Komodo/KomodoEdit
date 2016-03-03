@@ -388,31 +388,25 @@ this._updateToolbarSeparators = (function uilayout__updateToolbarSeparators(tool
     }
 }).bind(this);
 
-this.populatePreviewToolbarButton = function uilayout_populatePreviewToolbarButton(popup)
+this.populatePreviewToolbarButton = function uilayout_populatePreviewToolbarButton()
 {
-    // Only do this once.
-    // XXX We'll need to remove it's children when prefs are changed.
-    if (popup.childNodes.length > 0)
-        return;
-
+    var items = [
 // #if PLATFORM == "win"
-    mi = document.createElementNS(XUL_NS, "menuitem");
-    mi.setAttribute("label", _bundle.GetStringFromName("configuredBrowser"));
-    mi.setAttribute("tooltiptext", _bundle.GetStringFromName("seePreferencesWebBrowser"));
-    mi.setAttribute("oncommand",
-                    "ko.views.manager.currentView.viewPreview(); event.stopPropagation();");
-    mi.setAttribute("value", "configured");
-    popup.appendChild(mi);
+        {
+            label: _bundle.GetStringFromName("configuredBrowser"),
+            tooltiptext: _bundle.GetStringFromName("seePreferencesWebBrowser"),
+            command: "ko.views.manager.currentView.viewPreview(); event.stopPropagation();",
+            value: "configured"
+        },
 // #endif
-
-    mi = document.createElementNS(XUL_NS, "menuitem");
-    mi.setAttribute("label", _bundle.GetStringFromName("internalBrowser.menu.label"));
-    mi.setAttribute("tooltiptext", _bundle.GetStringFromName("internalBrowser.menu.tooltiptext"));
-    mi.setAttribute("oncommand",
-                    "ko.views.manager.currentView.viewPreview('komodo'); event.stopPropagation();");
-    mi.setAttribute("class", "menuitem-iconic komodo-16x16");
-    mi.setAttribute("value", "komodo");
-    popup.appendChild(mi);
+        {
+            label: _bundle.GetStringFromName("internalBrowser.menu.label"),
+            tooltiptext: _bundle.GetStringFromName("internalBrowser.menu.tooltiptext"),
+            command: "ko.views.manager.currentView.viewPreview('komodo'); event.stopPropagation();",
+            classList: "menuitem-iconic komodo-16x16",
+            value: "komodo"
+        }
+    ];
 
     var koWebbrowser = Components.classes["@activestate.com/koWebbrowser;1"].
                        getService(Components.interfaces.koIWebbrowser);
@@ -425,19 +419,23 @@ this.populatePreviewToolbarButton = function uilayout_populatePreviewToolbarButt
     var mi;
     var browserURI;
     for (var i = 0; i < browsers.length; i++) {
-        mi = document.createElementNS(XUL_NS, "menuitem");
-        mi.setAttribute("label", browsers[i]);
-        mi.setAttribute("crop", "center");
-        mi.setAttribute("tooltiptext", ko.uriparse.baseName(browsers[i]));
-        if (browserTypes[i]) {
-            mi.setAttribute("value", browserTypes[i]);
-            mi.setAttribute("class", "menuitem-iconic browser-"+browserTypes[i]+"-icon");
-        }
         browserURI = ko.uriparse.localPathToURI(browsers[i]);
-        mi.setAttribute("oncommand",
-                        "ko.views.manager.currentView.viewPreview('"+browserTypes[i]+"'); event.stopPropagation();");
-        popup.appendChild(mi);
+        
+        let entry = {
+            label: browsers[i],
+            tooltiptext: ko.uriparse.baseName(browsers[i]),
+            command: "ko.views.manager.currentView.viewPreview('"+browserTypes[i]+"'); event.stopPropagation();"
+        }
+        
+        if (browserTypes[i]) {
+            entry.value = browserTypes[i];
+            entry.classList = "menuitem-iconic browser-"+browserTypes[i]+"-icon";
+        }
+        
+        items.push(entry);
     }
+    
+    return items;
 }
 
 this.focusPane = function uilayout_focusPane(paneId)
@@ -1672,6 +1670,13 @@ this.onload = function uilayout_onload()
             findBrowser.setAttribute("src", "chrome://komodo/content/find/embedded.xul");
         }
     }, 1000);
+    
+    require("ko/dynamic-button").register("View in Browser", {
+        command: "cmd_browserPreview",
+        group: "preview",
+        icon: "earth2",
+        menuitems: ko.uilayout.populatePreviewToolbarButton
+    });
 }
 
 this.updateViewRef = function(view) {
