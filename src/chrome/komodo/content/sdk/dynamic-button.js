@@ -102,7 +102,10 @@
             var menuitems = opts.menuitems;
             
             if (typeof menuitems == "function")
-                menuitems = menuitems();
+            {
+                menuitems = menuitems(this.updateMenu);
+                if ( ! menuitems) return; // using callback
+            }
                 
             if ( ! Array.isArray(menuitems))
             {
