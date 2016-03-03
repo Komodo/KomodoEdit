@@ -15,8 +15,9 @@
     const _ko            = require("ko/windows").getMain().ko;
     const {Cc, Ci, Cu}  = require("chrome");
     const $             = require("ko/dom");
-    const prefs         = _ko.prefs;
+    const prefs         = Cc["@activestate.com/koPrefService;1"].getService(Ci.koIPrefService).prefs;
     const keyManager    = _ko.keybindings.manager;
+    const keybindingService =  Cc['@activestate.com/koKeybindingSchemeService;1'].getService();
 
     const log           = require("ko/logging").getLogger("ko-keybindings");
     //log.setLevel(require("ko/logging").LOG_DEBUG);
@@ -100,12 +101,40 @@
      */
     this.usedBy = (keybind) =>
     {
-        if ( ! (keybind instanceof Array))
+        if ( ! Array.isArray(keybind) )
         {
             keybind = keybind.split(", ");
         }
 
         return keyManager.usedBy(keybind);
     }
+    
+    /**
+     * Get the current key binding configuration
+     *
+     * @returns {String} name of the current keybinding configuration
+     */
+    this.getCurrentConfig = () =>
+    {
+        if(prefs.hasPref("keybinding-scheme"))
+        {
+            return prefs.getStringPref("keybinding-scheme");
+        }
+    }
+    
+    /**
+     * Get the current key binding configuration
+     *
+     * @returns {Array} An array of all available keybinding sets
+     */
+    this.getConfigs = () =>
+    {
+        var schemes = new Array();
+        keybindingService.getSchemeNames(schemes, new Object());
+        return schemes.value;
+    }
+    
+    
+    
 
 }).apply(module.exports);
