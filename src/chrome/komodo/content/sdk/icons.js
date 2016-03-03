@@ -715,7 +715,7 @@
         }
 
         var a = [];
-        for (i in res)
+        for ( var i in res)
             a.push(toHexString(res.charCodeAt(i)));
             
         return a.join("");
