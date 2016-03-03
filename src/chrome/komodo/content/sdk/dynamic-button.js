@@ -60,7 +60,7 @@
         
         this.update = function()
         {
-            button.attr("collapsed", opts.isEnabled() ? "false" : "true")
+            button.attr("collapsed", opts.isEnabled() ? "false" : "true");
         }
         
         this.updateMenu = function ()
@@ -153,7 +153,7 @@
         if (now !== true)
         {
             w.clearTimeout(this.update._timer);
-            this.update._timer = w.setTimeout(this.update.bind(this, true), 100);
+            this.update._timer = w.setTimeout(this.update.bind(this, true), 250);
             return;
         }
         
