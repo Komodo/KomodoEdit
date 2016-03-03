@@ -576,6 +576,34 @@
         c.center();
     }
     
+    this.showSubscope = function()
+    {
+        var scopeIds = Array.slice(arguments);
+        var scopeId = scopeIds.shift();
+        
+        c.show(scopeId);
+        var resultElem = elem('results');
+        
+        var selectSubscope = () =>
+        {
+            window.setTimeout(() => {
+                var subscopeId = scopeIds.shift();
+                if (! subscopeId) return;
+                
+                var subscope = resultElem.find(`richlistitem[result-id="${subscopeId}"]`);
+                if (subscope.length)
+                {
+                    var data = subscope.element().resultData;
+                    if ( ! data.isScope) return;
+                    
+                    c.setSubscope(data, false, selectSubscope);
+                }
+            }, prefs.getLong("commando_result_render_delay") + 10);
+        }
+        
+        c.search("", selectSubscope, true);
+    }
+    
     this.center = function(returnValues)
     {
         if (local.quickSearch) return;
@@ -1372,7 +1400,7 @@
         return local.subscope;
     }
 
-    this.setSubscope = function(subscope, record = true)
+    this.setSubscope = function(subscope, record = true, callback = () => {})
     {
         if (subscope && ! (subscope.scope in local.scopes))
             return log.error("Subscope does not exist: " + subscope.scope);
@@ -1411,7 +1439,7 @@
 
         local.subscope = subscope;
 
-        this.clear();
+        this.clear(callback);
 
         return true;
     }
@@ -1564,13 +1592,13 @@
         resultElem.removeAttr("dirty");
     }
 
-    this.clear = function()
+    this.clear = function(callback = () => {})
     {
         elem('search').value("");
 
         c.stop();
         c.empty();
-        c.search();
+        c.search("", callback);
     }
 
     this.block = function()
