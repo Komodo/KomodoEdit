@@ -2341,6 +2341,11 @@ ManagerClass.prototype = {
         } catch(ex) {
             dump("Error init'ing the viewMgrClass (2): " + ex + "\n");
         }
+        
+        // Let everyone know we're ready
+        var w = require("ko/windows").getMain();
+        var evt = new CustomEvent("places_manager_loaded", {bubbles: true,cancelable: false});
+        w.dispatchEvent(evt);
     },
     
     finalize: function() {
