@@ -44,7 +44,7 @@
                 button.attr("type", "menu-button");
                 
                 menupopup = $("<menupopup>");
-                menupopup.on("popupshowing", this.updateMenu.bind(this));
+                menupopup.on("popupshowing", this.updateMenu.bind(this, null));
                 button.append(menupopup);
             }
             
@@ -96,17 +96,17 @@
             button.parent().attr("collapsed", visibleChildren ? "false" : "true");
         }
         
-        this.updateMenu = function ()
+        this.updateMenu = function (menuitems)
         {
             menupopup.empty();
-            var menuitems = opts.menuitems;
+            menuitems = menuitems || opts.menuitems;
             
             if (typeof menuitems == "function")
             {
-                menuitems = menuitems(this.updateMenu);
+                menuitems = menuitems(this.updateMenu.bind(this));
                 if ( ! menuitems) return; // using callback
             }
-                
+            
             if ( ! Array.isArray(menuitems))
             {
                 throw new Error("menuitems are not in the form of an array");
