@@ -205,7 +205,7 @@ def _verifyDependencies(promptToContinue):
         # the user their GTK is outdated/nonexistent.
         gtk_pkg_name = 'gtk-2.0'
         gtk_pkg_version = '2.24'
-        if os.system('gdk_check > /dev/null 2>&1') != 0:
+        if os.system('support/gdk_check > /dev/null 2>&1') != 0:
             log.warn("It appears that either your system does not have %s "
                      "installed, or your system's version of %s is not up to "
                      "date.\n"
