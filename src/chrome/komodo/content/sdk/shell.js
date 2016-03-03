@@ -127,6 +127,43 @@
         var proc = require("sdk/system/child_process");
         var process = proc.spawn(binary, args, _opts);
         
+        var stdout = "";
+        var stderr = "";
+        process.stdout.on('data', function (data)
+        {
+            stdout += data;
+        });
+
+        process.stderr.on('data', function (data)
+        {
+            stderr += data;
+        });
+        
+        process.on('close', function (code, signal)
+        {
+            if (code != 0)
+            {
+                log.error("child process ended with code " + code + ", stderr: " + stderr);
+            }
+            
+            callbacks.forEach(function(callback)
+            {
+                callback(stdout, stderr, code, signal);
+            });
+        });
+        
+        var callbacks = [];
+        var on = process.on;
+        process.on = function(event, callback)
+        {
+            if (event != "complete")
+            {
+                on.call(process, event, callback);
+            }
+            else
+                callbacks.push(callback);
+        };
+        
         return process;
     }
     
