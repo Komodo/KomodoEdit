@@ -17,7 +17,7 @@
                 id: "dynamicBtn-" + opts.id,
                 tooltip: opts.tooltip,
                 type: "button",
-                collapsed: "true",
+                disabled: "true",
                 class: "dynamic-button " + opts.classList
             });
             
@@ -28,9 +28,11 @@
             }
             else
                 button.on("command", opts.command);
-            
+                
             if (opts.icon)
+            {
                 button.addClass("icon-" + opts.icon);
+            }
             else if (opts.image)
                 button.attr("image", opts.image);
             
@@ -54,13 +56,44 @@
                 tb.append(groupItem);
             }
             
+            if ( ! opts.isEnabled)
+            {
+                if (typeof opts.command == "string")
+                {
+                    var controller = window.controllers.getControllerForCommand(opts.command);
+                    if (controller)
+                    {
+                        opts.isEnabled = () =>
+                        {
+                            return controller.isCommandEnabled(opts.command);
+                        }
+                    }
+                }
+                
+                if ( ! opts.isEnabled)
+                    opts.isEnabled = () => false;
+            }
+            
             groupItem.append(button);
+            
             this.update();
         }
         
         this.update = function()
         {
-            button.attr("collapsed", opts.isEnabled() ? "false" : "true");
+            var enabled = opts.isEnabled();
+            button.attr("disabled", enabled ? "false" : "true");
+            
+            var visibleChildren;
+            if (button.element().parentNode.childNodes.length === 1)
+                visibleChildren = enabled;
+            else
+            {
+                var sel = '.dynamic-button[disabled="false"], .dynamic-button:not([disabled])';
+                visibleChildren = button.parent().find(sel).length;
+            }
+                
+            button.parent().attr("collapsed", visibleChildren ? "false" : "true");
         }
         
         this.updateMenu = function ()
@@ -86,12 +119,36 @@
                 
                 menuitem = _.extend({
                     label: "unnamed",
-                    isEnabled: function() { return true },
+                    name: "",
+                    observes: "",
+                    isEnabled: null,
                     command: function() {},
                     classList: "",
                     image: null,
-                    acceltext: ""
+                    acceltext: "",
+                    tooltiptext: "",
+                    type: null,
+                    checked: null,
+                    value: -1
                 }, menuitem);
+                    
+                if ( ! menuitem.isEnabled)
+                {
+                    if (typeof menuitem.command == "string")
+                    {
+                        var controller = window.controllers.getControllerForCommand(menuitem.command);
+                        if (controller)
+                        {
+                            menuitem.isEnabled = () =>
+                            {
+                                return controller.isCommandEnabled(menuitem.command);
+                            }
+                        }
+                    }
+                    
+                    if ( ! menuitem.isEnabled)
+                        menuitem.isEnabled = () => true;
+                }
                 
                 let elem = $("<menuitem>");
                 elem.attr({
@@ -99,9 +156,27 @@
                     class: menuitem.classList,
                     image: menuitem.image,
                     acceltext: menuitem.acceltext,
+                    tooltiptext: menuitem.tooltiptext,
+                    value: menuitem.value,
                     disabled: menuitem.isEnabled() ? "false" : "true"
                 });
-                elem.on("command", menuitem.command);
+                
+                if (menuitem.type)
+                    elem.attr("type", menuitem.type);
+                    
+                if (menuitem.name)
+                    elem.attr("name", menuitem.name);
+                    
+                if (menuitem.observes)
+                    elem.attr("observes", menuitem.observes);
+                    
+                if (menuitem.checked)
+                    elem.attr("checked", menuitem.checked);
+                
+                if (typeof menuitem.command == "string")
+                    elem.attr("oncommand", menuitem.command);
+                else
+                    elem.on("command", menuitem.command);
                 
                 menupopup.append(elem);
             }
@@ -187,7 +262,7 @@
             group: id,
             label: label,
             tooltip: opts.tooltip || label,
-            isEnabled: function() { return false },
+            isEnabled: null,
             command: function() {},
             menuitems: null,
             icon: icon,
