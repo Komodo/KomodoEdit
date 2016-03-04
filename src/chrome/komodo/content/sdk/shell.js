@@ -141,9 +141,9 @@
         
         process.on('close', function (code, signal)
         {
-            if (code != 0)
+            if (code !== 0)
             {
-                log.error("child process ended with code " + code + ", stderr: " + stderr);
+                log.error("child process ended with code " + code + ", stdout: " + stdout + ", stderr: " + stderr);
             }
             
             callbacks.forEach(function(callback)
