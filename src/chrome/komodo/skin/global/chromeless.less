@@ -10,7 +10,7 @@
     }
 }
 
-:root[hidechrome="true"]
+:root[hidechrome="true"]:not([sizemode="maximized"])
 {
     border-top-left-radius: 5px;
     border-top-right-radius: 5px;
@@ -114,7 +114,13 @@
     {
         background: @background;
     }
+    
     color: @foreground;
+}
+
+#komodo_main[sizemode="maximized"]
+{
+    background: @background;
 }
 
 /* Resize handlers */
