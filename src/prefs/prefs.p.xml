@@ -10,7 +10,7 @@
   <!-- "uilayout_version" is used by Komodo to upgrade ui layouts.
        Must keep in sync with "../chrome/komodo/content/library/uilayout.p.js"
   -->
-  <long id="uilayout_version">1</long>
+  <long id="uilayout_version">2</long>
 
   <boolean id="startupMaximized">0</boolean>
   <boolean id="startupFullScreen">0</boolean>

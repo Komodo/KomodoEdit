@@ -1613,7 +1613,7 @@ function uilayout_upgrade() {
 
 this.onload = function uilayout_onload()
 {
-    var uilayout_version = 1;
+    var uilayout_version = 2;
     if (_gPrefs.getLong("uilayout_version", 0) < uilayout_version) {
         uilayout_upgrade();
         _gPrefs.setLong("uilayout_version", uilayout_version);
