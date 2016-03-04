@@ -104,7 +104,16 @@
             if (typeof menuitems == "function")
             {
                 menuitems = menuitems(this.updateMenu.bind(this));
-                if ( ! menuitems) return; // using callback
+                if ( ! menuitems)
+                {
+                    let elem = $("<menuitem>");
+                    elem.attr({
+                        label: "Loading ..",
+                        disabled: "true"
+                    });
+                    menupopup.append(elem);
+                    return; // using callback
+                }
             }
             
             if ( ! Array.isArray(menuitems))
