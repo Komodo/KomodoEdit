@@ -668,12 +668,10 @@ class Scheme(SchemeBase):
         return val
 
     def _getFallbackStyle(self, style):
-        if style.endswith('_fixed'):
-            return 'default_fixed'
-        elif style.endswith('_proportional'):
+        if style.endswith('_proportional'):
             return 'default_proportional'
         else:
-            log.error("asked for style %r, don't know what to do", style)
+            return 'default_fixed'
     
     def getFaceType(self, language, style):
         #style = self._fixstyle(style)
