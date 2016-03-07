@@ -98,6 +98,20 @@ class Less_StraightTest(_BaseCSSTestCase):
     @tag("bug1091")
     def test_no_trg_after_variable(self):
         self.assertNoTrigger("@myvar:<|>")
+        
+    @tag("bug1092")
+    def test_complete_nested(self):
+        if self.lang != 'Less': return # SCSS inherits this test case; ignore
+        content, positions = unmark_text(dedent("""\
+            .test {
+                .testClass {
+                    .<1>
+                }
+            }
+        """))
+        self.assertCompletionsAre(markup_text(content, pos=positions[1]),
+                                  [("class", "test"),
+                                   ("class", "testClass")])
 
 
 
