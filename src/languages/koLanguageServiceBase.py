@@ -336,10 +336,10 @@ class KoCommenterLanguageService:
             # apply the commenting change one line at a time in order to
             # preserve line markers (bookmarks, breakpoints, etc.)
             scimoz.beginUndoAction()
-            for i in xrange(startIndexLine, endIndexLine + 1):
-                scimoz.targetStart = scimoz.positionFromLine(i)
-                scimoz.targetEnd = scimoz.getLineEndPosition(i)
-                scimoz.replaceTarget(replacementLines[i - startIndexLine].rstrip('\r\n'))
+            for i in xrange(len(replacementLines)):
+                scimoz.targetStart = scimoz.positionFromLine(startIndexLine + i)
+                scimoz.targetEnd = scimoz.getLineEndPosition(startIndexLine + i)
+                scimoz.replaceTarget(replacementLines[i].rstrip('\r\n'))
             scimoz.endUndoAction()
             if self.DEBUG:
                 print "replacement length: naive=%r encoding-aware=%r"\
@@ -537,10 +537,10 @@ class KoCommenterLanguageService:
             # apply the commenting change one line at a time in order to
             # preserve line markers (bookmarks, breakpoints, etc.)
             scimoz.beginUndoAction()
-            for i in xrange(startIndexLine, endIndexLine + 1):
-                scimoz.targetStart = scimoz.positionFromLine(i)
-                scimoz.targetEnd = scimoz.getLineEndPosition(i)
-                scimoz.replaceTarget(replacementLines[i - startIndexLine].rstrip('\r\n'))
+            for i in xrange(len(replacementLines)):
+                scimoz.targetStart = scimoz.positionFromLine(startIndexLine + i)
+                scimoz.targetEnd = scimoz.getLineEndPosition(startIndexLine + i)
+                scimoz.replaceTarget(replacementLines[i].rstrip('\r\n'))
             scimoz.endUndoAction()
             delta = len(replacement) - (workingEndIndex - startIndex)
 
