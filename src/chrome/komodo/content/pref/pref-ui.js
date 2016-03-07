@@ -1,16 +1,27 @@
-const {interfaces: Ci, classes: Cc} = Components;
+const {classes: Cc} = Components;
 Components.utils.import("resource://gre/modules/Services.jsm");
 
 var schemeService = Cc['@activestate.com/koScintillaSchemeService;1'].getService();
 
 var $ = require("ko/dom");
+var originalValues = {};
 
 function OnPreferencePageOK()
 {
+    var editorValue = $(`#editor-scheme`, window).attr("value");
+    var interfaceValue = $(`#interface-scheme`, window).attr("value");
+    var widgetValue = $(`#widget-scheme`, window).attr("value");
+    
     var colorscheme = require("ko/colorscheme");
-    colorscheme.applyEditor($(`#editor-scheme`, window).attr("value"));
-    colorscheme.applyInterface($(`#interface-scheme`, window).attr("value"));
-    colorscheme.applyWidgets($(`#widget-scheme`, window).attr("value"));
+    
+    if (editorValue != originalValues.editor)
+        colorscheme.applyEditor($(`#editor-scheme`, window).attr("value"));
+        
+    if (interfaceValue != originalValues.interface)
+        colorscheme.applyInterface($(`#interface-scheme`, window).attr("value"));
+    
+    if (widgetValue != originalValues.widget)
+        colorscheme.applyWidgets($(`#widget-scheme`, window).attr("value"));
     
     return true;
 }
@@ -19,8 +30,8 @@ function PrefUi_OnLoad() {
     // todo: turn into UI sdk
     var populateSchemeList = (id) =>
     {
-        var schemes = new Array();
-        schemeService.getSchemeNames(schemes, new Object());
+        var schemes = [];
+        schemeService.getSchemeNames(schemes, {});
         
         var menuitem;
         var s, scheme;
@@ -69,7 +80,7 @@ function PrefUi_OnLoad() {
         
         //var schemeName = prefs.getString(id);
         //$(`#${id}`).element().selectedItem = $(`#${id} menuitem[label="${schemeName}"]`).element();
-    }
+    };
     
     populateSchemeList("interface-scheme");
     populateSchemeList("widget-scheme");
@@ -100,5 +111,9 @@ function PrefUi_OnLoad() {
         $(`#widget-scheme`, window).element().selectedItem = $(`#widget-scheme menuitem[label="${val}"]`, window).element();
         $(`#editor-scheme`, window).element().selectedItem = $(`#editor-scheme menuitem[label="${val}"]`, window).element();
     });
+    
+    originalValues.editor = $(`#editor-scheme`, window).attr("value");
+    originalValues.interface = $(`#interface-scheme`, window).attr("value");
+    originalValues.widget = $(`#widget-scheme`, window).attr("value");
     
 }
