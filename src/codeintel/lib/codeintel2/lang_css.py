@@ -1355,6 +1355,7 @@ class CSSCile:
         
         self.selector = []
         self.selectorStartLine = None
+        self.nestedSelectors = [] # for keeping track of nested selectors (Less)
         self.whitespace = re.compile('^\\s+$')
         self.blockLevel = 0
         self.parenLevel = 0
@@ -1375,20 +1376,26 @@ class CSSCile:
             if text == '}' or ';' in text:
                 if text == '}':
                     self.blockLevel = max(self.blockLevel - 1, 0)
-                if self.blockLevel == 0:
+                    if (len(self.nestedSelectors) > 0):
+                        self.nestedSelectors.pop()
+                if (self.blockLevel == 0 or self.lang == 'Less'):
                     self.selector = [] # start looking for selectors
                     self.selectorStartLine = None # need to reset on ';' (Less)
                     self.ignoreStatement = False
                 return
             elif (text == '{' or text == ',' or '(' in text) and \
                  self.selector and len(self.selector) > 0 and \
-                 self.blockLevel == 0 and self.parenLevel == 0 and \
-                 not self.ignoreStatement:
+                 (self.blockLevel == 0 or self.lang == 'Less') and \
+                 self.parenLevel == 0 and not self.ignoreStatement:
                 selectorText = ''.join(self.selector).strip()
+                self.nestedSelectors.append(selectorText)
                 if CSSSelector.CSS_ID_OR_CLASS.search(selectorText):
                     # Parse out each id and class being used in the selector
                     # and create an individual selector for that target.
                     for selector in CSSSelector.CSS_ID_OR_CLASS.findall(selectorText):
+                        if self.lang == 'Less':
+                            # Use the fully expanded name.
+                            selectorText = ' '.join(self.nestedSelectors).replace('&', '')
                         self.cile.addSelector(CSSSelector(selectorText,
                                                           self.selectorStartLine,
                                                           selector[0]))
@@ -1397,6 +1404,9 @@ class CSSCile:
                     # the target.
                     selector = CSSSelector.CSS_IDENT.search(selectorText)
                     if selector:
+                        if self.lang == 'Less':
+                            # Use the fully expanded name.
+                            selectorText = ' '.join(self.nestedSelectors).replace('&', '')
                         self.cile.addSelector(CSSSelector(selectorText,
                                                           self.selectorStartLine,
                                                           selector.group(1)))
@@ -1404,12 +1414,17 @@ class CSSCile:
                         log.warn("Unable to process CSS selector '%s'" % selectorText)
                 
                 if text == '{':
-                    # Stop looking for selectors until encountering '}'.
-                    self.selector = None
+                    if self.lang == 'Less':
+                        # Continue with the next, nested selector.
+                        self.selector = []
+                    else:
+                        # Stop looking for selectors until encountering '}'.
+                        self.selector = None
                     self.blockLevel += 1
                 elif text == ',':
                     # Continue with the next selector.
                     self.selector = []
+                    self.nestedSelectors.pop() # only nest on '{'
                 elif '(' in text:
                     # Less mixin; stop looking for selectors until encountering
                     # ')'.
