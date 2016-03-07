@@ -56,7 +56,7 @@
             </deck>
         </hbox>
 
-        <box id="runoutput-desc-tabpanel-toolbar" class="widgetToolbarWrap hud statusbar">
+        <box id="runoutput-desc-tabpanel-toolbar" class="widgetToolbarWrap">
             <hbox valign="middle" style="width: 50vw; min-width: 400px;">
                 <textbox id="runoutput-command" placeholder="&gt; enter your command" type="search" searchbutton="true" flex="1"/>
                 <toolbarbutton id="run-command-button"

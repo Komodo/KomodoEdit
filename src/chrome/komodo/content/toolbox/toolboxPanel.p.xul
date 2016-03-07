@@ -10,7 +10,7 @@
 <page xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
     <vbox flex="1" id="toolbox2-hierarchy-vbox">
         <!-- #if 1 -->
-        <hbox id="toolbox2-hierarchy-toolbar-a" class="status-toolbar">
+        <hbox id="toolbox2-hierarchy-toolbar-a" class="status-toolbar" align="center">
             <!-- the cog -->
             <textbox id="toolbox2-filter-textbox"
                        style="min-width:40px;"

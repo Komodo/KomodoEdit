@@ -631,7 +631,7 @@ dialog, :root.pref-window
 
 .widgetToolbarWrap
 {
-    height: 27px;
+    height: 29px;
     background: @contrast;
     -moz-box-pack: center;
     -moz-box-align: center;
@@ -640,18 +640,16 @@ dialog, :root.pref-window
     
     textbox, toolbarbutton, menulist
     {
-        margin-top: 0;
-        margin-bottom: 0;
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
     }
 }
 
 .status-toolbar
 {
     height: 27px;
-    padding: 0 0 2px 0;
     background: @contrast;
-    -mox-box-align: center;
-    -moz-box-pack: start;
+    padding: 2px;
     
     textbox
     {
