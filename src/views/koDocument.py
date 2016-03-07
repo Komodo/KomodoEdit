@@ -2086,7 +2086,13 @@ class koDocumentBase(object):
         # as part of it).
         difflines.insert(0, "Index: "+self.file.displayPath+eolStr)
         if joinLines:
-            return ''.join(difflines)
+            try:
+                return ''.join(difflines)
+            except UnicodeDecodeError:
+                # This will usually happen when Komodo attempts to auto-detect
+                # the file encoding on disk but gets it wrong.
+                log.error("Unable to compute changed lines due to encoding mismatch.")
+                return ''
         else:
             return [self._re_ending_eol.sub('', x) for x in difflines]
 
