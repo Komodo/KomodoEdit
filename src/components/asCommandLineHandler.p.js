@@ -150,6 +150,9 @@ komodoCmdLineHandler.prototype = {
     
     try{
         var wizPref = "wizard.finished";
+
+        // This should run for every major upgrade AND when the pref is not set
+        //
         if( ! prefSvc.prefs.hasPref(wizPref))
         {
             prefSvc.prefs.setBoolean(wizPref, false)
@@ -164,7 +167,6 @@ komodoCmdLineHandler.prototype = {
              
              dialog.addEventListener("wizard.complete", this.handle.bind(this, cmdLine), false);
              prefSvc.prefs.setBoolean("wizard.finished", true);
-             //setTimeout(handle.bind(this, cmdLine), 10000);
              return;
         }
     } catch(e){

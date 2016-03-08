@@ -24,7 +24,7 @@ set to a chrome URL.
         buttonalign="horizontal"
         buttonorient="horizontal"
         onwizardcancel="cancel()"
-        onwizardfinish="cancel()">
+        onwizardfinish="finished()">
     
     <script src="chrome://komodo/content/startupWizard/startupWizard.js" type="application/x-javascript;version=1.7"/>
 
