@@ -22,4 +22,6 @@ $cons->InstallInChrome('col.js');
 $cons->InstallInChrome('panel.js');
 $cons->InstallInChrome('textbox.js');
 $cons->InstallInChrome('menulist.js');
+$cons->InstallInChrome('button.js');
+$cons->InstallInChrome('checkbox.js');
 
