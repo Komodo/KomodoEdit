@@ -1,20 +1,18 @@
 ### Short Summary
 
-...
+
 
 ### Steps to Reproduce
 
-1. 
-2. 
-3. 
+
 
 ### Expected results
 
-...
+
 
 ### Actual results
 
-...
+
 
 ### Platform Information
 
