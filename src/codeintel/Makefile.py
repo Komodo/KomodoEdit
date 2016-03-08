@@ -87,7 +87,7 @@ PYD = (sys.platform == "win32" and ".pyd" or ".so")
 #---- primary make targets
 
 @default
-@dep("silvercity", "udl_lexers", "elementtree", "inflector") 
+@dep("silvercity", "udl_lexers", "elementtree", "inflector", "apsw")
 def make_all(maker, log):
     pass
 
@@ -98,7 +98,8 @@ def make_all(maker, log):
      #XXX Currently can only handle syck on non-Windows.
      #"distclean_syck",
      "distclean_elementtree",
-     "distclean_inflector")
+     "distclean_inflector",
+     "distclean_apsw")
 def make_distclean(maker, log):
     pass
 
@@ -392,6 +393,33 @@ def make_inflector(maker, log):
                          logstream=log.info)
         else:
             _run("chmod -R ug+w %s" % dest, logstream=log.info)
+
+def make_distclean_apsw(maker, log):
+    """
+    Clean the apsw source directory and delete the compiled shared library.
+    """
+    _rm("src/apsw", logstream=log.info)
+    _rm("lib/apsw"+PYD, logstream=log.info)
+
+@makes("src/apsw")
+def make_src_apsw(maker, log):
+    """
+    Copy the apsw source directory over from Komodo.
+    """
+    src_dir = join(cfg.komodo_src, "src", "apsw")    
+    if not isdir(src_dir):
+        raise MakeError("cannot find Komodo apsw source dir: '%s'" % src_dir)
+    _cp(src_dir, "src/apsw", logstream=log.info)
+    _rm("src/apsw/build", logstream=log.info)
+
+@dep("src_apsw")
+@makes("lib/apsw"+PYD)
+def make_apsw(maker, log):
+    """
+    Build the apsw shared library.
+    """
+    _run_in_dir("make build_ext", "src/apsw", logstream=log.info)
+    _cp("src/apsw/apsw"+PYD, "lib/apsw"+PYD, logstream=log.info)
 
 
 

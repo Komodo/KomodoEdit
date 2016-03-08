@@ -52,6 +52,8 @@ from cStringIO import StringIO
 import codecs
 import copy
 
+import apsw # for SQLite symbol database
+
 import ciElementTree as ET
 from codeintel2.common import *
 from codeintel2 import util
@@ -935,6 +937,93 @@ class LangZone(object):
         """Remove the given buffer from the database."""
         self.remove_path(buf.path)
 
+    def _get_symbols_db_conn(self):
+        """
+        Returns a connection to the SQLite3 database that houses known symbols.
+        If the database does not exist yet, create it.
+        This database is used for quick "Go to Symbol"-type lookups and is
+        located in the root of the "codeintel/" directory.
+        @return apsw.Connection
+        """
+        try:
+            apsw
+        except NameError:
+            return None
+        
+        symbols_db = join(self.db.base_dir, "symbols.db")
+        exists = isfile(symbols_db)
+        conn = apsw.Connection(symbols_db)
+        cursor = conn.cursor()
+        if not exists:
+            cursor.execute("""
+                CREATE TABLE symbols ('symbol_id' INTEGER PRIMARY KEY,
+                                      'symbol' TEXT NOT NULL,
+                                      'type' TEXT NOT NULL,
+                                      'filepath' TEXT NOT NULL,
+                                      'lineno' INTEGER NOT NULL)
+            """)
+            cursor.execute("CREATE UNIQUE INDEX 'symbol_id' on symbols (symbol_id ASC)")
+            try:
+                cursor.execute("COMMIT")
+            except apsw.SQLError:
+                log.error("Unable to create symbols.db.")
+                return None
+        return conn
+
+    def _update_symbols_db(self, conn, action, blob):
+        """
+        Update the symbols in the SQLite3 symbol database contained in the given
+        blob's filename.
+        @param conn The SQLite3 database connection returned by
+                    `self._get_symbols_db_conn()`.
+        @param action The database action to perform, either "add", "remove", or
+                      "update".
+        @param blob The blob that contains the file whose symbols are to be
+                    stored in the database.
+        """
+        if not conn:
+            return
+        
+        cursor = conn.cursor()
+        cursor.execute("BEGIN")
+        
+        # Delete any symbols in the blob's file.
+        if action == "update" or action == "remove":
+            cursor.execute("DELETE FROM symbols WHERE filepath=?",
+                           (blob.get("src"),))
+        
+        # Add all of blob's symbols recursively.
+        if action == "add" or action == "update":
+            def insert_all(elem):
+                """
+                
+                """
+                symbol = elem.get("name", "")
+                type = elem.get("ilk", "")
+                src = blob.get("src", "")
+                lineno = elem.get("line", "")
+                if symbol and type and src and lineno:
+                    cursor.execute("INSERT INTO symbols VALUES (NULL, ?, ?, ?, ?)",
+                                   (symbol, type, src, lineno))
+                for n in elem:
+                    insert_all(n)
+            
+            insert_all(blob)
+        
+        try:
+            cursor.execute("commit")
+        except apsw.SQLError:
+            log.error("Unable to save to symbols db.")
+
+    def _close_symbols_db_conn(self, conn):
+        """
+        Closes the connection to the SQLite3 symbol database.
+        @param conn The SQLite3 database connection returned by
+                    `self._get_symbols_db_conn()`.
+        """
+        if conn:
+            conn.close()
+
     def update_buf_data(self, buf, scan_tree, scan_time, scan_error,
                         skip_scan_time_check=False):
         """Update this LangZone with the buffer data.
@@ -1037,8 +1126,9 @@ class LangZone(object):
                 for blobname in old_res_data:
                     if blobname not in new_res_data:
                         dbfile_changes.append(("remove", blobname, None))
-
+                
                 dhash = self.dhash_from_dir(dir)
+                conn = self._get_symbols_db_conn()
                 for action, blobname, blob in dbfile_changes:
                     if action == "add":
                         dbfile = self.db.bhash_from_blob_info(
@@ -1100,6 +1190,8 @@ class LangZone(object):
                                 fout.write(new_dbfile_content)
                             finally:
                                 fout.close()
+                    self._update_symbols_db(conn, action, blob)
+                self._close_symbols_db_conn(conn)
 
             if res_index_has_changed:
                 self.changed_index(dir, "res_index")

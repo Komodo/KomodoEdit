@@ -123,6 +123,8 @@ def mkenvconf():
         # 'util' needed for testlib.py
         join(komodo_src_dir, "util"),
         join(komodo_src_dir, "contrib" ,"zope" ,"cachedescriptors" ,"src"),
+        # 'apsw' needed for SQLite database of symbols.
+        join(komodo_src_dir, "src", "apsw"),
     ]
 
     # Make the zope directory a package.
