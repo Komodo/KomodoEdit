@@ -10,6 +10,7 @@ function Page($element = {}, options = {}) { this.init($element, options); }
 (function()
     {
         var $ = require("ko/dom");
+        var log = require("ko/logging").getLogger("ko-wizard-page");
         this.type = "wizardpage";
         // should this take content too?
         this.init = function($element = {}, options = {})
@@ -53,6 +54,10 @@ function Page($element = {}, options = {}) { this.init($element, options); }
             if($element && $element.koDom)
             {
                 element.$elem.append($element);
+            }
+            else
+            {
+                log.warn("$element has no koDom property.  Make sure you're psasing in a koDom object.")
             }
             this.$elem.append(element.$elem);
             return element;
