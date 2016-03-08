@@ -15,6 +15,7 @@ function Menulist($element = {}, options = {}) { this.init($element, options); }
     {
         var $ = require("ko/dom");
         var log = require("ko/logging").getLogger("ko-menulist");
+        log.setLevel(10);
         this.type = "menulist";
         
         this.init = function($element = {}, options = {})
@@ -37,54 +38,49 @@ function Menulist($element = {}, options = {}) { this.init($element, options); }
         };
         
         /**
-         * Add menu item/s to menulist.  Wraps menuitems in a <menupopup>
+         * Add menu item to menulist.  Wraps menuitem in a <menupopup>
          *
-         * @argument {Array} menuitems  An array of menu item pairs to be added
-         *     to the menulist
-         *     [
-                    [
-                        itemName, "onCommand function"
-                    ],
-                    [
-                        itemName, "onCommand function"
-                    ],
-               ]
+         * @argument {String[]} menuitem  An array of name and function for
+         *      menuitem.
+         *           [
+         *               "itemName", "onCommand function"
+         *           ]
          */
-        this.addMenuitems = function menulist_addMenuitems(menuitems)
+        this.addMenuitem = function menulist_addMenuitem(menuitem)
         {
-            for( var i  in menuitems)
+            // must wrap menu items in a <menupopup> element inside the
+            // <menulist>
+            var $menupop = {};
+            if( this.$elem.children().length == 0 )
             {
-                // must wrap menu items in a <menupopup> element inside the
-                // <menulist>
-                var $menupop = {};
-                if( this.$elem.children().length == 0 )
-                {
-                    $menupop = $($.create("menupopup").toString());
-                    this.$elem.append($menupop);
-                }
-                else if ( this.$elem.children() &&
-                          this.$elem.children().element() &&
-                          this.$elem.children().element().nodeName == "menupopup")
-                {
-                    $menupop = this.$elem.children()
-                }
-                else
-                {
-                    log.error("Mandatory <menupopup> element is missing and could " +
-                              "not be created.  Make sure your menulist has no " +
-                              "other elements as it's immediate child");
-                    return;    
-                }
-                var menuitem = menuitems[i];
-                var $menuitem = $($.create("menuitem",
-                                           {
-                                                label:menuitem[0],
-                                                id: menuitem[0],
-                                                oncommand: menuitem[1]
-                                            }).toString());
-                
-                $menupop.append($menuitem);
+                $menupop = $($.create("menupopup").toString());
+                this.$elem.append($menupop);
             }
+            else if ( this.$elem.children() &&
+                      this.$elem.children().element() &&
+                      this.$elem.children().element().nodeName == "menupopup")
+            {
+                $menupop = this.$elem.children()
+            }
+            else
+            {
+                log.error("Mandatory <menupopup> element is missing and could " +
+                          "not be created.  Make sure your menulist has no " +
+                          "other elements as it's immediate child");
+                return;    
+            }
+            log.debug(
+                "Menu item part 1: " + menuitem[0] + "\n" +
+                "Menu item part 2: " + menuitem[1]
+            );
+            var $menuitem = $($.create("menuitem",
+                                        {
+                                             label:menuitem[0],
+                                             id: menuitem[0],
+                                             oncommand: menuitem[1]
+                                         }).toString());
+             
+            $menupop.append($menuitem);
         }
     }
 ).apply(Menulist.prototype);
