@@ -24,7 +24,7 @@ if not os.path.exists(yuidoc):
 # Retrieve Ember source.
 ember_file = "ember.js"
 if not os.path.exists(ember_file):
-    ember_url = "http://builds.emberjs.com/tags/v2.3.0/ember.prod.js"
+    ember_url = "http://builds.emberjs.com/tags/v2.4.0/ember.prod.js"
     logging.info("Retrieving Ember from '%s'", ember_url)
     f = open(ember_file, "wb")
     f.write(urllib.urlopen(ember_url).read())
