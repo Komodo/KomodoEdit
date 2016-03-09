@@ -42,6 +42,8 @@ function Menulist($element = {}, options = {}) { this.init($element, options); }
          *
          * @argument {Object}   Options   object containing attributes
          *   You pass all attributes for the element in the attributes object
+         *
+         * @returns {koDom} $menuitem   the menuitem created
          */
         this.addMenuitem = function menulist_addMenuitem(options)
         {
@@ -70,6 +72,7 @@ function Menulist($element = {}, options = {}) { this.init($element, options); }
                                        options.attributes).toString());
              
             $menupop.append($menuitem);
+            return $menuitem;
         }
     }
 ).apply(Menulist.prototype);
