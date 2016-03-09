@@ -1,4 +1,4 @@
-/**
+b/**
  * @copyright (c) 2015 ActiveState Software Inc.
  * @license Mozilla Public License v. 2.0
  * @author NathanR, CareyH
@@ -14,6 +14,8 @@ function Checkbox(label, command, options = {}) { this.init(label, command, opti
 (function()
     {
         var $ = require("ko/dom");
+        var log = require("ko/logging").getLogger("ko_ui_checkbox");
+        //log.setLevel(10);
         this.type = "checkbox"; // Set in init
         
         this.init = function(label, command, options = {attributes:{}})
