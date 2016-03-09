@@ -40,13 +40,10 @@ function Menulist($element = {}, options = {}) { this.init($element, options); }
         /**
          * Add menu item to menulist.  Wraps menuitem in a <menupopup>
          *
-         * @argument {String[]} menuitem  An array of name and function for
-         *      menuitem.
-         *           [
-         *               "itemName", "onCommand function"
-         *           ]
+         * @argument {Object}   Options   object containing attributes
+         *   You pass all attributes for the element in the attributes object
          */
-        this.addMenuitem = function menulist_addMenuitem(menuitem)
+        this.addMenuitem = function menulist_addMenuitem(options)
         {
             // must wrap menu items in a <menupopup> element inside the
             // <menulist>
@@ -69,16 +66,8 @@ function Menulist($element = {}, options = {}) { this.init($element, options); }
                           "other elements as it's immediate child");
                 return;    
             }
-            log.debug(
-                "Menu item part 1: " + menuitem[0] + "\n" +
-                "Menu item part 2: " + menuitem[1]
-            );
             var $menuitem = $($.create("menuitem",
-                                        {
-                                             label:menuitem[0],
-                                             id: menuitem[0],
-                                             oncommand: menuitem[1]
-                                         }).toString());
+                                       options.attributes).toString());
              
             $menupop.append($menuitem);
         }
