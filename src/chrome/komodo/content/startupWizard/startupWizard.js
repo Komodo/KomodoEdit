@@ -8,6 +8,7 @@ var log = require("ko/logging").getLogger("startupWizard");
 log.setLevel(10);
 var $ = require("ko/dom");
 var prefs = require("ko/prefs");
+var canFinish = true; // Used to know if the entries are all valid.
 
 var elems =
 {
@@ -18,10 +19,7 @@ var elems =
 
 // Save all pref settings to be applied when the Finish button is pressed at the
 // end of the wizard.  I don't want to half set prefs then have the user cancel
-var storedPrefs = {
-    keybinding_scheme: "",
-    
-    };
+var storedPrefs = {};
 
 function onLoad()
 {
@@ -49,7 +47,7 @@ function onLoad()
     var keybindingService =  Cc['@activestate.com/koKeybindingSchemeService;1'].getService();
     keybindingService.getSchemeNames(schemes, new Object());
     var allKeybindingConfigs = schemes.value;
-    var menulist = require("ko/ui/menulist").create({
+    var keybindingMenulist = require("ko/ui/menulist").create({
         attributes:
         {
             label:"Keybinding sets",
@@ -57,55 +55,178 @@ function onLoad()
             
         }
     });
-    var menuitems = [];
     var prefname = "keybinding_scheme";
-    for (var i in allKeybindingConfigs)
+    for (let i in allKeybindingConfigs)
     {
-        menulist.addMenuitem([
-                    allKeybindingConfigs[i],
-                    "return storePref([\"" + prefname + "\", \"" + allKeybindingConfigs[i] + "\"]);"
-                ]);
+        keybindingMenulist.addMenuitem({
+            attributes: {
+                label: allKeybindingConfigs[i],
+                oncommand: "return storePref([\"" + prefname + "\", \"" + allKeybindingConfigs[i] + "\"]);",
+                tooltiptext: "See Preferences > Keybindings for more details"
+            }
+        });
     }
-    page1.addRow(menulist.$elem);
+    page1.addRow(keybindingMenulist.$elem);
     
     // Add toggles:
     // Native window borders,
-    // minimap scroll 
-    var nativeWindowPrefs = ! prefs.getBoolean("ui.hide.chrome")
+    // minimap scroll
+    // use tabs over spaces
+    // enable word wrap
+    // wrap selections
+    // auto-abbreviations
+    // tab completions
+    var nativeWindowPrefs = ! prefs.getBoolean("ui.hide.chrome");
+    storePref(["ui_hide_chrome", nativeWindowPrefs]);
     var minimapPref = prefs.getBoolean("editShowMinimap");
+    storePref(["editShowMinimap", minimapPref])
+    var useTabsPref = prefs.getBoolean("useTabs");
+    storePref(["useTabs", useTabsPref]);
+    var useWordwrap = prefs.getLong("editWrapType");
+    storePref(["editWrapType", useWordwrap]);
+    var wrapSelectPref = prefs.getBoolean("editSmartWrapSelection");
+    storePref(["editSmartWrapSelection", wrapSelectPref]);
+    var enableAutoSnippetsPref = prefs.getBoolean("enableAutoAbbreviations");
+    storePref(["enableAutoAbbreviations", enableAutoSnippetsPref]);
+    var enableTabComplete = prefs.getBoolean("editTabCompletes");
+    storePref(["editTabCompletes", enableTabComplete]);
+    
+    // word wrap can have 3 states.  No need to over complicate the
+    // UI so if they already have wordwrap set, keep it that on
+    // with the setting they had, eg. wrap on word or char (1 or 2)
+    // Assume 1 (wrap on word) if it was never set and user wants
+    // it set now.
+    var setWordWrapPref = function(){
+        if(this.checked) 
+            {
+                if(useWordwrap == 0)
+                storePref(["useTabs", useWordwrap]);
+            }
+            else if (this.checked)
+            {
+                storePref(["useTabs", 1]);
+            }
+            else
+            {
+                storePref(["useTabs", 0]);
+            }
+    }
+    
     var checkboxes =
     [
         {
-            label: "Enable native window borders.",
-            command:  function(){ // command for checkbox when toggled
-                                    storePref(["ui_hide_chrome", !this.checked])
-                                },
+            // Enable Native windows
             attributes: {
-                checked: nativeWindowPrefs
+                checked: nativeWindowPrefs,
+                label: "Enable native window borders.",
+                oncommand:  "return storePref([\"ui_hide_chrome\", !this.checked])",
             }
         },
         {
-            label: "Enable Minimap scrolling.",
-            command: function(){ // command for checkbox when toggled
-                                    storePref(["editShowMinimap", this.checked])
-                                },
+            // Enable minimap
             attributes: {
-                checked: minimapPref
+                checked: minimapPref,
+                label: "Enable Minimap scrolling.",
+                oncommand: "return storePref([\"editShowMinimap\", this.checked])",
+            }
+        },
+        {
+            // prefer tabs over spaces
+            attributes: {
+                checked: useTabsPref,
+                label: "Prefer tab characters over spaces.",
+                oncommand: "return storePref([\"useTabs\", this.checked])",
+            }
+        },
+        {
+            // Enable word wrap
+            attributes: {
+                checked: useWordwrap == 0 ? false : true,
+                label: "Enable line wrapping on words.",
+                oncommand: "return setWordWrapPref();"
+            }
+        },
+        {
+            // Wrap selections
+            attributes: {
+                checked: wrapSelectPref,
+                tooltiptext: "See Prefereces > Editor > Smart editing for more details",
+                label: "Wrap selection with typed delimiter",
+                oncommand: "return storePref([\"editSmartWrapSelection\", this.checked]);"
+            }
+        },
+        {
+            // Auto Snippets 
+            attributes: {
+                checked: enableAutoSnippetsPref,
+                tooltiptext: "See Prefereces > Editor > Smart editing: Auto-Abbreviations for more details",
+                label: "Enable auto snippets to trigger while typing.",
+                oncommand: "return storePref([\"enableAutoAbbreviations\", this.checked]);"
+            }
+        },
+        {
+            attributes: {
+                checked: enableTabComplete,
+                tooltiptext: "See Prefereces > Editor > Smart editing for more details",
+                label: "Enable Tab key word completion.",
+                oncommand: "return storePref([\"editTabCompletes\", this.checked]);"
             }
         }
-        
     ]
+    
+    
     for(let i in checkboxes)
     {
-         var checkbox = require("ko/ui/checkbox").
-                                        create(checkboxes[i].label,
-                                               checkboxes[i].command,
-                                                { //options
-                                                    attributes: checkboxes[i].attributes
-                                                });
+        var checkbox = require("ko/ui/checkbox").
+            create({ //options
+                attributes: checkboxes[i].attributes
+            });
         page1.addRow(checkbox.$elem);
     }
+    //// End adding checkboxes toggles
     
+    // Add browser preview choice
+    var browserMenulist = require("ko/ui/menulist").create({
+        attributes:
+        {
+            label:"Browser Preview Browser",
+            width: 200,
+            
+        }
+    });
+    var koWebbrowser = Components.classes['@activestate.com/koWebbrowser;1'].
+                   getService(Components.interfaces.koIWebbrowser);
+    var knownBrowsers = koWebbrowser.get_possible_browsers({});
+    for (let i in knownBrowsers)
+    {
+        browserMenulist.addMenuitem({
+            attributes: {
+                label: knownBrowsers[i],
+                oncommand: "return storePref(['browser', \"" + knownBrowsers[i] + "\"]);",
+                tooltiptext:  knownBrowsers[i]
+            }
+        });
+    }
+    page1.addRow(browserMenulist.$elem);
+    
+    
+    // Add set tab width pref
+    var tabWidth = prefs.getLong("tabWidth")
+    var textboxAttrs =
+    {
+        label: "Set global with of tabs and indents in spaces.",
+        value: tabWidth,
+        width: 20,
+        tooltiptext: "tab/indent width in spaces",
+        onkeyup: function(){
+            log.error("the field is: " + this.value);
+        }
+    }
+    var tabWidthTextfield = require("ko/ui/textbox").create(
+        {attributes: textboxAttrs}
+    )
+    page1.addRow(tabWidthTextfield.$elem);
+    // Done adding tab width prefs
     
     
     //*
