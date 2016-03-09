@@ -1,4 +1,4 @@
-b/**
+/**
  * @copyright (c) 2015 ActiveState Software Inc.
  * @license Mozilla Public License v. 2.0
  * @author NathanR, CareyH
