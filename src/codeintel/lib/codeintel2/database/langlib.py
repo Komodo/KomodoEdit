@@ -960,7 +960,9 @@ class LangZone(object):
                                       'symbol' TEXT NOT NULL,
                                       'type' TEXT NOT NULL,
                                       'filepath' TEXT NOT NULL,
-                                      'lineno' INTEGER NOT NULL)
+                                      'lineno' INTEGER NOT NULL,
+                                      'lang' TEXT NOT NULL,
+                                      'parent' TEXT)
             """)
             cursor.execute("CREATE UNIQUE INDEX 'symbol_id' on symbols (symbol_id ASC)")
             try:
@@ -994,19 +996,26 @@ class LangZone(object):
         
         # Add all of blob's symbols recursively.
         if action == "add" or action == "update":
-            def insert_all(elem):
+            def insert_all(elem, parent=None):
                 """
-                
+                Inserts the given element (assuming it is a valid symbol) and
+                all of its valid children into the symbol database.
+                @param elem The element to insert.
+                @param parent Optional parent of `elem` for context.
                 """
                 symbol = elem.get("name", "")
                 type = elem.get("ilk", "")
                 src = blob.get("src", "")
                 lineno = elem.get("line", "")
-                if symbol and type and src and lineno:
-                    cursor.execute("INSERT INTO symbols VALUES (NULL, ?, ?, ?, ?)",
-                                   (symbol, type, src, lineno))
+                lang = blob.get("lang")
+                valid = symbol and type and src and lineno and \
+                        type != 'argument'
+                if valid:
+                    cursor.execute("INSERT INTO symbols VALUES (?, ?, ?, ?, ?, ?, ?)",
+                                   (None, symbol, type, src, lineno, lang,
+                                    parent and parent.get("name", "") or None))
                 for n in elem:
-                    insert_all(n)
+                    insert_all(n, valid and elem)
             
             insert_all(blob)
         
