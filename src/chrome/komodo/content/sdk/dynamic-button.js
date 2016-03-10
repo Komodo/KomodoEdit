@@ -116,6 +116,14 @@
                 }
             }
             
+            if (menuitems instanceof window.XULElement)
+            {
+                for (let childNode of Array.slice(menuitems.childNodes)) {
+                    menupopup.append(childNode);
+                }
+                return;
+            }
+            
             if ( ! Array.isArray(menuitems))
             {
                 throw new Error("menuitems are not in the form of an array");
@@ -141,7 +149,8 @@
                     tooltiptext: "",
                     type: null,
                     checked: null,
-                    value: -1
+                    value: -1,
+                    menuitems: null
                 }, menuitem);
                     
                 if ( ! menuitem.isEnabled)
@@ -162,7 +171,12 @@
                         menuitem.isEnabled = () => true;
                 }
                 
-                let elem = $("<menuitem>");
+                let elem;
+                if (menuitem.menuitems)
+                    elem = $("<menu>");
+                else
+                    elem = $("<menuitem>");
+                
                 elem.attr({
                     label: menuitem.label,
                     class: menuitem.classList,
@@ -170,14 +184,28 @@
                     acceltext: menuitem.acceltext,
                     tooltiptext: menuitem.tooltiptext,
                     value: menuitem.value,
-                    disabled: menuitem.isEnabled() ? "false" : "true"
                 });
                 
                 if (menuitem.type)
                     elem.attr("type", menuitem.type);
                     
+                if (menuitem.menuitems)
+                {
+                    var popup = $("<menupopup>").append(
+                        $("<menuitem>").attr({
+                            label: "Loading ..",
+                            disabled: "true"
+                        })
+                    );
+                    popup.on("popupshowing", this.updateMenu.bind(this, menuitem.menuitems));
+                    elem.append(popup);
+                }
+                
                 if (menuitem.name)
                     elem.attr("name", menuitem.name);
+                    
+                if (menuitem.disabled)
+                    elem.attr("disabled", "true");
                     
                 if (menuitem.observes)
                     elem.attr("observes", menuitem.observes);
@@ -265,7 +293,7 @@
             throw new Error("A dynamic button with id " + id + " already exists");
         }
         
-        var icon = null
+        var icon = null;
         if ( ! opts.image)
             icon = opts.icon || "question4";
             
