@@ -14,17 +14,16 @@ set to a chrome URL.
 <?xul-overlay href="chrome://global/content/editMenuOverlay.xul"?>
 
 <wizard id="startup-wizard"
-        title="Komodo Startup Configuration"
+        title="Komodo Startup Wizard"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         onload="onLoad();"
         orient="vertical"
-        style="min-width: 40em;"
-        buttons="accept,cancel"
-        defaultButton="accept"
+        style="min-width: 40em; min-height: 50em;"
         buttonalign="horizontal"
         buttonorient="horizontal"
         onwizardcancel="cancel()"
-        onwizardfinish="finished()">
+        onwizardfinish="finished()"
+        onwizardnext="return;">
     
     <script src="chrome://komodo/content/startupWizard/startupWizard.js" type="application/x-javascript;version=1.7"/>
     

@@ -34,16 +34,21 @@ function onLoad()
         attributes:
         {
             id: "page1",
-            title: "Configure Komodo",
-            description: "Configure Komodo with basic editing settings that best fit you're workflow."
+            pageid: "page1",
+            //description: "Configure Komodo with basic editing settings that best fit you're workflow."
         }
     })
+    log.debug("page1: " + page1.$elem.outerHtml());
+    // Manually create the description since there appears to be no way to
+    // have it added through the attributes passed in.
     $elems.page1 = page1.$elem;
+    appendHeader(page1, "Configure Komodo with basic editing settings that best fit you're workflow");
     // attach the final wizard to the window
     $elems.wizard.append(page1.$elem);
     // Populate the keybinding dropdown
     
-    //This should set which item is selected by default when the list is generated
+    // ADD KEYBINDING LIST
+    appendHeader(page1, "Keybinding sets");
     var currentKeybindingConfig = prefs.getStringPref("keybinding-scheme");
     var schemes = new Array();
     var keybindingService =  Cc['@activestate.com/koKeybindingSchemeService;1'].getService();
@@ -53,12 +58,9 @@ function onLoad()
         attributes:
         {
             id: "keybinding-list",
-            label:"Keybinding sets",
             width: 100,
-            
         }
     });
-    var prefname = "keybinding-scheme";
     for (let i in allKeybindingConfigs)
     {
         keybindingMenulist.addMenuitem({
@@ -75,6 +77,7 @@ function onLoad()
                                 keybindingService.getScheme(this.selectedItem.label);
                              });
     page1.addRow(keybindingMenulist.$elem);
+    // END KEYBINDING LIST
     
     // ADD TOGGLES:
     // Native window borders,
@@ -98,7 +101,7 @@ function onLoad()
             // Enable Native windows
             attributes: {
                 checked: nativeWindowPrefs,
-                label: "Enable native window borders.",
+                label: "Enable native window borders",
                 oncommand:  "return storePref([\"ui.hide.chrome\", !this.checked, \"bool\"])",
             }
         },
@@ -106,7 +109,7 @@ function onLoad()
             // Enable minimap
             attributes: {
                 checked: minimapPref,
-                label: "Enable Minimap scrolling.",
+                label: "Enable Minimap scrolling",
                 oncommand: "return storePref([\"editShowMinimap\", this.checked, \"bool\"])",
             }
         },
@@ -114,7 +117,7 @@ function onLoad()
             // prefer tabs over spaces
             attributes: {
                 checked: useTabsPref,
-                label: "Prefer tab characters over spaces.",
+                label: "Prefer tab characters over spaces",
                 oncommand: "return storePref([\"useTabs\", this.checked, \"bool\"])",
             }
         },
@@ -123,7 +126,7 @@ function onLoad()
             attributes: {
                 id: "wordwrap",
                 checked: useWordwrap == 0 ? false : true,
-                label: "Enable line wrapping on words.",
+                label: "Enable line wrapping on words",
                 tooltiptext: "See Prefereces > Editor > Smart editing for more details",
             }
         },
@@ -141,7 +144,7 @@ function onLoad()
             attributes: {
                 checked: enableAutoSnippetsPref,
                 tooltiptext: "See Prefereces > Editor > Smart editing: Auto-Abbreviations for more details",
-                label: "Enable auto snippets to trigger while typing.",
+                label: "Enable auto snippets to trigger while typing",
                 oncommand: "return storePref([\"enableAutoAbbreviations\", this.checked, \"bool\"]);"
             }
         },
@@ -149,7 +152,7 @@ function onLoad()
             attributes: {
                 checked: enableTabComplete,
                 tooltiptext: "See Prefereces > Editor > Smart editing for more details",
-                label: "Enable Tab key word completion.",
+                label: "Enable Tab key word completion",
                 oncommand: "return storePref([\"editTabCompletes\", this.checked, \"bool\"]);"
             }
         }
@@ -171,23 +174,23 @@ function onLoad()
     // it set now.
     $("#wordwrap").on("command", function(useWordwrap)
                       {
-                         log.debug("event.data: " + useWordwrap);
                          if(this.checked && useWordwrap == 0) 
                             {
-                                storePref(["useTabs", useWordwrap, "long"]);
+                                storePref(["editWrapType", useWordwrap, "long"]);
                             }
                             else if (this.checked)
                             {
-                                storePref(["useTabs", 1, "long"]);
+                                storePref(["editWrapType", 1, "long"]);
                             }
                             else
                             {
-                                storePref(["useTabs", 0, "long"]);
+                                storePref(["editWrapType", 0, "long"]);
                             }
                       });
     //// End ADD TOGGLES
     
     // Add browser preview choice
+    appendHeader(page1, "Choose a browser for previewing HTML files")
     var browserMenulist = require("ko/ui/menulist").create({
         attributes:
         {
@@ -234,6 +237,8 @@ function onLoad()
     // END BROWSER PREF
     
     // ADD COLOR SCHEME PREF
+     // Append a label to show what the field is for
+    appendHeader(page1, "Text editor color scheme");
     var currentColorScheme = prefs.getString("editor-scheme");
     var schemeService = Cc['@activestate.com/koScintillaSchemeService;1'].getService();
     var schemes = new Array();
@@ -287,13 +292,14 @@ function onLoad()
     // END COLOR SCHEME PREFS
     
     // Add set tab width pref
+    appendHeader(page1, "Global tab and indentation width");
     var tabWidth = prefs.getLong("tabWidth")
     var textboxAttrs =
     {
         label: "Set global with of tabs and indents in spaces.",
         value: tabWidth,
         width: 40,
-        tooltiptext: "tab/indent width in spaces",
+        tooltiptext: "See Preferences > Editor > Indentation for more information.",
         
     }
     var tabWidthTextfield = require("ko/ui/textbox").create(
@@ -349,16 +355,22 @@ function onLoad()
             }
         });
     page1.addRow(tabWidthTextfield.$elem);
-    // Done adding tab width prefs
+    // END TAB PREFS
     
-    //
-    // Here I'll just add page after page.  This will be long and ugly but the
-    // easiest for now.
+    
     /**
      *  END PAGE ONE
      */
 }
 
+// Add a title row to the given page
+//
+function appendHeader(page, text)
+{
+     var $title = $($.create("description").toString());
+     $title.html(text);
+     page.addRow($title);
+}
 /**
  * Store preferences choice by user
  *
