@@ -68,6 +68,7 @@ log = logging.getLogger('koScintillaSchemeService')
 ScimozStyleNo2CommonName = {}
 ScimozStyleNo2SpecificName = {}
 IndicatorName2ScimozNo = {}
+ScimozNo2IndicatorName = {}
 ValidStyles = {}
 _re_udl_style_name = re.compile(r'SCE_UDL_([^_]+)')
 _re_color_parts = re.compile(r'(..)')
@@ -1196,6 +1197,10 @@ class KoScintillaSchemeService(SchemeServiceBase):
 
     def getIndicatorNoForName(self, indic_name):
         return IndicatorName2ScimozNo.get(indic_name, -1)
+    
+    def getIndicatorNameForNo(self, indic_no):
+        return ScimozNo2IndicatorName.get(indic_no, "")
+        pass
 
     def purgeUnsavedSchemes(self):
         for scheme in list(self._schemes.values()):
@@ -1713,6 +1718,7 @@ def _initializeStyleInfo():
             log.warn("applyScheme:: no koILintResult value for %r", component_name)
             continue
         IndicatorName2ScimozNo[indic_name] = indic_no
+        ScimozNo2IndicatorName[1 << indic_no] = indic_name
 
 def scincolor2mozcolor(scincolor):
     # scincolor is an integer

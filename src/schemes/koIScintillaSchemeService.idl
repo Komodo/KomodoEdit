@@ -179,6 +179,7 @@ interface koIScintillaSchemeService : nsISupports {
                             out unsigned long count);
     // Return the scimoz indicator number for the given indicator name.
     long getIndicatorNoForName(in wstring indic_name);
+    wstring getIndicatorNameForNo(in long indic_no);
     void purgeUnsavedSchemes();
     void convertToHTMLFile(in ISciMoz scimoz, in wstring title,
                            in wstring language, in long style_bits,

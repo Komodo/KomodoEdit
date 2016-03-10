@@ -9,6 +9,16 @@
     var schemeService = Cc['@activestate.com/koScintillaSchemeService;1'].getService();
     var languageRegistry = Cc["@activestate.com/koLanguageRegistryService;1"].getService(Ci.koILanguageRegistryService);
     
+    var _bundle = Cc["@mozilla.org/intl/stringbundle;1"].
+                    getService(Ci.nsIStringBundleService).
+                    createBundle("chrome://komodo/locale/pref/pref-alllangfonts.properties");
+                    
+    var indicatorNames = [];
+    schemeService.getIndicatorNames(indicatorNames, {});
+    indicatorNames = indicatorNames.value;
+    
+    var loadedSampleId;
+    
     var log = require("ko/logging").getLogger("colorscheme-editor");
     
     var styleProperties =  {
@@ -340,6 +350,8 @@
     
     this.loadSample = () =>
     {
+        if (loadedSampleId == selectedLanguage) return; // already loaded
+        
         var sampleText = languageRegistry.getLanguage(selectedLanguage).sample;
         if (! sampleText) 
             sampleText = "No sampleText for " + selectedLanguage + " available.";
@@ -349,6 +361,40 @@
         view.language = selectedLanguage;
         view.anchor = sampleText.length/4;
         view.currentPos = sampleText.length/2;
+        
+        loadedSampleId = selectedLanguage;
+    }
+    
+    this.loadIndicatorSample = () =>
+    {
+        if (loadedSampleId == 'indicators') return; // already loaded
+        
+        var names = indicatorNames;
+        var view = sample.element();
+        view.initWithBuffer("", "Text");
+        view.language = "Text";
+        selectedLanguage = "Text";
+        
+        var scimoz = view.scimoz;
+        var marker_start, marker_length;
+        var indic_no;
+        var indic_name;
+        for (var i=0; i< names.length; i++) {
+            indic_no = schemeService.getIndicatorNoForName(names[i]);
+            marker_start = scimoz.length;
+            indic_name = _bundle.GetStringFromName(names[i]);
+            marker_length = ko.stringutils.bytelength(indic_name);
+            scimoz.addText(marker_length, indic_name);
+            scimoz.newLine();
+            if (indic_no >= 0) {
+                scimoz.indicatorCurrent = indic_no;
+                scimoz.indicatorFillRange(marker_start, marker_length);
+            }
+        }
+        view.anchor = 0;
+        view.currentPos = 0;
+        
+        loadedSampleId = 'indicators';
     }
     
     this.onUpdateLanguage = () =>
@@ -372,22 +418,32 @@
     this.onClickSample = () =>
     {
         var scimoz = sample.element().scimoz;
-        var styleno = scimoz.getStyleAt(scimoz.currentPos);
+        var propertyName;
         
-        var common = selectedScheme.getCommonName(selectedLanguage, styleno);
-        if (! common)
-            common = selectedScheme.getSpecificName(selectedLanguage, styleno);
+        if (loadedSampleId == 'indicators')
+        {
+            var indicNo = scimoz.indicatorAllOnFor(scimoz.currentPos);
+            propertyName = schemeService.getIndicatorNameForNo(indicNo);
+        }
+        else
+        {
+            var styleno = scimoz.getStyleAt(scimoz.currentPos);
             
-        if (common == 'default' && $("#languageList").element().selection == "-1")
-            common = 'default_fixed';
+            propertyName = selectedScheme.getCommonName(selectedLanguage, styleno);
+            if (! propertyName)
+                propertyName = selectedScheme.getSpecificName(selectedLanguage, styleno);
+                
+            if (propertyName == 'default' && $("#languageList").element().selection == "-1")
+                propertyName = 'default_fixed';
+        }
         
-        var item = $(`#propertyList listitem[name="${common}"]`);
-        if ( ! item.length)
+        var item = $(`#propertyList listitem[name="${propertyName}"]`);
+        if ( ! item.length && loadedSampleId != 'indicators')
         {
             $("#languageList").element().selection = selectedLanguage;
             this.onUpdateLanguage();
             
-            item = $(`#propertyList listitem[name="${common}"]`);
+            item = $(`#propertyList listitem[name="${propertyName}"]`);
         }
         
         if ( ! item.length) return;
@@ -429,6 +485,11 @@
             this.fields[field].reset();
             $(`#propertyEditor > *[field="${field}"]`).show();
         }
+        
+        if (indicatorNames.indexOf(property.name) != -1)
+            this.loadIndicatorSample();
+        else
+            this.loadSample();
     }
     
     this.getSelectedProperty = () => $("#propertyList").element().selectedItem._property;
@@ -590,7 +651,7 @@
                     var values = {style: {}, color: {}, alpha: {}, draw_underneath: {}};
                     selectedScheme.getIndicator(property.name, values.style, values.color,
                                                                values.alpha, values.draw_underneath);
-                    values.style.value = $("#indicator_style_menulist").element().selectedItem.getAttribute("label");
+                    values.style.value = $("#indicator_style_menulist").element().selectedItem.getAttribute("value");
                     selectedScheme.setIndicator(property.name, values.style.value, values.color.value,
                                                                values.alpha.value, values.draw_underneath.value);
                     this.updateScintilla();
@@ -602,7 +663,7 @@
                 selectedScheme.getIndicator(property.name, values.style, values.color,
                                                            values.alpha, values.draw_underneath);
                 $("#indicator_style_menulist").element().selectedItem =
-                    $(`#indicator_style_menulist menuitem[label="${values.style}"]`);
+                    $(`#indicator_style_menulist menuitem[value="${values.style.value}"]`).element();
             }
         },
         "indicator-color": {
@@ -628,7 +689,7 @@
                 selectedScheme.getIndicator(property.name, values.style, values.color,
                                                            values.alpha, values.draw_underneath);
                 $("#indicator-color").css("background-color", values.color.value);
-                $("#indicator-color").attr("color", values.color);
+                $("#indicator-color").attr("color", values.color.value);
             }
         },
         "indicator-alpha": {
@@ -642,6 +703,9 @@
                     values.alpha.value = $("#indicator_alpha_textbox").value();
                     selectedScheme.setIndicator(property.name, values.style.value, values.color.value,
                                                                values.alpha.value, values.draw_underneath.value);
+                    selectedScheme.getIndicator(property.name, values.style, values.color,
+                                                               values.alpha, values.draw_underneath);
+                    console.log(values);
                     this.updateScintilla();
                 });
             },
