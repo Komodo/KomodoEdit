@@ -952,7 +952,11 @@ class LangZone(object):
         
         symbols_db = join(self.db.base_dir, "symbols.db")
         exists = isfile(symbols_db)
-        conn = apsw.Connection(symbols_db)
+        try:
+            conn = apsw.Connection(symbols_db)
+        except apsw.CantOpenError:
+            log.error("Unable to create/open symbols.db")
+            return None
         cursor = conn.cursor()
         if not exists:
             cursor.execute("""
