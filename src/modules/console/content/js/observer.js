@@ -10,6 +10,9 @@ window.addEventListener('load', function() {
         {
             aMessage = aMessage.wrappedJSObject;
             
+            if (aMessage.level == "time") // Don't affect console.time() calls
+                return;
+            
             var len = 0;
             var args = aMessage.arguments;
             var data = args.map(function(arg)
@@ -24,8 +27,6 @@ window.addEventListener('load', function() {
 
             if (aMessage.level == "timeEnd")
                 details = "'" + aMessage.timer.name + "' " + aMessage.timer.duration + "ms";
-            if (aMessage.level == "time")
-                details = "'" + aMessage.timer.name + "' @ " + (new Date());
             if (aMessage.level == "trace")
                 details = "trace" + "\n" + consoleSdk._formatTrace(aMessage.stacktrace);
                 
