@@ -379,12 +379,12 @@ static void ColouriseCssDoc(unsigned int startPos, int length, int initStyle, Wo
 		case SCE_CSS_CLASS:
 			if (!IsAWordChar(ch)) {
 				if (isLessDocument) {
-					// Allow white-space before one of ( ; or }
+					// Allow white-space before ( or ;
 					int currentPos = sc.currentPos;
 					char nextCh;
 					for (; currentPos < finalLength; ++currentPos) {
 						nextCh = styler.SafeGetCharAt(currentPos);
-						if (strchr("(;}", nextCh)) {
+						if (strchr("(;", nextCh)) {
 							sc.ChangeState(SCE_CSS_MIXIN);
 							break;
 						} else if (!strchr("\r\n\f \t", nextCh)) {
