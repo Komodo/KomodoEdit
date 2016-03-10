@@ -7179,9 +7179,9 @@ var JSHINT = (function() {
     // Let's assume that chronologically ES3 < ES5 < ES6/ESNext < Moz
 
     state.option.inMoz = function(strict) {
-      if (strict) {
-        return state.option.moz && !state.option.esnext;
-      }
+      //if (strict) {
+        //return state.option.moz && !state.option.esnext;
+      //}
       return state.option.moz;
     };
 
