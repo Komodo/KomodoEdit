@@ -1290,71 +1290,25 @@ class koScintillaController:
         # want to do the operation only on the selection, or there
         # isn't, in which case we want to do it on the whole document
         sm = self.scimoz()
-        #from dbgp.client import brk; brk()
-        pos_start = 0
-        pos_end = sm.length
-        had_selection = False
-        modifyCursorLine = True
-        anchor = sm.anchor
-        currentPos = sm.currentPos
-        cursorLineNo = sm.lineFromPosition(currentPos)
-        pos_cursor_line_start = sm.positionFromLine(cursorLineNo)
-        pos_cursor_line_end = sm.getLineEndPosition(cursorLineNo)
-        textBeforeCursor = sm.getTextRange(pos_cursor_line_start, currentPos)
-        textAfterCursor = sm.getTextRange(currentPos, pos_cursor_line_end)
-        if not textAfterCursor:
-            # There is no text at all after the cursor position, or there are
-            # words after the cursor position - don't change it.
-            modifyCursorLine = False
-        if currentPos != anchor:
-            had_selection = True
-            anchor_was_first = anchor < currentPos
-            if anchor_was_first:
-                pos_start, pos_end = anchor, currentPos
-                cursorLineNo -= sm.lineFromPosition(anchor)
-                modifyCursorLine = False
-            else:
-                pos_start, pos_end = currentPos, anchor
-                cursorLineNo = 0
-
-        oldText = sm.getTextRange(pos_start, pos_end)
-        oldLines = oldText.splitlines(0)
-        oldLinesWithEol = oldText.splitlines(1)
-        newLinesWithEol = []
-        cursorOffset = 0
-        lastLineNo = len(oldLines) - 1
-        for i, (oldLine, oldLineWithEol) in enumerate(zip(oldLines, oldLinesWithEol)):
-            if len(oldLineWithEol) == len(oldLine):
-                # No eol on this line.
-                newLineWithEol = oldLineWithEol.rstrip()
-            elif i == cursorLineNo:
-                if not modifyCursorLine:
-                    # Don't change the cursor line.
-                    newLineWithEol = oldLineWithEol
-                else:
-                    # Only strip the text that is after the cursor position.
-                    eol = oldLineWithEol[len(oldLine) - len(oldLineWithEol):]
-                    newLineWithEol = textBeforeCursor + textAfterCursor.rstrip() + eol
-            else:
-                eol = oldLineWithEol[len(oldLine) - len(oldLineWithEol):]
-                newLineWithEol = oldLine.rstrip() + eol
-            newLinesWithEol.append(newLineWithEol)
-            if i < cursorLineNo:
-                cursorOffset += len(oldLineWithEol) - len(newLineWithEol)
-        newText = "".join(newLinesWithEol)
-
-        num_bytes_removed = len(oldText) - len(newText)
-        if num_bytes_removed > 0:
-            sm.targetStart, sm.targetEnd = pos_start, pos_end
-            sm.replaceTarget(len(newText), newText)
-            if had_selection:
-                sm.anchor = pos_start
-                sm.currentPos = pos_end - num_bytes_removed
-                if not anchor_was_first:
-                    sm.swapMainAnchorCaret()
-            else:
-                currentPos -= cursorOffset
-                sm.anchor, sm.currentPos = currentPos, currentPos
+        selection = sm.selectionStart != sm.selectionEnd
+        if not selection:
+            start_line = 0
+            end_line = sm.lineCount - 1
+        else:
+            start_line = sm.lineFromPosition(sm.selectionStart)
+            start_col = sm.getColumn(sm.selectionStart)
+            end_line = sm.lineFromPosition(sm.selectionEnd)
+            end_col = sm.getColumn(sm.selectionEnd)
+        sm.beginUndoAction()
+        for i in xrange(start_line, end_line + 1):
+            sm.targetStart = sm.positionFromLine(i)
+            sm.targetEnd = sm.getLineEndPosition(i)
+            line = sm.getTargetText()[1].rstrip()
+            sm.replaceTarget(len(line), line)
+        sm.endUndoAction()
+        if selection:
+            sm.anchor = sm.findColumn(start_line, start_col)
+            sm.currentPos = sm.findColumn(end_line, end_col)
 
 
 charClass = {}

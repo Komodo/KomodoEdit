@@ -1037,13 +1037,21 @@ class koDocumentBase(object):
         # isn't, in which case we want to do it on the whole document
         scimoz = self._views[0].scimoz;
         if (scimoz.currentPos != scimoz.anchor):
+            # Replacing newlines within a selection is tricky because line
+            # markers (e.g. breakpoints and bookmarks) have a tendency to shift
+            # around. Work around this by manually inserting a (good) newline at
+            # the end of a given line and then deleting the following (bad) one.
             start = scimoz.selectionStart
-            oldText = scimoz.getTextRange(scimoz.selectionStart,
-                                          scimoz.selectionEnd);
-            newText = eollib.convertToEOLFormat(oldText, self._eol)
-            scimoz.replaceSel(newText)
+            endLine = scimoz.lineFromPosition(scimoz.selectionEnd)
+            endCol = scimoz.getColumn(scimoz.selectionEnd)
+            scimoz.beginUndoAction()
+            for i in xrange(scimoz.lineFromPosition(start), endLine + 1):
+                scimoz.gotoPos(scimoz.getLineEndPosition(i))
+                scimoz.newLine() # assume eOLMode is self._eol
+                scimoz.clear()
+            scimoz.endUndoAction()
             scimoz.anchor = start
-            scimoz.currentPos = start + len(newText) 
+            scimoz.currentPos = scimoz.findColumn(endLine, endCol)
         else:
             self.set_existing_line_endings(self._eol)
 
