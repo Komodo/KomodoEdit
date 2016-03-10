@@ -10,7 +10,7 @@ var $ = require("ko/dom");
 var prefs = require("ko/prefs");
 var canFinish = true; // Used to know if the entries are all valid.
 
-var elems =
+var $elems =
 {
     wizard : $("#startup-wizard"),
 }
@@ -38,7 +38,9 @@ function onLoad()
             description: "Configure Komodo with basic editing settings that best fit you're workflow."
         }
     })
-    
+    $elems.page1 = page1.$elem;
+    // attach the final wizard to the window
+    $elems.wizard.append(page1.$elem);
     // Populate the keybinding dropdown
     
     //This should set which item is selected by default when the list is generated
@@ -167,24 +169,21 @@ function onLoad()
     // with the setting they had, eg. wrap on word or char (1 or 2)
     // Assume 1 (wrap on word) if it was never set and user wants
     // it set now.
-    
-    ///THIS NEVER GETS CALLED AND I DON"T KNOW WHY
-    $('#wordwrap').on("command",/* [useWordwrap],*/ function(event)
+    $("#wordwrap").on("command", function(useWordwrap)
                       {
-                         //if(this.checked) 
-                         //   {
-                         //       if(data == 0)
-                         //       storePref(["useTabs", event.data, "long"]);
-                         //   }
-                         //   else if (this.checked)
-                         //   {
-                         //       storePref(["useTabs", 1, "long"]);
-                         //   }
-                         //   else
-                         //   {
-                         //       storePref(["useTabs", 0, "long"]);
-                         //   }
-                         log.debug("Saving the word wrap pref");
+                         log.debug("event.data: " + useWordwrap);
+                         if(this.checked && useWordwrap == 0) 
+                            {
+                                storePref(["useTabs", useWordwrap, "long"]);
+                            }
+                            else if (this.checked)
+                            {
+                                storePref(["useTabs", 1, "long"]);
+                            }
+                            else
+                            {
+                                storePref(["useTabs", 0, "long"]);
+                            }
                       });
     //// End ADD TOGGLES
     
@@ -293,45 +292,57 @@ function onLoad()
     {
         label: "Set global with of tabs and indents in spaces.",
         value: tabWidth,
-        width: 20,
+        width: 40,
         tooltiptext: "tab/indent width in spaces",
         
     }
     var tabWidthTextfield = require("ko/ui/textbox").create(
         {attributes: textboxAttrs}
-    )
+    );
     tabWidthTextfield.$elem.on("keyup", function()
         {
             // check if the input is a number and greater than 0
             if(/^\d+$/.test(this.value) && this.value > 0)
             {
-                canFinish = true;
+                canAdvance(true);
                 storePref(["tabWidth", this.value, "long"]);
                 storePref(["indentWidth", this.value, "long"]);
-                $(this).css("border-style", "none");
+                $(this).removeClass("warning");
+                $("#tabWarning").remove();
+                // The Hitchhikers Guide to Editing.
+                if(this.value == 42)
+                {
+                    var $warningMsg = $($.create("label",
+                        {
+                            id:"tabWarning",
+                            value: "I hope you brought your towel.",
+                            text: "I hope you brought your towel.",
+                            "class": "warning"
+                        }).toString());
+                    $(this).after($warningMsg);
+                    $(this).addClass("warning");
+                }
+            }
+            else if (this.value.length == 0)
+            {
+                //They are fixing the error of their ways.
+                $(this).removeClass("warning");
                 $("#tabWarning").remove();
             }
             else
             {
-                // THIS IS NOT WORKING
                 try{
-                    canFinish = false;
-                    log.debug("THis is broken - 1");
+                    canAdvance(false);
                     $("#tabWarning").remove();
-                    var $warningMsg = $($.create("hbox",
+                    var $warningMsg = $($.create("label",
                         {
                             id:"tabWarning",
                             value: "Input must be a number and greater than 0",
-                            text: "Input must be a number and greater than 0"
+                            text: "Input must be a number and greater than 0",
+                            "class": "warning"
                         }).toString());
-                    $warningMsg.css(
-                                    {
-                                        "color": "red",
-                                        "border-style": "solid"
-                                    });
-                    $(this).children().append($warningMsg);
-                    $(this).css("border-color", "red")
-                    log.debug("THis is broken - 2");
+                    $(this).after($warningMsg);
+                    $(this).addClass("warning");
                 } catch (e){
                     log.exception("Something went wrong: " + e);
                 }
@@ -340,12 +351,9 @@ function onLoad()
     page1.addRow(tabWidthTextfield.$elem);
     // Done adding tab width prefs
     
-    //*
+    //
     // Here I'll just add page after page.  This will be long and ugly but the
     // easiest for now.
-    
-    // attach the final wizard to the window
-    elems.wizard.append(page1.$elem);
     /**
      *  END PAGE ONE
      */
@@ -382,7 +390,6 @@ function finished()
     log.debug("can finish: " + canFinish);
     if(!canFinish)
     {
-        // this doesn't work either...window just closes.
         return false;
     }
     for(let i in storedPrefs)
@@ -413,8 +420,14 @@ function finished()
     prefs.setBoolean("wizard.finished", true);
     var wizardComplete = new Event('wizard.complete');
     window.dispatchEvent(wizardComplete);
-    
     return true;
+}
+
+// Update the wizard to allow or disallow advancement through the wizard
+// Takes a bool.
+function canAdvance(canAdvance)
+{
+    $elems.wizard.element().canAdvance = canFinish = canAdvance;
 }
 
 function ok()
