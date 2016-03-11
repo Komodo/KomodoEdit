@@ -1386,7 +1386,10 @@ class CSSCile:
             elif (text == '{' or text == ',' or '(' in text) and \
                  self.selector and len(self.selector) > 0 and \
                  (self.blockLevel == 0 or self.lang in ['Less', 'SCSS']) and \
-                 self.parenLevel == 0 and not self.ignoreStatement:
+                 self.parenLevel == 0 and not self.ignoreStatement and \
+                 not (self.lang == 'SCSS' and self.selector[0] == '@' and
+                      len(self.selector) > 1 and
+                      self.selector[1] == 'include'):
                 selectorText = ''.join(self.selector).strip()
                 self.nestedSelectors.append(selectorText)
                 if CSSSelector.CSS_ID_OR_CLASS.search(selectorText):
