@@ -82,6 +82,7 @@
             widgets.wrapSelectionDelimiters_FactorySetting = prefset.getStringPref("wrapSelectionDelimiters_FactorySetting");
             widgets.restoreWrapSelectionDelimiters = document.getElementById("restoreWrapSelectionDelimiters");
             widgets.editSmartWrapSelection = document.getElementById("editSmartWrapSelection");
+            widgets.editSmartWrapSelectionKeep = document.getElementById("editSmartWrapSelectionKeep");
             widgets.autoAbbreviationTriggerCharacters = document.getElementById("autoAbbreviationTriggerCharacters");
             widgets.autoAbbreviationTriggerCharacters_FactorySetting = prefset.getStringPref("autoAbbreviationTriggerCharacters_FactorySetting");
             widgets.restoreAutoAbbreviationTriggerCharacters = document.getElementById("restoreAutoAbbreviationTriggerCharacters");
@@ -144,10 +145,12 @@
     function pref_wrapSelection_doEnabling(checkbox) {
         var enabled = document.getElementById("editSmartWrapSelection").checked;
         if (checkbox.checked) {
+            widgets.editSmartWrapSelectionKeep.disabled = false;
             widgets.wrapSelectionOnlyPlainText.disabled = false;
             widgets.wrapSelectionDelimiters.disabled = false;
             check_wrap_delimiters_changed();
         } else {
+            widgets.editSmartWrapSelectionKeep.disabled = true;
             widgets.wrapSelectionOnlyPlainText.disabled = true;
             widgets.wrapSelectionDelimiters.disabled = true;
             widgets.restoreWrapSelectionDelimiters.disabled = true;
@@ -297,6 +300,9 @@
                       label="&wrapSelection.label;"
                       pref="true"
                       oncommand="pref_wrapSelection_doEnabling(this);"/>
+            <checkbox id="editSmartWrapSelectionKeep"
+                      label="&wrapSelectionKeep.label;"
+                      pref="true"/>
             <vbox id="wrapSelectionDetails" class="indentedPref01 advanced">
                 <checkbox id="wrapSelectionOnlyPlainText"
                           label="&wrapSelectionOnlyPlainText.label;"

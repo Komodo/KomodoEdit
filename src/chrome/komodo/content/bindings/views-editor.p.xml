@@ -323,6 +323,7 @@
                 'debuggerMaxTooltipSize',
                 'editor-scheme',
                 'editSmartWrapSelection',
+                'editSmartWrapSelectionKeep',
                 'wrapSelectionOnlyPlainText',
                 'wrapSelectionDelimiters',
                 'enableAutoAbbreviations',
@@ -539,6 +540,7 @@
         <method name="_setWrapSelectionDelimiters">
         <body>//<![CDATA[
             this.editSmartWrapSelection = ko.prefs.getBooleanPref("editSmartWrapSelection");
+            this.editSmartWrapSelectionKeep = ko.prefs.getBooleanPref("editSmartWrapSelectionKeep");
             this.wrapSelectionOnlyPlainText = ko.prefs.getBooleanPref("wrapSelectionOnlyPlainText");
             this.wrapSelectionDelimiters = ko.prefs.getStringPref("wrapSelectionDelimiters");
         //]]>
@@ -855,6 +857,7 @@
                 break;
 
             case 'editSmartWrapSelection': // pref notification
+            case 'editSmartWrapSelectionKeep': // pref notification
             case 'wrapSelectionOnlyPlainText': // pref notification
             case 'wrapSelectionDelimiters': // pref notification
                 this._setWrapSelectionDelimiters();
@@ -2284,7 +2287,15 @@
                 }
                 if (wrap) {
                     let pairs = {'(': ')', '[': ']', '{': '}', '<': '>'};
-                    this.scimoz.replaceSel(charCodeChar + this.scimoz.selText + (pairs[charCodeChar] || charCodeChar));
+                    var replacement = charCodeChar + this.scimoz.selText + (pairs[charCodeChar] || charCodeChar)
+                    if (!this.editSmartWrapSelectionKeep) {
+                        this.scimoz.replaceSel(replacement);
+                    } else {
+                        this.scimoz.targetFromSelection();
+                        this.scimoz.replaceTarget(replacement);
+                        this.scimoz.setSel(this.scimoz.targetStart + 1,
+                                           this.scimoz.targetEnd - 1);
+                    }
                     return false;
                 }
             } else if (this.enableAutoAbbreviations && charCodeChar !== null
