@@ -333,6 +333,12 @@
                       tooltiptext="&repositionCaretAfterTab.tooltiptext;"
                       class="advanced"
                       />
+            
+            <separator class="thin"/>
+            <checkbox id="enableMultipleSelectionMouse"
+                      label="&enableMultipleSelectionMouse.label;" pref="true"
+                      prefattribute="checked"/>
+            
         </groupbox>
     
         <!-- auto-abbreviations prefs are currently global

@@ -525,6 +525,7 @@
   <!-- Have the Cut/Copy commands cut/copy the current line if there is no
        selection. -->
   <boolean id="editSmartCutCopyWithoutSelection">1</boolean>
+  <boolean id="enableMultipleSelectionMouse">1</boolean>
   <long id="autoSaveSeconds">30</long>
   <boolean id="checkDiskFile">1</boolean>
   <boolean id="checkNetworkDiskFile">0</boolean>

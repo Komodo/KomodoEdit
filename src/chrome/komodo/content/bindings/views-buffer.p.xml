@@ -1950,6 +1950,15 @@
             }
             this.removeHyperlinks("mouseup");
             this._isHyperlinkAllowed = false;
+            
+            // If Ctrl+Click creating multiple selections is disabled, collapse
+            // all additional selections.
+            if (event.button == 0 && this.scimoz.selections > 1 &&
+                !ko.prefs.getBooleanPref("enableMultipleSelectionMouse")) {
+                var n = this.scimoz.mainSelection;
+                this.scimoz.setSel(this.scimoz.getSelectionNStart(n),
+                                   this.scimoz.getSelectionNEnd(n));
+            }
 
             window.setTimeout("window.updateCommands('scintilla-focus');", 1);
             ]]>
