@@ -107,7 +107,7 @@ binding cmd_lineNext  Down
 binding cmd_linePrevious  Up
 binding cmd_documentHome    Meta+Up
 binding cmd_documentEnd Meta+Down
-binding cmd_selectDocumentHome  Meta+Shift+Down
+binding cmd_selectDocumentHome  Meta+Shift+Up
 binding cmd_selectDocumentEnd   Meta+Shift+Down
 binding cmd_lineScrollDown  Meta+Alt+Down
 binding cmd_lineScrollUp  Meta+Alt+Up
