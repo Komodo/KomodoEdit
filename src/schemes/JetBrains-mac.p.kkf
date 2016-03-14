@@ -1,0 +1,256 @@
+version 51
+
+binding cmd_back  Shift+Backspace
+binding cmd_backSmart  Backspace
+binding cmd_bookmarkGotoNext  F2 
+binding cmd_bookmarkGotoPrevious  Shift+F2
+binding cmd_bookmarkRemoveAll  Meta+Shift+F2
+
+# Quick Bookmarks
+# Set
+binding cmd_toggleQuickBookmark_0  Ctrl+Shift+0
+binding cmd_toggleQuickBookmark_1  Ctrl+Shift+1
+binding cmd_toggleQuickBookmark_2  Ctrl+Shift+@
+binding cmd_toggleQuickBookmark_3  Ctrl+Shift+3
+binding cmd_toggleQuickBookmark_4  Ctrl+Shift+4
+binding cmd_toggleQuickBookmark_5  Ctrl+Shift+5
+binding cmd_toggleQuickBookmark_6  Ctrl+Shift+6
+binding cmd_toggleQuickBookmark_7  Ctrl+Shift+7
+binding cmd_toggleQuickBookmark_8  Ctrl+Shift+8
+binding cmd_toggleQuickBookmark_9  Ctrl+Shift+9
+# GoTo
+binding cmd_goToQuickBookmark_0  Ctrl+0
+binding cmd_goToQuickBookmark_1  Ctrl+1
+binding cmd_goToQuickBookmark_2  Ctrl+2
+binding cmd_goToQuickBookmark_3  Ctrl+3
+binding cmd_goToQuickBookmark_4  Ctrl+4
+binding cmd_goToQuickBookmark_5  Ctrl+5
+binding cmd_goToQuickBookmark_6  Ctrl+6
+binding cmd_goToQuickBookmark_7  Ctrl+7
+binding cmd_goToQuickBookmark_8  Ctrl+8
+binding cmd_goToQuickBookmark_9  Ctrl+9
+
+binding cmd_browserPreview Ctrl+K Ctrl+V
+binding cmd_reloadBrowserPreview Ctrl+K Ctrl+R
+binding cmd_bufferClose Meta+W
+binding cmd_bufferNext  Meta+Page_Down
+binding cmd_bufferNext  Meta+Shift+}
+binding cmd_bufferNextLeastRecent Meta+Shift+F6
+binding cmd_bufferNextMostRecent  Meta+F6
+binding cmd_bufferNextMostRecent  Ctrl+Tab
+binding cmd_bufferNextLeastRecent Ctrl+Shift+Tab
+binding cmd_bufferPrevious Meta+Page_Up
+binding cmd_bufferPrevious Meta+Shift+{
+binding cmd_buffer1 Meta+1
+binding cmd_buffer2 Meta+2
+binding cmd_buffer3 Meta+3
+binding cmd_buffer4 Meta+4
+binding cmd_buffer5 Meta+5
+binding cmd_buffer6 Meta+6
+binding cmd_buffer7 Meta+7
+binding cmd_buffer8 Meta+8
+binding cmd_buffer9 Meta+9
+binding cmd_cancel Escape 
+binding cmd_closeAll Meta+Ctrl+W
+binding cmd_closeProject Ctrl+W
+binding cmd_goToDefinition Ctrl+K Ctrl+G
+# #if WITH_CODE_BROWSER
+binding cmd_codeBrowserLocate Ctrl+K Ctrl+L
+# #endif
+binding cmd_uncomment  Meta+Ctrl+/
+binding cmd_comment  Meta+/
+binding cmd_completeWord Alt+Escape
+binding cmd_completeWordBack Alt+Shift+Escape
+binding cmd_completeWord F5
+binding cmd_completeWordBack Shift+F5
+binding cmd_convertLowerCase Meta+Shift+U
+binding cmd_convertUpperCase Meta+U
+binding cmd_copy Meta+C
+binding cmd_cut Meta+X
+binding cmd_delete Delete
+binding cmd_documentEnd Meta+End
+binding cmd_documentHome  Meta+Home
+binding cmd_editPrefs Meta+,
+binding cmd_editProperties Alt+Return
+binding cmd_selectAll Meta+A
+binding cmd_end  End 
+binding cmd_end  Meta+Right
+binding cmd_endOfWord Meta+E
+binding cmd_executeLastMacro Ctrl+K _
+# cmd_find unassigned
+binding cmd_findInFiles Meta+Shift+F
+binding cmd_findNext  Meta+G
+binding cmd_findNextResult Meta+Shift+F3
+binding cmd_findNextSelected  Meta+F3
+binding cmd_findPrevious  Meta+Shift+G
+binding cmd_showSectionList Ctrl+L
+binding cmd_focusEditor Ctrl+Shift+E
+binding cmd_focusSource Ctrl+K Ctrl+S
+binding cmd_fontZoomReset Meta+0
+binding cmd_gotoLine Meta+L
+binding cmd_helpHelp  Ctrl+/
+binding cmd_home  Home 
+binding cmd_home  Meta+Left 
+binding cmd_killLine Ctrl+Delete
+binding cmd_killLine Ctrl+Backspace
+binding cmd_left  Left
+binding cmd_lineNext  Down
+binding cmd_linePrevious  Up
+binding cmd_documentHome    Meta+Up
+binding cmd_documentEnd Meta+Down
+binding cmd_selectDocumentHome  Meta+Shift+Up
+binding cmd_selectDocumentEnd   Meta+Shift+Down
+binding cmd_lineScrollDown  Meta+Alt+Down
+binding cmd_lineScrollUp  Meta+Alt+Up
+binding cmd_new Meta+N
+binding cmd_newTab Meta+T
+binding cmd_newProject Meta+Shift+N
+binding cmd_newTemplate Meta+Ctrl+N
+binding cmd_newline  Return
+binding cmd_newlineBare  Meta+Return
+binding cmd_newlineExtra  Shift+Return 
+binding cmd_newlineSame  Meta+Shift+Return
+binding cmd_open Meta+O
+binding cmd_openProject Ctrl+Shift+O 
+binding cmd_pageDown  Page_Down 
+binding cmd_pageUp  Page_Up 
+binding cmd_paste Meta+V
+binding cmd_pasteAndSelect Meta+Shift+V
+binding cmd_tabAwarePaste Meta+Ctrl+V
+binding cmd_quit Meta+Q
+binding cmd_rawKey Meta+M
+binding cmd_redo Meta+Shift+Z
+binding cmd_refreshStatus Ctrl+K R
+binding cmd_repeatNextCommandBy Ctrl+K Ctrl+U
+binding cmd_revert Meta+Ctrl+U
+binding cmd_right  Right
+binding cmd_saveAs Meta+Shift+S
+binding cmd_selectCharNext  Shift+Right
+binding cmd_selectCharPrevious  Shift+Left
+binding cmd_selectDocumentEnd  Meta+Shift+End
+binding cmd_selectDocumentHome  Meta+Shift+Home
+binding cmd_selectEnd  Meta+Shift+Right
+binding cmd_selectHome  Meta+Shift+Left
+binding cmd_selectEnd  Shift+End
+binding cmd_selectHome  Shift+Home
+binding cmd_selectLineNext  Shift+Down
+binding cmd_selectLinePrevious  Shift+Up
+binding cmd_selectPageDown  Shift+Page_Down
+binding cmd_selectPageUp  Shift+Page_Up
+binding cmd_selectRectCharNext Ctrl+Shift+Right
+binding cmd_selectRectCharPrevious Ctrl+Shift+Left
+binding cmd_selectRectEnd Ctrl+Shift+End
+binding cmd_selectRectHome Ctrl+Shift+Home
+binding cmd_selectRectLineNext Ctrl+Shift+Down
+binding cmd_selectRectLinePrevious Ctrl+Shift+Up
+binding cmd_selectRectPageDown Ctrl+Shift+Page_Down
+binding cmd_selectRectPageUp Ctrl+Shift+Page_Up
+binding cmd_selectWordLeft  Alt+Shift+Left
+binding cmd_endOfWordExtend  Alt+Shift+Right
+binding cmd_splittab Meta+Shift+"
+binding cmd_startIncrementalSearch Meta+F
+binding cmd_startIncrementalSearch Meta+I
+binding cmd_startIncrementalSearchBackwards Meta+Shift+I
+binding cmd_startMacroMode Ctrl+K (
+binding cmd_stopMacroMode Ctrl+K )
+binding cmd_toggleInteractiveShell  Meta+Escape
+binding cmd_toggleOvertype  Insert 
+binding cmd_triggerPrecedingCompletion Meta+J
+binding cmd_undo Meta+Z
+binding cmd_viewBottomPane Ctrl+Shift+M
+binding cmd_reopenLastClosedTab Meta+Shift+T
+binding cmd_viewEOL Meta+Shift+&
+binding cmd_viewIndentationGuides Meta+Shift+%
+binding cmd_viewLineNumbers Meta+Ctrl+4
+binding cmd_viewPlaces Ctrl+Shift+P
+binding cmd_viewToolbox Ctrl+Shift+L
+binding cmd_viewWhitespace Meta+Shift+*
+binding cmd_wordLeft  Alt+Left
+binding cmd_endOfWord  Alt+Right
+binding cmd_wordWrap Meta+Shift+(
+# #if WITH_SCC
+binding cmd_SCCadd Ctrl+K A
+binding cmd_SCCcommit Ctrl+K C
+binding cmd_SCCdiff Ctrl+K D
+binding cmd_SCCedit Ctrl+K E
+binding cmd_SCCremove Ctrl+K O
+binding cmd_SCCrevert Ctrl+K V
+binding cmd_SCCcheckout Ctrl+K K
+# #endif
+
+binding cmd_scope-combined-toolscmds Meta+Shift+K
+binding cmd_showCommando Meta+Shift+O
+binding cmd_scope-openfiles Meta+<
+
+binding cmd_invokeHyperlink Ctrl+Shift+G
+
+binding cmd_publishingPushCurrentFile Ctrl+P P
+binding cmd_publishingDiffCurrentFile Ctrl+P D
+
+binding cmd_refactoring_renameVariable Ctrl+K Ctrl+M
+binding cmd_removePrevWordInCaretSet Ctrl+Shift+D
+binding cmd_htmlTagRelocator Ctrl+Shift+Z
+
+
+#debugging
+binding cmd_dbgBreakpointClearAllInURI  Meta+Ctrl+\
+binding cmd_dbgBreakpointToggle  Meta+\
+binding cmd_dbgNewSession  Meta+Ctrl+Y
+binding cmd_dbgShowCurrentStatement  Meta+Shift+C
+binding cmd_dbgStepCursor  Meta+Ctrl+Shift+I
+binding cmd_dbgStepIn  Meta+Ctrl+I
+binding cmd_dbgStepOut  Meta+Ctrl+T
+binding cmd_dbgStepOver  Meta+Ctrl+O
+binding cmd_dbgStop  Meta+Ctrl+P
+
+# Added for JetBrains
+binding cmd_blockSelect Alt+W
+binding cmd_lineDuplicateDown Meta+D
+binding cmd_join Ctrl+Shift+J
+binding cmd_splitLine Meta+Enter
+binding cmd_deleteWordLeft Alt+Backspace
+binding cmd_deleteWordRight Alt+Delete
+binding cmd_foldCollapseAll Meta+Shift+-
+binding cmd_foldCollapse Meta+-
+binding cmd_foldExpandAll Meta+Shift++
+binding cmd_foldExpand Meta++
+binding cmd_replace Meta+R
+binding cmd_historyForward  Meta+Alt+Right
+binding cmd_historyBack Meta+Alt+Left
+binding cmd_jumpToNextSection   Ctrl+Down  
+binding cmd_jumpToPreviousSection   Ctrl+Up
+binding cmd_jumpToMatchingBrace  Meta+]
+# #if WITH_CODE_BROWSER
+binding cmd_viewCodeBrowser Meta+F12
+# #endif
+binding cmd_bookmarkToggle  F3
+binding cmd_refactoring_extractMethod   Meta+Alt+M
+binding cmd_SCChistory Alt+Shift+C
+binding cmd_SCCupdate Meta+T
+binding cmd_save Meta+Ctrl+S
+binding cmd_saveAll Meta+S
+binding cmd_viewFullScreen  Ctrl+Meta+F
+binding cmd_focusmode   Meta+Shift+F12
+
+#debugging
+binding cmd_dbgGo  Ctrl+Alt+D
+binding cmd_dbgRun  Ctrl+R
+binding cmd_dbgGoSkipDialog  Ctrl+D
+binding cmd_dbgStepOver  F8
+binding cmd_dbgStepIn  F7
+binding cmd_dbgStepOut  Shift+F8
+binding cmd_dbgStepCursor  Alt+F9
+binding cmd_runInLine   Alt+F8
+binding cmd_dbgBreapointToggle  Meta+F8
+
+# Removed for JetBrains 
+#binding cmd_blockSelect Meta+Ctrl+L
+#binding cmd_fontZoomOut Meta+-
+#binding cmd_fontZoomOut Meta+Shift+_
+#binding cmd_fontZoomIn Meta+Shift++
+#binding cmd_toolsRunCommand Meta+R
+#binding cmd_addNextWordToCaretSet Ctrl+D
+#binding cmd_jumpToNextSection  F8 
+#binding cmd_jumpToPreviousSection  Shift+F8
+#binding cmd_lineTransposeUp  Ctrl+Up
+#binding cmd_lineTransposeDown  Ctrl+Down

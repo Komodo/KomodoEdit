@@ -1,0 +1,274 @@
+version 51
+
+# Movement and selection
+binding cmd_left  Left
+binding cmd_selectCharPrevious  Shift+Left
+binding cmd_wordLeft  Ctrl+Left
+binding cmd_selectWordLeft  Ctrl+Shift+Left
+binding cmd_backSmart  Backspace
+binding cmd_back  Shift+Backspace
+binding cmd_right  Right
+binding cmd_selectCharNext  Shift+Right
+binding cmd_wordRight  Ctrl+Right
+binding cmd_selectWordRight  Ctrl+Shift+Right
+binding cmd_beginningOfWordExtend Ctrl+Shift+W
+binding cmd_endOfWord Ctrl+E
+binding cmd_newlineExtra  Shift+Return 
+binding cmd_newline  Return
+binding cmd_newlineBare  Ctrl+Return
+binding cmd_newlineSame  Ctrl+Shift+Return
+binding cmd_linePrevious  Up
+binding cmd_lineNext  Down
+binding cmd_selectLineNext  Shift+Down
+binding cmd_selectLinePrevious  Shift+Up
+binding cmd_pageDown  Page_Down 
+binding cmd_selectPageDown  Shift+Page_Down
+binding cmd_pageUp  Page_Up 
+binding cmd_selectPageUp  Shift+Page_Up
+binding cmd_home  Home 
+binding cmd_selectHome  Shift+Home
+binding cmd_documentHome  Ctrl+Home
+binding cmd_selectDocumentHome  Ctrl+Shift+Home
+binding cmd_end  End 
+binding cmd_documentEnd  Ctrl+End
+binding cmd_selectEnd  Shift+End
+binding cmd_selectDocumentEnd  Ctrl+Shift+End
+binding cmd_selectAll Ctrl+A
+binding cmd_htmlTagRelocator Ctrl+Shift+Z
+binding cmd_lineScrollUp Ctrl+Up
+binding cmd_lineScrollDown Ctrl+Down
+
+# Cut, copy, paste, delete
+binding cmd_copy Ctrl+C
+binding cmd_copy Ctrl+Insert
+binding cmd_cut Ctrl+X
+binding cmd_cut Ctrl+Shift+X
+binding cmd_cut Shift+Delete
+binding cmd_paste Ctrl+V
+binding cmd_paste Shift+Insert
+binding cmd_pasteAndSelect Ctrl+Shift+V
+binding cmd_tabAwarePaste Ctrl+Alt+V
+binding cmd_delete Delete
+binding cmd_deleteWordLeft  Ctrl+Backspace
+binding cmd_deleteWordRight  Ctrl+Delete
+
+# Special commands
+binding cmd_redo Ctrl+Y
+binding cmd_undo Ctrl+Z
+binding cmd_undo Alt+Backspace
+binding cmd_cancel Escape
+binding cmd_editReflow Ctrl+Q
+binding cmd_toggleOvertype  Insert 
+binding cmd_convertUpperCase Ctrl+U
+
+# Ctrl+Shift+U is not available on Linux.
+# #if PLATFORM == "linux"
+binding cmd_convertLowerCase Ctrl+Alt+U
+# #else
+binding cmd_convertLowerCase Ctrl+Shift+U
+# #endif
+
+binding cmd_rawKey Ctrl+M
+binding cmd_repeatNextCommandBy Ctrl+K Ctrl+U
+binding cmd_editProperties Alt+Return
+
+# Comment handling
+binding cmd_uncomment  Ctrl+Shift+?
+binding cmd_comment  Ctrl+/
+
+# Search
+binding cmd_jumpToMatchingBrace  Ctrl+]
+binding cmd_selectToMatchingBrace  Ctrl+Shift+]
+binding cmd_gotoLine Ctrl+G
+binding cmd_startIncrementalSearch Ctrl+F
+binding cmd_findNext  F3
+binding cmd_findNextSelected  Ctrl+F3
+binding cmd_findPrevious  Shift+F3
+binding cmd_findInFiles Ctrl+Shift+F
+binding cmd_findNextResult Ctrl+Shift+F3
+binding cmd_startIncrementalSearch Ctrl+I
+binding cmd_startIncrementalSearchBackwards Ctrl+Shift+I
+
+# cmd_find unassigned
+
+# Buffer management
+binding cmd_new Ctrl+N
+binding cmd_newTab Ctrl+T
+binding cmd_newTemplate Ctrl+Shift+N
+binding cmd_open Ctrl+O
+binding cmd_bufferClose Ctrl+F4
+binding cmd_bufferNextMostRecent  Ctrl+F6
+binding cmd_bufferNextLeastRecent              Ctrl+Shift+F6
+binding cmd_bufferNext  Ctrl+Page_Down
+binding cmd_bufferPrevious Ctrl+Page_Up
+
+binding cmd_bufferNextMostRecent  Ctrl+Tab
+binding cmd_bufferNextLeastRecent Ctrl+Shift+Tab
+
+#
+# Common commands (these are generally common between all bindings)
+# XXX - These should be moved into a single file and be used as the base.
+#
+
+# Help
+binding cmd_helpHelp  F1      
+binding cmd_helpLanguageAlternate  Ctrl+F1
+binding cmd_helpLanguage  Shift+F1
+
+# Bookmarks
+binding cmd_bookmarkRemoveAll  Ctrl+Shift+F2
+binding cmd_bookmarkGotoNext  F2 
+binding cmd_bookmarkGotoPrevious  Shift+F2
+
+# Quick Bookmarks
+# Set
+binding cmd_toggleQuickBookmark_0  Ctrl+Shift+0
+binding cmd_toggleQuickBookmark_1  Ctrl+Shift+1
+binding cmd_toggleQuickBookmark_2  Ctrl+Shift+2
+binding cmd_toggleQuickBookmark_3  Ctrl+Shift+3
+binding cmd_toggleQuickBookmark_4  Ctrl+Shift+4
+binding cmd_toggleQuickBookmark_5  Ctrl+Shift+5
+binding cmd_toggleQuickBookmark_6  Ctrl+Shift+6
+binding cmd_toggleQuickBookmark_7  Ctrl+Shift+7
+binding cmd_toggleQuickBookmark_8  Ctrl+Shift+8
+binding cmd_toggleQuickBookmark_9  Ctrl+Shift+9
+# GoTo
+binding cmd_goToQuickBookmark_0  Ctrl+0
+binding cmd_goToQuickBookmark_1  Ctrl+1
+binding cmd_goToQuickBookmark_2  Ctrl+2
+binding cmd_goToQuickBookmark_3  Ctrl+3
+binding cmd_goToQuickBookmark_4  Ctrl+4
+binding cmd_goToQuickBookmark_5  Ctrl+5
+binding cmd_goToQuickBookmark_6  Ctrl+6
+binding cmd_goToQuickBookmark_7  Ctrl+7
+binding cmd_goToQuickBookmark_8  Ctrl+8
+binding cmd_goToQuickBookmark_9  Ctrl+9
+
+# Code completion
+binding cmd_completeWord Ctrl+Space
+binding cmd_completeWordBack Ctrl+Shift+Space
+binding cmd_triggerPrecedingCompletion Ctrl+J
+
+# Focus
+binding cmd_focusEditor Ctrl+Shift+E
+binding cmd_browserPreview Ctrl+K Ctrl+V
+binding cmd_reloadBrowserPreview Ctrl+K Ctrl+R
+binding cmd_focusSource Ctrl+K Ctrl+S
+binding cmd_viewBottomPane Ctrl+Shift+M
+binding cmd_viewPlaces Ctrl+Shift+P
+binding cmd_viewToolbox Ctrl+Shift+L
+
+binding cmd_reopenLastClosedTab Ctrl+Shift+T
+
+# Zoom
+binding cmd_fontZoomReset Ctrl+0
+
+# Projects and SCC
+binding cmd_refreshStatus Ctrl+K R
+# #if WITH_SCC
+binding cmd_SCCedit Ctrl+K E
+binding cmd_SCCremove Ctrl+K O
+binding cmd_SCCdiff Ctrl+K D
+binding cmd_SCCrevert Ctrl+K V
+binding cmd_SCCadd Ctrl+K A
+binding cmd_SCCcommit Ctrl+K C
+binding cmd_SCCcheckout Ctrl+K K
+# #endif
+
+binding cmd_toggleInteractiveShell  F12
+binding cmd_toggleInteractiveShell  Shift+F12
+
+# Macros
+binding cmd_startMacroMode Ctrl+K (
+binding cmd_stopMacroMode Ctrl+K )
+binding cmd_executeLastMacro Ctrl+K _
+
+binding cmd_goToDefinition Ctrl+K Ctrl+G
+# #if WITH_CODE_BROWSER
+binding cmd_codeBrowserLocate Ctrl+K Ctrl+L
+# #endif
+
+binding cmd_selectRectCharPrevious Alt+Shift+Left
+binding cmd_selectRectCharNext Alt+Shift+Right
+binding cmd_selectRectLinePrevious Alt+Shift+Up
+binding cmd_selectRectLineNext Alt+Shift+Down
+binding cmd_selectRectHome Alt+Shift+Home
+binding cmd_selectRectEnd Alt+Shift+End
+binding cmd_selectRectPageUp Alt+Shift+Page_Up
+binding cmd_selectRectPageDown Alt+Shift+Page_Down
+
+# #if WITH_SLEUTH
+binding cmd_runCurrentTestPlan Ctrsl+K T
+# #endif
+
+binding cmd_scope-combined-toolscmds Ctrl+Shift+K
+binding cmd_showCommando Ctrl+Shift+O
+binding cmd_scope-openfiles Ctrl+<
+
+binding cmd_invokeHyperlink Ctrl+Shift+G
+
+binding cmd_publishingPushCurrentFile Ctrl+P P
+binding cmd_publishingDiffCurrentFile Ctrl+P D
+
+binding cmd_refactoring_renameVariable Ctrl+K Ctrl+M
+binding cmd_removePrevWordInCaretSet Ctrl+Shift+D
+
+# Debugging / DBGP
+binding cmd_dbgBreakpointClearAllInURI  Ctrl+F9 
+binding cmd_dbgShowCurrentStatement  Alt+*
+binding cmd_dbgStop  Ctrl+Shift+F9
+
+# Added for JetBrains
+binding cmd_blockSelect Ctrl+W
+binding cmd_lineDuplicateDown Ctrl+D
+binding cmd_join Ctrl+Shift+J
+binding cmd_splitLine Ctrl+Enter
+binding cmd_foldCollapseAll Ctrl+Shift+-
+binding cmd_foldCollapse Ctrl+-
+binding cmd_foldExpandAll Ctrl+Shift++
+binding cmd_foldExpand Ctrl++
+binding cmd_replace Ctrl+R
+binding cmd_replaceInFiles Ctrl+Shift+R
+binding cmd_historyForward  Ctrl+Alt+Right
+binding cmd_historyBack Ctrl+Alt+Left
+binding cmd_jumpToNextSection   Alt+Down  
+binding cmd_jumpToPreviousSection   Alt+Up
+# #if WITH_CODE_BROWSER
+binding cmd_viewCodeBrowser Ctrl+F12
+# #endif
+binding cmd_bookmarkToggle  F11
+binding cmd_refactoring_extractMethod   Ctrl+Alt+M
+binding cmd_SCChistory Alt+Shift+C
+binding cmd_SCCupdate Ctrl+T
+binding cmd_save Ctrl+Shift+S
+binding cmd_saveAll Ctrl+S
+binding cmd_focusmode   Ctrl+Shift+F12
+
+# Debugging / DBGP
+binding cmd_dbgGo  Alt+Shift+F9
+binding cmd_dbgRun  Shift+F10
+binding cmd_dbgGoSkipDialog  Shift+F9
+binding cmd_dbgStepOver  F8
+binding cmd_dbgStepIn  F7
+binding cmd_dbgStepOut  Shift+F8
+binding cmd_dbgStepCursor  Alt+F9
+binding cmd_runInLine   Alt+F8
+binding cmd_dbgBreapointToggle  Ctrl+F8
+
+# Removed for JetBrains 
+#binding cmd_bufferClose Ctrl+W 
+#binding cmd_addNextWordToCaretSet Ctrl+D
+#binding cmd_openProject Ctrl+Shift+J
+#binding cmd_fontZoomIn Ctrl++
+#binding cmd_fontZoomIn Ctrl+=
+#binding cmd_fontZoomIn Ctrl+Shift++
+#binding cmd_fontZoomIn Ctrl+Shift+=
+#binding cmd_fontZoomOut Ctrl+-
+#binding cmd_fontZoomOut Ctrl+Shift+_
+#binding cmd_fontZoomOut Ctrl+Shift+-
+#binding cmd_toolsRunCommand Ctrl+R
+#binding cmd_showSectionList Ctrl+F8
+#binding cmd_jumpToNextSection F8 
+#binding cmd_jumpToPreviousSection  Shift+F8
+#binding cmd_lineTransposeUp  Alt+Up
+#binding cmd_lineTransposeDown  Alt+Down
