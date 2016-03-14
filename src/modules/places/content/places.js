@@ -1834,8 +1834,8 @@ ManagerClass.prototype = {
                         var uri = dirURI + '/' + baseName;
                         ko.places.viewMgr.view.selectURI(uri);
                     }
-                    window.setTimeout(window.updateCommands, 1,
-                                      "current_place_opened");
+                    window.setTimeout(window.updateCommands, 1, "current_place_opened");
+                    window.setTimeout(xtk.domutils.fireEvent.bind(null, window, "current_place_opened"), 1);
                     if (save) {
                         _placePrefs.setStringPref(parent._koNum, dirURI);
                     }
@@ -3294,6 +3294,9 @@ this.onUnload = function places_onUnload() {
 
 
 this.getFocusedPlacesView = function() {
+    var w = require("ko/windows").getMain();
+    if ( ! xtk.domutils.elementInFocus(w.document.getElementById('placesViewbox')))
+        return null;
     if (xtk.domutils.elementInFocus(document.getElementById('placesViewbox_places'))) {
         return this;
     }

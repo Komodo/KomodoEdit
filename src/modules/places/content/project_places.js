@@ -527,6 +527,9 @@ this._processProjectsMenu_TopLevel = function(menuNode) {
 };
 
 this.getFocusedProjectView = function() {
+    var w = require("ko/windows").getMain();
+    if ( ! xtk.domutils.elementInFocus(w.document.getElementById('placesViewbox')))
+        return null;
     if (xtk.domutils.elementInFocus(document.getElementById('placesSubpanelProjects_MPV'))) {
         return this;
     }
