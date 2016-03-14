@@ -293,7 +293,7 @@ window.app = {};
                     checkbox.__initialized = true;
                     
                     var ul = document.createElement("ul"), subLi;
-                    _keysSorted(aThing).forEach(function(k)
+                    _keysSorted(aThing, false).forEach(function(k)
                     {
                         var proto = false;
                         if ( ! aThing.hasOwnProperty(k)) proto = true;
@@ -482,7 +482,7 @@ window.app = {};
         return str.charAt(0).toUpperCase() + str.slice(1);
     }
     
-    var _obProperties = function(ob)
+    var _obProperties = function(ob, full = true)
     {
         var keys = Object.getOwnPropertyNames(ob);
         
@@ -490,10 +490,18 @@ window.app = {};
         for (k in ob) 
             keys.push(k);
         
-        keys = keys.concat(keys, Object.getOwnPropertyNames(ob.constructor));
-        keys = keys.concat(keys, Object.getOwnPropertyNames(Object));
-        keys = keys.concat(keys, Object.getOwnPropertyNames(Object.prototype));
-        
+        if ( ! full)
+        {
+            keys.push("constructor");
+            keys.push("prototype");
+        }
+        else
+        {
+            keys = keys.concat(keys, Object.getOwnPropertyNames(ob.constructor));
+            keys = keys.concat(keys, Object.getOwnPropertyNames(Object));
+            keys = keys.concat(keys, Object.getOwnPropertyNames(Object.prototype));
+        }
+            
         var _keys = [];
         var _processed = {};
         
@@ -506,7 +514,7 @@ window.app = {};
             {
                 var descriptor = Object.getOwnPropertyDescriptor(ob, k);
                 if (descriptor.get) continue;
-            }
+            } 
             
             _processed[k] = true;
             _keys.push(k);
@@ -515,13 +523,13 @@ window.app = {};
         return _keys;
     }
     
-    var _keysSorted = function(ob)
+    var _keysSorted = function(ob, full = true)
     {
         if (Array.isArray(ob))
             return Object.getOwnPropertyNames(ob).sort(function(a,b){return a - b});
         else
         {
-            var keys = _obProperties(ob);
+            var keys = _obProperties(ob, full);
             return keys.sort();
         }
     }
