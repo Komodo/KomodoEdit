@@ -11,6 +11,7 @@
     {
         button = dynamicb.register("Syntax Checking Result", {
             icon: "circle-code",
+            events: ["current_view_changed", "current_view_language_changed", "workspace_restored"],
             isEnabled: this.isEnabled.bind(this),
             menuitems: this.updateMenu.bind(this),
             command: function() { ko.commands.doCommandAsync("cmd_nextLintResult"); },

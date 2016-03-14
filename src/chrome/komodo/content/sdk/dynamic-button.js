@@ -76,12 +76,27 @@
             
             groupItem.append(button);
             
+            for (let event of opts.events)
+            {
+                var w = require("ko/windows").getMain();
+                
+                w.addEventListener(event, this.update.bind(this));
+            }
+            
             this.update();
         }
         
-        this.update = function()
+        this.update = function(now = false)
         {
-            var enabled = opts.isEnabled();
+            var w = require("ko/windows").getMain();
+            if (now !== true)
+            {
+                w.clearTimeout(this.update._timer);
+                this.update._timer = w.setTimeout(this.update.bind(this, true), 250);
+                return;
+            }
+        
+            var enabled = opts.isEnabled(this);
             button.attr("disabled", enabled ? "false" : "true");
             
             var visibleChildren;
@@ -94,7 +109,8 @@
             }
                 
             button.parent().attr("collapsed", visibleChildren ? "false" : "true");
-        }
+        };
+        this.update._timer = null;
         
         this.updateMenu = function (menuitems)
         {
@@ -253,30 +269,7 @@
     
     this.init = function()
     {
-        var w = require("ko/windows").getMain();
-        
-        w.addEventListener('current_view_changed', this.update.bind(this));
-        w.addEventListener('view_document_attached', this.update.bind(this));
-        w.addEventListener('current_view_language_changed', this.update.bind(this));
-        w.addEventListener('workspace_restored', this.update.bind(this));
-        w.addEventListener('project_opened', this.update.bind(this));
     }
-    
-    this.update = function(now = false)
-    {
-        var w = require("ko/windows").getMain();
-        if (now !== true)
-        {
-            w.clearTimeout(this.update._timer);
-            this.update._timer = w.setTimeout(this.update.bind(this, true), 250);
-            return;
-        }
-        
-        for (let k in buttons) {
-            buttons[k].update();
-        }
-    }
-    this.update._timer = null;
     
     this.register = function(label, opts)
     {
@@ -307,7 +300,8 @@
             menuitems: null,
             icon: icon,
             image: null,
-            classList: ""
+            classList: "",
+            events: ["project_opened", "workspace_restored"]
         }, opts);
         
         buttons[id] = new dynamicButton(opts);

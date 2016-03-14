@@ -1673,6 +1673,7 @@ this.onload = function uilayout_onload()
     
     require("ko/dynamic-button").register("View in Browser", {
         command: "cmd_browserPreview",
+        events: ["current_view_changed", "current_view_language_changed", "workspace_restored"],
         group: "preview",
         icon: "earth2",
         menuitems: ko.uilayout.populatePreviewToolbarButton
