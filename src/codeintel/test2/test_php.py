@@ -3238,6 +3238,37 @@ EOD;
                 ("function", "call"),
                 ("function", "get_instance"),
             ])
+            
+    @tag("bug752")
+    def test_multiple_var_annotations(self):
+        content, positions = unmark_text(dedent(php_markup("""\
+            <?php
+            class MySuperObject {
+                public function foo() {
+                    echo 1;
+                }
+            }
+
+            class MyDuperObject {
+                public function bar() {
+                    echo 2;
+                }
+            }
+
+            class Foo {
+                /**
+                 * @var MySuperObject $obj1
+                 * @var MyDuperObject $obj2
+                 */
+                public static $obj1, $obj2;
+                $obj1-><1>
+                $obj2-><2>
+            }
+        """)))
+        self.assertCompletionsAre(markup_text(content, pos=positions[1]),
+            [("function", "foo")])
+        self.assertCompletionsAre(markup_text(content, pos=positions[2]),
+            [("function", "bar")])
 
 class IncludeEverythingTestCase(CodeIntelTestCase):
     lang = "PHP"
