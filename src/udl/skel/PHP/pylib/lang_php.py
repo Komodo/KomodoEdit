@@ -1404,7 +1404,7 @@ class PHPArg:
 class PHPVariable:
 
     # PHPDoc variable type sniffer.
-    _re_var = re.compile(r'^\s*@var\s+(\$(?P<variable>\w+)\s+)?(?P<type>[\w\\]+)(?:\s+(?P<doc>.*?))?', re.M|re.U)
+    _re_var = re.compile(r'^\s*@var\s+(\$(?P<variable>\w+)\s+)?(?P<type>[\w\\]+)(\s+\$(?P<variable2>\w+)\s+)?(?:\s+(?P<doc>.*?))?', re.M|re.U)
     _ignored_php_types = ("object", "mixed")
 
     def __init__(self, name, line, vartype='', attributes='', doc=None,
@@ -1442,15 +1442,20 @@ class PHPVariable:
             # the variable definition).
             if "@var" in self.doc:
                 doc = uncommentDocString(self.doc)
-                # get the variable citdl type set by "@var"
-                all_matches = re.findall(self._re_var, doc)
-                if len(all_matches) >= 1:
-                    #print "all_matches[0]: %r" % (all_matches[0], )
-                    vartype = all_matches[0][2]
+                # Get the variable citdl type set by "@var". For multiple "@var"
+                # declarations, look for the matching name.
+                for match in re.finditer(self._re_var, doc):
+                    groups = match.groupdict()
+                    vartype = groups['type']
+                    if vartype and (groups['variable'] and self.name != groups['variable'] or
+                                    groups['variable2'] and self.name != groups['variable2']):
+                        vartype = None # wrong variable
+                        continue
                     if vartype and vartype.lower() in self._ignored_php_types:
                         # Ignore these PHP types, they don't help codeintel.
                         # http://bugs.activestate.com/show_bug.cgi?id=77602
                         vartype = None
+                    break # only consider the first @var if name not given
 
         if not vartype and self.types:
             d = {}
