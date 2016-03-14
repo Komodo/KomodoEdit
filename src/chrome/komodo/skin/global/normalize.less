@@ -275,6 +275,14 @@ textbox, menulist
     }
 }
 
+toolbarbutton, button
+{
+    &:focus
+    {
+        outline: 1px dotted @special;
+    }
+}
+
 :root:not(#komodo_main) view
 {
     &:focus, &:active, &[focused]
