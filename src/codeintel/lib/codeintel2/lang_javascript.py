@@ -1421,6 +1421,9 @@ class JSArgument(JSVariable):
     def __init__(self, *args, **kwargs):
         JSVariable.__init__(self, *args, **kwargs)
         self.cixname = "variable"
+        if self.name.startswith("..."): # ES6 rest parameter (..arg)
+            self.type = "Array"
+            self.name = self.name[3:]
         if not self.type and ENABLE_HEURISTICS:
             if self.name == 'event': # assume that variables named event are Events
                 log.debug("JSArgument: assuming argument named event is a Event")
@@ -2817,6 +2820,8 @@ class JavaScriptCiler:
             while pos < len(styles):
                 if styles[pos] == self.JS_IDENTIFIER:
                     ids.append(text[pos])
+                    if text[pos - 1] == '.':
+                        ids[-1] = '...' + ids[-1] # ES6 rest operator (...arg)
                 elif styles[pos] == self.JS_OPERATOR and text[pos] == '=':
                     # Skip over default argument value.
                     # TODO: complicated default values that include commas will
@@ -2826,6 +2831,10 @@ class JavaScriptCiler:
                            (text[pos] == ',' or text[pos] == ')')):
                         pos += 1
                     continue
+                elif styles[pos] == self.JS_OPERATOR and text[pos] == '.' and \
+                     pos + 2 <= len(styles) and text[pos + 1] == '.' and \
+                     text[pos + 2] == '.':
+                    pos += 2 # handle ES6 rest operator (...arg)
                 elif styles[pos] != self.JS_OPERATOR or text[pos] != ",":
                     break
                 pos += 1

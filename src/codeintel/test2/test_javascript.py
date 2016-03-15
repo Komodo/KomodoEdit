@@ -1278,6 +1278,18 @@ class CplnTestCase(CodeIntelTestCase):
         self.assertCompletionsInclude(markup_text(content, positions[1]),
             [("function", "init"),
              ("variable", "property")])
+    
+    def test_es6_rest_parameter(self):
+        """
+        Rest parameters should be recognized as arrays.
+        """
+        content, positions = unmark_text(dedent("""\
+            function foo(a, b, ...rest) {
+                rest.<1>
+            }
+        """))
+        self.assertCompletionsInclude(markup_text(content, positions[1]),
+            [("variable", "length")])
              
 class CalltipTestCase(CodeIntelTestCase):
     lang = "JavaScript"
