@@ -447,8 +447,10 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
                 # Note that we do allow arrays types with a string key, since
                 # that's an alternative form for property access
                 raise CodeIntelError("no type-inference yet for arrays: %r" % expr)
-
-            tokens = list(self._tokenize_citdl_expr(expr))
+            elif expr.startswith("(anonymous"):
+                tokens = [expr]
+            else:
+                tokens = list(self._tokenize_citdl_expr(expr))
 
             #self.log("expr tokens: %r", tokens)
 
@@ -765,7 +767,6 @@ class JavaScriptTreeEvaluator(CandidatesForTreeEvaluator):
             raise CodeIntelError("no type-inference info for %r" % elem)
 
         self.log("resolve '%s' type inference for %r:", citdl, elem)
-
         if citdl == elem.get("name") and citdl not in elem.names:
             # The citdl expression is the same as the variable name, this will
             # create a recursive citdl lookup loop. What we likely want is a

@@ -2359,8 +2359,11 @@ class JavaScriptCiler:
             if assignAsCurrentScope:
                 self.currentScope = v
 
-        # Special case - classes and anonymous functions
-        elif isinstance(scope, JSClass) or scope.isAnonymous():
+        # Special case - classes and anonymous functions, but not anonymous
+        # classes (which as a parent of an anon function will have the same
+        # name).
+        elif isinstance(scope, JSClass) or \
+             (scope.isAnonymous() and not scope.parent.name == scope.name):
             v = varCtor(memberName, scope, self.lineno, self.depth,
                         vartype=typeNames, doc=doc, isLocal=isLocal, path=self.path)
             v = scope.addMemberVariable(memberName, value=v)
@@ -3818,6 +3821,8 @@ class JavaScriptCiler:
         scope = self.currentScope
         for func in scope.anonymous_functions:
             if func.lineend == lineno:
+                if func.cixname == "class":
+                    break # do not export anonymous classes
                 for attrname in ("classes", "members", "functions", "variables"):
                     d = getattr(func, attrname, {})
                     for k, v in d.items():

@@ -1263,6 +1263,21 @@ class CplnTestCase(CodeIntelTestCase):
                 [("variable", "stack"),
                  ("variable", "stack_length"),
                  ("variable", "stack_position")])
+    
+    def test_anon_class_properties(self):
+        """
+        Properties in anonymous classes should be autocompleted.
+        """
+        content, positions = unmark_text(dedent("""\
+            (function () {
+                this.init = function () {};
+                this.property = "bar";
+                this.<1>
+            })();
+        """))
+        self.assertCompletionsInclude(markup_text(content, positions[1]),
+            [("function", "init"),
+             ("variable", "property")])
              
 class CalltipTestCase(CodeIntelTestCase):
     lang = "JavaScript"
