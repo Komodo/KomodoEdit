@@ -1657,11 +1657,8 @@ this.onload = function uilayout_onload()
     
     var root = document.documentElement;
     var hide = _gPrefs.getBoolean("ui.hide.chrome");
-    if (hide)
-    {
-        //root.setAttribute("drawintitlebar", true);
-        root.setAttribute("hidechrome", true);
-    }
+    //root.setAttribute("drawintitlebar", true);
+    root.setAttribute("hidechrome", hide);
     
     // preload the embedded find replace frame (no rush)
     setTimeout(function() {
@@ -1862,6 +1859,14 @@ _PrefObserver.prototype.observe = function(prefSet, prefName, prefSetID)
         document.getElementById('toolbox_main')._draggable = hide;
         //root.setAttribute("drawintitlebar", hide);
         root.setAttribute("hidechrome", hide);
+        
+        // Work around graphical issues around the window
+        window.outerWidth  = window.outerWidth + 1;
+        window.outerHeight = window.outerHeight + 1;
+        setTimeout(function() {
+            window.outerWidth  = window.outerWidth - 1;
+            window.outerHeight = window.outerHeight - 1;
+        },100);
     }
 };
 

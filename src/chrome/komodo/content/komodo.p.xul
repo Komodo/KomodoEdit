@@ -77,8 +77,10 @@
         ondrop="return ko.dragdrop.onDrop(event);"
         toggletoolbar="true"
         fullscreenbutton="true"
+<!-- #if PLATFORM == "darwin" -->
         tabsintitlebar="true"
         chromemargin="0,-1,-1,-1"
+<!-- #endif -->
         >
 
     <script src="chrome://komodo/content/globals.js" type="application/x-javascript"/>

@@ -142,9 +142,10 @@ komodoCmdLineHandler.prototype = {
     var prefSvc = Components.classes["@activestate.com/koPrefService;1"].
 	  getService(Components.interfaces.koIPrefService);
       
+    // #if PLATFORM == "darwin"
     var hideChrome = prefSvc.prefs.getBoolean('ui.hide.chrome');
     if (hideChrome) winOptions += ",titlebar=no";
-    winOptions += ",titlebar=no";
+    // #endif
     
     let {logging} = Components.utils.import("chrome://komodo/content/library/logging.js");
     
