@@ -53,6 +53,7 @@
 
 <window
     id="komodo_diff_window"
+    class="dialog"
     windowtype="Komodo:DiffWindow"
     xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
     width="600"
