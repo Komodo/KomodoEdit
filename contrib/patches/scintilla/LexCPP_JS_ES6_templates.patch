@@ -1,0 +1,80 @@
+diff --git a/contrib/scintilla/lexers/LexCPP.cxx b/contrib/scintilla/lexers/LexCPP.cxx
+index 1d9e40d..be22a68 100644
+This really doesn't have much of a chance to make it upstream because it keeps
+track of brace counts in line states. It should probably use a SparseState, but
+there's no time to learn how.
+--- lexers/LexCPP.cxx
++++ lexers/LexCPP.cxx
+@@ -311,6 +311,7 @@ struct OptionsCPP {
+ 	bool hashquotedStrings;
+ 	bool backQuotedStrings;
+ 	bool escapeSequence;
++	bool backQuotedInterpolation;
+ 	bool fold;
+ 	bool foldSyntaxBased;
+ 	bool foldComment;
+@@ -332,6 +333,7 @@ struct OptionsCPP {
+ 		hashquotedStrings = false;
+ 		backQuotedStrings = false;
+ 		escapeSequence = false;
++		backQuotedInterpolation = false;
+ 		fold = false;
+ 		foldSyntaxBased = true;
+ 		foldComment = false;
+@@ -387,6 +389,9 @@ struct OptionSetCPP : public OptionSet<OptionsCPP> {
+ 		DefineProperty("lexer.cpp.escape.sequence", &OptionsCPP::escapeSequence,
+ 			"Set to 1 to enable highlighting of escape sequences in strings");
+ 
++		DefineProperty("lexer.cpp.backquoted.interpolation", &OptionsCPP::backQuotedInterpolation,
++			"Set to 1 to enable ${expr} interpolation in back-quoted raw strings.");
++
+ 		DefineProperty("fold", &OptionsCPP::fold);
+ 
+ 		DefineProperty("fold.cpp.syntax.based", &OptionsCPP::foldSyntaxBased,
+@@ -713,6 +718,7 @@ void SCI_METHOD LexerCPP::Lex(unsigned int startPos, int length, int initStyle,
+ 
+ 	std::string rawStringTerminator = rawStringTerminators.ValueAt(lineCurrent-1);
+ 	SparseState<std::string> rawSTNew(lineCurrent);
++	int backquotedInterpolatedBraceCount = styler.GetLineState(lineCurrent);
+ 
+ 	int activitySet = preproc.IsInactive() ? activeFlag : 0;
+ 
+@@ -753,6 +759,9 @@ void SCI_METHOD LexerCPP::Lex(unsigned int startPos, int length, int initStyle,
+ 			if (rawStringTerminator != "") {
+ 				rawSTNew.Set(lineCurrent-1, rawStringTerminator);
+ 			}
++			if (backquotedInterpolatedBraceCount > 0) {
++				styler.SetLineState(lineCurrent, backquotedInterpolatedBraceCount);
++			}
+ 		}
+ 
+ 		// Handle line continuation generically.
+@@ -1001,6 +1010,11 @@ void SCI_METHOD LexerCPP::Lex(unsigned int startPos, int length, int initStyle,
+ 						sc.Forward();
+ 					sc.SetState(SCE_C_DEFAULT|activitySet);
+ 					rawStringTerminator = "";
++				} else if (options.backQuotedInterpolation && sc.ch == '$' && sc.chNext == '{') {
++					sc.SetState(SCE_C_OPERATOR|activitySet);
++					sc.Forward();
++					sc.ForwardSetState(SCE_C_DEFAULT|activitySet);
++					backquotedInterpolatedBraceCount = 1;
+ 				}
+ 				break;
+ 			case SCE_C_CHARACTER:
+@@ -1259,6 +1273,16 @@ void SCI_METHOD LexerCPP::Lex(unsigned int startPos, int length, int initStyle,
+ 				}
+ 			} else if (isoperator(sc.ch)) {
+ 				sc.SetState(SCE_C_OPERATOR|activitySet);
++				if (backquotedInterpolatedBraceCount > 0) {
++					if (sc.ch == '{') {
++						backquotedInterpolatedBraceCount++;
++					} else if (sc.ch == '}') {
++						backquotedInterpolatedBraceCount--;
++					}
++					if (backquotedInterpolatedBraceCount == 0) {
++						sc.ForwardSetState(SCE_C_STRINGRAW|activitySet);
++					}
++				}
+ 			}
+ 		}
+ 

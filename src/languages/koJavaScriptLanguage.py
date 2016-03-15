@@ -54,6 +54,7 @@ class KoJavaScriptLexerLanguageService(KoLexerLanguageService):
         self.supportsFolding = 1
         self.setProperty('lexer.cpp.allow.dollars', '1')
         self.setProperty('lexer.cpp.backquoted.strings', '1')
+        self.setProperty('lexer.cpp.backquoted.interpolation', '1')
         self.setProperty('fold.cpp.syntax.based', '1')
         self.setKeywords(0, JavaScriptLangInfo.keywords)
 

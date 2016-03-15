@@ -31,6 +31,7 @@ includes.patch
 indicator_increase.patch
 lexAccessor.patch
 LexCPP.patch
+LexCPP_JS_ES6_templates.patch
 lexgen.patch
 linux_scrolltext.patch
 mac_cocoa_clang_warnings.patch
