@@ -74,6 +74,8 @@ if ($platform eq "darwin") {
     $cons->Install("$supportDir/schemes", 'Windows.kkf');
     $cons->Preprocess('IntelliJ-mac.p.kkf', 'IntelliJ.kkf');
     $cons->Install("$supportDir/schemes", 'IntelliJ.kkf');
+    $cons->Preprocess('Sublime-mac.p.kkf', 'Sublime.kkf');
+    $cons->Install("$supportDir/schemes", 'Sublime.kkf');
     $cons->Preprocess('Mac.p.kkf', 'Default.kkf');
     $cons->Install("$supportDir/schemes", 'Default.kkf');
 } else {
@@ -81,6 +83,8 @@ if ($platform eq "darwin") {
     $cons->Install("$supportDir/schemes", 'Default.kkf');
     $cons->Preprocess('IntelliJ.p.kkf', 'IntelliJ.kkf');
     $cons->Install("$supportDir/schemes", 'IntelliJ.kkf');
+    $cons->Preprocess('Sublime.p.kkf', 'Sublime.kkf');
+    $cons->Install("$supportDir/schemes", 'Sublime.kkf');
 }
 $cons->Preprocess('Emacs.p.kkf', 'Emacs.kkf');
 $cons->Install("$supportDir/schemes", 'Emacs.kkf');
@@ -97,3 +101,4 @@ $cons->Install("$supportDir/schemes", 'Vi.kkf');
 $cons->Depends("Vi.kkf", "_vi.kkf");
 
 $cons->InstallRecursive("$supportDir/schemes", cwd()."/src/schemes/color_schemes", ('\.consign'));
+    
