@@ -205,6 +205,10 @@
   <string id="jshint_linter_chooser"></string> <!-- radiogroup for choosing default or custom jshint.js -->
   <string id="jshint_linter_specific"></string> <!-- path to alternate jshint to use -->
 
+  <!-- TypeScript linting options -->
+  <boolean id="lint_typescript">1</boolean>
+  <string id="tslintConfigFile"></string>
+
   <!-- JSX linting options -->
   <boolean id="lint_jsx">1</boolean>
 

@@ -314,6 +314,28 @@ class CoffeeScriptLangInfo(_JSLikeLangInfo):
                          'yes'])
     
     keywords = _inherited_keywords.union(_compiler_reserved_words).union(_new_keywords)
+
+class TypeScriptLangInfo(_JSLikeLangInfo):
+    name = "TypeScript"
+    exts = ['.ts']
+    _reserved_words = set([
+        'break', 'case', 'catch', 'class', 'const', 'continue', 'debugger',
+        'default', 'delete', 'do', 'else', 'enum', 'export', 'extends', 'false',
+        'finally', 'for', 'function', 'if', 'import', 'in', 'instanceof', 'new',
+        'null', 'return', 'super', 'switch', 'this', 'throw', 'true', 'try',
+        'typeof', 'var', 'void', 'while', 'with'
+    ])
+    _strict_reserved_words = set([
+        'implements', 'interface', 'let', 'package', 'private', 'protected',
+        'public', 'static', 'yield'
+    ])
+    _type_words = set(['any', 'boolean', 'number', 'string', 'symbol'])
+    _special_words = set([
+        'abstract', 'as', 'async', 'await', 'constructor', 'declare', 'from',
+        'get', 'is', 'module', 'namespace', 'of', 'require', 'set', 'type'
+    ])
+    keywords = _reserved_words.union(_strict_reserved_words). \
+                   union(_type_words).union(_special_words)
     
 class JSXLangInfo(LangInfo):
     name = "JSX"

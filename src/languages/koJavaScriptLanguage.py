@@ -41,7 +41,7 @@ import re
 
 from xpcom import components, ServerException
 
-from langinfo_prog import JavaScriptLangInfo, CoffeeScriptLangInfo
+from langinfo_prog import JavaScriptLangInfo, CoffeeScriptLangInfo, TypeScriptLangInfo
 from koLanguageServiceBase import *
 
 log = logging.getLogger('koJavaScriptLanguage')
@@ -194,6 +194,46 @@ input.on('data', function(data) {
      self._normalWrite(data);
    });
 """
+
+class koTypeScriptLanguage(koJavaScriptLanguage):
+    name = "TypeScript"
+    _reg_desc_ = "%s Language" % name
+    _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" % name
+    _reg_clsid_ = "{5837780a-16a5-412d-8082-129140ee03eb}"
+    _reg_categories_ = [("komodo-language", name)]
+    
+    defaultExtension = ".ts"
+    searchURL = "http://www.typescriptlang.org/Handbook"
+    
+    sample = """
+class Student {
+    fullname : string;
+    constructor(public firstname, public middleinitial, public lastname) {
+        this.fullname = firstname + " " + middleinitial + " " + lastname;
+    }
+}
+
+interface Person {
+    firstname: string;
+    lastname: string;
+}
+
+function greeter(person : Person) {
+    return "Hello, " + person.firstname + " " + person.lastname;
+}
+
+var user = new Student("Jane", "M.", "User");
+
+document.body.innerHTML = greeter(user);
+"""
+    def __init__(self):
+        koJavaScriptLanguage.__init__(self);
+    
+    def get_lexer(self):
+        if self._lexer is None:
+            self._lexer = KoJavaScriptLexerLanguageService()
+            self._lexer.setKeywords(0, TypeScriptLangInfo.keywords)
+        return self._lexer
 
 class koCoffeeScriptLanguage(koJSLikeLanguage):
     name = "CoffeeScript"

@@ -150,6 +150,30 @@
         
             </vbox>
             
+            <vbox id="langSyntaxCheck-TypeScript">
+                <groupbox orient="vertical">
+                    <checkbox id="lint_typescript"
+                              label="&lintTypeScriptWithTSLint.label;"
+                              pref="true"
+                              oncommand="languageInfo.TypeScript.doEnabling(this);" />
+                    <description id="lint_typescript_failure" class="pref_hide" />
+                    <vbox id="tslintPrefsVbox">
+                        <hbox id="tslintOptionsBox" flex="1">
+                            <vbox id="tslintOptionsBox-vbox">
+                                <label id="tslintConfigFileLabel" control="tslintConfigFile"
+                                       value="&lintTSLintConfigFile.label;" />
+                            </vbox>
+                            <textbox id="tslintConfigFile"
+                                     pref="true"
+                                     flex="1"/>
+                            <button id="tslintConfigFileBrowse"
+                                    label="&browse.label;"
+                                    oncommand="languageInfo.TypeScript.browseForTSLintConfigFile();"/>
+                        </hbox>
+                    </vbox>
+                </groupbox>
+            </vbox>
+            
             <vbox id="langSyntaxCheck-JSX">
                 <groupbox orient="vertical">
                     <checkbox id="lint_jsx"

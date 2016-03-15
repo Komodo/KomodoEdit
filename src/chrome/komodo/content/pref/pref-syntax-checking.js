@@ -427,6 +427,67 @@ function javaScriptInfo(languageName) {
     };
 }
 
+function typescript_setup() {
+    if (!('TypeScript' in dialog)) {
+        dialog.TypeScript = {};
+        [
+         "lint_typescript",
+         "lint_typescript_failure",
+         "tslintConfigFile",
+         "tslintConfigFileBrowse",
+         "tslintPrefsVbox"].forEach(function(name) {
+            dialog.TypeScript[name] = document.getElementById(name);
+        });
+        languageInfo.TypeScript = TypeScriptInfo();
+    }
+    languageInfo.TypeScript.updateUI();
+    languageInfo.TypeScript.doEnabling(dialog.TypeScript.lint_typescript);
+}
+
+languageSetup.TypeScript = typescript_setup;
+function TypeScriptInfo() {
+  return {
+    hasTypeScript: null,
+    
+    updateUI: function() {
+      if (this.hasTypeScript === null) {
+        var koSysUtils = Components.classes["@activestate.com/koSysUtils;1"].getService(Components.interfaces.koISysUtils);
+        var tslint = koSysUtils.Which("tslint");
+        this.hasTypeScript = !!tslint;
+      }
+      var checkbox = dialog.TypeScript.lint_typescript;
+      var failureNode = dialog.TypeScript.lint_typescript_failure;
+      if (this.hasTypeScript) {
+        failureNode.setAttribute("class", "pref_hide");
+        checkbox.disabled = false;
+      } else {
+        checkbox.checked = false;
+        checkbox.disabled = true;
+        if (!failureNode.firstChild) {
+          var text = bundleLang.GetStringFromName("Cant find tslint, update the PATH to include it, and restart Komodo");
+          var textNode = document.createTextNode(text);
+          failureNode.appendChild(textNode);
+        }
+        failureNode.setAttribute("class", "pref_show");
+      }
+    },
+    
+    doEnabling: function(checkbox) {
+      pref_setElementEnabledState(dialog.TypeScript.tslintConfigFile, checkbox.checked);
+      pref_setElementEnabledState(dialog.TypeScript.tslintConfigFileBrowse, checkbox.checked);
+      dialog.TypeScript.tslintPrefsVbox.collapsed = !checkbox.checked;
+    },
+    
+    browseForTSLintConfigFile: function() {
+      var path = ko.filepicker.browseForExeFile(null, dialog.TypeScript.tslintConfigFile.value || "");
+      if (path) {
+        dialog.TypeScript.tslintConfigFile.value = path;
+      }
+    }
+  };
+}
+
+
 function jsx_setup() {
     if (!('JSX' in dialog)) {
         dialog.JSX = {};

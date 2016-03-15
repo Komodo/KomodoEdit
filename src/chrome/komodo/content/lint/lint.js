@@ -148,6 +148,8 @@ var global_pref_observer_topics = {
     "jshint_linter_chooser" : JS_NODEJS_LIST,
     "jshint_linter_specific_version" : JS_NODEJS_LIST,
     "lint_coffee_script" : ["CoffeeScript"],
+    "lint_typescript": ["TypeScript"],
+    "tslintConfigFile": ["TypeScript"],
     "lint_jsx": ["JSX"],
     "sassLinterType" : ["Sass"],
     "sassDefaultInterpreter" : ["Sass"],

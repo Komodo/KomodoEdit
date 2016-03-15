@@ -567,3 +567,78 @@ class KoJSXLinter(object):
                 koLintResult.createAddResult(results, textlines, severity,
                                              lineNo, desc, columnStart=colNo)
         return results
+
+class KoTypeScriptLinter(object):
+    _com_interfaces_ = [components.interfaces.koILinter]
+    _reg_desc_ = "Komodo TypeScript Linter"
+    _reg_clsid_ = "{fed307ad-6677-4c96-82df-f6a6c1e16570}"
+    _reg_contractid_ = "@activestate.com/koLinter?language=TypeScript&type=;1"
+    _reg_categories_ = [
+         ("category-komodo-linter", 'TypeScript'),
+         ]
+
+    def __init__(self):
+        try:
+            self._userPath = koprocessutils.getUserEnv()["PATH"].split(os.pathsep)
+        except:
+            msg = "KoTypeScriptLinter: can't get user path"
+            if msg not in _complained:
+                _complained[msg] = None
+                log.exception(msg)
+            self._userPath = None
+        
+    def lint(self, request):
+        text = request.content.encode(request.encoding.python_encoding_name)
+        return self.lint_with_text(request, text)
+
+    def lint_with_text(self, request, text):
+        if not text:
+            return None
+        prefset = request.prefset
+        if not prefset.getBooleanPref("lint_typescript"):
+            return
+        try:
+            tsLintExe = which.which("tslint", path=self._userPath)
+            if not tsLintExe:
+                return
+            if sys.platform.startswith("win") and os.path.exists(tsLintExe + ".cmd"):
+                tsLintExe += ".cmd"
+        except which.WhichError:
+            msg = "tslint not found"
+            if msg not in _complained:
+                _complained[msg] = None
+                log.error(msg)
+            return
+        tmpfilename = tempfile.mktemp() + '.ts'
+        fout = open(tmpfilename, 'wb')
+        fout.write(text)
+        fout.close()
+        textlines = text.splitlines()
+        cwd = request.cwd
+        configfile = prefset.getStringPref("tslintConfigFile")
+        if configfile:
+            cmd = [tsLintExe, '-c', configfile, tmpfilename]
+        else:
+            cmd = [tsLintExe, tmpfilename]
+        # We only need the stdout result.
+        try:
+            p = process.ProcessOpen(cmd, cwd=cwd, stdin=None)
+            stdout, _ = p.communicate()
+            warnLines = stdout.splitlines(0) # Don't need the newlines.
+        except:
+            log.exception("Problem running %s", tsLintExe)
+            warnLines = []
+        finally:
+            os.unlink(tmpfilename)
+        ptn = re.compile(r'^.+?\[(\d+),\s+(\d+)\]:\s+([^\r\n]+)')
+        results = koLintResults()
+        for line in warnLines:
+            m = ptn.match(line)
+            if m:
+                lineNo = int(m.group(1))
+                colNo = int(m.group(2))
+                desc = "%s (on column %d)" % (m.group(3), colNo)
+                severity = koLintResult.SEV_ERROR
+                koLintResult.createAddResult(results, textlines, severity,
+                                             lineNo, desc, columnStart=colNo)
+        return results
