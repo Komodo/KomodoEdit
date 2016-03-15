@@ -1672,8 +1672,8 @@ class GenericCommandHandler:
         # tab character!  This is written to be clear, not fast.
         tabwidth = sm.tabWidth
         indentwidth = sm.indent
-        if (indentWidth == 0):
-            indentWidth = sm.tabWidth # if 0, Scintilla uses tabWidth
+        if (indentwidth == 0):
+            indentwidth = sm.tabWidth # if 0, Scintilla uses tabWidth
         have = len(before.expandtabs(tabwidth))
         assert have > 0
         want = int((have - 1) / indentwidth) * indentwidth
