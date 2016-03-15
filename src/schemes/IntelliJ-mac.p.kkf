@@ -83,6 +83,8 @@ binding cmd_findNext  Meta+G
 binding cmd_findNextResult Meta+Shift+F3
 binding cmd_findNextSelected  Meta+F3
 binding cmd_findPrevious  Meta+Shift+G
+binding cmd_jumpToNextSection  F8 
+binding cmd_jumpToPreviousSection  Shift+F8
 binding cmd_showSectionList Ctrl+L
 binding cmd_focusEditor Ctrl+Shift+E
 binding cmd_focusSource Ctrl+K Ctrl+S
@@ -204,7 +206,6 @@ binding cmd_dbgStepOver  Meta+Ctrl+O
 binding cmd_dbgStop  Meta+Ctrl+P
 
 # Added for JetBrains
-binding cmd_blockSelect Alt+W
 binding cmd_lineDuplicateDown Meta+D
 binding cmd_join Ctrl+Shift+J
 binding cmd_splitLine Meta+Enter
@@ -217,8 +218,6 @@ binding cmd_foldExpand Meta++
 binding cmd_replace Meta+R
 binding cmd_historyForward  Meta+Alt+Right
 binding cmd_historyBack Meta+Alt+Left
-binding cmd_jumpToNextSection   Ctrl+Down  
-binding cmd_jumpToPreviousSection   Ctrl+Up
 binding cmd_jumpToMatchingBrace  Meta+]
 # #if WITH_CODE_BROWSER
 binding cmd_viewCodeBrowser Meta+F12
@@ -236,7 +235,7 @@ binding cmd_focusmode   Meta+Shift+F12
 binding cmd_dbgGo  Ctrl+Alt+D
 binding cmd_dbgRun  Ctrl+R
 binding cmd_dbgGoSkipDialog  Ctrl+D
-binding cmd_dbgStepOver  F8
+binding cmd_dbgStepOver  F8 
 binding cmd_dbgStepIn  F7
 binding cmd_dbgStepOut  Shift+F8
 binding cmd_dbgStepCursor  Alt+F9

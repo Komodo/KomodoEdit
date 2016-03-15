@@ -72,15 +72,15 @@ $cons->InstallXpcomComponent('koKeybindingSchemeService.py');
 if ($platform eq "darwin") {
     $cons->Preprocess('Default.p.kkf', 'Windows.kkf');
     $cons->Install("$supportDir/schemes", 'Windows.kkf');
-    $cons->Preprocess('JetBrains-mac.p.kkf', 'JetBrains.kkf');
-    $cons->Install("$supportDir/schemes", 'JetBrains.kkf');
+    $cons->Preprocess('IntelliJ-mac.p.kkf', 'IntelliJ.kkf');
+    $cons->Install("$supportDir/schemes", 'IntelliJ.kkf');
     $cons->Preprocess('Mac.p.kkf', 'Default.kkf');
     $cons->Install("$supportDir/schemes", 'Default.kkf');
 } else {
     $cons->Preprocess('Default.p.kkf', 'Default.kkf');
     $cons->Install("$supportDir/schemes", 'Default.kkf');
-    $cons->Preprocess('JetBrains.p.kkf', 'JetBrains.kkf');
-    $cons->Install("$supportDir/schemes", 'JetBrains.kkf');
+    $cons->Preprocess('IntelliJ.p.kkf', 'IntelliJ.kkf');
+    $cons->Install("$supportDir/schemes", 'IntelliJ.kkf');
 }
 $cons->Preprocess('Emacs.p.kkf', 'Emacs.kkf');
 $cons->Install("$supportDir/schemes", 'Emacs.kkf');

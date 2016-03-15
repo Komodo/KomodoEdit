@@ -218,6 +218,8 @@ binding cmd_dbgBreakpointClearAllInURI  Ctrl+F9
 binding cmd_dbgShowCurrentStatement  Alt+*
 binding cmd_dbgStop  Ctrl+Shift+F9
 
+binding cmd_viewFullScreen  Shift+F11
+
 # Added for JetBrains
 binding cmd_blockSelect Ctrl+W
 binding cmd_lineDuplicateDown Ctrl+D
