@@ -313,7 +313,7 @@ function onLoad()
                 canAdvance(true);
                 storePref(["tabWidth", this.value, "long"]);
                 storePref(["indentWidth", this.value, "long"]);
-                $(this).removeClass("warning");
+                $(this).removeClass("box-state-warning");
                 $("#tabWarning").remove();
                 // The Hitchhikers Guide to Editing.
                 if(this.value == 42)
@@ -323,10 +323,10 @@ function onLoad()
                             id:"tabWarning",
                             value: "I hope you brought your towel.",
                             text: "I hope you brought your towel.",
-                            "class": "warning"
+                            class: "box-state-warning"
                         }).toString());
                     $(this).after($warningMsg);
-                    $(this).addClass("warning");
+                    $(this).addClass("box-state-warning");
                 }
             }
             else if (this.value.length == 0)
