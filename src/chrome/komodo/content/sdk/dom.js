@@ -890,10 +890,11 @@ if (typeof module === 'undefined') module = {}; // debugging helper
 
             this._animComplete = opts.complete;
             
-            var frameStep = function()
+            var frameStep = () =>
             {
                 frameCounter++;
                 log.debug("Frame: " + frameCounter);
+                if ( ! this.exists()) return;
 
                 try
                 {
