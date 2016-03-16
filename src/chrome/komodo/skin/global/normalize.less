@@ -11,6 +11,13 @@
     text-decoration: underline;
 }
 
+scintilla[anonid="scintilla"] > panel[anonid="autocompletepopup"]
+{
+    & > hbox > grid
+    {
+        -moz-user-focus: normal;
+    }
+}
 description, tab, textbox, menulist, menuitem, menu, treecol, button, toolbarbutton,
 checkbox, radio, tabpanels, listitem, richlistitem, listheader
 {
