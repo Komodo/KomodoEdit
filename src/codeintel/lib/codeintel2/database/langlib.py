@@ -972,7 +972,7 @@ class LangZone(object):
             try:
                 cursor.execute("COMMIT")
             except apsw.SQLError:
-                log.error("Unable to create symbols.db.")
+                log.warn("Unable to create symbols.db: possibly exists?")
                 return None
         return conn
 
