@@ -1,32 +1,19 @@
 version 51
 
 # Movement and selection
-binding cmd_left  Left
 binding cmd_selectCharPrevious  Shift+Left
 binding cmd_historyBack  Alt+Left
-binding cmd_wordLeft  Ctrl+Left
-binding cmd_selectWordLeft  Ctrl+Shift+Left
-binding cmd_backSmart  Backspace
 binding cmd_back  Shift+Backspace
-binding cmd_right  Right
 binding cmd_selectCharNext  Shift+Right
 binding cmd_historyForward  Alt+Right
-binding cmd_wordRight  Ctrl+Right
-binding cmd_selectWordRight  Ctrl+Shift+Right
 binding cmd_beginningOfWordExtend Ctrl+Shift+W
 binding cmd_endOfWord Ctrl+E
 binding cmd_newlineExtra  Shift+Return 
 binding cmd_newline  Return
-binding cmd_newlineBare  Ctrl+Return
-binding cmd_newlineSame  Ctrl+Shift+Return
-binding cmd_linePrevious  Up
-binding cmd_lineNext  Down
 binding cmd_selectLineNext  Shift+Down
 binding cmd_selectLinePrevious  Shift+Up
 binding cmd_pageDown  Page_Down 
-binding cmd_selectPageDown  Shift+Page_Down
 binding cmd_pageUp  Page_Up 
-binding cmd_selectPageUp  Shift+Page_Up
 binding cmd_home  Home 
 binding cmd_selectHome  Shift+Home
 binding cmd_documentHome  Ctrl+Home
@@ -36,8 +23,6 @@ binding cmd_documentEnd  Ctrl+End
 binding cmd_selectEnd  Shift+End
 binding cmd_selectDocumentEnd  Ctrl+Shift+End
 binding cmd_selectAll Ctrl+A
-binding cmd_blockSelect Ctrl+B
-binding cmd_htmlTagRelocator Ctrl+Shift+Z
 
 
 # Cut, copy, paste, delete
@@ -61,7 +46,6 @@ binding cmd_redo Ctrl+Y
 binding cmd_undo Ctrl+Z
 binding cmd_undo Alt+Backspace
 binding cmd_cancel Escape
-binding cmd_editReflow Ctrl+Q
 binding cmd_toggleOvertype  Insert 
 binding cmd_convertUpperCase Ctrl+U
 
@@ -75,7 +59,6 @@ binding cmd_convertLowerCase Ctrl+Shift+U
 binding cmd_join Ctrl+K Ctrl+J
 binding cmd_repeatNextCommandBy Ctrl+K Ctrl+U
 binding cmd_editProperties Alt+Return
-binding cmd_toolsRunCommand Ctrl+R
 
 # Comment handling
 binding cmd_uncomment  Ctrl+Shift+?
@@ -91,17 +74,12 @@ binding cmd_wordWrap Ctrl+9
 # #endif
 
 # Search
-binding cmd_jumpToMatchingBrace  Ctrl+]
-binding cmd_selectToMatchingBrace  Ctrl+Shift+]
-binding cmd_gotoLine Ctrl+G
-binding cmd_startIncrementalSearch Ctrl+F
 # cmd_find unassigned
 binding cmd_findNext  F3
 binding cmd_findNextSelected  Ctrl+F3
 binding cmd_findPrevious  Shift+F3
 binding cmd_findNextFunction  F8 
 binding cmd_findPreviousFunction  Shift+F8
-binding cmd_findInFiles Ctrl+Shift+F
 binding cmd_findAllFunctions  Ctrl+F8
 binding cmd_findNextResult Ctrl+Shift+F3
 binding cmd_replace Ctrl+H
@@ -111,20 +89,14 @@ binding cmd_startIncrementalSearchBackwards Ctrl+Shift+I
 
 # Buffer management
 binding cmd_save Ctrl+S
-binding cmd_saveAll Ctrl+Shift+S
 binding cmd_new Ctrl+N
-binding cmd_newTemplate Ctrl+Shift+N
 binding cmd_open Ctrl+O
-binding cmd_openProject Ctrl+Shift+J
 binding cmd_bufferClose Ctrl+W
 binding cmd_bufferClose Ctrl+F4
-binding cmd_bufferNextMostRecent  Ctrl+F6
-binding cmd_bufferNextLeastRecent              Ctrl+Shift+F6
+binding cmd_bufferNextLeastRecent Ctrl+Shift+F6
 binding cmd_bufferNext  Ctrl+Page_Down
 binding cmd_bufferPrevious Ctrl+Page_Up
 
-binding cmd_bufferNextMostRecent  Ctrl+Tab
-binding cmd_bufferNextLeastRecent Ctrl+Shift+Tab
 
 #
 # Common commands (these are generally common between all bindings)
@@ -168,7 +140,6 @@ binding cmd_goToQuickBookmark_9  Ctrl+9
 
 # Code completion
 binding cmd_completeWord Ctrl+Space
-binding cmd_triggerPrecedingCompletion Ctrl+J
 
 # Focus
 binding cmd_focusEditor Ctrl+Shift+E
@@ -177,7 +148,6 @@ binding cmd_reloadBrowserPreview Ctrl+K Ctrl+R
 binding cmd_focusSource Ctrl+K Ctrl+S
 binding cmd_viewToolbox Ctrl+Shift+L
 
-binding cmd_reopenLastClosedTab Ctrl+Shift+T
 
 # Zoom
 binding cmd_fontZoomIn Ctrl++
@@ -208,14 +178,12 @@ binding cmd_selectRectEnd Alt+Shift+End
 binding cmd_selectRectPageUp Alt+Shift+Page_Up
 binding cmd_selectRectPageDown Alt+Shift+Page_Down
 
-binding cmd_scope-combined-toolscmds Ctrl+Shift+K
 binding cmd_showCommando Ctrl+Shift+O
 binding cmd_scope-openfiles Ctrl+<
 
 binding cmd_invokeHyperlink Ctrl+Shift+G
 
 binding cmd_addNextWordToCaretSet Ctrl+D
-binding cmd_removePrevWordInCaretSet Ctrl+Shift+D
 
 
 # Added for Sublime
@@ -235,11 +203,8 @@ binding cmd_replace Ctrl+Alt+R
 binding cmd_findInFiles Ctrl+Shift+F
 binding cmd_reopenLastClosedTab Ctrl+Shift+T
 binding cmd_splittab Ctrl+Alt+"
-binding cmd_bookmarkRemoveAll Ctrl+Shift+F2
 binding cmd_lineDelete Ctrl+Shift+K
-binding cmd_lineTranspose Ctrl+Shift+Up
 binding cmd_selectLineNext Ctrl+L
-binding cmd_selectLineNext Ctrl+Shift+Down
 binding cmd_right Right
 binding cmd_left Left
 binding cmd_wordLeft Ctrl+Left
@@ -248,7 +213,6 @@ binding cmd_lineNext Down
 binding cmd_linePrevious Up
 binding cmd_selectWordRight Ctrl+Shift+Right
 binding cmd_selectWordLeft Ctrl+Shift+Left
-binding cmd_selectLinePrevious Ctrl+Shift+Up
 binding cmd_jumpToMatchingBrace Ctrl+M
 binding cmd_selectToMatchingBrace Ctrl+Shift+M
 binding cmd_indent Ctrl+]
@@ -264,11 +228,7 @@ binding cmd_lineScrollUp Ctrl+Alt+Up
 binding cmd_lineScrollDown Ctrl+Alt+Down
 binding cmd_startMacroMode Ctrl+Q
 binding cmd_executeLastMacro Ctrl+Shift+Q
-binding cmd_stopMacroMode Ctrl+Alt+R
-binding cmd_home Ctrl+Left
-binding cmd_end Ctrl+Right
-binding cmd_selectHome Ctrl+Shift+Left
-binding cmd_selectEnd Ctrl+Shift+Right
+binding cmd_stopMacroMode Ctrl+Alt+Q
 binding cmd_blockSelect Ctrl+Shift+space
 binding cmd_blockSelect Ctrl+Shift+J
 binding cmd_goToDefinition F12
@@ -288,6 +248,8 @@ binding cmd_foldCollapseAll Meta+K Meta+0
 binding cmd_foldExpandAll Meta+K Meta+J
 binding cmd_dmgRun Ctrl+B
 binding cmd_dmgRun F7
+binding cmd_bufferNextMostRecent  Ctrl+Tab
+binding cmd_bufferNextLeastRecent Ctrl+Shift+Tab
 
 # Removed for Sublime
 #binding cmd_newTemplate Ctrl+Shift+N
@@ -298,3 +260,9 @@ binding cmd_dmgRun F7
 #binding cmd_newTab Ctrl+T
 #binding cmd_lineScrollUp Ctrl+Up
 #binding cmd_lineScrollDown Ctrl+Down
+#binding cmd_saveAll Ctrl+Shift+S
+#binding cmd_newlineBare  Ctrl+Return
+#binding cmd_newlineSame  Ctrl+Shift+Return
+#binding cmd_removePrevWordInCaretSet Ctrl+Shift+D
+#binding cmd_triggerPrecedingCompletion Ctrl+J
+#binding cmd_htmlTagRelocator Ctrl+Shift+Z
