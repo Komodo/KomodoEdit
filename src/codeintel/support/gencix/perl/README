@@ -1,0 +1,11 @@
+Steps to generate CIX files from Perl:
+
+1. Download ActivePerl for the Perl version to create a CIX for.
+2. Open genperlcix.py, search for "ActivePerl", and update the path to where
+   you unpacked ActivePerl (no need to install it).
+3. Also edit the last line to be the version of Perl you are creating a CIX for.
+4. Open ../../../lib/codeintel2/manager.py and search for the "buf_from_path"
+   function. On around the 4th line, comment out the "raise CodeIntelError"
+   for a file being too big. (ActivePerl has at least one big file.)
+5. Run `python genperlcix.py`
+6. Revert your change to manager.py in step #4.

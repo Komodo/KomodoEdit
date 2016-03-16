@@ -190,7 +190,11 @@ _EOD_
     @blobs = {} # map an array of XML scopes to blob names
     @currBlobLibs = [] # a stack
     @cacheDirs.each do | cacheDir |
-        writeBlobFromCache(ind, cacheDir)
+        begin
+            writeBlobFromCache(ind, cacheDir)
+        rescue
+            $stderr.puts "Unable to write blob for #{cacheDir}"
+        end
     end
     @blobs.sort.each do | libname, scopeArray |
       next if scopeArray.size == 0
@@ -384,7 +388,12 @@ _EOD_
       end
       
       return if ["Class", "Module", "Object"].include?(name)
-      return if ["Struct::Group", "Struct::Passwd", "Struct::Tms"].include?(liveObject.name)
+      $stderr.puts(liveObject.name)
+      return if ["Struct::Group", "Struct::Passwd", "Struct::Tms",
+                 "Etc::Group", "Etc::Passwd", "Process::Tms",
+                 "Enumerator::Generator", "Enumerator::Lazy",
+                 "Gem::Source::Git", "Gem::Source::Installed", "Gem::Source::Local", "Gem::Source::Lock", "Gem::Source::SpecificFile", "Gem::Source::Vendor",
+                 "OptionParser::Switch::NoArgument", "OptionParser::Switch::OptionalArgument", "OptionParser::Switch::PlacedArgument", "OptionParser::Switch::RequiredArgument"].include?(liveObject.name)
       #if name == "File"
       #  puts "Stop here"
       #end
@@ -430,6 +439,7 @@ _EOD_
   
   def writeConstantItem(ind, name, liveObject)
     #TODO Add line/lineend attributes
+    return if liveObject.class.to_s.start_with?("#<") # "#<klass...>" is no good, as it's a memory address
     @fout.puts(%Q(#{ind}<variable name="#{name}" attributes="__const__" citdl="#{liveObject.class.to_s}" />))
   end
 
@@ -608,6 +618,10 @@ _EOD_
     peers = []
     stag = %Q(#{ind}<scope name="#{name}" ilk="#{ilk}")
     if ilk == "class" && (superclass = m.superclass)
+        if superclass.class.to_s == 'RDoc::NormalClass' and superclass.to_s.include?("<")
+            # Of the form RDoc::NormalClass klass < super -- want klass
+            superclass = superclass.to_s.scan(/^RDoc::NormalClass\s+(\S+)/)[0][0]
+        end
       stag += %Q( classrefs="#{superclass}")
     end
     if lineStart && lineEnd

@@ -1,0 +1,8 @@
+Steps to generate CIX files from Ruby:
+
+1. Download the source for the Ruby version to create a CIX for.
+2. ./configure && make rdoc
+3. Wait.
+4. Come back to this directory and run
+     ruby gen-from-ri-dir.rb --ri-dir=/path/to/ruby-X.Y/.ext/rdoc \
+       --lib-dir=/path/to/ruby-X.Y/lib > ruby-X.Y.cix

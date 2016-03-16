@@ -152,19 +152,10 @@ def parseItem(line):
     name = re.split("[ \t\n(/]", sig, 1)[0]
     return name, sig
 
-def genPerlStdCIX(cixfile):
+def genPerlStdCIX(cixfile, perlfunc_pod_path):
     print >> sys.stderr, "Reading perlfuncs"
     # Process Perl's built-ins out of perlfunc.pod.
-    if 1:
-        p4path = "//depot/main/Apps/Gecko/src/Core/pod/perlfunc.pod"
-        cmd = "p4 print -q %s" % p4path
-        i,o,e = os.popen3(cmd)
-        lines = o.read().splitlines(0)
-        i.close(); o.close(); retval = e.close()
-        if retval:
-            raise Error("error running: %s" % cmd)
-    else:
-        lines = open("perlfunc.pod", 'r').read().splitlines(0)
+    lines = open(perlfunc_pod_path, 'r').read().splitlines(0)
 
     print >> sys.stderr, "Parsing perlfuncs"
     # Parse the "Alphabetical Listing of Perl Functions" into a list of
@@ -397,8 +388,11 @@ def genPerlStdCIX(cixfile):
                 lines = lines[lines.index('')+1:]
             elif name == "do":
                 # Skip the first sentence: "Not really a function."
-                end = sentencePat.match(lines[0]).span()[1]
-                lines[0] = lines[0][end:].lstrip()
+                try:
+                    end = sentencePat.match(lines[0]).span()[1]
+                    lines[0] = lines[0][end:].lstrip()
+                except:
+                    pass
             for i, line in enumerate(lines):
                 if not line.strip(): break
                 sentences = sentencePat.findall(line)
@@ -435,7 +429,7 @@ def genPerlStdCIX(cixfile):
 def gencix(major, minor):
     # First generate first pass at the CILE over all of the lib tree
     cixfile = "activeperl-%d.%d.cix" % (major, minor)
-    command = "python ../../../ci2.py scan -n -r -p -l Perl -T /usr/local/ActivePerl-%d.%d/lib -i \"*.pm\"> %s" % (major, minor, cixfile)
+    command = "python ../../../ci2.py scan -n -r -p -l Perl -T /tmp/ActivePerl-%d.%d/perl/lib -i \"*.pm\"> %s" % (major, minor, cixfile)
     retval = os.system(command)
     if retval != 0:
         print "Error scanning ActivePerl library"
@@ -458,7 +452,7 @@ def gencix(major, minor):
                 del blob.attrib["src"]
             cixfile.append(blob)
     
-    cix = genPerlStdCIX(cixfile)
+    cix = genPerlStdCIX(cixfile, "/tmp/ActivePerl-%d.%d/perl/lib/pod/perlfunc.pod" % (major, minor))
         
     parent_map = dict((c, p) for p in cixfile.getiterator() for c in p)
     for variable in newroot.getiterator('variable'):
@@ -470,13 +464,14 @@ def gencix(major, minor):
     print >>sys.stderr, "Prettying"
     prettify(newroot)
     tree = ElementTree(newroot)
-    fname = '../../../lib/codeintel2/stdlibs/perl-%d.%d.cix' % (major, minor)
-    os.system('p4 edit %s' % fname)
+    #fname = '../../../lib/codeintel2/stdlibs/perl-%d.%d.cix' % (major, minor)
+    fname = 'perl-%d.%d.cix' % (major, minor)
+    #os.system('p4 edit %s' % fname)
     stream = open(fname, "w")
     print >>sys.stderr, "Writing"
     stream.write('<?xml version="1.0" encoding="UTF-8"?>\n')
     tree.write(stream)
     stream.close()
 
-gencix(5,8)    
+gencix(5,22)    
 #gencix(5,6)    
