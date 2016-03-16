@@ -357,6 +357,7 @@
                 catch (e)
                 {
                     log.exception(e, "showNotification failed");
+                    queue[from].active = false;
                     queue[from].activeId = null;
                     queue[from].activePanel = null;
                     this.queue.process(from);
@@ -367,6 +368,8 @@
         {
             log.debug("Reached end of queue");
             queue[from].active = false;
+            queue[from].activeId = null;
+            queue[from].activePanel = null;
         }
     }
     
@@ -381,8 +384,9 @@
         if (replace)
         {
             log.debug("Forcefully removing active panel");
+            
             queue[notif.opts.from].activePanel.stop().remove();
-            $('[notify-from="'+notif.opts.from+'"]', window).stop().remove();
+                
             timers.clearTimeout(queue[notif.opts.from].timeout);
             
             if (notif.opts.from == "widget")
@@ -412,7 +416,8 @@
             });
         }
         
-        var animate = ! replace || prefs.getBoolean("notify_use_animations", true);
+        var animate = prefs.getBoolean("notify_use_animations", true);
+        if (replace) animate = false;
 
         // Some Linux distro's have problems with setting *any* opacity on a popup -
         // as it can make the popup invisible/disappear.
