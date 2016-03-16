@@ -91,6 +91,8 @@ known_javascript_types = {
     # Mozilla special
     "UTF8String":    "String",
     "AString":       "String",
+    # JQuery special
+    "anything":      "Object",
 }
 
 def standardizeJSType(vartype):
