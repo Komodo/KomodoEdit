@@ -67,8 +67,15 @@ class _BaseTestCase(CodeIntelTestCase):
 
         lang = <lang>
         ext = <ext>
+        
+    Many of these tests absolutely require Ruby 1.9. The _ci_env_prefs_
+    dictionary below reflects that.
     """
     test_dir = join(os.getcwd(), "tmp")
+    
+    _ci_env_prefs_ = {
+        'ruby': '/usr/bin/ruby1.9.1'
+    }
 
     # Set up some commonly used strings here
     #TODO: this is only used in one test case, move it there

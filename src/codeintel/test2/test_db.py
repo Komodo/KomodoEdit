@@ -430,7 +430,7 @@ class ImportEverythingTestCase(DBTestCase):
 
     @tag("php")
     def test_stdlib(self):
-        stdlib = self.mgr.db.get_stdlib("PHP")
+        stdlib = self.mgr.db.get_stdlib("PHP", ver="5.6")
         
         # Test without a 3-char prefix.
         self.failUnless(("function", "phpinfo")
@@ -648,7 +648,8 @@ class StdLibTestCase(DBTestCase):
         self.failUnless(stdlib.has_blob("AutoLoader"))
         self.failUnless(stdlib.has_blob("XML::Simple"))
         builtins = stdlib.get_blob("*")
-        self.failUnless("-f" in builtins.names)
+        if stdlib.name != "perl-5.22":
+            self.failUnless("-f" in builtins.names)
         self.failUnless("atan2" in builtins.names)
         self.failUnless("flock" in builtins.names)
         self._check_db()
@@ -724,7 +725,7 @@ class StdLibTestCase(DBTestCase):
         builtin54 = self.mgr.db.get_stdlib("PHP", "5.4").get_blob("*")
         builtin55 = self.mgr.db.get_stdlib("PHP", "5.5").get_blob("*")
         # builtin should be the latest, i.e. PHP 5.5
-        builtin   = self.mgr.db.get_stdlib("PHP").get_blob("*")
+        builtin   = self.mgr.db.get_stdlib("PHP", ver="5.6").get_blob("*")
 
         # IMG_BOX constant was added in PHP 5.5
         self.failIf("IMG_BOX" in builtin44.names)
@@ -767,7 +768,7 @@ class StdLibTestCase(DBTestCase):
     @tag("bug58387")
     def test_php_isset(self):
         # Brought up by Alex Fernandez on komodo-beta list for k4b1.
-        builtin = self.mgr.db.get_stdlib("PHP").get_blob("*")
+        builtin = self.mgr.db.get_stdlib("PHP", ver="5.6").get_blob("*")
         self.failUnless("isset" in builtin.names)
 
 
