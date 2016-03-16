@@ -173,15 +173,17 @@ toolboxController.prototype.destructor = function() {
 
 toolboxController.prototype.is_cmd_toolboxExportPackage_enabled = function () {
     try {
-        return (ko.projects.active && ko.projects.active.getSelectedItems().length > 0);
+        return (ko.projects.active && ko.projects.active.getSelectedItems &&
+                ko.projects.active.getSelectedItems().length > 0);
     } catch (e) {
+        var log = ko.logging.getLogger('toolboxController');
         log.exception(e);
     }
     return false;
 }
 
 toolboxController.prototype.do_cmd_toolboxExportPackage = function () {
-    if (ko.projects.active) {
+    if (ko.projects.active && ko.projects.active.getSelectedItems) {
         ko.projects.exportPackageItems(ko.projects.active.getSelectedItems());
     }
 }
