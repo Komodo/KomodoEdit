@@ -389,10 +389,7 @@
 
     var onSearch = function(e)
     {
-        var uuid = c.search(null, function()
-        {
-            onSearchComplete(uuid);
-        });
+        var uuid = c.search(null, function() {});
     }
 
     var onSearchComplete = function(uuid)
@@ -669,7 +666,7 @@
 
         if ( ! callback) // this is a manual search
             return onSearch();
-
+        
         if (local.searchTimer && ! noDelay) return; // Search is already queued
         
         c.stop();
@@ -703,6 +700,7 @@
             var _callback = function()
             {
                 callback();
+                onSearchComplete(uuid);
                 elem('results').removeAttr("dirty");
             };
 
