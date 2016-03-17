@@ -1,0 +1,76 @@
+#!/usr/local/bin/perl -w
+# Copyright (c) 2005-2006 ActiveState Software Inc.
+# See the file LICENSE.txt for licensing information.
+
+use Cwd;
+
+Import(
+    "cons",
+    "platform",
+    "build",
+    "install",
+    "komodoPythonUtilsDir",
+    "productType",
+    "version",
+    "buildType",
+    "siloedPython",
+);
+
+my $consLocal = $cons;
+my $landmark = "$komodoPythonUtilsDir/apsw/apsw.pyd";
+
+if ($platform eq "win") {
+    #my %consLocal = $cons->copy();
+    #$consLocal{'CPPFLAGS'} = "-DSQLITE_ENABLE_FTS3 -DSQLITE_ENABLE_FTS3_PARENTHESIS";
+    #$consLocal = new cons(ENV => \%consLocal);
+}
+
+$consLocal->Command(
+    # The main output file
+    $landmark, 
+    
+    # Dependencies
+    "setup.py",
+    "setup.cfg",
+    "checksums",
+    "src/apsw.c",
+    "src/apswbuffer.c",
+    "src/apswversion.h",
+    "src/backup.c",
+    "src/blob.c",
+    "src/connection.c",
+    "src/cursor.c",
+    "src/exceptions.c",
+    "src/pypycompat.c",
+    "src/pyutil.c",
+    "src/statementcache.c",
+    "src/testextension.c",
+    "src/traceback.c",
+    "src/util.c",
+    "src/vfs.c",
+    "src/vtable.c",
+    "tools/apswtrace.py",
+    "tools/checksums.py",
+    "tools/code2rst.py",
+    "tools/coverage.sh",
+    "tools/coverageanalyser.py",
+    "tools/docmissing.py",
+    "tools/docupdate.py",
+    "tools/example2rst.py",
+    "tools/megatest.py",
+    "tools/mkdebianchangelog.py",
+    "tools/shell.py",
+    "tools/speedtest.py",
+    "tools/sqlite3.supp",
+    "tools/valgrind.sh",
+    "sqlite3/sqlite3.def",
+    "sqlite3/shell.c",
+    "sqlite3/sqlite3.h",
+    "sqlite3/sqlite3ext.h",
+    "sqlite3/sqlite3.c",
+    
+    # The actual command
+    qq(
+        cd %1:d && $siloedPython setup.py build --enable-all-extensions  --enable=fts3,fts4,fts3_parenthesis,load_extension install --install-lib=$komodoPythonUtilsDir --install-scripts=bitbucket --install-data=bitbucket --prefix=bitbucket
+    )
+);

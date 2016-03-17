@@ -409,6 +409,7 @@ Build(
     "$build/schemes/Conscript",
     "$build/SciMoz/Conscript",
     "$build/silvercity/Conscript",
+    "$build/apsw/Conscript",
     "$build/toolbox/Conscript",
     "$build/udl/Conscript",
     "$build/prefs/Conscript",

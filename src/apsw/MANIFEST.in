@@ -1,0 +1,30 @@
+# The C source
+
+include src/apsw.c
+include src/apswbuffer.c
+include src/apswversion.h
+include src/backup.c
+include src/blob.c
+include src/connection.c
+include src/cursor.c
+include src/exceptions.c
+include src/pyutil.c
+include src/statementcache.c
+include src/traceback.c
+include src/testextension.c
+include src/util.c
+include src/vfs.c
+include src/vtable.c
+
+# See https://github.com/rogerbinns/apsw/issues/89
+include MANIFEST.in
+
+# other files
+include checksums
+include mingwsetup.bat
+include setup.py
+include tools/speedtest.py
+include tools/apswtrace.py
+# shell is not needed at runtime - we compile it into the C source
+include tools/shell.py
+include tests.py

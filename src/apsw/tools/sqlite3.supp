@@ -1,0 +1,5 @@
+{
+   sqlite3_randomness
+   Memcheck:Value8
+   fun:sqlite3_randomness
+}
