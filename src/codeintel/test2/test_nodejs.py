@@ -95,11 +95,26 @@ def write_files(test_case, manifest={}, name="unnamed", env=None):
     curdirlib.dirs = tuple(dirs)
     return (buf, positions)
 
-
-class CplnTestCase(CodeIntelTestCase):
-    lang = "Node.js"
+class CodeIntelNodeJSTestCase(CodeIntelTestCase):
     test_dir = join(os.getcwd(), "tmp")
+    
+    # Many of these tests absoluately require NodeJS < 0.10. Create a fake
+    # node executable that outputs such a version number and point to it via
+    # the _ci_env_prefs_ dictionary.
+    fake_node = join(test_dir, "fake_node")
+    if not exists(fake_node):
+        f = open(fake_node, 'wb')
+        f.write("#!/bin/sh\n\necho v0.8.0")
+        f.close()
+        os.chmod(fake_node, 0755)
+    _ci_env_prefs_ = {
+        'nodejsDefaultInterpreter': fake_node
+    }
 
+
+class CplnTestCase(CodeIntelNodeJSTestCase):
+    lang = "Node.js"
+    
     def test_require(self):
         """
         Check that require() works for relative paths
@@ -571,10 +586,9 @@ class CplnTestCase(CodeIntelTestCase):
             [("function", "create"),
              ("function", "createElement")])
              
-class StdLibTestCase(CodeIntelTestCase):
+class StdLibTestCase(CodeIntelNodeJSTestCase):
     """ Code Completion test cases for the Node.js standard library"""
     lang = "Node.js"
-    test_dir = join(os.getcwd(), "tmp")
 
     @property
     def version(self):
@@ -1679,9 +1693,8 @@ class StdLibTestCase(CodeIntelTestCase):
                  ("function", "on"), # EventEmitter
                 ])
 
-class CallTipTestCase(CodeIntelTestCase):
+class CallTipTestCase(CodeIntelNodeJSTestCase):
     lang = "Node.js"
-    test_dir = join(os.getcwd(), "tmp")
 
     @tag("bug90482")
     def test_builtin_funcs(self):
