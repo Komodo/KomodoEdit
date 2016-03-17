@@ -76,6 +76,8 @@ if ($platform eq "darwin") {
     $cons->Install("$supportDir/schemes", 'IntelliJ.kkf');
     $cons->Preprocess('Sublime-mac.p.kkf', 'Sublime.kkf');
     $cons->Install("$supportDir/schemes", 'Sublime.kkf');
+    $cons->Preprocess('Atom-mac.p.kkf', 'Atom.kkf');
+    $cons->Install("$supportDir/schemes", 'Atom.kkf');
     $cons->Preprocess('Mac.p.kkf', 'Default.kkf');
     $cons->Install("$supportDir/schemes", 'Default.kkf');
 } else {
@@ -85,6 +87,8 @@ if ($platform eq "darwin") {
     $cons->Install("$supportDir/schemes", 'IntelliJ.kkf');
     $cons->Preprocess('Sublime.p.kkf', 'Sublime.kkf');
     $cons->Install("$supportDir/schemes", 'Sublime.kkf');
+    $cons->Preprocess('Atom.p.kkf', 'Atom.kkf');
+    $cons->Install("$supportDir/schemes", 'Atom.kkf');
 }
 $cons->Preprocess('Emacs.p.kkf', 'Emacs.kkf');
 $cons->Install("$supportDir/schemes", 'Emacs.kkf');
