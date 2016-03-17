@@ -101,8 +101,7 @@ def main():
     # Update libraries
     for dirname, filename in (("dojo", "dojo_json_to_cix.py"),
                               ("MochiKit", "mochikit_to_cix.py"),
-                              ("prototype", "prototype_to_cix.py"),
-                              ("yui", "yui_to_cix.py")):
+                              ("prototype", "prototype_to_cix.py")):
         library_script_path = os.path.join(scriptpath, dirname, filename)
         p = os.popen("python %s -u" % (library_script_path)).read()
 

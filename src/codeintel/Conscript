@@ -55,7 +55,6 @@ Import(
     'siloedPython',
     'sdkDir',
     'supportDir',
-    'withKomodoCix',
 );
 
 
@@ -254,54 +253,3 @@ $cons->DependsRecursive($ciElementTreeExt, "src/patches", ('\.svn'));
 #                        ('\.svn'));
 
 $cons->InstallPythonUtility($ciElementTreeExt);
-
-
-# Generate the Komodo JavaScript API Catalog.
-if ($withKomodoCix) {
-    # Set "CODEINTEL_NO_PYXPCOM" for the "komodo_to_cix.py" build.
-    # Running PyXPCOM-y things at build time can be difficult. If XPCOM
-    # registration hasn't run yet then components will be missing and
-    # using PyXPCOM will likely fail (`regxpcom` isn't sufficient for
-    # XPCOM registration -- go figure).
-    %consLocal = $cons->copy();
-    $consLocal{ENV}{'CODEINTEL_NO_PYXPCOM'} = '1';
-    $consLocal{ENV}{'KOMODO_VERBOSE'} = '1';  # avoid stdhandle redirection by sitepyxpcom.py
-    $consLocal = new cons(%consLocal);
-
-    my $komodoCix = "$komodoPythonUtilsDir/codeintel2/catalogs/komodo.cix";
-    my $pydExt = ($platform eq "win" ? ".pyd" : ".so");
-    my $cElementTreeExt = "$komodoPythonUtilsDir/cElementTree$pydExt";
-    my $pythonToUse = ($platform eq "win" ? $siloedPython: "mozpython");
-    $consLocal->Command(
-        $komodoCix,
-        # files needed to do the generation
-        "support/gencix/javascript/komodo/komodo_to_cix.py",
-        $ciElementTreeExt,
-        # landmark for elementtree package (built by contrib/Conscript)
-        "$komodoPythonUtilsDir/elementtree/__init__.py",
-        # landmark for SilverCity package (built by src/silvercity/Conscript)
-        "$komodoPythonUtilsDir/SilverCity/__init__.py",
-        "$komodoPythonUtilsDir/styles.py",
-        # These files used by codeintel2.lang_xml|html.
-        "$komodoPythonUtilsDir/koXMLTreeService.py",
-        "$komodoPythonUtilsDir/koXMLDatasetInfo.py",
-        "$komodoPythonUtilsDir/HTMLTreeParser.py",
-        $cElementTreeExt,
-        # To avoid the following build error with a Moz build that hasn't yet
-        # been run (common for the installer-build moz builds):
-        #  xpcom.Exception: The interface 'koICodeIntelTrigger' does not exist
-        $ranRegxpcomStateFileName,
-        qq(
-            $pythonToUse %1 -o %0
-        )
-    );
-    #TODO: Should refine the exclude patterns here so only depend on the minimal
-    #      necessary set of files -- to minimize running the expensive
-    #      komodo_to_cix.py.
-    $cons->DependsRecursive($komodoCix, "lib/codeintel2",
-                            (".consign", '.*\.cix', '.*\.pyc', '\.svn'));
-    $cons->DependsRecursive($komodoCix, "../chrome/komodo/content",
-                            (".consign", "test", '.*\.png', '.*\.xul',
-                             '.*\.css', '\.svn'));
-}
-
