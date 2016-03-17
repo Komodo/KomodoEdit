@@ -15,8 +15,6 @@
 (function()
 {
     var ioFile      = require("sdk/io/file");
-    var mkCommon    = require("ko/windows").getMain().ko.moreKomodo.MoreKomodoCommon;
-
     var system      = require("sdk/system");
     
     this.separator = system.platform == "WINNT" ? "\\" : "/";
@@ -171,6 +169,7 @@
             if ( ! newName) return;
         }
 
+        var mkCommon = require("ko/windows").getMain().ko.moreKomodo.MoreKomodoCommon;
         var result = mkCommon.renameFile("file://" + path, newName, false);
     
         require("ko/dom")(window.parent).trigger("folder_touched", {path: path});
@@ -186,6 +185,7 @@
      */
     this.copy = (path, toDirname = null) =>
     {
+        var mkCommon = require("ko/windows").getMain().ko.moreKomodo.MoreKomodoCommon;
         var result =  mkCommon.moveFile(path, toDirname, "copy");
     
         require("ko/dom")(window.parent).trigger("folder_touched", {path: toDirname});
@@ -201,6 +201,7 @@
      */
     this.move = (path, toDirname = null) =>
     {
+        var mkCommon = require("ko/windows").getMain().ko.moreKomodo.MoreKomodoCommon;
         var result = mkCommon.moveFile(path, toDirname);
     
         require("ko/dom")(window.parent).trigger("folder_touched", {path: toDirname});
