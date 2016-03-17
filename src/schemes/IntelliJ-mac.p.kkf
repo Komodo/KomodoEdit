@@ -54,9 +54,6 @@ binding cmd_cancel Escape
 binding cmd_closeAll Meta+Ctrl+W
 binding cmd_closeProject Ctrl+W
 binding cmd_goToDefinition Ctrl+K Ctrl+G
-# #if WITH_CODE_BROWSER
-binding cmd_codeBrowserLocate Ctrl+K Ctrl+L
-# #endif
 binding cmd_uncomment  Meta+Ctrl+/
 binding cmd_comment  Meta+/
 binding cmd_completeWord Alt+Escape
@@ -170,15 +167,6 @@ binding cmd_viewWhitespace Meta+Shift+*
 binding cmd_wordLeft  Alt+Left
 binding cmd_endOfWord  Alt+Right
 binding cmd_wordWrap Meta+Shift+(
-# #if WITH_SCC
-binding cmd_SCCadd Ctrl+K A
-binding cmd_SCCcommit Ctrl+K C
-binding cmd_SCCdiff Ctrl+K D
-binding cmd_SCCedit Ctrl+K E
-binding cmd_SCCremove Ctrl+K O
-binding cmd_SCCrevert Ctrl+K V
-binding cmd_SCCcheckout Ctrl+K K
-# #endif
 
 binding cmd_scope-combined-toolscmds Meta+Shift+K
 binding cmd_showCommando Meta+Shift+O
@@ -219,28 +207,13 @@ binding cmd_replace Meta+R
 binding cmd_historyForward  Meta+Alt+Right
 binding cmd_historyBack Meta+Alt+Left
 binding cmd_jumpToMatchingBrace  Meta+]
-# #if WITH_CODE_BROWSER
-binding cmd_viewCodeBrowser Meta+F12
-# #endif
 binding cmd_bookmarkToggle  F3
 binding cmd_refactoring_extractMethod   Meta+Alt+M
-binding cmd_SCChistory Alt+Shift+C
-binding cmd_SCCupdate Meta+T
 binding cmd_save Meta+Ctrl+S
 binding cmd_saveAll Meta+S
 binding cmd_viewFullScreen  Ctrl+Meta+F
 binding cmd_focusmode   Meta+Shift+F12
 
-#debugging
-binding cmd_dbgGo  Ctrl+Alt+D
-binding cmd_dbgRun  Ctrl+R
-binding cmd_dbgGoSkipDialog  Ctrl+D
-binding cmd_dbgStepOver  F8 
-binding cmd_dbgStepIn  F7
-binding cmd_dbgStepOut  Shift+F8
-binding cmd_dbgStepCursor  Alt+F9
-binding cmd_runInLine   Alt+F8
-binding cmd_dbgBreapointToggle  Meta+F8
 
 # Removed for JetBrains 
 #binding cmd_blockSelect Meta+Ctrl+L
