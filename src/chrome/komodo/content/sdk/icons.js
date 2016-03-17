@@ -32,6 +32,7 @@
     const randomColor   = require("contrib/randomColor");
     const log           = require("ko/logging").getLogger("ko-fileicons");
     const timers        = require("sdk/timers");
+    const schemes       = require("ko/colorscheme");
     //log.setLevel(require("ko/logging").LOG_DEBUG);
 
     var self = this, icons = this;
@@ -317,17 +318,18 @@
             var params = sdkQuery.parse(url.search.substr(1));
             params.size = Math.round((params.size || 14) * window.devicePixelRatio);
             
-            if ( ! ("fill" in params) &&  ! ("color" in params))
+            if (! ("fill" in params) &&  ! ("color" in params))
             {
-                var preset = ("preset" in params) ? params.preset : 'base';
-                if (prefs.getString("icon-" + preset + "-color", '-1') == '-1')
-                {
-                    preset = "base";
-                }
+                var schemeName = "interface";
+                if (("scheme-name" in params))
+                    schemeName = params.scheme;
                 
-                log.debug("Using "+preset+" preset color");
+                var schemeColor = "foreground";
+                if (("scheme-color" in params))
+                    schemeColor = params["scheme-color"];
                 
-                params.fill = prefs.getString("icon-" + preset + "-color", "#FFF");
+                log.debug("Using scheme-color "+schemeColor+" from " + schemeName);
+                params.fill = schemes.getInterfaceColor(schemeColor, schemeName);
             }
 
             if ("color" in params)
