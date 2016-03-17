@@ -162,16 +162,6 @@ binding cmd_viewFullScreen Ctrl+K F11
 
 # Projects and SCC
 binding cmd_refreshStatus Ctrl+K R
-# #if WITH_SCC
-binding cmd_SCCedit Ctrl+K E
-binding cmd_SCCremove Ctrl+K O
-binding cmd_SCCdiff Ctrl+K D
-binding cmd_SCCrevert Ctrl+K V
-binding cmd_SCCupdate Ctrl+K U
-binding cmd_SCCadd Ctrl+K A
-binding cmd_SCCcommit Ctrl+K C
-binding cmd_SCCcheckout Ctrl+K K
-# #endif
 
 # Debugging / DBGP
 binding cmd_dbgStepIn  Ctrl+F11
@@ -208,9 +198,6 @@ binding cmd_selectRectEnd Alt+Shift+End
 binding cmd_selectRectPageUp Alt+Shift+Page_Up
 binding cmd_selectRectPageDown Alt+Shift+Page_Down
 
-# #if WITH_SLEUTH
-binding cmd_runCurrentTestPlan Ctrl+K T
-# #endif
 
 binding cmd_invokeHyperlink Ctrl+Shift+G
 
@@ -277,11 +264,6 @@ binding cmd_fontZoomIn Ctrl++
 binding cmd_fontZoomOut Ctrl+-
 binding cmd_fontZoomReset Ctr+0
 binding cmd_editPrefs Ctrl+,
-#SCC
-# #if WITH_SCC
-binding cmd_SCChistory Ctrl+K H
-binding cmd_SCCcheckout Ctrl+Alt+Z
-# #endif
 #Other
 binding cmd_bufferCloseOther Ctrl+K Ctrl+Alt+W
 binding cmd_focusBottomPane Ctrl+K Ctrl+Down

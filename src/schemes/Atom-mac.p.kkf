@@ -52,9 +52,7 @@ binding cmd_cancel Escape
 binding cmd_closeAll Meta+Ctrl+W
 binding cmd_closeProject Ctrl+W
 binding cmd_goToDefinition Ctrl+K Ctrl+G
-# #if WITH_CODE_BROWSER
-binding cmd_codeBrowserLocate Ctrl+K Ctrl+L
-# #endif
+
 binding cmd_uncomment  Meta+Ctrl+/
 binding cmd_comment  Meta+/
 binding cmd_completeWord Alt+Escape
@@ -180,9 +178,7 @@ binding cmd_toolsRunCommand Meta+R
 binding cmd_triggerPrecedingCompletion Meta+J
 binding cmd_undo Meta+Z
 binding cmd_viewBottomPane Ctrl+Shift+M
-# #if WITH_CODE_BROWSER
-binding cmd_viewCodeBrowser Ctrl+Shift+C
-# #endif
+
 binding cmd_reopenLastClosedTab Meta+Shift+T
 binding cmd_viewEOL Meta+Shift+&
 binding cmd_viewIndentationGuides Meta+Shift+%
@@ -194,17 +190,6 @@ binding cmd_historyBack  Meta+[
 binding cmd_historyForward  Meta+]
 binding cmd_endOfWord  Alt+Right
 binding cmd_wordWrap Meta+Shift+(
-# #if WITH_SCC
-binding cmd_SCCadd Ctrl+K A
-binding cmd_SCCcommit Ctrl+K C
-binding cmd_SCCdiff Ctrl+K D
-binding cmd_SCChistory Ctrl+K H
-binding cmd_SCCedit Ctrl+K E
-binding cmd_SCCremove Ctrl+K O
-binding cmd_SCCrevert Ctrl+K V
-binding cmd_SCCupdate Ctrl+K U
-binding cmd_SCCcheckout Ctrl+K K
-# #endif
 
 binding cmd_scope-combined-toolscmds Meta+Shift+K
 binding cmd_showCommando Meta+Shift+O
