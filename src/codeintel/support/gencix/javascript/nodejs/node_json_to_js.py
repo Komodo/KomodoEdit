@@ -10,7 +10,7 @@ import os, subprocess
 import textwrap
 from pprint import pformat
 
-DEFAULT_NODE_VERSION = "0.8.0"
+DEFAULT_NODE_VERSION = "5.9.0"
 
 logging.basicConfig()
 log = logging.getLogger()
@@ -56,9 +56,14 @@ class Processor(object):
         if not os.path.exists(cache_name):
             import urllib
             if filename.endswith(".markdown"):
-                url = "https://raw.github.com/joyent/node/v%s/doc/api/%s" % (self.version, filename)
+                major = self.version.split(".")[0]
+                if major == "0":
+                    branch = "v%s" % ".".join(self.version.split(".")[:2])
+                else:
+                    branch = "v%s.x" % major
+                url = "https://raw.github.com/nodejs/node/%s/doc/api/%s" % (branch, filename)
             else:
-                url = "http://nodejs.org/docs/v%s/api/%s" % (self.version, filename)
+                url = "https://nodejs.org/docs/v%s/api/%s" % (self.version, filename)
             if self.cache:
                 log.info("Downloading from %s and saving to %s", url, cache_name)
                 urllib.urlretrieve(url, cache_name)
@@ -324,7 +329,10 @@ class Module(Node):
             return
         f.write("/**\n")
         for line in filter(bool, self.doc.splitlines()):
-            f.write(" * %s\n" % (line.rstrip(),))
+            try:
+                f.write(" * %s\n" % (line.rstrip(),))
+            except UnicodeEncodeError:
+                pass
         if "__proto__" in overrides:
             f.write(" * @base {%s}\n" % (overrides.get("__proto__")),)
         f.write(" */\n")
@@ -346,7 +354,10 @@ class Method(Node):
             return
         f.write("\n/**\n")
         for line in filter(bool, self.doc.splitlines()):
-            f.write(" * %s\n" % (line.rstrip(),))
+            try:
+                f.write(" * %s\n" % (line.rstrip(),))
+            except UnicodeEncodeError:
+                pass
         for param in self.params:
             if param.name:
                 param.overrides = self.overrides.get("params", {}).get(param.name, {})
@@ -422,15 +433,18 @@ class Method(Node):
             if not "." in typeInfo:
                 # try to match for class names in the current module
                 module = self.parent
-                while module and not isinstance(module, Module):
+                while module and not isinstance(module, Module) and hasattr(module, 'parent'):
                     module = module.parent
                 # some times we want capitalization, see buffer.Buffer.slice
                 for typeCandidate in (typeInfo, typeInfo.capitalize()):
                     fullType = "%s.%s" % (module.name, typeCandidate)
-                    for clazz in module.classes:
-                        if clazz.name == fullType:
-                            typeInfo = fullType
-                            break
+                    try:
+                        for clazz in module.classes:
+                            if clazz.name == fullType:
+                                typeInfo = fullType
+                                break
+                    except:
+                        log.warn("Could not get fullType for '%s'", module)
 
             return "{%s} %s" % (typeInfo, desc)
         return desc
@@ -572,7 +586,10 @@ class Event(Node):
             return
         f.write("\n/**\n")
         for line in filter(bool, self.doc.splitlines()):
-            f.write(" * %s\n" % (line.rstrip(),))
+            try:
+                f.write(" * %s\n" % (line.rstrip(),))
+            except UnicodeEncodeError:
+                pass
         for param in self.params:
             if param.name:
                 f.write(" * @param %s\n" % (param.desc,))
@@ -601,7 +618,10 @@ class Class(Node):
         log.debug("Class %s: overrides=%s", self.name, pformat(overrides))
         f.write("\n/**\n")
         for line in filter(bool, self.doc.splitlines()):
-            f.write(" * %s\n" % (line.rstrip(),))
+            try:
+                f.write(" * %s\n" % (line.rstrip(),))
+            except UnicodeEncodeError:
+                pass
         f.write(" * @constructor\n")
         f.write(" */\n")
         f.write("%s = function() {}\n" % (self.name,))
@@ -670,7 +690,10 @@ class Property(Node):
             return
         f.write("\n/**\n")
         for line in filter(bool, self.doc.splitlines()):
-            f.write(" * %s\n" % (line.rstrip(),))
+            try:
+                f.write(" * %s\n" % (line.rstrip(),))
+            except UnicodeEncodeError:
+                pass
         typeDesc = overrides.get("type", self.typeDesc)
         if typeDesc:
             if not " " in typeDesc:
