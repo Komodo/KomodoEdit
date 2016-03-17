@@ -57,6 +57,47 @@
         'icons-widget': ['icons widget', 'fore'],
     }
     
+    var currentScheme = {
+        'editor-scheme': null,
+        'interface-scheme': null,
+        'widget-scheme': null
+    };
+    
+    var init = () =>
+    {
+        var observer = {observe: () =>
+        {
+            currentScheme = {
+                'editor-scheme': null,
+                'interface-scheme': null,
+                'widget-scheme': null
+            };
+        }};
+        
+        ko.prefs.prefObserverService.addObserverForTopics(
+            observer, [3], ['editor-scheme', 'interface-scheme', 'widget-scheme'], false
+        );
+    };
+    
+    this.get = (name) =>
+    {
+        if ( ! currentScheme[name])
+            currentScheme[name] = schemeService.getScheme(prefs.getStringPref(name));
+        
+        return currentScheme[name];
+    };
+    
+    this.editor = this.get.bind(null, "editor-scheme");
+    this.interface = this.get.bind(null, "interface-scheme");
+    this.widget = this.get.bind(null, "widget-scheme");
+    
+    this.getInterfaceColor = (property, schemeName = "interface") =>
+    {
+        var scheme = this[schemeName]();
+        var mapping = interfaceMapping[property];
+        return scheme.getInterfaceStyle(mapping[0], mapping[1]);
+    };
+    
     this.applyEditor = (name) =>
     {
         prefs.setString("editor-scheme", name);
@@ -118,5 +159,6 @@
     }
     _applyInterface.timer = null;
     
+    init();
     
 }).apply(module.exports);
