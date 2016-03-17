@@ -49,8 +49,8 @@ var xtk = {};
  * XPCOM global support to ease typing
  */
 
-const CC = Components.classes;
-const CI = Components.interfaces;
+var CC = Components.classes;
+var CI = Components.interfaces;
 
 /**
  * get a reference to an XPCOM service
