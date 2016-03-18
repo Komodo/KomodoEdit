@@ -147,7 +147,6 @@ function loadDiffResult(result, cwd) {
         //   http://bugs.activestate.com/show_bug.cgi?id=27910
         diffView.scimoz.readOnly = true;
         //this._languageObj = this._diffDocument.languageObj;
-        diffView.setFocus();
         // Remove the notification widget.
         diffView.notificationbox.removeAllNotifications(true /* false means to slide away */);
 
