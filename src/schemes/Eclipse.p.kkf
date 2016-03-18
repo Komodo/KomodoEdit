@@ -96,7 +96,6 @@ binding cmd_new Ctrl+N
 binding cmd_newTab Ctrl+T
 binding cmd_newTemplate Ctrl+Shift+N
 binding cmd_open Ctrl+O
-binding cmd_openProject Ctrl+Shift+J
 binding cmd_bufferClose Ctrl+W
 binding cmd_bufferClose Ctrl+F4
 binding cmd_bufferNextMostRecent  Ctrl+F6
@@ -213,14 +212,13 @@ binding cmd_scope-openfiles Ctrl+<
 
 binding cmd_invokeHyperlink Ctrl+Shift+G
 
-binding cmd_publishingDiffCurrentFile Ctrl+P D
 
 binding cmd_refactoring_renameVariable Ctrl+K Ctrl+M
 binding cmd_addNextWordToCaretSet Ctrl+D
 binding cmd_removePrevWordInCaretSet Ctrl+Shift+D
 
 #Added Eclipse
-binding cmd_closeAll
+binding cmd_closeAll Ctrl+Shift+F4
 binding cmd_print Ctrl+P
 binding cmd_codeBrowserLocate Alt+Enter
 binding cmd_find Ctrl+F
@@ -261,3 +259,5 @@ binding cmd_bookmarkRemoveAll  Ctrl+Shift+F2
 #binding cmd_completeWordBack Ctrl+Shift+Space
 #binding cmd_triggerPrecedingCompletion Ctrl+J
 #binding cmd_viewBottomPane Ctrl+Shift+M
+#binding cmd_publishingDiffCurrentFile Ctrl+P D
+#binding cmd_openProject Ctrl+Shift+J
