@@ -197,10 +197,6 @@ binding cmd_publishingDiffCurrentFile Ctrl+P D
 binding cmd_refactoring_renameVariable Ctrl+K Ctrl+M
 binding cmd_removePrevWordInCaretSet Ctrl+Shift+D
 
-# Debugging / DBGP
-binding cmd_dbgBreakpointClearAllInURI  Ctrl+F9 
-binding cmd_dbgShowCurrentStatement  Alt+*
-binding cmd_dbgStop  Ctrl+Shift+F9
 
 binding cmd_viewFullScreen  Shift+F11
 

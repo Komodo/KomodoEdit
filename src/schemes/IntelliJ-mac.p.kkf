@@ -181,18 +181,6 @@ binding cmd_refactoring_renameVariable Ctrl+K Ctrl+M
 binding cmd_removePrevWordInCaretSet Ctrl+Shift+D
 binding cmd_htmlTagRelocator Ctrl+Shift+Z
 
-
-#debugging
-binding cmd_dbgBreakpointClearAllInURI  Meta+Ctrl+\
-binding cmd_dbgBreakpointToggle  Meta+\
-binding cmd_dbgNewSession  Meta+Ctrl+Y
-binding cmd_dbgShowCurrentStatement  Meta+Shift+C
-binding cmd_dbgStepCursor  Meta+Ctrl+Shift+I
-binding cmd_dbgStepIn  Meta+Ctrl+I
-binding cmd_dbgStepOut  Meta+Ctrl+T
-binding cmd_dbgStepOver  Meta+Ctrl+O
-binding cmd_dbgStop  Meta+Ctrl+P
-
 # Added for JetBrains
 binding cmd_lineDuplicateDown Meta+D
 binding cmd_join Ctrl+Shift+J
