@@ -1236,7 +1236,7 @@ class CplnTestCase(CodeintelPythonTestCase):
 
         # Hack in our Environment for the Manager. Normally this is
         # passed in when creating the Manager.
-        prefs = {}
+        prefs = self._ci_env_prefs_ or {}
         prefs["%sExtraPaths" % self.lang.lower()] = join(test_dir, "lib")
         env = SimplePrefsEnvironment(**prefs)
         self.mgr.env = env

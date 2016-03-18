@@ -10,7 +10,23 @@ import test_python
 
 log = logging.getLogger("test.codeintel.python3")
 
-class DefnTestCase(test_python.DefnTestCase):
+class Python33:
+    # Many of the inherited Python 2 tests were written against the Python 3.3
+    # stdlib (as conditionals). Later versions have slight differences. Rather
+    # than accounting for them, create a fake python executable that outputs
+    # version 3.3 and point to it via the _ci_env_prefs_ dictionary.
+    import os
+    fake_python = join(join(os.getcwd(), "tmp"), "fake_python")
+    if not os.path.exists(fake_python):
+        f = open(fake_python, 'wb')
+        f.write("#!/bin/sh\n\necho 3.3.0\necho /usr")
+        f.close()
+        os.chmod(fake_python, 0755)
+    _ci_env_prefs_ = {
+        'python3': fake_python
+    }
+
+class DefnTestCase(Python33, test_python.DefnTestCase):
     lang="Python3"
 
     @tag("bug101868", "pep3107")
@@ -29,13 +45,13 @@ class DefnTestCase(test_python.DefnTestCase):
         self.assertDefnMatches2(buf, pos[2], line=lines[1],
                                 ilk="argument", name="arg", path=path)
 
-class PythonDocTestCase(test_python.PythonDocTestCase):
+class PythonDocTestCase(Python33, test_python.PythonDocTestCase):
     lang = "Python3"
 
-class TrgTestCase(test_python.TrgTestCase):
+class TrgTestCase(Python33, test_python.TrgTestCase):
     lang = "Python3"
 
-class CplnTestCase(test_python.CplnTestCase):
+class CplnTestCase(Python33, test_python.CplnTestCase):
     lang = "Python3"
 
     @tag("pep3102")
