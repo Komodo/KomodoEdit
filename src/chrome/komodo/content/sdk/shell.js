@@ -114,13 +114,16 @@
      */
     this.run = function(binary, args, opts)
     {
-        var _opts = {
-            cwd: this.getCwd(),
-            env: this.getEnv()
-        };
+        var _opts = {};
         
         var _ = require("contrib/underscore");
         _opts = _.extend(_opts, opts);
+        
+        if ( ! ("cwd" in _opts))
+            _opts.cwd = this.getCwd();
+            
+        if ( ! ("env" in _opts))
+            _opts.env = this.getEnv();
         
         binary = this.lookup(binary) || binary;
         
