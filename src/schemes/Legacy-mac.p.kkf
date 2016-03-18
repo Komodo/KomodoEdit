@@ -56,7 +56,9 @@ binding cmd_cancel Escape
 binding cmd_closeAll Meta+Ctrl+W
 binding cmd_closeProject Ctrl+W
 binding cmd_goToDefinition Ctrl+K Ctrl+G
-
+# #if WITH_CODE_BROWSER
+binding cmd_codeBrowserLocate Ctrl+K Ctrl+L
+# #endif
 binding cmd_uncomment  Meta+Ctrl+/
 binding cmd_comment  Meta+/
 binding cmd_completeWord Alt+Escape
@@ -67,6 +69,17 @@ binding cmd_convertLowerCase Meta+Shift+U
 binding cmd_convertUpperCase Meta+U
 binding cmd_copy Meta+C
 binding cmd_cut Meta+X
+binding cmd_dbgBreakpointClearAllInURI  Meta+Ctrl+\
+binding cmd_dbgBreakpointToggle  Meta+\
+binding cmd_dbgGo  Meta+Shift+>
+binding cmd_dbgNewSession  Meta+Ctrl+Y
+binding cmd_dbgRun  Meta+Ctrl+R
+binding cmd_dbgShowCurrentStatement  Meta+Shift+C
+binding cmd_dbgStepCursor  Meta+Ctrl+Shift+I
+binding cmd_dbgStepIn  Meta+Ctrl+I
+binding cmd_dbgStepOut  Meta+Ctrl+T
+binding cmd_dbgStepOver  Meta+Ctrl+O
+binding cmd_dbgStop  Meta+Ctrl+P
 binding cmd_delete Delete
 binding cmd_deleteWordLeft  Meta+Backspace
 binding cmd_deleteWordRight  Meta+Delete
@@ -80,14 +93,14 @@ binding cmd_end  Meta+Right
 binding cmd_endOfWord Meta+E
 binding cmd_executeLastMacro Ctrl+K _
 # cmd_find unassigned
-binding cmd_findAllFunctions  Meta+F8
 binding cmd_findInFiles Meta+Shift+F
-binding cmd_findNext  Meta+G 
-binding cmd_findNextFunction  F8 
+binding cmd_findNext  Meta+G
 binding cmd_findNextResult Meta+Shift+F3
 binding cmd_findNextSelected  Meta+F3
 binding cmd_findPrevious  Meta+Shift+G
-binding cmd_findPreviousFunction  Shift+F8
+binding cmd_jumpToNextSection  F8 
+binding cmd_jumpToPreviousSection  Shift+F8
+binding cmd_showSectionList Ctrl+L
 binding cmd_focusEditor Ctrl+Shift+E
 binding cmd_focusSource Ctrl+K Ctrl+S
 binding cmd_fontZoomOut Meta+_
@@ -171,7 +184,9 @@ binding cmd_toolsRunCommand Meta+R
 binding cmd_triggerPrecedingCompletion Meta+J
 binding cmd_undo Meta+Z
 binding cmd_viewBottomPane Ctrl+Shift+M
-
+# #if WITH_CODE_BROWSER
+binding cmd_viewCodeBrowser Ctrl+Shift+C
+# #endif
 binding cmd_reopenLastClosedTab Meta+Shift+T
 binding cmd_viewEOL Meta+Shift+&
 binding cmd_viewIndentationGuides Meta+Shift+%
@@ -184,6 +199,17 @@ binding cmd_historyBack  Meta+[
 binding cmd_historyForward  Meta+]
 binding cmd_endOfWord  Alt+Right
 binding cmd_wordWrap Meta+Shift+(
+# #if WITH_SCC
+binding cmd_SCCadd Ctrl+K A
+binding cmd_SCCcommit Ctrl+K C
+binding cmd_SCCdiff Ctrl+K D
+binding cmd_SCChistory Ctrl+K H
+binding cmd_SCCedit Ctrl+K E
+binding cmd_SCCremove Ctrl+K O
+binding cmd_SCCrevert Ctrl+K V
+binding cmd_SCCupdate Ctrl+K U
+binding cmd_SCCcheckout Ctrl+K K
+# #endif
 
 binding cmd_scope-combined-toolscmds Meta+Shift+K
 binding cmd_showCommando Meta+Shift+O
@@ -191,6 +217,10 @@ binding cmd_scope-openfiles Meta+<
 
 binding cmd_invokeHyperlink Ctrl+Shift+G
 
+binding cmd_publishingPushCurrentFile Ctrl+P P
+binding cmd_publishingDiffCurrentFile Ctrl+P D
+
+binding cmd_refactoring_renameVariable Ctrl+K Ctrl+M
 binding cmd_addNextWordToCaretSet Ctrl+D
 binding cmd_removePrevWordInCaretSet Ctrl+Shift+D
 binding cmd_htmlTagRelocator Ctrl+Shift+Z

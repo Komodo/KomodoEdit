@@ -83,33 +83,24 @@ binding cmd_toolsRunCommand Ctrl+R
 binding cmd_uncomment  Ctrl+Shift+?
 binding cmd_comment  Ctrl+/
 
-# Scintilla settings
-# #if PLATFORM == "linux"
-binding cmd_viewIndentationGuides Ctrl+5
-binding cmd_viewLineNumbers Ctrl+6
-binding cmd_viewEOL Ctrl+7
-binding cmd_viewWhitespace Ctrl+8
-binding cmd_wordWrap Ctrl+9
-# #endif
-
 # Search
 binding cmd_jumpToMatchingBrace  Ctrl+]
 binding cmd_selectToMatchingBrace  Ctrl+Shift+]
 binding cmd_gotoLine Ctrl+G
 binding cmd_startIncrementalSearch Ctrl+F
-# cmd_find unassigned
 binding cmd_findNext  F3
 binding cmd_findNextSelected  Ctrl+F3
 binding cmd_findPrevious  Shift+F3
-binding cmd_findNextFunction  F8 
-binding cmd_findPreviousFunction  Shift+F8
 binding cmd_findInFiles Ctrl+Shift+F
-binding cmd_findAllFunctions  Ctrl+F8
 binding cmd_findNextResult Ctrl+Shift+F3
 binding cmd_replace Ctrl+H
 binding cmd_replaceInFiles Ctrl+Shift+H
 binding cmd_startIncrementalSearch Ctrl+I
 binding cmd_startIncrementalSearchBackwards Ctrl+Shift+I
+binding cmd_jumpToNextSection F8 
+binding cmd_jumpToPreviousSection  Shift+F8
+binding cmd_showSectionList Ctrl+F8
+# cmd_find unassigned
 
 # Buffer management
 binding cmd_save Ctrl+S
@@ -182,6 +173,9 @@ binding cmd_focusSource Ctrl+K Ctrl+S
 binding cmd_viewBottomPane Ctrl+Shift+M
 binding cmd_viewPlaces Ctrl+Shift+P
 binding cmd_viewToolbox Ctrl+Shift+L
+# #if WITH_CODE_BROWSER
+binding cmd_viewCodeBrowser Ctrl+Shift+C
+# #endif
 
 binding cmd_reopenLastClosedTab Ctrl+Shift+T
 
@@ -196,8 +190,41 @@ binding cmd_fontZoomOut Ctrl+Shift+-
 binding cmd_fontZoomReset Ctrl+0
 binding cmd_viewFullScreen Ctrl+K F11
 
-# Projects
+# Projects and SCC
 binding cmd_refreshStatus Ctrl+K R
+# #if WITH_SCC
+binding cmd_SCCedit Ctrl+K E
+binding cmd_SCCremove Ctrl+K O
+binding cmd_SCCdiff Ctrl+K D
+binding cmd_SCChistory Ctrl+K H
+binding cmd_SCCrevert Ctrl+K V
+binding cmd_SCCupdate Ctrl+K U
+binding cmd_SCCadd Ctrl+K A
+binding cmd_SCCcommit Ctrl+K C
+binding cmd_SCCcheckout Ctrl+K K
+# #endif
+
+# Debugging / DBGP
+binding cmd_dbgStepIn  F11
+binding cmd_dbgStepIn  Ctrl+F11
+binding cmd_dbgStepCursor  Shift+F10
+binding cmd_dbgStepCursor  Ctrl+Shift+F10
+binding cmd_dbgStepOver  F10
+binding cmd_dbgStepOver  Ctrl+F10
+binding cmd_dbgStepOut  Shift+F11
+binding cmd_dbgStepOut  Ctrl+Shift+F11
+binding cmd_dbgGo  F5 
+binding cmd_dbgGoSkipDialog  Ctrl+F5
+binding cmd_dbgStop  Shift+F5
+binding cmd_dbgNewSession  Ctrl+Shift+F5
+binding cmd_dbgRun  F7
+binding cmd_dbgRun  Ctrl+F7
+binding cmd_dbgBreakpointToggle  F9
+binding cmd_dbgBreakpointClearAllInURI  Ctrl+F9 
+binding cmd_dbgShowCurrentStatement  Alt+*
+
+binding cmd_toggleInteractiveShell  F12
+binding cmd_toggleInteractiveShell  Shift+F12
 
 # Macros
 binding cmd_startMacroMode Ctrl+K (
@@ -205,6 +232,9 @@ binding cmd_stopMacroMode Ctrl+K )
 binding cmd_executeLastMacro Ctrl+K _
 
 binding cmd_goToDefinition Ctrl+K Ctrl+G
+# #if WITH_CODE_BROWSER
+binding cmd_codeBrowserLocate Ctrl+K Ctrl+L
+# #endif
 
 binding cmd_selectRectCharPrevious Alt+Shift+Left
 binding cmd_selectRectCharNext Alt+Shift+Right
@@ -215,12 +245,20 @@ binding cmd_selectRectEnd Alt+Shift+End
 binding cmd_selectRectPageUp Alt+Shift+Page_Up
 binding cmd_selectRectPageDown Alt+Shift+Page_Down
 
+# #if WITH_SLEUTH
+binding cmd_runCurrentTestPlan Ctrl+K T
+# #endif
+
 binding cmd_scope-combined-toolscmds Ctrl+Shift+K
 binding cmd_showCommando Ctrl+Shift+O
 binding cmd_scope-openfiles Ctrl+<
 
 binding cmd_invokeHyperlink Ctrl+Shift+G
 
+binding cmd_publishingPushCurrentFile Ctrl+P P
+binding cmd_publishingDiffCurrentFile Ctrl+P D
+
+binding cmd_refactoring_renameVariable Ctrl+K Ctrl+M
 binding cmd_addNextWordToCaretSet Ctrl+D
 binding cmd_removePrevWordInCaretSet Ctrl+Shift+D
 

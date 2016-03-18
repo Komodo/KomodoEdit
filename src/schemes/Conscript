@@ -82,6 +82,8 @@ if ($platform eq "darwin") {
     $cons->Install("$supportDir/schemes", 'Default.kkf');
     $cons->Preprocess('Eclipse-mac.p.kkf', 'Eclipse.kkf');
     $cons->Install("$supportDir/schemes", 'Eclipse.kkf');
+    $cons->Preprocess('Leagacy-mac.p.kkf', 'Leagacy.kkf');
+    $cons->Install("$supportDir/schemes", 'Leagacy.kkf');
 } else {
     $cons->Preprocess('Default.p.kkf', 'Default.kkf');
     $cons->Install("$supportDir/schemes", 'Default.kkf');
@@ -93,6 +95,8 @@ if ($platform eq "darwin") {
     $cons->Install("$supportDir/schemes", 'Atom.kkf');
     $cons->Preprocess('Eclipse.p.kkf', 'Eclipse.kkf');
     $cons->Install("$supportDir/schemes", 'Eclipse.kkf');
+    $cons->Preprocess('Leagacy.p.kkf', 'Leagacy.kkf');
+    $cons->Install("$supportDir/schemes", 'Leagacy.kkf');
 }
 $cons->Preprocess('Emacs.p.kkf', 'Emacs.kkf');
 $cons->Install("$supportDir/schemes", 'Emacs.kkf');
