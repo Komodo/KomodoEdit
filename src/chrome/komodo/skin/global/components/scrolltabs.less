@@ -1,7 +1,12 @@
 /* Copyright (c) 2000-2006 ActiveState Software Inc.
    See the file LICENSE.txt for licensing information. */
 
-tabs[type="scrollable"]
+:not(#tabbed-view) > tabs[type="scrollable"]
+{
+    -moz-binding: url('chrome://komodo/content/bindings/scrolltabs.xml#tabs-scrollable-generic');
+}
+
+#tabbed-view > tabs[type="scrollable"]
 {
     -moz-binding: url('chrome://komodo/content/bindings/scrolltabs.xml#tabs-scrollable');
 }
@@ -30,7 +35,8 @@ ko-pane[type="sidebar"] tabs:not([type])
 }
 
 tab[widget^="findresults_tabpanel"],
-tab[widget^="debugsession"]
+tab[widget^="debugsession"],
+tab.closeable
 {
     -moz-binding: url('chrome://komodo/content/bindings/scrolltabs.xml#tab-close-button');
 }

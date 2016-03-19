@@ -770,6 +770,386 @@
     </binding>
 
 
+    <binding id="tabs-scrollable-generic" xbl:inherits="orient"
+            extends="chrome://global/content/bindings/tabbox.xml#tabs">
+        <content>
+          <xul:vbox flex="1">
+            <xul:hbox class="tab-drop-indicator-bar" anonid="drop-indicator-bar"
+                      collapsed="true" align="end" style="direction:ltr;" >
+                <xul:hbox class="tab-drop-indicator" mousethrough="always"/>
+            </xul:hbox>
+            <xul:box xbl:inherits="orient,align,pack,dir,overflow" flex="1" class="tabstrip-box" orient="horizontal">
+                <xul:arrowscrollbox anonid="tabstrip" xbl:inherits="orient,align,pack,dir"
+                    class="tab-arrowscrollbox" flex="1" clicktoscroll="true">
+                    <children includes="tab"/>
+                </xul:arrowscrollbox>
+                <children/>
+                <xul:toolbarbutton anonid="tabs-new"
+                        tooltiptext="&newTab.tooltiptext;"
+                        buttonstyle="pictures"
+                        class="newtab-icon"/>
+            </xul:box>
+          </xul:vbox>
+        </content>
+
+        <implementation>
+            <field name="_repeater">null</field>
+            <field name="_scrollbox">null</field>
+
+            <property name="newTabButton" readonly="true"
+                onget="return require('ko/dom')(this).findAnonymous('anonid', 'tabs-new').element()"/>
+
+            <property name="scrollbox" readonly="true"
+                onget="return document.getAnonymousElementByAttribute(this,'anonid','tabstrip');"/>
+
+            <property name="scrollBoxObject" readonly="true"
+                onget="return this.scrollbox.scrollBoxObject.QueryInterface(Components.interfaces.nsIScrollBoxObject);"/>
+
+            <property name="dropIndicatorBar"
+                onget="return document.getAnonymousElementByAttribute(this, 'anonid', 'drop-indicator-bar');" />
+            
+            <method name="scrollToTabIndex">
+                <parameter name="index"/>
+                <body>
+                <![CDATA[
+                    if (index >= 0 && index < this.childNodes.length) {
+                        this.scrollBoxObject.ensureElementIsVisible(this.childNodes[index]);
+                    }
+                ]]>
+                </body>
+            </method>
+
+            <method name="ensureTabPositionsAreSet">
+              <body>
+                <![CDATA[
+                var tabs = this.childNodes;
+                for (var i=0; i < tabs.length; i++) {
+                    tabs[i]._tPos = i;
+                }
+                ]]>
+              </body>
+            </method>
+
+            <method name="getNewIndex">
+              <parameter name="aEvent"/>
+              <body>
+                <![CDATA[
+                  var i;
+                  var tabs = this.childNodes;
+                  if (window.getComputedStyle(this).direction == "ltr") {
+                    for (i = aEvent.target.localName == "tab" ? aEvent.target._tPos : 0; i < tabs.length; i++)
+                      if (aEvent.screenX < tabs[i].boxObject.screenX + tabs[i].boxObject.width / 2) 
+                        return i;
+                  } else {
+                    for (i = aEvent.target.localName == "tab" ? aEvent.target._tPos : 0; i < tabs.length; i++)
+                      if (aEvent.screenX > tabs[i].boxObject.screenX + tabs[i].boxObject.width / 2)
+                        return i;
+                  }
+                  return tabs.length;
+                ]]>
+              </body>
+            </method>
+            
+            <method name="getSourceTabFromDataTransfer">
+              <parameter name="dataTransfer"/>
+              <body>
+                <![CDATA[
+                if (!dataTransfer) {
+                    return false;
+                }
+                if (!dataTransfer.mozTypesAt(0).contains("komodo/tab")) {
+                    return false;
+                }
+                return dataTransfer.mozGetDataAt("komodo/tab", 0);
+                ]]>
+              </body>
+            </method>
+
+            <method name="getTabController">
+                <parameter name="tab"/>
+                <body>
+                <![CDATA[
+                    /**
+                     * This is more complicated than normal because we want to look for
+                     * any element that uses the tabbox binding, instead of matching on
+                     * the tag name.
+                     */
+                    var utils = Components.classes["@mozilla.org/inspector/dom-utils;1"]
+                                          .getService(Components.interfaces.inIDOMUtils);
+                    const TABBOX_URL = "chrome://global/content/bindings/tabbox.xml#tabbox";
+                    var result = null;
+                    for (var parent = tab.parentNode; !result && parent; parent = parent.parentNode) {
+                        if (!(parent instanceof Element)) continue;
+                        var urls = utils.getBindingURLs(parent).enumerate();
+                        while (urls.hasMoreElements()) {
+                            var uri = urls.getNext().QueryInterface(Components.interfaces.nsIURI);
+                            if (uri.spec == TABBOX_URL) {
+                                result = parent;
+                                break;
+                            }
+                        }
+                    }
+                    return result;
+                ]]>
+                </body>
+            </method>
+                    
+        </implementation>
+
+        <handlers>
+            <handler event="underflow" phase="capturing">
+            <![CDATA[
+                this.removeAttribute("overflow");
+                this.scrollBoxObject.scrollTo(0, 0)
+            ]]>
+            </handler>
+
+            <handler event="overflow" phase="capturing">
+            <![CDATA[
+                this.setAttribute("overflow", "true");
+                this.scrollBoxObject.ensureElementIsVisible(this.selectedItem);
+            ]]>
+            </handler>
+
+            <handler event="select" phase="capturing">
+            <![CDATA[
+                this.scrollBoxObject.ensureElementIsVisible(this.selectedItem);
+            ]]>
+            </handler>
+            <handler event="mousedown" phase="capturing">
+            <![CDATA[
+                // force a tab switch on mousedown so we always focus the
+                // tabpanel, and cause a select event for the tab
+                if (event.button != 1 && event.originalTarget.localName == 'tab') {
+                    // set the selected item.  If the currently selected item
+                    // is also the originalTarget, we'll 'selected' will be
+                    // reset to true, and a select event will be issued.
+                    this.selectedItem = event.originalTarget;
+                }
+            ]]>
+            </handler>
+            <handler event="dblclick" button="0" phase="capturing">
+            <![CDATA[
+                if (event.originalTarget.nodeName == 'xul:label') {
+                    // Don't handle clicks on the close-box or the tabs bar.
+                    // Don't handle tabs-bar clicks because we don't handle clicks
+                    // in the other panel bars. The idea is that double-clicking on
+                    // a tab focuses on the tab's associated document.
+                    ko.commands.doCommandAsync('cmd_togglePanels', event);
+                }
+            ]]>
+            </handler>
+
+            <handler event="dragstart">
+            <![CDATA[
+                //dump(">> scrolltabs:: dragstart\n");
+                event.dataTransfer.mozSetDataAt("komodo/tab", event.target, 0);
+                this.ensureTabPositionsAreSet();
+                this.dropIndicatorBar.collapsed = false;
+            ]]>
+            </handler>
+
+            <handler event="dragenter">
+            <![CDATA[
+                //dump("scrolltabs:: dragenter\n");
+                var sourceTab = this.getSourceTabFromDataTransfer(event.dataTransfer);
+                if (!sourceTab) {
+                    // Don't have the right drop data - hide the indicator.
+                    this.dropIndicatorBar.collapsed = true;
+                } else {
+                    // we will set the indicator in dragover
+                    this.ensureTabPositionsAreSet();
+                }
+            ]]>
+            </handler>
+
+            <handler event="dragover">
+            <![CDATA[
+                //dump("scrolltabs:: dragover\n");
+                var ib = this.dropIndicatorBar;
+                var sourceTab = this.getSourceTabFromDataTransfer(event.dataTransfer);
+                if (!sourceTab) {
+                    ib.collapsed = true;
+                    return false;
+                }
+                ib.collapsed = false;
+
+                var tabStrip = this.scrollbox;
+                var ltr = (window.getComputedStyle(this).direction == "ltr");
+    
+                // autoscroll the tab strip if we drag over the scroll
+                // buttons, even if we aren't dragging a tab, but then
+                // return to avoid drawing the drop indicator
+                var pixelsToScroll = 0;
+                if (this.getAttribute("overflow") == "true") {
+                  var targetAnonid = event.originalTarget.getAttribute("anonid");
+                  switch (targetAnonid) {
+                    case "scrollbutton-up":
+                      pixelsToScroll = tabStrip.scrollIncrement * -1;
+                      break;
+                    case "scrollbutton-down":
+                    case "tabs-list":
+                      pixelsToScroll = tabStrip.scrollIncrement;
+                      break;
+                  }
+                  if (pixelsToScroll) {
+                    tabStrip.scrollByPixels((ltr ? 1 : -1) * pixelsToScroll);
+                  }
+                }
+    
+                var newIndex = this.getNewIndex(event);
+                var ind = ib.firstChild;
+                var tabStripBoxObject = this.scrollBoxObject;
+                var tabs = this.childNodes;
+
+                // figure out the left and right edges of the tabstrip (as
+                // pixels offsets from the left edge of the <tabs> container)
+                var posMin = tabStripBoxObject.x - this.boxObject.x;
+                var posMax = Math.min(posMin + tabStripBoxObject.width,
+                                      (ib.boxObject.x + ib.boxObject.width) -
+                                      ind.boxObject.width);
+
+                // pos is the offset from the left edge of the <tabs> to place
+                // the drop indicator; it is always from the left, even for RTL
+                // tabstrips, due to how -transform: translate() works.
+                var pos, tabBoxObject;
+                if (pixelsToScroll) {
+                  // if we are scrolling, put the drop indicator at the edge
+                  // so that it doesn't jump while scrolling
+                  pos = ((pixelsToScroll > 0) ^ ltr) ? posMin : posMax;
+                } else {
+                  if (newIndex == tabs.length) {
+                    tabBoxObject = tabs[newIndex-1].boxObject;
+                    // place the indicator to the right of the tab if we're LTR
+                    pos = (tabBoxObject.screenX - this.boxObject.screenX) +
+                          (ltr && tabBoxObject.width);
+                  } else {
+                    tabBoxObject =  tabs[newIndex].boxObject;
+                    // place the indicator to the right of the tab if we're RTL
+                    pos = (tabBoxObject.screenX - this.boxObject.screenX) +
+                          (!ltr && tabBoxObject.width);
+                  }
+                  // ensure we never place the drop indicator beyond our limits
+                  pos = Math.min(Math.max(pos, posMin), posMax);
+                }
+    
+                ind.style.MozTransform = 'translate(' + pos + 'px)';
+    
+                return true;
+            ]]>
+            </handler>
+
+            <handler event="dragleave">
+            <![CDATA[
+                //dump("scrolltabs:: dragleave\n");
+                this.dropIndicatorBar.collapsed = true;
+            ]]>
+            </handler>
+
+            <handler event="drop">
+            <![CDATA[
+                //dump("scrolltabs:: drop\n");
+
+                // Are they dragging a Komodo tab - as we don't accept any other
+                // drop data.
+                var sourceTab = this.getSourceTabFromDataTransfer(event.dataTransfer);
+                if (!sourceTab) {
+                    return false;
+                }
+                var sourceTabbox = this.getTabController(sourceTab);
+                var targetTabbox = this.getTabController(this);
+                
+                if (sourceTabbox != targetTabbox) {
+                    return false;
+                }
+
+                var sourceIndex = sourceTabbox.tabs.getIndexOfItem(sourceTab);
+                var targetIndex = this.getNewIndex(event);
+                var tabs = this.childNodes;
+                var targetTab = tabs[targetIndex];
+
+                //dump("move tab at sourceIndex="+sourceIndex
+                //     +" (sourceTabbox "+sourceTabbox.parentNode.getAttribute("id")
+                //     +") to targetIndex="+targetIndex
+                //     +" (targetTabbox "+targetTabbox.parentNode.getAttribute("id")
+                //     +")\n");
+
+                this.dropIndicatorBar.collapsed = true;
+                sourceTabbox.tabs.dropIndicatorBar.collapsed = true;
+
+                if (sourceTab.ownerDocument != document) {
+                    // 1. Moving a tab from one Komodo window to another.
+                    var sourceView = sourceTabbox.parentNode.currentView;
+                    
+                    // Gather the data we need to open the view in the
+                    // target window.
+                    var uri = sourceView.koDoc.file.URI;
+                    var viewType = sourceView.getAttribute("type");
+                    var line = (viewType == "editor" ? sourceView.currentLine : null);
+                    var viewList = targetTabbox.parentNode;
+                    
+                    // Close the source view first to ensure unsaved
+                    // changes, etc. get handled first.
+                    if (!sourceView.close()) {
+                        return true;
+                    }
+                    
+                    // Open the new view.
+                    if (line != null) {
+                        ko.views.manager.doFileOpenAtLineAsync(
+                            uri, line, viewType, viewList, targetIndex);
+                    } else {
+                        ko.views.manager.doFileOpenAsync(
+                            uri, viewType, viewList, targetIndex);
+                    }
+                    window.focus();
+                } else if (sourceTabbox != targetTabbox) {
+                    // 2. Moving to the other view-tabbed tab box in the
+                    //    same Komodo window.
+                    var sourceView = sourceTabbox.parentNode.currentView;
+                    ko.views.manager.topView.moveView(sourceView, targetIndex);
+                } else {
+                    // 3. Moving within the same view-tabbed tab box.
+                    // Don't do anything if just dragging to the same spot.
+                    if ((sourceIndex != targetIndex) &&
+                        !(targetIndex == (sourceIndex+1) && targetIndex == tabs.length)) {
+                        if (typeof(targetTab) == 'undefined') {
+                            this.appendChild(sourceTab);
+                        } else {
+                            this.insertBefore(sourceTab, targetTab);
+                        }
+                    }
+                    // Ensure to focus back on the editor now.
+                    var view = ko.views.manager.currentView;
+                    if (view) {
+                        view.setFocus();
+                    }
+                }
+
+                event.cancelBubble = true;
+                return true;
+            ]]>
+            </handler>
+
+            <handler event="dragend">
+            <![CDATA[
+                //dump("scrolltabs:: dragend\n");
+                this.dropIndicatorBar.collapsed = true;
+                // Drag is over, re-focus on the current view - bug 84215.
+                // Though if it's to another window - all bets are off.
+                if (event.originalTarget.ownerDocument == document) {
+                    var view = ko.views.manager.currentView;
+                    if (view) {
+                        view.setFocus();
+                    }
+                }
+                return true;
+            ]]>
+            </handler>
+        </handlers>
+    </binding>
+
+
     <!-- This is bound to <tabbox type="vertical">, and currently used for
          Komodo's side panes. -->
 
@@ -1025,11 +1405,7 @@
                 if (event.clientX >= d.x && event.clientX <= d.ex &&
                     event.clientY >= d.y && event.clientY <= d.ey)
                 {
-                    var canceled = ! this.dispatchEvent(new Event("close-tab", {cancelable: true}));
-                    if ( ! canceled)
-                    {
-                        this.parentNode.removeChild(this);
-                    }
+                    this.dispatchEvent(new Event("close-tab"));
                 }
             ]]>
             </handler>
