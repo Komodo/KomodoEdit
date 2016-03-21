@@ -259,6 +259,11 @@ class KoPythonCommonPyLintChecker(_GenericPythonLinter):
                 message = m.group(4)
                 desc = "pylint: %s%s %s" % (status, statusCode, message)
                 if status in ("E", "F"):
+                    if statusCode == "0401" and "import '#" in message:
+                        # When attempting to perform relative imports, pylint
+                        # does not take the cwd into account, but the path of
+                        # the temporary file being linted. Reject this error.
+                        continue
                     severity = koLintResult.SEV_ERROR
                 elif status in ("C", "R", "W"):
                     if statusCode == "0103":
@@ -275,6 +280,13 @@ class KoPythonCommonPyLintChecker(_GenericPythonLinter):
                             #
                             # If the message is about a bad module that isn't
                             # the temporary module, let it ride as is
+                    elif statusCode == "0406" and re.match("^\\s*from\\s+\\.", textlines[lineNo - 1]):
+                        # When attempting to perform relative imports, pylint
+                        # does not take the cwd into account, but the path of
+                        # the temporary file being linted. As a result pylint
+                        # may warn that this file is importing itself. Reject
+                        # this warning.
+                        continue
                     severity = koLintResult.SEV_WARNING
                 else:
                     #log.debug("Skip %s", line)
