@@ -2472,7 +2472,8 @@ class PHPParser:
         while pos < len(styles):
             style = styles[pos]
             #print "Style: %d, Text[%d]: %r" % (style, pos, text[pos])
-            if style == identifierStyle:
+            if style == identifierStyle or \
+               (style == self.PHP_WORD and text[pos] == 'string'): # only PHP 7 reserves "string"
                 if last_style != self.PHP_OPERATOR:
                     break
                 if isNamespace:
@@ -3243,6 +3244,12 @@ class PHPParser:
                                   attributes=attributes,
                                   interfaces=implements, doc=self.comment,
                                   isTrait=False)
+                elif "function" in text:
+                    # Anonymous function (likely a callback).
+                    p = text.index("function") + 1
+                    phpArgs, p = self._getArgumentsFromPos(styles, text, p)
+                    self._anonid += 1
+                    self.addFunction("(anonymous %d)" % self._anonid, phpArgs, attributes)
                 else:
                     log.debug("Ignoring when starting with identifier")
             elif firstStyle == self.PHP_VARIABLE:

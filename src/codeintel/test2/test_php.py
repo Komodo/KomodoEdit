@@ -4853,6 +4853,24 @@ class DefnTestCase(CodeIntelTestCase):
         self.assertCompletionsAre(markup_text(content, pos=positions[1]),
             [("function", "anonTest")])
 
+    @tag("bug 980")
+    def test_typed_method_parameters(self):
+        content, positions = unmark_text(php_markup(dedent("""\
+            class Blueprint {
+                function string() { // "string" valid identifier in PHP < 7
+                }
+            }
+            
+            // a specific example of "table migrations" of laravel framework
+            public function up(){
+                Schema::create('test', function (Blueprint $table) {
+                    $table-><1>
+                }
+            }
+        """)))
+        self.assertCompletionsAre(markup_text(content, pos=positions[1]),
+            [("function", "string")])
+
 class EscapingTestCase(CodeIntelTestCase):
     lang = "PHP"
     test_dir = join(os.getcwd(), "tmp")
