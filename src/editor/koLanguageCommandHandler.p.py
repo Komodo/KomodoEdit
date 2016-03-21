@@ -950,24 +950,6 @@ class GenericCommandHandler:
         expandedstring = indentstring.expandtabs(self._view.scimoz.tabWidth)
         return len(expandedstring)
 
-    def _getFoldLevel(self, line):
-        """Return a fold level for the current line that guarantees that:
-            - if at the top level, the fold level is zero
-            - the deeper you are the higher the fold level
-        It does *not* guarantee that:
-            - a depth of three means then level is three
-        """
-        
-        # _getFoldLevel depends on the document being styled.  It currently
-        # is only called from _do_cmd_blockSelect below, which calls this within
-        # loops, so the colourise call is done first rather than here.  topFoldLevel
-        # is also set before using this function
-        sm = self._view.scimoz
-        foldLevel = sm.getFoldLevel(line)
-        foldLevel &= sm.SC_FOLDLEVELNUMBERMASK
-        foldLevel -= self.__topFoldLevel
-        return foldLevel
-
     def _do_cmd_blockSelect(self):
         """Use the lexer's fold markers to increase the selection.
         If the current selection *is* a complete "fold block" then increase
@@ -992,22 +974,11 @@ class GenericCommandHandler:
         1           print
         """
         #log.debug("----------------- BLOCK SELECT ---------------------")
-        # Ensure cursor is at the start of the current selection (so we
-        # don't have to deal with the reverse condition in the calculations
-        # below.
-        view = self._view
-        sm = view.scimoz
-        if sm.anchor < sm.currentPos:
-            sm.anchor, sm.currentPos =\
-                sm.currentPos, sm.anchor
-
-        startLine = sm.lineFromPosition(sm.currentPos)
-        endLine = sm.lineFromPosition(sm.anchor)
-        lastLine = sm.lineFromPosition(sm.textLength-1)
+        sm = self._view.scimoz
+        startLine = sm.lineFromPosition(sm.selectionStart)
+        endLine = sm.lineFromPosition(sm.selectionEnd)
         
         # if the lexer doesn't support folding, select all and get out of here fast.
-        lexer = view.languageObj.getLanguageService(
-            components.interfaces.koILexerLanguageService)
         if not sm.getPropertyInt("fold"):
             dialogproxy = components.classes['@activestate.com/asDialogProxy;1'].\
                           getService(components.interfaces.asIDialogProxy)
@@ -1021,116 +992,20 @@ class GenericCommandHandler:
         # since we need all the fold data, ensure the entire document is styled
         if sm.endStyled < sm.length:
             sm.colourise(sm.endStyled, -1)
-
-        self.__topFoldLevel = sm.getFoldLevel(0)
-        self.__topFoldLevel &= sm.SC_FOLDLEVELNUMBERMASK
-
-        # If the next line after the startLine is "deeper" then move the
-        # startLine to there. See the doc string for why this is done.
-        if (startLine != lastLine and
-            self._getFoldLevel(startLine+1) > self._getFoldLevel(startLine)):
-            startLine += 1
-
-        # If there is a selection and selectionEnd is at the start of a line
-        # then move up the end of the previous line because this simplifies
-        # the subsequent logic.
-        if (sm.selText != ""
-            and sm.getColumn(sm.anchor) == 0):
-            endLine -= 1
-            sm.anchor = sm.getLineEndPosition(endLine)
-        #log.debug("BLOCKSELECT: startLine=%d, endLine=%d, lastLine=%d",
-        #          startLine, endLine, lastLine)
-
-        # Determine the minimum fold level in the current selection.
-        minFoldLevel = self._getFoldLevel(startLine)
-        for line in range(startLine, endLine):
-            #log.debug("BLOCKSELECT: foldLevel for line %d is: %x",
-            #          line, self._getFoldLevel(line))
-            minFoldLevel = min(minFoldLevel, self._getFoldLevel(line))
-        #log.debug("BLOCKSELECT: minFoldLevel is %x", minFoldLevel)
-
-        # Determine if the current selection is a complete fold block.
-        # - selection start must be at the start of a line
-        # - selection end must be at the end of a line
-        # - start and end fold level must both be at the bound of the
-        #   minFoldLevel
-        if (sm.getColumn(sm.currentPos) == 0
-            and sm.anchor == sm.getLineEndPosition(endLine)
-            and (startLine == 0
-                 or (self._getFoldLevel(startLine-1) < minFoldLevel
-                     and self._getFoldLevel(startLine)
-                         > self._getFoldLevel(startLine-1))
-                )
-            and (endLine == lastLine
-                 or (self._getFoldLevel(endLine+1) < minFoldLevel
-                     and self._getFoldLevel(endLine)
-                         > self._getFoldLevel(endLine+1))
-                )
-           ):
-            #log.debug("BLOCKSELECT: *is* a complete fold block")
-            if startLine == 0:
-                targetFoldLevel = 0
-            else:
-                targetFoldLevel = self._getFoldLevel(startLine-1)
+        
+        # If the current block is selected, find the parent in order to select
+        # the enclosing block.
+        if not (sm.getFoldLevel(startLine) & sm.SC_FOLDLEVELHEADERFLAG) or \
+           sm.getLastChild(startLine, -1) == endLine - 1:
+            startLine = sm.getFoldParent(startLine)
+        # If the parent is a true block (it is a fold header), find its end
+        # point and select it. Otherwise, select the entire document.
+        if sm.getFoldLevel(startLine) & sm.SC_FOLDLEVELHEADERFLAG:
+            endLine = sm.getLastChild(startLine, -1)
+            sm.setSel(sm.positionFromLine(endLine + 1), sm.positionFromLine(startLine))
         else:
-            #log.debug("BLOCKSELECT: condition: start of selection on column 0? %s",
-            #          sm.getColumn(sm.currentPos) == 0)
-            #log.debug("BLOCKSELECT: condition: end of selection at eol? %s",
-            #          sm.anchor == sm.getLineEndPosition(endLine))
-            #log.debug("BLOCKSELECT: condition: startLine at minFoldLevel boundary? %s",
-            #          (startLine == 0 or
-            #           (self._getFoldLevel(startLine-1) < minFoldLevel
-            #            and self._getFoldLevel(startLine)
-            #                > self._getFoldLevel(startLine-1))))
-            #log.debug("BLOCKSELECT: condition: endLine at minFoldLevel boundary? %s",
-            #          (endLine == lastLine or
-            #           (self._getFoldLevel(endLine+1) < minFoldLevel
-            #            and self._getFoldLevel(endLine)
-            #                > self._getFoldLevel(endLine+1))))
-            #log.debug("BLOCKSELECT: is *not* a complete fold block")
-            targetFoldLevel = minFoldLevel
-        #log.debug("BLOCKSELECT: targetFoldLevel is %x", targetFoldLevel)
-
-        # increase the selection to the target fold level
-        if targetFoldLevel == 0:
-            #log.debug("BLOCKSELECT: select all")
-            sm.anchor = sm.textLength
-            sm.currentPos = 0
-            sm.ensureVisibleEnforcePolicy(0)
-        else:
-            # expand upwards
-            while startLine > 0:  #XXX are line's in SciMoz 0- or 1-based???
-                #log.debug("BLOCKSELECT: level(%x) up one line(%d) > target level(%x)?",
-                #          self._getFoldLevel(startLine-1), startLine-1,
-                #          targetFoldLevel)
-                if self._getFoldLevel(startLine-1) >= targetFoldLevel:
-                    startLine -= 1
-                else:
-                    break 
-            # select the leading line in the block as well
-            if startLine != 0:
-                startLine -= 1
-
-            # expand downwards
-            while endLine < lastLine:
-                #log.debug("BLOCKSELECT: level(%x) down one line(%d) > target level(%x)?",
-                #          self._getFoldLevel(endLine+1), endLine+1,
-                #          targetFoldLevel)
-                if self._getFoldLevel(endLine+1) >= targetFoldLevel:
-                    endLine += 1
-                else:
-                    break 
-
-            # make the selection
-            #log.debug("BLOCKSELECT: startLine=%d, endLine=%d",
-            #          startLine, endLine)
-            if endLine == lastLine:
-                sm.anchor = sm.textLength
-            else:
-                sm.anchor = sm.positionFromLine(endLine+1)
-            startLine = UnwrapObject(self._view.languageObj).findActualStartLine(sm, startLine)
-            sm.currentPos = sm.positionFromLine(startLine)
-            sm.ensureVisibleEnforcePolicy(startLine)
+            sm.selectAll()
+        sm.ensureVisibleEnforcePolicy(startLine)
         sm.sendUpdateCommands("select")
 
     def _is_cmd_comment_enabled(self):
