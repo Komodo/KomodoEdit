@@ -63,6 +63,8 @@
         'widget-scheme': null
     };
     
+    var colorCache = {};
+    
     var init = () =>
     {
         var observer = {observe: () =>
@@ -72,6 +74,7 @@
                 'interface-scheme': null,
                 'widget-scheme': null
             };
+            colorCache = {};
         }};
         
         ko.prefs.prefObserverService.addObserverForTopics(
@@ -93,9 +96,17 @@
     
     this.getInterfaceColor = (property, schemeName = "interface") =>
     {
-        var scheme = this[schemeName]();
-        var mapping = interfaceMapping[property];
-        return scheme.getInterfaceStyle(mapping[0], mapping[1]);
+        if ( ! (schemeName in colorCache))
+            colorCache[schemeName] = {};
+            
+        if ( ! (property in colorCache[schemeName]))
+        {
+            var scheme = this[schemeName]();
+            var mapping = interfaceMapping[property];
+            colorCache[schemeName][property] = scheme.getInterfaceStyle(mapping[0], mapping[1]);
+        }
+            
+        return colorCache[schemeName][property];
     };
     
     this.applyEditor = (name) =>
