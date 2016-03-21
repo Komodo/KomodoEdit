@@ -12,21 +12,24 @@ function loadIntoWindow(window) {
         prefSvc.prefs.prefObserverService.addObserver(observer, 'editUseLinting', 0);
         
         var timer;
-        var updater = function(now) {
+        var updater = function(now, showNotifications) {
             if (now !== true)
             {
                 window.clearTimeout(timer);
-                timer = window.setTimeout(updater.bind(null,true), 100);
+                timer = window.setTimeout(updater.bind(null,true,showNotifications), 100);
                 return;
             }
             window.require("lintresults/lintresults").update()
+            
+            if (showNotifications)
+                window.require("lintresults/lintresults").checkForNew()
         };
         
         observer.observe = updater;
         
-        window.addEventListener('current_view_changed', updater, false);
-        window.addEventListener('current_view_check_status', updater, false);
-        window.addEventListener('current_view_lint_results_done', updater, false);
+        window.addEventListener('current_view_changed', updater.bind(null, false, false), false);
+        window.addEventListener('current_view_check_status', updater.bind(null, false, false), false);
+        window.addEventListener('current_view_lint_results_done', updater.bind(null, false, true), false);
         
     } catch (e) {
         Cu.reportError("lintresults: Exception while initializing");

@@ -4,6 +4,7 @@
     const prefs     = ko.prefs;
     const views     = require("ko/views");
     const dynamicb  = require("ko/dynamic-button");
+    const editor    = require("ko/editor");
     
     var button;
     
@@ -94,8 +95,6 @@
                 }
             }
         }
-        
-        this.checkForNew();
     }
     
     this.updateMenu = function ()
@@ -177,16 +176,12 @@
         return items.concat(_items);
     }
     
-    var _lintSuppressNext = false;
-    var _lintResults = {};
     this.checkForNew = function()
     {
         var view = views.current();
         var res = view.get("lintBuffer", "lintResults");
         
         if ( ! res) {
-            _lintResults = {};
-            _lintSuppressNext = false;
             return;
         }
         
@@ -194,25 +189,19 @@
         res.getResults(results, numResults);
         
         if ( ! numResults.value) {
-            _lintResults = {};
-            _lintSuppressNext = false;
             return;
         }
         
+        var lineNo = editor.getLineNumber();
         var topResult;
-        var __lintResults = {};
         for (let i=0;i<numResults.value;i++)
         {
             let result = results.value[i];
-            let id = "" + result.lineStart + result.lineEnd + result.columnStart + result.columnEnd + result.severity;
-            
-            if ( ! (id in _lintResults) && ! _lintSuppressNext)
+            if (result.lineStart == lineNo || result.lineEnd == lineNo)
             {
                 if ( ! topResult || topResult.severity < result.severity)
                     topResult = result;
             }
-            
-            __lintResults[id] = true;
         }
         
         if (topResult)
@@ -237,9 +226,6 @@
                 }.bind(this, topResult)
             });
         }
-        
-        _lintResults = __lintResults;
-        _lintSuppressNext = false;
     }
     
     this.init();
