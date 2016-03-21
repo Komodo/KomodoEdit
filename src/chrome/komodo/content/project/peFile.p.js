@@ -466,10 +466,9 @@ this.setFileStatusAttributesFromFile = function peFile_setFileStatusAttributesFr
     if (asyncSvc.uriHasPendingOperation(koFile.URI)) {
         // This file has an asynchronous operation pending, give it
         // the "processing" throbber image.
-        element.removeAttribute('file_image_url');
-        element.setAttribute('alt_image', 'async_operation');
-    } else if (element.getAttribute('alt_image') == 'async_operation') {
-        element.removeAttribute('alt_image');
+        element.setAttribute('async_operation', 'true');
+    } else if (element.getAttribute('async_operation')) {
+        element.removeAttribute('async_operation');
     }
 }
 
