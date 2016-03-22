@@ -58,6 +58,8 @@ interface koIFileService: nsISupports
 
     void getAllFiles([array, size_is(count)] out koIFileEx files,
                      out unsigned long count);
+    void getStatusCheckFiles([array, size_is(count)] out koIFileEx files,
+                     out unsigned long count);
     koIFileEx findFileByURI(in wstring URI);
 
     void getFilesInBaseURI(in wstring path,

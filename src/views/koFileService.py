@@ -57,6 +57,7 @@ class koFileService(object):
     
     def __init__(self):
         self._files = {}
+        self._statuscheck_files = {}
         self._tmpfiles = {}
         self._tmpdirs = {}
         self._uriParser = URIParser()
@@ -90,6 +91,7 @@ class koFileService(object):
             log.error("Invalid URL parsed: %r", uri)
             raise ServerException(nsError.NS_ERROR_FAILURE, str(e))
         self._files[uri] = WeakReference(kofile)
+        self._statuscheck_files[uri] = self._files[uri]
 
         if doNotification:
             forceRefresh = False
@@ -125,6 +127,7 @@ class koFileService(object):
                 except:
                     o = None # The object is dead.
                 if o is not None:
+                    self._statuscheck_files[uri] = wr # opt for status check
                     L.append(o)
                 else:
                     self._files.pop(uri, None)
@@ -145,6 +148,19 @@ class koFileService(object):
                 self._files.pop(uri, None)
         return L
     
+    def getStatusCheckFiles(self):
+        L = []
+        for uri,wr in self._statuscheck_files.items():
+            try:
+                o = wr()
+            except:
+                o = None # The object is dead.
+            if o is not None:
+                L.append(o)
+                
+            self._statuscheck_files.pop(uri, None)
+        return L
+    
     # performance is critical for this function, since it
     # is called by getFileFromURI above, which is called
     # by every partWrapper's constructor
@@ -158,6 +174,7 @@ class koFileService(object):
             except:
                 kofile = None  # The object is dead.
             if kofile:
+                self._statuscheck_files[uri] = file_weakref # opt for status check
                 return kofile
             else:
                 self._files.pop(uri, None)

@@ -480,7 +480,7 @@ class KoFileStatusService:
                 # XXX - Do we really need to unwrap these puppies?
                 all_local_dirs = []
                 all_local_files = []
-                for koIFile in self._fileSvc.getAllFiles():
+                for koIFile in self._fileSvc.getStatusCheckFiles():
                     try:
                         u = UnwrapObject(koIFile)
                         if u.isLocal and not u.isNetworkFile:
