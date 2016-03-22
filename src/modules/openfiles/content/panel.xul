@@ -9,6 +9,8 @@
 <?xml-stylesheet href="less://openfiles/skin/openfiles.less" type="text/css" ?>
  
 <page xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+    <commandset id="panel-proxy-commandset"/>
+    
     <vbox flex="1" id="openfilesWrapper">
         <vbox flex="99">
             <hbox id="openfilesPrefHbox" class="status-toolbar" align="center">
@@ -217,89 +219,6 @@
         </vbox>
     </vbox>
 
-    <commandset
-        id="cmdset_openfiles"
-        oncommandupdate="ko.commands.updateCommandset(this, event)"
-        commandupdater="true">
-
-        <command
-            id="cmd_openfilesGrouping"
-            key="key_cmd_openfilesGrouping"
-            oncommand="ko.commands.doCommand('cmd_openfilesGrouping', event)"
-            desc="&groupFiles.desc;"/>
-        
-        <command
-            id="cmd_openfilesTabSorting"
-            key="key_cmd_openfilesTabSorting"
-            oncommand="ko.commands.doCommand('cmd_openfilesTabSorting', event)"
-            desc="&sortTabs.desc;"/>
-
-        <command
-            id="cmd_openfilesGroupByLang"
-            key="key_cmd_openfilesGroupByLang"
-            oncommand="ko.commands.doCommand('cmd_openfilesGroupByLang', event)"
-            desc="&groupByLang.desc;"/>
-        <command
-            id="cmd_openfilesGroupByExt"
-            key="key_cmd_openfilesGroupByExt"
-            oncommand="ko.commands.doCommand('cmd_openfilesGroupByExt', event)"
-            desc="&groupByExt.desc;"/>
-        <command
-            id="cmd_openfilesGroupByFolder"
-            key="key_cmd_openfilesGroupByFolder"
-            oncommand="ko.commands.doCommand('cmd_openfilesGroupByFolder', event)"
-            desc="&groupByFolder.desc;"/>
-        <command
-            id="cmd_openfilesGroupByLocation"
-            key="key_cmd_openfilesGroupByLocation"
-            oncommand="ko.commands.doCommand('cmd_openfilesGroupByLocation', event)"
-            desc="&groupByLocation.desc;"/>
-        <command
-            id="cmd_openfilesGroupByPattern"
-            key="key_cmd_openfilesGroupByPattern"
-            oncommand="ko.commands.doCommand('cmd_openfilesGroupByPattern', event)"
-            desc="&groupByPattern.desc;"/>
-
-        <command
-            id="cmd_openfilesSortAlpha"
-            key="key_cmd_openfilesSortAlpha"
-            oncommand="ko.commands.doCommand('cmd_openfilesSortAlpha', event)"
-            desc="&sortAlpha.desc;"/>
-        <command
-            id="cmd_openfilesSortNatural"
-            key="key_cmd_openfilesSortNatural"
-            oncommand="ko.commands.doCommand('cmd_openfilesSortNatural', event)"
-            desc="&sortNatural.desc;"/>
-        <command
-            id="cmd_openfilesSortLastOpened"
-            key="key_cmd_openfilesSortLastOpened"
-            oncommand="ko.commands.doCommand('cmd_openfilesSortLastOpened', event)"
-            desc="&sortLastOpened.desc;"/>
-        <command
-            id="cmd_openfilesSortAccessNo"
-            key="key_cmd_openfilesSortAccessNo"
-            oncommand="ko.commands.doCommand('cmd_openfilesSortAccessNo', event)"
-            desc="&sortAccessNo.desc;"/>
-
-        <command
-            id="cmd_openfilesSortAscending"
-            key="key_cmd_openfilesSortAscending"
-            oncommand="ko.commands.doCommand('cmd_openfilesSortAscending', event)"
-            desc="&sortAscending.desc;"/>
-        <command
-            id="cmd_openfilesSortDescending"
-            key="key_cmd_openfilesSortDescending"
-            oncommand="ko.commands.doCommand('cmd_openfilesSortDescending', event)"
-            desc="&sortDescending.desc;"/>
-
-        <command
-            id="cmd_openfilesReSort"
-            key="key_cmd_openfilesReSort"
-            oncommand="ko.commands.doCommand('cmd_openfilesReSort', event)"
-            desc="&reSort.desc;"/>
-
-    </commandset>
-  
     <script src="chrome://openfiles/content/openfiles.js"
             type="application/x-javascript"/>
  

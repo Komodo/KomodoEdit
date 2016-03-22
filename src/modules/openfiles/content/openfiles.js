@@ -74,7 +74,7 @@ if (typeof ko.openfiles == 'undefined')
             self = this;
             
             // Create references to frequently used DOM elements 
-            koWindow    = window.parent;
+            koWindow    = require("ko/windows").getMain();
             listbox     = document.getElementById('openfilesListbox');
             
             // Prepare item template for file items
@@ -154,7 +154,9 @@ if (typeof ko.openfiles == 'undefined')
                 document.getElementById("openfilesPrefPopup_ToggleTabSorting").removeAttribute("checked");
             }
             
-            // Bind listeners and reload (initialize) the list of open files 
+            // Bind listeners and reload (initialize) the list of open files
+            window.frameElement.hookupObservers("panel-proxy-commandset");
+            
             this.bindListeners();
             this.reload();
         },
@@ -469,8 +471,7 @@ if (typeof ko.openfiles == 'undefined')
             }
 
             // Register controller
-            window.controllers.insertControllerAt(0, this.controller);
-            parent.controllers.insertControllerAt(0, this.controller);
+            koWindow.controllers.insertControllerAt(0, this.controller);
         },
         
         /**

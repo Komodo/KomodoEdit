@@ -27,112 +27,116 @@
             src="chrome://openfiles/content/panel.xul"/>
     </ko-pane>
 
-    <broadcasterset id="broadcasterset_global">
-
-        <broadcaster
-            id="cmd_toggleTabBar"
-            key="key_cmd_toggleTabBar"
-            type="checkbox"
-            desc="&viewEditorTabs.label;"
-            oncommand="ko.openfiles.toggleTabBar()"/>
-        <broadcaster
-            id="cmd_toggleOpenFiles"
-            key="key_cmd_toggleOpenFiles"
-            desc="&userInterfaceShowHideOpenFilesTab.desc;"
-            autoCheck="false"
-            oncommand="ko.openfiles.togglePane()"/>
-        <broadcaster
-            id="cmd_focusOpenFiles"
-            key="key_cmd_focusOpenFiles"
-            desc="&userInterfaceFocusOpenFilesTab.desc;"
-            autoCheck="false"
-            oncommand="ko.openfiles.togglePane(false)"/>
+    <commandset id="allcommands">
+    
+        <broadcasterset id="broadcasterset_global">
+    
+            <broadcaster
+                id="broadcaster_toggleTabBar"
+                key="key_cmd_toggleTabBar"
+                type="checkbox"
+                desc="&viewEditorTabs.label;"
+                oncommand="ko.openfiles.toggleTabBar()"/>
+            <broadcaster
+                id="broadcaster_toggleOpenFiles"
+                key="key_cmd_toggleOpenFiles"
+                desc="&userInterfaceShowHideOpenFilesTab.desc;"
+                autoCheck="false"
+                oncommand="ko.openfiles.togglePane()"/>
+            <broadcaster
+                id="broadcaster_focusOpenFiles"
+                key="key_cmd_focusOpenFiles"
+                desc="&userInterfaceFocusOpenFilesTab.desc;"
+                autoCheck="false"
+                oncommand="ko.openfiles.togglePane(false)"/>
+    
+        </broadcasterset>
         
-        <broadcaster
-            id="cmd_openfilesGrouping"
-            observes="cmd_openfilesGrouping"
-            key="key_cmd_openfilesGrouping"
-            desc="&groupFiles.desc;"
-            autoCheck="false"/>
-        
-        <broadcaster
-            id="cmd_openfilesTabSorting"
-            observes="cmd_openfilesTabSorting"
-            key="key_cmd_openfilesTabSorting"
-            desc="&sortTabs.desc;"
-            autoCheck="false"/>
-
-        <broadcaster
-            id="cmd_openfilesGroupByLang"
-            observes="cmd_openfilesGroupByLang"
-            key="key_cmd_openfilesGroupByLang"
-            desc="&groupByLang.desc;"
-            autoCheck="false"/>
-        <broadcaster
-            id="cmd_openfilesGroupByFolder"
-            observes="cmd_openfilesGroupByFolder"
-            key="key_cmd_openfilesGroupByFolder"
-            desc="&groupByFolder.desc;"
-            autoCheck="false"/>
-        <broadcaster
-            id="cmd_openfilesGroupByLocation"
-            observes="cmd_openfilesGroupByLocation"
-            key="key_cmd_openfilesGroupByLocation"
-            desc="&groupByLocation.desc;"
-            autoCheck="false"/>
-        <broadcaster
-            id="cmd_openfilesGroupByPattern"
-            observes="cmd_openfilesGroupByPattern"
-            key="key_cmd_openfilesGroupByPattern"
-            desc="&groupByPattern.desc;"
-            autoCheck="false"/>
-
-        <broadcaster
-            id="cmd_openfilesSortAlpha"
-            observes="cmd_openfilesSortAlpha"
-            key="key_cmd_openfilesSortAlpha"
-            desc="&sortAlpha.desc;"
-            autoCheck="false"/>
-        <broadcaster
-            id="cmd_openfilesSortNatural"
-            observes="cmd_openfilesSortNatural"
-            key="key_cmd_openfilesSortNatural"
-            desc="&sortNatural.desc;"
-            autoCheck="false"/>
-        <broadcaster
-            id="cmd_openfilesSortLastOpened"
-            observes="cmd_openfilesSortLastOpened"
-            key="key_cmd_openfilesSortLastOpened"
-            desc="&sortLastOpened.desc;"
-            autoCheck="false"/>
-        <broadcaster
-            id="cmd_openfilesSortAccessNo"
-            observes="cmd_openfilesSortAccessNo"
-            key="key_cmd_openfilesSortAccessNo"
-            desc="&sortAccessNo.desc;"
-            autoCheck="false"/>
-
-        <broadcaster
-            id="cmd_openfilesSortAscending"
-            observes="cmd_openfilesSortAscending"
-            key="key_cmd_openfilesSortAscending"
-            desc="&sortAscending.desc;"
-            autoCheck="false"/>
-        <broadcaster
-            id="cmd_openfilesSortDescending"
-            observes="cmd_openfilesSortDescending"
-            key="key_cmd_openfilesSortDescending"
-            desc="&sortDescending.desc;"
-            autoCheck="false"/>
-
-        <broadcaster
-            id="cmd_openfilesReSort"
-            observes="cmd_openfilesReSort"
-            key="key_cmd_openfilesReSort"
-            desc="&reSort.desc;"
-            autoCheck="false"/>
-
-    </broadcasterset>
+        <commandset
+            id="cmdset_openfiles"
+            oncommandupdate="ko.commands.updateCommandset(this, event)"
+            commandupdater="true"
+            events="popupshowing">
+    
+            <command
+                id="cmd_openfilesGrouping"
+                key="key_cmd_openfilesGrouping"
+                oncommand="ko.commands.doCommand('cmd_openfilesGrouping', event)"
+                desc="&groupFiles.desc;"/>
+            
+            <command
+                id="cmd_openfilesTabSorting"
+                key="key_cmd_openfilesTabSorting"
+                oncommand="ko.commands.doCommand('cmd_openfilesTabSorting', event)"
+                desc="&sortTabs.desc;"/>
+    
+            <command
+                id="cmd_openfilesGroupByLang"
+                key="key_cmd_openfilesGroupByLang"
+                oncommand="ko.commands.doCommand('cmd_openfilesGroupByLang', event)"
+                desc="&groupByLang.desc;"/>
+            <command
+                id="cmd_openfilesGroupByExt"
+                key="key_cmd_openfilesGroupByExt"
+                oncommand="ko.commands.doCommand('cmd_openfilesGroupByExt', event)"
+                desc="&groupByExt.desc;"/>
+            <command
+                id="cmd_openfilesGroupByFolder"
+                key="key_cmd_openfilesGroupByFolder"
+                oncommand="ko.commands.doCommand('cmd_openfilesGroupByFolder', event)"
+                desc="&groupByFolder.desc;"/>
+            <command
+                id="cmd_openfilesGroupByLocation"
+                key="key_cmd_openfilesGroupByLocation"
+                oncommand="ko.commands.doCommand('cmd_openfilesGroupByLocation', event)"
+                desc="&groupByLocation.desc;"/>
+            <command
+                id="cmd_openfilesGroupByPattern"
+                key="key_cmd_openfilesGroupByPattern"
+                oncommand="ko.commands.doCommand('cmd_openfilesGroupByPattern', event)"
+                desc="&groupByPattern.desc;"/>
+    
+            <command
+                id="cmd_openfilesSortAlpha"
+                key="key_cmd_openfilesSortAlpha"
+                oncommand="ko.commands.doCommand('cmd_openfilesSortAlpha', event)"
+                desc="&sortAlpha.desc;"/>
+            <command
+                id="cmd_openfilesSortNatural"
+                key="key_cmd_openfilesSortNatural"
+                oncommand="ko.commands.doCommand('cmd_openfilesSortNatural', event)"
+                desc="&sortNatural.desc;"/>
+            <command
+                id="cmd_openfilesSortLastOpened"
+                key="key_cmd_openfilesSortLastOpened"
+                oncommand="ko.commands.doCommand('cmd_openfilesSortLastOpened', event)"
+                desc="&sortLastOpened.desc;"/>
+            <command
+                id="cmd_openfilesSortAccessNo"
+                key="key_cmd_openfilesSortAccessNo"
+                oncommand="ko.commands.doCommand('cmd_openfilesSortAccessNo', event)"
+                desc="&sortAccessNo.desc;"/>
+    
+            <command
+                id="cmd_openfilesSortAscending"
+                key="key_cmd_openfilesSortAscending"
+                oncommand="ko.commands.doCommand('cmd_openfilesSortAscending', event)"
+                desc="&sortAscending.desc;"/>
+            <command
+                id="cmd_openfilesSortDescending"
+                key="key_cmd_openfilesSortDescending"
+                oncommand="ko.commands.doCommand('cmd_openfilesSortDescending', event)"
+                desc="&sortDescending.desc;"/>
+    
+            <command
+                id="cmd_openfilesReSort"
+                key="key_cmd_openfilesReSort"
+                oncommand="ko.commands.doCommand('cmd_openfilesReSort', event)"
+                desc="&reSort.desc;"/>
+    
+        </commandset>
+    
+    </commandset>
 
     <menupopup id="popup_toolbars">
         <menuitem
