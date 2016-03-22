@@ -112,6 +112,8 @@ class koRFConnection:
         # How long the socket waits until it times out when trying to connect
         # or read/recv. The value is in seconds.
         self._socket_timeout = self._globalPrefs.getLongPref('remotefiles_defaultConnectionTimeout')
+        self.log = logging.getLogger('koRFConnection')
+
 
 
     # Note: The do_* functions must be implemented by the actual
@@ -801,6 +803,7 @@ class koRemoteSSH(koRFConnection):
     def __init__(self):
         koRFConnection.__init__(self)
         self._use_time_delay = 0
+        self.log = logging.getLogger('koRemoteSSH')
 
     def __del__(self):
         # Ensure we are closed properly
