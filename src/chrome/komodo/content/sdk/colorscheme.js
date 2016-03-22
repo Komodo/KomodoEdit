@@ -77,7 +77,7 @@
             colorCache = {};
         }};
         
-        ko.prefs.prefObserverService.addObserverForTopics(
+        prefs.prefObserverService.addObserverForTopics(
             observer, [3], ['editor-scheme', 'interface-scheme', 'widget-scheme'], false
         );
     };
