@@ -1026,6 +1026,11 @@ function _Observer ()
                             this.handle_project_changed, false);
     window.addEventListener('project_opened',
                             this.handle_project_changed, false);
+    
+    window.addEventListener('popupshowing', function() {
+        // .bind for some reason won't work
+        window.updateCommands('popupshowing');
+    });
 };
 _Observer.prototype.destroy = function()
 {
