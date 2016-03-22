@@ -116,20 +116,29 @@ this.updateCommand = function _command_updateCommand(command, commandNode, contr
 }
 
 this.updateCommandset = function command_updateCommandset(commandset) {
-    _log.info('updateCommandset: ' + commandset.id);
-    var childNodes = commandset.childNodes;
-    var length = childNodes.length;
-    for (var i = 0; i < length; i++) {
-        var commandID = childNodes[i].id;
-        if (commandID) {
-            if (!ko.commands.updateCommand(commandID, childNodes[i])) {
-                _log.debug("updateCommandset - " + commandset.id +
-                          " - command ID '" + commandID + "' - no controller available!");
+    if ("_updateTimer" in commandset && commandset._updateTimer)
+        return;
+    
+    commandset._updateTimer = setTimeout(function() {
+        _log.warn('updateCommandset: ' + commandset.id);
+        
+        delete commandset._updateTimer;
+        
+        var childNodes = commandset.childNodes;
+        var length = childNodes.length;
+        for (var i = 0; i < length; i++) {
+            var commandID = childNodes[i].id;
+            if (commandID) {
+                if (!ko.commands.updateCommand(commandID, childNodes[i])) {
+                    _log.debug("updateCommandset - " + commandset.id +
+                              " - command ID '" + commandID + "' - no controller available!");
+                }
+            } else {
+                _log.warn("updateCommandset - " + commandset.id + " - element no " + i + " has no ID!!");
             }
-        } else {
-            _log.warn("updateCommandset - " + commandset.id + " - element no " + i + " has no ID!!");
         }
-    }
+        
+    }, 50);
 }
 
 this.setCommandEnabled = function _command_setCommandEnabled(id, node, supported, enabled)
