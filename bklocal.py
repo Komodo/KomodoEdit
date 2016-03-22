@@ -115,7 +115,7 @@ def _capture_stdout(argv, ignore_retval=False, cwd=None, env=None):
     stdout = p.stdout.read()
     retval = p.wait()
     if retval and not ignore_retval:
-        raise RuntimeError("error running '%s'" % ' '.join(argv))
+        raise RuntimeError("error running '%s' in %s" % (' '.join(argv), cwd))
     return stdout
 
 
@@ -3180,21 +3180,20 @@ class MSIKomodoId(black.configure.Datum):
         komodoShortVersion = black.configure.items["komodoShortVersion"].Get()
         XY = re.sub(r"\.", "", komodoShortVersion)
         productType = black.configure.items["productType"].Get()
-        if 2 <= len(XY) <= 3:
+        if len(XY) <= 4:
+            # Notes:
+            # - The prefix here is intentionally different for
+            #   "Edit" vs. "IDE" to ensure that MSI thinks they are
+            #   different where necessary.
+            # - Intentionally NOT using "KoEdi" because we changed the
+            #   edit icon post-public release. The ID change is necessary
+            #   to not get the old icon (from Windows' icon cache) on
+            #   user's machines. An alternative would be a custom action
+            #   to delete "C:\Documents and Settings\Username\Local
+            #   Settings\Application Data\IconCache.db".
             self.value = {
-                # Notes:
-                # - The prefix here is intentionally different for
-                #   "Edit" vs. "IDE" to ensure that MSI thinks they are
-                #   different where necessary.
-                # - Intentionally NOT using "KoEdit" because we changed the
-                #   edit icon post-public release. The ID change is necessary
-                #   to not get the old icon (from Windows' icon cache) on
-                #   user's machines. An alternative would be a custom action
-                #   to delete "C:\Documents and Settings\Username\Local
-                #   Settings\Application Data\IconCache.db".
                 "edit": "KoEd"+XY,
-                "ide": "KoIDE"+XY,
-                "openkomodo": "OKo"+XY,
+                "ide": "KIDE"+XY,
             }[productType]
         else:
             raise black.configure.ConfigureError(
