@@ -107,7 +107,7 @@ this.updateCommand = function _command_updateCommand(command, commandNode, contr
         } else {
             _log.info("No controller found for command: " + command);
         }
-        _log.debug("Command: " + command + " is set to " + enabled)
+        //_log.debug("Command: " + command + " is set to " + enabled)
         ko.commands.setCommandEnabled(command, commandNode, found, enabled);
     } catch (e) {
         _log.exception(e,"doing _updateCommand: " + command + ': ');
