@@ -1395,6 +1395,24 @@ class HTMLJavaScriptTestCase(CodeIntelTestCase):
         self.assertCompletionsInclude(
                 markup_text(content, pos=positions[1]),
                 [("function", "getElementById")])
+                
+    @tag("bug1170")
+    def test_html5_api(self):
+        content, positions = unmark_text(dedent("""\
+            <!DOCTYPE html>
+            <html>
+            <head>
+            <title>HTML 5</title>
+            <script type="text/javascript">
+                document.<1>
+            </script>
+            </head>
+            </body>
+            </html>
+        """))
+        self.assertCompletionsInclude(
+                markup_text(content, pos=positions[1]),
+                [("function", "getElementsByClassName")])
 
 class JSDocTestCase(CodeIntelTestCase):
     lang = "JavaScript"
@@ -1763,24 +1781,6 @@ class PrototypeTestCase(CodeIntelTestCase):
         self.assertCalltipIs(markup_text(content, pos=positions[2]),
             ("stripTags()\n"
              "Returns the string with any HTML or XML tags removed"),
-            env=self.env)
-
-    @tag("bug63137")
-    def test_extend_builtins2(self):
-        # Test some of the places in which prototype extends JS builtins.
-        content, positions = unmark_text(dedent("""\
-            document.<3>getElementsByClassName(<4>);
-        """))
-        self.assertCompletionsInclude(markup_text(content, pos=positions[3]),
-            [("function", "getElementById"),            # from JS
-             ("function", "getElementsByClassName"),    # from Prototype
-             ],
-            env=self.env)
-        self.assertCalltipIs(markup_text(content, pos=positions[4]),
-            ("getElementsByClassName(className [, parentElement])\n"
-             "Returns all the elements that are associated with the given\n"
-             "CSS class name. If no parentElement id given, the entire\n"
-             "document body will be searched."),
             env=self.env)
 
     @tag("bug63297")
