@@ -386,6 +386,10 @@
                     this.displayTransientSelection();
                 }
             }).bind(this); 
+            this.addModifiedHandler(this.onTextInserted,
+                                    this,
+                                    1000, // high numbers indicate low priority
+                                    Components.interfaces.ISciMoz.SC_MOD_INSERTTEXT);
         ]]>
         </body>
         </method>
@@ -1804,6 +1808,100 @@
                 return this.__proto__.__proto__.onUpdateUI.call(this, updated);
             } finally {
                 this.in_updateui = false;
+            }
+        ]]>
+        </body>
+        </method>
+        
+        <!-- This method is called OFTEN (every time text is inserted). -->
+        <method name="onTextInserted">
+        <parameter name="position"/>
+        <parameter name="modificationType"/>
+        <parameter name="text"/>
+        <body>
+        <![CDATA[
+            // In onUpdateUI above, matching XML/HTML tag pairs are
+            // auto-selected in order to allow fast renaming. When a space
+            // character is typed, the two selections should be collapsed so
+            // attributes can only be added to the first tag.
+            var scimoz = this.scimoz;
+            if (scimoz.selections == 2 && text[0] == ' ') {
+                if (text.length == 1) {
+                    // A single space character was typed. When typing into
+                    // multiple selections, at this point when the SCN_MODIFIED
+                    // notification was sent, the "getSelectionNStart" positions
+                    // have not been updated yet -- they reflect the position
+                    // before the inserted space character. Need to account for
+                    // this.
+                    if (scimoz.getStyleAt(scimoz.getSelectionNStart(0) - 1) == scimoz.SCE_UDL_M_TAGNAME
+                        && scimoz.getStyleAt(scimoz.getSelectionNStart(0)) != scimoz.SCE_UDL_M_TAGNAME
+                        && scimoz.getStyleAt(scimoz.getSelectionNStart(1) - 1) == scimoz.SCE_UDL_M_TAGNAME
+                        && scimoz.getStyleAt(scimoz.getSelectionNStart(1)) != scimoz.SCE_UDL_M_TAGNAME) {
+                        if (scimoz.getSelectionNStart(0) < scimoz.getSelectionNStart(1)) {
+                            // The user is typing into the opening tag. The
+                            // selection will be condensed to the position after
+                            // the inserted space. Note the current position of
+                            // the end tag (+1 due to the upcoming space to be
+                            // inserted in the opening tag).
+                            var gotoPos = scimoz.getSelectionNStart(0) + 1;
+                            var targetStart = scimoz.getSelectionNStart(1) + 1;
+                        } else {
+                            // The user is typing into the closing tag. The
+                            // selection will be condensed to the position after
+                            // the inserted space in the opening tag. Note the
+                            // current position of the end tag (+1 due to the
+                            // upcoming space to be inserted in the opening
+                            // tag).
+                            var gotoPos = scimoz.getSelectionNStart(1) + 1;
+                            var targetStart = scimoz.getSelectionNStart(0) + 1;
+                        }
+                        setTimeout(function() {
+                            // Delete the extra space inserted in the closing
+                            // tag and consolidate the selection into the
+                            // opening tag. Needs to be done outside the
+                            // Scintilla notification.
+                            scimoz.setTargetRange(targetStart, targetStart + 1);
+                            scimoz.replaceTarget('');
+                            scimoz.gotoPos(gotoPos);
+                        }, 1);
+                    }
+                } else {
+                    // The user has pasted text that begins with a space
+                    // character. Unlike the case above, "getSelectionNStart"
+                    // returns the position after pasted text in selection 0,
+                    // but selection 1 is still the position before pasted text.
+                    var length = text.length;
+                    if (scimoz.getStyleAt(scimoz.getSelectionNStart(0) - length - 1) == scimoz.SCE_UDL_M_TAGNAME
+                        && scimoz.getStyleAt(scimoz.getSelectionNStart(0) - length) != scimoz.SCE_UDL_M_TAGNAME
+                        && scimoz.getStyleAt(scimoz.getSelectionNStart(1) - 1) == scimoz.SCE_UDL_M_TAGNAME
+                        && scimoz.getStyleAt(scimoz.getSelectionNStart(1)) != scimoz.SCE_UDL_M_TAGNAME) {
+                        if (scimoz.getSelectionNStart(0) < scimoz.getSelectionNStart(1)) {
+                            // The user is typing into the opening tag.
+                            // Both "getSelectionNStart" positions returned are
+                            // the ones needed (coincidentally).
+                            var targetStart = scimoz.getSelectionNStart(1);
+                            var gotoPos = scimoz.getSelectionNStart(0);
+                        } else {
+                            // The user is typing into the closing tag.
+                            // The selection needs to be condensed after pasted
+                            // text in the opening tag (hence the +length) and
+                            // the pasted text in the closing tag needs to be
+                            // removed (hence the -length).
+                            var targetStart = scimoz.getSelectionNStart(0) - length;
+                            var gotoPos = scimoz.getSelectionNStart(1) + length;
+                        }
+                        setTimeout(function() {
+                            // Delete the extra space inserted in the closing
+                            // tag and consolidate the selection into the
+                            // opening tag. Needs to be done outside the
+                            // Scintilla notification.
+                            scimoz.setTargetRange(targetStart,
+                                                  targetStart + length);
+                            scimoz.replaceTarget('');
+                            scimoz.gotoPos(gotoPos);
+                        }, 1);
+                    }
+                }
             }
         ]]>
         </body>
