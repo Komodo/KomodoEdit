@@ -67,7 +67,6 @@ function PrefCodeIntel_OnLoad()
     log.info("PrefCodeIntel_OnLoad");
     try {
         gWidgets.triggeringEnabledCheckbox = document.getElementById("codeintel_completion_triggering_enabled");
-        gWidgets.codeIntelTriggerDelay = document.getElementById("codeintel_trigger_delay");
         gWidgets.fillupsEnabledCheckbox = document.getElementById("codeintel_completion_auto_fillups_enabled");
         gWidgets.scanProjectCheckbox = document.getElementById("codeintel_scan_files_in_project");
         gWidgets.scanDepthTextbox = document.getElementById("codeintel_max_recursive_dir_depth");
@@ -233,18 +232,6 @@ function PrefCodeIntel_UpdateCatalogsUI()
             gCatalogsView.areUISelectedRowsRemovable());
     } catch(ex) {
         log.exception(ex);
-    }
-}
-
-function PrefCodeIntel_DoEnabling()
-{
-    var enabled = gWidgets.triggeringEnabledCheckbox.checked;
-    if (enabled) {
-        if (gWidgets.codeIntelTriggerDelay.hasAttribute('disabled')) {
-            gWidgets.codeIntelTriggerDelay.removeAttribute('disabled');
-        }
-    } else {
-        gWidgets.codeIntelTriggerDelay.setAttribute('disabled', true);
     }
 }
 

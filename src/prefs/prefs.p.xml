@@ -887,7 +887,6 @@
   <boolean id="codeintel_enabled">1</boolean>
   <string id="codeintel_sort_codebrowser_by">file-order</string>
   <boolean id="codeintel_completion_triggering_enabled">1</boolean>
-  <long id="codeintel_trigger_delay">250</long>
   <boolean id="codeintel_rescan_while_typing_enabled">1</boolean>
   <boolean id="codeintel_scanning_imports_enabled">1</boolean>
   <boolean id="codeintel_browser_show_projects">0</boolean> <!-- not implemented -->
