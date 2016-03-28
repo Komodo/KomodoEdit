@@ -70,6 +70,7 @@ Hence:
 
 """
 
+import operator
 import re
 from pprint import pprint
 
@@ -602,6 +603,8 @@ class PerlTreeEvaluator(PerlTreeEvaluatorBase):
         self.log_start()
         start_scoperef = self.get_start_scoperef()
         self.info("start scope is %r", start_scoperef)
+        if self.trg.type == 'names':
+            return self._available_symbols(start_scoperef, self.expr)
         hit = self._hit_from_citdl(self.expr, start_scoperef)
 
         elem, scoperef = hit
@@ -908,5 +911,22 @@ class PerlTreeEvaluator(PerlTreeEvaluatorBase):
         #           inference.
         self.info("resolve '%s' type inference:", citdl)
         return self._hit_from_citdl(citdl, scoperef)
+
+    def _available_symbols(self, scoperef, expr):
+        cplns = []
+        found_names = set()
+        while scoperef:
+            elem = self._elem_from_scoperef(scoperef)
+            for child in elem:
+                name = child.get("name", "")
+                if name.startswith(expr):
+                    if name not in found_names:
+                        found_names.add(name)
+                        ilk = child.get("ilk") or child.tag
+                        cplns.append((ilk, name))
+            scoperef = self.parent_scoperef_from_scoperef(scoperef)
+            if not scoperef:
+                break
+        return sorted(cplns, key=operator.itemgetter(1))
 
 

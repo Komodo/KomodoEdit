@@ -195,6 +195,19 @@ class TrgTestCase(CodeIntelTestCase):
         self.assertNoTrigger("$f<|>")
         self.assertNoTrigger("<|>$f")
 
+    def test_complete_builtins(self):
+        name = "perl-complete-names"
+        self.assertTriggerMatches("ch<|>", name=name)
+        #self.assertTriggerMatches("sub foo { ch<|>", name=name)
+        self.assertNoTrigger("package ch<|>")
+        self.assertNoTrigger("sub ch<|>")
+        self.assertNoTrigger("use ch<|>")
+        self.assertNoTrigger("require ch<|>")
+        self.assertNoTrigger("no ch<|>")
+        self.assertNoTrigger("foo.ch<|>")
+        self.assertNoTrigger("Foo::ch<|>")
+        self.assertNoTrigger("Foo->ch<|>")
+
     def test_calltip_call_signature(self):
         self.assertNoTrigger("my (<|>$a, $b, $c) = @_")
 
@@ -267,7 +280,7 @@ class TrgTestCase(CodeIntelTestCase):
             self.assertNoTrigger("%s(<|>" % keyword)
         self.assertNoTrigger("foreach $foo (<|>")
         self.assertNoTrigger("foreach my $foo (<|>")
-
+        
     @tag("knownfailure")
     def test_calltip_call_signature_adv(self):
         self.assertTriggerMatches("-r <|>",
@@ -398,6 +411,16 @@ class CplnTestCase(CodeintelPerlTestCase):
         # {'/': '/'} in addition to the regulars.
         #self.assertCurrCalltipArgRange("foo(<+>/first,last/, <|>'t,m');",
         #                               "foo(a, b, c)", (7,8))
+        
+    def test_builtin_names(self):
+        self.assertCompletionsInclude("ch<|>",
+            [("function", "chdir"),
+             ("function", "chmod"),
+             ("function", "chomp"),
+             ("function", "chop"),
+             ("function", "chown"),
+             ("function", "chr"),
+             ("function", "chroot")])
 
     def test_complete_available_imports(self):
         name = "perl-complete-available-imports"

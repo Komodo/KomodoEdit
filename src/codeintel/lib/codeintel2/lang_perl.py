@@ -449,6 +449,53 @@ class PerlLangIntel(CitadelLangIntel,
     
         # All Perl trigger points occur at one of the trg_chars.
         if last_ch not in self.trg_chars:
+            # 2 character trigger for built-ins.
+            last_style = accessor.style_at_pos(last_pos)
+            if pos >= 2 and \
+               (last_style == ScintillaConstants.SCE_PL_IDENTIFIER or \
+                last_style == ScintillaConstants.SCE_PL_WORD):
+                # Previous char also needs to be an identifier/word, then the
+                # one before that needs to be something different
+                # (operator/space).
+                if accessor.style_at_pos(last_pos - 1) != last_style or \
+                   (pos > 2 and accessor.style_at_pos(last_pos - 2) == last_style):
+                    if DEBUG:
+                        print "Not a block of two ident/word chars"
+                    return None
+                if (pos > 2 and accessor.char_at_pos(last_pos - 2) == '.') or \
+                   (pos > 3 and accessor.char_at_pos(last_pos - 2) == ':' and
+                                accessor.char_at_pos(last_pos - 3) == ':') or \
+                   (pos > 3 and accessor.char_at_pos(last_pos - 2) == '>' and
+                                accessor.char_at_pos(last_pos - 3) == '-'):
+                    if DEBUG:
+                        print "  preceded by '.', '::', or '->' operator - not a trigger"
+                    return None
+                
+                # Check if it makes sense to show the completions here. If
+                # defining a package name, or function name, you don't want to
+                # see completions. Also do not override another completion type
+                # (e.g. imports).
+                start = accessor.line_start_pos_from_pos(pos)
+                preceding_text = accessor.text_range(start, last_pos - 2).strip()
+                if preceding_text:
+                    first_word = preceding_text.split(" ")[0]
+                    if first_word in ("package", "sub", "use", "require", "no"):
+                        if DEBUG:
+                            print "  no trigger, as starts with %r" % first_word
+                        # Don't trigger over the top of another trigger,
+                        # i.e.
+                        #   complete-package-members
+                        #   complete-*-subs
+                        #   complete-available-imports
+                        return None
+                
+                citdl_expr = accessor.text_range(last_pos - 1, last_pos + 1)
+                if DEBUG:
+                    print "  triggered 2 char symbol trigger: %r" % citdl_expr
+                return Trigger(self.lang, TRG_FORM_CPLN, "names",
+                               last_pos - 1, implicit, citdl_expr=citdl_expr,
+                               preceding_text=preceding_text)
+                    
             if DEBUG:
                 print "no: %r is not in %r" % (last_ch, self.trg_chars)
             return None
@@ -980,6 +1027,11 @@ class PerlLangIntel(CitadelLangIntel,
                 "'complete-package-subs': %r" % filter
             line = buf.accessor.line_from_pos(trg.pos)
             evalr = PerlPackageSubsTreeEvaluator(ctlr, buf, trg, citdl_expr, line)
+            buf.mgr.request_eval(evalr)
+        elif trg.id == ("Perl", TRG_FORM_CPLN, "names"):
+            line = buf.accessor.line_from_pos(trg.pos)
+            citdl_expr = trg.extra.get("citdl_expr")
+            evalr = PerlTreeEvaluator(ctlr, buf, trg, citdl_expr, line)
             buf.mgr.request_eval(evalr)
         #TODO: Might want to handle TRG_FORM_DEFN differently.
         else:
