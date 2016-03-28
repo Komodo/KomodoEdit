@@ -58,6 +58,18 @@ class Less_StraightTest(_BaseCSSTestCase):
         self.assertNoTrigger('body { background: "../myimage.png { m<|>ax"')
         # This one is a bit much to ask for udl
         #self.assertNoTrigger('body { background: url(../myimage.png { m<|>ax)')
+    
+    def test_trg_at_sign(self):
+        complete_variable = self.lang.lower() + "-complete-variable"
+        self.assertTriggerMatches(".foo(@<|>) { /*...*/ };",
+                                  name=complete_variable)
+        self.assertTriggerMatches("@foo: @<|>", name=complete_variable)
+        self.assertTriggerMatches("@<|>", name="css-complete-at-rule")
+        self.assertTriggerMatches(dedent("""
+            .foo {
+                @<|>
+            }
+        """), name="css-complete-at-rule")
 
     @tag("bug65994")
     def test_no_trg_after_comment(self):
@@ -112,11 +124,61 @@ class Less_StraightTest(_BaseCSSTestCase):
         self.assertCompletionsAre(markup_text(content, pos=positions[1]),
                                   [("class", "test"),
                                    ("class", "testClass")])
+    
+    def test_cpln_variable(self):
+        content, positions = unmark_text(dedent("""\
+            @nice-blue: #5B83AD;
+            @light-blue: @<1>nice-blue + #111;
+
+            #header {
+              @nested-color: white;
+              color: @<2>light-blue;
+            }
+            
+            #footer {
+              color: @<3>
+            }
+            
+            @<4>
+        """))
+        self.assertCompletionsAre(markup_text(content, pos=positions[1]),
+                                  [("variable", "light-blue"),
+                                   ("variable", "nice-blue")])
+        self.assertCompletionsAre(markup_text(content, pos=positions[2]),
+                                  [("variable", "light-blue"),
+                                   ("variable", "nested-color"),
+                                   ("variable", "nice-blue")])
+        self.assertCompletionsAre(markup_text(content, pos=positions[3]),
+                                  [("variable", "light-blue"),
+                                   ("variable", "nice-blue")])
+        self.assertCompletionsDoNotInclude(markup_text(content, pos=positions[4]),
+                                  [("variable", "light-blue"),
+                                   ("variable", "nice-blue")])
 
 
 
 class SCSS_StraightTest(Less_StraightTest):
     lang = "SCSS"
+
+    def test_trg_at_sign(self):
+        """
+        SCSS does not have @variables, so ensure all @ triggers are for
+        at-rules.
+        """
+        self.assertTriggerMatches(".foo(@<|>) { /*...*/ };",
+                                  name="css-complete-at-rule")
+        self.assertTriggerMatches("@<|>", name="css-complete-at-rule")
+        self.assertTriggerMatches(dedent("""
+            .foo {
+                @<|>
+            }
+        """), name="css-complete-at-rule")
+    
+    def test_trg_dollar_sign(self):
+        complete_variable = self.lang.lower() + "-complete-variable"
+        self.assertTriggerMatches("body { color: $<|> }",
+                                  name=complete_variable)
+        self.assertNoTrigger("$<|>")
 
     def test_complete_scss_classes(self):
         content, positions = unmark_text(dedent("""\
@@ -136,3 +198,34 @@ class SCSS_StraightTest(Less_StraightTest):
             self.assertCompletionsAre(markup_text(content, pos=positions[i]),
                                       [("class", "error"),
                                        ("class", "seriousError")])
+    
+    def test_cpln_variable(self):
+        content, positions = unmark_text(dedent("""\
+            $font-stack:    Helvetica, sans-serif;
+            $primary-color: #333;
+
+            body {
+              font: 100% $<1>font-stack;
+              color: $<2>primary-color;
+            }
+            
+            #main {
+              $width: 5em;
+              width: $<3>width;
+            }
+            
+            #sidebar {
+              width: $<4>;
+            }
+        """))
+        for i in xrange(1, 2):
+            self.assertCompletionsAre(markup_text(content, pos=positions[i]),
+                                      [("variable", "font-stack"),
+                                       ("variable", "primary-color")])
+        self.assertCompletionsAre(markup_text(content, pos=positions[3]),
+                                  [("variable", "font-stack"),
+                                   ("variable", "primary-color"),
+                                   ("variable", "width")])
+        self.assertCompletionsAre(markup_text(content, pos=positions[4]),
+                                  [("variable", "font-stack"),
+                                   ("variable", "primary-color")])

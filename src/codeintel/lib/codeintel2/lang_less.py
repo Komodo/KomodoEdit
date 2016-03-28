@@ -154,11 +154,19 @@ class _NestedCSSLangIntel(CSSLangIntel):
 
                 # at-rule
                 elif last_char == '@':
-                    #p, ch, style = ac.getPrevPosCharStyle(ignore_styles=styleClassifier.comment_styles)
-                    # XXX - Should check not beyond first rule set
-                    #     - Should check not within a rule block.
-                    return Trigger("CSS", TRG_FORM_CPLN, "at-rule",
-                                   pos, implicit)
+                    if self.lang != 'Less':
+                        return Trigger("CSS", TRG_FORM_CPLN, "at-rule",
+                                       pos, implicit)
+                    else:
+                        # If '@' starts the line, it is an at-rule. Otherwise it
+                        # is a Less variable.
+                        start = buf.accessor.line_start_pos_from_pos(pos)
+                        if not buf.accessor.text_range(start, last_pos).strip():
+                            return Trigger("CSS", TRG_FORM_CPLN, "at-rule",
+                                           pos, implicit)
+                        else:
+                            return Trigger(self.lang, TRG_FORM_CPLN, "variable",
+                                           pos, implicit)
                 # Not quite like CSS: don't handle </
 
             # tag-names
@@ -186,6 +194,14 @@ class _NestedCSSLangIntel(CSSLangIntel):
             elif styleClassifier.is_identifier(last_style, ac):
                 if DEBUG:
                     print "  _trg_from_pos:: IDENTIFIER style"
+                
+                # SCSS variables (not beginning on the start of a line).
+                if last_char == '$' and self.lang == "SCSS":
+                    start = buf.accessor.line_start_pos_from_pos(pos)
+                    if buf.accessor.text_range(start, last_pos).strip():
+                        return Trigger(self.lang, TRG_FORM_CPLN, "variable",
+                                       pos, implicit)
+                
                 # property-names
                 #print "here", accessor.text_range(0, pos)
                 # We trigger on identifier names with any length >= 1 char
@@ -325,7 +341,28 @@ class _NestedCSSLangIntel(CSSLangIntel):
         #DEBUG = True
         if DEBUG:
             print "Less: _async_eval_at_trg: trg: %s(%r)" % (trg, trg)
-        if trg.id != (self.lang, TRG_FORM_CPLN, "tag-or-property-names"):
+        if trg.id == (self.lang, TRG_FORM_CPLN, "variable"):
+            # Autocomplete Less variables from the current file and/or scope(s).
+            cplns = []
+            if self.lang in buf.blob_from_lang:
+                blob = buf.blob_from_lang[self.lang]
+                linenum = buf.accessor.line_from_pos(trg.pos)
+                scoperef = buf.scoperef_from_blob_and_line(blob, linenum)
+                while scoperef:
+                    elem = scoperef[0]
+                    for lname in scoperef[1]:
+                        elem = elem.names[lname]
+                    for child in elem:
+                        if child.tag == "variable":
+                            cplns.append(("variable", child.get("name")))
+                    if scoperef[1]:
+                        scoperef = (scoperef[0], scoperef[1][:-1])
+                    else:
+                        scoperef = None
+            ctlr.set_cplns(sorted(cplns))
+            ctlr.done("success")
+            return
+        elif trg.id != (self.lang, TRG_FORM_CPLN, "tag-or-property-names"):
             CSSLangIntel._async_eval_at_trg(self, buf, trg, ctlr, styleClassifier)
             return
         if DEBUG:

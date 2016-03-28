@@ -1270,6 +1270,16 @@ class CSSSelector:
         else:
             self.target = target
         
+        self.variables = [] # Less/SCSS only
+        
+    def addVariable(self, variable):
+        """
+        Adds the given CSSVariable to this CSS selector.
+        This is only applicable in Less/SCSS.
+        @param variable The CSSVariable to add.
+        """
+        self.variables.append(variable)
+        
     def appendElementTreeTo(self, cixmodule):
         """
         Creates a CIX representation of this selector and appends it to the
@@ -1279,6 +1289,36 @@ class CSSSelector:
         """
         cixobject = SubElement(cixmodule, "scope", ilk=self.type, name=self.text)
         cixobject.attrib["target"] = self.target
+        cixobject.attrib["line"] = str(self.line + 1)
+        
+        for variable in self.variables:
+            variable.appendElementTreeTo(cixobject)
+
+class CSSVariable:
+    """
+    A CILE object that represents a Less/SCSS variable.
+    """
+    def __init__(self, text, line):
+        """
+        Creates a new representation for a Less/SCSS variable with the given
+        name that occurs on the given line number.
+        @param text The name of the Less/SCSS variable, including tht leading
+               '@' or '$'.
+        @param line The line number the variable starts on.
+        """
+        self.text = text
+        self.name = text[1:]
+        self.line = line
+        
+    def appendElementTreeTo(self, cixmodule):
+        """
+        Creates a CIX representation of this Less/SCSS variable and appends it
+        to the given CixModule.
+        @param cixmodule The CixModule to append the CIX representation of this
+               variable to.
+        """
+        cixobject = SubElement(cixmodule, "variable", name=self.text)
+        cixobject.attrib["name"] = self.name
         cixobject.attrib["line"] = str(self.line + 1)
 
 class CSSFile:
@@ -1301,6 +1341,8 @@ class CSSFile:
         self.elements = {}
         self.classes = {}
         self.ids = {}
+        # Less or SCSS variables defined within this file.
+        self.variables = {}
         
     def addSelector(self, selector):
         """
@@ -1313,14 +1355,22 @@ class CSSFile:
             self.classes[selector.text] = selector
         elif selector.type == CSSSelector.ID:
             self.ids[selector.text] = selector
-            
+        
+    def addVariable(self, variable):
+        """
+        Adds the given CSSVariable to this CSS file.
+        @param variable The CSSVariable to add.
+        """
+        self.variables[variable.text] = variable
+        
     def appendCixToModule(self, cixmodule):
         """
         Appends the individual CixElements to the given CixModule.
         @param cixmodule The CixModule to append the CIX representation of this
                file to.
         """
-        for v in sorted(self.elements.values() + self.classes.values() + self.ids.values(),
+        for v in sorted(self.elements.values() + self.classes.values() +
+                        self.ids.values() + self.variables.values(),
                         key=operator.attrgetter("line", "text")):
             v.appendElementTreeTo(cixmodule)
         
@@ -1355,7 +1405,12 @@ class CSSCile:
         
         self.selector = []
         self.selectorStartLine = None
-        self.nestedSelectors = [] # for keeping track of nested selectors (Less)
+        # Track nested selector names in order to generate fully expanded
+        # selector names (Less/SCSS only).
+        self.nestedSelectors = []
+        # Track nested scopes in order to add declared variables to the
+        # appropriate scope (Less/SCSS only).
+        self.nestedScopes = []
         self.whitespace = re.compile('^\\s+$')
         self.blockLevel = 0
         self.parenLevel = 0
@@ -1365,7 +1420,8 @@ class CSSCile:
         """
         Called for each token parsed by a Scintilla lexer.
         This CILE only looks for a subset of tokens.
-        Parses out element, class, and id selectors.
+        Parses out element, class, and id selectors as well as Less/SCSS
+        variable definitions.
         @param style The style of the parsed token.
         @param text The text of the parsed token.
         @param start_column The column number the parsed token is on.
@@ -1378,6 +1434,7 @@ class CSSCile:
                     self.blockLevel = max(self.blockLevel - 1, 0)
                     if (len(self.nestedSelectors) > 0):
                         self.nestedSelectors.pop()
+                        self.nestedScopes.pop()
                 if (self.blockLevel == 0 or self.lang in ['Less', 'SCSS']):
                     self.selector = [] # start looking for selectors
                     self.selectorStartLine = None # need to reset on ';' (Less, SCSS)
@@ -1392,6 +1449,7 @@ class CSSCile:
                       self.selector[1] == 'include'):
                 selectorText = ''.join(self.selector).strip()
                 self.nestedSelectors.append(selectorText)
+                self.nestedScopes.append([])
                 if CSSSelector.CSS_ID_OR_CLASS.search(selectorText):
                     # Parse out each id and class being used in the selector
                     # and create an individual selector for that target.
@@ -1399,9 +1457,11 @@ class CSSCile:
                         if self.lang in ['Less', 'SCSS']:
                             # Use the fully expanded name.
                             selectorText = ' '.join(self.nestedSelectors).replace('&', '')
-                        self.cile.addSelector(CSSSelector(selectorText,
-                                                          self.selectorStartLine,
-                                                          selector[0]))
+                        css_selector = CSSSelector(selectorText,
+                                                   self.selectorStartLine,
+                                                   selector[0])
+                        self.cile.addSelector(css_selector)
+                        self.nestedScopes[-1].append(css_selector)
                 else:
                     # No ids or classes in the selector; use its last element as
                     # the target.
@@ -1410,9 +1470,11 @@ class CSSCile:
                         if self.lang in ['Less', 'SCSS']:
                             # Use the fully expanded name.
                             selectorText = ' '.join(self.nestedSelectors).replace('&', '')
-                        self.cile.addSelector(CSSSelector(selectorText,
-                                                          self.selectorStartLine,
-                                                          selector.group(1)))
+                        css_selector = CSSSelector(selectorText,
+                                                   self.selectorStartLine,
+                                                   selector.group(1))
+                        self.cile.addSelector(css_selector)
+                        self.nestedScopes[-1].append(css_selector)
                     else:
                         log.warn("Unable to process CSS selector '%s'" % selectorText)
                 
@@ -1440,9 +1502,19 @@ class CSSCile:
                 self.blockLevel += 1
             elif text == ')':
                 self.parenLevel = max(self.parenLevel - 1, 0)
-            elif text == '$':
-                # SCSS variable; stop looking for selectors until encountering
-                # ';'.
+            elif text == ':' and self.selector and \
+                 ((self.lang == 'Less' and self.selector[0] == '@') or \
+                  (self.lang == 'SCSS' and self.selector[0] == '$')):
+                # Less or SCSS variable. Add it to the file scope or local
+                # scope(s).
+                variable = CSSVariable(''.join(self.selector).strip(),
+                                       self.selectorStartLine)
+                if len(self.nestedSelectors) == 0:
+                    self.cile.addVariable(variable) # file scope
+                else:
+                    for css_selector in self.nestedScopes[-1]:
+                        css_selector.addVariable(variable) # local scope
+                # Stop looking for selectors until encountering ';'.
                 self.ignoreStatement = True
         elif self.styleClassifier.is_comment(style):
             # Embedded comments within selectors are unlikely, but handle them
