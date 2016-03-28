@@ -173,9 +173,6 @@ binding cmd_focusSource Ctrl+K Ctrl+S
 binding cmd_viewBottomPane Ctrl+Shift+M
 binding cmd_viewPlaces Ctrl+Shift+P
 binding cmd_viewToolbox Ctrl+Shift+L
-# #if WITH_CODE_BROWSER
-binding cmd_viewCodeBrowser Ctrl+Shift+C
-# #endif
 
 binding cmd_reopenLastClosedTab Ctrl+Shift+T
 
@@ -192,17 +189,6 @@ binding cmd_viewFullScreen Ctrl+K F11
 
 # Projects and SCC
 binding cmd_refreshStatus Ctrl+K R
-# #if WITH_SCC
-binding cmd_SCCedit Ctrl+K E
-binding cmd_SCCremove Ctrl+K O
-binding cmd_SCCdiff Ctrl+K D
-binding cmd_SCChistory Ctrl+K H
-binding cmd_SCCrevert Ctrl+K V
-binding cmd_SCCupdate Ctrl+K U
-binding cmd_SCCadd Ctrl+K A
-binding cmd_SCCcommit Ctrl+K C
-binding cmd_SCCcheckout Ctrl+K K
-# #endif
 
 # Debugging / DBGP
 binding cmd_dbgStepIn  F11
@@ -232,9 +218,6 @@ binding cmd_stopMacroMode Ctrl+K )
 binding cmd_executeLastMacro Ctrl+K _
 
 binding cmd_goToDefinition Ctrl+K Ctrl+G
-# #if WITH_CODE_BROWSER
-binding cmd_codeBrowserLocate Ctrl+K Ctrl+L
-# #endif
 
 binding cmd_selectRectCharPrevious Alt+Shift+Left
 binding cmd_selectRectCharNext Alt+Shift+Right
@@ -244,10 +227,6 @@ binding cmd_selectRectHome Alt+Shift+Home
 binding cmd_selectRectEnd Alt+Shift+End
 binding cmd_selectRectPageUp Alt+Shift+Page_Up
 binding cmd_selectRectPageDown Alt+Shift+Page_Down
-
-# #if WITH_SLEUTH
-binding cmd_runCurrentTestPlan Ctrl+K T
-# #endif
 
 binding cmd_scope-combined-toolscmds Ctrl+Shift+K
 binding cmd_showCommando Ctrl+Shift+O

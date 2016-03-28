@@ -152,9 +152,7 @@ binding cmd_scope-docs Ctrl+Shift+/
 
 # Code completion
 binding cmd_goToDefinition Ctrl+K Ctrl+G
-# #if WITH_CODE_BROWSER
-binding cmd_codeBrowserLocate Ctrl+K Ctrl+L
-# #endif
+
 binding cmd_completeWord Ctrl+Space
 binding cmd_completeWordBack Ctrl+Shift+Space
 binding cmd_triggerPrecedingCompletion Meta+J
@@ -201,9 +199,6 @@ binding cmd_viewToolbox Ctrl+Shift+L
 binding cmd_viewFullScreen Meta+Ctrl+F
 binding cmd_focusmode Meta+Ctrl+Shift+F
 binding cmd_toggleInteractiveShell Meta+Escape
-# #if WITH_CODE_BROWSER
-binding cmd_viewCodeBrowser Ctrl+Shift+C
-# #endif
 
 # Zoom
 binding cmd_fontZoomOut Meta+_
@@ -213,17 +208,6 @@ binding cmd_fontZoomReset Meta+0
 
 # Projects and SCC
 binding cmd_refreshStatus Ctrl+K R
-# #if WITH_SCC
-binding cmd_SCCedit Ctrl+K E
-binding cmd_SCCremove Ctrl+K O
-binding cmd_SCCdiff Ctrl+K D
-binding cmd_SCChistory Ctrl+K H
-binding cmd_SCCrevert Ctrl+K V
-binding cmd_SCCupdate Ctrl+K U
-binding cmd_SCCadd Ctrl+K A
-binding cmd_SCCcommit Ctrl+K C
-binding cmd_SCCcheckout Ctrl+K K
-# #endif
 
 # Debugging / DBGP
 binding cmd_dbgGo Meta+G
@@ -241,11 +225,6 @@ binding cmd_dbgBreakpointClearAllInURI Meta+Ctrl+\
 binding cmd_executeLastMacro Ctrl+K _
 binding cmd_startMacroMode Ctrl+K (
 binding cmd_stopMacroMode Ctrl+K )
-
-#Tests
-# #if WITH_SLEUTH
-binding cmd_runCurrentTestPlan Ctrl+K T
-# #endif
 
 #View Management
 binding cmd_viewEOL Meta+Shift+&
