@@ -1,56 +1,30 @@
 /**
- * @copyright (c) 2015 ActiveState Software Inc.
+ * @copyright (c) 2016 ActiveState Software Inc.
  * @license Mozilla Public License v. 2.0
  * @author CareyH
  * @overview Page sub module for the wizard SDK module
  *
  */
 
-/**
- * "declaration" of the Row class.  Uses the init() function as a constructor
- */
-function Panel($element = {}, options = {}) { this.init($element, options) };
-(function()
-    {
-        var $ = require("ko/dom");
-        this.type = "panel";
+var parent = require("./container");
+var Module = Object.assign({}, parent); 
+module.exports = Module;
 
-        /**
-         * Initialize the properties of the object being passed to the user
-         */
-        this.init = function($element = {}, options = {})
-        {
-             // The only arg passed in might only be options
-            if (!$element.koDom)
-            {
-                options = $element;
-            }
-            
-            var newElem = $.create(this.type, options.attributes || {})
-            var $newElem = $(newElem.toString());
-            // if content has been provided append it to the element
-            if($element && $element.koDom)
-            {
-                $newElem.append($element);
-            }
-            this.$elem = $newElem; // koDom object
-            this.element = this.$elem.element.bind(this.$elem); // Actual DOM object
-        };
+// Main module (module.exports)
+(function() {
+    
+    this.Model = Object.assign({}, this.Model);
+    
+    (function() {
         
-        /**
-         * Insert content to the panel
-         *
-         * @param {koDom} content, a koDom object to be inserted into the panel
-         */
-        this.addContent = function panel_addContent($content)
-        {
-            this.$elem.append($content);
-        }
+        this.name = "panel";
+        
+        this.init = this.initWithElement;
         
         /**
          * Show the panel.
          *
-         * @param {object} options, options object should contain the following:
+         * @param {object} args, options object can contain the following:
          *   
          *    {
          *        anchor : dom object to anchor to,
@@ -58,7 +32,7 @@ function Panel($element = {}, options = {}) { this.init($element, options) };
          *        x : number,
          *        y : number,
          *        isContextMenu : bool,
-         *        attributesOverride : bool,
+         *        attributes : bool,
          *        triggerEvent : event)
          *    }
          *    ref: https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XUL/Method/openPopup
@@ -71,7 +45,7 @@ function Panel($element = {}, options = {}) { this.init($element, options) };
             var x = args.x || 0;
             var y = args.y || 0;
             var isContextMenu = args.isContextMenu || false;
-            var attributesOverride = args.attributesOverride || false;
+            var attributesOverride = args.attributes || false;
             var triggerEvent = args.triggerEvent || null;
             this.element.openPopup(anchor,
                                    position,
@@ -82,17 +56,6 @@ function Panel($element = {}, options = {}) { this.init($element, options) };
                                    triggerEvent)
         };
         
-        
-    }
-).apply(Panel.prototype);
-
-/**
- * Create an instance of a row object 
- *
- * @returns {Object} Row,  object which contains the koDom object of a
- * row (a.k.a hbox) element in the element property.
- */
-module.exports.create = function panel_create($element = {}, options = {})
-{
-    return new Panel($element, options);
-};
+    }).apply(this.Model); 
+    
+}).apply(Module);

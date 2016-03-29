@@ -1,9 +1,8 @@
 /**
- * @copyright (c) 2015 ActiveState Software Inc.
+ * @copyright (c) 2016 ActiveState Software Inc.
  * @license Mozilla Public License v. 2.0
  * @author NathanR, CareyH
- * @overview col sub module for the ko/ui SDK
- *
+ * @overview Row sub module for the ko/ui SDK
  */
 
 var parent = require("./element");
@@ -17,15 +16,11 @@ module.exports = Module;
     
     (function() {
         
-        this.name = "button";
+        this.name = "label";
         
-        this.init = this.initWithLabel;
-        
-        this.onCommand = function (callback)
-        {
-            this.$element.on("command", callback);
-        };
+        this.init = function (value, options) this.initWithAttribute("value", value, options);
         
     }).apply(this.Model); 
     
 }).apply(Module);
+

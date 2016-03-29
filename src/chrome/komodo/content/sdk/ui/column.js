@@ -4,6 +4,7 @@
  * @author NathanR, CareyH
  */
 
+
 var parent = require("./container");
 var Module = Object.assign({}, parent);
 module.exports = Module;
@@ -14,7 +15,7 @@ module.exports = Module;
     
     (function() {
         
-        this.name = "hbox";
+        this.name = "vbox";
         
     }).apply(this.Model);
     

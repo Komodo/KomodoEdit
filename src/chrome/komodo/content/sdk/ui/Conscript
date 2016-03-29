@@ -17,11 +17,23 @@ Import(
     'mozVersion',
 );
 
-$cons->InstallInChrome('row.js');
-$cons->InstallInChrome('col.js');
-$cons->InstallInChrome('panel.js');
-$cons->InstallInChrome('textbox.js');
-$cons->InstallInChrome('menulist.js');
 $cons->InstallInChrome('button.js');
+$cons->InstallInChrome('caption.js');
 $cons->InstallInChrome('checkbox.js');
+$cons->InstallInChrome('column.js');
+$cons->InstallInChrome('container.js');
+$cons->InstallInChrome('description.js');
+$cons->InstallInChrome('element.js');
+$cons->InstallInChrome('groupbox.js');
+$cons->InstallInChrome('label.js');
+$cons->InstallInChrome('menu.js');
+$cons->InstallInChrome('menuitem.js');
+$cons->InstallInChrome('menulist.js');
+$cons->InstallInChrome('menupopup.js');
+$cons->InstallInChrome('panel.js');
+$cons->InstallInChrome('radio.js');
+$cons->InstallInChrome('radiogroup.js');
+$cons->InstallInChrome('row.js');
+$cons->InstallInChrome('textbox.js');
+$cons->InstallInChrome('wizardpage.js');
 

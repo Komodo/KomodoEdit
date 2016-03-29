@@ -17,7 +17,7 @@ module.exports = Module;
     
     (function() {
         
-        this.name = "checkbox";
+        this.name = "radio";
         
         this.init = this.initWithLabel;
         
@@ -26,24 +26,25 @@ module.exports = Module;
             this.$element.on("command", callback);
         };
         
-        this.checked = function(value)
+        this.selected = function(value)
         {
-            if (value) {
-                this.$element.attr("checked", value);
+            if (value)
+            {
+                this.$element.attr("selected", value);
             }
-            return this.element.checked;
+            return this.element.selected;
         };
         
         this.value = function(value)
         {
             if ( ! value)
-                return this.checked();
+                return this.selected();
             
             var localValue = this.attributes.value || this.attributes.label || false;
-            var checked = value == localValue;
-            this.checked(checked);
+            var selected = value == localValue;
+            this.selected(selected);
             
-            return checked;
+            return selected;
         };
         
     }).apply(this.Model); 
