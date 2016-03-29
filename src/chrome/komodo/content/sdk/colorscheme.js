@@ -117,22 +117,30 @@
         observerSvc.notifyObservers(null, 'scheme-changed', name);
     }
     
-    this.applyInterface = (name) =>
+    this.applyInterface = (name, noDelay = false) =>
     {
         prefs.setString("interface-scheme", name);
         
         var timers = require("sdk/timers");
         timers.clearTimeout(_applyInterface.timer);
-        _applyInterface.timer = timers.setTimeout(_applyInterface, 50);
+        
+        if (noDelay)
+            _applyInterface();
+        else
+            _applyInterface.timer = timers.setTimeout(_applyInterface, 50);
     }
     
-    this.applyWidgets = (name) =>
+    this.applyWidgets = (name, noDelay = false) =>
     {
         prefs.setString("widget-scheme", name);
         
         var timers = require("sdk/timers");
         timers.clearTimeout(_applyInterface.timer);
-        _applyInterface.timer = timers.setTimeout(_applyInterface, 50);
+        
+        if (noDelay)
+            _applyInterface();
+        else
+            _applyInterface.timer = timers.setTimeout(_applyInterface, 50);
     }
     
     var _applyInterface = () =>
