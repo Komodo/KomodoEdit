@@ -807,6 +807,8 @@ adding an additional caret at the clicked position.">
 <!ENTITY filePrefPhpInifileDirectory.description "Directory containing php.ini">
 <!ENTITY phpFolder.description "Specify any directories that you want Komodo to use for autocomplete and calltips. Komodo will recursively scan these directories for information.">
 <!ENTITY commentStyle.label "Comment Style:">
+<!ENTITY phpDoubleClickSelectsEntireVariable.label "Double-click selects entire variable (including $).">
+<!ENTITY phpDoubleClickSelectsEntireVariable.description "Any changes will only apply to newly opened or re-opened PHP files.">
 
 <!--pref-python.xul-->
 <!ENTITY noPythonInterpreter.description "No Python interpreter was found on your system PATH. If you would like to debug and run Python programs in Komodo you will need to have Python installed and then enter the path to your Python interpreter below. You can get Python from ActiveState at">

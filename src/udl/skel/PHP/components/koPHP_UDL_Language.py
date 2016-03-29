@@ -79,7 +79,6 @@ class KoPHPLanguage(KoUDLLanguage, KoLanguageBaseDedentMixin):
     namedBlockRE = r'^(.*?function\s+[&]*?\s*[\w_]*)|(^.*?(?<=\s)(?:class|interface)\s+[\w_]*)'
     namedBlockDescription = 'PHP functions and classes'
     defaultExtension = ".php"
-    variableIndicators = '$'
     downloadURL = 'http://php.net/'
     commentDelimiterInfo = {
         "line": [ "//", "#" ],
@@ -129,6 +128,10 @@ echo $foo1->mul()."";
                          skippable_chars_by_style={ sci_constants.SCE_UDL_SSL_OPERATOR : "])",},
                          
                          for_check=True)
+    
+    @property
+    def variableIndicators(self):
+        return self.__prefs.getBooleanPref("phpDoubleClickSelectsEntireVariable") and '$' or ''
     
     def observe(self, subject, topic, data):
         if topic == "phpCommentStyle":

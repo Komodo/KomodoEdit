@@ -117,7 +117,7 @@
                     pref="true" prefwidget="true"
                     prefstring="phpExtraPaths"/>
         </groupbox>
-        <groupbox orient="vertical" id="pref-php-comment-style"
+        <groupbox orient="vertical" id="pref-php-other-options"
                   class="load-context-check" showIfLoadContext="global">
             <caption label="&otherOptions.label;"/>
             <hbox align="center">
@@ -130,6 +130,15 @@
                         <menuitem data="#,//" label="&hash.label;"/>
                     </menupopup>
                 </menulist>
+            </hbox>
+            <hbox align="center">
+                <vbox>
+                    <checkbox id="phpDoubleClickSelectsEntireVariable"
+                              label="&phpDoubleClickSelectsEntireVariable.label;"
+                              pref="true" prefstring="phpDoubleClickSelectsEntireVariable"
+                              prefattribute="checked"/>
+                    <description id="phpDoubleClickSelectsEntireVariableDescr">&phpDoubleClickSelectsEntireVariable.description;</description>
+                </vbox>
             </hbox>
         </groupbox>
 
