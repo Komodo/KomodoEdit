@@ -261,11 +261,6 @@ tabbox.embedded
 
 /* Form Elements */
 
-checkbox + *, radio + *
-{
-    margin-left: 1.5rem;
-}
-
 checkbox, radio
 {
     -moz-box-pack: center;
@@ -565,7 +560,7 @@ button.unstyled
     -moz-appearance: none;
 }
 
-:not(button) > button:not(.button-toolbar-a):not(.unstyled),
+:not(button) > button:not(.button-toolbar-a):not(.unstyled):not(.spinbuttons-button),
 .button
 {
     -moz-appearance: none;
@@ -587,6 +582,17 @@ button.unstyled
     }
 }
 
+spinbuttons
+{
+    margin-top: -3px;
+    margin-left: 4px;
+    
+    button
+    {
+        height: 10px;
+    }
+}
+
 button[type="checkbox"][checked="true"]
 {
     box-shadow: inset 0px 0px 0px 1px @special;
@@ -602,13 +608,10 @@ button[type="checkbox"][checked="true"]
 
 /* Modals */
 
-:root[hidechrome="true"].dialog .window-wrapper,
-:root:not([hidechrome="true"]).dialog,
-dialog, :root.pref-window
+.dialog,
+dialog,
+.pref-window
 {
-    color: @foreground;
-    background: @contrast;
-    
     .dialog-content-box
     {
         background: @contrast;
@@ -631,10 +634,7 @@ dialog, :root.pref-window
             visibility: collapse;
         }
     }
-}
 
-.dialog, dialog, :root.pref-window
-{
     tabbox tabpanels,
     .groupbox-body
     {

@@ -36,12 +36,6 @@
                     <xul:toolbarbutton buttonstyle="pictures" class="icon-cancel-circle2" onclick="window.close();"/>
                 </xul:hbox>
             </xul:hbox>
-            <xul:hbox id="closebar" pack="center" align="center">
-                <xul:spacer flex="1"></xul:spacer>
-                <xul:hbox id="windowButtons" align="center" pack="end">
-                    <xul:toolbarbutton buttonstyle="pictures" class="icon-cancel-circle2" onclick="window.close();"/>
-                </xul:hbox>
-            </xul:hbox>
             <children/>
         </xul:vbox>
         <xul:resizer dir="right"/>
@@ -57,19 +51,7 @@
       <field name="_tophandle">true</field>
       <constructor>
         <![CDATA[
-        if (window.parent && ! window.opener)
-        {
-          this._draggable = false;
-          return;
-        }
-        
         var hideChrome = require("ko/prefs").getBoolean("ui.hide.chrome");
-        var showTitleBar = require("ko/prefs").getBoolean("ui.show.titlebar");
-        
-        if ( ! showTitleBar)
-        {
-            this.setAttribute("titlebar", false);
-        }
         
         this._draggable = hideChrome;
         if (!this._draggableStarted) {
@@ -102,17 +84,11 @@
             var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                         .getService(Components.interfaces.nsIWindowMediator);
             var w = wm.getMostRecentWindow("Komodo");
+            if ( ! w) return;
             var require = w.require;
         }
         
         var hideChrome = require("ko/prefs").getBoolean("ui.hide.chrome");
-        var showTitleBar = require("ko/prefs").getBoolean("ui.show.titlebar");
-        
-        if ( ! showTitleBar)
-        {
-            this.setAttribute("titlebar", false);
-            this.setAttribute("drawintitlebar", true);
-        }
         
         this._draggable = hideChrome;
         if (!this._draggableStarted) {
@@ -122,7 +98,10 @@
           } catch (e) {}
         }
         
-        if (hideChrome) this.setAttribute("hidechrome", true);
+        if (hideChrome)
+        {
+            this.setAttribute("hidechrome", true);
+        }
         
         setTimeout(this.centerWindowOnScreen.bind(this), 250);
         ]]>

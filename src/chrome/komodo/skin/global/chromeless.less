@@ -10,90 +10,101 @@
     }
 }
 
-:root[hidechrome="true"]:not([sizemode="maximized"])
+/* Dialogs with hidden chrome */
+
+.dialog:root[hidechrome="true"]:not(#komodo_main):not(.embedded),
+dialog:root[hidechrome="true"]:not(#komodo_main):not(.embedded)
 {
-    border-top-left-radius: 5px;
-    border-top-right-radius: 5px;
+    &:not([sizemode="maximized"])
+    {
+        border-top-left-radius: 5px;
+        border-top-right-radius: 5px;
+    }
+    
+    .window-wrapper
+    {
+        background: @contrast;
+        color: @foreground;
+        padding: 5px;
+        
+        & > #titlebar
+        {
+            padding-bottom: 5px;
+            
+            & > spacer, #windowButtons
+            {
+                toolbarbutton
+                {
+                    font-size: 12px;
+                }
+                
+                width: 90px;
+            }
+        }
+    }
 }
 
-:not(#komodo_main):root[hidechrome="true"] .window-wrapper
+/* Dialogs with default chrome */
+
+.dialog:not([hidechrome="true"]):not(#komodo_main):not(.embedded)
+dialog:not([hidechrome="true"]):not(#komodo_main):not(.embedded)
 {
+    background: @contrast;
+    color: @foreground;
     padding: 5px;
     
-    & > #titlebar
-    {
-        padding-bottom: 5px;
-        
-        & > spacer, #windowButtons
-        {
-            toolbarbutton
-            {
-                font-size: 12px;
-            }
-            
-            width: 90px;
-        }
-    }
-    
-    & > #closebar toolbarbutton
-    {
-        margin: 0;
-        padding: 0;
-        
-        font-size: 10px;
-    }
-}
-
-:root[hidechrome="true"][titlebar="false"] .window-wrapper
-{
-    padding: 10px;
-    
-    & > #titlebar
+    #titlebar,
+    resizer
     {
         visibility: collapse;
     }
 }
 
-:root[hidechrome="true"]:not([titlebar="false"]) #closebar,
-{
-    visibility: collapse;
-}
+/* Main window with hidden chrome */
 
-#komodo_main:not([hidechrome="true"]) resizer
+#komodo_main[hidechrome="true"]
 {
-    visibility: collapse;
-}
-
-#komodo_main
-{
-    #titlebar
+    color: @foreground;
+    
+    #komodo-box
     {
-        visibility: collapse;
-        
-        & > spacer, #windowButtons
-        {
-            width: 90px;
-            
-            toolbarbutton, .toolbarbutton-text
-            {
-                font-size: 12px !important;
-            }
-        }
+        background: @background;
     }
     
-    &:not([hidechrome="true"])
+    &:not([sizemode="maximized"])
     {
-        #windowButtons
+        border-top-left-radius: 5px;
+        border-top-right-radius: 5px;
+    }
+    
+    &[sizemode="maximized"]
+    {
+        background: @background;
+    }
+    
+    &:not([show-toolbar="false"])
+    {
+        #titlebar
         {
             visibility: collapse;
         }
     }
     
-    &[hidechrome="true"][show-toolbar="false"] 
+    &[show-toolbar="false"] 
     {
         #titlebar
         {
             visibility: visible;
+            
+            & > spacer, #windowButtons
+            {
+                width: 90px;
+                
+                toolbarbutton, .toolbarbutton-text
+                {
+                    font-size: 12px !important;
+                }
+            }
         }
         
         #toolbox_main
@@ -101,32 +112,65 @@
             padding: 0 2px 2px;
         }
     }
-}
-
-/**
- * The main window cannot have border-radius if it also has a background, so we
- * have to put the background one node lower
- */
-#komodo_main > #komodo-box,
-:root:not([hidechrome="true"]):not(.pref-window)
-{
-    &:not(#komodo_main)
+    
+    /* Main window resizers */
+    
+    /**
+     * Top resizer. We do not support top left or top right.
+     */
+    #toolbox_main
     {
-        background: @background;
+        resizer
+        {
+            background: @special !important;
+            height: 4px;
+        }
     }
     
+    /**
+     * Left and bottom left resizer.
+     */
+    resizer[dir="left"], resizer[dir="bottomleft"]
+    {
+        background: @contrast !important;
+    }
+    
+    /* account for resizer taking up space */
+    #toolbox_side 
+    {
+        width: 46px;
+        padding-right: 2px;
+    }
+    
+    /**
+     * Bottom and bottom right resizer
+     */
+    .resizer-box.bottom > spacer
+    {
+        width: 46px;
+    }
+    
+    resizer[dir="bottom"], resizer[dir="bottomright"], resizer[dir="right"]
+    {
+        background: @background !important;
+    }
+}
+
+/* Main window with default chrome */
+
+#komodo_main:not([hidechrome="true"]) 
+{
     color: @foreground;
+    background: @background;
+    
+    #titlebar,
+    #windowButtons,
+    resizer
+    {
+        visibility: collapse;
+    }
 }
 
-#komodo_main:not([hidechrome="true"])
-{
-    background: @background;
-}
-
-#komodo_main[sizemode="maximized"]
-{
-    background: @background;
-}
 
 /* Resize handlers */
 
@@ -162,40 +206,4 @@ resizer
 #komodo_main[hidechrome="true"]:-moz-any(window[os-name="Windows_NT"],window[os-name="Linux"]) #toolbox_main
 {
     padding-top: 0 !important;
-}
-
-#komodo_main[hidechrome="true"]
-{
-    /**
-     * Top resizer. We do not support top left or top right.
-     */
-    #toolbox_main
-    {
-        resizer
-        {
-            background: @special !important;
-            height: 4px;
-        }
-    }
-    
-    /**
-     * Left and bottom left resizer.
-     */
-    resizer[dir="left"], resizer[dir="bottomleft"]
-    {
-        background: @contrast !important;
-    }
-    
-    /**
-     * Bottom and bottom right resizer
-     */
-    .resizer-box.bottom > spacer
-    {
-        width: 46px;
-    }
-    
-    resizer[dir="bottom"], resizer[dir="bottomright"], resizer[dir="right"]
-    {
-        background: @background !important;
-    }
 }
