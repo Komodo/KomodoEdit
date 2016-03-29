@@ -115,14 +115,22 @@
      */
     this.log = () =>
     {
-        // Todo: Localize and add documentation link
-        ko.dialogs.alert(
-            "Console messages are send to the Console pane, stdout and \
-            Komodo's pystderr.log, for more information please check our documentation.",
-            null, "Info on Console Messages", "consoleMessages"
-        );
+        if (typeof ko != "undefined" && "dialogs" in ko)
+        {
+            // Todo: Localize and add documentation link
+            ko.dialogs.alert(
+                "Console messages are send to the Console pane, stdout and \
+                Komodo's pystderr.log, for more information please check our documentation.",
+                null, "Info on Console Messages", "consoleMessages"
+            );
+        }
+        
+        var data = Array.slice(arguments).map(function(arg)
+        {
+            return stringify(arg, true);
+        }).join(" ");
 
-        return console.log.apply(console, arguments);
+        return console.log(console, data);
     }
 
     /**

@@ -159,7 +159,15 @@ var koLess = function koLess()
             Services.tm.currentThread.dispatch(() => {
                 var wm = Cc["@mozilla.org/appshell/window-mediator;1"].getService(Ci.nsIWindowMediator);
                 var mw = wm.getMostRecentWindow("Komodo");
-                var require = mw.require;
+                
+                if (typeof require == "undefined")
+                {
+                    var require;
+                    if (mw)
+                        require = mw.require;
+                    else
+                        return;
+                }
                 
                 Components.classes["@mozilla.org/chrome/chrome-registry;1"]
                   .getService(Components.interfaces.nsIXULChromeRegistry)

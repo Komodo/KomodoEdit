@@ -110,7 +110,7 @@ function scintillaOverlayOnLoad(options) {
     
     gMainWindow = ko.windowManager.getMainWindow();
 
-    if (!options || ("commands" in options)) {
+    if ((!options || ("commands" in options)) && gMainWindow) {
         // "steal" the commands and keyset from the main window
         // Doing it the 'right' way takes a long time - I'm hoping this
         // will be faster.
@@ -119,7 +119,7 @@ function scintillaOverlayOnLoad(options) {
         document.documentElement.appendChild(node);
     }
 
-    if (!options || ("keyhandler" in options)) {
+    if ((!options || ("keyhandler" in options)) && gMainWindow) {
         // Stop ENTER key in Scintilla from going to dialog "OK" button - bug 41071.
         // (keypress screws up keybindings with shifted keys such as ctrl+shift+9)
         window.addEventListener("keydown", keypressInterrupt, false);
