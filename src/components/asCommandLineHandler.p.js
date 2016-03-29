@@ -142,37 +142,33 @@ komodoCmdLineHandler.prototype = {
     var prefSvc = Components.classes["@activestate.com/koPrefService;1"].
 	  getService(Components.interfaces.koIPrefService);
       
+    let {logging} = Components.utils.import("chrome://komodo/content/library/logging.js");
+    var log = logging.getLogger("asCommandLineHandler");
+
     // #if PLATFORM == "darwin"
     var hideChrome = prefSvc.prefs.getBoolean('ui.hide.chrome');
     if (hideChrome) winOptions += ",titlebar=no";
     // #endif
     
-    let {logging} = Components.utils.import("chrome://komodo/content/library/logging.js");
-    
-    try{
-        var wizPref = "wizard.finished";
-
-        // This should run for every major upgrade AND when the pref is not set
-        //
-        if( ! prefSvc.prefs.hasPref(wizPref))
+    // This should run for every major upgrade AND when the pref is not set
+    // 
+    if(! prefSvc.prefs.getBoolean("wizard.finished", false))
+    {
+         var dialog = openWindow(null,
+                            "chrome://komodo/content/startupWizard/startupWizard.xul",
+                            "_blank", winOptions, args);
+         
+        var callback = function ()
         {
-            prefSvc.prefs.setBoolean(wizPref, false)
-        }
-        if(! prefSvc.prefs.getBoolean(wizPref))
-        {
-             var dialog = openWindow(null,
-                                //"chrome://komodo/content/dialogs/okCancel.xul",
-                                "chrome://komodo/content/startupWizard/startupWizard.xul",
-                                "_blank"
-                                );
-             
-             dialog.addEventListener("wizard.complete", this.handle.bind(this, cmdLine), false);
-             prefSvc.prefs.setBoolean("wizard.finished", true);
-             return;
-        }
-    } catch(e){
-        logging.getLogger("asCommandLineHandler-cgch")
-              .warn("somethings wrong: " + e);
+          prefSvc.prefs.setBoolean("wizard.finished", true);
+          var appStartup = Components.classes["@mozilla.org/toolkit/app-startup;1"].
+                           getService(Components.interfaces.nsIAppStartup);
+          appStartup.quit(Components.interfaces.nsIAppStartup.eAttemptQuit |
+                          Components.interfaces.nsIAppStartup.eRestart);
+        };
+         
+         dialog.addEventListener("wizardfinish", callback, false);
+         return;
     }
     
     var urilist = [];

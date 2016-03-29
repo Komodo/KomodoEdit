@@ -13,6 +13,16 @@ dialog
   -moz-binding: url("chrome://komodo/content/bindings/windows.xml#dialog-chromeless");
 }
 
+wizard[deferred]
+{
+  -moz-binding: none !important;
+}
+
+:root wizard
+{
+  -moz-binding: url("chrome://komodo/content/bindings/wizard.xml#wizard");
+}
+
 #toolbox_main {
   -moz-binding: url("chrome://komodo/content/bindings/toolbar.xml#toolbox-drag");
 }
