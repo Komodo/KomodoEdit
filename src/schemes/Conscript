@@ -112,5 +112,5 @@ $cons->Preprocess("Vi.p.kkf", "Vi.kkf");
 $cons->Install("$supportDir/schemes", 'Vi.kkf');
 $cons->Depends("Vi.kkf", "_vi.kkf");
 
-$cons->InstallRecursive("$supportDir/schemes", cwd()."/src/schemes/color_schemes", ('\.consign','.git','gitignore'));
+$cons->InstallRecursive("$supportDir/schemes", cwd()."/src/schemes/color_schemes", ('\.consign','.git','.gitignore'));
     
