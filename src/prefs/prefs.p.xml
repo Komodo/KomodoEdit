@@ -12,8 +12,8 @@
   -->
   <long id="uilayout_version">2</long>
 
-  <boolean id="startupMaximized">0</boolean>
-  <boolean id="startupFullScreen">0</boolean>
+  <boolean id="startupMaximized" nonvital="true">0</boolean>
+  <boolean id="startupFullScreen" nonvital="true">0</boolean>
   <long id="tabWidth" validate="value > 0">4</long>
   <long id="indentWidth" validate="value > 0">4</long>
   <boolean id="useTabs">0</boolean>
@@ -50,22 +50,21 @@
   <boolean id="scrollEndAtLastLine">0</boolean>
   <long id="caretStyle">1</long>
   <long id="caretWidth">1</long>
-  <long id="screenX">100</long>
-  <long id="screenY">100</long>
-  <long id="outerHeight">680</long>
-  <long id="outerWidth">820</long>
-  <boolean id="showStartupDialog">1</boolean>  <!-- cruft? -->
-  <long id="upperBoxHeight">100</long>
-  <long id="lowerBoxHeight">100</long>
+  <long id="screenX" nonvital="true">100</long>
+  <long id="screenY" nonvital="true">100</long>
+  <long id="outerHeight" nonvital="true">680</long>
+  <long id="outerWidth" nonvital="true">820</long>
+  <long id="upperBoxHeight" nonvital="true">100</long>
+  <long id="lowerBoxHeight" nonvital="true">100</long>
 
   <string id="mappedPaths"></string>
 
-  <long id="rxScreenX">100</long>
-  <long id="rxScreenY">100</long>
-  <long id="rxOuterHeight">460</long>
-  <long id="rxOuterWidth">600</long>
-  <long id="rxRegexAreaHeight">100</long>
-  <long id="rxMatchVarsAreaHeight">100</long>
+  <long id="rxScreenX" nonvital="true">100</long>
+  <long id="rxScreenY" nonvital="true">100</long>
+  <long id="rxOuterHeight" nonvital="true">460</long>
+  <long id="rxOuterWidth" nonvital="true">600</long>
+  <long id="rxRegexAreaHeight" nonvital="true">100</long>
+  <long id="rxMatchVarsAreaHeight" nonvital="true">100</long>
   <boolean id="rxMatchVarsAreaCollapsed">0</boolean>
   <boolean id="rxModG">0</boolean>
   <boolean id="rxModM">0</boolean>
@@ -940,19 +939,7 @@
   <boolean id="hyperlinksEnableColorPicker">1</boolean>
 
   <!-- Color picker -->
-  <string id="colorpicker_cid">@activestate.com/koColorPicker;1</string>
-
-  <!-- fastopen
-      Really these prefs don't belong here, but I don't see a better way for the
-      *extension* to provide default values for prefs so UI state in the prefs
-      panel is correct. -->
-  <boolean id="fastopen_enable_open_views_gatherer">1</boolean>
-  <boolean id="fastopen_enable_history_gatherer">1</boolean>
-  <boolean id="fastopen_enable_cwd_gatherer">1</boolean>
-  <boolean id="fastopen_enable_project_gatherer">1</boolean>
-  <boolean id="fastopen_enable_project_dir_gatherer">1</boolean>
-  <boolean id="fastopen_follow_symlinks">1</boolean>
-  <long id="fastopen_history_num_entries">50</long>
+  <string id="colorpicker_cid" nonvital="true">@activestate.com/koColorPicker;1</string>
 
   <!-- Whether there are native file icons available, i.e. for "moz-icon://.js"
        URLs. We assume they are available and then auto-detect them at Komodo
@@ -961,27 +948,6 @@
 
   <!-- ActiveState auto-update notification messages -->
   <boolean id="activestate_notification_messages_enabled">1</boolean>
-
-  <!-- Default icon set, must be defined as it's used to unload it -->
-  <!-- #if PLATFORM == "darwin" -->
-      <string id="koSkin_custom_icons">chrome://iconset-yosemite/content/manifest/chrome.manifest</string>
-  <!-- #else -->
-      <string id="koSkin_custom_icons">chrome://iconset-dark/content/manifest/chrome.manifest</string>
-  <!-- #endif -->
-      <boolean id="koSkin_use_custom_scrollbars">1</boolean>
-      <boolean id="koSkin_scheme_skinning">1</boolean>
-  
-  <!-- Todo: This is ugly and redundant, the icon system needs an overhaul to simplify eeeverything -->
-      <string id="icon-base-color">#FFF</string>
-      <string id="icon-modal-color">#FFF</string>
-      <string id="icon-special-color">#FFF</string>
-
-  <!-- Record the custom manifests that need to be loaded at runtime (startup) -->
-  <!-- #if PLATFORM == "darwin" -->
-    <string id="runtime_manifests">["chrome://iconset-cupertino/content/manifest/chrome.manifest"]</string>
-  <!-- #else -->
-    <string id="runtime_manifests">["chrome://iconset-dark/content/manifest/chrome.manifest"]</string>
-  <!-- #endif -->
 
   <!-- Projects & Places -->
   <!-- See bug Bug #98484 - comments #4 and #5 -->
@@ -994,8 +960,6 @@
   <boolean id="analytics_enabled">0</boolean> <!-- Analytics is opt-in, not opt-out -->
 
   <ordered-preference id="analytics_track_prefs">
-    <string>koSkin_custom_skin</string>
-    <string>koSkin_custom_icons</string>
     <string>activestate_notification_messages_enabled</string>
     <string>hyperlinksEnabled</string>
     <string>hyperlinksEnableGotoDefinition</string>
@@ -1020,7 +984,7 @@
         Ext should be no longer than 4 characters
         Color can be in any format that css "background-color" accepts
     -->
-  <ordered-preference id="fileicons_presets">
+  <ordered-preference id="fileicons_presets" nonvital="true">
     <string>Text:TXT:#A1A1A1</string>
     <string>Unknown:?:#A1A1A1</string>
     <string>PHP:PHP:#A075B2</string>
@@ -1035,7 +999,7 @@
     <string>LESS:CSS:#362397</string>
   </ordered-preference>
 
-  <ordered-preference id="fileicons_ext_mapping">
+  <ordered-preference id="fileicons_ext_mapping" nonvital="true">
     <string>snd:#6F24C2:adp,au,snd,mid,midi,kar,rmi,mp4a,mpga,mp2,mp2a,mp3,m2a,m3a,oga,ogg,spx,s3m,sil,uva,uvva,eol,dra,dts,dtshd,lvp,pya,ecelp4800,ecelp7470,ecelp9600,rip,weba,aac,aif,aiff,aifc,caf,flac,mka,m3u,wax,wma,ram,ra,rmp,wav,xm</string>
     <string>img:#C22427:bmp,cgm,g3,gif,ief,jpeg,jpg,jpe,ktx,png,btif,sgi,svg,svgz,tiff,tif,psd,uvi,uvvi,uvg,uvvg,sub,djvu,djv,dwg,dxf,fbs,fpx,fst,mmr,rlc,mdi,wdp,npx,wbmp,xif,webp,3ds,ras,cmx,fh,fhc,fh4,fh5,fh7,ico,sid,pcx,pic,pct,pnm,pbm,pgm,ppm,rgb,tga,xbm,xpm,xwd</string>
     <string>txt:#A1A1A1:appcache,ics,ifb,css,csv,html,htm,n3,txt,text,conf,def,list,log,in,dsc,rtx,sgml,sgm,tsv,t,tr,roff,man,me,ms,ttl,uri,uris,urls,vcard,curl,dcurl,scurl,mcurl,sub,fly,flx,gv,3dml,spot,jad,wml,wmls,s,asm,c,cc,cxx,cpp,h,hh,dic,f,for,f77,f90,java,opml,p,pas,nfo,etx,sfv,uu,vcs,vcf</string>
@@ -1043,7 +1007,7 @@
     <string>font:bdf,gsf,psf,otf,pcf,snf,ttf,ttc,pfa,pfb,pfm,afm,woff</string>
   </ordered-preference>
 
-  <string id="fileicons_color_whitelist">class:rss:rtf:csv:com:bat:sh:dtd:xpi:conscript:construct:manifest</string>
+  <string id="fileicons_color_whitelist" nonvital="true">class:rss:rtf:csv:com:bat:sh:dtd:xpi:conscript:construct:manifest</string>
 
   <ordered-preference id="notify_disabled_categories">
     <string>codeintel-verbose</string>
@@ -1088,5 +1052,29 @@
   
   <string id="doc_site">http://docs.komodoide.com/</string>
   <string id="doc_site_reset">http://docs.komodoide.com/Troubleshooting/How-do-I-Start-Komodo-with-Default-Settings#how-do-i-start-komodo-with-default-settings_completely-reset-your-settings</string>
+  
+  <!-- Do NOT remove OR change the preservation status of this pref, stuff will break -->
+  <ordered-preference id="preservedNonDefaultPrefs" preserve="true">
+    <!-- These are partial keys -->
+    <string>analyticsLastVersion</string>
+    <string>commit_message_history</string>
+    <string>Interpreter</string>
+    <string>Binary</string>
+    <string>donotask_</string>
+    <string>extensions.</string>
+    <string>dbexplorer</string>
+    <string>Database Explorer</string>
+    <string>languages/</string>
+    <string>lint</string>
+    <string>CommentStyle</string>
+    <string>ConfigFile</string>
+    <string>ExtraPaths</string>
+    <string>rails.</string>
+    <string>logpath</string>
+    <string>scope-</string>
+    <string>spellCheck</string>
+    <string>testPlans</string>
+    <string>publishing</string>
+  </ordered-preference>
   
 </preference-set>

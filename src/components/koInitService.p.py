@@ -134,7 +134,7 @@ def _mkdir(newdir):
 
 
 def _copy(src, dst, overwriteExistingFiles=True, ignoreErrors=False,
-          ignoredDirNames=None):
+          ignoredFileNames=None):
     """works the way a good copy should :)
         - no source, raise an exception
         - destination directory, make a file in that dir named after src
@@ -163,6 +163,9 @@ def _copy(src, dst, overwriteExistingFiles=True, ignoreErrors=False,
         srcFiles = [src]
 
     for srcFile in srcFiles:
+        if ignoredFileNames and os.path.basename(srcFile) in ignoredFileNames:
+            log.info("Ignoring file/directory %r", srcFile)
+            continue
         if os.path.isfile(srcFile):
             if usingWildcards:
                 srcFileHead, srcFileTail = os.path.split(srcFile)
@@ -190,9 +193,6 @@ def _copy(src, dst, overwriteExistingFiles=True, ignoreErrors=False,
             # make the new 'dstFile' writeable
             os.chmod(dstFile, mode)
         elif _isdir(srcFile):
-            if ignoredDirNames and os.path.basename(srcFile) in ignoredDirNames:
-                log.info("Ignoring directory %r", srcFile)
-                continue
             srcFiles = os.listdir(srcFile)
             if not os.path.exists(dst):
                 _mkdir(dst)
@@ -202,7 +202,7 @@ def _copy(src, dst, overwriteExistingFiles=True, ignoreErrors=False,
                 try:
                     _copy(s, d, overwriteExistingFiles=overwriteExistingFiles,
                           ignoreErrors=ignoreErrors,
-                          ignoredDirNames=ignoredDirNames)
+                          ignoredFileNames=ignoredFileNames)
                 except (IOError, os.error), why:
                     if ignoreErrors:
                         log.warn("Failed to copy %r to %r - %r", s, d, why)
@@ -315,6 +315,9 @@ class KoInitService(object):
             sys._komodo_initsvc_init_count_sentinel += 1
         else:
             sys._komodo_initsvc_init_count_sentinel = 1
+            
+        self.majorUpgrade = False
+        self.majorUpgradeNonSeq = False
 
         try:
             self.checkStartupFlags()
@@ -981,6 +984,41 @@ class KoInitService(object):
 
     # This value must be kept in sync with the value in "../prefs/prefs.p.xml"
     _current_pref_version = 21
+    
+    def _deleteNonVitalUserPrefs(self, prefs):
+        log.info("_deleteNonVitalUserPrefs")
+        
+        nonDefaultPreserves = prefs.getPref('preservedNonDefaultPrefs')
+        prefIds = prefs.getAllPrefIds()
+        
+        import ast
+        languages = {}
+        associationMap = prefs.getString("factoryFileAssociations")
+        associationMap = ast.literal_eval(associationMap)
+        for k,language in associationMap.iteritems():
+            languages[language] = True
+        
+        for prefId in prefIds:
+            
+            # Don't delete prefs that are set on the root prefs.xml
+            if not prefs.hasPrefHere(prefId):
+                continue
+            
+            # Don't delete language prefs
+            if prefId in languages:
+                continue
+            
+            # Don't delete vital prefs (most prefs are vital)
+            if prefs.parent.hasPrefHere(prefId) and prefs.isVital(prefId):
+                continue
+            
+            # Don't delete prefs that are explicitly marked as preserved
+            if nonDefaultPreserves.findStringFuzzy(prefId) != -1:
+                continue
+            
+            # We've got a slacker, delete it
+            log.debug("deletePref: %s" % prefId)
+            prefs.deletePref(prefId)
 
     def _upgradeUserPrefs(self, prefs):
         """Upgrade any specific info in the user's prefs.xml.
@@ -1154,7 +1192,7 @@ class KoInitService(object):
     def _upgradeXREDir(self, prevXREDir, currXREDir):
         if os.path.exists(prevXREDir):
             log.debug("upgrading XRE directory")
-            ignoredDirNames = [
+            ignoredFileNames = [
                 # Bug 90294: klint is replaced by a builtin extension in 7.0a3
                 # Ensure we don't upgrade the user-profile version of it.
                 "klint@dafizilla.sourceforge.net",
@@ -1166,10 +1204,17 @@ class KoInitService(object):
                 "lessCache",
                 "minidumps",
                 "startupCache",
+                "icons",
+                "OfflineCache",
+                "userstyleCache"
             ]
+            
+            for i in range(1,15):
+                ignoredFileNames.append('prefs-%d.js' % i)
+            
             _copy(prevXREDir, currXREDir, overwriteExistingFiles=False,
-                  ignoreErrors=True, ignoredDirNames=ignoredDirNames)
-            # Another cache, but name is too common to use in ignoredDirNames.
+                  ignoreErrors=True, ignoredFileNames=ignoredFileNames)
+            # Another cache, but name is too common to use in ignoredFileNames.
             if os.path.exists(os.path.join(currXREDir, "icons")):
                 _rmtree(os.path.join(currXREDir, "icons"))
                 
@@ -1251,51 +1296,19 @@ class KoInitService(object):
         """
         from os.path import dirname, basename, join, exists
 
+        infoSvc = components.classes["@activestate.com/koInfoService;1"].getService()
         koDirSvc = components.classes["@activestate.com/koDirs;1"].getService()
         currUserDataDir = koDirSvc.userDataDir
-        currHostUserDataDir = koDirSvc.userDataDir
+
+        # Get the current version.
+        currVer = infoSvc.version.split(".", 2)[:2]
+        for i in range(len(currVer)):
+            try:
+                currVer[i] = int(currVer[i])
+            except ValueError:
+                pass
+        currVer = tuple(currVer) # e.g. (6,0)
         
-        # These are the files/dirs that we upgrade.
-        filesToUpgrade = {
-            "komodo-user-prefs.xml": "prefs.xml",
-            "prefs.xml": "prefs.xml",
-            "templates": "templates",
-            "project-templates": "project-templates",
-            "schemes": "schemes",
-            "toolbox.sqlite": "toolbox.sqlite",
-            "tools": "tools",
-            "obsolete-tools": "obsolete-tools",
-            "doc-state.xmlc": "doc-state.xmlc", 
-            "view-state.xmlc": "view-state.xmlc", 
-            "apicatalogs": "apicatalogs",
-            "dictionaries": "dictionaries",
-            "publishing": "publishing",
-        }
-        # Files under "host-$HOST" dir to upgrade:
-        # Note: Prior to Komodo 6, some files were stored in a host-$HOST folder
-        #       inside the Komodo profile directory.
-        hostFilesToUpgrade = {
-            "breakpoints.pickle": "breakpoints.pickle",
-            "history.sqlite": "history.sqlite",
-            "autosave": "autosave",
-        }
-
-
-
-        # First determine if we need to upgrade at all.
-        # If any of the above exist in the current version's user data
-        # dir then do NOT upgrade.
-        for base in filesToUpgrade.keys():
-            path = join(currUserDataDir, base)
-            if exists(path):
-                log.debug("not upgrading userdatadir files: '%s' exists", path)
-                return
-        for base in hostFilesToUpgrade.keys():
-            path = join(currUserDataDir, base)
-            if exists(path):
-                log.debug("not upgrading userdatadir files: '%s' exists", path)
-                return
-
         vers_and_userdatadirs = self._getProfileDirs()
 
         # This now looks like, e.g.:
@@ -1308,41 +1321,74 @@ class KoInitService(object):
                       "from which to upgrade")
             return
         prevVer, _, prevUserDataDir = vers_and_userdatadirs[-1]
+        
+        # Major upgrade
+        if prevVer[0] < currVer[0]:
+            # These are the files/dirs that we upgrade.
+            filesToUpgrade = {
+                "prefs.xml": "prefs.xml",
+                "templates": "templates",
+                "project-templates": "project-templates",
+                "schemes": "schemes",
+                "toolbox.sqlite": "toolbox.sqlite",
+                "tools": "tools",
+                "obsolete-tools": "obsolete-tools",
+                "apicatalogs": "apicatalogs",
+                "dictionaries": "dictionaries",
+                "publishing": "publishing",
+            }
 
-        if prevVer < (6,0):
-            # Uses a separate host-$HOST directory.
-            prevHostUserDataDir = self._hostUserDataDir(prevUserDataDir)
-            filesToUpgrade["toolbox.kpf"] = "toolbox.kpf"
+        # Minor upgrade
         else:
-            # Host dir is the same directory as userDataDir.
-            prevHostUserDataDir = prevUserDataDir
+            # These are the files/dirs that we upgrade.
+            filesToUpgrade = {
+                "prefs.xml": "prefs.xml",
+                "templates": "templates",
+                "project-templates": "project-templates",
+                "schemes": "schemes",
+                "toolbox.sqlite": "toolbox.sqlite",
+                "tools": "tools",
+                "obsolete-tools": "obsolete-tools",
+                "doc-state.xmlc": "doc-state.xmlc", 
+                "view-state.xmlc": "view-state.xmlc", 
+                "apicatalogs": "apicatalogs",
+                "dictionaries": "dictionaries",
+                "publishing": "publishing",
+                "breakpoints.pickle": "breakpoints.pickle",
+                "history.sqlite": "history.sqlite",
+                "autosave": "autosave",
+            }
+            pass
+
+        # First determine if we need to upgrade at all.
+        # If any of the above exist in the current version's user data
+        # dir then do NOT upgrade.
+        for base in filesToUpgrade.keys():
+            path = join(currUserDataDir, base)
+            if exists(path):
+                log.debug("not upgrading userdatadir files: '%s' exists", path)
+                return
             
-        # Get the current version.
-        infoSvc = components.classes["@activestate.com/koInfoService;1"].getService()
-        currVer = infoSvc.version.split(".", 2)[:2]
-        for i in range(len(currVer)):
-            try:
-                currVer[i] = int(currVer[i])
-            except ValueError:
-                pass
-        currVer = tuple(currVer) # e.g. (6,0)
+        self.majorUpgrade = prevVer[0] < currVer[0]
+        self.majorUpgradeNonSeq = currVer[0] - prevVer[0] > 1
 
         # Upgrade.
         log.info("upgrading user settings from '%s'" % prevUserDataDir)
         self._upgradeFiles(filesToUpgrade, prevUserDataDir, currUserDataDir)
-        self._upgradeFiles(hostFilesToUpgrade, prevHostUserDataDir,
-                           currHostUserDataDir)
-        self._upgradeXREDir(join(prevHostUserDataDir, "XRE"),
-                            join(currHostUserDataDir, "XRE"))
-        if prevVer[0] < currVer[0]:
-            import glob
-            # Remove any XRE/extensions.* files, let Moz rebuild these,
-            # otherwise extensions can fail to load correctly.
-            xre_dir = join(currHostUserDataDir, "XRE")
-            for ext_filename in glob.glob(join(xre_dir, "extensions.*")):
-                ext_filepath = join(xre_dir, ext_filename) 
-                log.warn("not upgrading '%s'" % (ext_filepath, ))
-                os.remove(ext_filepath)
+        
+        if prevVer[0] == currVer[0]:
+            self._upgradeXREDir(join(prevUserDataDir, "XRE"),
+                                join(currUserDataDir, "XRE"))
+            
+        # if prevVer[0] < currVer[0]:
+        #     import glob
+        #     # Remove any XRE/extensions.* files, let Moz rebuild these,
+        #     # otherwise extensions can fail to load correctly.
+        #     xre_dir = join(currHostUserDataDir, "XRE")
+        #     for ext_filename in glob.glob(join(xre_dir, "extensions.*")):
+        #         ext_filepath = join(xre_dir, ext_filename) 
+        #         log.warn("not upgrading '%s'" % (ext_filepath, ))
+        #         os.remove(ext_filepath)
 
     def upgradeUserSettings(self):
         """Called every time Komodo starts up to initialize the user profile."""
@@ -1354,6 +1400,10 @@ class KoInitService(object):
             self._upgradeUserDataDirFiles()
             prefs = components.classes["@activestate.com/koPrefService;1"]\
                     .getService(components.interfaces.koIPrefService).prefs
+            
+            if self.majorUpgrade and not self.majorUpgradeNonSeq:
+                self._deleteNonVitalUserPrefs(prefs)
+                    
             self._upgradeUserPrefs(prefs)
         except Exception:
             log.exception("upgradeUserSettings")
@@ -1415,7 +1465,7 @@ class KoInitService(object):
                     log.info("removing old samples directory: '%s'" % dstDir)
                     _rmtree(dstDir) #XXX should handle error here
                 else:
-                    log.info("samples already present at '%s'" % dstDir)
+                    log.debug("samples already present at '%s'" % dstDir)
                     return
             srcDir = os.path.join(koDirSvc.supportDir, "samples")
             log.info("installing Komodo samples to '%s'" % dstDir)

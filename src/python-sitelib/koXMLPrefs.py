@@ -289,6 +289,8 @@ class koPreferenceSetDeserializer:
             if node and node.nodeType == minidom.Node.ELEMENT_NODE:
                 if node.hasAttribute('validate'):
                     newPrefSet.setValidation(node.getAttribute('id'), node.getAttribute('validate'))
+                if node.hasAttribute('nonvital'):
+                    newPrefSet.setNonVital(node.getAttribute('id'))
                 pref = _dispatch_deserializer(self, node, newPrefSet, prefFactory, basedir, chainNotifications)
                 if pref:
                     if pref.id:

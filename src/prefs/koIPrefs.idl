@@ -80,7 +80,7 @@ interface koIPreferenceContainer : nsISupports {
    * clone a copy of this preference and all child preferences.
    */
   koIPreferenceContainer clone();
-
+  
   /**
    * update from another preference container object
    * presumably a modified clone!
@@ -221,6 +221,9 @@ interface koIPreferenceSet : koIPreferenceContainer {
   // Reset to an empty preference set.
   void reset();
 
+  void setNonVital(in AString prefName);
+  boolean isVital(in AString prefName);
+  
   // validation related calls
   // 'validation' must be a python expression that refers to 'value'
   // and returns a true value if the value is corect.

@@ -187,6 +187,7 @@ class koPreferenceSetObjectFactory(koXMLPreferenceSetObjectFactory):
         return result
 
 _validations = {}
+_nonvital = {}
 
 class koPreferenceSetBase(object):
     """Base class for koPreferenceRoot and koPreferenceChild; this implements
@@ -330,6 +331,9 @@ class koPreferenceSetBase(object):
         raise NotImplementedError("_is_shadow is not implemented on %s" %
                                   (self.__class__.__name__))
 
+    def setNonVital(self, prefName):
+        _nonvital[prefName] = True
+        
     def setValidation(self, prefName, validation):
         _validations[prefName] = validation
 
@@ -490,6 +494,9 @@ class koPreferenceSetBase(object):
     setLongPref = setLong
     setDoublePref = setDouble
     setBooleanPref = setBoolean
+    
+    def isVital(self, prefName):
+        return prefName not in _nonvital
 
     def validateString(self, prefName, value):
         return self._validate(prefName, "string", value)
@@ -1137,6 +1144,15 @@ class koOrderedPreference(object):
         i = 0
         for val, typ in self._collection:
             if typ == "string" and val == pref:
+                return i
+            i += 1
+        return -1
+    
+    @_forward_if_inherited
+    def findStringFuzzy(self, pref):
+        i = 0
+        for val, typ in self._collection:
+            if typ == "string" and val in pref:
                 return i
             i += 1
         return -1
