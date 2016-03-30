@@ -293,7 +293,11 @@
                         this[topic] = prefs.getBoolean(topic, true);
                         break;
                     case 'koSkin_use_custom_scrollbars': // pref notification
+<!-- #if PLATFORM == "darwin" -->
                         this.useCustomScrollBars = prefs.getBoolean(topic, false);
+<!-- #else -->
+                        this.useCustomScrollBars = prefs.getBoolean(topic, true);
+<!-- #endif -->
                         break;
                 }
             } catch (e) {
@@ -694,7 +698,12 @@
                 // Setup custom scroll bars.
                 scimoz.hScrollBar = this.hScrollBar;
                 scimoz.vScrollBar = this.vScrollBar;
+                
+<!-- #if PLATFORM == "darwin" -->
                 this.useCustomScrollBars = prefs.getBoolean('koSkin_use_custom_scrollbars', false);
+<!-- #else -->
+                this.useCustomScrollBars = prefs.getBoolean('koSkin_use_custom_scrollbars', true);
+<!-- #endif -->
 
                 this.applyColorScheme();
 
