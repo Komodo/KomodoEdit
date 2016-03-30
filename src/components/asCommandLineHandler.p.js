@@ -181,6 +181,18 @@ komodoCmdLineHandler.prototype = {
     catch (e) {
       Components.utils.reportError(e);
     }
+    
+    if (prefSvc.prefs.getBoolean("isMajorUpgrade", false))
+    {
+      try
+      {
+        this.handleUpgrades();
+      } catch (e)
+      {
+        log.exception(e, "Error handling addon upgrades");
+      }
+      prefSvc.prefs.deletePref("isMajorUpgrade");
+    }
 
     // Logging
     // Syntax: -log test:DEBUG -log foo:10,bar:20
@@ -267,6 +279,19 @@ komodoCmdLineHandler.prototype = {
       openWindow(null, this.chromeURL, "_blank", winOptions);
       cmdLine.preventDefault = true; // stop the browser from handling this also
     }
+  },
+  
+  handleUpgrades: function ()
+  {
+    Cu.import("resource://gre/modules/AddonManager.jsm");
+    AddonManager.getAllAddons(function(aAddons)
+    {
+      for (let addon of aAddons)
+      {
+        if ( ! addon.isCompatible)
+          addon.uninstall();
+      }
+    });
   },
 
   /**

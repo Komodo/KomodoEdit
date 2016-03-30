@@ -297,7 +297,7 @@ class KoInitService(object):
         loggingSvc = components.classes["@activestate.com/koLoggingService;1"].getService()
         global log
         log = logging.getLogger("koInitService")
-        #log.setLevel(logging.DEBUG)
+        log.setLevel(logging.INFO)
 
         # Lower the Python interpreters check interval so Komodo is more
         # responsive when there are cpu-intensive threads running, bug 96340.
@@ -1204,7 +1204,6 @@ class KoInitService(object):
                 "lessCache",
                 "minidumps",
                 "startupCache",
-                "icons",
                 "OfflineCache",
                 "userstyleCache"
             ]
@@ -1376,9 +1375,19 @@ class KoInitService(object):
         log.info("upgrading user settings from '%s'" % prevUserDataDir)
         self._upgradeFiles(filesToUpgrade, prevUserDataDir, currUserDataDir)
         
-        if prevVer[0] == currVer[0]:
+        if not self.majorUpgrade:
             self._upgradeXREDir(join(prevUserDataDir, "XRE"),
                                 join(currUserDataDir, "XRE"))
+        elif not self.majorUpgradeNonSeq:
+            names = ["extensions",
+                     "extensions.ini",
+                     "extensions.json",
+                     "extensions.sqlite"]
+            for fileName in names:
+                _copy(join(prevUserDataDir, "XRE", fileName),
+                      join(currUserDataDir, "XRE", fileName),
+                      overwriteExistingFiles=False,
+                      ignoreErrors=True)
             
         # if prevVer[0] < currVer[0]:
         #     import glob
@@ -1403,6 +1412,7 @@ class KoInitService(object):
             
             if self.majorUpgrade and not self.majorUpgradeNonSeq:
                 self._deleteNonVitalUserPrefs(prefs)
+                prefs.setBoolean("isMajorUpgrade", True)
                     
             self._upgradeUserPrefs(prefs)
         except Exception:
