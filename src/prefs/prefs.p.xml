@@ -561,6 +561,7 @@
   <boolean id="diskStatusEnabled">1</boolean>
   <boolean id="diskBackgroundCheck">1</boolean>
   <long id="diskBackgroundMinutes">15</long>
+  <long id="directoryMonitoringTimeout">1</long>
   <boolean id="fileNotificationServiceEnabled">1</boolean>
   <!-- Enable usage of OS-level APIs for file notification handling.  -->
   <boolean id="osControlledFileNotificationsEnabled">1</boolean>

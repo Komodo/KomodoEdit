@@ -112,6 +112,8 @@ def collate_directories_from_uris(uris):
             collatedUris[diruri].append(uri)
     return collatedUris
 
+lastAccessed = {}
+
 class KoFileStatusService:
     _com_interfaces_ = [components.interfaces.koIFileStatusService,
                         components.interfaces.nsIObserver,
@@ -130,7 +132,7 @@ class KoFileStatusService:
     IDLE_TIMEOUT_SECS = 5 * 60  # 5 minutes (in seconds)
     # Whether the user is currently idle.
     _is_idle = False
-
+    
     def __init__(self):
         #print "file status created"
         self._observerSvc = components.classes["@mozilla.org/observer-service;1"].\
@@ -140,6 +142,8 @@ class KoFileStatusService:
         self._fileSvc = \
             components.classes["@activestate.com/koFileService;1"] \
             .getService(components.interfaces.koIFileService)
+        self._prefs = components.classes["@activestate.com/koPrefService;1"]\
+                .getService(components.interfaces.koIPrefService).prefs
 
         # The reasons why the status service is checking a file(s).
         self.REASON_BACKGROUND_CHECK = components.interfaces.koIFileStatusChecker.REASON_BACKGROUND_CHECK
@@ -508,6 +512,11 @@ class KoFileStatusService:
 
                 all_local_dirs_dict = collate_directories_from_uris(set_all_local_urls)
                 all_monitored_dirs_dict = collate_directories_from_uris(self._monitoredUrls)
+                
+                # Record last accessed for directory, so we don't remove the 
+                # observer prematurely
+                for diruri in all_local_dirs_dict.keys():
+                    lastAccessed[diruri] = int(time.time())
 
                 newDirs = set(all_local_dirs_dict.keys()).difference(all_monitored_dirs_dict.keys())
                 for diruri in newDirs:
@@ -529,19 +538,30 @@ class KoFileStatusService:
                         if diruri in all_local_dirs:
                             all_local_dirs.remove(diruri)
 
-                expiredDirs = set(all_monitored_dirs_dict.keys()).difference(all_local_dirs_dict.keys())
-                for diruri in expiredDirs:
+                for diruri in all_monitored_dirs_dict.keys():
                     # Removed unused directories.
+                    if diruri not in lastAccessed:
+                        continue
+                    
+                    difference = int(time.time()) - lastAccessed[diruri]
+                    if difference < (self._prefs.getLong("directoryMonitoringTimeout") * 60):
+                        continue
+                    
                     log.info("Removing directory observer for uri: %r", diruri)
                     try:
                         fileNotificationSvc.removeObserver(self, diruri)
+                        for uri in all_monitored_dirs_dict.keys():
+                            self._monitoredUrls.discard(uri)
+                        del lastAccessed[diruri]
                     except COMException, ex:
                         # Likely this diruri is somehow invalid.
                         pass
 
                 # Must keep track of all the local urls we are monitoring, so
                 # we can correctly add/remove items in the next process loop.
-                self._monitoredUrls = set_all_local_urls
+                self._monitoredUrls = self._monitoredUrls.union(set_all_local_urls)
+                
+                from pprint import pformat
 
                 if not items_to_check:
                     # Fall back to background checking of all files.
