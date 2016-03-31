@@ -443,11 +443,22 @@ this.multipleURIs = function open_openMultipleURIs(urls, viewType, isRecent)
         }
         var openMethod = isRecent ? ko.open.recentURI : ko.open.URI;
         for (i=0; i < urls.length; i++) {
-            if (i == urls.length-1) {
-                ko.views.manager.batchMode = false;
-            }
             openMethod.call(ko.open, urls[i], viewType, true);
         }
+        
+        var listener = function ()
+        {
+            clearTimeout(listener.timer);
+            
+            listener.timer = setTimeout(function ()
+            {
+                ko.views.manager.batchMode = false;
+                window.removeEventListener("view_opened", listener);
+            }, 200);
+        };
+        listener.timer = null
+        
+        window.addEventListener("view_opened", listener);
     }
 }
 
