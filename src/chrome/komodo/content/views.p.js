@@ -1358,6 +1358,10 @@ viewManager.prototype.is_cmd_closeAll_enabled = function() {
 
 viewManager.prototype.do_cmd_closeAll = function() {
     // Offer to close/save all dirty files first.
+    
+    // Switch to or open a new empty tab so Komodo doesn't try switching to every new tab
+    ko.commands.doCommand('cmd_newTab');
+    
     var retval = this.canClose();
     if (retval) {
         // Now close all files, without offering to save each individual file,
@@ -1390,6 +1394,9 @@ viewManager.prototype._doCloseViews = function(views, ignoreFailures, doNotOffer
                 // Ensure the last file closure causes currentView changed
                 // notifications, to update the Komodo window title.
                 ko.views.manager.batchMode = false;
+            }
+            if (views[i].getAttribute("type") == "quickstart") {
+                continue;
             }
             if (! views[i].close(doNotOfferToSave) && !ignoreFailures) {
                 return false;

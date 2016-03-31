@@ -228,7 +228,10 @@
                 // 92203.
                 newTab._selected = false;
             }
+            
+            var wasSelected = false;
             if (tab == newTab) {
+                wasSelected = true;
                 if (tab.nextSibling) {
                     newTab = tab.nextSibling;
                 } else {
@@ -239,7 +242,7 @@
             var tabpanel = this.tabbox.tabs.getRelatedElement(tab);
             this.tabbox.tabs.removeChild(tab);
             this.tabbox.tabpanels.removeChild(tabpanel);
-            if (newTab) {
+            if (wasSelected && newTab) {
                 this.tabbox.selectedTab = newTab;
             }
 

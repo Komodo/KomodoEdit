@@ -512,16 +512,51 @@ if (typeof ko.openfiles == 'undefined')
          */
         onClickGroupClose: function openfiles_onClickGroupClose(groupItem)
         {
+            var previousSibling = groupItem.previousSibling;
+            while (previousSibling && ! previousSibling.classList.contains('file-item'))
+            {
+                previousSibling = previousSibling.previousSibling;
+            }
+            
+            var containsSelected = false;
             var closeViews = [];
             var item = groupItem;
             while (item.nextSibling && item.nextSibling.classList.contains("file-item"))
             {
                 item = item.nextSibling;
                 closeViews.push(openViews[item.getAttribute("id")]);
+                
+                if (item.getAttribute("selected") == "true")
+                    containsSelected = true;
             }
             
-            for (let editorView of closeViews) 
-                editorView.close();
+            // If one of the items we're closing is selected we need to start
+            // by selecting its successor so the view manager doesn't do this
+            // in a loop for each view closed
+            if (containsSelected)
+            {
+                var selectItem = previousSibling;
+                if ( ! selectItem)
+                {
+                    selectItem = item.nextSibling;
+                    while (selectItem && ! selectItem.classList.contains('file-item'))
+                    {
+                        selectItem = selectItem.nextSibling;
+                    }
+                }
+                
+                if (selectItem)
+                {
+                    this.selectItem(openViews[selectItem.getAttribute("id")], true);
+                }
+                else
+                {
+                    // Switch to or open a new empty tab so Komodo doesn't try switching to every new tab
+                    ko.commands.doCommand('cmd_newTab');
+                }
+            }
+            
+            ko.views.manager._doCloseViews(closeViews);
         },
         
         /**
@@ -531,8 +566,7 @@ if (typeof ko.openfiles == 'undefined')
          */
         onClickCloseAll: function openfiles_onClickGroupClose()
         {
-            for (let id in openViews)
-                openViews[id].close();
+            ko.commands.doCommandAsync("cmd_closeAll");
         },
         
         /**
