@@ -40,6 +40,11 @@
         );
     };
     
+    this.isActive = () =>
+    {
+        return profiler.IsActive();
+    };
+    
     this.stop = (name = "") =>
     {
         if ( ! profiler.IsActive() || name !== activeProfiler)
