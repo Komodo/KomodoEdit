@@ -645,7 +645,7 @@
                     return self.handlers.fileicon.getIconForUri(uri, namespace, relativePath, callback);
                 } catch (e)
                 {
-                    log.exception(e, "failed retrieving fileicon");
+                    log.exception(e, "failed retrieving fileicon: " + uri );
                     callback();
                 }
                 break;
@@ -655,7 +655,7 @@
                     return self.handlers.svg.getIconForUri(uri, namespace, relativePath, callback);
                 } catch (e)
                 {
-                    log.exception(e, "failed retrieving svg icon");
+                    log.exception(e, "failed retrieving svg icon: " + uri);
                     callback();
                 }
                 break;
