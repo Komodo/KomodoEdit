@@ -422,6 +422,11 @@ function onloadDelay() {
     // Let everyone know Komodo is fully started.
     setTimeout(function() {
 
+    require("ko/profiler").save("startup");
+    require("ko/profiler").stop("startup");
+    
+    require("ko/profiler").start("event-ui-started");
+    
 // #if BUILD_FLAVOUR == "dev"
         require("ko/benchmark").addEvent("komodo-ui-started");
 // #endif
@@ -429,11 +434,17 @@ function onloadDelay() {
         // This is a global event, no need to use the WindowObserverSvc
         Services.obs.notifyObservers(null, "komodo-ui-started", "");
         xtk.domutils.fireEvent(window, "komodo-ui-started");
+        
+        require("ko/profiler").save("event-ui-started");
+        require("ko/profiler").stop("event-ui-started");
 
         // Send a delayed startup event a few seconds later.
         setTimeout(function() {
+            require("ko/profiler").start("event-post-startup");
             Services.obs.notifyObservers(null, "komodo-post-startup", "");
             xtk.domutils.fireEvent(window, "komodo-post-startup");
+            require("ko/profiler").save("event-post-startup");
+            require("ko/profiler").stop("event-post-startup");
         }, 2500);
 
 // #if BUILD_FLAVOUR == "dev"

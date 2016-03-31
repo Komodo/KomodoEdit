@@ -44,6 +44,7 @@ $cons->InstallInChrome('debug.js');
 $cons->InstallInChrome('dynamic-button.js');
 $cons->InstallInChrome('colorscheme.js');
 $cons->InstallInChrome('wizard.js');
+$cons->InstallInChrome('profiler.js');
 
 if ($buildFlavour eq "dev") {
     $cons->InstallInChrome('benchmark.js');
