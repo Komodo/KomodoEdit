@@ -117,8 +117,23 @@
         <![CDATA[
             if (typeof(index) == 'undefined' || index == null) index = -1;
             var view = this.newView(type, index);
-            view.initWithDocument(doc);
-            xtk.domutils.fireEvent(view, 'view_opened');
+            
+            if (ko.views.manager.batchMode)
+            {
+                // Delay view init to speed up the UX feedback
+                view.setAttribute("collapsed", "true");
+                setTimeout(function () {
+                    view.initWithDocument(doc);
+                    xtk.domutils.fireEvent(view, 'view_opened');
+                    view.removeAttribute("collapsed");
+                }, ko.prefs.getLong('viewInitDelay', 200));
+            }
+            else
+            {
+                view.initWithDocument(doc);
+                xtk.domutils.fireEvent(view, 'view_opened');
+            }
+            
             return view;
         ]]>
         </body>

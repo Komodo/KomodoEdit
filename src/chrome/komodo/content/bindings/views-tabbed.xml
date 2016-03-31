@@ -130,7 +130,7 @@
             var XUL_NS="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
             var tab = document.createElementNS(XUL_NS,'tab');
             tab.setAttribute('type','file-tab');
-            tab.setAttribute('label','unknown');
+            tab.setAttribute('label','');
             tab.setAttribute('onclick','this.parentNode.parentNode.parentNode.tabClicked(this,event);');
             var _uuidGenerator = Components.classes["@mozilla.org/uuid-generator;1"].getService(Components.interfaces.nsIUUIDGenerator);
             tab.setAttribute('id', _uuidGenerator.generateUUID()); // requires domutils.js

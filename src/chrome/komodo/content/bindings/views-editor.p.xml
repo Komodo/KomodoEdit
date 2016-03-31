@@ -145,7 +145,16 @@
             ]]></getter>
         </property>
         
-        <property name="sectionlist"  onget="return require('ko/dom')(this).findAnonymous('anonid', 'statusbar-sectionlist').element();"/>
+        <property name="_sectionlist"/>
+        <property name="sectionlist">
+            <setter></setter>
+            <getter><![CDATA[
+                if ( ! this._sectionlist)
+                    this._sectionlist = require('ko/dom')(this).findAnonymous('anonid', 'statusbar-sectionlist').element();
+                    
+                return this._sectionlist
+            ]]></getter>
+        </property>
 
         <field name="lintingEnabled">false</field>
         <field name="_everLinted">false</field>
@@ -420,7 +429,13 @@
 
             this._setupHighlightColors(this.scintilla);
             
-            xtk.domutils.fireEvent(this, 'current_view_changed');
+            var tv = ko.views.manager.topView;
+            if ("_viewChangedTimer" in tv)
+                window.clearTimeout(tv._viewChangedTimer);
+            tv._viewChangedTimer = window.setTimeout(() => {
+                delete tv._viewChangedTimer;
+                xtk.domutils.fireEvent(this, 'current_view_changed');
+            }, 200);
             
             this.addEventListener('current_view_linecol_changed',
                                     this.handle_current_view_linecol_changed, false);

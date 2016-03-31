@@ -416,7 +416,10 @@
 
         log.debug("Opening files: " + uris.join(", "));
 
-        ko.open.multipleURIs(uris);
+        if (uris.length === 1)
+            ko.open.URI(uris);
+        else
+            ko.open.multipleURIs(uris);
 
         commando.hideCommando();
     }
