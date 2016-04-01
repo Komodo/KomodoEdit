@@ -12,46 +12,38 @@
 
 /* Dialogs with hidden chrome */
 
-.dialog:root[hidechrome="true"]:not(#komodo_main):not(.embedded),
-dialog:root[hidechrome="true"]:not(#komodo_main):not(.embedded)
+.dialog:root[hidechrome="true"]:not(.embedded),
+dialog:root[hidechrome="true"]:not(.embedded)
 {
-    &:not([sizemode="maximized"])
+    .window-wrapper,
+    .dialog-content-box,
+    .dialog-button-box
     {
-        border-top-left-radius: 5px;
-        border-top-right-radius: 5px;
+        padding: 6px;
     }
     
-    .window-wrapper
+    & > #titlebar
     {
-        background: @contrast;
-        color: @foreground;
-        padding: 5px;
+        padding-bottom: 5px;
         
-        & > #titlebar
+        & > spacer, #windowButtons
         {
-            padding-bottom: 5px;
-            
-            & > spacer, #windowButtons
+            toolbarbutton
             {
-                toolbarbutton
-                {
-                    font-size: 12px;
-                }
-                
-                width: 90px;
+                font-size: 12px;
             }
+            
+            width: 90px;
         }
     }
 }
 
 /* Dialogs with default chrome */
 
-.dialog:not([hidechrome="true"]):not(#komodo_main):not(.embedded)
-dialog:not([hidechrome="true"]):not(#komodo_main):not(.embedded)
+.dialog:not([hidechrome="true"]):not(.embedded)
+dialog:not([hidechrome="true"]):not(.embedded)
 {
-    background: @contrast;
-    color: @foreground;
-    padding: 5px;
+    padding: 6px;
     
     #titlebar,
     resizer
@@ -64,22 +56,9 @@ dialog:not([hidechrome="true"]):not(#komodo_main):not(.embedded)
 
 #komodo_main[hidechrome="true"]
 {
-    color: @foreground;
-    
-    #komodo-box
+    #toolbox_main
     {
-        background: @background;
-    }
-    
-    &:not([sizemode="maximized"])
-    {
-        border-top-left-radius: 5px;
-        border-top-right-radius: 5px;
-    }
-    
-    &[sizemode="maximized"]
-    {
-        background: @background;
+        padding-top: 0;
     }
     
     &:not([show-toolbar="false"])
@@ -160,9 +139,6 @@ dialog:not([hidechrome="true"]):not(#komodo_main):not(.embedded)
 
 #komodo_main:not([hidechrome="true"]) 
 {
-    color: @foreground;
-    background: @background;
-    
     #titlebar,
     #windowButtons,
     resizer
@@ -198,12 +174,4 @@ resizer[dir="bottomright"] { cursor: se-resize; -moz-appearance:none; }
 resizer
 {
     background: @contrast;
-}
-
-/**
- * On Windows and Linux we want to offset the top padding for the size used by the resizer
- */
-#komodo_main[hidechrome="true"]:-moz-any(window[os-name="Windows_NT"],window[os-name="Linux"]) #toolbox_main
-{
-    padding-top: 0 !important;
 }

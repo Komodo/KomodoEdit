@@ -35,7 +35,7 @@ checkbox, radio
     padding: 0.2rem 4px;
 }
 
-popup, panel
+popup, panel, :root
 {
     background: @background;
     color: @foreground;
@@ -87,7 +87,7 @@ menupopup
     
     & > .popup-internal-box
     {
-        border-radius: 2px;
+        border-radius: 1px;
         border: 1px solid @background;
         background: @contrast;
     }
@@ -106,7 +106,7 @@ menupopup
     
     menuitem, menu
     {
-        border-radius: 2px;
+        border-radius: 1px;
     }
     
     menu > .menu-right
@@ -291,7 +291,7 @@ textbox, menulist
     color: @textbox-foreground;
     background: @textbox;
     padding: 0 4px;
-    border-radius: 2px;
+    border-radius: 1px;
     margin: 2px;
     
     min-height: 1.5rem;
@@ -566,7 +566,7 @@ button.unstyled
     -moz-appearance: none;
     margin: 4px;
     padding: 0.3rem 1.5rem;
-    border-radius: 2px;
+    border-radius: 1px;
     background: @button;
     color: @button-foreground;
     
@@ -608,26 +608,17 @@ button[type="checkbox"][checked="true"]
 
 /* Modals */
 
-.dialog,
-dialog,
+.dialog:root,
+dialog:root,
 .pref-window
 {
-    .dialog-content-box
-    {
-        background: @contrast;
-        border-top-left-radius: 5px;
-        border-top-right-radius: 5px;
-        padding: 6px;
-    }
+    background: @contrast;
+    color: @foreground;
     
     .dialog-button-box
     {
         -moz-box-pack: center;
         -moz-box-align: center;
-        background: @contrast;
-        border-bottom-left-radius: 3px;
-        border-bottom-right-radius: 3px;
-        padding: 6px;
         
         spacer
         {
