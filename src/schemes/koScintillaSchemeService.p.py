@@ -45,6 +45,7 @@ import logging
 import re
 import sys
 import math
+import time
 
 from xpcom import components, nsError, ServerException, COMException
 from xpcom.server import WrapObject, UnwrapObject
@@ -77,6 +78,7 @@ _no_background_colors = {
     'HTML' : ['HTML'],
 }
 
+cache = {}
 
 #---- scheme handling classes
 
@@ -647,10 +649,15 @@ class Scheme(SchemeBase):
         for i in range(len(fontStack)):
             fontStack[i] = re.sub(r'^[\'"\s]*|[\'"\s]*$', '', fontStack[i])
 
-        # Get all available fonts
-        enumerator = components.classes["@mozilla.org/gfx/fontenumerator;1"].createInstance()
-        enumerator = enumerator.QueryInterface(components.interfaces.nsIFontEnumerator)
-        fonts = set(enumerator.EnumerateAllFonts())
+        if "fonts" in cache and (int(time.time()) - cache["fontsAge"]) < 30:
+            fonts = cache["fonts"]
+        else:
+            # Get all available fonts
+            enumerator = components.classes["@mozilla.org/gfx/fontenumerator;1"].createInstance()
+            enumerator = enumerator.QueryInterface(components.interfaces.nsIFontEnumerator)
+            fonts = set(enumerator.EnumerateAllFonts())
+            cache["fonts"] = fonts
+            cache["fontsAge"] = int(time.time())
 
         # Check if any fonts in the font stack match the ones on the system
         # and return the first one that does
