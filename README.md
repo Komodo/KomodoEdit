@@ -16,7 +16,7 @@ the entire project.
 - [Feedback](#feedback)
 - [Building Komodo](#building-komodo)
     - [Building on Windows](#building-on-windows)
-    - [Building on Mac & Linux](#building-on-mac-&-linux)
+    - [Building on Mac & Linux](#building-on-mac-and-linux)
     - [Building with Docker](#building-on-docker)
     - [Building Complications](#building-complications)
 
@@ -59,7 +59,7 @@ guide check <BUILD.txt>.
  * Visual C++ 11.0 (aka Visual Studio 2012) and all the Platform SDKs for
    building Mozilla with vc11 [as described here](http://developer.mozilla.org/en/docs/Windows_Build_Prerequisites).
    
- * Install [the latest "MozillaBuild-$ver.exe"](http://ftp.mozilla.org/pub/mozilla.org/mozilla/libraries/win32/) package into *the default dir*
+ * Install [version 1.9.0 of "MozillaBuild-$ver.exe"](http://ftp.mozilla.org/pub/mozilla.org/mozilla/libraries/win32/) package into *the default dir*
    (i.e. "C:\mozilla-build").
 
  * Install the [latest ActivePerl](http://downloads.activestate.com/ActivePerl/releases/).
@@ -77,7 +77,7 @@ steps is *meant to be sufficient* to get Komodo building.
    ```
     cd mozilla
     setenv-moz-msvc11.bat
-    python build.py configure -k 9.10
+    python build.py configure -k 10.10
     python build.py distclean all
    ```
 
@@ -91,7 +91,7 @@ steps is *meant to be sufficient* to get Komodo building.
    ```
     cd ..
     set PATH=util\black;%PATH%
-    bk configure -V 9.10.0-devel
+    bk configure -V 10.10.0-devel
     bk build
    ```
 
@@ -103,7 +103,7 @@ Upon making any modifications to the source you will again have to run `bk build
 or simply `bk build && bk run` to quickly get back into Komodo. Subsequent builds
 should be a lot faster as much of the compiled data is cached.
 
-### Building on Mac & Linux
+### Building on Mac and Linux
 
 - [Mac Prerequisites](#mac-prerequisites)
 - [Linux Prerequisites](#linux-prerequisites)
@@ -119,8 +119,13 @@ should be a lot faster as much of the compiled data is cached.
 
    If you prefer the Python builds from python.org should be sufficient as well.
 
- * Xcode. [Install the latest one](http://developer.apple.com/tools/download/).
-
+ * Xcode 6.4.  You can get version 6.4 from [the developer downloads site](https://developer.apple.com/downloads/).
+  
+  * MacOSX10.10.sdk or older
+  * If you have/need other versions of Xcode installed then you can use `xcode-select` to change the active Xcode:
+  
+     `$ xcode-select -s /Path/To/Xcode\ 6.4.app/`
+ 
  * Xcode Command Line Tools.
 
    Open the Xcode preferences, then in the Downloads tab, select and install the
@@ -169,7 +174,7 @@ above steps is *meant to be sufficient* to get Komodo building.
    ```
     1) cd komodo/mozilla
     
-    2) python build.py configure -k 9.10
+    2) python build.py configure -k 10.10
     
     3) python build.py all
     
@@ -236,7 +241,7 @@ above steps is *meant to be sufficient* to get Komodo building.
     export PATH=`pwd`/util/black:$PATH   # Komodo's "bk" build tool
     git submodule update --init
     git submodule update --remote
-    bk configure -V 9.10.0-devel
+    bk configure -V 10.10.0-devel
     bk build
    ```
 
