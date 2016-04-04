@@ -80,6 +80,7 @@
             koDoc: get("koDoc"),
             file: get("koDoc", "file"),
             filePath: get("koDoc", "file", "path"),
+            url: get("koDoc", "file", "URI"),
             prefs: get("koDoc", "prefs"),
             language: get("koDoc", "language"),
             
