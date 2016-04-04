@@ -81,14 +81,14 @@ ko-pane[ko-pane-drag-status="dragover"] .pane-drop-feedback
             margin: 3px;
             padding: 2px;
             border-radius: 3px;
-            background: @button-special;
-            color: @button-foreground-special;
+            background: @contrast-special;
+            color: @foreground-special;
             -moz-box-align: center;
             -moz-box-pack: center;
             
             &[ishidden="true"]
             {
-                background: fade(@button-special, 40%);
+                background: fade(@contrast-special, 40%);
             }
             
             & > separator
@@ -130,7 +130,7 @@ ko-pane[ko-pane-drag-status="dragover"] .pane-drop-feedback
                 
                 &:hover
                 {
-                    background: darken(@button-special, 10%);
+                    background: darken(@contrast-special, 10%);
                 }
             }
             
@@ -191,7 +191,7 @@ ko-pane[ko-pane-drag-status="dragover"] .pane-drop-feedback
                     
                     &:hover
                     {
-                        background: darken(@button-special, 10%);
+                        background: darken(@contrast-special, 10%);
                     }
                 }
                 
