@@ -22,6 +22,15 @@ dialog:root[hidechrome="true"]:not(.embedded)
         padding: 6px;
     }
     
+    &,
+    .window-wrapper,
+    .dialog-content-box,
+    .dialog-button-box,
+    .resizer-box,
+    {
+        overflow: -moz-hidden-unscrollable;
+    }
+    
     & > #titlebar
     {
         padding-bottom: 5px;
