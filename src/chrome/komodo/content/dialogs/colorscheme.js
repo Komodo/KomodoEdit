@@ -143,13 +143,7 @@
         $("#schemeslist").on("select", this.onSelectScheme);
         $("#newScheme").on("command", this.newScheme);
         $("#deleteScheme").on("command", this.deleteScheme);
-        $("#ok").on("command", () =>
-        {
-            if (selectedScheme.writeable)
-                this.saveScheme();
-            this.applyScheme();
-            window.close();
-        });
+        $("#ok").on("command", () => { window.close(); });
         $("#save").on("command", this.saveScheme);
         $("#apply").on("command", this.applyScheme);
         

@@ -254,8 +254,7 @@
         <separator/>
         
         <hbox align="center" pack="center">
-            <button id="ok" label="Ok" class="button"/>
-            <button oncommand="window.close()" label="Cancel" class="button"/>
+            <button id="ok" label="Close" class="button"/>
             <button id="save" label="Save" class="button"/>
             <button id="apply" label="Apply" class="button"/>
         </hbox>
