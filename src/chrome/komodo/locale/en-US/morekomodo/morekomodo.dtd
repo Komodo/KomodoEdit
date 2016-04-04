@@ -10,19 +10,19 @@
 <!ENTITY copy.directory.path.accesskey "D">
 <!ENTITY morekomodo.copy.directory.path.desc "Clipboard - Copy View Directory Path">
 
-<!ENTITY rename.label "Rename...">
+<!ENTITY rename.label "Rename">
 <!ENTITY rename.accesskey "R">
 <!ENTITY morekomodo.rename.desc "File - Rename">
 
-<!ENTITY make.backup.label "Make Copy...">
+<!ENTITY make.backup.label "Copy to ..">
 <!ENTITY make.backup.accesskey "C">
 <!ENTITY morekomodo.make.backup.desc "File - Copy">
 
-<!ENTITY delete.label "Delete...">
+<!ENTITY delete.label "Delete">
 <!ENTITY delete.accesskey "D">
 <!ENTITY morekomodo.delete.desc "File - Delete">
 
-<!ENTITY move.label "Move...">
+<!ENTITY move.label "Move to ..">
 <!ENTITY move.accesskey "M">
 <!ENTITY morekomodo.move.desc "File - Move">
 
