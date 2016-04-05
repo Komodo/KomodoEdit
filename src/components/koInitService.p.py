@@ -367,14 +367,16 @@ class KoInitService(object):
         
     def installDefaults(self):
         koDirSvc = components.classes["@activestate.com/koDirs;1"].getService()
-        dstFile = os.path.join(koDirSvc.userDataDir, "colors.less")
-        if not os.path.isfile(dstFile):
-            fhandle = open(dstFile, 'a')
-            try:
-                os.utime(dstFile, None)
-            finally:
-                fhandle.close()
-    
+        dstFiles = ["colors.less", "userChrome.less"]
+        for dstFile in dstFiles:
+            dstFile = os.path.join(koDirSvc.userDataDir, dstFile)
+            if not os.path.isfile(dstFile):
+                fhandle = open(dstFile, 'a')
+                try:
+                    os.utime(dstFile, None)
+                finally:
+                    fhandle.close()
+        
 
     def observe(self, subject, topic, data):
         # this exists soley for app-startup support
