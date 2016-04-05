@@ -29,14 +29,13 @@ module.exports = Module;
             if (value)
             {
                 var element = this.element;
-                this.$element.children().each(function ()
+                this.menupopup.$element.children().each(function ()
                 {
                     var localValue = this.getAttribute("value") || this.getAttribute("label") || false;
                     this.removeAttribute("selected");
                     if (value == localValue)
                     {
                         element.selectedItem = this;
-                        element.value = value;
                         this.setAttribute("selected", "true");
                     }
                 });
