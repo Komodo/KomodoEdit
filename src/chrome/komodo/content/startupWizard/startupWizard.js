@@ -71,6 +71,9 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
         fields.softchars = require("ko/ui/checkbox").create("Automatically insert ending delimiters and tags");
         fields.softchars.checked( prefs.getBoolean("codeintelAutoInsertEndTag") );
         
+        fields.showLineNumbers = require("ko/ui/checkbox").create("Show line numbers in Editor");
+        fields.showLineNumbers.value( prefs.getBoolean("showLineNumbers") );
+        
         fields.indentWidth = require("ko/ui/textbox").create({attributes: { type: "number", min: 1, max: 16, width: 60, maxlength: 2 }});
         fields.indentWidth.value( prefs.getLong("tabWidth") );
         
@@ -239,7 +242,8 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
         
         autoGroupbox.addRow(fields.autoDelimiters);
         
-        
+        autoGroupbox.addRow(fields.showLineNumbers);
+                
         return page;
     };
     
@@ -296,6 +300,7 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
         prefs.setLong("editWrapType", fields.wrapping.checked() ? 2 : 0);
         prefs.setBoolean("editSmartWrapSelection", fields.autoDelimiters.checked());
         prefs.setBoolean("codeintel_completion_auto_fillups_enabled", fields.autofill.checked());
+        prefs.setBoolean("showLineNumbers", fields.showLineNumbers.checked());
         prefs.setBoolean("codeintelAutoInsertEndTag", fields.softchars.checked());
         prefs.setBoolean("editSmartSoftCharacters", fields.softchars.checked());
         prefs.setLong("tabWidth", fields.indentWidth.value());
