@@ -534,6 +534,12 @@ koPrefWindow.prototype =
                     return;
                 }
             }
+            
+        case "checkbox":
+            if (elt.getAttribute("invert"))
+                prefValues = prefValues == "true" || prefValues === true ? "false" : "true";
+            elt.setAttribute("checked", prefValues);
+            return;
 
         default:
             if (elt.getAttribute("prefwidget") == "true") {
@@ -619,7 +625,12 @@ koPrefWindow.prototype =
                 if (elt.localName == "textbox" && prefattr == "value")
                     value = elt.value;
                 else if (elt.localName == "checkbox" && prefattr == "checked")
-                    value = elt.checked ? "true" : "false";
+                {
+                    if (elt.getAttribute("invert"))
+                        value = elt.checked ? "false" : "true";
+                    else
+                        value = elt.checked ? "true" : "false";
+                }
                 else
                     value = elt.getAttribute( prefattr );
                 //dump("widget '" + elt.id + "set preference val to '" + value + "'\n");

@@ -118,12 +118,12 @@
                     
                     <hbox field="fore">
                         <description value="&filePrefAllLangForeground.label;"/>
-                        <button id="fontFore" class="colorpicker"/>
+                        <button id="fontFore" class="colorpicker unstyled"/>
                     </hbox>
                     
                     <hbox field="back">
                         <description value="&filePrefAllLangBackground.label;"/>
-                        <button id="fontBack" class="colorpicker"/>
+                        <button id="fontBack" class="colorpicker unstyled"/>
                     </hbox>
                     
                     <hbox field="iface-face">
@@ -143,12 +143,12 @@
                     
                     <hbox field="iface-fore">
                         <description value="&filePrefAllLangForeground.label;"/>
-                        <button id="iface-fore" class="colorpicker"/>
+                        <button id="iface-fore" class="colorpicker unstyled"/>
                     </hbox>
                     
                     <hbox field="iface-back">
                         <description value="&filePrefAllLangBackground.label;"/>
-                        <button id="iface-back" class="colorpicker"/>
+                        <button id="iface-back" class="colorpicker unstyled"/>
                     </hbox>
                     
                     <hbox field="bold">
@@ -216,12 +216,12 @@
                     
                     <hbox field="color">
                         <description value="Color"/>
-                        <button id="color" class="colorpicker"/>
+                        <button id="color" class="colorpicker unstyled"/>
                     </hbox>
 
                     <hbox field="indicator-color">
                         <description value="&indicColor.label;"/>
-                        <button id="indicator-color" class="colorpicker"/>
+                        <button id="indicator-color" class="colorpicker unstyled"/>
                     </hbox>
                     
                     <hbox field="indicator-alpha">

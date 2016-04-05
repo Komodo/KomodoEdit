@@ -33,10 +33,10 @@
                         </description>
                     </vbox>
                     {{?it.undo}}
-                        <button class="undo button-plain plain"/>
+                        <button class="undo button-plain plain unstyled"/>
                     {{?}}
                     {{?!it.noMenu}}
-                    <button type="menu" class="menu button-plain plain">
+                    <button type="menu" class="menu button-plain plain unstyled">
                         <menupopup>
                             <menuitem   anonid="disableCategory"
                                         label="&disableNotificationsOfType.label;"/>
@@ -45,7 +45,7 @@
                         </menupopup>
                     </button>
                     {{?}}
-                    <button class="close button-close"/>
+                    <button class="close button-close unstyled"/>
                 </hbox>
             </tooltip>
         </script>
@@ -63,10 +63,10 @@
                 {{?}}
                 <label anonid="notification-widget-text" flex="1" class="description small" crop="right" value="{{!it.message}}"/>
                 {{?it.undo}}
-                    <button class="undo button-plain plain"/>
+                    <button class="undo button-plain plain unstyled"/>
                 {{?}}
                 {{?!it.noMenu}}
-                <button type="menu" class="menu button-plain plain">
+                <button type="menu" class="menu button-plain plain unstyled">
                     <menupopup position="after_end">
                         <menuitem   anonid="disableCategory"
                                     label="&disableNotificationsOfType.label;"/>
@@ -75,7 +75,7 @@
                     </menupopup>
                 </button>
                 {{?}}
-                <button anonid="notification-widget-button" class="notification-icon" oncommand="ko.uilayout.toggleTab('notifications-widget', false)"/>
+                <button anonid="notification-widget-button" class="notification-icon unstyled" oncommand="ko.uilayout.toggleTab('notifications-widget', false)"/>
             </hbox>
         </script>
     </hbox>

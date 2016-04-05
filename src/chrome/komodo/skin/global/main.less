@@ -9,7 +9,7 @@
     color: @foreground-special;
     background: @special;
     
-    toolbaritem
+    toolbar toolbaritem
     {
         background: @contrast-special;
         border-radius: 1px;
@@ -124,14 +124,25 @@
     width: ~"calc(50vw - 175px)";
 }
 
+#main-toolboxrow
+{
+    -moz-box-flex: 1;
+}
+
 #second-toolboxrow 
 {
     -moz-box-direction: reverse;
+    -moz-box-flex: 3;
     
     & > hbox
     {
         -moz-box-pack: end;
     }
+}
+
+#middle-toolboxrow
+{
+    -moz-box-pack: center;
 }
 
 #notification-widget #notification-widget-textbox

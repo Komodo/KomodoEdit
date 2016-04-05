@@ -31,14 +31,8 @@
         <groupbox>
             <caption label="Options"/>
             <hbox class="row">
-                <checkbox id="show-chrome"
-                          label="Show Platform Window Decorations"/>
-                <checkbox id="show-menubar"
-                          label="Show Menu Bar"/>
-                <checkbox id="show-tabs"
-                          label="Show Editor Tabs"/>
-            </hbox>
-            <hbox class="row">
+                <checkbox id="classic-layout"
+                          label="Use classic layout"/>
                 <checkbox id="show-toolbar"
                           label="Show Toolbar"/>
                 <checkbox id="show-notification"

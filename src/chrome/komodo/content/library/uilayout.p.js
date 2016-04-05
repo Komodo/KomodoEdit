@@ -236,6 +236,40 @@ this.setMenubarVisibility = function uilayout_setMenubarVisibility(menubarShowin
     ko.uilayout.updateToolboxVisibility();
 };
 
+this.writeClassicFile = function()
+{
+    var koDirSvc = Cc["@activestate.com/koDirs;1"].getService();
+    var koFile = require("ko/file");
+    var netUrl = require("sdk/net/url");
+    
+    var classicMode = ko.prefs.getBoolean('ui.classic.mode');
+    
+    var path = koDirSvc.userDataDir;
+    path = koFile.join(path, "classic.less");
+    var contents = "";
+    
+    var writeContents = () =>
+    {
+        var fp = koFile.open(path, "w");
+        fp.write(contents);
+        fp.close();
+        
+        require("ko/less").reload(true);
+    };
+    
+    
+    if (classicMode)
+    {
+        netUrl.readURI("chrome://komodo/skin/global/classic.less").then((data) => {
+            contents += data + "\n\n";
+            writeContents();
+        });
+    }
+    
+    if ( ! classicMode)
+        writeContents();
+}
+
 var toolboxVisibile = null;
 this.updateToolboxVisibility = function uilayout_updateToolboxVisibility()
 {
@@ -337,8 +371,12 @@ this._customizeComplete = (function uilayout__customizeComplete() {
 
 this._updateToolbarViewStates = (function uilayout__updateToolbarViewStates()
 {
-    document.getElementById('main-toolboxrow')._updateChildVisibility();
-    document.getElementById('second-toolboxrow')._updateChildVisibility();
+    var mtbx = document.getElementById('main-toolboxrow');
+    var stbx = document.getElementById('second-toolboxrow');
+    if ("_updateChildVisibility" in mtbx)
+        mtbx._updateChildVisibility();
+    if ("_updateChildVisibility" in stbx)
+        stbx._updateChildVisibility();
 }).bind(this);
 
 /**
@@ -1665,6 +1703,12 @@ this.onload = function uilayout_onload()
     //root.setAttribute("drawintitlebar", true);
     root.setAttribute("hidechrome", hide);
     
+    // Set classic toolbar mode
+    if (ko.prefs.getBoolean("ui.classic.toolbar"))
+        document.getElementById("komodo_main").setAttribute("classic-toolbar", "true");
+    else
+        document.getElementById("komodo_main").removeAttribute("classic-toolbar");
+    
     // preload the embedded find replace frame (no rush)
     setTimeout(function() {
         var findBrowser = document.getElementById("findReplaceBrowser");
@@ -1837,6 +1881,7 @@ function _updateHiddenToolbars()
 }
 
 // A pref observer to watch for ui-related pref changes.
+warnedRestart = false;
 function _PrefObserver() {};
 _PrefObserver.prototype.observe = function(prefSet, prefName, prefSetID)
 {
@@ -1872,6 +1917,26 @@ _PrefObserver.prototype.observe = function(prefSet, prefName, prefSetID)
             window.outerWidth  = window.outerWidth - 1;
             window.outerHeight = window.outerHeight - 1;
         },100);
+        
+        ko.uilayout.updateToolboxVisibility();
+        
+        if (require("sdk/system").platform == 'darwin' && ! warnedRestart) {
+            alert('Please restart Komodo for native window border changes to take effect');
+            
+            warnedRestart = true;
+            setTimeout(function() {
+                warnedRestart = false;
+            }, 300000);
+        }
+    }
+    else if (prefName == "ui.classic.mode") {
+        ko.uilayout.writeClassicFile();
+    }
+    else if (prefName == "ui.classic.toolbar") {
+        if (ko.prefs.getBoolean(prefName))
+            document.getElementById("komodo_main").setAttribute("classic-toolbar", "true");
+        else
+            document.getElementById("komodo_main").removeAttribute("classic-toolbar");
     }
 };
 
@@ -1880,7 +1945,9 @@ _PrefObserver.topics = [
     "ui.tabs.sidepanes.left.layout",
     "ui.tabs.sidepanes.right.layout",
     "ui.tabs.sidepanes.bottom.layout",
-    "ui.hide.chrome"
+    "ui.hide.chrome",
+    "ui.classic.mode",
+    "ui.classic.toolbar"
 ];
 
 _PrefObserver.prototype.init = function() {

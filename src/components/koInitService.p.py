@@ -367,7 +367,7 @@ class KoInitService(object):
         
     def installDefaults(self):
         koDirSvc = components.classes["@activestate.com/koDirs;1"].getService()
-        dstFiles = ["colors.less", "userChrome.less"]
+        dstFiles = ["colors.less", "userChrome.less", "classic.less"]
         for dstFile in dstFiles:
             dstFile = os.path.join(koDirSvc.userDataDir, dstFile)
             if not os.path.isfile(dstFile):

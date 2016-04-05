@@ -318,7 +318,7 @@
                 
                 if (!overflow) {
                     this.button.setAttribute("collapsed", true);
-                    container.style.overflow = "visible";
+                    container.style.overflow = "-moz-hidden-unscrollable";
                 } else {
                     children = Array.slice(this.querySelectorAll("toolbaritem"));
                     for (let child of children) {
@@ -330,7 +330,7 @@
                     
                     if (this._overflowTimer) clearTimeout(this._overflowTimer);
                     this._overflowTimer = setTimeout(function() {
-                        container.style.overflow = "visible";
+                        container.style.overflow = "-moz-hidden-unscrollable";
                     }, 100);
                 }
                 

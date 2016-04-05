@@ -33,6 +33,23 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
         fields.browser = this.getFieldBrowsers();
         fields.colorScheme = this.getFieldColorSchemes();
         
+        fields.classicMode = require("ko/ui/checkbox").create("I don't like changes");
+        fields.classicMode.checked( prefs.getBoolean("ui.classic.mode") );
+        
+        fields.classicMode.onChange(() =>
+        {
+            if (fields.classicMode.checked())
+            {
+                fields.nativeBorders.checked(true);
+                fields.colorScheme.value("Classic");
+                fields.keybinding.value("Legacy");
+            }
+            else
+            {
+                fields.nativeBorders.checked(false);
+            }
+        });
+        
         fields.nativeBorders = require("ko/ui/checkbox").create("Use native window borders");
         fields.nativeBorders.checked( ! prefs.getBoolean("ui.hide.chrome") );
         
@@ -176,6 +193,9 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
         
         appearanceGroupbox.addRow($("#sample-stack"));
         
+        // I don't like changes
+        appearanceGroupbox.addRow(fields.classicMode);
+        
         // Native window borders
         appearanceGroupbox.addRow(fields.nativeBorders);
         
@@ -268,6 +288,8 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
         
         prefs.setString("keybinding-scheme", fields.keybinding.value());
         prefs.setString("selectedbrowser", fields.browser.value());
+        prefs.setBoolean("ui.classic.mode", fields.classicMode.checked());
+        prefs.setBoolean("ui.classic.toolbar", fields.classicMode.checked());
         prefs.setBoolean("ui.hide.chrome", ! fields.nativeBorders.checked());
         prefs.setBoolean("editShowMinimap", fields.minimap.checked());
         prefs.setBoolean("useTabs", fields.taborspace.checked());

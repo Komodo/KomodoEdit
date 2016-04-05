@@ -1,0 +1,56 @@
+:root
+{ 
+    font: message-box !important;
+}
+
+textbox
+{
+    -moz-appearance: textfield !important;
+    background: -moz-Field !important;
+    
+    &, label
+    {
+        color: -moz-FieldText !important;
+    }
+}
+
+menulist
+{
+    -moz-appearance: menulist !important;
+    background: Menu !important;
+    color: MenuText !important;
+}
+
+:not(button) > button:not(.button-toolbar-a):not(.unstyled):not(.spinbuttons-button),
+.button
+{
+    -moz-appearance: button !important;
+    background: ButtonFace !important;
+    padding: 0;
+    
+    &, label
+    {
+        color: ButtonText !important;
+    }
+}
+
+:not(.embedded) > tabs
+{
+    box-shadow: none !important;
+}
+
+tabs
+{
+    padding: 2px 2px 0 2px;
+}
+
+tab
+{
+    -moz-appearance: tab !important;
+    padding: 0 !important;
+    
+    &, label
+    {
+        color: WindowText !important;
+    }
+}

@@ -1734,7 +1734,7 @@
         </toolbar>
 
         <hbox id="main-toolboxrow-wrapper" class="windowDragHandler" persist="collapsed">
-            <toolboxrow id="main-toolboxrow" flex="1" align="start" persist="hidden mode collapsed" mode="icons">
+            <toolboxrow id="main-toolboxrow" align="start" persist="hidden mode collapsed" mode="icons">
                 
                 <toolbar
                     id="standardToolbar"
@@ -1897,7 +1897,7 @@
                 
             </toolboxrow>
             
-            <toolboxrow id="middle-toolboxrow" pack="center" persist="kohidden mode collapsed" mode="icons">
+            <toolboxrow id="middle-toolboxrow" persist="kohidden mode collapsed" mode="icons">
                 <toolbar id="notification-widget"
                          align="end"
                          valign="middle"
@@ -1909,13 +1909,13 @@
                         <hbox id="notification-widget-textbox">
                             <hbox id="notification-widget-default" flex="1" align="center">
                                 <label anonid="notification-widget-text" id="notification-widget-default-text" flex="1" value=""/>
-                                <button anonid="notification-widget-button" class="notification-icon" oncommand="ko.uilayout.toggleTab('notifications-widget', false)"/>
+                                <button anonid="notification-widget-button" class="notification-icon unstyled" oncommand="ko.uilayout.toggleTab('notifications-widget', false)"/>
                             </hbox>
                         </hbox>
                 </toolbar>
             </toolboxrow>
             
-            <toolboxrow id="second-toolboxrow" flex="3" pack="end" persist="hidden mode collapsed" mode="icons">
+            <toolboxrow id="second-toolboxrow" pack="end" persist="hidden mode collapsed" mode="icons">
                 <toolbar class="chromeclass-toolbar"
                          id="macrosToolbar"
                          toolboxid="toolbox_main"

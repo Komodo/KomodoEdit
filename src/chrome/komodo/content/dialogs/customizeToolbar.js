@@ -19,31 +19,9 @@
     var warnedRestart = false;
     var checkboxes = [
         {
-            elem: $("#show-chrome", window),
-            checked: function() ! prefs.getBoolean("ui.hide.chrome"),
-            onToggle: function() {
-                prefs.setBoolean("ui.hide.chrome", ! this.elem.element().checked);
-                ko.uilayout.updateToolboxVisibility();
-                
-                if (require("sdk/system").platform == 'darwin' && ! warnedRestart) {
-                    alert('Please restart Komodo in order for window decoration changes to take effect');
-                    
-                    warnedRestart = true;
-                    setTimeout(function() {
-                        warnedRestart = false;
-                    }, 300000);
-                }
-            }
-        },
-        {
-            elem: $("#show-menubar", window),
-            checked: function() $("#toolbar-menubar", w).attr("autohide") == "false",
-            onToggle: function() ko.commands.doCommandAsync("cmd_toggleMenubar")
-        },
-        {
-            elem: $("#show-tabs", window),
-            checked: function() $("#topview").hasClass('showTabs'),
-            onToggle: function() ko.openfiles.toggleTabBar() // todo: Move out of ko.openfiles
+            elem: $("#classic-layout", window),
+            checked: function() ko.prefs.getBoolean("ui.classic.toolbar"),
+            onToggle: function() ko.prefs.setBoolean("ui.classic.toolbar", this.elem.element().checked)
         },
         {
             elem: $("#show-toolbar", window),
@@ -120,7 +98,7 @@
             $(this).children().each(function() {
                 var el = $(this).clone(true, false);
                 
-                var wrapper = $("<vbox><button/></vbox>");
+                var wrapper = $("<vbox><button class='unstyled'/></vbox>");
                 wrapper.element()._originalElement = this;
                 
                 wrapper.attr("ishidden", el.attr("kohidden"));
@@ -139,8 +117,8 @@
             });
             
             listitem.append("<separator>");
-            listitem.append("<button class='move'/>");
-            listitem.append("<button class='toggle'/>");
+            listitem.append("<button class='move unstyled'/>");
+            listitem.append("<button class='toggle unstyled'/>");
             
             listitem.find("button.toggle").on("click", self.hideElem.bind(self, listitem));
         });
