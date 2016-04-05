@@ -612,7 +612,11 @@ button[type="checkbox"][checked="true"]
 dialog:root,
 .pref-window
 {
-    background: @contrast;
+    &:not(.embedded)
+    {
+        background: @contrast;
+    }
+    
     color: @foreground;
     
     .dialog-button-box
