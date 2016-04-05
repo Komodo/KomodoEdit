@@ -28,7 +28,7 @@ module.exports = Module;
         
         this.checked = function(value)
         {
-            if (value) {
+            if (value !== undefined) {
                 this.$element.attr("checked", value);
             }
             return this.element.checked;
