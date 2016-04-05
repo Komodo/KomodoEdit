@@ -12,7 +12,7 @@
 
 <page xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
     <tree id="findresults" flex="1"
-          seltype="single" class="no-border"
+          seltype="single" class="no-border bg_transparent"
           onclick="gFindResultsTabManager.onClick(event);"
           onkeypress="return gFindResultsTabManager.onKeyPress(event);">
         <treecols>
