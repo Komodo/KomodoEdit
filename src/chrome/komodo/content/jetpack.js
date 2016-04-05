@@ -24,7 +24,7 @@ const [JetPack, require] = (function() {
         var wm = Cc["@mozilla.org/appshell/window-mediator;1"].getService(Ci.nsIWindowMediator);
         let _window = wm.getMostRecentWindow("Komodo");
         
-        if ("require" in _window && _window.require) {
+        if (_window && "require" in _window && _window.require) {
             // Inherit requirePaths
             requirePaths = _window.require.getRequirePaths();
         } else {
