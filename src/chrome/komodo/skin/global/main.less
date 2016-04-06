@@ -100,6 +100,11 @@
         }
     }
     
+    .overflow-toolbarbutton
+    {
+        height: 26px;
+    }
+    
     toolbar[_mode="full"]
     {
         label.toolbarbutton-text
@@ -121,18 +126,12 @@
 #main-toolboxrow,
 #second-toolboxrow
 {
-    width: ~"calc(50vw - 175px)";
-}
-
-#main-toolboxrow
-{
-    -moz-box-flex: 1;
+    width: ~"calc(50vw - 270px)";
 }
 
 #second-toolboxrow 
 {
     -moz-box-direction: reverse;
-    -moz-box-flex: 3;
     
     & > hbox
     {
@@ -143,6 +142,7 @@
 #middle-toolboxrow
 {
     -moz-box-pack: center;
+    -moz-box-flex: 1;
 }
 
 #notification-widget #notification-widget-textbox

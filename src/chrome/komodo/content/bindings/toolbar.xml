@@ -245,15 +245,17 @@
                       flex="1">
                 <children/>
             </xul:hbox>
-            <xul:toolbaritem>
-                <xul:toolbarbutton anonid="overflow-toolbarbutton"
-                                   class="overflow-toolbarbutton"
-                                   collapsed="true"
-                                   type="menu">
-                    <xul:menupopup anonid="overflow-menupopup"
-                                   class="overflow-menupopup"/>
-                </xul:toolbarbutton>
-            </xul:toolbaritem>
+            <xul:toolbar>
+                <xul:toolbaritem>
+                    <xul:toolbarbutton anonid="overflow-toolbarbutton"
+                                       class="overflow-toolbarbutton"
+                                       collapsed="true"
+                                       type="menu">
+                        <xul:menupopup anonid="overflow-menupopup"
+                                       class="overflow-menupopup"/>
+                    </xul:toolbarbutton>
+                </xul:toolbaritem>
+            </xul:toolbar>
         </content>
 
         <implementation>
@@ -294,7 +296,6 @@
               <![CDATA[
                 var container = this.container;
                 var reverse = this.getAttribute("pack") == "end";
-                container.style.overflow = "hidden";
                 var children = Array.slice(this.querySelectorAll("toolbaritem > toolbarbutton")); // XBL, so this.childNodes is right :|
                 var overflow = false;
                 
@@ -318,7 +319,6 @@
                 
                 if (!overflow) {
                     this.button.setAttribute("collapsed", true);
-                    container.style.overflow = "-moz-hidden-unscrollable";
                 } else {
                     children = Array.slice(this.querySelectorAll("toolbaritem"));
                     for (let child of children) {
@@ -327,11 +327,6 @@
                     }
                     
                     this.button.removeAttribute("collapsed");
-                    
-                    if (this._overflowTimer) clearTimeout(this._overflowTimer);
-                    this._overflowTimer = setTimeout(function() {
-                        container.style.overflow = "-moz-hidden-unscrollable";
-                    }, 100);
                 }
                 
                 this.dirty = true;

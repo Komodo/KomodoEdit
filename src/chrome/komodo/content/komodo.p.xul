@@ -1916,6 +1916,7 @@
             </toolboxrow>
             
             <toolboxrow id="second-toolboxrow" pack="end" persist="hidden mode collapsed" mode="icons">
+                <spacer flex="1"/>
                 <toolbar class="chromeclass-toolbar"
                          id="macrosToolbar"
                          toolboxid="toolbox_main"
