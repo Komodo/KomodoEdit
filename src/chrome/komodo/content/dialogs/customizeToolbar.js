@@ -169,6 +169,6 @@
         });
     }
     
-    w.addEventListener("komodo-post-startup", this.init.bind(this));
+    w.addEventListener("komodo-ui-started", this.init.bind(this));
     
 })();

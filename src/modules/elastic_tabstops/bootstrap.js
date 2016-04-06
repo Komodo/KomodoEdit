@@ -22,8 +22,8 @@ var windowListener = {
     onOpenWindow: function(aWindow) {
         // Wait for the window to finish loading
         let domWindow = aWindow.QueryInterface(Ci.nsIInterfaceRequestor).getInterface(Ci.nsIDOMWindowInternal || Ci.nsIDOMWindow);
-        domWindow.addEventListener("komodo-post-startup", function onLoad() {
-            domWindow.removeEventListener("komodo-post-startup", onLoad, false);
+        domWindow.addEventListener("komodo-ui-started", function onLoad() {
+            domWindow.removeEventListener("komodo-ui-started", onLoad, false);
             loadIntoWindow(domWindow);
         }, false);
     },

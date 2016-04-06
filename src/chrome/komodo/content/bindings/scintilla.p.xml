@@ -779,7 +779,6 @@
                 else
                 {
                     self.setAttribute("isDark", false);
-                    window.addEventListener("komodo-post-startup", setIsDark.bind(this));
                 }
 
                 // Provide background color on wrapper so scrollbars can use
