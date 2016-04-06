@@ -715,6 +715,11 @@ class koScintillaController:
 
             pasteStart = sm.positionFromLine(endLine)
             sm.setSel(pasteStart, pasteStart)
+            if endLine >= sm.lineCount:
+                # Prepend a newline to the text to duplicate since there is no
+                # line below.
+                eol = eollib.eol2eolStr[eollib.scimozEOL2eol[sm.eOLMode]]
+                orig = eol + orig
             sm.replaceSel(orig)
 
             sm.setSel(startPos, endPos)
@@ -756,6 +761,12 @@ class koScintillaController:
 
             pasteStart = sm.positionFromLine(endLine)
             sm.setSel(pasteStart, pasteStart)
+            if endLine >= sm.lineCount:
+                # Prepend a newline to the text to duplicate since there is no
+                # line below.
+                eol = eollib.eol2eolStr[eollib.scimozEOL2eol[sm.eOLMode]]
+                orig = eol + orig
+                pasteStart += len(eol) # adjust for correct selection bounds
             sm.replaceSel(orig)
 
             offset = pasteStart - cutStart
