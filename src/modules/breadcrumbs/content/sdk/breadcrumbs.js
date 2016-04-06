@@ -187,6 +187,15 @@ var breadcrumbs = function(view) {
     {
         window.addEventListener('file_saved',
                                 this.load.bind(this, false));
+        
+        window.addEventListener('current_place_opened',
+                                this.load.bind(this, false));
+        
+        window.addEventListener('workspace_restored',
+                                this.load.bind(this, false));
+        
+        window.addEventListener('project_opened',
+                                this.load.bind(this, false));
 
         /* DOM Events */
         window.addEventListener('resize',
