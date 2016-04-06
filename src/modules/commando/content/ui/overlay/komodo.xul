@@ -41,7 +41,7 @@
                         <menuitem id="scope-{{=it.id}}"
                                   label="{{!it.name}}"
                                   value="{{=it.id}}"
-                                  image="{{=it.icon}}"
+                                  image="{{!it.icon}}"
                                   class="scope-item"
                                   key="key_cmd_{{=it.id}}"/>
                     </script>
@@ -68,7 +68,7 @@
                             {{?it.scope.favourite}}
                                 <box class="icon favourite-icon"></box>
                             {{??it.scope.icon}}
-                                <box class="icon" style='background-image: url({{=it.scope.icon}})'></box>
+                                <box class="icon" style='background-image: url({{!it.scope.icon}})'></box>
                             {{?}}
                         </hbox>
                         <hbox class="entry-wrapper" align="center" pack="center">
@@ -82,60 +82,64 @@
                         </hbox>
                     </hbox>
                 </script>
-                <vbox flex="1" id="commando-results-wrapper">
-                    <!-- Result template -->
-                    <script id="tpl-co-result" type="x-dot-template">
-                        <richlistitem class="{{?it.classList}}{{=it.classList}}{{?}} {{?it.multiline}}multiline{{?}}" id="co-result-item-{{!it.id}}" result-id="{{!it.id}}">
-                            <box class="entry-wrapper-outer">
-                                <hbox>
-                                    <hbox class="icon-wrapper" pack="center" align="center">
-                                        {{?it.favourite}}
-                                            <box class="icon favourite-icon"></box>
-                                        {{??it.icon}}
-                                            <box class="icon" style="background-image: url('{{=it.icon}}')"></box>
-                                        {{?}}
-                                    </hbox>
-                                    <hbox class="number-wrapper" align="center" pack="end"><label class="number"/></hbox>
-                                    {{?!it.multiline}}
-                                        <hbox class="entry-wrapper" align="center" pack="center">
-                                            <hbox class="prefix">
-                                                <label class="title">{{!it.name}}</label>
+                <hbox flex="1" id="commando-result-outer">
+                    <vbox flex="1" id="commando-results-outer">
+                        <vbox flex="1" id="commando-results-wrapper">
+                            <!-- Result template -->
+                            <script id="tpl-co-result" type="x-dot-template">
+                                <richlistitem class="{{?it.classList}}{{=it.classList}}{{?}} {{?it.multiline}}multiline{{?}}" id="co-result-item-{{!it.id}}" result-id="{{!it.id}}">
+                                    <box class="entry-wrapper-outer">
+                                        <hbox>
+                                            <hbox class="icon-wrapper" pack="center" align="center">
+                                                {{?it.favourite}}
+                                                    <box class="icon favourite-icon"></box>
+                                                {{??it.icon}}
+                                                    <box class="icon" style="background-image: url('{{!it.icon}}')"></box>
+                                                {{?}}
+                                            </hbox>
+                                            <hbox class="number-wrapper" align="center" pack="end"><label class="number"/></hbox>
+                                            {{?!it.multiline}}
+                                                <hbox class="entry-wrapper" align="center" pack="center">
+                                                    <hbox class="prefix">
+                                                        <label class="title">{{!it.name}}</label>
+                                                        {{?it.descriptionPrefix}}
+                                                            <label class="descriptionPrefix">{{!it.descriptionPrefix}}</label>
+                                                        {{?}}
+                                                    </hbox>
+                                                    {{?it.description}}
+                                                        <description class="description" flex="1">{{!it.description}}</description>
+                                                    {{?}}
+                                                </hbox>
+                                            {{?}}
+                                            {{?it.multiline}}
+                                                <hbox class="entry-wrapper">
+                                                    <label class="title">{{!it.name}}</label>
+                                                </hbox>
+                                            {{?}}
+                                        </hbox>
+                                        {{?it.multiline}}
+                                            <hbox class="entry-wrapper multiline">
                                                 {{?it.descriptionPrefix}}
                                                     <label class="descriptionPrefix">{{!it.descriptionPrefix}}</label>
                                                 {{?}}
+                                                {{?it.description}}
+                                                    <description class="description" flex="1">{{!it.description}}</description>
+                                                {{?}}
                                             </hbox>
-                                            {{?it.description}}
-                                                <description class="description" flex="1">{{!it.description}}</description>
-                                            {{?}}
-                                        </hbox>
-                                    {{?}}
-                                    {{?it.multiline}}
-                                        <hbox class="entry-wrapper">
-                                            <label class="title">{{!it.name}}</label>
-                                        </hbox>
-                                    {{?}}
-                                </hbox>
-                                {{?it.multiline}}
-                                    <hbox class="entry-wrapper multiline">
-                                        {{?it.descriptionPrefix}}
-                                            <label class="descriptionPrefix">{{!it.descriptionPrefix}}</label>
                                         {{?}}
-                                        {{?it.description}}
-                                            <description class="description" flex="1">{{!it.description}}</description>
-                                        {{?}}
-                                    </hbox>
-                                {{?}}
-                            </box>
-                        </richlistitem>
-                    </script>
-
-                    <richlistbox id="commando-results" flex="1" seltype="multiple"></richlistbox>
-                </vbox>
-                <description id="commando-tip" tip-type="normal" align="center">
-                    TIP: Hit the right arrow key to "expand" your selection
-                </description> 
+                                    </box>
+                                </richlistitem>
+                            </script>
+        
+                            <richlistbox id="commando-results" flex="1" seltype="multiple"></richlistbox>
+                        </vbox>
+                        <description id="commando-tip" tip-type="normal" align="center">
+                            TIP: Hit the right arrow key to "expand" your selection
+                        </description>
+                    </vbox>
+                    <vbox id="commando-preview" collapsed="true" flex="1"></vbox>
+                </hbox>
             </vbox>
-            <vbox id="commando-preview" collapsed="true" flex="1"></vbox>
         </panel>
     </popupset>
     

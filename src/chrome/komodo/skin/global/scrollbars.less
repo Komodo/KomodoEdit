@@ -22,6 +22,8 @@ scrollbar
     background: transparent;
     opacity: 1.0 !important;
     margin: 1px;
+    z-index: 999;
+    position: relative;
     
     &[orient="vertical"]
     {
@@ -59,8 +61,18 @@ dialog, :root.dialog, :root.pref-window
 
 #commando-panel
 {
+    scrollbar
+    {
+        margin-left: -16px;
+    }
+    
     scrollbar thumb
     {
-        background: @selected;
+        background: @contrast-special;
     }
+}
+
+:root.special scrollbar thumb
+{
+    background: @contrast-special;
 }

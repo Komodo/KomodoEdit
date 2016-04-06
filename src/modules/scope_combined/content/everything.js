@@ -73,11 +73,14 @@
         for (let x=0;x<_scopes.length;x++)
         {
             let scope = _scopes[x];
+            let icon = scope.icon;
+            let concatonator = icon.indexOf('?') == -1 ? '?' : '&';
+            icon += concatonator + "scheme-color=icons-special";
             results.push({
                 id: scope.id,
                 name: scope.name,
                 description: scope.description || "",
-                icon: scope.icon,
+                icon: icon,
                 scope: "scope-everything",
                 data: {
                     isScope: true

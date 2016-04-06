@@ -14,7 +14,7 @@ function loadIntoWindow(window) {
             name: "Everything",
             description: "Access all scopes at once",
             weight: 100,
-            icon: "koicon://ko-svg/chrome/icomoon/skin/search3.svg",
+            icon: "koicon://ko-svg/chrome/icomoon/skin/search3.svg?size=16",
             handler: "scope-combined/everything",
             quickscope: true
         });
@@ -26,7 +26,7 @@ function loadIntoWindow(window) {
     try {
         commando.registerScope("scope-combined-toolscmds", {
             name: "Tools and Commands",
-            icon: "koicon://ko-svg/chrome/icomoon/skin/cogs.svg",
+            icon: "koicon://ko-svg/chrome/icomoon/skin/cogs.svg?size=16",
             handler: "scope-combined/toolscommands",
             keybindTransit: "cmd_invokeTool"
         });

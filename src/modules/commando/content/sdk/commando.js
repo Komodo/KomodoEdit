@@ -874,10 +874,15 @@
         opts.id = id;
         local.scopes[id] = opts;
         
+        var _opts = Object.assign({}, opts);
+
+        var concatonator = _opts.icon.indexOf('?') == -1 ? '?' : '&';
+        _opts.icon += concatonator + "scheme-color=textbox-foreground-special";
+        
         if (opts.quickscope)
             local.quickScope = id;
 
-        var scopeElem = $(template('scopeMenuItem', opts)).element();
+        var scopeElem = $(template('scopeMenuItem', _opts)).element();
         scopeElem._scope = local.scopes[id];
 
         // Don't register command or keybindings if this is not the main
@@ -995,7 +1000,6 @@
         }
 
         scopeElem.element().selectedItem = selectItem;
-        scopeElem.attr("image", scopeElem.attr("image") + "?preset=hud");
 
         local.selectedScope = selectItem.id.substr(6);
     }
@@ -1074,7 +1078,7 @@
             if (result.icon && result.icon.substr(0,6) == 'koicon' &&
                                result.icon.substr(-3) == 'svg')
             {
-                result.icon += "?preset=hud"
+                result.icon += "?scheme-color=icons-special"
             }
 
             result.subscope = local.subscope;

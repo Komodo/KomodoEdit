@@ -26,8 +26,9 @@
     
     &.previewing:not(.maximized) #commando-preview
     {
-        background: @contrast;
+        background: @special;
         width: 600px;
+        border-left: 1px solid @contrast-special;
     }
     
     &.previewing.maximized #commando-preview
@@ -41,12 +42,17 @@
         transition: visibility 10ms; /* Hack to prevent XUL from hiding the commando panel apparently */
     }
     
-    &.previewing:not(.maximized) #commando-panel-wrapper
+    &.previewing #commando-panel-wrapper
+    {
+        width: 850px;
+    }
+    
+    &.previewing:not(.maximized) #commando-results-outer
     {
         width: 250px;
     }
     
-    &.previewing.maximized #commando-panel-wrapper
+    &.previewing.maximized #commando-results-outer
     {
         visibility: collapse;
     }
@@ -92,7 +98,7 @@
         font-weight: bold;
         padding: 4px;
         font-size: 1.1rem;
-        max-width: 490px;
+        background: @contrast-special;
 
         .icon
         {
@@ -115,12 +121,10 @@
     
     #commando-tip 
     {
-        max-width: 490px;
+        max-width: 500px;
         margin: 0;
         padding: 4px;
         background: @contrast-special;
-        border-bottom-left-radius: 5px;
-        border-bottom-right-radius: 5px;
         
         &[tip-type="error"]
         {
@@ -300,6 +304,12 @@
             &.multiline .entry-wrapper .descriptionPrefix .description
             {
                 margin: 0 6px 0 0;
+            }
+            
+            &.multiline .entry-wrapper.multiline > .description
+            {
+                margin: 0;
+                padding: 0;
             }
     
             &:not(.multiline) .entry-wrapper-outer
