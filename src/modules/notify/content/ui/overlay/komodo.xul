@@ -24,7 +24,7 @@
                 <hbox class="wrapper">
                     {{?it.icon}}
                         <vbox pack="center">
-                            <image class="icon" src="{{=it.icon}}?preset=hud"></image>
+                            <image class="icon" src="{{=it.icon}}?scheme-color=icons-special"></image>
                         </vbox>
                     {{?}}
                     <vbox> <!-- Description max-width is not respected unless its in a vbox -->
@@ -58,7 +58,7 @@
             <hbox class="wrapper {{=it.classlist}}" flex="1" align="center" notify-from="{{=it.from}}">
                 {{?it.icon}}
                     <vbox pack="center">
-                        <image class="icon" src="{{=it.icon}}?preset=hud"></image>
+                        <image class="icon" src="{{=it.icon}}?scheme-color=icons-special"></image>
                     </vbox>
                 {{?}}
                 <label anonid="notification-widget-text" flex="1" class="description small" crop="right" value="{{!it.message}}"/>
