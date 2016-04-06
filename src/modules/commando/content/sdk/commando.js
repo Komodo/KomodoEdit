@@ -535,24 +535,18 @@
         if (local.quickSearch)
         {
             panel.addClass("quick-search");
-            
+             
             var body = _window.document.documentElement;
             $(body).css("max-width", body.width + "px");
             
             panel.on("popupshown", function() {
-                $(body).css("max-width", "");
+                $(body).css("max-width", ""); 
             });
-            
-            widget.css("min-width", (panelWidth-10) + "px");
-            panel.element().openPopup(widget.element(), "topcenter");
         }
-        else
-        {
-            [left, top] = this.center(true);
-            panel.removeClass("quick-search");
-            panel.element().openPopup(undefined, undefined, left, top);
-        }
-        
+    
+        [left, top] = this.center(true);
+        panel.removeClass("quick-search");
+        panel.element().openPopup(undefined, undefined, left, top);
         
         if (c.execScopeHandler("onShow") === false)
         {
@@ -603,8 +597,6 @@
     
     this.center = function(returnValues)
     {
-        if (local.quickSearch) return;
-        
         if ( ! returnValues)
         {
             // Hack to get around XUL magically adding width/height to elements, THANKS XUL!
@@ -614,25 +606,49 @@
         
         var panel = elem('panel');
         
-        var top = 100;
-        var anchor = elem('editor').element();
-        if ( ! anchor || ! anchor.boxObject)
+        if (local.quickSearch)
         {
-            anchor = document.documentElement;
+            var classicMode = prefs.getBoolean('ui.classic.toolbar');
+            var widget = elem('notifyWidget');
+            
+            var bo = widget.element().boxObject;
+            var top = bo.screenY;
+            
+            if ( ! classicMode)
+            {
+                var left = bo.screenX + (bo.width / 2); // calculate center
+                left -= (panel.element().boxObject.width || panelWidth) / 2;
+            }
+            else
+            {
+                var left = bo.screenX + bo.width; // calculate right edge
+                left -= panel.element().boxObject.width || panelWidth;
+            }
         }
-        var bo = anchor.boxObject;
-        
-        var x = bo.x, y= bo.y;
-        if ( ! returnValues) x = bo.screenX, y = bo.screenY;
-        
-        var left = x + (bo.width / 2);
-        left -= (panel.element().boxObject.width || 500) / 2;
+        else
+        {
+            var top = 100;
+            var anchor = elem('editor').element();
+            if ( ! anchor || ! anchor.boxObject)
+            {
+                anchor = document.documentElement;
+            }
+            var bo = anchor.boxObject;
+            
+            var x = bo.screenX,
+                y = bo.screenY;
+                
+            top += y;
+            
+            var left = x + (bo.width / 2);
+            left -= (panel.element().boxObject.width || 500) / 2;
+        }
         
         if (returnValues)
             return [left, top];
         else
         {
-            panel.element().moveTo(left, y + top);
+            panel.element().moveTo(left, top);
             // repeat on slight timeout, to deal with XUL oddities
             setTimeout(function() {
                 c.center(true);
@@ -640,6 +656,42 @@
             }, 25);
         }
     }
+    
+    this._centerQuickSearch = function (returnValues)
+    {
+        var panel = elem('panel');
+        
+        var classicMode = prefs.getBoolean('ui.classic.toolbar');
+        var widget = elem('notifyWidget');
+        var bo = widget.element().boxObject;
+        var top = bo.screenY;
+        
+        var x = bo.screenX;
+        
+        if ( ! classicMode)
+        {
+            var left = x + (bo.width / 2); // calculate center
+            left -= (panel.element().boxObject.width || panelWidth) / 2;
+        }
+        else
+        {
+            var left = x + bo.width; // calculate right edge
+            left -= panel.element().boxObject.width || panelWidth;
+        }
+        
+        if (returnValues)
+            return [left, top];
+        else
+        {
+            panel.element().moveTo(left, top);
+            // repeat on slight timeout, to deal with XUL oddities
+            setTimeout(function() {
+                c.center(true);
+                c.focus(); // Work around XUL focus bugs
+            }, 25);
+        }
+    }
+    
     this.isOpen = function()
     {
         return local.open;
