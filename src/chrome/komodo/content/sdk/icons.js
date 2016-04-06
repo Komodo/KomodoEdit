@@ -324,7 +324,7 @@
                 if (("scheme-name" in params))
                     schemeName = params.scheme;
                 
-                var schemeColor = "foreground";
+                var schemeColor = "icons";
                 if (("scheme-color" in params))
                     schemeColor = params["scheme-color"];
                 
