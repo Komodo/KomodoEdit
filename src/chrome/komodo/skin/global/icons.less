@@ -335,20 +335,27 @@ button.spinbuttons-down { .icon(); .icon-caret-down(); }
 
 /* Find Icons */
 
-checkbox#opt-case
+checkbox#opt-case,
+.ko-findbar-case-sensitive
 {
-    &[value="ignore-case"] .checkbox-spacer-box
+    &[value="ignore-case"] .checkbox-spacer-box,
+    &[value="FOC_INSENSITIVE"] > .toolbarbutton-text
     {
+        .icon();
         .icon-case-insensitive();
     }
     
-    &[value="match-case"] .checkbox-spacer-box
+    &[value="match-case"] .checkbox-spacer-box,
+    &[value="FOC_SENSITIVE"] > .toolbarbutton-text
     {
+        .icon();
         .icon-case-sensitive();
     }
     
-    &[value="smart-case"] .checkbox-spacer-box
+    &[value="smart-case"] .checkbox-spacer-box,
+    &[value="FOC_SMART"] > .toolbarbutton-text
     {
+        .icon();
         .icon-smart-case();
     }
 }
@@ -363,8 +370,10 @@ checkbox#opt-multiline .checkbox-spacer-box
     .icon-align-left();
 }
 
-checkbox#opt-regex .checkbox-spacer-box
+checkbox#opt-regex .checkbox-spacer-box,
+.ko-findbar-pattern-type[value="FOT_REGEX_PYTHON"] > .toolbarbutton-text
 {
+    .icon();
     .icon-regexp-14();
 }
 
@@ -378,19 +387,34 @@ checkbox#search-in-subdirs .checkbox-spacer-box
     .icon-recurse-14();
 }
 
-#open-in-rx-btn
+#open-in-rx-btn,
+.ko-findbar-open-dialog
 {
     .icon();
     .icon-external-link-square();
 }
 
-#find-next-btn
+.ko-findbar-pattern-type[value="FOT_WILDCARD"] > .toolbarbutton-text
+{
+    .icon();
+    .icon-asterisk();
+}
+
+.ko-findbar-pattern-type[value="FOT_SIMPLE"] > .toolbarbutton-text
+{
+    .icon();
+    .icon-font();
+}
+
+#find-next-btn,
+.ko-findbar-next
 {
     .icon();
     .icon-arrow-down();
 }
 
-#find-prev-btn
+#find-prev-btn,
+.ko-findbar-prev
 {
     .icon();
     .icon-arrow-up();

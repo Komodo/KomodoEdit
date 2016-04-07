@@ -14,28 +14,18 @@ ko-findbar .ko-findbar-container > toolbarbutton {
   -moz-user-focus: normal;
 }
 
-ko-findbar .ko-findbar-closebutton {
-  list-style-image: url("chrome://global/skin/icons/close.png");
-  -moz-image-region: rect(0, 16px, 16px, 0);
-  -moz-appearance: none;
-  border: none;
-
-  /* vertically center the close button */
-  -moz-box-align: center;
-}
-ko-findbar .ko-findbar-closebutton:hover {
-  -moz-image-region: rect(0, 32px, 16px, 16px);
-}
-ko-findbar .ko-findbar-closebutton:hover:active {
-  -moz-image-region: rect(0, 48px, 16px, 32px);
-}
 
 ko-findbar .ko-findbar-textbox {
-  width: 20em;
+  width: 30em;
+  padding: 0 !important;
   -moz-user-focus: normal;
 }
 
-ko-findbar.ko-findbar-status-not-found .ko-findbar-textbox > .autocomplete-textbox-container {
+ko-findbar .ko-findbar-textbox > .autocomplete-textbox-container {
+  padding: 0 4px !important;
+}
+
+ko-findbar.ko-findbar-status-not-found .ko-findbar-textbox > * {
   box-shadow: 0 0 0 1em rgba(255, 64, 64, 0.8) inset;  /* background color */
   color: white;
 }
@@ -53,55 +43,15 @@ ko-findbar .ko-findbar-status > .ko-findbar-status-container {
   -moz-box-align: center;
 }
 
-ko-findbar.ko-findbar-status-not-found .ko-findbar-status {
-  visibility: visible;
-  list-style-image: url("chrome://global/skin/icons/wrap.png");
-}
-
-ko-findbar.ko-findbar-status-wrapped .ko-findbar-status {
-  visibility: visible;
-  list-style-image: url("chrome://global/skin/icons/wrap.png");
-}
-
-ko-findbar .ko-findbar-next {
-  list-style-image: url("chrome://fugue/skin/icons/arrow-315.png");
-}
-ko-findbar .ko-findbar-prev {
-  list-style-image: url("chrome://fugue/skin/icons/arrow-135.png");
-}
 ko-findbar .ko-findbar-next .toolbarbutton-text,
 ko-findbar .ko-findbar-prev .toolbarbutton-text {
   visibility: collapse;
 }
 
-ko-findbar .ko-findbar-case-sensitive {
-  list-style-image: url(chrome://komodo/skin/images/find_options_icons.png);
-  -moz-image-region: rect(0, 1px, 1px, 0);
-}
-ko-findbar .ko-findbar-case-sensitive[value="FOC_SENSITIVE"] {
-  -moz-image-region: rect(0, 16px, 16px,  0px);
-}
-ko-findbar .ko-findbar-case-sensitive[value="FOC_INSENSITIVE"] {
-  -moz-image-region: rect(0, 48px, 16px, 32px);
-}
-ko-findbar .ko-findbar-case-sensitive[value="FOC_SMART"] {
-  -moz-image-region: rect(0, 32px, 16px, 16px);
-}
-
-ko-findbar .ko-findbar-pattern-type {
-  list-style-image: url(chrome://komodo/skin/images/find_options_icons.png);
-  -moz-image-region: rect(0, 1px, 1px, 0);
-}
-ko-findbar .ko-findbar-pattern-type[value="FOT_SIMPLE"] {
-  -moz-image-region: rect(16px, 16px, 32px,  0px);
-}
-ko-findbar .ko-findbar-pattern-type[value="FOT_WILDCARD"] {
-  -moz-image-region: rect(16px, 32px, 32px, 16px);
-}
-ko-findbar .ko-findbar-pattern-type[value="FOT_REGEX_PYTHON"] {
-  -moz-image-region: rect(16px, 48px, 32px, 32px);
-}
-
-ko-findbar .ko-findbar-open-dialog {
-  list-style-image: url(chrome://komodo/skin/images/small-arrow-up.png);
+ko-findbar toolbarbutton > label
+{
+  width: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  min-width: 0 !important;
 }
