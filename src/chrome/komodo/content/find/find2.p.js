@@ -766,7 +766,7 @@ function replace_all() {
             ko.find.replaceAllInFiles(opener, _g_find_context,
                                        pattern, repl,
                                        gFindSvc.options.confirmReplacementsInFiles,
-                                       msg_callback));
+                                       msg_callback);
             if (! _g_prefs.getBooleanPref("pin_find_frame"))
                 closeFindFrame();
         } else if (_g_find_context.type == koIFindContext.FCT_IN_FILES) {
