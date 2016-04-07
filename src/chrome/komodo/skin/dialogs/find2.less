@@ -1,18 +1,13 @@
+@import url("chrome://komodo/skin/global/colors.less");
+@import url("resource://profile/colors.less");
+
 /**
  * CSS style rules specific to find2.xul (the find dialog)
  */
 
-#pin-btn {
-    list-style-image: url(chrome://fugue/skin/icons/pin-small.png);
-    margin: 0 4px 4px 0;
-}
-#pin-btn[checked] {
-    list-style-image: url(chrome://fugue/skin/icons/pin.png);
-    -moz-appearance: toolbarbutton;
-}
-
-#pin-btn > label {
-    display: none;
+#find-box-wrap
+{
+    padding: 6px;
 }
 
 /* Todo: Remove this custom styling globally */
@@ -47,17 +42,13 @@ button#pattern-shortcuts
 {
     min-width: 16px;
     min-height: 16px;
+    margin: 0 !important;
 }
 
 #find-row.multiline button,
 #repl-row.multiline button
 {
     margin: 15px 0 14px;
-}
-
-button#pattern-shortcuts
-{
-    margin-left: -8px;
 }
 
 #find-next-btn, #find-prev-btn
@@ -68,4 +59,44 @@ button#pattern-shortcuts
 #find-options
 {
     padding-right: 2em;
+}
+
+#opt-case,
+checkbox[checked]
+{
+    color: @secondary-special;
+}
+
+checkbox:not(#confirm-replacements-in-files) .checkbox-label-box
+{
+    visibility: collapse;
+}
+
+#open-in-rx-btn
+{
+    margin: 0;
+    padding: 0.2rem 4px;
+}
+
+#pattern-shortcuts
+{
+    margin-left: -6px;
+    min-width: 0;
+    margin-right: -8px;
+    
+    image
+    {
+        visibility: collapse;
+    }
+}
+
+#find-next-btn,
+#find-prev-btn
+{
+    padding: 4px;
+    
+    label
+    {
+        visibility: collapse;
+    }
 }

@@ -332,3 +332,73 @@ menu > .menu-right
 
 button.spinbuttons-up { .icon(); .icon-caret-up(); }
 button.spinbuttons-down { .icon(); .icon-caret-down(); }
+
+/* Find Icons */
+
+checkbox#opt-case
+{
+    &[value="ignore-case"] .checkbox-spacer-box
+    {
+        .icon-case-insensitive();
+    }
+    
+    &[value="match-case"] .checkbox-spacer-box
+    {
+        .icon-case-sensitive();
+    }
+    
+    &[value="smart-case"] .checkbox-spacer-box
+    {
+        .icon-smart-case();
+    }
+}
+
+checkbox#opt-word .checkbox-spacer-box
+{
+    .icon-text-width();
+}
+
+checkbox#opt-multiline .checkbox-spacer-box
+{
+    .icon-align-left();
+}
+
+checkbox#opt-regex .checkbox-spacer-box
+{
+    .icon-regexp-14();
+}
+
+checkbox#opt-repl .checkbox-spacer-box
+{
+    .icon-refresh();
+}
+
+checkbox#search-in-subdirs .checkbox-spacer-box
+{
+    .icon-recurse-14();
+}
+
+#open-in-rx-btn
+{
+    .icon();
+    .icon-external-link-square();
+}
+
+#find-next-btn
+{
+    .icon();
+    .icon-arrow-down();
+}
+
+#find-prev-btn
+{
+    .icon();
+    .icon-arrow-up();
+}
+
+#pattern-shortcuts .button-internal-box
+{
+    .icon();
+    .icon-arrow-right5();
+    font-size: 16px;
+}

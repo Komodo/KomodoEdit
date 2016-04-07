@@ -20,8 +20,7 @@
 <?xml-stylesheet href="less://komodo/skin/global/global.less" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/buttons.css" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/autocomplete.css" type="text/css"?>
-<?xml-stylesheet href="chrome://komodo/skin/dialogs/find2.css" type="text/css"?>
-
+<?xml-stylesheet href="less://komodo/skin/dialogs/find2.less" type="text/css"?>
 
 
 <window id="find2-window"
@@ -73,14 +72,14 @@
         <panel type="autocomplete" id="popupTextboxAutoComplete" noautofocus="true"/>
     </popupset>
 
-    <vbox id="find-box-wrap" style="padding: 4px 0">
+    <vbox id="find-box-wrap">
 
         <grid flex="1">
             <columns>
                 <column id="labels" style="min-width: 4.5em"/>
                 <column id="label-options"/>
-                <column id="fields" style="min-width: 10em" flex="1"/>
-                <column id="field-options"/>
+                <column id="fields" style="min-width: 10em" flex="10"/>
+                <column id="field-options" flex="1"/>
                 <column id="buttons"/>
             </columns>
             
@@ -287,7 +286,7 @@
                 <!-- REPLACE row -->
                 <row id="repl-row" align="center">
                     <!--labels -->
-                    <label id="repl-lbl" value="&replaceWith.label;"
+                    <label value="&replaceWith.label;"
                          control="repl" accesskey="&replaceWith.accesskey;"/>
                     
                     <!--label-options -->

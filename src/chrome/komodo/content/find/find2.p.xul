@@ -49,7 +49,7 @@
 <!-- #define ENTER_FILETYPES_TO_INCLUDE_ENTITY &enterFiletypesToIncludeUnix.tooltiptext; -->
 <!-- #define ENTER_FILETYPES_TO_EXCLUDE_ENTITY &enterFiletypesToExcludeUnix.tooltiptext; -->
 <!-- #endif -->
-<?xml-stylesheet href="chrome://komodo/skin/dialogs/find2.css" type="text/css"?>
+<?xml-stylesheet href="less://komodo/skin/dialogs/find2.less" type="text/css"?>
 
 <?xml-stylesheet href="less://komodo/skin/global/global.less" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/buttons.css" type="text/css"?>
