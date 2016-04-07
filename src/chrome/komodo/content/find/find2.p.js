@@ -586,7 +586,7 @@ function find_all() {
         if (! pattern) {
             return;
         }
-    
+        
         // This handles, for example, the context being "search in
         // selection", but there is no selection.
         if (! _g_find_context) {
@@ -598,7 +598,7 @@ function find_all() {
                 return;
             }
         }
-
+        
         if (widgets.opt_multiline.checked) {
             widgets.pattern.value = widgets.curr_pattern.value;
         }
@@ -608,38 +608,29 @@ function find_all() {
         var findSessionSvc = Components.classes["@activestate.com/koFindSession;1"].
                                 getService(Components.interfaces.koIFindSession);
         findSessionSvc.Reset();
-
-        if (_g_find_context.type == koIFindContext.FCT_IN_COLLECTION) {
-            if (ko.find.findAllInFiles(opener, _g_find_context,
-                                    pattern, null,
-                                    msg_callback)) {
-                window.close();
-            }
-            
-        } else if (_g_find_context.type == koIFindContext.FCT_IN_FILES) {
+        
+        var findFn = "findAllInFiles";
+        if (_g_find_context.type == koIFindContext.FCT_IN_FILES) {
             ko.mru.addFromACTextbox(widgets.dirs);
             if (widgets.includes.value)
                 ko.mru.addFromACTextbox(widgets.includes);
             if (widgets.excludes.value)
                 ko.mru.addFromACTextbox(widgets.excludes);
             gFindSvc.options.cwd = _g_find_context.cwd;
-
-            if (ko.find.findAllInFiles(opener, _g_find_context,
-                                    pattern, null,
-                                    msg_callback)) {
-                window.close();
-            }
-
-        } else {
-            var found_some = ko.find.findAll(opener, _g_find_context, pattern,
-                                          null,          // patternAlias
-                                          msg_callback); // msgHandler
-            if (found_some) {
-                window.close();
-            } else {
-                widgets.curr_pattern.focus();
-            }
         }
+        else if (_g_find_context.type != koIFindContext.FCT_IN_COLLECTION)
+        {
+            findFn = "findAll";
+        }
+        
+        ko.find[findFn](opener, _g_find_context, pattern, null, msg_callback, (started) =>
+        {
+            if (started && ! _g_prefs.getBooleanPref("pin_find_frame"))
+                closeFindFrame();
+            else 
+                widgets.curr_pattern.focus();
+        });
+        
     } catch(ex) {
         log.exception(ex);
     }
@@ -684,7 +675,8 @@ function mark_all() {
                                       null,          // patternAlias
                                       msg_callback); // msgHandler
         if (found_some) {
-            window.close();
+            if (! _g_prefs.getBooleanPref("pin_find_frame"))
+                closeFindFrame();
         } else {
             widgets.curr_pattern.focus();
         }
@@ -771,12 +763,12 @@ function replace_all() {
         findSessionSvc.Reset();
 
         if (_g_find_context.type == koIFindContext.FCT_IN_COLLECTION) {
-            if (ko.find.replaceAllInFiles(opener, _g_find_context,
+            ko.find.replaceAllInFiles(opener, _g_find_context,
                                        pattern, repl,
                                        gFindSvc.options.confirmReplacementsInFiles,
-                                       msg_callback)) {
-                window.close();
-            }
+                                       msg_callback));
+            if (! _g_prefs.getBooleanPref("pin_find_frame"))
+                closeFindFrame();
         } else if (_g_find_context.type == koIFindContext.FCT_IN_FILES) {
             ko.mru.addFromACTextbox(widgets.dirs);
             if (widgets.includes.value)
@@ -785,24 +777,20 @@ function replace_all() {
                 ko.mru.addFromACTextbox(widgets.excludes);
             gFindSvc.options.cwd = _g_find_context.cwd;
 
-            if (ko.find.replaceAllInFiles(opener, _g_find_context,
+            ko.find.replaceAllInFiles(opener, _g_find_context,
                                        pattern, repl,
                                        gFindSvc.options.confirmReplacementsInFiles,
-                                       msg_callback)) {
-                window.close();
-            }
+                                       msg_callback);
+            if (! _g_prefs.getBooleanPref("pin_find_frame"))
+                closeFindFrame();
         } else {
-            var found_some = null;
-            var found_some = ko.find.replaceAll(
+            ko.find.replaceAll(
                     opener, _g_find_context, pattern, repl,
                     widgets.show_replace_all_results.checked,
                     false,  /* firstOnLine */
                     msg_callback);
-            if (found_some) {
-                window.close();
-            } else {
-                widgets.curr_pattern.focus();
-            }
+            if (! _g_prefs.getBooleanPref("pin_find_frame"))
+                closeFindFrame();
         }
     } catch (ex) {
         log.exception(ex);
@@ -874,12 +862,6 @@ function _init() {
         opener.ko.launch.find2_dialog_args = null;
     }
     
-    // Close this dialog when the opener goes away
-    opener.addEventListener("unload", function unload(event) {
-        window.close();
-        event.target.removeEventListener(event.type, unload, false);
-    }, false);
-
     // If there is selected text then preload the find pattern with it.
     // Unless it spans a line, then set the search context to the
     // selection.
@@ -1440,8 +1422,3 @@ function closeFindFrame()
 }
 
 window.addEventListener("resize", updateWrapperHeight);
-window.addEventListener("blur", function()
-{
-    if ( ! _g_prefs.getBooleanPref("pin_find_frame"))
-        closeFindFrame();
-});

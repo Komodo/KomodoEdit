@@ -1439,13 +1439,14 @@ this.findNext = function Find_FindNext(editor, context, pattern, mode /* ="find"
  * @returns {boolean} True if the pattern was successfully found.
  */
 this.findAll = function Find_FindAll(editor, context, pattern, patternAlias,
-                      msgHandler /* =<statusbar notifier> */,
+                      msgHandler /* =<statusbar notifier> */, onStart,
                       highlightMatches /* =true */,
                       resultsMgr, patternOverride)
 {
+    onStart = onStart || function() {};
     if (patternOverride) pattern = patternOverride;
     if ( ! resultsMgr) {
-        ko.findresults.getTab(this.findAll.bind(this, editor, context, pattern, patternAlias, msgHandler, highlightMatches));
+        ko.findresults.getTab(this.findAll.bind(this, editor, context, pattern, patternAlias, msgHandler, onStart, highlightMatches));
         return;
     }
     
@@ -1521,6 +1522,7 @@ this.findAll = function Find_FindAll(editor, context, pattern, patternAlias,
                                   numFilesSearched);
     } catch (ex) {
         ko.find._uiForFindServiceError("find all", ex, msgHandler);
+        onStart();
         return null;
     }
 
@@ -1543,6 +1545,7 @@ this.findAll = function Find_FindAll(editor, context, pattern, patternAlias,
     }
     lazy.findSession.Reset();
 
+    onStart(foundSome);
     return foundSome;
 }
 
@@ -1903,11 +1906,12 @@ this.replaceAll = function Find_ReplaceAll(editor, context, pattern, replacement
  *      was an error or find was aborted.
  */
 this.findAllInFiles = function Find_FindAllInFiles(editor, context, pattern, patternAlias,
-                             msgHandler /* =<statusbar notifier> */, resultsMgr, patternOverride)
+                             msgHandler /* =<statusbar notifier> */, onStart, resultsMgr, patternOverride)
 {
+    onStart = onStart || function() {};
     if (patternOverride) pattern = patternOverride;
     if ( ! resultsMgr) {
-        ko.findresults.getTab(this.findAllInFiles.bind(this, editor, context, pattern, patternAlias, msgHandler));
+        ko.findresults.getTab(this.findAllInFiles.bind(this, editor, context, pattern, patternAlias, msgHandler, onStart));
         return;
     }
     
@@ -1929,8 +1933,10 @@ this.findAllInFiles = function Find_FindAllInFiles(editor, context, pattern, pat
     } catch (ex) {
         ko.find._uiForFindServiceError("find all in files", ex, msgHandler);
         resultsMgr.clear();
+        onStart(false);
         return false;
     }
+    onStart(true);
     return true;
 }
 
