@@ -1462,6 +1462,13 @@ def _PackageKomodoDMG(cfg):
 
     # If a code signing certificate is given, sign the binary now
     # (after we're all done mucking with it, just before we package)
+    cmd = "%s -O -m compileall %s" %(cfg.unsiloedPythonExe, cfg.installAbsDir)
+    log.info("running cmd: %s", cmd)
+    p = subprocess.Popen(cmd, cwd=cfg.komodoDevDir, shell=True)
+    status = p.wait()
+    if status:
+        log.warn("error running '%s'" % (status))
+    
     if hasattr(cfg, "osxCodeSigningCert"):
         codesignDir = os.path.join(cfg.komodoDevDir, "src/install/osx-codesign")
         try:
