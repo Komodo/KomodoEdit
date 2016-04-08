@@ -71,6 +71,8 @@
 .debug-continue-icon { .icon(); .icon-play(); }
 .debug-break-icon { .icon(); .icon-pause2(); }
 .debug-stop-icon { .icon(); .icon-stop2(); }
+.debug-inspect-icon { .icon(); .icon-terminal2(); }
+.debug-detach-icon { .icon(); .icon-forward(); }
 .debug-stepin-icon { .icon(); .icon-step-into(); }
 .debug-stepover-icon { .icon(); .icon-step-over(); }
 .debug-stepout-icon { .icon(); .icon-step-out(); }
@@ -427,6 +429,14 @@ checkbox#search-in-subdirs .checkbox-spacer-box
     font-size: 16px;
 }
 
+/* Debugging panel icons */
+
+#button-showHiddenVars
+{
+    .icon();
+    .icon-eye2();
+}
+
 /* Misc Buttons */
 
 .rightarrow-button > .button-internal-box
@@ -439,4 +449,19 @@ checkbox#search-in-subdirs .checkbox-spacer-box
         visibility: collapse;
         display: none;
     }
+}
+
+.list-item-add-icon
+{
+    .icon-plus-square();
+}
+
+.list-item-edit-icon
+{
+    .icon-pencil-square();
+}
+
+.list-item-remove-icon
+{
+    .icon-minus-square();
 }
