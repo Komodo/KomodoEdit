@@ -1820,6 +1820,7 @@ class koDocumentBase(object):
     def releaseView(self, scintilla):
         try:
             #print "Releasing View"
+            self.codeIntelSvc.remove_buf_from_koIDocument(self)
             if scintilla not in self._views:
                 raise ServerException(nsError.NS_ERROR_FAILURE,'SciMoz does not reference.')
             self.docSettingsMgr.unregister(scintilla)

@@ -245,6 +245,11 @@ class KoCodeIntelService:
                   env=buf.env,
                   mtime=mtime,
                   callback=callback)
+        
+    def remove_buf_from_koIDocument(self, doc):
+        doc = UnwrapObject(doc)
+        if doc in self.buffers:
+            del self.buffers[doc]
 
     def buf_from_koIDocument(self, doc):
         if not self.enabled:

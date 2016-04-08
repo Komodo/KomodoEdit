@@ -422,6 +422,11 @@ interface koICodeIntelService: nsISupports {
                        in boolean useFileMtime);
 
     /**
+     * Remove a codeintel buffer given a document.
+     */
+    void remove_buf_from_koIDocument(in koIDocument doc);
+    
+    /**
      * Get a codeintel buffer given a document.
      */
     koICodeIntelBuffer buf_from_koIDocument(in koIDocument doc);
