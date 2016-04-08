@@ -400,7 +400,6 @@ button[type="button-toolbar-a"],
 .rightarrow-button > .button-internal-box,
 .rightarrow-button > .menubutton-internal-box
 {
-   padding             : 1px 3px 1px 3px;
    vertical-align      : middle;
 }
 
