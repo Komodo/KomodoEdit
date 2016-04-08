@@ -162,7 +162,7 @@ ko.analytics = new function()
      */
     this.bindListeners = () =>
     {
-        window.addEventListener('view_opened', this._eventProxy.bind(this, this.onViewOpened));
+        window.addEventListener('editor_view_opened', this._eventProxy.bind(this, this.onViewOpened));
         window.addEventListener('focus', this._eventProxy.bind(this, this.onWindowFocus));
         //window.addEventListener('loadDialog', e => e.detail["dialog"]
         //                                            .addEventListener('focus',_proxy.bind(this, this.onWindowFocus)) );
@@ -295,7 +295,7 @@ ko.analytics = new function()
      */
     this.onViewOpened = (e) =>
     {
-        var view = ko.views.manager.currentView;
+        var view = e.detail.view;
         this.trackPageView("/editor/" + view.koDoc.language);
         if ("koDoc" in view && "file" in view.koDoc && view.koDoc.file && "scimoz" in view)
         {
