@@ -356,6 +356,8 @@
         view.currentPos = sampleText.length/2;
         
         loadedSampleId = selectedLanguage;
+        
+        this.updateScintilla();
     }
     
     this.loadIndicatorSample = () =>
