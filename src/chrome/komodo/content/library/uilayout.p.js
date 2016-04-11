@@ -1680,11 +1680,11 @@ this.onload = function uilayout_onload()
         MruMenusAddItem(e.target);
     }
 
-    document.getElementById('unifiedMenuButton').addEventListener('command', trackMenuItemMru);
+    document.getElementById('unifiedMenuPopup').addEventListener('command', trackMenuItemMru);
     document.getElementById('menubar_main').addEventListener('command', trackMenuItemMru);
 
     // Also track click events, as not all menuitem's fire a command event
-    document.getElementById('unifiedMenuButton').addEventListener('click', trackMenuItemMru);
+    document.getElementById('unifiedMenuPopup').addEventListener('click', trackMenuItemMru);
     document.getElementById('menubar_main').addEventListener('click', trackMenuItemMru);
     
     document.getElementById('unifiedMenuPopup').addEventListener('popupshowing', ko.uilayout.cloneUnifiedMenuItems.bind(ko.uilayout));
