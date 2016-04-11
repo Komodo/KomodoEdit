@@ -234,7 +234,7 @@ binding cmd_viewWhitespace Meta+Shift+*
 binding cmd_wordWrap Meta+Shift+(
 
 #Commando
-binding cmd_showCommando Meta+Shift+O
+binding cmd_scope-combined Meta+Shift+O
 binding cmd_scope-combined-toolscmds Meta+Shift+K
 binding cmd_scope-openfiles Meta+<
 binding cmd_scope-files Meta+>

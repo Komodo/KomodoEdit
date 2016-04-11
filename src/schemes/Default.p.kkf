@@ -209,7 +209,7 @@ binding cmd_startMacroMode Ctrl+K (
 binding cmd_stopMacroMode Ctrl+K )
 
 # Commando
-binding cmd_showCommando Ctrl+Shift+O
+binding cmd_scope-combined Ctrl+Shift+O
 binding cmd_scope-combined-toolscmds Ctrl+Shift+K
 binding cmd_scope-openfiles Ctrl+<
 binding cmd_scope-files Ctrl+>
