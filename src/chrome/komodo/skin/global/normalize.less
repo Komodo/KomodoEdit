@@ -120,7 +120,9 @@ menupopup
     }
     
     menu:hover,
-    menuitem:hover
+    menuitem:hover,
+    menu[_moz-menuactive="true"],
+    menuitem[_moz-menuactive="true"]
     {
         background: @special !important;
         color: @foreground !important;
@@ -743,14 +745,17 @@ page.widget
         color: @special-foreground-widget;
     }
     
-    &[selected="true"]
+    richlistitem, listitem
     {
-        background: @special-widget;
-        color: @special-foreground-widget;
-        
-        description, label
+        &[selected="true"]
         {
+            background: @special-widget;
             color: @special-foreground-widget;
+            
+            description, label
+            {
+                color: @special-foreground-widget;
+            }
         }
     }
     
