@@ -1567,7 +1567,7 @@
         if ( ! prefs.getBooleanPref('commando_preserve_query')) return;
         
         var state = local.state[scope] || false;
-        if ( ! state) return false;
+        if ( ! state || ! state.resultElemChildren.children()) return false;
         
         log.debug("Restoring state for " + scope);
         
