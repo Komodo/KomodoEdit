@@ -1,3 +1,6 @@
+@import url("chrome://komodo/skin/global/colors.less");
+@import url("resource://profile/colors.less");
+
 .notify-panel
 {
     -moz-appearance: none !important;
@@ -5,11 +8,9 @@
     transition: none !important;
     -moz-binding: url("chrome://global/content/bindings/popup.xml#panel") !important;
     padding: 6px;
-    color: #EEE;
-    background: rgb(34, 34, 34);
-    border-radius: 2px;
-    border: 1px solid rgba(150,150,150, 0.2);
-    background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.1));
+    color: @state-foreground;
+    background: @state-ok;
+    border-radius: 1px;
     
     &, *
     {
@@ -18,22 +19,22 @@
 
     &.p-notification
     {
-        background-color: rgb(81, 79, 117);
+        background-color: @state-info;
     }
 
     &.p-warning
     {
-        background-color: rgb(107, 94, 56);
+        background-color: @state-warning;
     }
 
     &.p-error
     {
-        background-color: rgb(114, 78, 78);
+        background-color: @state-error;
     }
     
     &.p-now
     {
-        background-color: rgb(58, 58, 58);
+        background-color: @state-ok;
     }
     
     &.lint, &.generic
@@ -81,12 +82,7 @@
         min-width: 0 !important;
         width: 16px;
         height: 16px;
-        opacity: 0.7;
         cursor: pointer;
-        transition: all 0.2s ease;
-        background-size: 16px !important;
-        background-repeat: no-repeat;
-        background-position: center;
 
         dropmarker
         {
@@ -102,17 +98,17 @@
         {
             &.menu
             {
-                background-image: url(koicon://ko-svg/chrome/icomoon/skin/cog2.svg?scheme-color=icons-special) !important;
+                background-image: url(koicon://ko-svg/chrome/icomoon/skin/cog2.svg?scheme-color=state-foreground) !important;
             }
     
             &.undo
             {
-                background-image: url(koicon://ko-svg/chrome/icomoon/skin/undo2.svg?scheme-color=icons-special) !important;
+                background-image: url(koicon://ko-svg/chrome/icomoon/skin/undo2.svg?scheme-color=state-foreground) !important;
             }
             
             &.close
             {
-                background-image: url(koicon://ko-svg/chrome/icomoon/skin/close2.svg?scheme-color=icons-special) !important;
+                background-image: url(koicon://ko-svg/chrome/icomoon/skin/close2.svg?scheme-color=state-foreground) !important;
             }
         }
     }
