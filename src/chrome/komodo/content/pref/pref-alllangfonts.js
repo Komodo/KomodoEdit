@@ -20,7 +20,7 @@
             
             // Don't wait for openDialog
             setTimeout(function() {
-                parent.hPrefWindow.doClose();
+                parent.hPrefWindow.onCancel();
             }, 0);
             
             ko.windowManager.openDialog("chrome://komodo/content/dialogs/colorscheme.xul",
