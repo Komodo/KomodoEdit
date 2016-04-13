@@ -67,7 +67,7 @@
 
         'CommonStyles': {
             locale: 'Common',
-            fields: ['fore', 'back', 'bold', 'italic'],
+            fields: ['reset', 'fore', 'back', 'bold', 'italic'],
             properties: [
                 {
                     name: 'default_fixed',
@@ -202,7 +202,7 @@
             property = { name: property };
             property.parent = {
                 name: selectedLanguage,
-                fields: ['fore', 'back', 'bold', 'italic'],
+                fields: ['reset', 'fore', 'back', 'bold', 'italic'],
                 parent: { name: 'LanguageStyles'}
             };
             
@@ -499,6 +499,20 @@
     };
     
     this.fields = {
+        reset: {
+            init: () => {
+                $("#reset").on("command", () => {
+                    this.ensureWriteable();
+                    var property = this.getSelectedProperty();
+                    parent = property.parent.name == "CommonStyles" ? "" : property.parent.name;
+                    selectedScheme.resetStyle(parent, property.name);
+                    this.onSelectProperty();
+                    setTimeout(this.onSelectProperty, 50);
+                    this.updateScintilla();
+                });
+            },
+            reset: () => {}
+        },
         face: {
             init: () => {
                 $("#fontlist").on("command", (e) => {

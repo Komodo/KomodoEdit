@@ -244,6 +244,10 @@
                         <checkbox id="caretLineVisible"
                                   label="&highlightCurrentLine.label;"/>
                     </hbox>
+                    <hbox field="reset">
+                        <description value=""/>
+                        <button class="button" id="reset" label="Reset"/>
+                    </hbox>
                 </groupbox> <!-- reference=property-editor -->
                 
                 <view id="sample" type="buffer" flex="1" style="min-width: 400px"/>
