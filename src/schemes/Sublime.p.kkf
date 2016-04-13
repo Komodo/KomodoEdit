@@ -193,7 +193,7 @@ binding cmd_saveAll Ctrl+Alt+S
 binding cmd_viewFullScreen F11
 binding cmd_focusmode Shift+F11
 binding cmd_newlinePrevious Ctrl+Shift+Return
-binding cmd_goToFile Ctrl+P
+binding cmd_scope-files Ctrl+P
 binding cmd_showSectionList Ctrl+R
 binding cmd_gotoLine Ctrl+G
 binding cmd_invokeTool Ctrl+Shift+P

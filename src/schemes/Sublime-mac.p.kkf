@@ -184,7 +184,7 @@ binding cmd_saveAll Meta+Alt+S
 binding cmd_viewFullScreen Meta+Ctrl+F
 binding cmd_focusmode Meta+Ctrl+Shift+F
 binding cmd_newlinePrevious Meta+Shift+Return
-binding cmd_goToFile Meta+P
+binding cmd_scope-files Meta+P
 binding cmd_showSectionList Meta+R
 binding cmd_gotoLine Ctrl+G
 binding cmd_invokeTool Meta+Shift+P
