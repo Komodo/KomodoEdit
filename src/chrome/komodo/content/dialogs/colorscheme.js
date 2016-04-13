@@ -114,8 +114,6 @@
     
     var sample;
     
-    var propertyValues;
-    
     this.init = () =>
     {
         scintillaOverlayOnLoad();
@@ -150,7 +148,7 @@
         {
             this.fields[field].init();
         }
-    }
+    };
     
     this.populatePropertiesList = () =>
     {
@@ -159,7 +157,8 @@
         var clone = (o) => JSON.parse(JSON.stringify(o));
         
         // Populate using our static properties list
-        for (let parentName in styleProperties) {
+        for (let parentName in styleProperties)
+        {
             let parent = clone(styleProperties[parentName]);
             parent.name = parentName;
             parent.locale = parent.locale || parent.name;
@@ -189,7 +188,7 @@
         
         list.element().selectedIndex = 0;
         this.onSelectProperty();
-    }
+    };
     
     this.populateLanguagePropertiesList = () =>
     {
@@ -197,7 +196,7 @@
         list.empty();
 
         var labels = {};
-        schemeService.getLanguageStyles(selectedLanguage, labels, new Object());
+        schemeService.getLanguageStyles(selectedLanguage, labels, {});
         for (let property of labels.value)
         {
             property = { name: property };
@@ -220,7 +219,7 @@
         
         list.element().selectedIndex = 0;
         this.onSelectProperty();
-    }
+    };
     
     this.populateFontList = () =>
     {
@@ -252,12 +251,12 @@
             fontlistmono.append(item);
             fontlist2mono.append(item.clone());
         }
-    }
+    };
     
     this.populateSchemeList = () =>
     {
-        var schemes = new Array();
-        schemeService.getSchemeNames(schemes, new Object());
+        var schemes = [];
+        schemeService.getSchemeNames(schemes, {});
         
         var menuitem;
         var s, scheme;
@@ -305,7 +304,7 @@
         $("#schemespopup .primary_menu_item").last().after($("<menuseparator/>"));
         
         $("#schemeslist").element().selectedItem = $(`#schemeslist menuitem[label="${selectedScheme.name}"]`).element();
-    }
+    };
     
     this.selectDefaultLanguage = () =>
     {
@@ -339,7 +338,7 @@
             $("#languageList").element().selection = selectedLanguage;
             this.populateLanguagePropertiesList();
         }
-    }
+    };
     
     this.loadSample = () =>
     {
@@ -358,7 +357,7 @@
         loadedSampleId = selectedLanguage;
         
         this.updateScintilla();
-    }
+    };
     
     this.loadIndicatorSample = () =>
     {
@@ -390,7 +389,7 @@
         view.currentPos = 0;
         
         loadedSampleId = 'indicators';
-    }
+    };
     
     this.onUpdateLanguage = () =>
     {
@@ -408,7 +407,7 @@
             this.populateLanguagePropertiesList();
             prefs.setString(p, language);
         }
-    }
+    };
     
     this.onClickSample = () =>
     {
@@ -447,7 +446,7 @@
         $("#propertyList").element().ensureElementIsVisible(item.element());
         
         this.onSelectProperty();
-    }
+    };
     
     this.onSelectScheme = () =>
     {
@@ -460,7 +459,7 @@
         $("window").removeClass("primary-scheme");
         if ( ! selectedScheme.writeable)
             $("window").addClass("primary-scheme");
-    }
+    };
     
     this.onSelectProperty = () =>
     {
@@ -485,7 +484,7 @@
             this.loadIndicatorSample();
         else
             this.loadSample();
-    }
+    };
     
     this.getSelectedProperty = () => $("#propertyList").element().selectedItem._property;
     
@@ -494,7 +493,7 @@
         var language = $("#languageList").element().selection;
         language = language == -1 ? '' : language;
         return language;
-    }
+    };
     
     this.fields = {
         face: {
@@ -522,13 +521,13 @@
                     this.ensureWriteable();
                     var property = this.getSelectedProperty();
                     selectedScheme.setSize(this.getSelectedLanguage(), property.name,
-                                           $("#fontSize").element().selectedItem.getAttribute("value"))
+                                           $("#fontSize").element().selectedItem.getAttribute("value"));
                     this.updateScintilla();
                 });
             },
             reset: () => {
                 var property = this.getSelectedProperty();
-                var size = selectedScheme.getSize(this.getSelectedLanguage(), property.name)
+                var size = selectedScheme.getSize(this.getSelectedLanguage(), property.name);
                 $("#fontSize").element().selectedItem = $(`#fontSize menuitem[value="${size}"]`).element();
             }
         },
@@ -538,13 +537,13 @@
                     this.ensureWriteable();
                     var property = this.getSelectedProperty();
                     selectedScheme.setBold(this.getSelectedLanguage(), property.name,
-                                           $("#fontBold").attr("checked") == "true")
+                                           $("#fontBold").attr("checked") == "true");
                     this.updateScintilla();
                 });
             },
             reset: () => {
                 var property = this.getSelectedProperty();
-                var bold = selectedScheme.getBold(this.getSelectedLanguage(), property.name)
+                var bold = selectedScheme.getBold(this.getSelectedLanguage(), property.name);
                 $("#fontBold").removeAttr("checked");
                 if (bold) $("#fontBold").attr("checked", "true");
             }
@@ -555,13 +554,13 @@
                     this.ensureWriteable();
                     var property = this.getSelectedProperty();
                     selectedScheme.setItalic(this.getSelectedLanguage(), property.name,
-                                           $("#fontItalic").attr("checked") == "true")
+                                           $("#fontItalic").attr("checked") == "true");
                     this.updateScintilla();
                 });
             },
             reset: () => {
                 var property = this.getSelectedProperty();
-                var italic = selectedScheme.getItalic(this.getSelectedLanguage(), property.name)
+                var italic = selectedScheme.getItalic(this.getSelectedLanguage(), property.name);
                 $("#fontItalic").removeAttr("checked");
                 if (italic) $("#fontItalic").attr("checked", "true");
             }
@@ -572,7 +571,7 @@
                     this.ensureWriteable();
                     this.pickColor($("#fontFore"), (color) => {
                         var property = this.getSelectedProperty();
-                        selectedScheme.setFore(this.getSelectedLanguage(), property.name, color)
+                        selectedScheme.setFore(this.getSelectedLanguage(), property.name, color);
                         $(`#propertyList listitem[name="${property.name}"]`).css("color", color);
                         this.updateScintilla();
                     });
@@ -580,7 +579,7 @@
             },
             reset: () => {
                 var property = this.getSelectedProperty();
-                var fore = selectedScheme.getFore(this.getSelectedLanguage(), property.name)
+                var fore = selectedScheme.getFore(this.getSelectedLanguage(), property.name);
                 $("#fontFore").css("background-color", fore);
                 $("#fontFore").attr("color", fore);
             }
@@ -599,7 +598,7 @@
             },
             reset: () => {
                 var property = this.getSelectedProperty();
-                var back = selectedScheme.getBack(this.getSelectedLanguage(), property.name)
+                var back = selectedScheme.getBack(this.getSelectedLanguage(), property.name);
                 $("#fontBack").css("background-color", back);
                 $("#fontBack").attr("color", back);
             }
@@ -618,7 +617,7 @@
             },
             reset: () => {
                 var property = this.getSelectedProperty();
-                var color = selectedScheme.getColor(property.name)
+                var color = selectedScheme.getColor(property.name);
                 $("#color").css("background-color", color);
                 $("#color").attr("color", color);
             }
@@ -628,13 +627,13 @@
                 $("#fontLineSpacing").on("input", () => {
                     this.ensureWriteable();
                     var property = this.getSelectedProperty();
-                    selectedScheme.setLineSpacing(property.name, $("#fontLineSpacing").value())
+                    selectedScheme.setLineSpacing(property.name, $("#fontLineSpacing").value());
                     this.updateScintilla();
                 });
             },
             reset: () => {
                 var property = this.getSelectedProperty();
-                var space = selectedScheme.getLineSpacing(property.name)
+                var space = selectedScheme.getLineSpacing(property.name);
                 $("#fontLineSpacing").element().value = space;
             },
         },
@@ -799,7 +798,7 @@
                     this.ensureWriteable();
                     this.pickColor($("#iface-fore"), (color) => {
                         var property = this.getSelectedProperty();
-                        selectedScheme.setInterfaceStyle(property.name, "fore", color)
+                        selectedScheme.setInterfaceStyle(property.name, "fore", color);
                         $(`#propertyList listitem[name="${property.name}"]`).css("color", color);
                     });
                 });
@@ -829,7 +828,7 @@
                 $("#iface-back").attr("color", back);
             }
         },
-    }
+    };
     
     this.pickColor = (button, callback) =>
     {
@@ -860,7 +859,7 @@
                 callback(newcolor);
             }
         }, color, 1.0, button.element().boxObject.screenX, button.element().boxObject.screenY);
-    }
+    };
     
     this.getBasicPropertyStyle = (property) =>
     {
@@ -891,7 +890,7 @@
             style.background = selectedScheme.getColor(property.name);
         
         return style;
-    }
+    };
     
     this.saveScheme = () =>
     {
@@ -903,7 +902,7 @@
                                 getService(Ci.nsIObserverService);
             observerSvc.notifyObservers(this, 'scheme-changed', selectedScheme.name);
         }
-    }
+    };
     
     this.applyScheme = () =>
     {
@@ -965,7 +964,7 @@
         var left = (document.documentElement.boxObject.width / 2) - 150;
         var top = document.documentElement.boxObject.height - 200;
         panel.element().openPopup(undefined, undefined, left, top);
-    }
+    };
     
     this.newScheme = () =>
     {
@@ -976,7 +975,7 @@
                 return false;
             
             if (answer == "Yes") 
-                selectedScheme.save()
+                selectedScheme.save();
         }
         
         var newSchemeName;
@@ -1016,7 +1015,7 @@
             alert(msg);
         }
 
-        var newScheme = selectedScheme.clone(newSchemeName);
+        selectedScheme.clone(newSchemeName);
         
         var menuitem = document.createElement('menuitem');
         menuitem.setAttribute('label', newSchemeName);
@@ -1029,11 +1028,11 @@
         this.onSelectScheme();
         
         return true;
-    }
+    };
     
     this.deleteScheme = () =>
     {
-        var name = selectedScheme.name
+        var name = selectedScheme.name;
         if (ko.dialogs.yesNo("Are you sure you want to delete the scheme '" + name +"'?  This action cannot be undone.") == 'No') {
             return;
         }
@@ -1052,7 +1051,7 @@
         
         selectedScheme = schemeService.getScheme(oldScheme);
         this.onSelectScheme();
-    }
+    };
     
     this.ensureWriteable = () =>
     {
@@ -1065,7 +1064,7 @@
         }
         
         return true;
-    }
+    };
     
     this.updateScintilla = () =>
     {
@@ -1073,7 +1072,7 @@
         var encoding = 'unused';
         var alternateType = false;
         selectedScheme.applyScheme(scintilla, selectedLanguage, encoding, alternateType);
-    }
+    };
     
     this.destroy = () =>
     {
@@ -1091,7 +1090,7 @@
         {
             log.error(e);
         }
-    }
+    };
     
     $(window).on("load", this.init);
     $(window).on("unload", this.destroy);
