@@ -67,29 +67,22 @@
         
         textbox
         {
-            color: @textbox-foreground-special;
-            font-size: 1.2rem;
-            padding: 8px;
+            background-color: transparent !important;
+            -moz-appearance: none;
+            border: 0;
+            margin: 0;
+            
+            .textbox-input
+            {
+                color: @textbox-foreground-special;
+                font-size: 1.4rem;
+            }
         }
     }
     
     textbox, menulist
     {
         box-shadow: none !important;
-    }
-
-    #commando-search
-    {
-        &, *
-        {
-            font-size: 1.4rem;
-        }
-
-        padding: 4px;
-        border: 0;
-        margin: 0;
-        background-color: transparent !important;
-        -moz-appearance: none;
     }
 
     #commando-subscope-wrap
