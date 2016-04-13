@@ -35,6 +35,8 @@ var koLess = function koLess()
                                 .getService(Ci.koIPrefService).prefs;
                                 
     var _loadSheetNo = 0;
+    var blackouts = [];
+    var blackoutTimer;
 
     koLess.prototype =
     {
@@ -169,12 +171,43 @@ var koLess = function koLess()
                         return;
                 }
                 
+                var addBlackout = function (w)
+                {
+                    var $ = require("ko/dom");
+                    var blackout = $($.create("panel", {
+                            style: "background: Window;",
+                            noautohide: true,
+                            width: w.document.width,
+                            height: w.document.height,
+                            align: "center",
+                            pack: "center",
+                            level: "floating"
+                        },
+                        $.create("description", {
+                            style: "max-width: 50%; color: WindowText; font: message-box; font-weight: bold; font-size: 1.5rem",
+                            value: "Loading .."})
+                    ).toString());
+                    
+                    $(w.document.documentElement).append(blackout);
+                    blackout.element().openPopup(w.document.documentElement, 'topleft');
+                    
+                    blackouts.push(blackout);
+                };
+                
+                addBlackout(mw);
+                
+                var windows = require("ko/windows").getWindows();
+                for (let w of windows)
+                {
+                    addBlackout(w);
+                }
+                
                 Components.classes["@mozilla.org/chrome/chrome-registry;1"]
                   .getService(Components.interfaces.nsIXULChromeRegistry)
                   .refreshSkins();
                 
                 var suffix = (new  Date().valueOf());
-                var windows = require("ko/windows").getAll();
+                windows = require("ko/windows").getAll();
                 for (let w of windows)
                 {
                     try {
@@ -277,6 +310,14 @@ var koLess = function koLess()
                         //this.debug('Returning: ' + sheet.href);
                         var bogus = { local: false, lastModified: null, remaining: 0 };
                         callback(e, root, data, sheet, bogus, sheet.href);
+                        
+                        Timer.clearTimeout(blackoutTimer);
+                        blackoutTimer = Timer.setTimeout(function () {
+                            while (blackouts.length) {
+                                var blackout = blackouts.pop();
+                                blackout.remove();
+                            }
+                        }, 1500);
                     }
                     else // Otherwise it's an internal (koLess) call
                     {
