@@ -1488,6 +1488,7 @@
                         true, // isContextMenu
                         false, // attributesOverride
                         event);
+                    this._mozcontext.moveTo(event.screenX + 2, event.screenY + 2);
                 }
                 ]]>
             </handler>
