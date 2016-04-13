@@ -30,6 +30,25 @@
     }
     
     /**
+     * Retrieve all windows (excluding internal)
+     * 
+     * @returns {Array} 
+     */
+    this.getWindows = function()
+    {
+        var windows = [];
+        
+        var wm = Cc["@mozilla.org/appshell/window-mediator;1"].getService(Ci.nsIWindowMediator);
+        let enumerated = wm.getEnumerator("");
+        while (enumerated.hasMoreElements()) {
+            let w = enumerated.getNext().QueryInterface(Ci.nsIDOMWindow);
+            windows.push(w);
+        }
+        
+        return windows;
+    }
+    
+    /**
      * Retrieve all windows (including internal)
      * 
      * @returns {Array} 
