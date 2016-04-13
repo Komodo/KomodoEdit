@@ -893,6 +893,7 @@ class MultiLangZone(LangZone):
                             dbfile_changes.append(("remove", lang, blobname, None))
 
                 dhash = self.dhash_from_dir(dir)
+                conn = self._get_symbols_db_conn()
                 for action, lang, blobname, blob in dbfile_changes:
                     if action == "add":
                         dbfile = self.db.bhash_from_blob_info(
@@ -960,6 +961,8 @@ class MultiLangZone(LangZone):
                                 fout.write(new_dbfile_content)
                             finally:
                                 fout.close()
+                    self._update_symbols_db(conn, action, blob)
+                self._close_symbols_db_conn(conn)
 
             if res_index_has_changed:
                 self.changed_index(dir, "res_index")
