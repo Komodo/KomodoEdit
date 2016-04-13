@@ -65,7 +65,11 @@
             windows = windows.concat(this.getBrowserWindows(w, true));
         }
         
-        windows = windows.concat(this.getWidgetWindows());
+        for (let w of this.getWidgetWindows())
+        {
+            windows.push(w);
+            windows = windows.concat(this.getBrowserWindows(w, true));
+        }
         
         return windows;
     }
