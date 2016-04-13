@@ -546,7 +546,8 @@
     
         [left, top] = this.center(true);
         panel.removeClass("quick-search");
-        panel.element().openPopup(undefined, undefined, left, top);
+        panel.element().openPopup();
+        panel.element().moveTo(left, top);
         
         if (c.execScopeHandler("onShow") === false)
         {
