@@ -450,6 +450,8 @@
     
     this.onSelectScheme = () =>
     {
+        if (this.onSelectScheme.suppressed) return;
+        
         var scheme = $("#schemeslist").element().selectedItem.getAttribute("label");
         selectedScheme = schemeService.getScheme(scheme);
         
@@ -460,6 +462,7 @@
         if ( ! selectedScheme.writeable)
             $("window").addClass("primary-scheme");
     };
+    this.onSelectScheme.suppressed = false;
     
     this.onSelectProperty = () =>
     {
@@ -1023,9 +1026,15 @@
         menuitem.setAttribute('value', newSchemeName);
         
         $("#schemespopup").append(menuitem);
+        this.onSelectScheme.suppressed = true;
         $("#schemeslist").element().selectedItem = menuitem;
+        this.onSelectScheme.suppressed = false;
         
-        this.onSelectScheme();
+        selectedScheme = schemeService.getScheme(newSchemeName);
+        
+        $("window").removeClass("primary-scheme");
+        if ( ! selectedScheme.writeable)
+            $("window").addClass("primary-scheme");
         
         return true;
     };
