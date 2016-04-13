@@ -7,16 +7,11 @@ var sys = require("sdk/system");
 const {Cc, Ci} = require("chrome");
 const USE_HITTEST = /^macosx/i.test(sys.platform); // /^(win|macosx)/i.test(sys.platform);
 
-module.exports = function(elem) {
-    
-    this._elem = elem;
-    this._window = elem.ownerDocument.defaultView;
-    
-    if (elem.ownerDocument.readyState != "complete")
-    {
-        this._window.addEventListener("load", module.exports.bind(this, elem));
-        return;
-    }
+var draggable = function (elem) {
+    this.init(elem);
+};
+
+(function () {
     
     this.mouseDownCheck = function(e) {
         return "_draggable" in this ? this._draggable : true;
@@ -131,14 +126,25 @@ module.exports = function(elem) {
         }
     };
 
-    var init = function() {
+    this.init = function(elem) {
+        this._elem = elem;
+        this._window = elem.ownerDocument.defaultView;
+        
+        if (elem.ownerDocument.readyState != "complete")
+        {
+            this._window.addEventListener("load", this.init.bind(this, elem));
+            return;
+        }
+        
         if (USE_HITTEST && !this.isPanel())
             this._elem.addEventListener("MozMouseHittest", this.handleEvent.bind(this), false);
         else
             this._elem.addEventListener("mousedown", this.handleEvent.bind(this), false);
             
     };
-    
-    init();
 
+}).apply(draggable.prototype);
+
+module.exports = function(elem) {
+    return new draggable(elem);
 };
