@@ -905,11 +905,8 @@
         }
     }
     
-    this.applyScheme = (callback) =>
+    this.applyScheme = () =>
     {
-        if (selectedScheme.writeable)
-            this.saveScheme(); 
-        
         var panel = $($.create("panel", {class: "scheme-apply", noautohide: true, level: "floating", width: 300},
             $.create("description", {value: "Apply to:"})
                     ("hbox", {class: "checkboxes"}, 
@@ -931,7 +928,11 @@
         if (prefs.getBoolean("cached.colorscheme-editor.apply.editorwidgets"))
             panel.find('checkbox[name="editor-widgets"]').attr("checked", "true");
         
-        panel.find('button[label="Ok"]').on("command", () => {
+        panel.find('button[label="Ok"]').on("command", () =>
+        {
+            if (selectedScheme.writeable)
+                this.saveScheme();
+                
             var applyEditor = !! panel.find('checkbox[name="editor"]').attr("checked");
             var applyInterface = !! panel.find('checkbox[name="interface"]').attr("checked");
             var applyEditorWidgets = !! panel.find('checkbox[name="editor-widgets"]').attr("checked");
