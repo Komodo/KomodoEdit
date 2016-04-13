@@ -1233,12 +1233,13 @@ class PHPTreeEvaluator(TreeEvaluator):
                         self.attemptingPSR4Autoloading = True
                         hit = self._hit_from_citdl(expr, scoperef)
                         self.attemptingPSR4Autoloading = False
-                        elem, scope = hit
-                        if elem and scope and elem.get("ilk") == "class":
+                        found_elem, scope = hit
+                        if found_elem and scope and \
+                           found_elem.get("ilk") == "class":
                             # TODO: technically PSR-4 requires only one class
                             # per file. Ideally we'd check for that here, but
                             # that's a bit more work that may not be worth it.
-                            class_name = elem.get("name")
+                            class_name = found_elem.get("name")
                             file_name = scope[0].get("name")
                             if file_name.endswith(".php") \
                                and class_name == file_name[:-4]:
