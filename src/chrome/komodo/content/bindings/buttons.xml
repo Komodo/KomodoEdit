@@ -158,11 +158,9 @@ use moz bindings with CSS to acheive everything we have here.
             for (let cls of classes) {
                 if (cls.indexOf("icon-") === 0)
                 {
-                    this.classList.remove(cls);
-                    
                     setTimeout(function() {
                         this.button.classList.add(cls);
-                    }.bind(this), 0)
+                    }.bind(this), 0);
                     
                     break;
                 }

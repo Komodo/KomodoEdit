@@ -235,6 +235,11 @@
         display: none;
     }
     
+    .dynamic-button[type="menu-button"]:before
+    {
+        content: none !important; /* Remove icon from main element, it's added to a sub element */
+    }
+    
     .dynamic-button.show-label .toolbarbutton-text[value]
     {
         display: inherit;
