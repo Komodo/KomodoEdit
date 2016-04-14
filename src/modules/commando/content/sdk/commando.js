@@ -1101,9 +1101,6 @@
             }
             return;
         }
-        
-        if (local.resultsRendered === 0)
-            this.empty(); // Force empty results
 
         log.debug(searchUuid + " - Rendering "+results.length+" Results");
 
@@ -1112,6 +1109,10 @@
         var tmpResultElem = resultElem.element().cloneNode();
         resultElem.element().clearSelection();
         resultElem = $(resultElem.replaceWith(tmpResultElem));
+        
+        var isNew = local.resultsRendered === 0;
+        if (isNew)
+            this.empty(); // Force empty results
         
         var maxResults = prefs.getLong("commando_search_max_results", 50);
         maxResults -= local.resultsRendered;
@@ -1163,8 +1164,8 @@
         });
 
         tmpResultElem.parentNode.replaceChild(resultElem.element(), tmpResultElem);
-
-        c.navDown();
+        resultElem.element().selectedIndex = 0;
+        resultElem.element().scrollTop = 0;
         
         elem('panel').css("min-height", "auto");
         elem('panel').removeAttr("height");
@@ -1190,7 +1191,7 @@
             resultElem.removeClass("scrollable");
         }
         
-        c.reloadTip();
+        c.tip();
         onPreview();
         c.center();
     }
