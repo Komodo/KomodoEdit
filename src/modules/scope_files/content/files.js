@@ -5,6 +5,7 @@
     const system    = require("sdk/system");
     const ioFile    = require("ko/file");
     const $         = require("ko/dom");
+    const sdkUrl    = require("sdk/url");
     const sep       = system.platform == "winnt" ? "\\" : "/";
     const isep      = sep == "/" ? /\\/g : /\//g;
     const pathsep   = system.platform == "winnt" ? ":" : ";";
@@ -76,16 +77,15 @@
                 shortcutsCache["%D"] = koFile.dirName;
             }
 
-            var url = require("sdk/url");
             var curProject = partSvc.currentProject;
             if (curProject)
             {
                 log.debug("Including curProject shorcuts");
                 shortcutsCache["%i"] = curProject.liveDirectory;
-                shortcutsCache["%P"] = url.URL(curProject.url).path;
+                shortcutsCache["%P"] = sdkUrl.URL(curProject.url).path;
             }
 
-            shortcutsCache["%w"] = url.URL(ko.places.getDirectory()).path;
+            shortcutsCache["%w"] = sdkUrl.URL(ko.places.getDirectory()).path;
         }
 
         if ( ! "observing" in getShortcuts)
@@ -164,16 +164,15 @@
         else if (view && view.koDoc && view.koDoc.file)
         {
             var isRelative = query.substr(0,2) == ("." + sep) || query.substr(0,3) == (".." + sep);
-            var url = require("sdk/url");
             var curProject = partSvc.currentProject;
             if (curProject)
             {
                 log.debug("Including curProject shorcuts");
                 shortcutsCache["%i"] = curProject.liveDirectory;
-                shortcutsCache["%P"] = url.URL(curProject.url).path;
+                shortcutsCache["%P"] = sdkUrl.URL(curProject.url).path;
             }
 
-            shortcutsCache["%w"] = url.URL(ko.places.getDirectory()).path;
+            shortcutsCache["%w"] = sdkUrl.URL(ko.places.getDirectory()).path;
             var curProject = partSvc.currentProject;
             
             var cwd = curProject ? curProject.liveDirectory : ko.uriparse.URIToPath(ko.places.getDirectory());
