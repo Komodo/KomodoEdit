@@ -142,7 +142,7 @@
 
         var getInfoFromLanguage = (uri, info) =>
         {
-            log.debug("Parsing info from language");
+            //log.debug("Parsing info from language");
 
             var pattern = /ko-language\/([a-z0-9+#\-_\. ]*)\??(?:size=(\d*)|$)/i;
             var match = uri.match(pattern);
@@ -154,30 +154,30 @@
             var preset = getPreset(info.language);
             if (preset)
             {
-                log.debug("Matched Preset: " + info.language);
+                //log.debug("Matched Preset: " + info.language);
                 info.ext = preset.ext;
                 info.color = preset.color;
             }
             else // Get file extension from file associations
             {
-                log.debug("Matching using file association");
+                //log.debug("Matching using file association");
 
                 var langPatterns = {};
                 langSvc.patternsFromLanguageName(info.language, langPatterns, {});
                 if (langPatterns && langPatterns.value && langPatterns.value.length)
                 {
-                    log.debug("Using file association for ext");
+                    //log.debug("Using file association for ext");
                     info.ext = langPatterns.value[0].replace(/^\*\./, '')
                                                     .split('.').pop()
                                                     .substr(0,3).toUpperCase();
                 }
                 else
                 {
-                    log.debug("Using language name for ext");
+                    //log.debug("Using language name for ext");
                     info.ext = info.language.substr(0,3).toUpperCase();
                 }
 
-                log.debug("Generating color based on language");
+                //log.debug("Generating color based on language");
                 info.color = randomColor({luminosity: 'light'}, info.language);
             }
 
@@ -186,7 +186,7 @@
 
         var getInfo = (uri, namespace) =>
         {
-            log.debug("Parsing info");
+            //log.debug("Parsing info");
 
             var url = sdkUrl.URL(uri);
             var params = sdkQuery.parse(url.search.substr(1));
@@ -202,7 +202,7 @@
             if (namespace == "language")
                 return getInfoFromLanguage(uri, info);
 
-            log.debug("Parsing info from ext");
+            //log.debug("Parsing info from ext");
 
             var pattern = /(.*\.([a-z0-9]*)).*?(?:size=(\d*)|$)/i;
             var match = uri.match(pattern);
@@ -214,36 +214,36 @@
             var lang = langSvc.suggestLanguageForFile(match[1]);
             if (lang)
             {
-                log.debug("Found related language: " + lang);
+                //log.debug("Found related language: " + lang);
 
                 info.language = lang;
                 var preset = getPreset(info.language);
                 if (preset)
                 {
-                    log.debug("Using preset for color and ext");
+                    //log.debug("Using preset for color and ext");
                     info.color = preset.color;
                     info.ext = preset.ext;
                 }
                 else
                 {
-                    log.debug("Generating color based on language");
+                    //log.debug("Generating color based on language");
                     info.color = randomColor({luminosity: 'dark'},info.language);
                 }
             }
             else
             {
-                log.debug("Could not find related language");
+                //log.debug("Could not find related language");
 
                 var extMapping = getExtMapping(ext);
                 if (extMapping)
                 {
-                    log.debug("Setting ext and color using ext mapping");
+                    //log.debug("Setting ext and color using ext mapping");
                     info.ext = extMapping.ext.toUpperCase();
                     info.color = extMapping.color;
                 }
                 else if (isColorWhitelisted(ext))
                 {
-                    log.debug("Ext is color whitelisted, generating color based on ext");
+                    //log.debug("Ext is color whitelisted, generating color based on ext");
                     info.color = randomColor({luminosity: 'dark'},info.ext);
                 }
             }
@@ -281,7 +281,7 @@
                 
             if (svgPresetFile.exists())
             {
-                log.debug("Creating icon from SVG Preset: " + svgPresetFile.path);
+                //log.debug("Creating icon from SVG Preset: " + svgPresetFile.path);
                 icons.createPngFromSvg(svgPresetFile.path, pngFile.path, {}, {size: info.size || 14}, function()
                 {
                     callback(pngFile);
@@ -328,13 +328,13 @@
                 if (("scheme-color" in params))
                     schemeColor = params["scheme-color"];
                 
-                log.debug("Using scheme-color "+schemeColor+" from " + schemeName);
+                //log.debug("Using scheme-color "+schemeColor+" from " + schemeName);
                 params.fill = schemes.getInterfaceColor(schemeColor, schemeName);
             }
 
             if ("color" in params)
             {
-                log.debug("Using custom color");
+                //log.debug("Using custom color");
                 
                 params.fill = params.color;
                 delete params.color;
@@ -342,7 +342,7 @@
 
             if ("defs" in params)
             {
-                log.debug("Using custom defs");
+                //log.debug("Using custom defs");
                 
                 var defs = params.defs;
                 var path = "chrome://komodo/skin/svg/defs/" + defs + ".xml";
@@ -363,7 +363,7 @@
             if ( ! filePointer)
                 filePointer = namespace + "://" + relativePath.join("/");
 
-            log.debug("Filepointer: " + filePointer);
+            //log.debug("Filepointer: " + filePointer);
 
             var id = hash(params);
             relativePath[relativePath.length-1] = id + "-" + relativePath[relativePath.length-1] + ".png";
@@ -396,7 +396,7 @@
 
     this.forceSvgAttribute = (svgData, attribute, value) =>
     {
-        log.debug("Overriding svg attribute " + attribute + " to: " + value);
+        //log.debug("Overriding svg attribute " + attribute + " to: " + value);
         svgData = unescape(encodeURIComponent(svgData));
         
         if (attribute == "scaleAuto")
@@ -410,16 +410,16 @@
 
         if (attribute == "_defs")
         {
-            log.debug("Injecting defs");
+            //log.debug("Injecting defs");
 
             if (svgData.indexOf("</defs>") !== -1)
             {
-                log.debug("Injecting into existing defs");
+                //log.debug("Injecting into existing defs");
                 svgData = svgData.replace('</defs>', value + "</defs>");
             }
             else
             {
-                log.debug("Creating new defs");
+                //log.debug("Creating new defs");
                 svgData = svgData.replace(/(<svg[\s\S]*?>)/i, "$1<defs>" + value + "</defs>");
             }
 
@@ -439,7 +439,7 @@
 
         if (_svgData != svgData)
         {
-            log.debug("Success");
+            //log.debug("Success");
             return _svgData;
         }
 
@@ -448,8 +448,8 @@
 
     this.createIconFromTemplate = (iconPath, templatePath, vars, callback) =>
     {
-        log.debug("Creating file from template: " + iconPath);
-        log.debug(templatePath);
+        //log.debug("Creating file from template: " + iconPath);
+        //log.debug(templatePath);
 
         if (("size" in vars) && ! ("scale" in vars))
             vars.scale = vars.size / 14;
@@ -510,7 +510,7 @@
             }
         }
 
-        log.debug("Creating png: " + savePath);
+        //log.debug("Creating png: " + savePath);
         readFile(svgPath, function(svgData)
         {
             _createPngFromSvg(svgData, svgPath, savePath, opts, attrs, callback);
@@ -533,7 +533,7 @@
 
             for (let k in attrs)
             {
-                log.debug("Forcing " + k);
+                //log.debug("Forcing " + k);
 
                 let _svgData = this.forceSvgAttribute(svgData, k, attrs[k]);
                 if (_svgData)
@@ -545,7 +545,7 @@
 
         if (dirty && svgData)
         {
-            log.debug("Saving temp svg with forced attributes");
+            //log.debug("Saving temp svg with forced attributes");
 
             if (opts.delete)
                 opts.deleteAlso = svgPath
@@ -570,7 +570,7 @@
             var dataURL = canvas.toDataURL("image/png");
             var data = window.atob( dataURL.substring( "data:image/png;base64,".length ) );
 
-            log.debug("Saving PNG: " + savePath);
+            //log.debug("Saving PNG: " + savePath);
 
             var byteStream = ioFile.open(savePath, "wb");
             byteStream.write(data);
@@ -584,13 +584,13 @@
                 {
                     if (opts.delete)
                     {
-                        log.debug("Deleting: " + svgPath);
+                        //log.debug("Deleting: " + svgPath);
                         //ioFile.remove(svgPath);
                     }
     
                     if (opts.deleteAlso)
                     {
-                        log.debug("Also deleting: " + opts.deleteAlso);
+                        //log.debug("Also deleting: " + opts.deleteAlso);
                         //ioFile.remove(opts.deleteAlso);
                     }
                 } catch (e)
@@ -622,10 +622,10 @@
         if ( ! ("cached" in this.getIconForUri))
             this.getIconForUri.cached = {};
 
-        log.debug("Retrieving icon for " + uri);
+        //log.debug("Retrieving icon for " + uri);
 
         if (uri in this.getIconForUri.cached) {
-            log.debug("Returning cached version");
+            //log.debug("Returning cached version");
             return callback(self.getIconForUri.cached[uri]);
         }
 
