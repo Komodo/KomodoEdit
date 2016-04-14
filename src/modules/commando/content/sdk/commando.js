@@ -54,7 +54,8 @@
         scopeOpener: null,
         firstShow: true,
         state: {},
-        resultHeightTimer: null
+        resultHeightTimer: null,
+        lastSearch: 0
     };
 
     var elems = {
@@ -721,34 +722,28 @@
         if ( ! callback) // this is a manual search
             return onSearch();
         
-        if (local.searchTimer && ! noDelay) return; // Search is already queued
-        
         c.stop();
 
         elem("panel").addClass("loading");
         var searchDelay = prefs.getLong('commando_search_delay');
-
-        if (noDelay)
-        {
-            window.clearTimeout(local.searchTimer);
-            local.searchTimer = false;
-        }
-        else if ( ! local.lastSearch || (new Date().getTime()) - local.lastSearch > searchDelay)
-            noDelay = true; // why delay the inevitable
-
-        local.lastSearch = new Date().getTime();
-
+        
+        log.debug("Event: onSearch");
+        window.clearTimeout(local.searchTimer);
+            
         var uuid = uuidGen.uuid();
+        
+        searchDelay = Math.max(0, searchDelay - (Date.now() - local.lastSearch));
+        local.lastSearch = Date.now();
         local.searchTimer = window.setTimeout(function()
         {
             local.searchTimer = false;
 
-            log.debug("Event: onSearch");
+            log.debug("Event: onSearch - Timer Triggered");
+            
             var searchValue = elem('search').value();
-
+    
             local.searchingUuid = uuid;
             local.prevSearchValue = searchValue;
-            
             elem('results').attr("dirty", "true");
             
             var _callback = function()
