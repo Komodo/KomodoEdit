@@ -240,14 +240,13 @@ checkbox:not(.label-only)
 
 radio 
 {
-    .radio-spacer-box
+    .radio-label-box
     {
         .icon();
-        margin-right: 4px;
     }
     
-    &:not([selected="true"]) .radio-spacer-box { .icon-circle(); }
-    &[selected="true"] .radio-spacer-box { .icon-check-circle(); }
+    &:not([selected="true"]) .radio-label-box { .icon-circle(); }
+    &[selected="true"] .radio-label-box { .icon-check-circle(); }
 }
 
 treechildren::-moz-tree-image,
