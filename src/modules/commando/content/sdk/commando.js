@@ -53,7 +53,8 @@
         panelClone: null,
         scopeOpener: null,
         firstShow: true,
-        state: {}
+        state: {},
+        resultHeightTimer: null
     };
 
     var elems = {
@@ -1106,6 +1107,19 @@
 
         // Replace result elem with temporary cloned node so as not to paint the DOM repeatedly
         var resultElem = elem('results', true);
+        
+        // Delay height updates so it doesn't flicker too much while searching
+        var height = resultElem.css("height");
+        if ((height == "inherit" || ! height) && resultElem.element().boxObject.height > 100)
+        {
+            resultElem.css("height", resultElem.element().boxObject.height);
+            clearTimeout(local.resultHeightTimer);
+            local.resultHeightTimer = setTimeout(() =>
+            {
+                elem('results', true).css("height", "inherit");
+            }, prefs.getLong("commando_result_render_delay") + prefs.getLong("commando_search_delay") + 50);
+        }
+        
         var tmpResultElem = resultElem.element().cloneNode();
         resultElem.element().clearSelection();
         resultElem = $(resultElem.replaceWith(tmpResultElem));
