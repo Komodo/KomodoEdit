@@ -511,7 +511,7 @@ Logger.prototype.report = function(e, message, level = "EXCEPTION") {
                 },
                 metaData: {
                     state: {
-                        numViews: ko.views.manager.getAllViews().length,
+                        numViews: ko.views ? ko.views.manager.getAllViews().length : 0,
                         language: view.language,
                         size: view.scimoz.length
                     }
