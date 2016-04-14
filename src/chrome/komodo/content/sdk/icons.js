@@ -585,13 +585,23 @@
                     if (opts.delete)
                     {
                         //log.debug("Deleting: " + svgPath);
-                        //ioFile.remove(svgPath);
+                        try
+                        {
+                            ioFile.remove(svgPath);
+                        }
+                        catch(e)
+                        {}
                     }
     
                     if (opts.deleteAlso)
                     {
                         //log.debug("Also deleting: " + opts.deleteAlso);
-                        //ioFile.remove(opts.deleteAlso);
+                        try
+                        {
+                            ioFile.remove(opts.deleteAlso);
+                        }
+                        catch(e)
+                        {}
                     }
                 } catch (e)
                 {
