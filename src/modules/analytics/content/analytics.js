@@ -358,6 +358,12 @@ ko.analytics = new function()
     {
         var _window = e.view;
         var windowId = _window.document.documentElement.getAttribute("id");
+        
+        // Don't track page views if the "page" didnt change (panels can cause repeat focus events)
+        if (this.onWindowFocus._previous == windowId)
+            return;
+        this.onWindowFocus._previous = windowId;
+        
         var section = _window.location.href.replace(sectionRegex, '');
         // Document title may disclose personal information (file / project name)
         // Disabled this entirely for now as the document title isn't that relevant
@@ -377,6 +383,7 @@ ko.analytics = new function()
 
         this.trackPageView(section);
     };
+    this.onWindowFocus._previous = null;
 
     var _lastPageView = null;
     /**
