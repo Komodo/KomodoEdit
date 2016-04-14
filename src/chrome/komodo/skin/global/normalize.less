@@ -124,8 +124,8 @@ menupopup
     menu[_moz-menuactive="true"],
     menuitem[_moz-menuactive="true"]
     {
-        background: @special !important;
-        color: @foreground !important;
+        background: @selected !important;
+        color: @selected-foreground !important;
     }
     
     & > menu,
@@ -579,8 +579,13 @@ button.unstyled
     
     &:hover
     {
-        background: @contrast-special;
+        background: @secondary-special;
         color: @foreground-special;
+        
+        label.button-text
+        {
+            color: @foreground-special;
+        }
     }
 }
 
