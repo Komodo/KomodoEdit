@@ -1477,7 +1477,10 @@ class KoFindService(object):
                 break # only want the first one
             else:
                 return None
-        except (re.error, ValueError, findlib2.FindError), ex:
+        except re.error, ex:
+            gLastErrorSvc.setLastError(0, "Invalid regular expression: %s" % ex)
+            raise ServerException(nsError.NS_ERROR_INVALID_ARG, str(ex))
+        except (ValueError, findlib2.FindError), ex:
             gLastErrorSvc.setLastError(0, str(ex))
             raise ServerException(nsError.NS_ERROR_INVALID_ARG, str(ex))
 
@@ -1523,7 +1526,10 @@ class KoFindService(object):
                 break # only want the first one
             else:
                 return None        
-        except (re.error, ValueError, findlib2.FindError), ex:
+        except re.error, ex:
+            gLastErrorSvc.setLastError(0, "Invalid regular expression: %s" % ex)
+            raise ServerException(nsError.NS_ERROR_INVALID_ARG, str(ex))
+        except (ValueError, findlib2.FindError), ex:
             gLastErrorSvc.setLastError(0, str(ex))
             raise ServerException(nsError.NS_ERROR_INVALID_ARG, str(ex))
 
@@ -1605,7 +1611,10 @@ class KoFindService(object):
                 scimoz.indicatorCurrent = prevIndicator
                 scimoz.indicatorValue = prevIndicatorValue
             return len(hightlight_matches) > 0
-        except (re.error, ValueError, findlib2.FindError), ex:
+        except re.error, ex:
+            gLastErrorSvc.setLastError(0, "Invalid regular expression: %s" % ex)
+            raise ServerException(nsError.NS_ERROR_INVALID_ARG, str(ex))
+        except (ValueError, findlib2.FindError), ex:
             gLastErrorSvc.setLastError(0, str(ex))
             raise ServerException(nsError.NS_ERROR_INVALID_ARG, str(ex))
         return False # not reached
@@ -1619,7 +1628,10 @@ class KoFindService(object):
             scimoz.indicatorClearRange(0, scimoz.length);
             for highlight in self._lastHighlightMatches:
                 scimoz.indicatorFillRange(*highlight)
-        except (re.error, ValueError, findlib2.FindError), ex:
+        except re.error, ex:
+            gLastErrorSvc.setLastError(0, "Invalid regular expression: %s" % ex)
+            raise ServerException(nsError.NS_ERROR_INVALID_ARG, str(ex))
+        except (ValueError, findlib2.FindError), ex:
             gLastErrorSvc.setLastError(0, str(ex))
             raise ServerException(nsError.NS_ERROR_INVALID_ARG, str(ex))
 
@@ -1682,7 +1694,10 @@ class KoFindService(object):
                     context)
                 last_endCharIndex = endCharIndex
                 last_endByteIndex = endByteIndex
-        except (re.error, ValueError, findlib2.FindError), ex:
+        except re.error, ex:
+            gLastErrorSvc.setLastError(0, "Invalid regular expression: %s" % ex)
+            raise ServerException(nsError.NS_ERROR_INVALID_ARG, str(ex))
+        except (ValueError, findlib2.FindError), ex:
             gLastErrorSvc.setLastError(0, str(ex))
             raise ServerException(nsError.NS_ERROR_INVALID_ARG, str(ex))
 
@@ -1697,7 +1712,10 @@ class KoFindService(object):
                 options.caseSensitivity,
                 options.matchWord)
 
-        except (re.error, ValueError, findlib2.FindError), ex:
+        except re.error, ex:
+            gLastErrorSvc.setLastError(0, "Invalid regular expression: %s" % ex)
+            raise ServerException(nsError.NS_ERROR_INVALID_ARG, str(ex))
+        except (ValueError, findlib2.FindError), ex:
             gLastErrorSvc.setLastError(0, str(ex))
             raise ServerException(nsError.NS_ERROR_INVALID_ARG, str(ex))
 
@@ -1756,7 +1774,10 @@ class KoFindService(object):
                 last_startByteIndex = startByteIndex
             
             return list(sorted(lines))
-        except (re.error, ValueError, findlib2.FindError), ex:
+        except re.error, ex:
+            gLastErrorSvc.setLastError(0, "Invalid regular expression: %s" % ex)
+            raise ServerException(nsError.NS_ERROR_INVALID_ARG, str(ex))
+        except (ValueError, findlib2.FindError), ex:
             gLastErrorSvc.setLastError(0, str(ex))
             raise ServerException(nsError.NS_ERROR_INVALID_ARG, str(ex))
 
@@ -1942,7 +1963,10 @@ class KoFindService(object):
             else:
                 return ''.join(new_text_bits), num_hits
 
-        except (re.error, ValueError, findlib2.FindError), ex:
+        except re.error, ex:
+            gLastErrorSvc.setLastError(0, "Invalid regular expression: %s" % ex)
+            raise ServerException(nsError.NS_ERROR_INVALID_ARG, str(ex))
+        except (ValueError, findlib2.FindError), ex:
             gLastErrorSvc.setLastError(0, str(ex))
             raise ServerException(nsError.NS_ERROR_INVALID_ARG, str(ex))
 
@@ -1968,7 +1992,10 @@ class KoFindService(object):
                 self.options.patternType,
                 self.options.caseSensitivity,
                 self.options.matchWord)
-        except (re.error, ValueError), ex:
+        except re.error, ex:
+            gLastErrorSvc.setLastError(0, "Invalid regular expression: %s" % ex)
+            raise ServerException(nsError.NS_ERROR_INVALID_ARG, str(ex))
+        except ValueError, ex:
             gLastErrorSvc.setLastError(0, str(ex))
             raise ServerException(nsError.NS_ERROR_INVALID_ARG, str(ex))
 
@@ -2014,7 +2041,10 @@ class KoFindService(object):
                 self.options.patternType,
                 self.options.caseSensitivity,
                 self.options.matchWord)
-        except (re.error, ValueError), ex:
+        except re.error, ex:
+            gLastErrorSvc.setLastError(0, "Invalid regular expression: %s" % ex)
+            raise ServerException(nsError.NS_ERROR_INVALID_ARG, str(ex))
+        except ValueError, ex:
             gLastErrorSvc.setLastError(0, str(ex))
             raise ServerException(nsError.NS_ERROR_INVALID_ARG, str(ex))
 
@@ -2060,7 +2090,10 @@ class KoFindService(object):
                 self.options.patternType,
                 self.options.caseSensitivity,
                 self.options.matchWord)
-        except (re.error, ValueError), ex:
+        except re.error, ex:
+            gLastErrorSvc.setLastError(0, "Invalid regular expression: %s" % ex)
+            raise ServerException(nsError.NS_ERROR_INVALID_ARG, str(ex))
+        except ValueError, ex:
             gLastErrorSvc.setLastError(0, str(ex))
             raise ServerException(nsError.NS_ERROR_INVALID_ARG, str(ex))
 

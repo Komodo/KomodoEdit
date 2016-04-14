@@ -983,7 +983,7 @@ this._uiForFindServiceError = function _UiForFindServiceError(context, exc, msgH
         } else {
             msg = "unexpected error in find service";
         }
-    } else if (exc && exc.toString() != msg) {
+    } else if (exc && exc.toString() != msg && !msg.startsWith("Invalid regular expression:")) {
         msg += " ("+exc+")";
     }
 
@@ -1589,28 +1589,36 @@ this.markAll = function Find_MarkAll(editor, context, pattern, patternAlias,
     var rv
     if (context.type == Components.interfaces.koIFindContext.FCT_CURRENT_DOC
         || context.type == Components.interfaces.koIFindContext.FCT_SELECTION) {
-        rv = ko.find._markAllInView(editor, editor.ko.views.manager.currentView, context,
-                            pattern);
-        if (rv) foundSome = true;
+        try {
+            rv = ko.find._markAllInView(editor, editor.ko.views.manager.currentView, context,
+                                pattern);
+            if (rv) foundSome = true;
+        } catch (ex) {
+            ko.find._uiForFindServiceError("mark all", ex, msgHandler);
+        }
     } else if (context.type == Components.interfaces.koIFindContext.FCT_ALL_OPEN_DOCS) {
         var view = editor.ko.views.manager.currentView;
         var viewId;
-        while (view) {
-            viewId = view.koDoc.displayPath;
-            if (lazy.findSession.HaveSearchedThisUrlAlready(viewId)) {
-                lazy.log.debug("ko.find.markAll: have alread searched '"+
-                              viewId+"'\n");
-                break;
-            }
+        try {
+            while (view) {
+                viewId = view.koDoc.displayPath;
+                if (lazy.findSession.HaveSearchedThisUrlAlready(viewId)) {
+                    lazy.log.debug("ko.find.markAll: have alread searched '"+
+                                  viewId+"'\n");
+                    break;
+                }
 
-            rv = ko.find._markAllInView(editor, view, context, pattern);
-            if (rv) foundSome = true;
+                rv = ko.find._markAllInView(editor, view, context, pattern);
+                if (rv) foundSome = true;
 
-            if (lazy.findSvc.options.searchBackward) {
-                view = ko.find._getPreviousView(editor, view);
-            } else {
-                view = ko.find._getNextView(editor, view);
+                if (lazy.findSvc.options.searchBackward) {
+                    view = ko.find._getPreviousView(editor, view);
+                } else {
+                    view = ko.find._getNextView(editor, view);
+                }
             }
+        } catch (ex) {
+            ko.find._uiForFindServiceError("mark all", ex, msgHandler);
         }
     } else {
         throw new Error("unexpected context: name='" + context.name + "' type=" +
@@ -1827,39 +1835,47 @@ this.replaceAll = function Find_ReplaceAll(editor, context, pattern, replacement
         || context.type == Components.interfaces.koIFindContext.FCT_SELECTION) {
         lazy.log.debug("ko.find.replaceAll: replace all in '"+
                       editor.ko.views.manager.currentView.koDoc.displayPath+"'\n");
-        nr = ko.find._replaceAllInView(editor, editor.ko.views.manager.currentView, context,
-                               pattern, replacement, firstOnLine, resultsView,
-                               highlightReplacements);
-        numReplacements += nr;
+        try {
+            nr = ko.find._replaceAllInView(editor, editor.ko.views.manager.currentView, context,
+                                   pattern, replacement, firstOnLine, resultsView,
+                                   highlightReplacements);
+            numReplacements += nr;
+        } catch (ex) {
+            ko.find._uiForFindServiceError("replace all", ex, msgHandler);
+        }
     } else if (context.type == Components.interfaces.koIFindContext.FCT_ALL_OPEN_DOCS) {
         var view = editor.ko.views.manager.currentView;
         var viewId;
         numFiles = numFilesSearched = 0;
-        while (view) {
-            if (ko.find._isViewSearchable(view)) {
-                viewId = view.koDoc.displayPath;
-                if (lazy.findSession.HaveSearchedThisUrlAlready(viewId)) {
-                    lazy.log.debug("ko.find.replaceAll: have already searched '"+
-                                  viewId+"'\n");
-                    break;
+        try {
+            while (view) {
+                if (ko.find._isViewSearchable(view)) {
+                    viewId = view.koDoc.displayPath;
+                    if (lazy.findSession.HaveSearchedThisUrlAlready(viewId)) {
+                        lazy.log.debug("ko.find.replaceAll: have already searched '"+
+                                      viewId+"'\n");
+                        break;
+                    }
+        
+                    lazy.log.debug("ko.find.replaceAll: replace all in '"+viewId+"'\n");
+                    nr = ko.find._replaceAllInView(editor, view, context, pattern,
+                                           replacement, firstOnLine, resultsView,
+                                           highlightReplacements);
+                    numReplacements += nr;
+                    if (nr) {
+                        numFiles += 1;
+                    }
+                    numFilesSearched += 1;
                 }
-    
-                lazy.log.debug("ko.find.replaceAll: replace all in '"+viewId+"'\n");
-                nr = ko.find._replaceAllInView(editor, view, context, pattern,
-                                       replacement, firstOnLine, resultsView,
-                                       highlightReplacements);
-                numReplacements += nr;
-                if (nr) {
-                    numFiles += 1;
-                }
-                numFilesSearched += 1;
-            }
 
-            if (lazy.findSvc.options.searchBackward) {
-                view = ko.find._getPreviousView(editor, view);
-            } else {
-                view = ko.find._getNextView(editor, view);
+                if (lazy.findSvc.options.searchBackward) {
+                    view = ko.find._getPreviousView(editor, view);
+                } else {
+                    view = ko.find._getNextView(editor, view);
+                }
             }
+        } catch (ex) {
+            ko.find._uiForFindServiceError("replace all", ex, msgHandler);
         }
     } else {
         throw new Error("unexpected context: name='" + context.name + "' type=" +
