@@ -72,6 +72,7 @@
         tip: function() { return $("#commando-tip"); },
         preview: function() { return $("#commando-preview"); },
         notifyWidget: function() { return $("#notification-widget-textbox"); },
+        spinner: function () { return $("#commando-spinner"); },
         template: {
             scopeMenuItem: function() { return $("#tpl-co-scope-menuitem"); },
             scopeNavMenuItem: function() { return $("#tpl-co-scope-nav-menuitem"); },
@@ -745,12 +746,14 @@
             local.searchingUuid = uuid;
             local.prevSearchValue = searchValue;
             elem('results').attr("dirty", "true");
+            elem('spinner').addClass("enabled");
             
             var _callback = function()
             {
                 callback();
                 onSearchComplete(uuid);
                 elem('results').removeAttr("dirty");
+                elem('spinner').removeClass("enabled");
             };
 
             var subscope = c.getSubscope();
@@ -1164,6 +1167,7 @@
 
         resultElem.addClass("has-results");
         resultElem.removeAttr("dirty");
+        elem('spinner').removeClass("enabled");
         resultElem.css("maxHeight", (window.screen.availHeight / 2) + "px");
         
         var counter = 1;
@@ -1655,6 +1659,7 @@
         local.resultsRendered = 0;
         
         resultElem.removeAttr("dirty");
+        elem('spinner').removeClass("enabled");
     }
 
     this.clear = function(callback = () => {})

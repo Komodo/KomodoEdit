@@ -55,7 +55,7 @@
                         </menupopup>
                     </menulist>
                     <textbox flex="1" id="commando-search" class="transparent"/>
-                    <hbox class="spinner">
+                    <hbox id="commando-spinner" class="spinner">
                         <hbox class="rect1"/>
                         <hbox class="rect2"/>
                         <hbox class="rect3"/>

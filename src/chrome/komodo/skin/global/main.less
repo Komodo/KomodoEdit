@@ -123,15 +123,19 @@
     }
 }
 
-#main-toolboxrow,
-#second-toolboxrow
+#main-toolboxrow
 {
-    width: ~"calc(50vw - 270px)";
+    width: 50vw;
+    margin-right: -200px;
+    padding-right: 200px;
 }
 
 #second-toolboxrow 
 {
     -moz-box-direction: reverse;
+    width: 50vw;
+    margin-left: -200px;
+    padding-left: 200px;
     
     & > hbox
     {
