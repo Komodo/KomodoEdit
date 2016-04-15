@@ -33,7 +33,7 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
         fields.browser = this.getFieldBrowsers();
         fields.colorScheme = this.getFieldColorSchemes();
         
-        fields.classicMode = require("ko/ui/checkbox").create("I don't like changes");
+        fields.classicMode = require("ko/ui/checkbox").create("Classic Mode (I'm happy with the way things were)");
         fields.classicMode.checked( prefs.getBoolean("ui.classic.mode") );
         
         fields.classicMode.onChange(() =>
