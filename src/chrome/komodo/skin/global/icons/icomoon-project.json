@@ -1,8 +1,8 @@
 {
 	"metadata": {
-		"name": "Komodo 10",
-		"lastOpened": 1418773394855,
-		"created": 1449514653406
+		"name": "Komodo",
+		"lastOpened": 1460667290649,
+		"created": 1460665994682
 	},
 	"iconSets": [
 		{
@@ -911,7 +911,7 @@
 					"name": "quill4",
 					"id": 0,
 					"code": 59675,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"order": 65,
@@ -920,7 +920,7 @@
 					"name": "bookmark",
 					"id": 1,
 					"code": 59796,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"order": 50,
@@ -929,7 +929,7 @@
 					"name": "files-empty2",
 					"id": 2,
 					"code": 59808,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"order": 36,
@@ -938,7 +938,7 @@
 					"name": "file-plus2",
 					"id": 3,
 					"code": 59810,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"order": 76,
@@ -947,7 +947,7 @@
 					"name": "copy3",
 					"id": 4,
 					"code": 59847,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"order": 51,
@@ -956,7 +956,7 @@
 					"name": "paste2",
 					"id": 5,
 					"code": 59850,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"order": 47,
@@ -965,7 +965,7 @@
 					"name": "folder-plus",
 					"id": 6,
 					"code": 59860,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"order": 48,
@@ -974,7 +974,7 @@
 					"name": "folder-open",
 					"id": 7,
 					"code": 59868,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"order": 74,
@@ -983,7 +983,7 @@
 					"name": "envelop",
 					"id": 8,
 					"code": 59952,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"order": 52,
@@ -992,7 +992,7 @@
 					"name": "printer3",
 					"id": 9,
 					"code": 60009,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"order": 84,
@@ -1001,7 +1001,7 @@
 					"name": "display2",
 					"id": 10,
 					"code": 60020,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"order": 43,
@@ -1010,7 +1010,7 @@
 					"name": "undo2",
 					"id": 11,
 					"code": 60095,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"order": 44,
@@ -1019,7 +1019,7 @@
 					"name": "redo2",
 					"id": 12,
 					"code": 60096,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"order": 77,
@@ -1028,7 +1028,7 @@
 					"name": "users2",
 					"id": 13,
 					"code": 60159,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"order": 78,
@@ -1037,7 +1037,7 @@
 					"name": "users4",
 					"id": 14,
 					"code": 60172,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"order": 75,
@@ -1046,7 +1046,7 @@
 					"name": "bug",
 					"id": 15,
 					"code": 60280,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"order": 82,
@@ -1055,7 +1055,7 @@
 					"name": "lab",
 					"id": 16,
 					"code": 60394,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"order": 85,
@@ -1064,7 +1064,7 @@
 					"name": "briefcase3",
 					"id": 17,
 					"code": 60420,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"order": 86,
@@ -1073,7 +1073,7 @@
 					"name": "power2",
 					"id": 18,
 					"code": 60489,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"order": 90,
@@ -1082,7 +1082,7 @@
 					"name": "menu3",
 					"id": 19,
 					"code": 60525,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"order": 64,
@@ -1091,7 +1091,7 @@
 					"name": "sphere2",
 					"id": 20,
 					"code": 60562,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"order": 60,
@@ -1100,7 +1100,7 @@
 					"name": "earth2",
 					"id": 21,
 					"code": 60567,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"order": 53,
@@ -1109,7 +1109,7 @@
 					"name": "question4",
 					"id": 22,
 					"code": 60758,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"order": 45,
@@ -1118,7 +1118,7 @@
 					"name": "plus2",
 					"id": 23,
 					"code": 60763,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"order": 72,
@@ -1127,7 +1127,7 @@
 					"name": "plus-circle",
 					"id": 24,
 					"code": 60767,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"order": 46,
@@ -1136,7 +1136,7 @@
 					"name": "plus-circle2",
 					"id": 25,
 					"code": 60769,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"order": 93,
@@ -1145,7 +1145,7 @@
 					"name": "minus-circle2",
 					"id": 26,
 					"code": 60770,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"order": 83,
@@ -1154,7 +1154,7 @@
 					"name": "info2",
 					"id": 27,
 					"code": 60772,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"order": 91,
@@ -1163,7 +1163,7 @@
 					"name": "cancel-circle2",
 					"id": 28,
 					"code": 60774,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"order": 92,
@@ -1172,7 +1172,7 @@
 					"name": "cross3",
 					"id": 29,
 					"code": 60782,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"order": 54,
@@ -1181,7 +1181,7 @@
 					"name": "checkmark",
 					"id": 30,
 					"code": 60783,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"order": 55,
@@ -1190,7 +1190,7 @@
 					"name": "checkmark2",
 					"id": 31,
 					"code": 60784,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"order": 67,
@@ -1199,7 +1199,7 @@
 					"name": "play3",
 					"id": 32,
 					"code": 60798,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"order": 68,
@@ -1208,7 +1208,7 @@
 					"name": "pause",
 					"id": 33,
 					"code": 60799,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"order": 69,
@@ -1217,7 +1217,7 @@
 					"name": "stop",
 					"id": 34,
 					"code": 60800,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"order": 66,
@@ -1226,7 +1226,7 @@
 					"name": "play",
 					"id": 35,
 					"code": 60805,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"order": 70,
@@ -1235,7 +1235,7 @@
 					"name": "pause2",
 					"id": 36,
 					"code": 60806,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"order": 71,
@@ -1244,7 +1244,7 @@
 					"name": "stop2",
 					"id": 37,
 					"code": 60807,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"order": 95,
@@ -1253,7 +1253,7 @@
 					"name": "arrow-up3",
 					"id": 38,
 					"code": 60857,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"order": 38,
@@ -1262,7 +1262,7 @@
 					"name": "arrow-right2",
 					"id": 39,
 					"code": 60860,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"order": 96,
@@ -1271,7 +1271,7 @@
 					"name": "arrow-right3",
 					"id": 40,
 					"code": 60861,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"order": 94,
@@ -1280,7 +1280,7 @@
 					"name": "arrow-down3",
 					"id": 41,
 					"code": 60865,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"order": 37,
@@ -1289,7 +1289,7 @@
 					"name": "arrow-left2",
 					"id": 42,
 					"code": 60868,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"order": 39,
@@ -1298,7 +1298,7 @@
 					"name": "arrow-up5",
 					"id": 43,
 					"code": 60871,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"order": 40,
@@ -1307,7 +1307,7 @@
 					"name": "arrow-right5",
 					"id": 44,
 					"code": 60872,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"order": 41,
@@ -1316,7 +1316,7 @@
 					"name": "arrow-down5",
 					"id": 45,
 					"code": 60873,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"order": 42,
@@ -1325,7 +1325,7 @@
 					"name": "arrow-left5",
 					"id": 46,
 					"code": 60874,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"order": 56,
@@ -1334,7 +1334,7 @@
 					"name": "checkbox-checked2",
 					"id": 47,
 					"code": 61038,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"order": 57,
@@ -1343,7 +1343,7 @@
 					"name": "checkbox-unchecked2",
 					"id": 48,
 					"code": 61039,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"order": 58,
@@ -1352,7 +1352,7 @@
 					"name": "radio-checked",
 					"id": 49,
 					"code": 61041,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"order": 59,
@@ -1361,7 +1361,7 @@
 					"name": "radio-unchecked",
 					"id": 50,
 					"code": 61043,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"order": 49,
@@ -1370,7 +1370,7 @@
 					"name": "scissors2",
 					"id": 51,
 					"code": 61060,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"order": 62,
@@ -1379,7 +1379,7 @@
 					"name": "regexp2",
 					"id": 52,
 					"code": 61136,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"order": 80,
@@ -1388,7 +1388,7 @@
 					"name": "circle-css",
 					"id": 53,
 					"code": 61138,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"order": 81,
@@ -1397,7 +1397,7 @@
 					"name": "circle-code",
 					"id": 54,
 					"code": 61139,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"order": 61,
@@ -1406,7 +1406,7 @@
 					"name": "terminal",
 					"id": 55,
 					"code": 61140,
-					"tempChar": ""
+					"tempChar": ""
 				}
 			],
 			"id": 7,
@@ -5206,11 +5206,11 @@
 				},
 				{
 					"id": 10,
-					"order": 0,
+					"order": 200,
 					"name": "th",
 					"prevSize": 14,
 					"code": 61450,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"id": 11,
@@ -5306,7 +5306,7 @@
 					"name": "clock-o",
 					"prevSize": 14,
 					"code": 61463,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"id": 23,
@@ -5322,7 +5322,7 @@
 					"name": "download",
 					"prevSize": 14,
 					"code": 61465,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"id": 25,
@@ -5370,7 +5370,7 @@
 					"name": "refresh",
 					"prevSize": 14,
 					"code": 61473,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"id": 31,
@@ -5506,7 +5506,7 @@
 					"name": "bold",
 					"prevSize": 14,
 					"code": 61490,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"id": 48,
@@ -5514,7 +5514,7 @@
 					"name": "italic",
 					"prevSize": 14,
 					"code": 61491,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"id": 49,
@@ -5522,7 +5522,7 @@
 					"name": "text-height",
 					"prevSize": 14,
 					"code": 61492,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"id": 50,
@@ -5530,7 +5530,7 @@
 					"name": "text-width",
 					"prevSize": 14,
 					"code": 61493,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"id": 51,
@@ -5538,7 +5538,7 @@
 					"name": "align-left2",
 					"prevSize": 14,
 					"code": 61495,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"id": 52,
@@ -5714,7 +5714,7 @@
 					"name": "stop3",
 					"prevSize": 14,
 					"code": 61517,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"id": 74,
@@ -5722,7 +5722,7 @@
 					"name": "forward",
 					"prevSize": 14,
 					"code": 61518,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"id": 75,
@@ -5770,7 +5770,7 @@
 					"name": "plus-circle3",
 					"prevSize": 14,
 					"code": 61525,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"id": 81,
@@ -5778,7 +5778,7 @@
 					"name": "minus-circle",
 					"prevSize": 14,
 					"code": 61526,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"id": 82,
@@ -5786,7 +5786,7 @@
 					"name": "times-circle",
 					"prevSize": 14,
 					"code": 61527,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"id": 83,
@@ -5850,7 +5850,7 @@
 					"name": "arrow-left",
 					"prevSize": 14,
 					"code": 61536,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"id": 91,
@@ -5858,7 +5858,7 @@
 					"name": "arrow-right",
 					"prevSize": 14,
 					"code": 61537,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"id": 92,
@@ -5866,7 +5866,7 @@
 					"name": "arrow-up",
 					"prevSize": 14,
 					"code": 61538,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"id": 93,
@@ -5874,7 +5874,7 @@
 					"name": "arrow-down",
 					"prevSize": 14,
 					"code": 61539,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"id": 94,
@@ -5922,7 +5922,7 @@
 					"name": "asterisk2",
 					"prevSize": 14,
 					"code": 61547,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"id": 100,
@@ -6402,7 +6402,7 @@
 					"name": "arrow-circle-right",
 					"prevSize": 14,
 					"code": 61609,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"id": 160,
@@ -6466,7 +6466,7 @@
 					"name": "arrows-alt",
 					"prevSize": 14,
 					"code": 61618,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"id": 168,
@@ -6474,7 +6474,7 @@
 					"name": "group, users",
 					"prevSize": 14,
 					"code": 61632,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"id": 169,
@@ -6650,7 +6650,7 @@
 					"name": "caret-down",
 					"prevSize": 14,
 					"code": 61655,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"id": 191,
@@ -6658,7 +6658,7 @@
 					"name": "caret-up",
 					"prevSize": 14,
 					"code": 61656,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"id": 192,
@@ -7050,7 +7050,7 @@
 					"name": "circle-o",
 					"prevSize": 14,
 					"code": 61708,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"id": 241,
@@ -7450,7 +7450,7 @@
 					"name": "play-circle",
 					"prevSize": 14,
 					"code": 61764,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"id": 291,
@@ -7506,7 +7506,7 @@
 					"name": "pencil-square",
 					"prevSize": 14,
 					"code": 61771,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"id": 298,
@@ -7514,7 +7514,7 @@
 					"name": "external-link-square",
 					"prevSize": 14,
 					"code": 61772,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"id": 299,
@@ -7534,19 +7534,19 @@
 				},
 				{
 					"id": 301,
-					"order": 0,
+					"order": 197,
 					"name": "caret-square-o-down, toggle-down",
 					"prevSize": 14,
 					"code": 61776,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"id": 302,
-					"order": 0,
+					"order": 198,
 					"name": "caret-square-o-up, toggle-up",
 					"prevSize": 14,
 					"code": 61777,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"id": 303,
@@ -8802,7 +8802,7 @@
 					"name": "trash",
 					"prevSize": 14,
 					"code": 61944,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"id": 460,
@@ -9654,11 +9654,11 @@
 				},
 				{
 					"id": 566,
-					"order": 143,
+					"order": 199,
 					"name": "display3",
 					"prevSize": 14,
 					"code": 62060,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"id": 567,
@@ -9906,7 +9906,7 @@
 					"name": "stop-circle",
 					"prevSize": 14,
 					"code": 62093,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"id": 598,
@@ -18548,7 +18548,7 @@
 					"prevSize": 16,
 					"code": 61200,
 					"name": "npm",
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"order": 0,
@@ -19719,7 +19719,7 @@
 					"name": "recurse-14",
 					"prevSize": 14,
 					"code": 60992,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"order": 0,
@@ -28645,7 +28645,7 @@
 					"name": "case-insensitive",
 					"prevSize": 14,
 					"code": 61073,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"order": 0,
@@ -28660,7 +28660,7 @@
 					"name": "case-sensitive",
 					"prevSize": 14,
 					"code": 61074,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"order": 0,
@@ -28675,7 +28675,7 @@
 					"name": "smart-case",
 					"prevSize": 14,
 					"code": 61075,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"order": 0,
@@ -29944,7 +29944,7 @@
 					"name": "scc",
 					"id": 1606,
 					"code": 61254,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"order": 0,
