@@ -1,8 +1,29 @@
 @import url("chrome://komodo/skin/global/icons/style.less");
 
-.icon, [class^="icon-"], [class*=" icon-"], [class$="-icon"], [class*="-icon "]
+.icon, [class^="icon-"], [class*=" icon-"], [class$="-icon"], [class*="-icon "],
 {
     font-size: 14px;
+}
+
+button, toolbarbutton, menuitem, tab
+{
+    &[class$='-icon'] image, [class$='-icon'] image,
+    &[class$='_icon'] image, [class$='_icon'] image,
+    image[class$='-icon'], image[class$='-icon'],
+    image[class$='_icon'], image[class$='_icon'],
+    .toolbarbutton-icon,
+    .button-icon,
+    .menu-iconic-icon,
+    treechildren::-moz-tree-image,
+    .textbox-search-icon,
+    .native_file_image,
+    dropmarker > image
+    {
+        &:not(.autorepeatbutton-icon)
+        {
+            max-width: 16px;
+        }
+    }
 }
 
 .icon

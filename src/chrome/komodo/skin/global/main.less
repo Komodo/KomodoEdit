@@ -55,9 +55,23 @@
         visibility: collapse;
     }
     
+    /**
+     * Force 16px icons
+     */
     toolbarbutton
     {
         font-size: 16px !important;
+        
+        &[class$='-icon'] image, [class$='-icon'] image,
+        &[class$='_icon'] image, [class$='_icon'] image,
+        image[class$='-icon'], image[class$='-icon'],
+        image[class$='_icon'], image[class$='_icon']
+        {
+            &:not(.autorepeatbutton-icon)
+            {
+                max-width: 16px;
+            }
+        }
         
         dropmarker
         {
