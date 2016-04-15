@@ -1108,7 +1108,7 @@
         
         // Delay height updates so it doesn't flicker too much while searching
         var height = resultElem.css("height");
-        if ((height == "inherit" || ! height) && resultElem.element().boxObject.height > 100)
+        if ((height == "inherit" || ! height) && resultElem.element().boxObject.height > 150)
         {
             resultElem.css("height", resultElem.element().boxObject.height);
             clearTimeout(local.resultHeightTimer);
