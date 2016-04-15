@@ -561,8 +561,6 @@ class KoFileStatusService:
                 # we can correctly add/remove items in the next process loop.
                 self._monitoredUrls = self._monitoredUrls.union(set_all_local_urls)
                 
-                from pprint import pformat
-
                 if not items_to_check:
                     # Fall back to background checking of all files.
                     isBackgroundCheck = (updateReason == self.REASON_BACKGROUND_CHECK)
