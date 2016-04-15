@@ -61,7 +61,7 @@
                         <image class="icon" src="{{=it.icon}}?scheme-color=icons-special"></image>
                     </vbox>
                 {{?}}
-                <label anonid="notification-widget-text" flex="1" class="description small" crop="right" value="{{!it.message}}"/>
+                <label anonid="notification-widget-text" flex="1" class="description small" crop="center" value="{{!it.message}}"/>
                 {{?it.undo}}
                     <button class="undo button-plain plain unstyled"/>
                 {{?}}
