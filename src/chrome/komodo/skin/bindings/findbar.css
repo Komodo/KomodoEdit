@@ -26,7 +26,7 @@ ko-findbar .ko-findbar-textbox > .autocomplete-textbox-container {
 }
 
 ko-findbar.ko-findbar-status-not-found .ko-findbar-textbox > * {
-  box-shadow: 0 0 0 1em rgba(255, 64, 64, 0.8) inset;  /* background color */
+  box-shadow: 0 0 0 2em rgba(255, 64, 64, 0.8) inset;  /* background color */
   color: white;
 }
 
