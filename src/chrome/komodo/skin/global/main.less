@@ -140,20 +140,48 @@
 #main-toolboxrow
 {
     width: 50vw;
-    margin-right: -200px;
-    padding-right: 200px;
 }
 
 #second-toolboxrow 
 {
     -moz-box-direction: reverse;
     width: 50vw;
-    margin-left: -200px;
-    padding-left: 200px;
     
     & > hbox
     {
         -moz-box-pack: end;
+    }
+}
+
+// I really don't know why OSX is a special little butterfly this time around,
+// but it  is. And we have to deal with it.
+&[os-name="Darwin"]
+{
+    #main-toolboxrow
+    {
+        margin-right: -200px;
+        padding-right: 200px;
+    }
+    
+    #second-toolboxrow 
+    {
+        margin-left: -200px;
+        padding-left: 200px;
+    }
+}
+
+&:not([os-name="Darwin"])
+{
+    #main-toolboxrow
+    {
+        margin-right: -250px;
+        padding-right: 250px;
+    }
+    
+    #second-toolboxrow 
+    {
+        margin-left: -250px;
+        padding-left: 250px;
     }
 }
 
