@@ -1573,12 +1573,7 @@ class GenericCommandHandler:
         sm = self._view.scimoz
         indent = sm.indent
         if indent <= 0:
-            log.warn("scimoz indent is %d - that should never happen", indent)
-            indent = self._view.prefs.getLong('indentWidth', 4)
-            if indent <= 0:
-                log.warn("indentWidth pref is %d - that should never happen", indent)
-                indent = 4
-            sm.indent = indent
+            indent = sm.tabWidth # if 0, Scintilla uses tabWidth
         currentLineNo = sm.lineFromPosition(sm.currentPos)
         lineStart = sm.positionFromLine(currentLineNo)
         toLeft = sm.getTextRange(lineStart, sm.currentPos)
@@ -1608,13 +1603,10 @@ class GenericCommandHandler:
     def _insertDedent(self):
         sm = self._view.scimoz
         startCol = sm.getColumn(sm.currentPos)
-        if sm.indent == 0:
-            log.error("scimoz indent was 0, should never happen")
-            return
-        numIndents, extras = divmod(startCol, sm.indent)
+        numIndents, extras = divmod(startCol, sm.tabWidth)
         if numIndents and not extras:
             numIndents -= 1
-        targetCol = numIndents * sm.indent
+        targetCol = numIndents * sm.tabWidth
         sm.beginUndoAction()
         try:
             while (sm.getColumn(sm.currentPos) > targetCol and
