@@ -159,6 +159,8 @@
         // Populate using our static properties list
         for (let parentName in styleProperties)
         {
+            if (parentName == 'InterfaceStyles')
+                continue;
             let parent = clone(styleProperties[parentName]);
             parent.name = parentName;
             parent.locale = parent.locale || parent.name;
@@ -176,7 +178,7 @@
                 
                 let style = this.getBasicPropertyStyle(property);
                 let item = $("<listitem>");
-                item.attr("label", `${parent.locale} - ${property.locale}`);
+                item.attr("label", `${parent.locale} - ${property.locale} `);
                 item.attr("name", property.name);
                 if (style.color) item.css("color", style.color);
                 if (style.background) item.css("background", style.background);
@@ -184,6 +186,44 @@
                 
                 list.append(item);
             }
+        }
+        
+        list.element().selectedIndex = 0;
+        this.onSelectProperty();
+    };
+    
+    this.populateInterfacePropertiesList = () =>
+    {
+        var list = $("#propertyList");
+        list.empty();
+        var clone = (o) => JSON.parse(JSON.stringify(o));
+        
+        // Populate using our static properties list
+        let parentName = 'InterfaceStyles';
+        let parent = clone(styleProperties[parentName]);
+        parent.name = parentName;
+        parent.locale = parent.locale || parent.name;
+        delete parent.properties;
+        
+        for (let property of styleProperties[parentName].properties)
+        {
+            if (typeof property == 'string')
+            {
+                property = { name: property };
+            }
+            
+            property.parent = parent;
+            property.locale = property.locale || property.name;
+            
+            let style = this.getBasicPropertyStyle(property);
+            let item = $("<listitem>");
+            item.attr("label", `${parent.locale} - ${property.locale} `);
+            item.attr("name", property.name);
+            if (style.color) item.css("color", style.color);
+            if (style.background) item.css("background", style.background);
+            item.element()._property = property;
+            
+            list.append(item);
         }
         
         list.element().selectedIndex = 0;
@@ -400,6 +440,11 @@
             this.populatePropertiesList();
             prefs.deletePref(p);
         }
+        else if (language == -2)
+        {
+            this.populateInterfacePropertiesList();
+            prefs.deletePref(p);
+        }
         else
         {
             selectedLanguage = language;
@@ -494,7 +539,7 @@
     this.getSelectedLanguage = () =>
     {
         var language = $("#languageList").element().selection;
-        language = language == -1 ? '' : language;
+        language = language < 0 ? '' : language;
         return language;
     };
     

@@ -88,13 +88,25 @@
                         if (this.hasAttribute("default"))
                         {
                             var prefix = this.getAttribute("prefix") || "";
-                            var menuitem = document.createElementNS(XUL_NS, 'menuitem');
-                            menuitem.setAttribute('label', prefix + this.getAttribute("default"));
+                            var defaults = this.getAttribute("default").split(",");
+                            var values = (this.getAttribute("default-value") || "").split(",");
                             
-                            var value = this.getAttribute("default-value") || this.getAttribute("default");
-                            menuitem.setAttribute('value', value);
-                            
-                            popup.appendChild(menuitem);
+                            for (let x=0; x<defaults.length;x++) {
+                                let menuitem = document.createElementNS(XUL_NS, 'menuitem');
+                                menuitem.setAttribute('label', prefix + defaults[x]);
+                                
+                                let value = x in values ? values[x] : defaults[x];
+                                
+                                if (value == "disabled")
+                                {
+                                    value = defaults[x];
+                                    menuitem.setAttribute("disabled", true);
+                                }
+                                
+                                menuitem.setAttribute('value', value);
+                                
+                                popup.appendChild(menuitem);
+                            }
                         }
                         
                         var items = this.buildMenuTree(langHierarchy, true);

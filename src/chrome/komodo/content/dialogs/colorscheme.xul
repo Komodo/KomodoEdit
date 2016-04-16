@@ -67,7 +67,7 @@
             
             <hbox flex="1" id="content">
                 <vbox>
-                    <langlist id="languageList" default="All: Editor &amp; Interface" default-value="-1" width="250"/>
+                    <langlist id="languageList" default="Editor,Interface,----------" default-value="-1,-2,disabled" width="250"/>
                     <listbox id="propertyList" width="200" flex="1">
                     </listbox>
                 </vbox>
