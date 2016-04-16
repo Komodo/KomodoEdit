@@ -151,6 +151,20 @@
                         <button id="iface-back" class="colorpicker unstyled"/>
                     </hbox>
                     
+                    <hbox field="iface-css">
+                        <vbox>
+                            <description style="max-width: 200px; text-align: center;">
+                                The field on the right  allows you to write custom
+                                LESS CSS code that will be applied when this color
+                                scheme is used for the interface.
+                            </description>
+                            <description style="max-width: 200px; text-align: center;">
+                                WARNING: Syntax errors can blow up your interface.
+                                Use with care.
+                            </description>
+                        </vbox>
+                    </hbox>
+                    
                     <hbox field="bold">
                         <description value="Bold: "/>
                         <button id="fontBold"

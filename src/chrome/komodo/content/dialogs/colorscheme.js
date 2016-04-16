@@ -29,7 +29,7 @@
             properties: [
                 {
                     name: 'window',
-                    fields: ['iface-face', 'iface-back', 'iface-fore', 'iface-size']
+                    fields: ['iface-face', 'iface-back', 'iface-fore', 'iface-size', 'iface-css']
                 },
                 { name: 'contrast', fields: ['iface-back'] },
                 { name: 'border', fields: ['iface-back'] },
@@ -178,7 +178,7 @@
                 
                 let style = this.getBasicPropertyStyle(property);
                 let item = $("<listitem>");
-                item.attr("label", `${parent.locale} - ${property.locale} `);
+                item.attr("label", property.locale);
                 item.attr("name", property.name);
                 if (style.color) item.css("color", style.color);
                 if (style.background) item.css("background", style.background);
@@ -217,7 +217,7 @@
             
             let style = this.getBasicPropertyStyle(property);
             let item = $("<listitem>");
-            item.attr("label", `${parent.locale} - ${property.locale} `);
+            item.attr("label", property.locale);
             item.attr("name", property.name);
             if (style.color) item.css("color", style.color);
             if (style.background) item.css("background", style.background);
@@ -384,13 +384,26 @@
     {
         if (loadedSampleId == selectedLanguage) return; // already loaded
         
-        var sampleText = languageRegistry.getLanguage(selectedLanguage).sample;
-        if (! sampleText) 
-            sampleText = "No sampleText for " + selectedLanguage + " available.";
-            
+        var sampleText;
+        
+        if (selectedLanguage == -2) // Interface
+        {
+            sampleText = selectedScheme.getInterfaceStyle("css", "code");
+            if ( ! sampleText)
+            {
+                sampleText = '/* Enter your custom LESS CSS code \n *to further customize the interface */';
+            }
+        }
+        else
+        {
+            sampleText = languageRegistry.getLanguage(selectedLanguage).sample;
+            if (! sampleText) 
+                sampleText = "No sampleText for " + selectedLanguage + " available.";
+        }
+        
         var view = sample.element();
         view.setBufferText(sampleText);
-        view.language = selectedLanguage;
+        view.language = selectedLanguage == -2 ? "Less" : selectedLanguage;
         view.anchor = sampleText.length/4;
         view.currentPos = sampleText.length/2;
         
@@ -433,6 +446,13 @@
     
     this.onUpdateLanguage = () =>
     {
+        // If we're coming from interface we need to save the CSS code
+        if (selectedLanguage == -2)
+        {
+            var scimoz = sample.element().scimoz;
+            selectedScheme.setInterfaceStyle("css", "code", scimoz.text);
+        }
+        
         var p = "prefs.fontsColorsLanguages.langSpecific.lang";
         var language = $("#languageList").element().selection;
         if (language == -1)
@@ -442,6 +462,8 @@
         }
         else if (language == -2)
         {
+            selectedLanguage = language;
+            this.loadSample();
             this.populateInterfacePropertiesList();
             prefs.deletePref(p);
         }
@@ -456,6 +478,9 @@
     
     this.onClickSample = () =>
     {
+        if (selectedLanguage == -2)
+            return;
+        
         var scimoz = sample.element().scimoz;
         var propertyName;
         
@@ -890,6 +915,12 @@
                 $("#iface-back").attr("color", back);
             }
         },
+        "iface-css": {
+            init: () => {
+            },
+            reset: () => {
+            }
+        },
     };
     
     this.pickColor = (button, callback) =>
@@ -956,6 +987,12 @@
     
     this.saveScheme = () =>
     {
+        if (selectedLanguage == -2)
+        {
+            var scimoz = sample.element().scimoz;
+            selectedScheme.setInterfaceStyle("css", "code", scimoz.text);
+        }
+        
         selectedScheme.save();
         
         if (selectedScheme.name == prefs.getString("editor-scheme"))
@@ -1139,7 +1176,7 @@
         var scintilla = sample.element().scimoz;
         var encoding = 'unused';
         var alternateType = false;
-        selectedScheme.applyScheme(scintilla, selectedLanguage, encoding, alternateType);
+        selectedScheme.applyScheme(scintilla, selectedLanguage == -2 ? "Less" : selectedLanguage, encoding, alternateType);
     };
     
     this.destroy = () =>

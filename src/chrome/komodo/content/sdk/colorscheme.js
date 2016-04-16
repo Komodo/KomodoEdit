@@ -146,11 +146,16 @@
         
         var scheme = schemeService.getScheme(prefs.getString("interface-scheme"));
         
-        var path = koDirSvc.userDataDir;
-        path = koFile.join(path, "colors.less");
+        // Write interfaceChrome.less
+        path = koFile.join(koDirSvc.userDataDir, "interfaceChrome.less");
+        fp = koFile.open(path, "w");
+        style = scheme.getInterfaceStyle("css", "code") || "";
+        fp.write(style);
+        fp.close();
         
+        // Write colors.less
+        var path = koFile.join(koDirSvc.userDataDir, "colors.less");
         var fp = koFile.open(path, "w");
-        
         var _apply = (scheme, mapping) =>
         {
             for (let k in mapping)

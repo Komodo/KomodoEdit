@@ -25,7 +25,7 @@
             
             ko.windowManager.openDialog("chrome://komodo/content/dialogs/colorscheme.xul",
                     "Komodo:ColorSchemeEditor",
-                    "chrome,dialog,modal,resizable,close,centerscreen"
+                    "chrome,resizable,close,centerscreen"
             );
         });
         parent.hPrefWindow.onpageload();
