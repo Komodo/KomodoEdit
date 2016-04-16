@@ -162,6 +162,9 @@ class KoFileStatusService:
         # Shutdown is used to tell the background status checking thread to stop
         self.shutdown = 0
         
+        # Whether to check all files observed or only "active" ones
+        self._check_all = False
+        
         # set up the background thread
         self._thread = None
         self._tlock = threading.Lock()
@@ -371,6 +374,7 @@ class KoFileStatusService:
             # one with the highest priority.
             if updateReason > self._updateReason:
                 self._updateReason = updateReason
+            self._check_all = True
             self._cv.notify()
         finally:
             self._cv.release()
@@ -484,7 +488,12 @@ class KoFileStatusService:
                 # XXX - Do we really need to unwrap these puppies?
                 all_local_dirs = []
                 all_local_files = []
-                for koIFile in self._fileSvc.getStatusCheckFiles():
+                if self._check_all:
+                    files = self._fileSvc.getAllFiles()
+                    self._check_all = False
+                else:
+                    files = self._fileSvc.getStatusCheckFiles()
+                for koIFile in files:
                     try:
                         u = UnwrapObject(koIFile)
                         if u.isLocal and not u.isNetworkFile:
