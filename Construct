@@ -572,6 +572,12 @@ sub cons::KoExt {
 		}
         $extra_options .= "-o $abs_xpi_path";
     }
+    if (defined($buildFlavour)) {
+        if ($buildFlavour eq "dev") {
+            $extra_options .= " --dev --unjarred";
+        }
+    }
+    
     my $abs_builddir = cwd()."/".DirPath($buildDir);
 
     $cons->Command(
