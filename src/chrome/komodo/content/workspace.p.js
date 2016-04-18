@@ -612,11 +612,22 @@ this.saveWorkspaceForIdx = function saveWorkspaceForIdx(idx) {
     }
 };
 
+this.saveWorkspaceDeferred = function view_saveWorkspaceDeferred()
+{
+    if (ko.workspace.saveWorkspaceDeferred.timer !== null)
+        return;
+    
+    // For deffered calls we only want to save the workspace at most once every X seconds
+    ko.workspace.saveWorkspaceDeferred.timer = setTimeout(ko.workspace.saveWorkspace, ko.prefs.getLong('workspace_deferred_save_delay', 60000));
+};
+this.saveWorkspaceDeferred.timer = null;
+
 /**
  * save all workspace preferences and state
  */
 this.saveWorkspace = function view_saveWorkspace(saveNow)
 {
+    ko.workspace.saveWorkspaceDeferred.timer = null;
     _saveInProgress = true;
     // Ask each major component to serialize itself to a pref.
     try {
