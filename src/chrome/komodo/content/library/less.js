@@ -205,45 +205,50 @@ var koLess = function koLess()
                 Components.classes["@mozilla.org/chrome/chrome-registry;1"]
                   .getService(Components.interfaces.nsIXULChromeRegistry)
                   .refreshSkins();
-                
+
                 var suffix = (new  Date().valueOf());
                 windows = require("ko/windows").getAll();
                 for (let w of windows)
                 {
-                    try {
-                        var body = w.document.documentElement;
-                        for (let child of Array.slice(body.parentNode.childNodes))
-                        {
-                            if (child.nodeName == "xml-stylesheet" && child.nodeValue.indexOf('.less') != -1)
+                    Timer.setTimeout(function(w) {
+                        
+                        try {
+                            var body = w.document.documentElement;
+                            for (let child of Array.slice(body.parentNode.childNodes))
                             {
-                                child.nodeValue = child.nodeValue.replace(
-                                    /(href="[a-zA-Z0-9\/:\.\-\_]*\.less)(?:\?\d+|)/,
-                                    '$1?' + suffix);
+                                if (child.nodeName == "xml-stylesheet" && child.nodeValue.indexOf('.less') != -1)
+                                {
+                                    child.nodeValue = child.nodeValue.replace(
+                                        /(href="[a-zA-Z0-9\/:\.\-\_]*\.less)(?:\?\d+|)/,
+                                        '$1?' + suffix);
+                                }
+                                
+                                if (child.nodeName == "xml-stylesheet" && child.nodeValue.indexOf('href="chrome://komodo/skin/"') != -1)
+                                {
+                                    child.nodeValue = child.nodeValue.replace(
+                                        'href="chrome://komodo/skin/"',
+                                        'href="chrome://komodo/skin/global.less?' + suffix + '"');
+                                }
                             }
                             
-                            if (child.nodeName == "xml-stylesheet" && child.nodeValue.indexOf('href="chrome://komodo/skin/"') != -1)
+                            var links = body.getElementsByTagName("link");
+                            for (var link of links)
                             {
-                                child.nodeValue = child.nodeValue.replace(
-                                    'href="chrome://komodo/skin/"',
-                                    'href="chrome://komodo/skin/global.less?' + suffix + '"');
+                                if (link.getAttribute("rel") != "stylesheet" ||
+                                    link.href.indexOf('.less') == -1)
+                                    continue;
+                                
+                                    link.href = link.href.replace(
+                                        /([a-zA-Z0-9\/:\.\-\_]*\.less)(?:\?\d+|)/,
+                                        '$1?' + suffix);
                             }
-                        }
-                        
-                        var links = body.getElementsByTagName("link");
-                        for (var link of links)
-                        {
-                            if (link.getAttribute("rel") != "stylesheet" ||
-                                link.href.indexOf('.less') == -1)
-                                continue;
                             
-                                link.href = link.href.replace(
-                                    /([a-zA-Z0-9\/:\.\-\_]*\.less)(?:\?\d+|)/,
-                                    '$1?' + suffix);
+                            if ("loadVirtualStylesheets" in w)
+                                w.loadVirtualStylesheets();
+                        } catch (e) {
                         }
                         
-                        if ("loadVirtualStylesheets" in w)
-                            w.loadVirtualStylesheets();
-                    } catch (e) {}
+                    }.bind(null,w), 500);
                 }
             }, Ci.nsIEventTarget.DISPATCH_NORMAL);
         },
