@@ -10,6 +10,7 @@ var breadcrumbs = function(view) {
 
     var RCService   = Cc["@activestate.com/koRemoteConnectionService;1"]
                         .getService(Ci.koIRemoteConnectionService);
+    var koViews     = require("ko/views");
     var os          = Cc["@activestate.com/koOs;1"].getService(Ci.koIOs);
     var osPath      = Cc["@activestate.com/koOsPath;1"].getService(Ci.koIOsPath);
     var xtk         = window.xtk;
@@ -1266,7 +1267,7 @@ var breadcrumbs = function(view) {
             return;
         }
         
-        if (view != require("ko/views").current().get())
+        if (view != koViews.current().get())
             return;
         
         // Start off with resetting everything to normal
