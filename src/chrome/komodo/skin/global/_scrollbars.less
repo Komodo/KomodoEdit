@@ -1,0 +1,75 @@
+/* Scrollbars */
+
+page.widget[containerOrient="vertical"] scrollbar
+{
+    margin: 3px;
+    margin-left: -18px;
+}
+
+.autoscroll
+{
+    overflow: -moz-scrollbars-vertical;
+    overflow-y: scroll !important;
+}
+
+scrollbar
+{
+    -moz-appearance: none !important;
+    border: 0;
+    background: transparent;
+    opacity: 1.0 !important;
+    margin: 1px;
+    z-index: 999;
+    position: relative;
+    
+    &[orient="vertical"]
+    {
+        min-width: 15px;
+    }
+    
+    &[orient="horizontal"]
+    {
+        min-height: 15px;
+    }
+
+    slider
+    {
+        -moz-appearance: none !important;
+        border: 0;
+    }
+
+    thumb
+    {
+        -moz-appearance: none !important;
+        background: @contrast;
+        border: 0;
+    }
+}
+
+/* Modals */
+
+dialog, :root.dialog, :root.pref-window
+{
+    scrollbar thumb
+    {
+        background: @button;
+    }
+}
+
+#commando-panel
+{
+    scrollbar
+    {
+        margin-left: -16px;
+    }
+    
+    scrollbar thumb
+    {
+        background: @contrast-special;
+    }
+}
+
+:root.special scrollbar thumb
+{
+    background: @contrast-special;
+}
