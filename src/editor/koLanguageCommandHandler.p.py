@@ -1883,7 +1883,11 @@ class GenericCommandHandler:
             numIndents += 1
         elif shift == -1 and numIndents and not extras:
             numIndents -= 1
-        newIndentWidth = numIndents * sm.indent
+        if sm.indent > 0:
+            newIndentWidth = numIndents * sm.indent
+        else:
+            # When indent is 0, Scintilla uses tabWidth; we should mimic.
+            newIndentWidth = numIndents * sm.tabWidth
         delta = newIndentWidth - currentIndentWidth
         indentlog.info("delta = %d", delta)
         # apply that delta to each line in the region
