@@ -55,7 +55,7 @@ export extends false finally for function if import in instanceof is let 'namesp
 new null package private public return super switch this throw true try typeof
 use var void while with
 get "include" set
-abstract debugger enum goto implements interface native protected short synchronized throws transient volatile
+abstract debugger enum goto implements interface native of protected short synchronized throws transient volatile
 ] 
 # rows 1 - 4 - reserved
 # row 5  - non-reserved
