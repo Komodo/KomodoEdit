@@ -12,9 +12,94 @@
           xmlns:xbl="http://www.mozilla.org/xbl"
           xmlns:html="http://www.w3.org/1999/xhtml"
           xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  
+
+    <binding id="root-element"
+             extends="chrome://global/content/bindings/general.xml#root-element">
+    <implementation>
+      <constructor>
+        <![CDATA[
+          try
+          {
+            this.loadVirtualStylesheets();
+          }
+          catch(e)
+          {
+            require("ko/logging").getLogger("window-bindings").exception(e);
+          }
+        ]]>
+      </constructor>
+      <method name="loadVirtualStylesheets">
+        <body>
+        <![CDATA[
+          var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator);
+          var w = wm.getMostRecentWindow("Komodo");
+            
+          if (typeof require == "undefined")
+            var require = w.require;
+          
+          var evt = new CustomEvent("window_opened", { detail: window });
+          window.dispatchEvent(evt);
+          
+          var styleUtil = require("sdk/stylesheet/utils");
+          var styles = require("ko/prefs").getString("virtualStyles").split(",");
+          for (let styleUrl of styles) {
+            try
+            {
+              styleUtil.removeSheet(window, styleUrl, "agent");
+            } catch (e) {} // no need for an exception if its already removed
+            styleUtil.loadSheet(window, styleUrl, "agent");
+          }
+        ]]>
+        </body>
+      </method>
+    </implementation>
+    </binding>
+    
+    <binding id="dialog"
+             extends="chrome://global/content/bindings/dialog.xml#dialog">
+    <implementation>
+      <constructor>
+        <![CDATA[
+          try
+          {
+            this.loadVirtualStylesheets();
+          }
+          catch(e)
+          {
+            require("ko/logging").getLogger("window-bindings").exception(e);
+          }
+        ]]>
+      </constructor>
+      <method name="loadVirtualStylesheets">
+        <body>
+        <![CDATA[
+          var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator);
+          var w = wm.getMostRecentWindow("Komodo");
+            
+          if (typeof require == "undefined")
+            var require = w.require;
+          
+          var evt = new CustomEvent("window_opened", { detail: window });
+          window.dispatchEvent(evt);
+          
+          var styleUtil = require("sdk/stylesheet/utils");
+          var styles = require("ko/prefs").getString("virtualStyles").split(",");
+          for (let styleUrl of styles) {
+            try
+            {
+              styleUtil.removeSheet(window, styleUrl, "agent");
+            } catch (e) {} // no need for an exception if its already removed
+            styleUtil.loadSheet(window, styleUrl, "agent");
+          }
+        ]]>
+        </body>
+      </method>
+    </implementation>
+    </binding>
 
     <binding id="window-chromeless"
-             extends="chrome://global/content/bindings/general.xml#root-element">
+             extends="chrome://komodo/content/bindings/windows.xml#root-element">
     <content>
         
       <xul:hbox class="resizer-box">
@@ -69,7 +154,7 @@
     
     
     <binding id="dialog-chromeless"
-             extends="chrome://global/content/bindings/dialog.xml#dialog">
+             extends="chrome://komodo/content/bindings/windows.xml#dialog">
     <content>
 
       <xul:hbox id="titlebar" pack="center" align="center">

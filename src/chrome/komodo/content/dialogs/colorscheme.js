@@ -391,7 +391,8 @@
             sampleText = selectedScheme.getInterfaceStyle("css", "code");
             if ( ! sampleText)
             {
-                sampleText = '/* Enter your custom LESS CSS code \n *to further customize the interface */';
+                sampleText = '/* Enter your custom LESS CSS code \n * to further customize the interface */\n\n';
+                sampleText += '@import url("chrome://komodo/skin/global/colors.less");\n@import url("resource://profile/colors.less");\n\n';
             }
         }
         else

@@ -154,6 +154,7 @@
         fp.close();
         
         // Write colors.less
+        style = "";
         var path = koFile.join(koDirSvc.userDataDir, "colors.less");
         var fp = koFile.open(path, "w");
         var _apply = (scheme, mapping) =>

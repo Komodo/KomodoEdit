@@ -1,9 +1,14 @@
+:root
+{
+  -moz-binding: url("chrome://komodo/content/bindings/windows.xml#root-element");
+}
+
 window:not(#komodo_main):not(.embedded).dialog
 {
   -moz-binding: url("chrome://komodo/content/bindings/windows.xml#window-chromeless");
 }
 
-dialog
+dialog, dialog:root
 {
   -moz-binding: url("chrome://komodo/content/bindings/windows.xml#dialog-chromeless");
 }

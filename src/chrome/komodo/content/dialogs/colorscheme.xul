@@ -158,10 +158,6 @@
                                 LESS CSS code that will be applied when this color
                                 scheme is used for the interface.
                             </description>
-                            <description style="max-width: 200px; text-align: center;">
-                                WARNING: Syntax errors can blow up your interface.
-                                Use with care.
-                            </description>
                         </vbox>
                     </hbox>
                     

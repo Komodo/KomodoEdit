@@ -240,6 +240,9 @@ var koLess = function koLess()
                                     /([a-zA-Z0-9\/:\.\-\_]*\.less)(?:\?\d+|)/,
                                     '$1?' + suffix);
                         }
+                        
+                        if ("loadVirtualStylesheets" in w)
+                            w.loadVirtualStylesheets();
                     } catch (e) {}
                 }
             }, Ci.nsIEventTarget.DISPATCH_NORMAL);

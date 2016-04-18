@@ -28,7 +28,8 @@ LessProtocolHandler.prototype = {
     newChannel: function Proto_newChannel(aURI) {
         var channel = new LessChannel();
 
-        channel._URI = aURI.spec.replace(/^less/, 'chrome');
+        channel._URI = aURI.spec.replace(/^less:\/\/resource/, 'resource:/');
+        channel._URI = channel._URI.replace(/^less/, 'chrome');
         channel.name = aURI.spec;
         channel.originalURI = aURI;
         channel.URI = aURI;
