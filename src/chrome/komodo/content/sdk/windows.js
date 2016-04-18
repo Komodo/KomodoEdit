@@ -111,7 +111,7 @@
         _window = _window || this.getMain();
         
         var windows = [];
-        var browsers = _window.document.querySelectorAll("browser");
+        var browsers = _window.document.querySelectorAll("browser, iframe");
         for (let browser of browsers)
         {
             try
