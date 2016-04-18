@@ -177,11 +177,12 @@ var koLess = function koLess()
                     var blackout = $($.create("panel", {
                             style: "background: Window;",
                             noautohide: true,
+                            ignorekeys: true,
                             width: w.document.width,
                             height: w.document.height,
                             align: "center",
                             pack: "center",
-                            level: "floating"
+                            level: "parent"
                         },
                         $.create("description", {
                             style: "max-width: 50%; color: WindowText; font: message-box; font-weight: bold; font-size: 1.5rem",
@@ -190,11 +191,9 @@ var koLess = function koLess()
                     
                     $(w.document.documentElement).append(blackout);
                     blackout.element().openPopup(w.document.documentElement, 'topleft');
-                    
+
                     blackouts.push(blackout);
                 };
-                
-                addBlackout(mw);
                 
                 var windows = require("ko/windows").getWindows();
                 for (let w of windows)
@@ -202,10 +201,28 @@ var koLess = function koLess()
                     addBlackout(w);
                 }
                 
+                // More XUL weirdness. Panels like to hide themselves without firing events
+                // when you reload stylesheets. Presumably related to the bindings?
+                var ensureShown = function ()
+                {
+                    if (blackouts.length === 0)
+                        return;
+                        
+                    for (let blackout of blackouts) {
+                        if (blackout.element().state != 'open')
+                            blackout.element().openPopup(blackout.element().ownerDocument.documentElement, 'topleft');
+                    }
+                    
+                    Timer.setTimeout(ensureShown, 50);
+                };
+                ensureShown();
+                
                 Components.classes["@mozilla.org/chrome/chrome-registry;1"]
                   .getService(Components.interfaces.nsIXULChromeRegistry)
                   .refreshSkins();
-
+                  
+                var delay = 0;
+                  
                 var suffix = (new  Date().valueOf());
                 windows = require("ko/windows").getAll();
                 for (let w of windows)
@@ -248,7 +265,21 @@ var koLess = function koLess()
                         } catch (e) {
                         }
                         
-                    }.bind(null,w), 500);
+                    }.bind(null,w), delay);
+                    
+                    if (delay === 0)
+                        delay += 1000;
+                    else
+                        delay += 10;
+                        
+                    Timer.clearTimeout(blackoutTimer);
+                    blackoutTimer = Timer.setTimeout(function () {
+                        while (blackouts.length) {
+                            var blackout = blackouts.pop();
+                            blackout.remove();
+                        }
+                    }, delay + 1000);
+                        
                 }
             }, Ci.nsIEventTarget.DISPATCH_NORMAL);
         },
@@ -293,17 +324,17 @@ var koLess = function koLess()
                     {
                         this.debug(threadId + ' Loading from cache: ' + sheet.href);
                         this.debug(threadId + ' Returning ' + cacheFile.fileSize + ' bytes for: ' + sheet.href);
-                        callback(cacheFile)
+                        callback(cacheFile);
                         return;
                     }
                 }
-               
-                this.debug(threadId + ' Loading new version ' + (async ? 'a' : '') + 'synchronously: ' + sheet.href);
             }
             else
             {
                 //this.debug('Loading import: ' + sheet.href);
             }
+            
+            this.debug(threadId + ' Loading new version ' + (async ? 'a' : '') + 'synchronously: ' + sheet.href);
 
             var uri = Services.io.newURI(sheet.href, null, null);
             // Grab the contents of the stylesheet
@@ -318,14 +349,6 @@ var koLess = function koLess()
                         //this.debug('Returning: ' + sheet.href);
                         var bogus = { local: false, lastModified: null, remaining: 0 };
                         callback(e, root, data, sheet, bogus, sheet.href);
-                        
-                        Timer.clearTimeout(blackoutTimer);
-                        blackoutTimer = Timer.setTimeout(function () {
-                            while (blackouts.length) {
-                                var blackout = blackouts.pop();
-                                blackout.remove();
-                            }
-                        }, 1500);
                     }
                     else // Otherwise it's an internal (koLess) call
                     {
