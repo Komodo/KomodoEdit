@@ -146,9 +146,66 @@
           } catch (e) {}
         }
         
-        if (hideChrome) this.setAttribute("hidechrome", true);
+        if (hideChrome)
+        {
+            this.setAttribute("hidechrome", true);
+            
+            if (window.parent == window || window.arguments)
+            {
+              this.restorePosition();
+              window.addEventListener("load", this.restorePosition.bind(this));
+              window.addEventListener("unload", this.savePosition.bind(this));
+            }
+        }
         ]]>
       </constructor>
+      <method name="restorePosition">
+        <body>
+          var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator);
+          var w = wm.getMostRecentWindow("Komodo");
+          
+          var id = document.documentElement.id || window.location.href;
+          var dimensions = w.ko.prefs.getString("windowDimensions-" + id, "").split(",");
+          
+          var setDimensions;
+          if (dimensions.length != 4)
+          {
+            // If no dimensions were stored just center the window
+            setDimensions = function () {
+              window.screenX = (window.screen.availWidth - window.outerWidth) / 2;
+              window.screenY = (window.screen.availHeight - window.outerHeight) / 2;
+            };
+          }
+          else
+          {
+            setDimensions = function () {
+              var [w,h,x,y] = dimensions;
+              window.outerWidth = parseInt(w);
+              window.outerHeight = parseInt(h);
+              window.screenX = parseInt(x);
+              window.screenY = parseInt(y);
+            };
+          }
+          
+          setDimensions();
+          setTimeout(setDimensions, 250);
+        </body>
+      </method>
+      <method name="savePosition">
+        <body>
+          var dimensions = [window.outerWidth, window.outerHeight, window.screenX, window.screenY];
+
+          var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator);
+          var w = wm.getMostRecentWindow("Komodo");
+          
+          var id = document.documentElement.id || window.location.href;
+          
+          // Set pref on a timeout, works around issues like the pref window still closing
+          w.setTimeout(function () {
+            w.ko.prefs.setString("windowDimensions-" + id, dimensions.join(","));
+          }, 250);
+        </body>
+      </method>
     </implementation>
     </binding>
     
@@ -218,11 +275,63 @@
         if (hideChrome)
         {
             this.setAttribute("hidechrome", true);
+            
+            if (window.parent == window || window.arguments)
+            {
+              this.restorePosition();
+              window.addEventListener("load", this.restorePosition.bind(this));
+              window.addEventListener("unload", this.savePosition.bind(this));
+            }
         }
-        
-        setTimeout(this.centerWindowOnScreen.bind(this), 250);
         ]]>
       </constructor>
+      <method name="restorePosition">
+        <body>
+          var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator);
+          var w = wm.getMostRecentWindow("Komodo");
+          
+          var id = document.documentElement.id || window.location.href;
+          var dimensions = w.ko.prefs.getString("windowDimensions-" + id, "").split(",");
+          
+          var setDimensions;
+          if (dimensions.length != 4)
+          {
+            // If no dimensions were stored just center the window
+            setDimensions = function () {
+              window.screenX = (window.screen.availWidth - window.outerWidth) / 2;
+              window.screenY = (window.screen.availHeight - window.outerHeight) / 2;
+            };
+          }
+          else
+          {
+            setDimensions = function () {
+              var [w,h,x,y] = dimensions;
+              window.outerWidth = parseInt(w);
+              window.outerHeight = parseInt(h);
+              window.screenX = parseInt(x);
+              window.screenY = parseInt(y);
+            };
+          }
+          
+          setDimensions();
+          setTimeout(setDimensions, 250);
+        </body>
+      </method>
+      <method name="savePosition">
+        <body>
+          var dimensions = [window.outerWidth, window.outerHeight, window.screenX, window.screenY];
+
+          var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator);
+          var w = wm.getMostRecentWindow("Komodo");
+          
+          var id = document.documentElement.id || window.location.href;
+          
+          // Set pref on a timeout, works around issues like the pref window still closing
+          w.setTimeout(function () {
+            w.ko.prefs.setString("windowDimensions-" + id, dimensions.join(","));
+          }, 250);
+        </body>
+      </method>
     </implementation>
     </binding>
     
