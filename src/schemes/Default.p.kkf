@@ -41,7 +41,7 @@ binding cmd_selectLineNext Shift+Down
 binding cmd_selectWordLeft Ctrl+Shift+Left
 binding cmd_endOfWordExtend Ctrl+Shift+Right
 binding cmd_wordPartLeftExtend Ctrl+Alt+Shift+Left
-binding cmd_WordPartRightExtend Ctrl+Alt+Shift+Right
+binding cmd_wordPartRightExtend Ctrl+Alt+Shift+Right
 binding cmd_addNextWordToCaretSet Ctrl+D
 binding cmd_removePrevWordToCaretSet Ctrl+Shift+D
 binding cmd_removeNextWordInCaretSet Ctrl+Alt+Shift+D
