@@ -835,7 +835,7 @@ if (typeof ko.openfiles == 'undefined')
             
             // Check for duplicate names, if so we'll mark them all with a css class
             var duplicates = listbox.querySelectorAll(
-                                ".file-title[value='"+editorView.title+"']");
+                                ".file-title[value='"+editorView.title.replace(/'/g, "\\'")+"']");
             if (duplicates.length > 0)
             {
                 listItem.classList.add('duplicate-name');
