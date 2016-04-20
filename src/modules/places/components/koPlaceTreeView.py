@@ -421,6 +421,10 @@ class KoPlaceTreeView(TreeView):
         self.workerThread.start()
         self.notificationSvc = components.classes["@activestate.com/koFileNotificationService;1"].\
                                     getService(components.interfaces.koIFileNotificationService)
+        
+        self.showFileIcons = prefs.getBoolean("showFileIcons", True)
+        prefObserver = prefs.prefObserverService
+        prefObserver.addObserver(self, 'showFileIcons', 0)
             
     def terminate(self): # should be finalize
         prefs = components.classes["@activestate.com/koPrefService;1"].\
@@ -444,6 +448,10 @@ class KoPlaceTreeView(TreeView):
         prefs.getPref("places").setStringPref("places-open-nodes-v2",
                                   json.dumps(self._nodeOpenStatusFromName))
         self._observerSvc.removeObserver(self, "file_status")
+        
+        prefObserver = prefs.prefObserverService
+        prefObserver.removeObserver(self, 'showFileIcons')
+        
         self.workerThread.shutdown();
         self.workerThread.join(3)
         self.set_currentPlace(None)
@@ -470,6 +478,10 @@ class KoPlaceTreeView(TreeView):
                     self._invalidateRow(row)
             finally:
                 self._tree.endUpdateBatch()
+        elif topic == "showFileIcons":
+            prefs = components.classes["@activestate.com/koPrefService;1"].\
+                getService(components.interfaces.koIPrefService).prefs
+            self.showFileIcons = prefs.getBoolean('showFileIcons', True)
         #qlog.debug("<< observe")
 
     # row generator interface
@@ -1776,10 +1788,7 @@ class KoPlaceTreeView(TreeView):
     def getImageSrc(self, row_idx, column):
         """Return the image for the given cell."""
         if column.id == 'name':
-            prefs = components.classes["@activestate.com/koPrefService;1"].\
-                getService(components.interfaces.koIPrefService).prefs
-
-            if prefs.getBoolean("showFileIcons", True):
+            if self.showFileIcons:
                 return self._rows[row_idx].cellImageURL
             else:
                 return ""
