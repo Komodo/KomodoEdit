@@ -223,6 +223,8 @@ class LangIntel(object):
                     detail = self.cb_namespace_detail_from_elem(elem)
                 elif ilk == "trait":
                     detail = self.cb_trait_detail_from_elem(elem)
+                elif ilk == "element":
+                    detail = elem.get("name")
                 else: # what else could it be?
                     log.warn("don't know how to get cb detail for '%s' elem",
                              ilk)
