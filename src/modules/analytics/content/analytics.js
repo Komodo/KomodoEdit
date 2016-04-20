@@ -41,6 +41,7 @@ ko.analytics = new function()
         //this.debug();
 
         // Retrieve unique user id
+        var firstRun = false;
         var uid = prefs.getString('analytics_ga_uid', '');
         if (uid == '')
         {
@@ -49,6 +50,7 @@ ko.analytics = new function()
             uid = new String(uuidGenerator.generateUUID());
             uid = uid.substr(1).substr(0,uid.length-2);
             prefs.setStringPref('analytics_ga_uid', uid);
+            firstRun = true;
         }
 
         if ( ! prefs.getBoolean('analytics_enabled', false))
