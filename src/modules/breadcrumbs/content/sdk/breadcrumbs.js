@@ -36,6 +36,7 @@ var breadcrumbs = function(view) {
     /* Crumb cache */
     var crumbs = {};
     var crumbFile = null;
+    var crumbView = null;
 
     /* timeout helpers - I know Mook .. */
     var timers = {};
@@ -60,6 +61,8 @@ var breadcrumbs = function(view) {
         log.debug("Init");
         
         if ( ! view || view.getAttribute("type") != "editor") return;
+        
+        crumbView = view;
         
         var $ = require("ko/dom");
         xv = $(view);
@@ -148,11 +151,11 @@ var breadcrumbs = function(view) {
         if ("koDoc" in view && "file" in view.koDoc && view.koDoc.file &&
             (view.koDoc.file.isLocal || view.koDoc.file.isRemoteFile))
         {
-            this.drawCrumbs(view);
+            this.drawCrumbs();
         }
         else
         {
-            this.drawCrumb(view.title, view);
+            this.drawCrumb(view.title);
         }
 
         // Allow css styling to differentiate between local and remote files
@@ -186,27 +189,23 @@ var breadcrumbs = function(view) {
      */
     this.bindListeners = function breadcrumbs_bindListeners()
     {
-        window.addEventListener('file_saved',
-                                this.load.bind(this, false));
+        this._onLoadBound = this.load.bind(this, false);
+        this._checkOverflowBound = this.checkOverflow.bind(this);
+        this._menuKeyPressBound = this.onCrumbMenuKeypress.bind(this);
+        this._unbindBound = this.unbindListeners.bind(this);
         
-        window.addEventListener('current_place_opened',
-                                this.load.bind(this, false));
-        
-        window.addEventListener('workspace_restored',
-                                this.load.bind(this, false));
-        
-        window.addEventListener('project_opened',
-                                this.load.bind(this, false));
+        window.addEventListener('file_saved', this._onLoadBound);
+        window.addEventListener('current_place_opened', this._onLoadBound);
+        window.addEventListener('workspace_restored', this._onLoadBound);
+        window.addEventListener('project_opened', this._onLoadBound);
 
         /* DOM Events */
-        window.addEventListener('resize',
-                                this.checkOverflow.bind(this));
-        window.addEventListener('sectionlist-updated',
-                                this.checkOverflow.bind(this));
-        window.addEventListener('current_view_changed',
-                                this.checkOverflow.bind(this));
-        window.addEventListener('keydown',
-                                this.onCrumbMenuKeypress.bind(this));
+        window.addEventListener('resize', this._checkOverflowBound);
+        window.addEventListener('sectionlist-updated', this._checkOverflowBound);
+        window.addEventListener('current_view_changed', this._checkOverflowBound);
+        window.addEventListener('keydown', this._menuKeyPressBound);
+        
+        window.addEventListener('view_closed', this._unbindBound);
 
         /* Misc */
         var overflowMenu = xtk.domutils.getChildByProperty(
@@ -218,6 +217,26 @@ var breadcrumbs = function(view) {
         var _observerSvc = Cc["@mozilla.org/observer-service;1"].
                             getService(Ci.nsIObserverService);
         _observerSvc.addObserver(this, "file_status", false);
+    };
+    
+    this.unbindListeners = function breadcrumbs_unbindListeners(e)
+    {
+        if (e.originalTarget != crumbView)
+            return;
+        
+        window.removeEventListener('file_saved', this._onLoadBound);
+        window.removeEventListener('current_place_opened', this._onLoadBound);
+        window.removeEventListener('workspace_restored', this._onLoadBound);
+        window.removeEventListener('project_opened', this._onLoadBound);
+        window.removeEventListener('resize', this._checkOverflowBound);
+        window.removeEventListener('sectionlist-updated', this._checkOverflowBound);
+        window.removeEventListener('current_view_changed', this._checkOverflowBound);
+        window.removeEventListener('keydown', this._menuKeyPressBound);
+
+        // Register observer
+        var _observerSvc = Cc["@mozilla.org/observer-service;1"].
+                            getService(Ci.nsIObserverService);
+        _observerSvc.removeObserver(this, "file_status", false);
     };
 
     /**
@@ -426,19 +445,14 @@ var breadcrumbs = function(view) {
      */
     this.observe = function(subject, topic, data)
     {
-        if (topic != 'file_status') return; // shouldn't ever happen
+        if (topic != 'file_status' || ! crumbFile) return; 
 
         var urllist = data.split('\n');
-        var topView = document.getElementById('topview');
-        var views;
 
         for (var u=0; u < urllist.length; ++u)
         {
-            views = topView.findViewsForURI(urllist[u]);
-            for (var i=0; i < views.length; ++i)
-            {
-                this.onUpdateFileStatus(views[i]);
-            }
+            if (urllist[u] == crumbFile.file.getUri())
+                this.onUpdateFileStatus();
         }
     };
 
@@ -449,12 +463,9 @@ var breadcrumbs = function(view) {
      *
      * @returns {Void}
      */
-    this.onUpdateFileStatus = function openfiles_onUpdateFileStatus(view)
+    this.onUpdateFileStatus = function openfiles_onUpdateFileStatus()
     {
-        var viewType = view.getAttribute("type");
-        if (viewType != "editor") {
-            return;
-        }
+        var view = crumbView;
         var koDoc = view && view.koDoc;
         var koFile = koDoc && koDoc.file;
         if (!koDoc || !koFile || !crumbFile || koDoc.isUntitled ||
@@ -796,6 +807,9 @@ var breadcrumbs = function(view) {
      */
     this.onCrumbMenuKeypress = function breadcrumb_onCrumbMenuKeypress(e)
     {
+        if (ko.views.manager.currentView != crumbView)
+            return;
+        
         // Ensure we don't process rogue events due to shady focussing
         if ( ! eventContext.menuShowing)
         {
@@ -1024,12 +1038,11 @@ var breadcrumbs = function(view) {
      * Render all the crumbs to the DOM, prepares crumb info then directs
      * it to drawCrumb()
      *
-     * @param   {Object} view currentView
-     *
      * @returns {Void} 
      */
-    this.drawCrumbs = function breadcrumbs_drawCrumb(view)
+    this.drawCrumbs = function breadcrumbs_drawCrumb()
     {
+        var view = crumbView;
         log.debug('Drawing crumbs for view: ' + view.title + ' :: ' + view.koDoc.file.path);
 
         // Reset the activeCrumb
@@ -1066,7 +1079,7 @@ var breadcrumbs = function(view) {
             // Direct each file in the path to drawCrumb()
             for (let x=files.length-1;x>=0;x--)
             {
-                this.drawCrumb(files[x].leafName, view, files[x]);
+                this.drawCrumb(files[x].leafName, files[x]);
             }
         }
         else
@@ -1078,7 +1091,7 @@ var breadcrumbs = function(view) {
             for (let x=0;x<bits.length;x++)
             {
                 filePath += (filePath == splitter ?  '' : splitter) + bits[x];
-                this.drawCrumb(bits[x], view, filePath);
+                this.drawCrumb(bits[x], filePath);
             }
         }
     };
@@ -1087,12 +1100,11 @@ var breadcrumbs = function(view) {
      * Draw a crumb with the given information
      *
      * @param   {String} name
-     * @param   {Object} view currentView
      * @param   {String} filePath
      *
      * @returns {Void} 
      */
-    this.drawCrumb = function breadcrumbs_drawCrumb(name, view, filePath = false)
+    this.drawCrumb = function breadcrumbs_drawCrumb(name, filePath = false)
     {
         log.debug('Drawing crumb: ' + name);
 
@@ -1100,6 +1112,7 @@ var breadcrumbs = function(view) {
         var uuidGenerator = Cc["@mozilla.org/uuid-generator;1"]
                                 .getService(Ci.nsIUUIDGenerator);
         var uid = uuidGenerator.generateUUID();
+        var view = crumbView;
         
         // Parse our file through our own file "classes" in order to have
         // a uniform interface to access them through
@@ -1260,15 +1273,15 @@ var breadcrumbs = function(view) {
      */
     this.checkOverflow = function breadcrumbs_checkOverflow(noDelay = false)
     {
+        if (ko.views.manager.currentView != crumbView)
+            return;
+        
         if ( ! noDelay)
         {
             clearTimeout(this.checkOverflow._timer);
             this.checkOverflow._timer = setTimeout(this.checkOverflow.bind(this, true), 100);
             return;
         }
-        
-        if (view != koViews.current().get())
-            return;
         
         // Start off with resetting everything to normal
         overflowBtn.setAttribute("collapsed", true);
