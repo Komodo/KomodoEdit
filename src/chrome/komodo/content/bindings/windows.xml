@@ -34,6 +34,8 @@
         <![CDATA[
           var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator);
           var w = wm.getMostRecentWindow("Komodo");
+          
+          if ( ! w) return;
             
           if (typeof require == "undefined")
             var require = w.require;
@@ -76,6 +78,8 @@
         <![CDATA[
           var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator);
           var w = wm.getMostRecentWindow("Komodo");
+          
+          if ( ! w) return;
             
           if (typeof require == "undefined")
             var require = w.require;
@@ -165,7 +169,7 @@
           var w = wm.getMostRecentWindow("Komodo");
           
           var id = document.documentElement.id || window.location.href;
-          var dimensions = w.ko.prefs.getString("windowDimensions-" + id, "").split(",");
+          var dimensions =  w ? w.ko.prefs.getString("windowDimensions-" + id, "").split(",") : [];
           
           var setDimensions;
           if (dimensions.length != 4)
@@ -197,6 +201,8 @@
 
           var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator);
           var w = wm.getMostRecentWindow("Komodo");
+          
+          if ( ! w) return;
           
           var id = document.documentElement.id || window.location.href;
           
@@ -291,7 +297,7 @@
           var w = wm.getMostRecentWindow("Komodo");
           
           var id = document.documentElement.id || window.location.href;
-          var dimensions = w.ko.prefs.getString("windowDimensions-" + id, "").split(",");
+          var dimensions = w ? w.ko.prefs.getString("windowDimensions-" + id, "").split(",") : [];
           
           var setDimensions;
           if (dimensions.length != 4)
@@ -323,6 +329,8 @@
 
           var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator);
           var w = wm.getMostRecentWindow("Komodo");
+          
+          if ( ! w) return;
           
           var id = document.documentElement.id || window.location.href;
           

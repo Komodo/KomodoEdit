@@ -24,13 +24,13 @@ checkbox, radio, tabpanels, listitem, richlistitem, listheader
     color: @foreground; 
 }
 
-label, description, button, toolbarbutton, textbox
+label, description, button, toolbarbutton, textbox, span
 {
     line-height: 1.5rem;
 }
 
 description, listitem, richlistitem, label[id], treecol label, listheader,
-checkbox, radio
+checkbox, radio, span
 {
     padding: 0.2rem 4px;
 }
@@ -50,6 +50,19 @@ caption
         line-height: 1.5rem;
         font-weight: bold;
         padding: 5px 0;
+    }
+}
+
+ul
+{
+    list-style: disc;
+    padding-left: 2rem;
+    margin: 0.5rem 0;
+    
+    li
+    {
+        display: list-item;
+        padding: 0.2rem 0;
     }
 }
 

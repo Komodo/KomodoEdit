@@ -36,4 +36,7 @@ $cons->InstallInChrome('radiogroup.js');
 $cons->InstallInChrome('row.js');
 $cons->InstallInChrome('textbox.js');
 $cons->InstallInChrome('wizardpage.js');
+$cons->InstallInChrome('link.js');
+$cons->InstallInChrome('span.js');
+$cons->InstallInChrome('list.js');
 

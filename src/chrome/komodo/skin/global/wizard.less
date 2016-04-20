@@ -14,13 +14,13 @@
         -moz-box-pack: center;
     }
     
-    wizardpage .ui-label
+    wizardpage .ui-label:not(.fullwidth)
     {
         width: 30vw;
         text-align: right;
     }
     
-    wizardpage .ui-checkbox
+    wizardpage .ui-checkbox:not(.fullwidth)
     {
         margin-left: 30vw;
     }
@@ -29,4 +29,18 @@
     {
         height: 200px;
     }
+    
+}
+
+.wizard-buttons
+{
+    button
+    {
+        margin-left: 4px !important;
+    }
+}
+
+#startup-wizard
+{
+    max-width: 600px;
 }

@@ -17,6 +17,7 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
         var wizard = $("<wizard>").attr("flex", "1");
         wizard.append(this.getPageUI().$element);
         wizard.append(this.getPageEditor().$element);
+        wizard.append(this.getPageFinal().$element);
         
         wizard.on("wizardcancel", this.onCancel);
         wizard.on("wizardfinish", this.onFinish);
@@ -91,6 +92,11 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
         ]);
         
         fields.snippetBehavior.value("auto"); // This is hard to detect given the way this is currently stored
+        
+        fields.analytics = require("ko/ui/checkbox").create("Help make Komodo even better by providing anonymous statistics about your usage");
+        fields.analytics.$element.addClass("fullwidth");
+        fields.analytics.checked( prefs.getBoolean("analytics_enabled") );
+        
     };
     
     this.getFieldKeybindings = () =>
@@ -226,6 +232,7 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
         
         var indentGroupbox = page.addGroupbox({caption: "Indentation"});
         var autoGroupbox = page.addGroupbox({caption: "Automation"});
+        var helpKomodoGroupbox = page.addGroupbox({caption: "Help Komodo"});
         
         indentGroupbox.addRow([
             require("ko/ui/label").create("Indentation Width: "),
@@ -243,9 +250,77 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
         autoGroupbox.addRow(fields.autoDelimiters);
         
         autoGroupbox.addRow(fields.showLineNumbers);
+        
+        helpKomodoGroupbox.addRow(fields.analytics);
                 
         return page;
     };
+    
+    /* jshint multistr: true */
+    this.getPageFinal = () =>
+    {
+        var page = require("ko/ui/wizardpage").create();
+        var textStyle = {attributes: { style: "width: 500px; display: inline-block;" }};
+        
+        var moreGroupbox = page.addGroupbox({caption: "Customize Further?"}).addColumn();
+        var helpGroupbox = page.addGroupbox({caption: "Need Help?"}).addColumn();
+        var resourcesGroupbox = page.addGroupbox({caption: "Additional Resources"}).addColumn();
+        
+        var prefSteps;
+        if (platform == "Darwin")
+            prefSteps = "Komodo > Preferences";
+        else
+            prefSteps = "Edit > Preferences";
+        
+        moreGroupbox.addRow([
+            require("ko/ui/span").create(
+                "Want to Customize Komodo even further? Hit " + prefSteps +
+                " after this window closes to access all of Komodo Preferences.",
+                textStyle
+            )
+        ]);
+        
+        helpGroupbox.addRow([
+            require("ko/ui/span").create(
+                "Need help getting started with Komodo?",
+                textStyle
+            )
+        ]);
+        
+        helpGroupbox.addRow([
+            require("ko/ui/list").create([
+                require("ko/ui/link").create("Documentation", { attributes: { href: "http://docs.komodoide.com" }}),
+                require("ko/ui/link").create("Forums", { attributes: { href: "http://forum.komodoide.com/" }}),
+                require("ko/ui/link").create("Bug Tracker", { attributes: { href: "https://github.com/Komodo/KomodoEdit/issues" }})
+            ])
+        ]);
+        
+        helpGroupbox.addRow([
+            require("ko/ui/span").create(
+                "You can find these links in the Help menu at any time.",
+                textStyle
+            )
+        ]);
+        
+        resourcesGroupbox.addRow([
+            require("ko/ui/span").create(
+                "For additional resources check out",
+                textStyle
+            )
+        ]);
+        
+        resourcesGroupbox.addRow([
+            require("ko/ui/list").create([
+                require("ko/ui/link").create("What's New?", { attributes: { href: "http://komodoide.com/features/" }}),
+                require("ko/ui/link").create("Packages", { attributes: { href: "http://komodoide.com/packages/" }}),
+                require("ko/ui/link").create("Blog", { attributes: { href: "http://komodoide.com/blog/" }}),
+                require("ko/ui/link").create("Buy Komodo IDE", { attributes: { href: "http://komodoide.com/pricing/" }})
+            ])
+        ]);
+        
+        return page;
+    };
+    
     
     this.loadSample = () =>
     {
@@ -305,6 +380,7 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
         prefs.setBoolean("editSmartSoftCharacters", fields.softchars.checked());
         prefs.setLong("tabWidth", fields.indentWidth.value());
         prefs.setLong("indentWidth", fields.indentWidth.value());
+        prefs.setBoolean("analytics_enabled", fields.analytics.checked());
         
         prefs.setBoolean("enableAutoAbbreviations", true);
         if (fields.snippetBehavior.value() == "auto")

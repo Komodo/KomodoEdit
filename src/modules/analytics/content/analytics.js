@@ -41,7 +41,6 @@ ko.analytics = new function()
         //this.debug();
 
         // Retrieve unique user id
-        var firstRun = false;
         var uid = prefs.getString('analytics_ga_uid', '');
         if (uid == '')
         {
@@ -50,43 +49,10 @@ ko.analytics = new function()
             uid = new String(uuidGenerator.generateUUID());
             uid = uid.substr(1).substr(0,uid.length-2);
             prefs.setStringPref('analytics_ga_uid', uid);
-            firstRun = true;
         }
 
         if ( ! prefs.getBoolean('analytics_enabled', false))
         {
-            if (firstRun)
-            {
-                var bundle = Cc["@mozilla.org/intl/stringbundle;1"]
-                            .getService(Ci.nsIStringBundleService)
-                            .createBundle("chrome://analytics/locale/analytics.properties");
-                            
-                var nb = document.getElementById("komodo-notificationbox");
-                var nf = nb.appendNotification(bundle.GetStringFromName("analytics.optin.ask.message"),
-                                      "optin-analytics", null, nb.PRIORITY_INFO_HIGH,
-                [
-                    {
-                        accessKey: bundle.GetStringFromName("analytics.optin.confirm.accessKey"),
-                        callback: () =>
-                        {
-                            prefs.setBooleanPref('analytics_enabled', true);
-                            nb.removeNotification(nf);
-                            this.init();
-
-                            var nf = nb.appendNotification(bundle.GetStringFromName("analytics.optin.thanks.message"),
-                                                  "optin-analytics", null, nb.PRIORITY_INFO_LOW);
-                            setTimeout(nb.removeNotification.bind(nb,nf), 5000);
-                        },
-                        label: bundle.GetStringFromName("analytics.optin.confirm.label")
-                    },
-                    {
-                        accessKey: bundle.GetStringFromName("analytics.optin.deny.accessKey"),
-                        callback: nb.removeNotification.bind(nb, nf),
-                        label: bundle.GetStringFromName("analytics.optin.deny.label")
-                    },
-                ]);
-            }
-            
             return;
         }
 
