@@ -4351,10 +4351,10 @@
 					"id": 50,
 					"order": 0,
 					"ligatures": "",
-					"prevSize": 24,
-					"code": 57394,
-					"name": "record",
-					"tempChar": ""
+					"prevSize": 16,
+					"code": 57399,
+					"name": "record2",
+					"tempChar": ""
 				},
 				{
 					"id": 51,
@@ -25199,11 +25199,13 @@
 					"id": 941
 				},
 				{
-					"order": 0,
+					"order": 203,
 					"prevSize": 16,
 					"ligatures": "eye, views",
-					"name": "eye",
-					"id": 942
+					"name": "eye4",
+					"id": 942,
+					"code": 60590,
+					"tempChar": ""
 				},
 				{
 					"order": 0,
@@ -25241,11 +25243,13 @@
 					"id": 947
 				},
 				{
-					"order": 0,
+					"order": 202,
 					"prevSize": 16,
 					"ligatures": "eye3, views7",
 					"name": "eye3",
-					"id": 948
+					"id": 948,
+					"code": 60596,
+					"tempChar": ""
 				},
 				{
 					"order": 0,
@@ -29944,7 +29948,7 @@
 					"name": "scc",
 					"id": 1606,
 					"code": 61254,
-					"tempChar": ""
+					"tempChar": ""
 				},
 				{
 					"order": 0,
@@ -68508,5 +68512,6 @@
 		"gridSize": 16,
 		"showGrid": true
 	},
-	"uid": -1
+	"uid": -1,
+	"time": 1461105172037
 }

@@ -1987,7 +1987,14 @@
                          tooltiptext="&workspaceToolbar.tooltiptext;">
 
                     <toolbaritem id="workspace-toolbaritem1" persist="kohidden">
-
+                        <toolbarbutton id="toggleFocusMode"
+                            tooltiptext="&toggleFocusMode.tooltiptext;"
+                            persist="buttonstyle kohidden"
+                            buttonstyle="pictures"
+                            type="checkbox"
+                            oncommand="ko.commands.doCommandAsync('cmd_focusmode', event)"
+                            label="&toggleFocusMode.label;">
+                        </toolbarbutton>
                         <toolbarbutton id="toggleLeftPane"
                             tooltiptext="&showHideLeftPane.tooltiptext;"
                             persist="buttonstyle kohidden"
