@@ -21,6 +21,13 @@
         <![CDATA[
           try
           {
+            var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator);
+            var w = wm.getMostRecentWindow("Komodo");
+            if ( ! w) return;
+            
+            var evt = new CustomEvent("window_opened", { detail: window });
+            w.dispatchEvent(evt);
+            
             this.loadVirtualStylesheets();
           }
           catch(e)
@@ -39,9 +46,6 @@
             
           if (typeof require == "undefined")
             var require = w.require;
-          
-          var evt = new CustomEvent("window_opened", { detail: window });
-          window.dispatchEvent(evt);
           
           var styleUtil = require("sdk/stylesheet/utils");
           var styles = require("ko/prefs").getString("virtualStyles").split(",");
@@ -65,6 +69,13 @@
         <![CDATA[
           try
           {
+            var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator);
+            var w = wm.getMostRecentWindow("Komodo");
+            if ( ! w) return;
+            
+            var evt = new CustomEvent("window_opened", { detail: window });
+            w.dispatchEvent(evt);
+            
             this.loadVirtualStylesheets();
           }
           catch(e)
@@ -83,9 +94,6 @@
             
           if (typeof require == "undefined")
             var require = w.require;
-          
-          var evt = new CustomEvent("window_opened", { detail: window });
-          window.dispatchEvent(evt);
           
           var styleUtil = require("sdk/stylesheet/utils");
           var styles = require("ko/prefs").getString("virtualStyles").split(",");

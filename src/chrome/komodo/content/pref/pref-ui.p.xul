@@ -60,22 +60,6 @@
          as it adds a scrollbar when the contents are too long. -->
     <vbox id="ui-prefs-vbox" flex="1" class="autoscroll">
         
-        <groupbox id="pref_appearance_interface2">
-            <caption label="Platform Integration" />
-            
-            <checkbox id="ui.classic.mode" pref="true" label="Enable classic mode"/>
-            <description align="center" pack="center">
-                Classic mode enables native platform styling for various elements,
-                it is highly recommended you use a light interface scheme with classic
-                mode as dark schemes likely do not mesh well with native platform styling.
-            </description>
-            <separator/>
-            
-            <checkbox id="ui.hide.chrome" pref="true" invert="true" label="Use native window borders"/>
-            <checkbox id="ui.classic.toolbar" pref="true" label="Use classic toolbar layout"/>
-            
-        </groupbox>
-
         <groupbox id="pref_appearance_interface">
             <caption label="&interface.caption;" />
         
@@ -111,6 +95,44 @@
             
             <checkbox id="link-schemes" pref="true" label="Use the same color scheme for everything"/>
 
+        </groupbox>
+
+        <groupbox id="pref_appearance_interface2">
+            <caption label="Platform Integration" />
+            
+            <checkbox id="ui.classic.mode" pref="true" label="Enable classic mode"/>
+            <description align="center" pack="center">
+                Classic mode enables native platform styling for various elements,
+                it is highly recommended you use a light interface scheme with classic
+                mode as dark schemes likely do not mesh well with native platform styling.
+            </description>
+            <separator/>
+            
+            <checkbox id="ui.hide.chrome" class="ui-hide-chrome" pref="true" invert="true" label="Use native window borders"/>
+            <checkbox id="ui.classic.toolbar" pref="true" label="Use classic toolbar layout"/>
+            
+            <vbox id="windowButtonPrefs">
+                <separator/>
+                
+                <checkbox id="ui.windowbuttons.left" pref="true" label="Place window buttons on left of titlebar"/>
+                
+                <hbox align="center">
+                    <label control="ui.windowbuttons.min.ordinal" value="Minimize Button Index: "/>
+                    <textbox id="ui.windowbuttons.min.ordinal" pref="true" prefattribute="value"
+                               type="number" min="0" max="2" width="60"/>
+                </hbox>
+                <hbox align="center">
+                    <label control="ui.windowbuttons.max.ordinal" value="Maximize Button Index: "/>
+                    <textbox id="ui.windowbuttons.max.ordinal" pref="true" prefattribute="value"
+                               type="number" min="0" max="2" width="60"/>
+                </hbox>
+                <hbox align="center">
+                    <label control="ui.windowbuttons.close.ordinal" value="Close Button Index: "/>
+                    <textbox id="ui.windowbuttons.close.ordinal" pref="true" prefattribute="value"
+                               type="number" min="0" max="2" width="60"/>
+                </hbox>
+            </vbox>
+            
         </groupbox>
 
         <!--

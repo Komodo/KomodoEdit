@@ -1724,6 +1724,38 @@ this.onload = function uilayout_onload()
         icon: "earth2",
         menuitems: ko.uilayout.populatePreviewToolbarButton
     });
+    
+    this.updateWindowButtons(window);
+    
+    window.addEventListener("window_opened", function (e) {
+        this.updateWindowButtons(e.detail);
+    }.bind(this));
+}
+
+this.updateWindowButtons = function (w) {
+    if ( ! _gPrefs.getBoolean("ui.hide.chrome"))
+        return;
+    
+    var windowButtonsAll = w.document.querySelectorAll("#windowButtons");
+    if ( ! windowButtonsAll)
+        return;
+    
+    var leftSide = _gPrefs.getBoolean("ui.windowbuttons.left");
+    for (let windowButtons of windowButtonsAll) {
+        let children = windowButtons.childNodes;
+        let min = children[0];
+        let max = children[1];
+        let close = children[2];
+        
+        if (leftSide)
+            windowButtons.setAttribute("ordinal", 0);
+        else
+            windowButtons.removeAttribute("ordinal");
+            
+        min.setAttribute("ordinal", _gPrefs.getLong("ui.windowbuttons.min.ordinal", 0)); 
+        max.setAttribute("ordinal", _gPrefs.getLong("ui.windowbuttons.max.ordinal", 1)); 
+        close.setAttribute("ordinal", _gPrefs.getLong("ui.windowbuttons.close.ordinal", 2));
+    }
 }
 
 this.updateViewRef = function(view) {
@@ -1938,6 +1970,12 @@ _PrefObserver.prototype.observe = function(prefSet, prefName, prefSetID)
         else
             document.getElementById("komodo_main").removeAttribute("classic-toolbar");
     }
+    else if (prefName.indexOf("ui.windowbuttons") === 0) {
+        var windows = require("ko/windows").getWindows();
+        for (let w of windows) {
+            ko.uilayout.updateWindowButtons(w);
+        }
+    }
 };
 
 _PrefObserver.topics = [
@@ -1947,7 +1985,11 @@ _PrefObserver.topics = [
     "ui.tabs.sidepanes.bottom.layout",
     "ui.hide.chrome",
     "ui.classic.mode",
-    "ui.classic.toolbar"
+    "ui.classic.toolbar",
+    "ui.windowbuttons.left",
+    "ui.windowbuttons.min.ordinal",
+    "ui.windowbuttons.max.ordinal",
+    "ui.windowbuttons.close.ordinal"
 ];
 
 _PrefObserver.prototype.init = function() {

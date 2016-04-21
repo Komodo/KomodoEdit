@@ -88,32 +88,54 @@ function PrefUi_OnLoad() {
     
     parent.hPrefWindow.onpageload();
     
-    if ($("#link-schemes", window).attr("checked"))
-    {
-        $("#widget-scheme, #editor-scheme", window).attr("disabled", "true");
-    }
-    
-    $("#link-schemes", window).on("command", () =>
-    {
-        var checked = $("#link-schemes", window).attr("checked");
-        if (checked)
+    setTimeout(function () {
+        if ($("#link-schemes", window).attr("checked") == "true")
+        {
             $("#widget-scheme, #editor-scheme", window).attr("disabled", "true");
-        else
-            $("#widget-scheme, #editor-scheme", window).removeAttr("disabled");
-    });
-    
-    $("#interface-scheme", window).on("command", () =>
-    {
-        var checked = $("#link-schemes", window).attr("checked");
-        if ( ! checked) return;
+        }
         
-        var val = $("#interface-scheme", window).attr("value");
-        $(`#widget-scheme`, window).element().selectedItem = $(`#widget-scheme menuitem[label="${val}"]`, window).element();
-        $(`#editor-scheme`, window).element().selectedItem = $(`#editor-scheme menuitem[label="${val}"]`, window).element();
-    });
-    
-    originalValues.editor = $(`#editor-scheme`, window).attr("value");
-    originalValues.interface = $(`#interface-scheme`, window).attr("value");
-    originalValues.widget = $(`#widget-scheme`, window).attr("value");
+        if ($(".ui-hide-chrome", window).attr("checked") == "true")
+        {
+            $("#windowButtonPrefs", window).hide();
+        }
+        
+        $(".ui-hide-chrome", window).on("command", () =>
+        {
+            var checked = $(".ui-hide-chrome", window).attr("checked");
+            if (checked != "true")
+                $("#windowButtonPrefs", window).show();
+            else
+                $("#windowButtonPrefs", window).hide();
+        });
+        
+        $("#link-schemes", window).on("command", () =>
+        {
+            var checked = $("#link-schemes", window).attr("checked");
+            if (checked == "true")
+            {
+                $("#widget-scheme, #editor-scheme", window).attr("disabled", "true");
+                
+                var val = $("#interface-scheme", window).attr("value");
+                $(`#widget-scheme`, window).element().selectedItem = $(`#widget-scheme menuitem[label="${val}"]`, window).element();
+                $(`#editor-scheme`, window).element().selectedItem = $(`#editor-scheme menuitem[label="${val}"]`, window).element();
+            }
+            else
+                $("#widget-scheme, #editor-scheme", window).removeAttr("disabled");
+        });
+        
+        $("#interface-scheme", window).on("command", () =>
+        {
+            var checked = $("#link-schemes", window).attr("checked");
+            if (checked != "true") return;
+            
+            var val = $("#interface-scheme", window).attr("value");
+            $(`#widget-scheme`, window).element().selectedItem = $(`#widget-scheme menuitem[label="${val}"]`, window).element();
+            $(`#editor-scheme`, window).element().selectedItem = $(`#editor-scheme menuitem[label="${val}"]`, window).element();
+        });
+        
+        originalValues.editor = $(`#editor-scheme`, window).attr("value");
+        originalValues.interface = $(`#interface-scheme`, window).attr("value");
+        originalValues.widget = $(`#widget-scheme`, window).attr("value");
+    }, 250);
     
 }
