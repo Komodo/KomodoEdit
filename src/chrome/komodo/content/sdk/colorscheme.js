@@ -8,6 +8,8 @@
     const prefs = require("ko/prefs");
     
     const interfaceMapping = {
+        'font': ['window', 'face'],
+        'size': ['window', 'size'],
         'background': ['window', 'back'],
         'foreground': ['window', 'fore'],
         'contrast': ['contrast', 'back'],

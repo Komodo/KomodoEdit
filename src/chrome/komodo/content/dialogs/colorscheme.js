@@ -868,7 +868,7 @@
         },
         "iface-size": {
             init: () => {
-                $("#iface-size").on("command", () => {
+                $("#iface-size").on("input", () => {
                     this.ensureWriteable();
                     var property = this.getSelectedProperty();
                     selectedScheme.setInterfaceStyle(property.name, "size", $("#iface-size").value());
