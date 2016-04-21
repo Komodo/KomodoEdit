@@ -121,3 +121,17 @@ treechildren::-moz-tree-image(LanguageXBL),
 treechildren::-moz-tree-image(LanguageXUL) {
   list-style-image: url("koicon://ko-language/XUL");
 }
+
+toolbarbutton[anonid="statusbar-language-menu"]
+{
+  & > .toolbarbutton-icon
+  {
+    margin-right: 4px;
+  }
+  
+  .menu-iconic-left,
+  .menu-iconic-left > image
+  {
+    visibility: visible !important;
+  }
+}
