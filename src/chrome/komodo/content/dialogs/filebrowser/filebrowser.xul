@@ -95,7 +95,7 @@
                 <menupopup id="serverMenu" onpopupshowing="refreshServerMenu();"/>
             </menulist>
             <!--<button label="&new.label;" oncommand="goServerPrefs();"/> -->
-            <button class="server-pref-icon button-toolbar-a" tooltip="dialogTooltip" tooltiptext="&accounts.tooltiptext;"
+            <button class="preferences-icon button-toolbar-a" tooltip="dialogTooltip" tooltiptext="&accounts.tooltiptext;"
                 oncommand="goServerPrefs();"/>
         </row>
         <!--<separator class="thin" />-->
@@ -104,10 +104,26 @@
             <menulist id="lookInMenuList" flex="1" oncommand="onDirectoryChanged(event.target);" crop="left">
                 <menupopup id="lookInMenu"/>
             </menulist>
-            <button class="goback-icon button-toolbar-a" oncommand="goLast();" tooltip="dialogTooltip" tooltiptext="&goToTheLastVisitedDirectory.tooltiptext;"/>
-            <button class="upfolder-icon button-toolbar-a" oncommand="goUp();" tooltip="dialogTooltip" tooltiptext="&goUpOneDirectory.tooltiptext;"/>
-            <button class="newfolder-icon button-toolbar-a" oncommand="doMKDIR();" tooltip="dialogTooltip" tooltiptext="&createDirectory.tooltiptext;"/>
-            <button class="refresh-icon button-toolbar-a" oncommand="doRefresh();" tooltip="dialogTooltip" tooltiptext="&refreshList.tooltiptext;"/>
+            <button
+                class="goback-icon button-toolbar-a"
+                oncommand="goLast();"
+                tooltip="dialogTooltip"
+                tooltiptext="&goToTheLastVisitedDirectory.tooltiptext;"/>
+            <button
+                class="upfolder-icon button-toolbar-a"
+                oncommand="goUp();"
+                tooltip="dialogTooltip"
+                tooltiptext="&goUpOneDirectory.tooltiptext;"/>
+            <button
+                class="newfolder-icon button-toolbar-a"
+                oncommand="doMKDIR();"
+                tooltip="dialogTooltip"
+                tooltiptext="&createDirectory.tooltiptext;"/>
+            <button
+                class="refresh-icon button-toolbar-a"
+                oncommand="doRefresh();"
+                tooltip="dialogTooltip"
+                tooltiptext="&refreshList.tooltiptext;"/>
         </row>
         <!--<separator class="thin" />-->
     </rows>
