@@ -1,0 +1,457 @@
+This patch adds HiDPI support to Gtk2. It is composed of two parts:
+  (1) A "pre-patch" that adds some code introduced between Komodo's version of
+      Mozilla (35) and the version of Mozilla the main patch applies to.
+      This was produced by ActiveState.
+  (2) The main patch for HiDPI added by RedHat to Mozilla.
+
+diff --git a/widget/gtk/nsScreenGtk.cpp b/widget/gtk/nsScreenGtk.cpp
+--- a/widget/gtk/nsScreenGtk.cpp
++++ b/widget/gtk/nsScreenGtk.cpp
+@@ -9,10 +9,15 @@
+ #ifdef MOZ_X11
+ #include <gdk/gdkx.h>
+ #include <X11/Xatom.h>
+ #endif
+ #include <gtk/gtk.h>
++#include <dlfcn.h>
++#include "gfxPlatformGtk.h"
++// I do not know how else to get nsIWidget::DefaultScaleOverride(). Combing the
++// Mozilla source and hg history did not yield anything fruitful.
++#include "nsIWidget.h"
+ 
+ static uint32_t sScreenId = 0;
+ 
+ 
+ nsScreenGtk :: nsScreenGtk (  )
+diff --git a/widget/gtk/nsWindow.h b/widget/gtk/nsWindow.h
+--- a/widget/gtk/nsWindow.h
++++ b/widget/gtk/nsWindow.h
+@@ -923,10 +923,11 @@
+                               nsDeviceContext *aContext,
+                               nsWidgetInitData *aInitData);
+     NS_IMETHOD         Destroy(void);
+     virtual nsIWidget *GetParent();
+     virtual float      GetDPI();
++    virtual double     GetDefaultScaleInternal();
+     virtual nsresult   SetParent(nsIWidget* aNewParent);
+     NS_IMETHOD         SetModal(bool aModal);
+     virtual bool       IsVisible() const;
+     NS_IMETHOD         ConstrainPosition(bool aAllowSlop,
+                                          int32_t *aX,
+# HG changeset patch
+# User Martin Stransky <stransky@redhat.com>
+# Date 1423552440 18000
+# Node ID bcc6332c88bc8211e3ce957ff987c7522fa61f2d
+# Parent  b228f986968bbb0bd4231b37380641c2e65e5cad
+Bug 1097897 - Add HiDPI support (scale) for Gtk2 and update and fix calculation of scaled screen borders. r=karlt
+
+diff --git a/gfx/thebes/gfxPlatformGtk.cpp b/gfx/thebes/gfxPlatformGtk.cpp
+--- a/gfx/thebes/gfxPlatformGtk.cpp
++++ b/gfx/thebes/gfxPlatformGtk.cpp
+@@ -224,16 +224,26 @@ gfxPlatformGtk::GetDPI()
+         if (sDPI <= 0) {
+             // Fall back to something sane
+             sDPI = 96;
+         }
+     }
+     return sDPI;
+ }
+ 
++double
++gfxPlatformGtk::GetDPIScale()
++{
++    // We want to set the default CSS to device pixel ratio as the
++    // closest _integer_ multiple, so round the ratio of actual dpi
++    // to CSS dpi (96)
++    int32_t dpi = GetDPI();
++    return (dpi > 96) ? round(dpi/96.0) : 1.0;
++}
++
+ gfxImageFormat
+ gfxPlatformGtk::GetOffscreenFormat()
+ {
+     // Make sure there is a screen
+     GdkScreen *screen = gdk_screen_get_default();
+     if (screen && gdk_visual_get_depth(gdk_visual_get_system()) == 16) {
+         return gfxImageFormat::RGB16_565;
+     }
+diff --git a/gfx/thebes/gfxPlatformGtk.h b/gfx/thebes/gfxPlatformGtk.h
+--- a/gfx/thebes/gfxPlatformGtk.h
++++ b/gfx/thebes/gfxPlatformGtk.h
+@@ -77,16 +77,17 @@ public:
+ 
+ #if (MOZ_WIDGET_GTK == 2)
+     static void SetGdkDrawable(cairo_surface_t *target,
+                                GdkDrawable *drawable);
+     static GdkDrawable *GetGdkDrawable(cairo_surface_t *target);
+ #endif
+ 
+     static int32_t GetDPI();
++    static double  GetDPIScale();
+ 
+     bool UseXRender() {
+ #if defined(MOZ_X11)
+         if (GetContentBackend() != mozilla::gfx::BackendType::NONE &&
+             GetContentBackend() != mozilla::gfx::BackendType::CAIRO)
+             return false;
+ 
+         return sUseXRender;
+diff --git a/widget/gtk/nsScreenGtk.cpp b/widget/gtk/nsScreenGtk.cpp
+--- a/widget/gtk/nsScreenGtk.cpp
++++ b/widget/gtk/nsScreenGtk.cpp
+@@ -58,16 +58,57 @@ nsScreenGtk :: GetAvailRect(int32_t *out
+   *outTop = mAvailRect.y;
+   *outWidth = mAvailRect.width;
+   *outHeight = mAvailRect.height;
+ 
+   return NS_OK;
+   
+ } // GetAvailRect
+ 
++double
++nsScreenGtk :: GetDPIScale()
++{
++  double dpiScale = nsIWidget::DefaultScaleOverride();
++  if (dpiScale <= 0.0) {
++    dpiScale = gfxPlatformGtk::GetDPIScale();
++  }
++  return dpiScale;
++}
++
++NS_IMETHODIMP
++nsScreenGtk :: GetRectDisplayPix(int32_t *outLeft,  int32_t *outTop, int32_t *outWidth, int32_t *outHeight)
++{
++  int32_t left, top, width, height;
++
++  GetRect(&left, &top, &width, &height);
++
++  double scaleFactor = 1.0 / GetDPIScale();
++  *outLeft = NSToIntRound(left * scaleFactor);
++  *outTop = NSToIntRound(top * scaleFactor);
++  *outWidth = NSToIntRound(width * scaleFactor);
++  *outHeight = NSToIntRound(height * scaleFactor);
++
++  return NS_OK;
++}
++
++NS_IMETHODIMP
++nsScreenGtk :: GetAvailRectDisplayPix(int32_t *outLeft,  int32_t *outTop,  int32_t *outWidth, int32_t *outHeight)
++{
++  int32_t left, top, width, height;
++
++  GetAvailRect(&left, &top, &width, &height);
++
++  double scaleFactor = 1.0 / GetDPIScale();
++  *outLeft = NSToIntRound(left * scaleFactor);
++  *outTop = NSToIntRound(top * scaleFactor);
++  *outWidth = NSToIntRound(width * scaleFactor);
++  *outHeight = NSToIntRound(height * scaleFactor);
++
++  return NS_OK;
++}
+ 
+ NS_IMETHODIMP 
+ nsScreenGtk :: GetPixelDepth(int32_t *aPixelDepth)
+ {
+   GdkVisual * visual = gdk_screen_get_system_visual(gdk_screen_get_default());
+   *aPixelDepth = gdk_visual_get_depth(visual);
+ 
+   return NS_OK;
+diff --git a/widget/gtk/nsScreenGtk.h b/widget/gtk/nsScreenGtk.h
+--- a/widget/gtk/nsScreenGtk.h
++++ b/widget/gtk/nsScreenGtk.h
+@@ -28,24 +28,28 @@ class nsScreenGtk : public nsBaseScreen
+ {
+ public:
+   nsScreenGtk();
+   ~nsScreenGtk();
+ 
+   NS_IMETHOD GetId(uint32_t* aId);
+   NS_IMETHOD GetRect(int32_t* aLeft, int32_t* aTop, int32_t* aWidth, int32_t* aHeight);
+   NS_IMETHOD GetAvailRect(int32_t* aLeft, int32_t* aTop, int32_t* aWidth, int32_t* aHeight);
++  NS_IMETHOD GetRectDisplayPix(int32_t *outLeft, int32_t *outTop, int32_t *outWidth, int32_t *outHeight);
++  NS_IMETHOD GetAvailRectDisplayPix(int32_t *outLeft, int32_t *outTop, int32_t *outWidth, int32_t *outHeight);
+   NS_IMETHOD GetPixelDepth(int32_t* aPixelDepth);
+   NS_IMETHOD GetColorDepth(int32_t* aColorDepth);
+ 
+   void Init(GdkWindow *aRootWindow);
+ #ifdef MOZ_X11
+   void Init(XineramaScreenInfo *aScreenInfo);
+ #endif /* MOZ_X11 */
+ 
++  static double GetDPIScale();
++
+ private:
+   uint32_t mScreenNum;
+   nsIntRect mRect;
+   nsIntRect mAvailRect;
+   uint32_t mId;
+ };
+ 
+-#endif  // nsScreenGtk_h___ 
++#endif  // nsScreenGtk_h___
+diff --git a/widget/gtk/nsScreenManagerGtk.cpp b/widget/gtk/nsScreenManagerGtk.cpp
+--- a/widget/gtk/nsScreenManagerGtk.cpp
++++ b/widget/gtk/nsScreenManagerGtk.cpp
+@@ -214,29 +214,48 @@ nsScreenManagerGtk :: ScreenForId ( uint
+ 
+ 
+ //
+ // ScreenForRect 
+ //
+ // Returns the screen that contains the rectangle. If the rect overlaps
+ // multiple screens, it picks the screen with the greatest area of intersection.
+ //
+-// The coordinates are in pixels (not app units) and in screen coordinates.
++// The coordinates are in CSS pixels (not app units) and in screen coordinates.
+ //
+ NS_IMETHODIMP
+-nsScreenManagerGtk :: ScreenForRect ( int32_t aX, int32_t aY,
+-                                      int32_t aWidth, int32_t aHeight,
+-                                      nsIScreen **aOutScreen )
++nsScreenManagerGtk :: ScreenForRect( int32_t aX, int32_t aY,
++                                     int32_t aWidth, int32_t aHeight,
++                                     nsIScreen **aOutScreen )
++{
++  uint32_t scale = nsScreenGtk::GetDPIScale();
++  return ScreenForRectPix(aX*scale, aY*scale, aWidth*scale, aHeight*scale,
++                          aOutScreen);
++}
++
++//
++// ScreenForRectPix
++//
++// Returns the screen that contains the rectangle. If the rect overlaps
++// multiple screens, it picks the screen with the greatest area of intersection.
++//
++// The coordinates are in device (X11) pixels.
++//
++nsresult
++nsScreenManagerGtk :: ScreenForRectPix( int32_t aX, int32_t aY,
++                                        int32_t aWidth, int32_t aHeight,
++                                        nsIScreen **aOutScreen )
+ {
+   nsresult rv;
+   rv = EnsureInit();
+   if (NS_FAILED(rv)) {
+     NS_ERROR("nsScreenManagerGtk::EnsureInit() failed from ScreenForRect");
+     return rv;
+   }
++
+   // which screen ( index from zero ) should we return?
+   uint32_t which = 0;
+   // Optimize for the common case.  If the number of screens is only
+   // one then this will fall through with which == 0 and will get the
+   // primary screen.
+   if (mCachedScreenArray.Count() > 1) {
+     // walk the list of screens and find the one that has the most
+     // surface area.
+@@ -302,17 +321,17 @@ nsScreenManagerGtk :: GetNumberOfScreens
+   *aNumberOfScreens = mCachedScreenArray.Count();
+   return NS_OK;
+   
+ } // GetNumberOfScreens
+ 
+ NS_IMETHODIMP
+ nsScreenManagerGtk::GetSystemDefaultScale(float *aDefaultScale)
+ {
+-  *aDefaultScale = 1.0f;
++  *aDefaultScale = nsScreenGtk::GetDPIScale();
+   return NS_OK;
+ }
+ 
+ NS_IMETHODIMP
+ nsScreenManagerGtk :: ScreenForNativeWidget (void *aWidget, nsIScreen **outScreen)
+ {
+   nsresult rv;
+   rv = EnsureInit();
+@@ -332,15 +351,15 @@ nsScreenManagerGtk :: ScreenForNativeWid
+ 
+ #if (MOZ_WIDGET_GTK == 2)
+     gdk_window_get_geometry(GDK_WINDOW(aWidget), &x, &y, &width, &height,
+                             &depth);
+ #else
+     gdk_window_get_geometry(GDK_WINDOW(aWidget), &x, &y, &width, &height);
+ #endif
+     gdk_window_get_origin(GDK_WINDOW(aWidget), &x, &y);
+-    rv = ScreenForRect(x, y, width, height, outScreen);
++    rv = ScreenForRectPix(x, y, width, height, outScreen);
+   } else {
+     rv = GetPrimaryScreen(outScreen);
+   }
+ 
+   return rv;
+ }
+diff --git a/widget/gtk/nsScreenManagerGtk.h b/widget/gtk/nsScreenManagerGtk.h
+--- a/widget/gtk/nsScreenManagerGtk.h
++++ b/widget/gtk/nsScreenManagerGtk.h
+@@ -32,21 +32,24 @@ public:
+   
+   // For internal use, or reinitialization from change notification.
+   nsresult Init();
+ 
+ private:
+   virtual ~nsScreenManagerGtk();
+ 
+   nsresult EnsureInit();
++  nsresult ScreenForRectPix(int32_t aX, int32_t aY,
++                            int32_t aWidth, int32_t aHeight,
++                            nsIScreen **aOutScreen);
+ 
+   // Cached screen array.  Its length is the number of screens we have.
+   nsCOMArray<nsIScreen> mCachedScreenArray;
+ 
+   PRLibrary *mXineramalib;
+ 
+   GdkWindow *mRootWindow;
+ #ifdef MOZ_X11
+   Atom mNetWorkareaAtom;
+ #endif
+ };
+ 
+-#endif  // nsScreenManagerGtk_h___ 
++#endif  // nsScreenManagerGtk_h___
+diff --git a/widget/gtk/nsWindow.cpp b/widget/gtk/nsWindow.cpp
+--- a/widget/gtk/nsWindow.cpp
++++ b/widget/gtk/nsWindow.cpp
+@@ -14,16 +14,17 @@
+ #include "prlink.h"
+ #include "nsGTKToolkit.h"
+ #include "nsIRollupListener.h"
+ #include "nsIDOMNode.h"
+ 
+ #include "nsWidgetsCID.h"
+ #include "nsDragService.h"
+ #include "nsIWidgetListener.h"
++#include "nsIScreenManager.h"
+ 
+ #include "nsGtkKeyUtils.h"
+ #include "nsGtkCursors.h"
+ 
+ #include <gtk/gtk.h>
+ #if (MOZ_WIDGET_GTK == 3)
+ #include <gtk/gtkx.h>
+ #endif
+@@ -732,16 +733,26 @@ nsWindow::GetDPI()
+     int defaultScreen = DefaultScreen(dpy);
+     double heightInches = DisplayHeightMM(dpy, defaultScreen)/MM_PER_INCH_FLOAT;
+     if (heightInches < 0.25) {
+         // Something's broken, but we'd better not crash.
+         return 96.0f;
+     }
+     return float(DisplayHeight(dpy, defaultScreen)/heightInches);
+ }
++
++double
++nsWindow::GetDefaultScaleInternal()
++{
++#if (MOZ_WIDGET_GTK == 3)
++    return GdkScaleFactor();
++#else
++    return gfxPlatformGtk::GetDPIScale();
++#endif
++}
+ 
+ NS_IMETHODIMP
+ nsWindow::SetParent(nsIWidget *aNewParent)
+ {
+     if (mContainer || !mGdkWindow) {
+         NS_NOTREACHED("nsWindow::SetParent called illegally");
+         return NS_ERROR_NOT_IMPLEMENTED;
+     }
+@@ -873,39 +878,71 @@ bool
+ nsWindow::IsVisible() const
+ {
+     return mIsShown;
+ }
+ 
+ NS_IMETHODIMP
+ nsWindow::ConstrainPosition(bool aAllowSlop, int32_t *aX, int32_t *aY)
+ {
+-    if (mIsTopLevel && mShell) {
+-        int32_t screenWidth = gdk_screen_width();
+-        int32_t screenHeight = gdk_screen_height();
+-        if (aAllowSlop) {
+-            if (*aX < (kWindowPositionSlop - mBounds.width))
+-                *aX = kWindowPositionSlop - mBounds.width;
+-            if (*aX > (screenWidth - kWindowPositionSlop))
+-                *aX = screenWidth - kWindowPositionSlop;
+-            if (*aY < (kWindowPositionSlop - mBounds.height))
+-                *aY = kWindowPositionSlop - mBounds.height;
+-            if (*aY > (screenHeight - kWindowPositionSlop))
+-                *aY = screenHeight - kWindowPositionSlop;
+-        } else {
+-            if (*aX < 0)
+-                *aX = 0;
+-            if (*aX > (screenWidth - mBounds.width))
+-                *aX = screenWidth - mBounds.width;
+-            if (*aY < 0)
+-                *aY = 0;
+-            if (*aY > (screenHeight - mBounds.height))
+-                *aY = screenHeight - mBounds.height;
+-        }
+-    }
++    if (!mIsTopLevel || !mShell)  
++      return NS_OK;
++
++    double dpiScale = GetDefaultScale().scale;
++
++    // we need to use the window size in logical screen pixels
++    int32_t logWidth = std::max(NSToIntRound(mBounds.width / dpiScale), 1);
++    int32_t logHeight = std::max(NSToIntRound(mBounds.height / dpiScale), 1);  
++
++    /* get our playing field. use the current screen, or failing that
++      for any reason, use device caps for the default screen. */
++    nsCOMPtr<nsIScreen> screen;
++    nsCOMPtr<nsIScreenManager> screenmgr = do_GetService("@mozilla.org/gfx/screenmanager;1");
++    if (screenmgr) {
++      screenmgr->ScreenForRect(*aX, *aY, logWidth, logHeight,
++                               getter_AddRefs(screen));
++    }
++
++    // We don't have any screen so leave the coordinates as is
++    if (!screen)
++      return NS_OK;
++
++    nsIntRect screenRect;
++    if (mSizeMode != nsSizeMode_Fullscreen) {
++      // For normalized windows, use the desktop work area.
++      screen->GetAvailRectDisplayPix(&screenRect.x, &screenRect.y,
++                                     &screenRect.width, &screenRect.height);
++    } else {
++      // For full screen windows, use the desktop.
++      screen->GetRectDisplayPix(&screenRect.x, &screenRect.y,
++                                &screenRect.width, &screenRect.height);
++    }
++
++    if (aAllowSlop) {
++      if (*aX < screenRect.x - logWidth + kWindowPositionSlop)
++          *aX = screenRect.x - logWidth + kWindowPositionSlop;
++      else if (*aX >= screenRect.XMost() - kWindowPositionSlop)
++          *aX = screenRect.XMost() - kWindowPositionSlop;
++
++      if (*aY < screenRect.y - logHeight + kWindowPositionSlop)
++          *aY = screenRect.y - logHeight + kWindowPositionSlop;
++      else if (*aY >= screenRect.YMost() - kWindowPositionSlop)
++          *aY = screenRect.YMost() - kWindowPositionSlop;
++    } else {  
++      if (*aX < screenRect.x)
++          *aX = screenRect.x;
++      else if (*aX >= screenRect.XMost() - logWidth)
++          *aX = screenRect.XMost() - logWidth;
++
++      if (*aY < screenRect.y)
++          *aY = screenRect.y;
++      else if (*aY >= screenRect.YMost() - logHeight)
++          *aY = screenRect.YMost() - logHeight;
++    }
++
+     return NS_OK;
+ }
+ 
+ void nsWindow::SetSizeConstraints(const SizeConstraints& aConstraints)
+ {
+     mSizeConstraints.mMinSize = GetSafeWindowSize(aConstraints.mMinSize);
+     mSizeConstraints.mMaxSize = GetSafeWindowSize(aConstraints.mMaxSize);
+ 
+
