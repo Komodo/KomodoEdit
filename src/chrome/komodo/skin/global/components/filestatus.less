@@ -1,0 +1,26 @@
+.file-collab-icon:not([collab_status]),
+.file-readonly-icon:not([file_readonly="readonly"]),
+.file-publishing-status-icon:not([file_publishingStatus])
+{
+    visibility: collapse;
+}
+
+.file-collab-icon[collab_status="collaboration_online"] {
+    color: @state-ok;
+}
+.file-collab-icon[collab_status="collaboration_offline"] {
+    color: @state-error;
+}
+
+.file-publishing-status-icon[file_publishingStatus="in_sync"] {
+    color: @scc-ok;
+}
+.file-publishing-status-icon[file_publishingStatus="added"] {
+    color: @scc-new;
+}
+.file-publishing-status-icon[file_publishingStatus="edited"] {
+    color: @scc-modified;
+}
+.file-publishing-status-icon[file_publishingStatus="conflict"] {
+    color: @scc-conflict;
+}

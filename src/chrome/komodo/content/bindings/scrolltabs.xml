@@ -59,9 +59,7 @@
                 <xul:label class="tab-text" xbl:inherits="collapsed=clean,disabled,selected"
                            collapsed="true" value="*"/>
                 <xul:hbox flex="0" class="tab-icons file-status-icons file-status-icons-end" align="center" pack="center">
-                    <xul:image class="tab-icon file-status-icon" xbl:inherits="validate,disabled,file_status,tooltiptext=filestatustip"/>
-                    <xul:image class="tab-icon file-readonly-icon" xbl:inherits="validate,disabled,file_readonly,tooltiptext=locktip"/>
-                    <xul:image class="tab-icon file-status2-icon" xbl:inherits="validate,disabled,file_status2,tooltiptext=filestatus2tip"/>
+                    <xul:box class="tab-icon file-readonly-icon" xbl:inherits="validate,disabled,file_readonly,tooltiptext=locktip"/>
                 </xul:hbox>
                 <xul:spacer flex="1"/>
                 <xul:toolbarbutton anonid="close-button" xbl:inherits="selected"
