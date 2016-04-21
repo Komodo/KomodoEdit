@@ -384,5 +384,28 @@ Setup to Build a Komodo Installer
 
 TODO
 
+Manually Patching Mozilla and Testing
+=====================================
 
+There may come a time when you have to patch Mozilla or test an upstream patch
+to Mozilla, but you don't want to waste an hour or two rebuilding the whole
+thing from scratch. Here's how to do this:
 
+0. The Mozilla source is located in "mozilla/build/mozXXYY-koXX.YY/mozilla/".
+1. `cd mozilla/build/mozXXYY-koXX.YY/mozilla/`
+2. Make your changes to Mozilla (manually, or via patch files, etc.).
+3. Rebuild only the parts of Mozilla affected by your patch by running
+   `./mach build`
+4. Go back to Komodo's "mozilla/" directory with `cd ../../../`
+5. `python build.py pyxpcom`
+6. `python build.py silo_python`
+   Note: If there are errors about a libpython2.7.so, remove:
+     + build/mozXXYY-koXX/mozilla/ko-rel/dist/libs/libpython2.7.so
+     + build/mozXXYY-koXX/mozilla/ko-rel/dist/bin/libpython2.7.so
+   Then re-run `python build.py silo_python`
+7. `python build.py regmozbuild`
+8. Now you can re-build Komodo as normal.
+
+Note: Steps 5, 6, and 7 come from the `python build.py all` target, which
+normally rebuilds Mozilla from scratch. You only need to re-run the targets
+after "build.py"'s "mozilla" target. That's why steps 5, 6, and 7 exist.
