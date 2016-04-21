@@ -992,7 +992,6 @@ if (typeof(ko.widgets)=='undefined') {
                     }
                     let menuitem = document.createElement("menuitem");
                     for (let [k,v] in Iterator({label: data.label,
-                                                type: "checkbox",
                                                 widget: id}))
                     {
                         menuitem.setAttribute(k, v);

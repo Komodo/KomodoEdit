@@ -77,3 +77,4 @@ $cons->InstallInChrome('toolbar.xml');
 $cons->InstallInChrome('windows.xml');
 $cons->Preprocess('wizard.p.xml', 'wizard.xml');
 $cons->InstallInChrome('wizard.xml');
+$cons->InstallInChrome('menu.xml');

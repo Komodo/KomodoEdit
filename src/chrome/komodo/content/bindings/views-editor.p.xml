@@ -59,24 +59,7 @@
                     </xul:hbox>
                 </xul:deck>
             </xul:statusbarpanel>
-
-            <xul:statusbarpanel anonid="statusbar-encoding"
-                                style="min-width: 5rem"
-                            tooltiptext="&fileEncoding.tooltiptext;"
-                            >
-                <xul:toolbarbutton class="statusbar-label"
-                      anonid="statusbar-encoding-label"
-                      flex="1"
-                      orient="horizontal"
-                      type="menu"
-                      persist="buttonstyle"
-                      label="--"
-                      buttonstyle="text">
-                    <xul:menupopup anonid="statusbar-encoding-menupopup"
-                               onpopupshowing="ko.statusBar.setupEncodingMenu(this);" />
-                </xul:toolbarbutton>
-            </xul:statusbarpanel>
-
+            
             <xul:statusbarpanel anonid="statusbar-language"
                                 style="min-width: 5rem"
                             pack="end"
@@ -93,6 +76,23 @@
                     <xul:menupopup anonid="statusbar-filetype-menu"
                                position="before_end"
                                onpopupshowing="ko.uilayout.updateViewAsLanguageMenu(this);" />
+                </xul:toolbarbutton>
+            </xul:statusbarpanel>
+
+            <xul:statusbarpanel anonid="statusbar-encoding"
+                                style="min-width: 5rem"
+                            tooltiptext="&fileEncoding.tooltiptext;"
+                            >
+                <xul:toolbarbutton class="statusbar-label"
+                      anonid="statusbar-encoding-label"
+                      flex="1"
+                      orient="horizontal"
+                      type="menu"
+                      persist="buttonstyle"
+                      label="--"
+                      buttonstyle="text">
+                    <xul:menupopup anonid="statusbar-encoding-menupopup"
+                               onpopupshowing="ko.statusBar.setupEncodingMenu(this);" />
                 </xul:toolbarbutton>
             </xul:statusbarpanel>
 

@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<!-- Copyright (c) 2000-2016 ActiveState Software Inc. -->
+<!-- See the file LICENSE.txt for licensing information. -->
+
+<bindings xmlns="http://www.mozilla.org/xbl"
+          xmlns:xbl="http://www.mozilla.org/xbl"
+          xmlns:html="http://www.w3.org/1999/xhtml"
+          xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+    
+  <binding id="menuitem-iconic" extends="chrome://global/content/bindings/menu.xml#menuitem">
+    <content>
+      <xul:hbox class="menu-iconic-checker">
+      </xul:hbox>
+      <xul:hbox class="menu-iconic-left" align="center" pack="center"
+                xbl:inherits="selected,_moz-menuactive,disabled,checked">
+        <xul:image class="menu-iconic-icon" xbl:inherits="src=image,validate,src"/>
+      </xul:hbox>
+      <xul:label class="menu-iconic-text" flex="1" xbl:inherits="value=label,accesskey,crop" crop="right"/>
+      <xul:hbox class="menu-accel-container" anonid="accel">
+        <xul:label class="menu-iconic-accel" xbl:inherits="value=acceltext"/>
+      </xul:hbox>
+    </content>
+  </binding>
+  
+</bindings>

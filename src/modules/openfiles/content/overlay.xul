@@ -142,6 +142,7 @@
         <menuitem
             id="menu_toggleTabBar"
             label="&viewEditorTabs.label;"
+            type="checkbox"
             observes="cmd_toggleTabBar"
             position="3"
             tooltiptext="&viewEditorTabs.tooltip;"/>

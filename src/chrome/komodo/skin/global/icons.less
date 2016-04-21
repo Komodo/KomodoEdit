@@ -266,6 +266,18 @@ checkbox:not(.label-only)
     &[checked="true"] .checkbox-spacer-box { .icon-check-square(); }
 }
 
+menuitem[type="checkbox"]
+{
+    & > .menu-iconic-checker
+    {
+        .icon();
+        margin-right: 4px;
+    }
+    
+    &:not([checked="true"]) > .menu-iconic-checker { .icon-square(); }
+    &[checked="true"] > .menu-iconic-checker { .icon-check-square(); }
+}
+
 radio 
 {
     .radio-label-box
@@ -275,6 +287,18 @@ radio
     
     &:not([selected="true"]) .radio-label-box { .icon-circle(); }
     &[selected="true"] .radio-label-box { .icon-check-circle(); }
+}
+
+menuitem[type="radio"]
+{
+    & > .menu-iconic-checker
+    {
+        .icon();
+        margin-right: 4px;
+    }
+    
+    &:not([checked="true"]) > .menu-iconic-checker { .icon-circle(); }
+    &[checked="true"] > .menu-iconic-checker { .icon-check-circle(); }
 }
 
 treechildren::-moz-tree-image,
