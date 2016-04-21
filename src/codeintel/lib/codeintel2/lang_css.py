@@ -1244,9 +1244,9 @@ class CSSSelector:
     CLASS = "class"
     ID = "id"
     # Matcher for multiple ID and Class names in a selector.
-    CSS_ID_OR_CLASS = re.compile('([#.][A-Za-z0-9_-]+)(::?[A-Za-z-]+(\\([^\\)]+\\))?|\\[[^\\]]+\\])?')
+    CSS_ID_OR_CLASS = re.compile('([#.][A-Za-z0-9_-]+)(::?[A-Za-z-]+(\\([^\\)]+\\))?|(?:\\[[^\\]]+\\])+)?')
     # Matcher for a single ID or Class name in a selector (at its end).
-    CSS_IDENT = re.compile('([#.]?[A-Za-z0-9_-]+)(::?[A-Za-z-]+(\\([^\\)]+\\))?|\\[[^\\]]+\\])?$')
+    CSS_IDENT = re.compile('([#.]?[A-Za-z0-9_-]+|&)(::?[A-Za-z-]+(\\([^\\)]+\\))?|(?:\\[[^\\]]+\\])+)?$')
     
     def __init__(self, text, line, target):
         """
