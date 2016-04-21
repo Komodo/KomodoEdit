@@ -864,7 +864,7 @@ if (typeof ko.openfiles == 'undefined')
             
             // Bind click event on the close button
             listItem.querySelector('.file-close-button').addEventListener(
-                "mouseup", function(e) {
+                "click", function(e) {
                     if (e.which != 1) // Only allow left click
                         return;
                     
