@@ -1913,7 +1913,6 @@ function _updateHiddenToolbars()
 }
 
 // A pref observer to watch for ui-related pref changes.
-warnedRestart = false;
 function _PrefObserver() {};
 _PrefObserver.prototype.observe = function(prefSet, prefName, prefSetID)
 {
@@ -1952,13 +1951,19 @@ _PrefObserver.prototype.observe = function(prefSet, prefName, prefSetID)
         
         ko.uilayout.updateToolboxVisibility();
         
-        if (require("sdk/system").platform == 'darwin' && ! warnedRestart) {
-            alert('Please restart Komodo for native window border changes to take effect');
-            
-            warnedRestart = true;
-            setTimeout(function() {
-                warnedRestart = false;
-            }, 300000);
+        if (require("sdk/system").platform == 'darwin') {
+            var nb = document.getElementById("komodo-notificationbox");
+            if (("_uiChromeRestart" in nb) && nb._uiChromeRestart)
+                nb.removeNotification(nb._uiChromeRestart);
+            nb._uiChromeRestart = nb.appendNotification("Please restart Komodo for native window border changes to take effect",
+                                  "skin-restart", null, nb.PRIORITY_INFO_HIGH,
+            [
+                {
+                    accessKey: "r",
+                    callback: ko.utils.restart,
+                    label: "Restart Komodo"
+                }
+            ]);
         }
     }
     else if (prefName == "ui.classic.mode") {
