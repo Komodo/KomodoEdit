@@ -385,17 +385,17 @@ VimController.MODE_FIND_CHAR    = 10; // Used for vi "f", "F", "t", "T" commands
 
 // Matching string names for _mode
 VimController.MODE_NAMES = [
-    "Normal",
-    "Insert",
-    "Select",
-    "Search",
-    "Command",
-    "Visual",
-    "Set register",
     "",
-    "Replace char",
-    "Overtype",
-    "Find char",
+    "-- INSERT --",
+    "-- SELECT --",
+    "-- SEARCH --",
+    "-- COMMAND --",
+    "-- VISUAL --",
+    "-- SET --",
+    "",
+    "-- REPLACE --",
+    "-- OVERTYPE --",
+    "-- FIND --",
     ""
 ];
 
@@ -483,10 +483,6 @@ VimController.prototype.loadOverlay = function() {
 VimController.prototype.unloadOverlay = function() {
     //dump("VimController.unloadOverlay\n");
 
-    var elStatusBarMode = this.statusBarMode;
-    if (elStatusBarMode) {
-        elStatusBarMode.parentNode.removeChild(elStatusBarMode);
-    }
     var hbox = document.getElementById("vim-hbox");
     if (hbox) {
         hbox.parentNode.removeChild(hbox);
@@ -634,7 +630,12 @@ VimController.prototype.updateStatusBarMode = function() {
             modeMsg += " " + VimController.VISUAL_NAMES[this._visualMode];
         }
     }
-    this.statusBarMode.label = modeMsg;
+    
+    this.insertMode.setAttribute("value", modeMsg);
+    if ( ! modeMsg)
+        this.vimDeck.setAttribute("collapsed", true);
+    else
+        this.vimDeck.removeAttribute("collapsed");
 }
 
 VimController.prototype.updateCaretStyle = function(scimoz) {
@@ -754,17 +755,16 @@ VimController.prototype.__defineGetter__("inputBufferLabel",
         return document.getElementById("vim-input-label");
     }
 );
-VimController.prototype.__defineGetter__("statusBarDeck",
+VimController.prototype.__defineGetter__("vimDeck",
     function() {
-        return document.getElementById("statusbar-message-deck");
+        return document.getElementById("vim-deck");
     }
 );
-VimController.prototype.__defineGetter__("statusBarMode",
+VimController.prototype.__defineGetter__("insertMode",
     function() {
-        return document.getElementById("vim-statusbar-mode");
+        return document.getElementById("vim-insert-mode");
     }
 );
-
 
 VimController.prototype.resetCommandSettings = function() {
     if (this.mode != VimController.MODE_FIND_CHAR) {
@@ -1133,7 +1133,8 @@ VimController.prototype.inputBufferStart = function (commandHistory,
         this._inputBuffer_historyPosition = this._inputBuffer_history.length;
         var xulInputBuffer = this.inputBuffer;
         xulInputBuffer.value = initialText;
-        this.statusBarDeck.selectedPanel = document.getElementById("vim-hbox");
+        this.vimDeck.selectedIndex = 1;
+        this.vimDeck.removeAttribute("collapsed");
         xulInputBuffer.addEventListener('keypress', vim_InputBuffer_KeyPress, false);
         xulInputBuffer.focus();
     } catch (e) {
@@ -1158,7 +1159,8 @@ VimController.prototype.inputBufferFinish = function ()
         // Return the contents of the input buffer and stop buffering.
         var contents = this.inputBuffer.value;
         this.inputBuffer.value = "";
-        this.statusBarDeck.selectedIndex = 0;
+        this.vimDeck.selectedIndex = 0;
+        this.vimDeck.setAttribute("collapsed", true);
         this.inputBuffer.removeEventListener('keypress', vim_InputBuffer_KeyPress, false);
         this._inputBuffer_active = false;
         return contents;
