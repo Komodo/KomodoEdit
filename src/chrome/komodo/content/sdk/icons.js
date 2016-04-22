@@ -33,11 +33,35 @@
     const log           = require("ko/logging").getLogger("ko-fileicons");
     const timers        = require("sdk/timers");
     const schemes       = require("ko/colorscheme");
+    const system        = require("sdk/system");
+    const shell         = require("ko/shell");
     //log.setLevel(require("ko/logging").LOG_DEBUG);
 
     var self = this, icons = this;
+    var pixelRatio = 1;
 
     this.handlers = {};
+    
+    this.init = () =>
+    {
+        pixelRatio = window.devicePixelRatio;
+        if (system.platform == "linux")
+        {
+            var cmd = "gsettings get org.gnome.desktop.interface text-scaling-factor";
+            shell.exec(cmd, {}, (error, stdout) => {
+                if (error)
+                {
+                    log.error(error);
+                    return;
+                }
+                
+                pixelRatio = parseFloat(stdout.trim().match(/\d(?:\.\d{1,2}|)/));
+                
+                log.debug("Using pixelRatio: " + pixelRatio);
+            });
+        }
+
+    };
 
     /**
      * File icon handler
@@ -257,7 +281,7 @@
             if ( ! info) return callback(false);
 
             var filename = (info.language + info.ext + info.size).replace(/\W/g, '');
-            info.size = Math.round(info.size * window.devicePixelRatio);
+            info.size = Math.ceil(info.size * pixelRatio);
 
             var pngFile = FileUtils.getFile("ProfD", ["icons", "fileicons", filename + ".png"], true);
             if (pngFile.exists())
@@ -316,7 +340,7 @@
             
             // Generate unique id for query based on the params
             var params = sdkQuery.parse(url.search.substr(1));
-            params.size = Math.round((params.size || 14) * window.devicePixelRatio);
+            params.size = Math.ceil((params.size || 14) * pixelRatio);
             
             if (! ("fill" in params) &&  ! ("color" in params))
             {
@@ -732,5 +756,7 @@
             
         return a.join("");
     }
+    
+    this.init();
 
 }).apply(module.exports);
