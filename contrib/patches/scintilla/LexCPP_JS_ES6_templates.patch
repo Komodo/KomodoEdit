@@ -49,6 +49,19 @@ there's no time to learn how.
  		}
  
  		// Handle line continuation generically.
+@@ -762,6 +771,12 @@ void SCI_METHOD LexerCPP::Lex(unsigned int startPos, int length, int initStyle,
+ 				lineCurrent++;
+ 				lineEndNext = styler.LineEnd(lineCurrent);
+ 				vlls.Add(lineCurrent, preproc);
++				if (rawStringTerminator != "") {
++					rawSTNew.Set(lineCurrent-1, rawStringTerminator);
++				}
++				if (backquotedInterpolatedBraceCount > 0) {
++					styler.SetLineState(lineCurrent, backquotedInterpolatedBraceCount);
++				}
+ 				sc.Forward();
+ 				if (sc.ch == '\r' && sc.chNext == '\n') {
+ 					// Even in UTF-8, \r and \n are separate
 @@ -1001,6 +1010,11 @@ void SCI_METHOD LexerCPP::Lex(unsigned int startPos, int length, int initStyle,
  						sc.Forward();
  					sc.SetState(SCE_C_DEFAULT|activitySet);
