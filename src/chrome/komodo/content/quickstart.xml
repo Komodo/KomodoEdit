@@ -36,7 +36,7 @@
                 <xul:hbox height="15"/>
 
                 <xul:button label="Open File"
-                        class="open-file-icon"
+                        class="open-file-icon-quickstart"
                         type="menu-button"
                         oncommand="ko.commands.doCommandAsync('cmd_open', event)">
                     <xul:menupopup
@@ -47,7 +47,7 @@
                 </xul:button>
 
                 <xul:button label="Open Project"
-                        class="project-icon"
+                        class="project-icon-quickstart"
                         type="menu-button"
                         oncommand="ko.commands.doCommandAsync('cmd_openProject', event)">
                   <xul:menupopup
@@ -64,7 +64,7 @@
                         oncommand="ko.commands.doCommandAsync('cmd_editPrefs', event)"/>
                 
                 <xul:button label="Install Packages"
-                        class="packages-icon"
+                        class="packages-icon-quickstart"
                         type="menu-button"
                         oncommand="require('commando').show('scope-packages')">
                     <xul:menupopup position="after_end">
@@ -106,7 +106,7 @@
             </xul:vbox>
             <xul:hbox align="end" pack="end" class="footer editor-field">
                 <xul:button label="Troubleshooting"
-                        class="help-icon"
+                        class="help-icon-quickstart"
                         type="menu-button">
                     <xul:menupopup position="before_end">
                         <xul:menuitem

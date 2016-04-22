@@ -131,14 +131,21 @@ button, toolbarbutton, menuitem, tab
 // can easily refactor them out later
 vbox[anonid="quickstart"]
 {
-    .help-icon > button > hbox > image
+    .help-icon-quickstart > button > hbox > image
     {
         margin-right: 6px;
     }
     .bug-icon > hbox > image
     {
-        margin-right: 6px;
+        margin-right:6px;
     }
+
+    // Custom icons classes for quickstart page to be able to apply icon
+    // in a different location
+    .help-icon-quickstart > .box-inherit{ .icon(); .icon-question4(); }
+    .open-file-icon-quickstart > .box-inherit{ .icon(); .icon-folder-open2(); }
+    .project-icon-quickstart > .box-inherit{ .icon(); .icon-archive(); }
+    .packages-icon-quickstart > .box-inherit{ .icon(); .icon-download(); }
 }
 
 .newfolder-icon,
