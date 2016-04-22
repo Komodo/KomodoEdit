@@ -27,7 +27,9 @@
     {
         // Detect current working directory
         var partSvc = Cc["@activestate.com/koPartService;1"].getService(Ci.koIPartService);
-        var cwd = ko.uriparse.URIToPath(ko.places.getDirectory());
+        var cwd = "";
+        if (typeof ko != "undefined" && ko.places)
+            cwd = ko.uriparse.URIToPath(ko.places.getDirectory());
         if (partSvc.currentProject)
             cwd = partSvc.currentProject.liveDirectory;
             
