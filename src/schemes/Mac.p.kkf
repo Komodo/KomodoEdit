@@ -14,6 +14,7 @@ binding cmd_left Left
 binding cmd_linePrevious Up
 binding cmd_lineNext Down
 binding cmd_newline Return
+binding cmd_newlineExtra Shift + Return
 
 binding cmd_end Meta+Right
 binding cmd_home Meta+Left 
