@@ -129,11 +129,18 @@ button, toolbarbutton, menuitem, tab
 // Work around to space out icons from their text or neighbours
 // Add any new icons that require spacing this section so we
 // can easily refactor them out later
-.help-icon > button > hbox > image
+vbox[anonid="quickstart"]
 {
-    margin-right: 6px;
+    .help-icon > button > hbox > image
+    {
+        margin-right: 6px;
+    }
+    .bug-icon > hbox > image
+    {
+        margin-right: 6px;
+    }
 }
-.bug-icon,
+
 .newfolder-icon,
 .refresh-icon,
 .upfolder-icon,
