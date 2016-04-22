@@ -1,3 +1,6 @@
+@import url("chrome://komodo/skin/global/colors.less");
+@import url("resource://profile/colors.less");
+
 *, *:before, *:after
 {
     box-sizing: border-box;
@@ -106,15 +109,15 @@ ul, li
         flex-shrink: 0;
     }
     
-    &.input:before { content: '>'; color: #3583FC; }
-    &.output:before { content: '<'; color: #848484; }
-    &.log:before { content: 'log'; color: #848484; }
-    &.debug:before { content: 'dbg'; color: #848484; }
-    &.info:before { content: 'nfo'; color: #27A700; }
-    &.warning:before { content: 'wrn'; color: #E58E1D; }
-    &.warn:before { content: 'wrn'; color: #E58E1D; }
-    &.error:before { content: 'err'; color: #E81D20; }
-    &.exception:before { content: 'exc'; color: #C42B2B; }
+    &.input:before { content: '>'; color: @state-ok; }
+    &.output:before { content: '<'; color: @state-info; }
+    &.log:before { content: 'log'; color: @state-info; }
+    &.debug:before { content: 'dbg'; color: @state-info; }
+    &.info:before { content: 'nfo'; color: @state-info; }
+    &.warning:before { content: 'wrn'; color: @state-warning; }
+    &.warn:before { content: 'wrn'; color: @state-warning; }
+    &.error:before { content: 'err'; color: @state-error; }
+    &.exception:before { content: 'exc'; color: @state-error; }
     
     &.exception .message
     {
@@ -179,17 +182,17 @@ ul, li
     
     &:not(.input) 
     {
-        .message { color: #6B6B6B; } /* default */
+        .message { color: @foreground; } /* default */
         
-        .type-string { color: #51A552; }
-        .type-number { color: #D6AC39; }
-        .type-object { color: #55A8C6; }
-        .type-array { color: #7F20D8; }
-        .type-undefined { color: #A0A0A0; }
-        .type-boolean { color: #CE44C5; }
-        .type-element { color: #54C4CE; }
-        .type-function { color: #8E8466; }
-        .type-exception { color: #C42B2B; }
+        .type-string { color: average(@foreground, #00FF00); }
+        .type-number { color: average(@foreground, #FFFF00); }
+        .type-object { color: average(@foreground, #00FFFF); }
+        .type-array { color: average(@foreground, #7D00FF); }
+        .type-undefined { color: average(@foreground, #969696); }
+        .type-boolean { color: average(@foreground, #FF00FF); }
+        .type-element { color: average(@foreground, #00FFAF); }
+        .type-function { color: average(@foreground, #0000FF); }
+        .type-exception { color: average(@foreground, #FF0000); }
     }
     
     .timestamp
@@ -222,12 +225,17 @@ ul, li
         {
             vertical-align: top;
             content: '> ';
-            color: #3583FC;
+            color: @state-ok;
             font-size: 0.9rem;
             line-height: 1.5rem;
             font-weight: bold;
             margin-left: -0.8rem;
         }
+    }
+    
+    #input-mock
+    {
+        padding: 0 !important;
     }
     
     #input, #input-mock
@@ -289,8 +297,19 @@ ul, li
     font-size: 0.9rem;
     width: auto;
 }
-.autocomplete-suggestion b
+.autocomplete-suggestion.selected
+{
+    background: @selected;
+    color: @selected-foreground;
+}
+.autocomplete-suggestion:not(.selected) b
 {
     font-weight: normal;
-    color: #1f8dd6;
+    color: @secondary-special;
+}
+
+.autocomplete-suggestion.selected b
+{
+    font-weight: normal;
+    color: average(@selected-foreground, @secondary-special);
 }

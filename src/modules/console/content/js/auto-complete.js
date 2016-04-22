@@ -37,7 +37,6 @@ var autoComplete = (function(){
             menuClass: '',
             renderItem: function (item, search){
                 // escape special characters
-                search = search.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
                 var re = new RegExp("(" + search.split(' ').join('|') + ")", "gi");
                 return '<div class="autocomplete-suggestion" data-val="' + item + '">' + item.replace(re, "<b>$1</b>") + '</div>';
             },
@@ -160,7 +159,9 @@ var autoComplete = (function(){
             that.cache[val] = data;
             if (data.length && val.length >= o.minChars) {
                 var s = '';
-                for (var i=0;i<data.length;i++) s += o.renderItem(data[i], val);
+                var search = val.split(".").slice(-1)[0];
+                search = search.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+                for (var i=0;i<data.length;i++) s += o.renderItem(data[i], search);
                 that.sc.innerHTML = s;
                 
                 var next = that.sc.childNodes[that.sc.childNodes.length - 1];
@@ -200,14 +201,13 @@ var autoComplete = (function(){
             }
             // esc
             else if (key == 27 && that.sc.style.display != 'none') {
-                o.onReset(that.last_val);
                 that.sc.style.display = 'none';
                 e.preventDefault();
             }
             // enter
             else if (key == 13 && that.sc.style.display != 'none' && ! e.shiftKey) {
                 var sel = that.sc.querySelector('.autocomplete-suggestion.selected');
-                if ( ! sel) return;
+                if ( ! sel || that.sc.style.display == 'none') return;
                 o.onSelect(sel.getAttribute('data-val'));
                 setTimeout(function(){ that.sc.style.display = 'none'; }, 20);
                 e.preventDefault();
@@ -242,6 +242,7 @@ var autoComplete = (function(){
             var key = window.event ? e.keyCode : e.which;
             if ((key < 35 || key > 40) && key != 13 && key != 27) {
                 var val = that.caretValue;
+                if (val != that.value) return; // Don't autocomplete if not at EOL
                 if (val.length >= o.minChars) {
                     if (val != that.last_val) {
                         that.last_val = val;
