@@ -437,6 +437,12 @@ treechildren::-moz-tree-cell-text(container)
     color: darken(@foreground, 30%) !important;
 }
 
+treechildren::-moz-tree-row(warning)
+{
+    background: @state-warning;
+    color: @state-foreground;
+}
+
 treechildren::-moz-tree-row(selected)
 {
     color: @selected-foreground;

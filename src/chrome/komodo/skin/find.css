@@ -39,53 +39,6 @@
  */
 
 
-treechildren.confirmrepl::-moz-tree-image(warning) {
-    width: 18px;
-    list-style-image: url('chrome://famfamfamsilk/skin/icons/error.png');
-}
-treechildren.confirmrepl::-moz-tree-row(warning) {
-    background-color: #FFF1A8;
-    border-radius: 7px;
-    border: 1px solid #bbb;
-    margin: 0 3px -1px 3px;
-}
-treechildren.confirmrepl::-moz-tree-row(warning, selected) {
-    background-color: threedface;
-    border-radius: inherit;
-    border: inherit;
-    margin: inherit;
-}
-treechildren.confirmrepl::-moz-tree-row(warning, selected, focus) {
-    background-color: highlight;
-    border-radius: inherit;
-    border: inherit;
-    margin: inherit;
-}
-
-
-treechildren.findresults::-moz-tree-image(warning) {
-    width: 18px;
-    list-style-image: url('chrome://famfamfamsilk/skin/icons/error.png');
-}
-treechildren.findresults::-moz-tree-row(warning) {
-    background-color: #FFF1A8;
-    border-radius: 7px;
-    border: 1px solid #bbb;
-    margin: 0 3px -1px 3px;
-}
-treechildren.findresults::-moz-tree-row(warning, selected) {
-    background-color: threedface;
-    border-radius: inherit;
-    border: inherit;
-    margin: inherit;
-}
-treechildren.findresults::-moz-tree-row(warning, selected, focus) {
-    background-color: highlight;
-    border-radius: inherit;
-    border: inherit;
-    margin: inherit;
-}
-
 .find-description-highlight {
     color:  #bb0000;
 }
