@@ -244,7 +244,7 @@
                 <children/>
             </xul:hbox>
             <xul:toolbar>
-                <xul:toolbaritem>
+                <xul:toolbaritem class="overflow-toolbaritem">
                     <xul:toolbarbutton anonid="overflow-toolbarbutton"
                                        class="overflow-toolbarbutton"
                                        collapsed="true"
