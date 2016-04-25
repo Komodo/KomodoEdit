@@ -2608,6 +2608,9 @@ def QuickBuild(cfg, argv, _table):
     for source, (target, oldmd5) in _table.items():
         # We don't just want > because p4 revert (and possibly `hg
         # revert') brings the date back.
+        if not os.path.isfile(source):
+            _table.pop(source)
+            continue
         if os.path.isfile(target):
             newmd5 = md5(open(source, 'rb').read()).hexdigest()
             if newmd5 != oldmd5:
@@ -2712,6 +2715,7 @@ commandOverrides = {
     "perf": TestKomodoPerf,
     "image": ImageKomodo,
     "grok": GrokKomodo,
+    "quickdb": BuildQuickBuildDB,
 }
 
 helpTemplate = """
@@ -2723,6 +2727,7 @@ helpTemplate = """
         bk run              run the %(name)s app
         bk start <command>  execute a command in the configured environment
         bk test             run %(name)ss self-test suite
+        bk quickdb          rebuild the `bk build quick` hash table
 
         bk package          package up %(name)s bits
         bk upload           upload %(name)s bits to staging area
