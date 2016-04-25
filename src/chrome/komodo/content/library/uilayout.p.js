@@ -1708,8 +1708,12 @@ this.onload = function uilayout_onload()
     
     var root = document.documentElement;
     var hide = _gPrefs.getBoolean("ui.hide.chrome");
-    //root.setAttribute("drawintitlebar", true);
+    root.setAttribute("_hidechrome", hide);
+// #if PLATFORM == "darwin"
+    root.setAttribute("drawintitlebar", hide);
+// #else
     root.setAttribute("hidechrome", hide);
+// #endif
     
     // Set classic toolbar mode
     if (ko.prefs.getBoolean("ui.classic.toolbar"))
@@ -1948,8 +1952,12 @@ _PrefObserver.prototype.observe = function(prefSet, prefName, prefSetID)
         var hide = _gPrefs.getBoolean("ui.hide.chrome");
         var root = document.documentElement;
         document.getElementById('toolbox_main')._draggable = hide;
-        //root.setAttribute("drawintitlebar", hide);
+         root.setAttribute("_hidechrome", hide);
+// #if PLATFORM == "darwin"
+        root.setAttribute("drawintitlebar", hide);
+// #else
         root.setAttribute("hidechrome", hide);
+// #endif
         
         // Work around graphical issues around the window
         window.outerWidth  = window.outerWidth + 1;

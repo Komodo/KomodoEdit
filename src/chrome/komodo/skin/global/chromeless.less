@@ -12,8 +12,8 @@
 
 /* Dialogs with hidden chrome */
 
-.dialog:root[hidechrome="true"]:not(.embedded),
-dialog:root[hidechrome="true"]:not(.embedded)
+.dialog:root[_hidechrome="true"]:not(.embedded),
+dialog:root[_hidechrome="true"]:not(.embedded)
 {
     .window-wrapper,
     .dialog-content-box,
@@ -31,9 +31,10 @@ dialog:root[hidechrome="true"]:not(.embedded)
         overflow: -moz-hidden-unscrollable;
     }
     
-    & > #titlebar
+    #titlebar
     {
         padding-bottom: 5px;
+        min-height: 1.5rem;
         
         & > spacer, #windowButtons
         {
@@ -49,8 +50,8 @@ dialog:root[hidechrome="true"]:not(.embedded)
 
 /* Dialogs with default chrome */
 
-.dialog:not([hidechrome="true"]):not(.embedded),
-dialog:not([hidechrome="true"]):not(.embedded)
+.dialog:not([_hidechrome="true"]):not(.embedded),
+dialog:not([_hidechrome="true"]):not(.embedded)
 {
     padding: 6px;
     
@@ -63,7 +64,7 @@ dialog:not([hidechrome="true"]):not(.embedded)
 
 /* Main window with hidden chrome */
 
-#komodo_main[hidechrome="true"]
+#komodo_main[_hidechrome="true"]
 {
     #toolbox_main
     {
@@ -146,7 +147,7 @@ dialog:not([hidechrome="true"]):not(.embedded)
 
 /* Main window with default chrome */
 
-#komodo_main:not([hidechrome="true"]) 
+#komodo_main:not([_hidechrome="true"]) 
 {
     #titlebar,
     #windowButtons,
@@ -183,4 +184,34 @@ resizer[dir="bottomright"] { cursor: se-resize; -moz-appearance:none; }
 resizer
 {
     background: @contrast;
+}
+
+/* On OSX we use the native window buttons, because drawInTitlebar SORT OF works
+   there (and nothing else does quite as well) */
+:root[os-name="Darwin"]
+{
+    #titlebar > spacer
+    {
+        visibility: collapse;
+    }
+    
+    #windowButtons,
+    {
+        width: 60px;
+        
+        & > *
+        {
+            visibility: collapse;
+        }
+    }
+    
+    #toolbox_main
+    {
+        padding-top: 5px !important;
+    }
+    
+    resizer
+    {
+        visibility: collapse;
+    }
 }

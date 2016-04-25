@@ -144,11 +144,6 @@ komodoCmdLineHandler.prototype = {
       
     let {logging} = Components.utils.import("chrome://komodo/content/library/logging.js");
     var log = logging.getLogger("asCommandLineHandler");
-
-    // #if PLATFORM == "darwin"
-    var hideChrome = prefSvc.prefs.getBoolean('ui.hide.chrome');
-    if (hideChrome) winOptions += ",titlebar=no";
-    // #endif
     
     // This should run for every major upgrade AND when the pref is not set
     // 
