@@ -35,7 +35,7 @@
         'scc-deleted': ['scc deleted', 'fore'],
         'scc-sync': ['scc sync', 'fore'],
         'scc-conflict': ['scc conflict', 'fore'],
-        'state-error': ['state oerror', 'back'],
+        'state-error': ['state error', 'back'],
         'state-warning': ['state warning', 'back'],
         'state-info': ['state info', 'back'],
         'state-ok': ['state ok', 'back'],
