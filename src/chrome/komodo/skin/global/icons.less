@@ -126,6 +126,7 @@ button, toolbarbutton, menuitem, tab
 .refresh-icon{.icon(); .icon-refresh(); margin-right: 6px; }
 .upfolder-icon{.icon(); .icon-folder-upload(); margin-right: 6px; }
 .goback-icon{.icon(); .icon-arrow-left(); margin-right: 6px; }
+.goforward-icon{.icon(); .icon-arrow-right(); margin-right: 6px; }
 
 // Work around to space out icons from their text or neighbours
 // Add any new icons that require spacing this section so we
@@ -163,6 +164,32 @@ vbox[anonid="quickstart"]
     }
 }
 
+.cancel-icon
+{
+    .icon();
+    .icon-close();
+    
+    & > hbox,vbox
+    {
+        & > image
+        {
+            margin-right: 6px;
+        }
+    }
+}
+.reload-icon
+{
+    .icon();
+    .icon-refresh();
+    
+    & > hbox,vbox
+    {
+        & > image
+        {
+            margin-right: 6px;
+        }
+    }
+}
 // Finish spacing button fix
 .overflow-toolbarbutton > .toolbarbutton-text { .icon(); .icon-arrow-down3(); }
 

@@ -51,7 +51,7 @@ Import(
 );
 
 $cons->InstallInChrome('splitter.css');
-$cons->InstallInChrome('browser.css');
+$cons->InstallInChrome('browser.less');
 $cons->InstallInChrome('extmgr.css');
 $cons->Preprocess('codeintel.p.css', 'codeintel.css');
 $cons->InstallInChrome('codeintel.css');
