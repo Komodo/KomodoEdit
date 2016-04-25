@@ -1609,9 +1609,17 @@ this.unload = function uilayout_unload()
     gUilayout_Observer = null;
     _prefobserver.destroy();
     // XXX: These prefs should be saved as part of the workspace.
-	_gPrefs.setBooleanPref("startupFullScreen", window.fullScreen)
+	_gPrefs.setBooleanPref("startupFullScreen", window.fullScreen);
     // nsIDOMChromeWindow STATE_MAXIMIZED = 1
-    _gPrefs.setBooleanPref("startupMaximized", window.windowState==1)
+    _gPrefs.setBooleanPref("startupMaximized", window.windowState==1);
+    
+// #if PLATFORM == "darwin"
+    var ws = require("ko/windows").getWindows("Komodo");
+    if (ws.length == 1)
+    {
+        ko.commands.doCommand('cmd_quit');
+    }
+// #endif
 }
 
 /**
