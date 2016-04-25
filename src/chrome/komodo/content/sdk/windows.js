@@ -34,12 +34,12 @@
      * 
      * @returns {Array} 
      */
-    this.getWindows = function()
+    this.getWindows = function(type = "")
     {
         var windows = [];
         
         var wm = Cc["@mozilla.org/appshell/window-mediator;1"].getService(Ci.nsIWindowMediator);
-        let enumerated = wm.getEnumerator("");
+        let enumerated = wm.getEnumerator(type);
         while (enumerated.hasMoreElements()) {
             let w = enumerated.getNext().QueryInterface(Ci.nsIDOMWindow);
             windows.push(w);
