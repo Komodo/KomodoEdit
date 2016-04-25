@@ -110,7 +110,7 @@
             
             <checkbox id="ui.hide.chrome" class="ui-hide-chrome" pref="true" invert="true" label="Use native window borders"/>
             <checkbox id="ui.classic.toolbar" pref="true" label="Use classic toolbar layout"/>
-            
+    <!-- #if PLATFORM == "linux" -->
             <vbox id="windowButtonPrefs">
                 <separator/>
                 
@@ -132,6 +132,7 @@
                                type="number" min="0" max="2" width="60"/>
                 </hbox>
             </vbox>
+    <!-- #endif -->
             
         </groupbox>
 
