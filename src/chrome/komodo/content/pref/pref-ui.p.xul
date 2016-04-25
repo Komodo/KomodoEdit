@@ -135,7 +135,6 @@
             
         </groupbox>
 
-        <!--
         <groupbox id="ui.tabs.sidepanes.groupbox">
             <caption label="&sidePaneTabStyles.caption;" />
             <hbox id="ui.tabs.sidepanes.left.hbox"
@@ -218,8 +217,6 @@
                 </menulist>
             </hbox>
         </groupbox>
-        -->
-
 
     </vbox>
 

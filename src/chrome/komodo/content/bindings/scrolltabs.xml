@@ -257,12 +257,6 @@
                     <children includes="tab"/>
                 </xul:arrowscrollbox>
                 <children/>
-                <xul:toolbarbutton anonid="tabs-new"
-                        tooltiptext="&newTab.tooltiptext;"
-                        observes="cmd_newTab"
-                        persist="buttonstyle"
-                        buttonstyle="pictures"
-                        class="newtab-icon"/>
                 <xul:toolbarbutton anonid="tabs-list"
                                type="menu"
                                persist="buttonstyle"
@@ -272,6 +266,12 @@
                     <xul:menupopup anonid="tabs-list-popup" position="after_end"
                         onpopupshowing="document.getBindingParent(this).getTabList();"/>
                 </xul:toolbarbutton>
+                <xul:toolbarbutton anonid="tabs-new"
+                        tooltiptext="&newTab.tooltiptext;"
+                        observes="cmd_newTab"
+                        persist="buttonstyle"
+                        buttonstyle="pictures"
+                        class="newtab-icon"/>
                 <xul:toolbarbutton anonid="panel-close-button" class="tabs-closebutton"
                             tooltiptext="&closePane.tooltiptext;"
                             collapsed="true"

@@ -400,6 +400,75 @@ ko-pane[type="icons"] tab
     }
 }
 
+ko-pane:not([type="icons"]) tab:before
+{
+    display: none;
+    visibility: collapse;
+    content: "";
+}
+
+/* Vertical Tabs */
+ko-pane[type="vertical"]
+{
+    .tabs-vertical-label
+    {
+        visibility: collapse;
+    }
+    
+    tabs
+    {
+        background: @contrast;
+    }
+    
+    tab
+    {
+        border-bottom: 0 !important;
+        padding: 4px 0;
+    }
+    
+    tab .tab-text
+    {
+        margin-left: 0;
+        padding-left: 2px;
+    }
+    
+    &#workspace_left_area 
+    {
+        tabs
+        {
+            border-right: 1px solid @border;
+        }
+        
+        tab[selected]
+        {
+            border-right: 2px solid @secondary-special;
+            
+            .tab-text
+            {
+                margin-right: -1px;
+            }
+        }
+    }
+    
+    &#workspace_right_area 
+    {
+        tabs
+        {
+            border-left: 1px solid @border;
+        }
+        
+        tab[selected]
+        {
+            border-left: 2px solid @secondary-special;
+            
+            .tab-text
+            {
+                margin-left: -1px;
+            }
+        }
+    }
+}
+
 /* Quicklaunch */
 
 #quicklaunch :not(button) > button

@@ -169,5 +169,21 @@ use moz bindings with CSS to acheive everything we have here.
         </constructor>
     </implementation>
     </binding>
+    
+    <binding id="menu" display="xul:menu"
+             extends="chrome://global/content/bindings/toolbarbutton.xml#toolbarbutton">
+      <content>
+        <children includes="observes|template|menupopup|panel|tooltip"/>
+        <xul:box class="toolbarbutton-icon-box"/>
+        <xul:image class="toolbarbutton-icon" xbl:inherits="validate,src=image,label,type,consumeanchor"/>
+        <xul:label class="toolbarbutton-text" crop="right" flex="1"
+                   xbl:inherits="value=label,accesskey,crop,dragover-top,wrap"/>
+        <xul:label class="toolbarbutton-multiline-text" flex="1"
+                   xbl:inherits="xbl:text=label,accesskey,wrap"/>
+        <xul:dropmarker anonid="dropmarker" type="menu"
+                        class="toolbarbutton-menu-dropmarker" xbl:inherits="disabled,label"/>
+      </content>
+    </binding>
+    
 
 </bindings>

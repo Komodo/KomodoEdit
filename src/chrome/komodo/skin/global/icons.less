@@ -88,7 +88,8 @@ button, toolbarbutton, menuitem, tab
 #toggleBottomPane { .icon(); .icon-layout-bottom(); }
 #toggleFocusMode { .icon(); .icon-eye3(); }
 .tabPicker-icon > .toolbarbutton-icon { .icon(); .icon-tab-down(); }
-.scc-button-menu { .icon(); .icon-menu2(); }
+.tabs-select-button > .toolbarbutton-icon-box { .icon(); .icon-tab-down(); }
+.scc-button-menu .toolbarbutton-icon { .icon(); .icon-menu2(); }
 .scc-button-checkout { .icon(); .icon-checkout(); }
 .scc-button-add { .icon(); .icon-add(); }
 .scc-button-edit { .icon(); .icon-edit(); }
@@ -247,7 +248,20 @@ tab[widget^="findresults_tabpanel"] { .icon(); .icon-binoculars(); }
     #filter-progress { .icon(); .icon-clock-o(); }
 }
 
-.tab-close-button > .toolbarbutton-icon
+.scrollbutton-up
+{
+    .icon();
+    .icon-angle-left();
+}
+
+.scrollbutton-down
+{
+    .icon();
+    .icon-angle-right();
+}
+
+.tab-close-button > .toolbarbutton-icon,
+.tabs-closebutton
 {
     visibility: collapse;
     display: none;
