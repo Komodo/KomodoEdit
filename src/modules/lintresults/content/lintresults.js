@@ -17,7 +17,8 @@
             menuitems: this.updateMenu.bind(this),
             command: function() { ko.commands.doCommandAsync("cmd_nextLintResult"); },
             tooltip: "Jump to next syntax checking result",
-            classList: "ok"
+            classList: "ok",
+            groupOrdinal: 100
         });
         button.setCounter(0);
     }

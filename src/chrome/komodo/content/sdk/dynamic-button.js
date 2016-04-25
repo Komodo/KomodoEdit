@@ -39,6 +39,9 @@
             if (opts.label)
                 button.attr("label", opts.label);
                 
+            if (opts.ordinal)
+                button.attr("ordinal", opts.ordinal);
+                
             if (opts.menuitems)
             {
                 button.attr("type", "menu-button");
@@ -53,6 +56,8 @@
             {
                 groupItem = $("<toolbaritem>");
                 groupItem.attr("id", "dynamicBtnGrp-" + opts.group);
+                if (opts.groupOrdinal)
+                    groupItem.attr("ordinal", opts.groupOrdinal);
                 tb.append(groupItem);
             }
             

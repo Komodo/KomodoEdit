@@ -1720,9 +1720,11 @@ this.onload = function uilayout_onload()
     require("ko/dynamic-button").register("View in Browser", {
         command: "cmd_browserPreview",
         events: ["current_view_changed", "current_view_language_changed", "workspace_restored"],
+        ordinal: 100,
         group: "preview",
+        groupOrdinal: 200,
         icon: "earth2",
-        menuitems: ko.uilayout.populatePreviewToolbarButton
+        menuitems: ko.uilayout.populatePreviewToolbarButton,
     });
     
     this.updateWindowButtons(window);
