@@ -311,6 +311,30 @@ statusbar
     }
 }
 
+/* View Spliter */
+
+
+#multiview-splitter
+{
+    position: relative;
+    z-index: 999;
+    background-color: transparent;
+    
+    &[orient="horizontal"]
+    {
+        width: 5px;
+        border-right: 1px solid @contrast;
+        margin-left: -4px;
+    }
+    
+    &[orient="vertical"]
+    {
+        height: 5px;
+        border-bottom: 1px solid @contrast;
+        margin-top: -4px;
+    }
+}
+
 /* Workspace splitter */
 
 splitter
