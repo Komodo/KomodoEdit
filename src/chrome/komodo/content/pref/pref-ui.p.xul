@@ -220,31 +220,6 @@
         </groupbox>
         -->
 
-        <groupbox class="advanced">
-            <caption label="&mostRecentlyUsed.label;"/>
-            <hbox align="center">
-                <textbox id="mruProjectSize" size="3" maxlength="2"
-                           pref="true"
-                           prefattribute="value"/>
-                <label control="mruProjectSize" value="&numberOfProjects.label;"/>
-            </hbox>
-            <hbox align="center">
-                <textbox id="mruFileSize" size="3" maxlength="2"
-                           pref="true"
-                           prefattribute="value"/>
-                <label control="mruFileSize" value="&numberOfFiles.label;"/>
-            </hbox>
-        </groupbox>
-
-        <groupbox orient="vertical">
-            <caption label="&activeStateNotificationMessages.label;"/>
-
-            <checkbox id="activestate_notification_messages_enabled"
-                      label="&activeStateNotificationMessagesEnabled.label;"
-                      tooltiptext="&activeStateNotificationMessagesEnabled.tooltiptext;"
-                      pref="true"
-                      prefattribute="checked"/>
-        </groupbox>
 
     </vbox>
 
