@@ -85,6 +85,12 @@ dialog:not([_hidechrome="true"]):not(.embedded)
         {
             visibility: visible;
             
+            toolbarbutton.sdk-button .toolbarbutton-text
+            {
+                visibility: collapse;
+                display: none;
+            }
+            
             & > spacer, #windowButtons
             {
                 width: 90px;

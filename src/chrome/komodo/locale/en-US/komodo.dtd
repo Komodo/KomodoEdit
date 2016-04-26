@@ -670,7 +670,6 @@
 <!ENTITY showToolbars.label "Show Toolbars">
 <!ENTITY showHideBottomPane.tooltiptext "Show/Hide Bottom Pane">
 <!ENTITY showHideLeftPane.tooltiptext "Show/Hide Left Pane">
-<!ENTITY toggleFocusMode.tooltiptext "Toggle Focus Mode">
 <!ENTITY showHideRightPane.tooltiptext "Show/Hide Right Pane">
 
 <!ENTITY pane.moveTo.tab.label "Combine With Tab">
@@ -742,7 +741,6 @@
 <!ENTITY toggleBookmark.label "Toggle Bookmark">
 <!ENTITY toggleBottom.label "Toggle Bottom">
 <!ENTITY toggleLeft.label "Toggle Left">
-<!ENTITY toggleFocusMode.label "Focus Mode">
 <!ENTITY toggleRawParsedOutputView.tooltiptext "Toggle Raw/Parsed Output View">
 <!ENTITY toggleRight.label "Toggle Right">
 <!ENTITY toolbars.label "Toolbars">

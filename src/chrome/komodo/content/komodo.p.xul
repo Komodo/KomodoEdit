@@ -559,12 +559,14 @@
           
             <hbox id="windowButtons" align="center" pack="end">
                 <!-- #if PLATFORM != "darwin" -->
-                <toolbarbutton id="unifiedMenuButtonTitlebar"
-                    tooltiptext="&menu.tooltiptext;"
-                    class="menu-icon"
-                    oncommand="document.getElementById('unifiedMenuPopup').openPopup(event.target, 'after_end')"
-                    buttonstyle="pictures"
-                />
+                <hbox ordinal="0" align="center">
+                    <toolbarbutton id="unifiedMenuButtonTitlebar"
+                        tooltiptext="&menu.tooltiptext;"
+                        class="menu-icon"
+                        oncommand="document.getElementById('unifiedMenuPopup').openPopup(event.target, 'after_end')"
+                        buttonstyle="pictures"
+                    />
+                </hbox>
                 <!-- #endif -->
                         
                 <toolbarbutton buttonstyle="pictures" class="icon-minus-circle2" oncommand="window.minimize();"/>
@@ -1987,14 +1989,6 @@
                          tooltiptext="&workspaceToolbar.tooltiptext;">
 
                     <toolbaritem id="workspace-toolbaritem1" persist="kohidden">
-                        <toolbarbutton id="toggleFocusMode"
-                            tooltiptext="&toggleFocusMode.tooltiptext;"
-                            persist="buttonstyle kohidden"
-                            buttonstyle="pictures"
-                            type="checkbox"
-                            oncommand="ko.commands.doCommandAsync('cmd_focusmode', event)"
-                            label="&toggleFocusMode.label;">
-                        </toolbarbutton>
                         <toolbarbutton id="toggleLeftPane"
                             tooltiptext="&showHideLeftPane.tooltiptext;"
                             persist="buttonstyle kohidden"
