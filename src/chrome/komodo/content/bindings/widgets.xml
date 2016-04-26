@@ -783,9 +783,9 @@
                       onselect="document.getBindingParent(this).updateButtons();"
                       ondblclick="document.getBindingParent(this).edit();">
                 <xul:treecols>
-                    <xul:treecol id="name" label="&URI.label;" flex="1"/>
+                    <xul:treecol id="name" label="&URI.label;" xbl:inherits="label=column1" flex="1"/>
                     <xul:splitter class="tree-splitter"/>
-                    <xul:treecol id="value" label="&mapsTo.label;" flex="1"/>
+                    <xul:treecol id="value" label="&mapsTo.label;" xbl:inherits="label=column2" flex="1"/>
                 </xul:treecols>
                 <xul:treechildren flex="1" alternatingbackground="true" style="min-height: 100px">
                     <children/>
@@ -1030,7 +1030,10 @@
                         }
                         var info = {
                             uri: null,
-                            path: defaultDir
+                            path: defaultDir,
+                            column1: this.getAttribute("column1") || null,
+                            column2: this.getAttribute("column2") || null,
+                            isLocal: this.getAttribute("local") || false
                         };
                         window.openDialog('chrome://komodo/content/dialogs/editPathMap.xul', '_blank', 'chrome,modal,titlebar,resizable,centerscreen', info);
                         if (!info.uri || !info.path) return;
@@ -1053,7 +1056,9 @@
                     try {
                         var info = {
                             uri: this.getCellText(this.treeView.selection.currentIndex, 0),
-                            path: this.getCellText(this.treeView.selection.currentIndex, 1)
+                            path: this.getCellText(this.treeView.selection.currentIndex, 1),
+                            column1: this.getAttribute("column1") || null,
+                            column2: this.getAttribute("column2") || null
                         };
                         window.openDialog('chrome://komodo/content/dialogs/editPathMap.xul', '_blank', 'chrome,modal,titlebar,resizable,centerscreen', info);
                         if (!info.uri || !info.path) return;

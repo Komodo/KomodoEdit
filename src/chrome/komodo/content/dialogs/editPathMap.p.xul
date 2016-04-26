@@ -90,14 +90,30 @@ function onLoad() {
                 bundle.formatStringFromName("projectName.label",
                                             [window.arguments[0].project_name], 1));
         }
+        
+        if (window.arguments[0].column1)
+            document.getElementById("column1").setAttribute("value", window.arguments[0].column1);
+        
+        if (window.arguments[0].column2)
+            document.getElementById("column2").setAttribute("value", window.arguments[0].column2);
+            
+        if (window.arguments[0].isLocal)
+        {
+            document.getElementById('localBrowse').setAttribute("collapsed", true);
+            document.getElementById('remoteBrowse').setAttribute("label", "Browse");
+        }
+        
     }
     updateAccept();
     if (!opener.ko || ! opener.ko.projects) {
-        var el = document.getElementById("prefchoice");
+        var el = document.getElementById("prefchoice-wrapper");
         el.parentNode.removeChild(el);
     } else
-    if (!opener.ko.projects.manager.currentProject) {
-        document.getElementById("prefchoice").disabled = true;
+    {
+        document.getElementById("prefchoice-wrapper").removeAttribute("collapsed");
+        if (!opener.ko.projects.manager.currentProject) {
+            document.getElementById("prefchoice").disabled = true;
+        }
     }
 }
 
@@ -114,7 +130,7 @@ function onOK() {
     window.arguments[0].uri = document.getElementById('uri').value;
     // The return (mapped) path needs to be in URI format.
     window.arguments[0].path = ko.uriparse.pathToURI(document.getElementById('path').value);
-    if (document.getElementById('prefchoice'))
+    if (document.getElementById('prefchoice-wrapper'))
         window.arguments[0].project = document.getElementById('prefchoice').selectedItem.value;
 }
 
@@ -125,6 +141,9 @@ function onCancel() {
 }
 
 function browseForDir(elem, remote) {
+    if (window.arguments[0] && window.arguments[0].isLocal)
+        remote = false;
+    
     if (!remote) {
         ko.filepicker.browseForDir(elem);
     } else {
@@ -147,22 +166,24 @@ function browseForDir(elem, remote) {
 </script>
 
 <vbox flex="1">
-    <caption label="&addEditPathMapping.label;"/>
     <grid>
         <columns>
             <column/>
             <column flex="1"/>
+            <column/>
         </columns>
         <rows>
         <row align="center">
-            <label value="&URI.label;" control="varName" class="kopadded"
+            <label id="column1" value="&URI.label;" control="varName" class="kopadded"
                    style="width: 50px;margin: 5px 1px;"/>
             <textbox id="uri" flex="1" oninput="updateAccept()"/>
+            <button id="localBrowse" label="&local.label;" oncommand="browseForDir(document.getElementById('path'))" />
         </row>
         <row align="center">
-            <label value="&mapsTo.label;" control="varValue" class="kopadded"
+            <label id="column2" value="&mapsTo.label;" control="varValue" class="kopadded"
                    style="width: 50px; margin: 5px 1px;"/>
             <textbox id="path" flex="1" oninput="updateAccept()"/>
+            <button id="remoteBrowse" label="&remote.label;" oncommand="browseForDir(document.getElementById('path'),true);" />
 
             <!-- This would be nicer looking than having the two buttons
                  below, but it does not work on Linux for drag/drop operations
@@ -189,15 +210,9 @@ function browseForDir(elem, remote) {
             </toolbarbutton>
             -->
         </row>
-        <row>
-            <hbox/>
-            <hbox align="right">
-                <button label="&local.label;" oncommand="browseForDir(document.getElementById('path'))" />
-                <button label="&remote.label;" oncommand="browseForDir(document.getElementById('path'),true);" />
-            </hbox>
-        </row>
         </rows>
     </grid>
+    <vbox id="prefchoice-wrapper" collapsed="true">
     <separator class="thin"/>
     <vbox id="add-to" flex="1">
         <radiogroup id="prefchoice">
@@ -205,6 +220,7 @@ function browseForDir(elem, remote) {
             <radio label="&globalPreferences.label;" selected="true" value="false"/>
             <radio id="project_radio" label="&currentProjectPreferences.label;" value="true"/>
         </radiogroup>
+    </vbox>
     </vbox>
     <separator class="thin"/>
 

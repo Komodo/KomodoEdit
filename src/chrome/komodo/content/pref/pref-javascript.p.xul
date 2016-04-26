@@ -85,6 +85,9 @@
                 &javascriptNamespaceMapping.description;
             </description>
             <mappededitor id="mappings"
+                    column1="Namespace"
+                    column2="Path"
+                    local="true"
                     pref="true" prefwidget="true"
                     prefstring="javascriptNamespaceMapping" flex="1"/>
         </groupbox>
