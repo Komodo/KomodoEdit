@@ -338,8 +338,6 @@
           {
             setDimensions = function () {
               var [w,h,x,y] = dimensions;
-              window.outerWidth = parseInt(w);
-              window.outerHeight = parseInt(h);
               window.screenX = parseInt(x);
               window.screenY = parseInt(y);
             };
