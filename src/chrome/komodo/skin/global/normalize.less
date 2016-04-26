@@ -364,7 +364,8 @@ tree, listbox, richlistbox
     {
         color: @foreground;
         
-        treecol
+        treecol,
+        treecolpicker
         {
             background: @contrast;
         }
@@ -386,6 +387,7 @@ tree, listbox, richlistbox
         color: @textbox-foreground;
         
         treecol,
+        treecolpicker,
         &:not(tree),
         .tree-rows
         {
@@ -404,7 +406,8 @@ tree, listbox, richlistbox
     }
 }
 
-treecol
+treecol,
+treecolpicker
 {
     color: @caption;
     
@@ -413,6 +416,15 @@ treecol
         padding: 0.5rem 4px;
         font-weight: bold;
     }
+}
+
+treecolpicker
+{
+    > image
+    {
+        list-style-image: none !important;
+    }
+    .columns-icon();
 }
 
 ::-moz-tree-row {
