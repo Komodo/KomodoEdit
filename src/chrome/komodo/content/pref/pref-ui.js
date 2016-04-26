@@ -58,8 +58,12 @@ function PrefUi_OnLoad() {
             $(`#${id} > menupopup`, window).append(menuitem);
         }
         
+        var el = $(`#${id}`);
+        var placeholder = $("<box/>");
+        el.replaceWith(placeholder);
+        
         // sort by dark scheme
-        $(`#${id} > menupopup`, window).children().each(function ()
+        el.find("menupopup", window).children().each(function ()
         {
             if (this._isDark)
             {
@@ -69,15 +73,15 @@ function PrefUi_OnLoad() {
             }
         });
         
-        $(`#${id} > menupopup`, window).children().each(function ()
+        el.find("menupopup", window).children().each(function ()
         {
             if ( ! this.classList.contains('primary_menu_item')) return;
             while (this.previousSibling && ! this.previousSibling.classList.contains('primary_menu_item'))
                 this.parentNode.insertBefore(this, this.previousSibling);
         });
         
-        $(`#${id} > menupopup .primary_menu_item`, window).last().after($("<menuseparator/>"));
-        
+        el.find(".primary_menu_item", window).last().after($("<menuseparator/>"));
+        placeholder.replaceWith(el);
         //var schemeName = prefs.getString(id);
         //$(`#${id}`).element().selectedItem = $(`#${id} menuitem[label="${schemeName}"]`).element();
     };
