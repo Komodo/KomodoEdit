@@ -273,15 +273,8 @@ this.writeClassicFile = function()
 var toolboxVisibile = null;
 this.updateToolboxVisibility = function uilayout_updateToolboxVisibility()
 {
-    var toolbox = document.getElementById('toolbox_main');
+    var toolbox = document.getElementById('main-toolboxrow-wrapper');
     var windowNode = document.getElementById('komodo_main');
-    
-    if (_gPrefs.getBoolean("ui.hide.chrome"))
-    {
-        toolbox.collapsed = false;
-        windowNode.classList.remove("toolbox-hidden");
-        return;
-    }
     
     var broadcaster = document.getElementById('cmd_toggleMenubar');
     var menubarShowing = (broadcaster && broadcaster.getAttribute('checked') == 'true');
@@ -298,7 +291,7 @@ this.updateToolboxVisibility = function uilayout_updateToolboxVisibility()
     }
     
     // #if PLATFORM != "darwin"
-    if (toolboxVisibile != null && toolboxVisibile != !toolbox.collapsed && toolbox.collapsed)
+    if ( ! _gPrefs.getBoolean("ui.hide.chrome") && toolbox.collapsed && ! menubarShowing)
     {
         require("notify/notify").interact("Toolbar & Menubar hidden, hit ALT to access the Komodo menu", "customization");
     }
@@ -1677,7 +1670,6 @@ this.onload = function uilayout_onload()
     _prefobserver = new _PrefObserver();
     _prefobserver.init();
     _updateAccesskeys();
-    _updateHiddenToolbars();
     this._updateToolbarViewStates();
     this._updateToolbarSeparators();
     ko.main.addWillCloseHandler(ko.uilayout.unload);
@@ -1900,28 +1892,6 @@ function _enableAccesskey(elt, enable) {
         if (elt.hasAttribute('accesskey')) {
             elt.setAttribute('_accesskey', elt.getAttribute('accesskey'));
             elt.removeAttribute('accesskey');
-        }
-    }
-}
-
-/**
- * Change from use "hidden" attribute to using the "kohidden" attribute.
- *
- * Note: This function can be dropped in Komodo 7.1.
- */
-function _updateHiddenToolbars()
-{
-    var mainToolbox = document.getElementById("toolbox_main");
-    var toolbars = mainToolbox.getElementsByTagName('toolbar');
-    for (var i=0; i < toolbars.length; i++ ) {
-        if (toolbars[i].getAttribute("hidden")) {
-            if (toolbars[i].getAttribute("hidden") == "true") {
-                toolbars[i].setAttribute("kohidden", "true");
-            } else {
-                toolbars[i].setAttribute("kohidden", "false");
-            }
-            toolbars[i].removeAttribute("hidden");
-            _log.debug("Migrating hidden toolbar " + toolbars[i].id);
         }
     }
 }

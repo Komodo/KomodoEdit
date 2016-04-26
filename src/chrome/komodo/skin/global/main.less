@@ -5,9 +5,40 @@
 #toolbox_main
 {
     border: 0;
-    padding: 4px;
-    color: @foreground-special;
-    background: @special;
+    
+    #unifiedMenuButton .toolbarbutton-text
+    {
+        color: @foreground-special;
+    }
+    
+    #toolbar-menubar
+    {
+        toolbaritem
+        {
+            margin: 0;
+            padding: 0;
+            border-radius: 0;
+        }
+    }
+    
+    #unifiedMenuButton .toolbarbutton-text
+    {
+        color: @foreground-special;
+    }
+    
+    #titlebar
+    {
+        padding: 0 4px 4px;
+        color: @foreground-special;
+        background: @special;
+    }
+    
+    #main-toolboxrow-wrapper
+    {
+        padding: 4px;
+        color: @foreground-special;
+        background: @special;
+    }
     
     toolbar toolbaritem
     {
