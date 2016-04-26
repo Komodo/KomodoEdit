@@ -429,13 +429,7 @@
 
             this._setupHighlightColors(this.scintilla);
             
-            var tv = ko.views.manager.topView;
-            if ("_viewChangedTimer" in tv)
-                window.clearTimeout(tv._viewChangedTimer);
-            tv._viewChangedTimer = window.setTimeout(() => {
-                delete tv._viewChangedTimer;
-                xtk.domutils.fireEvent(this, 'current_view_changed');
-            }, 200);
+            xtk.domutils.fireEvent(this, 'current_view_changed');
             
             this.addEventListener('current_view_linecol_changed',
                                     this.handle_current_view_linecol_changed, false);
