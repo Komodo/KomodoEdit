@@ -323,8 +323,12 @@
             $("#schemespopup").append(menuitem);
         }
         
+        var list = $("#schemeslist");
+        var popup = $("#schemespopup");
+        list.virtualize();
+        
         // sort by dark scheme
-        $("#schemespopup").children().each(function ()
+        popup.children().each(function ()
         {
             if (this._isDark)
             {
@@ -334,14 +338,16 @@
             }
         });
         
-        $("#schemespopup").children().each(function ()
+        popup.children().each(function ()
         {
             if ( ! this.classList.contains('primary_menu_item')) return;
             while (this.previousSibling && ! this.previousSibling.classList.contains('primary_menu_item'))
                 this.parentNode.insertBefore(this, this.previousSibling);
         });
         
-        $("#schemespopup .primary_menu_item").last().after($("<menuseparator/>"));
+        popup.find(".primary_menu_item").last().after($("<menuseparator/>"));
+        
+        list.unvirtualize();
         
         $("#schemeslist").element().selectedItem = $(`#schemeslist menuitem[label="${selectedScheme.name}"]`).element();
     };
