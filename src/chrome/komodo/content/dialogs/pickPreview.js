@@ -98,12 +98,8 @@ function OnLoad()
         widgets.cancelButton.setAttribute("accesskey",
                                           _bundle.GetStringFromName("cancelButton.accesskey"));
 
-        widgets.promptDesc = document.getElementById("prompt");
-        widgets.useWhichRadiogroup = document.getElementById("use-which-file");
-        widgets.useThisRadio = document.getElementById("use-this-file");
-        widgets.useAnotherRadio = document.getElementById("use-another-file");
         widgets.browseButton = document.getElementById("browse-button");
-        widgets.otherFileTextbox = document.getElementById("other-file");
+        widgets.fileTextbox = document.getElementById("file-uri");
         widgets.browserMenulist = document.getElementById("browser-select-menulist");
         widgets.browserMenupopup = document.getElementById("browser-select-menupopup");
         widgets.rememberCheckbox = document.getElementById("remember");
@@ -120,25 +116,15 @@ function OnLoad()
         // Title
         document.title = _bundle.formatStringFromName("previewInBrowser", [gBasename], 1);
 
-        // Prompt
-        var prompt = _bundle.formatStringFromName("selectAFileOrUrlToUseToPreview", [gBasename], 1);
-        widgets.promptDesc.appendChild(document.createTextNode(prompt));
-
         var mapped = ko.uriparse.getMappedPath(gURL);
         if (mapped != gURL) {
-            widgets.otherFileTextbox.value = mapped;
+            widgets.fileTextbox.value = mapped;
         }
-    
-        // Language-dependent UI.
-        if (language == "HTML" || language == "XML" /* ...others? */) {
-            widgets.useWhichRadiogroup.selectedItem = widgets.useThisRadio;
-            widgets.okButton.focus();
-        } else {
-            widgets.useWhichRadiogroup.selectedItem = widgets.useAnotherRadio;
-            //widgets.useThisRadio.setAttribute("disabled", "true");
-            widgets.otherFileTextbox.focus();
+        else
+        {
+            widgets.fileTextbox.value = gURL;
         }
-        UpdateAnotherGroup();
+
         LoadAvailableBrowsers(browserType);
 
         if (gMode == "setting") {
@@ -156,33 +142,6 @@ function OnLoad()
     }
 }
 
-
-function UpdateAnotherGroup()
-{
-    // Update the "Another File" group for a change in the radio buttons
-    // selection.
-    try {
-        var useWhich = widgets.useWhichRadiogroup.value;
-        if (useWhich == "use-this") {
-            widgets.otherFileTextbox.setAttribute("disabled", "true");
-            widgets.browseButton.setAttribute("disabled", "true");
-            if (widgets.okButton.hasAttribute("disabled"))
-                widgets.okButton.removeAttribute("disabled");
-        } else /* useWhich == "use-another" */ {
-            if (widgets.otherFileTextbox.hasAttribute("disabled"))
-                widgets.otherFileTextbox.removeAttribute("disabled");
-            if (widgets.browseButton.hasAttribute("disabled"))
-                widgets.browseButton.removeAttribute("disabled");
-            if (!widgets.otherFileTextbox.value) {
-                widgets.okButton.setAttribute("disabled", "true");
-            }
-        }
-    } catch(ex) {
-        log.exception(ex, "Error updating 'another file' group.");
-    }
-}
-
-
 function LoadAvailableBrowsers(browserType)
 {
     try {
@@ -192,15 +151,19 @@ function LoadAvailableBrowsers(browserType)
             return;
 
         // Load the menuitems, though we must remove the oncommand attribute.
-        ko.uilayout.populatePreviewToolbarButton(popup);
-        var menuitem = popup.firstChild;
-        var selectedItem = null;
-        while (menuitem) {
-            if (browserType && menuitem.getAttribute("value") == browserType) {
+        var items = ko.uilayout.populatePreviewToolbarButton();
+        for (let item of items) {
+            let menuitem = document.createElement("menuitem");
+            menuitem.setAttribute("label", item.label);
+            menuitem.setAttribute("value", item.value);
+            menuitem.setAttribute("class", item.classList);
+            menuitem.setAttribute("tooltiptext", item.tooltiptext);
+            
+            popup.appendChild(menuitem);
+            
+            if (browserType && item.value == browserType) {
                 selectedItem = menuitem;
             }
-            menuitem.removeAttribute("oncommand");
-            menuitem = menuitem.nextSibling;
         }
         if (selectedItem) {
             widgets.browserMenulist.selectedItem = selectedItem;
@@ -217,9 +180,9 @@ function Browse()
         // Default to the current textbox entry, fallback to directory
         // of given URL.
         var defaultDir, defaultFile;
-        if (widgets.otherFileTextbox.value) {
+        if (widgets.fileTextbox.value) {
             defaultDir = null;
-            defaultFile = widgets.otherFileTextbox.value;
+            defaultFile = widgets.fileTextbox.value;
         } else {
             var localPath = opener.ko.uriparse.URIToLocalPath(gURL);
             defaultDir = opener.ko.uriparse.dirName(localPath);
@@ -232,11 +195,11 @@ function Browse()
                     "HTML", // default filter name
                     ["HTML", "XML", "All"]); // allowed filters
         if (path != null) {
-            widgets.otherFileTextbox.value = path;
-            UpdateOtherFileTextbox();
+            widgets.fileTextbox.value = path;
+            UpdateFileTextbox();
             widgets.okButton.focus();
         } else {
-            widgets.otherFileTextbox.focus();
+            widgets.fileTextbox.focus();
         }
     } catch(ex) {
         log.exception(ex, "Error browsing for a preview file.");
@@ -244,11 +207,11 @@ function Browse()
 }
 
 
-function UpdateOtherFileTextbox()
+function UpdateFileTextbox()
 {
     // Update as required for a change in the "other file" textbox element.
     try {
-        if (widgets.otherFileTextbox.value) {
+        if (widgets.fileTextbox.value) {
             if (widgets.okButton.hasAttribute("disabled"))
                 widgets.okButton.removeAttribute("disabled");
         } else {
@@ -266,34 +229,30 @@ function Preview()
         window.arguments[0].retval = widgets.okButton.getAttribute("label");
 
         var preview;
-        if (widgets.useWhichRadiogroup.value == "use-another") {
-            preview = widgets.otherFileTextbox.value;
+        preview = widgets.fileTextbox.value;
 
-            var koFileEx = Components.classes["@activestate.com/koFileEx;1"]
-                            .createInstance(Components.interfaces.koIFileEx);
+        var koFileEx = Components.classes["@activestate.com/koFileEx;1"]
+                        .createInstance(Components.interfaces.koIFileEx);
 
-            // If the preview is relative then prefix the dirname of the
-            // given URL.
-            // XXX koIFileEx doesn't provide this ability.
-            koFileEx.URI = preview;
-            if (koFileEx.isLocal) {
-                var osPathSvc = Components.classes["@activestate.com/koOsPath;1"]
-                                .createInstance(Components.interfaces.koIOsPath);
-                if (! osPathSvc.isabs(preview)) {
-                    preview = opener.ko.uriparse.dirName(gURL) + "/" + preview;
-                    preview = osPathSvc.normpath(preview);
-                }
+        // If the preview is relative then prefix the dirname of the
+        // given URL.
+        // XXX koIFileEx doesn't provide this ability.
+        koFileEx.URI = preview;
+        if (koFileEx.isLocal) {
+            var osPathSvc = Components.classes["@activestate.com/koOsPath;1"]
+                            .createInstance(Components.interfaces.koIOsPath);
+            if (! osPathSvc.isabs(preview)) {
+                preview = opener.ko.uriparse.dirName(gURL) + "/" + preview;
+                preview = osPathSvc.normpath(preview);
             }
+        }
 
-            // If the preview is a local file, ensure that it exists.
-            koFileEx.URI = preview;
-            if (koFileEx.isLocal && !koFileEx.exists) {
-                ko.dialogs.alert(_bundle.formatStringFromName("doesNotExist", [preview], 1));
-                widgets.otherFileTextbox.focus();
-                return false;
-            }
-        } else {
-            preview = gURL;
+        // If the preview is a local file, ensure that it exists.
+        koFileEx.URI = preview;
+        if (koFileEx.isLocal && !koFileEx.exists) {
+            ko.dialogs.alert(_bundle.formatStringFromName("doesNotExist", [preview], 1));
+            widgets.fileTextbox.focus();
+            return false;
         }
 
         window.arguments[0].preview = preview;

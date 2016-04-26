@@ -87,12 +87,13 @@
 <!ENTITY previewWithAnotherFileOrURL.label "Preview with another file or URL:">
 <!ENTITY previewWithThisFile.label "Preview with this file.">
 <!ENTITY previewUsing.label "Preview using:">
+<!ENTITY previewUrl.label "URL:">
 <!ENTITY previewUsingDefaultBrowser.value "Default Browser">
 <!ENTITY previousDiff.label "Previous Diff">
 <!ENTITY projectBaseDirectory.label "[[&#37;i]] : project base directory">
 <!ENTITY pythonConfiguredPythonInterpreter.label "[[&#37;python]] : Configured Python Interpreter">
 <!ENTITY remember.accesskey "R">
-<!ENTITY rememberThisSelectionForThisFile.label "Remember this selection for this file">
+<!ENTITY rememberThisSelectionForThisFile.label "Remember selection for this file">
 <!ENTITY remote.label "Remote...">
 <!ENTITY revealPositionInEditor.label "Reveal Position in Editor">
 <!ENTITY sSelection.label "[[&#37;s]] : selection">

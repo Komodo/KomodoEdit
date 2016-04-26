@@ -427,6 +427,7 @@ this.populatePreviewToolbarButton = function uilayout_populatePreviewToolbarButt
             label: _bundle.GetStringFromName("configuredBrowser"),
             tooltiptext: _bundle.GetStringFromName("seePreferencesWebBrowser"),
             command: "ko.views.manager.currentView.viewPreview(); event.stopPropagation();",
+            classList: "",
             value: "configured"
         },
 // #endif
