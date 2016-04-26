@@ -1058,6 +1058,40 @@ if (typeof module === 'undefined') module = {}; // debugging helper
                 this.parentNode.removeChild(this);
             });
         },
+        
+        /**
+         * Virtualizes the given element, this essentially takes it out of the DOM
+         * and allows you to make modifications to it without forcing DOM updates
+         *
+         * This element will not be selectable using DOM queries nor will it be
+         * able to use any sort of parent/sibling queries, until unvirtualized.
+         * 
+         * @returns {this} 
+         */
+        virtualize: function() {
+            this.each(function() {
+                this._virtualizedPlaceholder = $.createElement("<box/>");
+                this.parentNode.replaceChild(this._virtualizedPlaceholder, this);
+            });
+            
+            return this;
+        },
+        
+        /**
+         * Un-virtualizes the element
+         * 
+         * @returns {this} 
+         */
+        unvirtualize: function() {
+            this.each(function() {
+                if ( ! this._virtualizedPlaceholder)
+                    return;
+                
+                this._virtualizedPlaceholder.parentNode.replaceChild(this, this._virtualizedPlaceholder);
+            });
+            
+            return this;
+        },
 
         /**
          * Get first matched element
