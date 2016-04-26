@@ -21,7 +21,7 @@
         <script id="tpl-notify-panel" type="x-dot-template">
             <tooltip  anonid="notify-panel"
                     class="notify-panel {{=it.classlist}}" notify-from="{{=it.from}}">
-                <hbox class="wrapper">
+                <hbox class="wrapper" align="center">
                     {{?it.icon}}
                         <vbox pack="center">
                             <image class="icon" src="{{=it.icon}}?scheme-color=icons-special"></image>
