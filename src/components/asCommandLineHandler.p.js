@@ -147,7 +147,7 @@ komodoCmdLineHandler.prototype = {
     
     // This should run for every major upgrade AND when the pref is not set
     // 
-    if(! prefSvc.prefs.getBoolean("wizard.finished", false))
+    if(! prefSvc.prefs.getBoolean("disableImportProfile", false) && ! prefSvc.prefs.getBoolean("wizard.finished", false))
     {
          var dialog = openWindow(null,
                             "chrome://komodo/content/startupWizard/startupWizard.xul",

@@ -328,6 +328,11 @@ class KoInitService(object):
         
         # Cannot be called before upgradeUserSettings, as it initiates the
         # prefs before they should be used
+        if hasattr(self, 'disableImportProfile') and self.disableImportProfile:
+            prefs = components.classes["@activestate.com/koPrefService;1"]\
+                    .getService(components.interfaces.koIPrefService).prefs
+            prefs.setBoolean("disableImportProfile", True)
+        
         self.startErrorReporter()
         self.installSamples(False)
 
