@@ -21,16 +21,16 @@
         <![CDATA[
           try
           {
+            // Set os-name attribute for use in CSS
+            var sysInfo = Components.classes["@mozilla.org/system-info;1"].getService(Components.interfaces.nsIPropertyBag2);
+            document.documentElement.setAttribute("os-name", sysInfo.get("name"));
+            
             var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator);
             var w = wm.getMostRecentWindow("Komodo");
             if ( ! w) return;
             
             var evt = new CustomEvent("window_opened", { detail: window });
             w.dispatchEvent(evt);
-            
-            // Set os-name attribute for use in CSS
-            var sysInfo = Components.classes["@mozilla.org/system-info;1"].getService(Components.interfaces.nsIPropertyBag2);
-            document.documentElement.setAttribute("os-name", sysInfo.get("name"));
             
             this.loadVirtualStylesheets();
           }
@@ -73,16 +73,16 @@
         <![CDATA[
           try
           {
+            // Set os-name attribute for use in CSS
+            var sysInfo = Components.classes["@mozilla.org/system-info;1"].getService(Components.interfaces.nsIPropertyBag2);
+            document.documentElement.setAttribute("os-name", sysInfo.get("name"));
+            
             var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator);
             var w = wm.getMostRecentWindow("Komodo");
             if ( ! w) return;
             
             var evt = new CustomEvent("window_opened", { detail: window });
             w.dispatchEvent(evt);
-            
-            // Set os-name attribute for use in CSS
-            var sysInfo = Components.classes["@mozilla.org/system-info;1"].getService(Components.interfaces.nsIPropertyBag2);
-            document.documentElement.setAttribute("os-name", sysInfo.get("name"));
             
             this.loadVirtualStylesheets();
           }
