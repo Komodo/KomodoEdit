@@ -1750,9 +1750,9 @@ this.updateWindowButtons = function (w) {
     var leftSide = _gPrefs.getBoolean("ui.windowbuttons.left");
     for (let windowButtons of windowButtonsAll) {
         let children = windowButtons.childNodes;
-        let min = children[0];
-        let max = children[1];
-        let close = children[2];
+        let min = windowButtons.querySelector("#windowButtons #min");
+        let max = windowButtons.querySelector("#windowButtons #max");
+        let close = windowButtons.querySelector("#windowButtons #close");
         
         if (leftSide)
             windowButtons.setAttribute("ordinal", 0);

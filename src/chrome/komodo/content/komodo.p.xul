@@ -569,9 +569,9 @@
                 </hbox>
                 <!-- #endif -->
                         
-                <toolbarbutton buttonstyle="pictures" class="icon-minus-circle2" oncommand="window.minimize();"/>
-                <toolbarbutton buttonstyle="pictures" class="icon-plus-circle2" oncommand="window.windowState === 1 ? window.restore() : window.maximize();"/>
-                <toolbarbutton buttonstyle="pictures" class="icon-cancel-circle2" oncommand="window.close();"/>
+                <toolbarbutton buttonstyle="pictures" id="min" class="icon-minus-circle2" oncommand="window.minimize();"/>
+                <toolbarbutton buttonstyle="pictures" id="max" class="icon-plus-circle2" oncommand="window.windowState === 1 ? window.restore() : window.maximize();"/>
+                <toolbarbutton buttonstyle="pictures" id="close" class="icon-cancel-circle2" oncommand="window.close();"/>
             </hbox>
         </hbox>
         
@@ -2039,9 +2039,9 @@
             />
             
             <hbox id="windowButtons" align="center" pack="right">
-                <toolbarbutton buttonstyle="pictures" class="icon-minus-circle2" onclick="window.minimize();"/>
-                <toolbarbutton buttonstyle="pictures" class="icon-plus-circle2" onclick="window.windowState === 1 ? window.restore() : window.maximize();"/>
-                <toolbarbutton buttonstyle="pictures" class="icon-cancel-circle2" onclick="if (window.tryToClose()) window.close();"/>
+                <toolbarbutton buttonstyle="pictures" id="min" class="icon-minus-circle2" onclick="window.minimize();"/>
+                <toolbarbutton buttonstyle="pictures" id="max" class="icon-plus-circle2" onclick="window.windowState === 1 ? window.restore() : window.maximize();"/>
+                <toolbarbutton buttonstyle="pictures" id="close" class="icon-cancel-circle2" onclick="if (window.tryToClose()) window.close();"/>
             </hbox>
 
             <!-- #if PLATFORM == "darwin" -->

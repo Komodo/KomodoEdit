@@ -136,9 +136,9 @@
                 <xul:label xbl:inherits="value=title" flex="1" style="text-align: center"/>
               
                 <xul:hbox id="windowButtons" align="center" pack="end">
-                    <xul:toolbarbutton buttonstyle="pictures" class="icon-minus-circle2" onclick="window.minimize();"/>
-                    <xul:toolbarbutton buttonstyle="pictures" class="icon-plus-circle2" onclick="window.windowState === 1 ? window.restore() : window.maximize();"/>
-                    <xul:toolbarbutton buttonstyle="pictures" class="icon-cancel-circle2" onclick="window.close();"/>
+                    <xul:toolbarbutton buttonstyle="pictures" id="min" class="icon-minus-circle2" onclick="window.minimize();"/>
+                    <xul:toolbarbutton buttonstyle="pictures" id="max" class="icon-plus-circle2" onclick="window.windowState === 1 ? window.restore() : window.maximize();"/>
+                    <xul:toolbarbutton buttonstyle="pictures" id="close" class="icon-cancel-circle2" onclick="window.close();"/>
                 </xul:hbox>
             </xul:hbox>
             <children/>
@@ -237,9 +237,9 @@
           <xul:label xbl:inherits="value=title" flex="1" style="text-align: center"/>
         
           <xul:hbox id="windowButtons" align="center" pack="end">
-              <xul:toolbarbutton buttonstyle="pictures" class="icon-minus-circle2" onclick="window.minimize();"/>
-              <xul:toolbarbutton buttonstyle="pictures" class="icon-plus-circle2" onclick="window.windowState === 1 ? window.restore() : window.maximize();"/>
-              <xul:toolbarbutton buttonstyle="pictures" class="icon-cancel-circle2" onclick="window.close();"/>
+              <xul:toolbarbutton buttonstyle="pictures" id="min" class="icon-minus-circle2" onclick="window.minimize();"/>
+              <xul:toolbarbutton buttonstyle="pictures" id="max" class="icon-plus-circle2" onclick="window.windowState === 1 ? window.restore() : window.maximize();"/>
+              <xul:toolbarbutton buttonstyle="pictures" id="close" class="icon-cancel-circle2" onclick="window.close();"/>
           </xul:hbox>
       </xul:hbox>
       
