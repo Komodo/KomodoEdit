@@ -109,7 +109,7 @@ function OnPreferencePageOK(prefset) {
     var timeoutTextbox = document.getElementById("remotefiles_defaultConnectionTimeout");
     if (timeoutTextbox) {
       var timeoutAsInt = parseInt(timeoutTextbox.value);
-      if (timeoutAsInt <= 0) {
+      if (timeoutAsInt <= 0 || isNaN(timeoutAsInt)) {
         ko.dialogs.alert("Servers: The default connection timeout field must be an integer greater than zero.");
         return false;
       }
