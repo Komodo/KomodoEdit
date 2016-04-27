@@ -868,7 +868,7 @@ adding an additional caret at the clicked position.">
 <!ENTITY portNumber.label "Port">
 <!ENTITY userName.label "Username (*)">
 <!ENTITY password.label "Password">
-<!ENTITY defaultPath.label "Default path">
+<!ENTITY defaultPath.label "Default path (absolute only)">
 <!ENTITY requiredFieldMark.label "Required fields are marked with (*)">
 <!ENTITY timeoutSeconds.label "Timeout (seconds):">
 
