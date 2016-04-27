@@ -277,7 +277,15 @@ class KoCodeIntelCatalogsTreeView(TreeView):
                     properties.AppendElement(self.atomSvc.getAtom(langprop))
             except KeyError, ex:
                 raise ValueError("getCellText: unexpected col.id: %r" % col.id)
-
+        if col.id == "catalogs-selected":
+            if properties is None:
+                properties = ""
+            properties += " checkbox"
+            if self._rows[row_idx]["selected"]:
+                properties += " checked"
+            
+            return properties.lstrip()
+        
     def isSorted(self):
         return self._sortData != (None, None)
 

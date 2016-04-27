@@ -405,6 +405,25 @@ treechildren::-moz-tree-twisty(open) {
     background-image: url("koicon://ko-svg/chrome/komodo/skin/images/trees/twisty-down.svg?size=14&color=@{escaped-icons}");
 }
 
+treechildren::-moz-tree-checkbox,
+treechildren::-moz-tree-cell(checkbox) {
+    background-image: url("koicon://ko-svg/chrome/fontawesome/skin/square.svg?size=16") !important;
+    background-size: 16px;
+    background-repeat: no-repeat;
+}
+
+treechildren::-moz-tree-checkbox(checked),
+treechildren::-moz-tree-cell(checkbox, checked) {
+    background-image: url("koicon://ko-svg/chrome/fontawesome/skin/check-square.svg?size=16") !important;
+    background-size: 16px;
+    background-repeat: no-repeat;
+}
+
+treechildren::-moz-tree-checkbox(disabled)
+{
+    opacity: 0.25;
+}
+
 dropmarker {
     .icon();
     .icon-down-tiny();

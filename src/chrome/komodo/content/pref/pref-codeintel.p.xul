@@ -153,6 +153,7 @@
                   seltype="multiple" class="no-border"
                   editable="true"
                   rows="6"
+                  style="min-height: 160px"
                   onselect="PrefCodeIntel_UpdateCatalogsUI();"
                   onclick="return PrefCodeIntel_CatalogsOnClick(event);"
                   onkeypress="return PrefCodeIntel_CatalogsOnKeyPress(event);">
