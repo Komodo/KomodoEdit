@@ -726,8 +726,8 @@
         - string pref == "All": Reload all changed files when komodo gains focus
         - string pref == "None":  Reload no changed files when komodo gains focus
     -->
-  <boolean id="donotask_reload_changed_files">0</boolean>
-  <string id="donotask_action_reload_changed_files"></string>
+  <boolean id="donotask_reload_changed_files">1</boolean>
+  <string id="donotask_action_reload_changed_files">All</string>
   
   <boolean id="select_most_recent_buffer_on_buffer_close">false</boolean>
 
