@@ -270,34 +270,20 @@ this.writeClassicFile = function()
         writeContents();
 }
 
-var toolboxVisibile = null;
 this.updateToolboxVisibility = function uilayout_updateToolboxVisibility()
 {
-    var toolbox = document.getElementById('main-toolboxrow-wrapper');
-    var windowNode = document.getElementById('komodo_main');
-    
     var broadcaster = document.getElementById('cmd_toggleMenubar');
     var menubarShowing = (broadcaster && broadcaster.getAttribute('checked') == 'true');
     
-    var broadcaster = document.getElementById('cmd_toggleToolbars');
+    broadcaster = document.getElementById('cmd_toggleToolbars');
     var toolbarsShowing = (broadcaster && broadcaster.getAttribute('checked') == 'true');
-    
-    if ( ! menubarShowing && ! toolbarsShowing) {
-        toolbox.collapsed = true;
-        windowNode.classList.add("toolbox-hidden");
-    } else {
-        toolbox.collapsed = false;
-        windowNode.classList.remove("toolbox-hidden");
-    }
-    
+
     // #if PLATFORM != "darwin"
-    if ( ! _gPrefs.getBoolean("ui.hide.chrome") && toolbox.collapsed && ! menubarShowing)
+    if ( ! _gPrefs.getBoolean("ui.hide.chrome") && ! toolbarsShowing && ! menubarShowing)
     {
         require("notify/notify").interact("Toolbar & Menubar hidden, hit ALT to access the Komodo menu", "customization");
     }
     // #endif
-    
-    toolboxVisibile = !toolbox.collapsed;
 }
 
 // #endif
