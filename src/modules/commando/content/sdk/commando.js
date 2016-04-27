@@ -1586,19 +1586,27 @@
         
         log.debug("Restoring state for " + scope);
         
-        for (let k in state.local)
-            local[k] = state.local[k];
-        
-        c._selectScope(local.selectedScope);
+        try
+        {
+            for (let k in state.local)
+                local[k] = state.local[k];
             
-        elem('results').append(state.resultElemChildren.children());
-        elem('subscopeWrap').replaceWith(state.subscopeElem);
-        
-        local.elemCache = {};
-        
-        elem('results').element().selectedIndex = state.resultIndex;
-        elem('results').element().ensureIndexIsVisible(state.resultIndex);
-        elem('search').value(local.prevSearchValue);
+            c._selectScope(local.selectedScope);
+                
+            elem('results').append(state.resultElemChildren.children());
+            elem('subscopeWrap').replaceWith(state.subscopeElem);
+            
+            local.elemCache = {};
+            
+            elem('results').element().selectedIndex = state.resultIndex;
+            elem('results').element().ensureIndexIsVisible(state.resultIndex);
+            elem('search').value(local.prevSearchValue);
+        }
+        catch (e)
+        {
+            log.exception(e);
+            return false;
+        }
         
         c.center();
         onPreview();
