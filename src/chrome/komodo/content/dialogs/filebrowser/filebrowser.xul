@@ -53,6 +53,7 @@
   orient="vertical"
   onload="filebrowserLoad();"
   onclose="filebrowserClose();"
+  class="dialog"
   height="400" width="560"
   persist="screenX screenY width height">
 
