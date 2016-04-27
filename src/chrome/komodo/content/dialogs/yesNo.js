@@ -84,8 +84,8 @@ function OnLoad()
         }
     }
 
-    if ("hidechrome" in window.arguments[0]) {
-        document.documentElement.setAttribute("hidechrome", "yes");
+    if ("hidechrome" in window.arguments[0] && window.arguments[0].hidechrome) {
+        document.documentElement.setAttribute("hidechrome", "true");
     }
 
     var dialog = document.getElementById("dialog-yesno");
