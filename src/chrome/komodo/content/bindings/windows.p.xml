@@ -131,7 +131,7 @@
         <xul:resizer dir="left"/>
         <xul:vbox xbl:inherits="orient" class="window-wrapper" flex="1">
             <xul:hbox id="titlebar" pack="center" align="center">
-                <xul:spacer></xul:spacer>
+                <xul:spacer id="windowButtonsSpacer"></xul:spacer>
                 
                 <xul:label xbl:inherits="value=title" flex="1" style="text-align: center"/>
               
@@ -232,7 +232,7 @@
     <content>
 
       <xul:hbox id="titlebar" pack="center" align="center">
-          <xul:spacer></xul:spacer>
+          <xul:spacer id="windowButtonsSpacer"></xul:spacer>
           
           <xul:label xbl:inherits="value=title" flex="1" style="text-align: center"/>
         

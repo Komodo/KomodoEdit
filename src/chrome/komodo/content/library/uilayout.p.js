@@ -1755,13 +1755,37 @@ this.updateWindowButtons = function (w) {
         let close = windowButtons.querySelector("#windowButtons #close");
         
         if (leftSide)
+        {
+            windowButtons.setAttribute("pack","start");
             windowButtons.setAttribute("ordinal", 0);
+        }
         else
+        {
+            windowButtons.setAttribute("pack", "end");
             windowButtons.removeAttribute("ordinal");
+        }
             
-        min.setAttribute("ordinal", _gPrefs.getLong("ui.windowbuttons.min.ordinal", 0)); 
-        max.setAttribute("ordinal", _gPrefs.getLong("ui.windowbuttons.max.ordinal", 1)); 
-        close.setAttribute("ordinal", _gPrefs.getLong("ui.windowbuttons.close.ordinal", 2));
+        min.setAttribute("ordinal", _gPrefs.getLong("ui.windowbuttons.min.ordinal", 0) + 1); 
+        max.setAttribute("ordinal", _gPrefs.getLong("ui.windowbuttons.max.ordinal", 1) + 1); 
+        close.setAttribute("ordinal", _gPrefs.getLong("ui.windowbuttons.close.ordinal", 2) + 1);
+    }
+    
+    // Move spacer to right side
+    var spacer = w.document.getElementById('windowButtonsSpacer');
+    if (spacer) {
+        if (leftSide)
+            spacer.setAttribute("ordinal", 10);
+        else
+            spacer.removeAttribute("ordinal");
+    }
+    
+    // Move prefix to right side (technically now a suffix)
+    var prefix = w.document.getElementById('windowButtonsPrefix');
+    if (prefix) {
+        if (leftSide)
+            prefix.setAttribute("ordinal", 10);
+        else
+            prefix.setAttribute("ordinal", 0);
     }
 }
 

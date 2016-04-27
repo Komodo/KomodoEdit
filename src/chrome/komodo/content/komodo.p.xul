@@ -559,7 +559,7 @@
           
             <hbox id="windowButtons" align="center" pack="end">
                 <!-- #if PLATFORM != "darwin" -->
-                <hbox ordinal="0" align="center">
+                <hbox ordinal="0" align="center" id="windowButtonsPrefix">
                     <toolbarbutton id="unifiedMenuButtonTitlebar"
                         tooltiptext="&menu.tooltiptext;"
                         class="menu-icon"
