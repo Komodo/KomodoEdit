@@ -1026,6 +1026,21 @@ class KoInitService(object):
             # We've got a slacker, delete it
             log.debug("deletePref: %s" % prefId)
             prefs.deletePref(prefId)
+    
+    # Force prefs to be set at the user level because of broken logic that
+    # needs to be fixed - bug #1311
+    def _forceUserPrefs(self, prefs):
+        prefsToSet = {"tabWidth": "long",
+                      "indentWidth": "long",
+                      "useTabs": "bool",
+                      "useSmartTabs": "bool"}
+        
+        for pref,kind in prefsToSet.iteritems():
+            if not prefs.hasPrefHere(pref):
+                if kind == "long":
+                    prefs.setLong(pref, prefs.getLong(pref))
+                if kind == "bool":
+                    prefs.setBoolean(pref, prefs.getBoolean(pref))
 
     def _upgradeUserPrefs(self, prefs):
         """Upgrade any specific info in the user's prefs.xml.
@@ -1420,7 +1435,8 @@ class KoInitService(object):
             if self.majorUpgrade and not self.majorUpgradeNonSeq:
                 self._deleteNonVitalUserPrefs(prefs)
                 prefs.setBoolean("isMajorUpgrade", True)
-                    
+            
+            self._forceUserPrefs(prefs)
             self._upgradeUserPrefs(prefs)
         except Exception:
             log.exception("upgradeUserSettings")
