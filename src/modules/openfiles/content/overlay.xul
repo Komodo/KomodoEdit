@@ -32,19 +32,19 @@
         <broadcasterset id="broadcasterset_global">
     
             <broadcaster
-                id="broadcaster_toggleTabBar"
+                id="cmd_toggleTabBar"
                 key="key_cmd_toggleTabBar"
                 type="checkbox"
                 desc="&viewEditorTabs.label;"
                 oncommand="ko.openfiles.toggleTabBar()"/>
             <broadcaster
-                id="broadcaster_toggleOpenFiles"
+                id="cmd_toggleOpenFiles"
                 key="key_cmd_toggleOpenFiles"
                 desc="&userInterfaceShowHideOpenFilesTab.desc;"
                 autoCheck="false"
                 oncommand="ko.openfiles.togglePane()"/>
             <broadcaster
-                id="broadcaster_focusOpenFiles"
+                id="cmd_focusOpenFiles"
                 key="key_cmd_focusOpenFiles"
                 desc="&userInterfaceFocusOpenFilesTab.desc;"
                 autoCheck="false"
