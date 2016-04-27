@@ -2,7 +2,7 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 
 (function() {
     var log = require("ko/logging").getLogger("startupWizard");
-    log.setLevel(10);
+    //log.setLevel(10);
     
     var $ = require("ko/dom");
     var prefs = require("ko/prefs");
@@ -26,6 +26,52 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
         $("window").append(wizard);
         
         this.loadSample();
+        
+        // OSX in particular likes to hide our window, force it not to
+        try
+        {
+            this.pinWindow();
+        }
+        catch (e)
+        {
+            log.exception(e);
+        }
+
+        // OSX again likes to be difficult and I dunno.. NOT paint scintilla?
+        // MAKE IT!
+        window.addEventListener("focus", this.forcePaint);
+        this.forcePaint();
+    };
+
+    this.forcePaint = (isRepaint) =>
+    {
+        // pluginPaintHack for some reason does not suffice, so force a redraw by hiding and showing
+        $("#sample").css("visibility", "hidden");
+        setTimeout(function() {
+            $("#sample").css("visibility", "visible");
+        }, 50);
+        
+        if ( ! isRepaint)
+            setTimeout(this.forcePaint.bind(null, true), 1000);
+    };
+    
+    this.pinWindow = () =>
+    {
+        function getXULWindowForDOMWindow(win)
+            win.QueryInterface(Ci.nsIInterfaceRequestor)
+               .getInterface(Ci.nsIWebNavigation)
+               .QueryInterface(Ci.nsIDocShellTreeItem)
+               .treeOwner
+               .QueryInterface(Ci.nsIInterfaceRequestor)
+               .getInterface(Ci.nsIXULWindow)
+
+        let rootWin = getXULWindowForDOMWindow(window);
+        let parentWin = ((opener && !opener.closed) ?
+                         getXULWindowForDOMWindow(opener)
+                         : null);
+        Cc["@activestate.com/koIWindowManagerUtils;1"]
+          .getService(Ci.koIWindowManagerUtils)
+          .setOnTop(rootWin, parentWin, true);
     };
     
     this.createFields = () =>
@@ -73,7 +119,7 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
         fields.softchars.checked( prefs.getBoolean("codeintelAutoInsertEndTag") );
         
         fields.showLineNumbers = require("ko/ui/checkbox").create("Show line numbers in Editor");
-        fields.showLineNumbers.value( prefs.getBoolean("showLineNumbers") );
+        fields.showLineNumbers.checked( prefs.getBoolean("showLineNumbers") );
         
         fields.indentWidth = require("ko/ui/textbox").create({attributes: { type: "number", min: 1, max: 16, width: 60, maxlength: 2 }});
         fields.indentWidth.value( prefs.getLong("tabWidth") );

@@ -39,7 +39,7 @@ set to a chrome URL.
     <hbox id="scintillaOverlayXul"/>
     
     <stack id="sample-stack" align="stretch" pack="stretch" flex="1">
-        <view id="sample" type="buffer" flex="1" style="min-width: 400px"/>
+        <view id="sample" type="buffer" flex="1" pluginPaintHack="true" style="min-width: 400px"/>
         <hbox flex="1"/>
     </stack>
     
