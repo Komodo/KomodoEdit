@@ -333,7 +333,7 @@ projectManager.prototype.closeProject = function(project /*=this.currentProject*
         }
     }
     this._saveProjectViewState(project);
-    if ( ! ko.main.windowIsClosing)
+    if ( ! ko.main.windowIsTryingToClose)
     {
         var urls = this._getOpenURLsInProject(project);
         if (urls.length != 0) {

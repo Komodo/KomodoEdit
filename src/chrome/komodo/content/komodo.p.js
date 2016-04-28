@@ -75,6 +75,7 @@ function saveWorkspaceIfNeeded(reason) {
  * Is this window being closed?
  */
 this.windowIsClosing = false;
+this.windowIsTryingToClose = false;
 
 this.quitApplication = function() {
     try {
@@ -328,6 +329,7 @@ this.runWillCloseHandlers = function() {
 // See KD 229 for details.
 
 window.tryToClose = function() {
+    ko.main.windowIsTryingToClose = true;
     _log.debug(">> window.tryToClose");
     var res = ko.main.runCanCloseHandlers();
     if (res) {
@@ -336,6 +338,7 @@ window.tryToClose = function() {
         saveWorkspaceIfNeeded("try-to-close");
     }
     _log.debug("<< window.tryToClose: ret " + res.toString() + "\n");
+    ko.main.windowIsTryingToClose = res;
     return res;
 };
 
