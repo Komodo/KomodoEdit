@@ -21,16 +21,18 @@ function loadIntoWindow(window) {
         Cu.reportError(e);
     }
 
-    try {
-        var component = startupData.installPath.clone();
-        component.append("components");
-        component.append("component.manifest");
-
-        var registrar = Components.manager.QueryInterface(Ci.nsIComponentRegistrar);
-        registrar.autoRegister(component);
-    } catch (e) {
-        Cu.reportError("Commando: Exception while registering component for 'Files' scope");
-        Cu.reportError(e);
+    if ( ! ("@activestate.com/commando/koScopeFiles;1" in Components.classes)) {
+        try {
+            var component = startupData.installPath.clone();
+            component.append("components");
+            component.append("component.manifest");
+    
+            var registrar = Components.manager.QueryInterface(Ci.nsIComponentRegistrar);
+            registrar.autoRegister(component);
+        } catch (e) {
+            Cu.reportError("Commando: Exception while registering component for 'Files' scope");
+            Cu.reportError(e);
+        }
     }
 
     window.require("scope-files/files").prepare();
