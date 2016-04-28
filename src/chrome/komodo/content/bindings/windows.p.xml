@@ -185,25 +185,43 @@
       </constructor>
       <method name="restorePosition">
         <body>
+        <![CDATA[
           var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator);
           var _window = wm.getMostRecentWindow("Komodo");
           
           var id = document.documentElement.id || window.location.href;
           var dimensions =  _window ? _window.ko.prefs.getString("windowDimensions-" + id, "").split(",") : [];
           
+          var centerWindow = (w) =>  window.moveTo(w.screen.left + Math.round((w.screen.availWidth - w.outerWidth) / 2),
+                                                   w.screen.top + Math.round((w.screen.availHeight - w.outerHeight) / 2));
+          
           if (dimensions.length != 4)
           {
             // If no dimensions were stored just center the window
-            window.moveTo(Math.round((window.screen.availWidth - window.outerWidth) / 2),
-                          Math.round((window.screen.availHeight - window.outerHeight) / 2));
+            centerWindow(_window);
+            return;
           }
-          else
-          {
-            var [w,h,x,y] = dimensions;
-            window.outerWidth = parseInt(w);
-            window.outerHeight = parseInt(h);
-            window.moveTo(parseInt(x), parseInt(y));
-          }
+          
+          var [w,h,x,y] = dimensions;
+          w = parseInt(w); h = parseInt(h);
+          x = parseInt(x); y = parseInt(y);
+          
+          window.outerWidth = w;
+          window.outerHeight = h;
+          window.moveTo(x, y);
+          
+          // Detect if window is outside screen boundaries, if so - center it
+          setTimeout(function() {
+            var screenX = window.screen.left;
+            var screenY = window.screen.top;
+            if (x < screenX || y < screenY ||
+                (x - screenX + w) > window.screen.availWidth ||
+                (h - screenY + y) > window.screen.availHeight)
+            {
+              centerWindow(window);
+            }
+          }, 50);
+        ]]>
         </body>
       </method>
       <method name="savePosition">
@@ -217,10 +235,7 @@
           
           var id = document.documentElement.id || window.location.href;
           
-          // Set pref on a timeout, works around issues like the pref window still closing
-          w.setTimeout(function () {
-            w.ko.prefs.setString("windowDimensions-" + id, dimensions.join(","));
-          }, 250);
+          w.ko.prefs.setString("windowDimensions-" + id, dimensions.join(","));
         </body>
       </method>
     </implementation>
@@ -302,8 +317,8 @@
             setTimeout(function() {
               if (window.screenX !== 0 || window.screenY !== 0)
                 return;
-              var x = Math.round((window.screen.availWidth - window.outerWidth) / 2);
-              var y = Math.round((window.screen.availHeight - window.outerHeight) / 2);
+              var x = window.screen.left + Math.round((window.screen.availWidth - window.outerWidth) / 2);
+              var y = window.screen.top + Math.round((window.screen.availHeight - window.outerHeight) / 2);
               window.moveTo(x,y);
             }, 0);
           });
