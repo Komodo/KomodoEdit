@@ -133,6 +133,18 @@ ko.windowManager = {
         
         return win;
     },
+    
+    /**
+     * Open a new window. This is largely the same as openDialog except that it has
+     * no biases towards the window being opened being a dialog.
+     */
+    openWindow: function(/* ... */) {
+        var args = [];
+        for (var i = 0; i < arguments.length; i++) {
+            args[i] = arguments[i];
+        }
+        return window.openDialog.apply(window, args);
+    },
 
     /**
      * return a reference to the main Komodo window

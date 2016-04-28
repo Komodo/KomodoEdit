@@ -54,8 +54,6 @@ var _log = ko.logging.getLogger("ko.help");
 
 function openHelp(topic, path = 'Manual/')
 {
-    console.log(topic);
-    
     var url = ko.prefs.getString('doc_site');
     if (topic) url += path + topic;
     ko.browse.openUrlInDefaultBrowser(url);
@@ -510,7 +508,7 @@ this.newWindow = function newWindow(uris /* =null */)
         }
         args.uris = uris;
     }
-    return ko.windowManager.openDialog("chrome://komodo/content",
+    return ko.windowManager.openWindow("chrome://komodo/content",
                                 "_blank",
                                 "chrome,all,dialog=no",
                                 args);
@@ -518,7 +516,7 @@ this.newWindow = function newWindow(uris /* =null */)
 
 this.newWindowFromWorkspace = function newWindow(workspaceIndex)
 {
-    ko.windowManager.openDialog("chrome://komodo/content",
+    ko.windowManager.openWindow("chrome://komodo/content",
                                 "_blank",
                                 "chrome,all,dialog=no",
                                 {workspaceIndex: workspaceIndex});
@@ -526,7 +524,7 @@ this.newWindowFromWorkspace = function newWindow(workspaceIndex)
 
 this.newWindowForIndex = function newWindowForIndex(workspaceIndex)
 {
-    ko.windowManager.openDialog("chrome://komodo/content",
+    ko.windowManager.openWindow("chrome://komodo/content",
                                 "_blank",
                                 "chrome,all,dialog=no",
                                 {workspaceIndex: workspaceIndex,
