@@ -46,6 +46,7 @@
             scintilla.encoding = koDoc.encoding.python_encoding_name;
             scintilla.init();
             scintilla.readOnly = true;
+            scintilla.vScrollBar = false;
             
             this.view._setupHighlightColors(scintilla);
             this._hookSciMozEvents(Components.interfaces.ISciMozEvents.SME_UPDATEUI);
