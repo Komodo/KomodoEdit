@@ -78,3 +78,25 @@ dialog, :root.dialog, :root.pref-window
 {
     background: @contrast-special;
 }
+
+/* Scintilla */
+
+@media all and (-moz-overlay-scrollbars)
+{
+    scintilla[virtualScrollbars="true"]
+    {
+        embed[anonid="scimoz"] {
+            margin-right: 16px;
+        }
+        
+        &[wrapped="false"] embed[anonid="scimoz"]
+        {
+            margin-bottom: 16px;
+        }
+        
+        &[wrapped="true"] row > scrollbar[orient="horizontal"]
+        {
+            visibility: collapse !important;
+        }
+    }
+}

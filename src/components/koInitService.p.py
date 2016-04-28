@@ -1165,6 +1165,7 @@ class KoInitService(object):
             prefs.setString("editor-scheme", "Default")
             prefs.setStringPref("ui.tabs.sidepanes.left.layout", "icons")
             prefs.setStringPref("ui.tabs.sidepanes.right.layout", "icons")
+            prefs.setBoolean("koSkin_use_custom_scrollbars", True)
             
         # Set the version so we don't have to upgrade again.
         prefs.setLongPref("version", self._current_pref_version)
