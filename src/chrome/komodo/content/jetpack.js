@@ -190,7 +190,6 @@ const [JetPack, require] = (function() {
      * @param {String} path       The directory to which this prefix is mapped.
      */
     require.setRequirePath = function(namespace, path) {
-        if (namespace in requirePaths) return;
         requirePaths[namespace] = path;
         
         // Modify the loader mapping (a mapping of the paths) in place.
