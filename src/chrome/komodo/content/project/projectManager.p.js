@@ -333,27 +333,30 @@ projectManager.prototype.closeProject = function(project /*=this.currentProject*
         }
     }
     this._saveProjectViewState(project);
-    var urls = this._getOpenURLsInProject(project);
-    if (urls.length != 0) {
-        var action = ko.dialogs.yesNoCancel(
-                _bundle.formatStringFromName("closeTheOpenedFilesFromProjectNamed.template",
-                                         [project.name], 1),
-                "No", null, null, // default response, text, title
-                "close_all_files_on_project_close");
-        if (action == "Cancel") {
-            return false;
-        } else if (action == "Yes") {
-            // Should find out which ones are dirty and offer to save those --
-            // then _closeURL can be brutal with those that the user didn't
-            // want to save.
-            var modified = ko.views.manager.offerToSave(urls,
-                _bundle.GetStringFromName("saveModifiedFiles.message"),
-                _bundle.GetStringFromName("saveSelectedFilesBeforeClosingThem.message"));
-            if (modified == false) return false;
-
-            var i;
-            for (i=0; i < urls.length; i++) {
-                this.forceCloseAllViewsForURL(urls[i]);
+    if ( ! ko.main.windowIsClosing)
+    {
+        var urls = this._getOpenURLsInProject(project);
+        if (urls.length != 0) {
+            var action = ko.dialogs.yesNoCancel(
+                    _bundle.formatStringFromName("closeTheOpenedFilesFromProjectNamed.template",
+                                             [project.name], 1),
+                    "No", null, null, // default response, text, title
+                    "close_all_files_on_project_close");
+            if (action == "Cancel") {
+                return false;
+            } else if (action == "Yes") {
+                // Should find out which ones are dirty and offer to save those --
+                // then _closeURL can be brutal with those that the user didn't
+                // want to save.
+                var modified = ko.views.manager.offerToSave(urls,
+                    _bundle.GetStringFromName("saveModifiedFiles.message"),
+                    _bundle.GetStringFromName("saveSelectedFilesBeforeClosingThem.message"));
+                if (modified == false) return false;
+    
+                var i;
+                for (i=0; i < urls.length; i++) {
+                    this.forceCloseAllViewsForURL(urls[i]);
+                }
             }
         }
     }
