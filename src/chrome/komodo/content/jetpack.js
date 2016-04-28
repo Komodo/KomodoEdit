@@ -21,8 +21,15 @@ const [JetPack, require] = (function() {
     var setRequirePaths = function() {
         
         // Attempt to get the main komodo window to inherit require paths from it
+        var _window = window;
         var wm = Cc["@mozilla.org/appshell/window-mediator;1"].getService(Ci.nsIWindowMediator);
-        let _window = wm.getMostRecentWindow("Komodo");
+        let windows = wm.getEnumerator("Komodo");
+        while (windows.hasMoreElements()) {
+            let __window = windows.getNext().QueryInterface(Ci.nsIDOMWindow);
+            if ("require" in __window && __window.require && __window != window) {
+                _window = __window;
+            }
+        }
         
         if (_window && "require" in _window && _window.require) {
             // Inherit requirePaths
