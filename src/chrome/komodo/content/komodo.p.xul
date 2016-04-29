@@ -1276,7 +1276,6 @@
                                       label="&showHideMinimap.label;"
                                       accesskey="&showHideMinimap.accesskey;"
                                       observes="cmd_showHideMinimap"
-                                      checked="true"
                                       type="checkbox"
                                       />
                             <menuseparator id="view_menu_menuseparator_2"/>

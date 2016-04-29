@@ -2348,21 +2348,7 @@ viewManager.prototype.do_cmd_reloadBrowserPreview = function() {
 }
 
 viewManager.prototype.is_cmd_showHideMinimap_enabled = function () {
-    var menuitem = document.getElementById("menu_showHideMinimap");
-    var inEditorView = (this.currentView
-                        && this.currentView.getAttribute('type') == 'editor');
-    if (!inEditorView) {
-        menuitem.disabled = true;
-        return false;
-    } else {
-        if (this.currentView.minimap) {
-            menuitem.setAttribute("checked", "true");
-        } else {
-            menuitem.removeAttribute("checked");
-        }
-        menuitem.disabled = false;
-        return true;
-    }
+   return this.currentView.minimap;
 };
 
 viewManager.prototype.do_cmd_showHideMinimap = function () {
