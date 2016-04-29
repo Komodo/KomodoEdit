@@ -2059,11 +2059,13 @@ class koDocumentBase(object):
                  indentWidth, useTabs)
         
         self._indentWidth = indentWidth
+        self._tabWidth = indentWidth # this should be sync-ed with indentWidth
         self._useTabs = useTabs
         
         for v in self._views:
             v.scimoz.useTabs = self._useTabs
             v.scimoz.indent = self._indentWidth
+            v.scimoz.tabWidth = self._tabWidth # this should be sync-ed with indentWidth
 
     @components.ProxyToMainThreadAsync
     def _statusBarMessage(self, message):
