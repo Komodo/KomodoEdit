@@ -1324,7 +1324,6 @@ class KoLanguageBase:
         of terminology like 'indenting', 'indented'...
         XXX to DavidA - why didn't the routine use Scintilla's levels before?
         """
-        comment_styles = None
         textLength = scimoz.length
         if textLength == 0:
             return 0, 0
@@ -1334,6 +1333,7 @@ class KoLanguageBase:
         end = scimoz.getLineEndPosition(N - 1)
         if scimoz.endStyled < end:
             scimoz.colourise(scimoz.endStyled, end)
+        comment_styles = self.getCommentStyles()
     
         for lineNo in range(N):
             # the outer loop tries to find the 'indenting' line.
@@ -1341,17 +1341,9 @@ class KoLanguageBase:
             if level % scimoz.SC_FOLDLEVELHEADERFLAG == 0: # Not an indenting line
                 indentlog.debug("line %d is white", lineNo)
                 continue
-            indentedLineNo = self._findChildLine(scimoz, level, lineNo + 1, N)
+            indentedLineNo = self._findChildLine(scimoz, level, lineNo + 1, N, comment_styles)
             if indentedLineNo is None:
                 indentlog.debug("reject line %d", lineNo)
-                continue
-            if comment_styles is None:
-                # Lazily loaded.
-                comment_styles = self.getCommentStyles()
-            indentEndPosition = scimoz.getLineIndentPosition(indentedLineNo)
-            style = scimoz.getStyleAt(indentEndPosition)
-            if style in comment_styles: # skip comments
-                indentlog.debug("reject line %d - it's a comment", lineNo)
                 continue
 
             ws_info = [classifyws(scimoz.getTextRange(scimoz.positionFromLine(aLine),
@@ -1390,11 +1382,15 @@ class KoLanguageBase:
                 # Try the next parent-child pair
         return 0, 0
     
-    def _findChildLine(self, scimoz, headerLevel, startLineNo, endLineNo):
+    def _findChildLine(self, scimoz, headerLevel, startLineNo, endLineNo, commentStyles):
         #indentlog.debug("find an indented line for line %d", startLineNo)
         FOLDLEVELMASK = 0x3ff
         headerFoldLevel = headerLevel & FOLDLEVELMASK
         for lineNo in range(startLineNo, endLineNo):
+            style = scimoz.getStyleAt(scimoz.getLineIndentPosition(lineNo))
+            if style in commentStyles: # skip comments
+                #indentlog.debug("line %d is a comment", lineNo)
+                continue
             level = scimoz.getFoldLevel(lineNo)
             if level & scimoz.SC_FOLDLEVELWHITEFLAG:
                 #indentlog.debug("line %d is white", lineNo)
