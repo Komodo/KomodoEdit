@@ -621,10 +621,22 @@ this.updateFullScreen = function uilayout_updateFullScreen() {
  */
 this.fullScreen = function uilayout_FullScreen()
 {
-  window.fullScreen = !window.fullScreen;
-  // We no longer need to do any extra handling; the UI changes are done via
-  // CSS.  If we do end up needing logic, we should do so in a "fullscreen"
-  // event handler attached to the window.
+    window.fullScreen = !window.fullScreen;
+    // We no longer need to do any extra handling; the UI changes are done via
+    // CSS.  If we do end up needing logic, we should do so in a "fullscreen"
+    // event handler attached to the window.
+    //...but not today...
+    var root = document.documentElement;
+    var hide = _gPrefs.getBoolean("ui.hide.chrome");
+    root.setAttribute("_hidechrome", !hide);
+    root.setAttribute("_hidechrome", hide);
+// #if PLATFORM == "darwin"
+    root.setAttribute("drawintitlebar", !hide);
+    root.setAttribute("drawintitlebar", hide);
+// #else
+    root.setAttribute("hidechrome", !hide);
+    root.setAttribute("hidechrome", hide);
+// #endif
 }
 
 // #if PLATFORM != "darwin"
