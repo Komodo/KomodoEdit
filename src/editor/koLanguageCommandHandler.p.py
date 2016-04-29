@@ -125,7 +125,8 @@ class GenericCommandHandler:
         self._view.scimoz.viewWS = not self._view.scimoz.viewWS
 
     def _is_cmd_viewLineNumbers_enabled(self):
-        return self._view.scimoz.getMarginWidthN(0) > 0
+        sm = self._view.scimoz
+        return sm.getMarginWidthN(sm.MARGIN_LINENUMBERS) > 0
 
     def _do_cmd_viewLineNumbers(self):
         sm = self._view.scimoz
