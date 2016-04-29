@@ -223,11 +223,14 @@ end
         if not self._lookingAtReturnFunction(non_ws_tokens, style_info):
             return None
         tok0 = calculatedData['tokens'][0]
+        indent = scimoz.indent
+        if not indent:
+            indent = scimoz.tabWidth # if 0, Scintilla uses tabWidth
         if tok0.style in style_info._default_styles:
             currWSLen = len(tok0.text.expandtabs(scimoz.tabWidth))
-            newWSLen = currWSLen + scimoz.indent
+            newWSLen = currWSLen + indent
         else:
-            newWSLen = scimoz.indent
+            newWSLen = indent
         return scimozindent.makeIndentFromWidth(scimoz, newWSLen)
 
     def _lookingAtReturnFunction(self, non_ws_tokens, style_info):

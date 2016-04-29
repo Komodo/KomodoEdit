@@ -574,12 +574,12 @@ def adjustClosingXMLTag(scimoz, isHTML=False):
         return
     tagStartCol = scimoz.getColumn(tagStartPos)
     indent = scimoz.indent
-    if indent == 0:
-        indent = 8
+    if not indent:
+        indent = scimoz.tabWidth # if 0, Scintilla uses tabWidth
     indentLevel, extras = divmod(tagStartCol, indent)
     if indentLevel and not extras:
         indentLevel -= 1
-    nextIndentWidth = indentLevel * scimoz.indent
+    nextIndentWidth = indentLevel * indent
     # The first decrement is safe because scimoz.charAt(scimoz.currentPos - 1) == '<'
     # The second has to go through the API in case it's a multi-byte char
     charPos = scimoz.positionBefore(scimoz.currentPos - 1)

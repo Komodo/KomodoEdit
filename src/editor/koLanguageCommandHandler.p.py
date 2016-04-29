@@ -1547,7 +1547,7 @@ class GenericCommandHandler:
         # tab character!  This is written to be clear, not fast.
         tabwidth = sm.tabWidth
         indentwidth = sm.indent
-        if (indentwidth == 0):
+        if not indentwidth:
             indentwidth = sm.tabWidth # if 0, Scintilla uses tabWidth
         have = len(before.expandtabs(tabwidth))
         assert have > 0
@@ -1572,7 +1572,7 @@ class GenericCommandHandler:
     def _insertIndent(self):
         sm = self._view.scimoz
         indent = sm.indent
-        if indent <= 0:
+        if not indent:
             indent = sm.tabWidth # if 0, Scintilla uses tabWidth
         currentLineNo = sm.lineFromPosition(sm.currentPos)
         lineStart = sm.positionFromLine(currentLineNo)

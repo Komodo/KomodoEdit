@@ -221,7 +221,10 @@ class Class:
 	leadingWS = m.group(1)
 	tabFreeLeadingWS = leadingWS.expandtabs(scimoz.tabWidth)
 	currWidth = len(tabFreeLeadingWS)
-	targetWidth = currWidth - scimoz.indent
+	indent = scimoz.indent
+	if not indent:
+		indent = scimoz.tabWidth # if 0, Scintilla uses tabWidth
+	targetWidth = currWidth - indent
 	if targetWidth < 0:
 	    fixedLeadingWS = ""
 	else:

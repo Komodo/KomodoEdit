@@ -1407,7 +1407,7 @@ class KoLanguageBase:
     def _getNextLineIndent(self, scimoz, lineNo):
         currentIndentWidth = self._getIndentWidthForLine(scimoz, lineNo)
         indent = scimoz.indent
-        if indent == 0:
+        if not indent:
             indent = scimoz.tabWidth # if 0, Scintilla uses tabWidth
         return (divmod(currentIndentWidth, indent)[0] + 1) * indent        
     
@@ -1935,12 +1935,12 @@ class KoLanguageBase:
         lineNo = scimoz.lineFromPosition(pos)
         currentIndentWidth = self._getIndentWidthForLine(scimoz, lineNo)
         indent = scimoz.indent
-        if indent == 0:
+        if not indent:
             indent = scimoz.tabWidth # if 0, Scintilla uses tabWidth
         indentLevel, extras = divmod(currentIndentWidth, indent)
         if indentLevel and not extras:
             indentLevel -= 1
-        nextIndentWidth = indentLevel * scimoz.indent
+        nextIndentWidth = indentLevel * indent
         return scimozindent.makeIndentFromWidth(scimoz, nextIndentWidth)
 
     def findActualStartLine(self, scimoz, startLine):
@@ -2407,7 +2407,10 @@ class KoLanguageBase:
             lineNo = self._statementStartingLineFromPos(scimoz, currentPos-1, style_info)
             indentlog.info("doing an INDENT to the indent of line: %d" % lineNo)
             currentIndentWidth = self._getIndentWidthForLine(scimoz, lineNo)
-            nextIndentWidth = (divmod(currentIndentWidth, scimoz.indent)[0] + 1) * scimoz.indent
+            indent = scimoz.indent
+            if not indent:
+                indent = scimoz.tabWidth # if 0, Scintilla uses tabWidth
+            nextIndentWidth = (divmod(currentIndentWidth, indent)[0] + 1) * indent
             return scimozindent.makeIndentFromWidth(scimoz, nextIndentWidth)
         elif analysis == -1: # doing an dedent
             lineNo = self._statementStartingLineFromPos(scimoz, currentPos-1, style_info)
@@ -2415,12 +2418,12 @@ class KoLanguageBase:
             indentlog.info("doing an DEDENT from the indent of line: %d" % lineNo)
             currentIndentWidth = self._getIndentWidthForLine(scimoz, lineNo)
             indent = scimoz.indent
-            if indent == 0:
+            if not indent:
                 indent = scimoz.tabWidth # if 0, Scintilla uses tabWidth
             indentLevel, extras = divmod(currentIndentWidth, indent)
             if indentLevel and not extras:
                 indentLevel -= 1
-            nextIndentWidth = indentLevel * scimoz.indent
+            nextIndentWidth = indentLevel * indent
             return scimozindent.makeIndentFromWidth(scimoz, nextIndentWidth)
         # return whatever we got
         return analysis
@@ -2653,7 +2656,10 @@ class KoLanguageBase:
                     # that's what getColumn wants.
                     tagStartPos_Doc = tagStartPos_Buf + startPos_Doc
                     currentIndentWidth = scimoz.getColumn(tagStartPos_Doc)
-                    nextIndentWidth = (divmod(currentIndentWidth, scimoz.indent)[0] + 1) * scimoz.indent
+                    indent = scimoz.indent
+                    if not indent:
+                        indent = scimoz.tabWidth # if 0, Scintilla uses tabWidth
+                    nextIndentWidth = (divmod(currentIndentWidth, indent)[0] + 1) * indent
                     indentlog.debug("currentIndentWidth = %r", currentIndentWidth)
                     indentlog.debug("nextIndentWidth= %r", nextIndentWidth)
                     return scimozindent.makeIndentFromWidth(scimoz, nextIndentWidth)

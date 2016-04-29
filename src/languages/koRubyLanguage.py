@@ -417,7 +417,7 @@ end section
         indent_delta = 0
         indent_amount = scimoz.indent
         if not indent_amount:
-            indent_amount = 8
+            indent_amount = scimoz.tabWidth # if 0, Scintilla uses tabWidth
             
         keep_walking_back = True
         # Allows for moving up through continuation lines

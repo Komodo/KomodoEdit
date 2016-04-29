@@ -85,6 +85,8 @@ this.dump("QQQ: Something weird happening here: " + var);
                 return self._getRawIndentForLine(scimoz, curLineNo)
         indentWidth = self._getIndentWidthForLine(scimoz, curLineNo)
         indent = scimoz.indent
+        if not indent:
+            indent = scimoz.tabWidth # if 0, Scintilla uses tabWidth
         newIndentWidth = indentWidth + delta * indent
         if newIndentWidth < 0:
             newIndentWidth = 0

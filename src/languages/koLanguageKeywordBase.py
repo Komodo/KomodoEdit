@@ -204,7 +204,10 @@ class KoLanguageKeywordBase(KoLanguageBase):
             currentIndentWidth = 0
         else:
             currentIndentWidth = len(tok0.text.expandtabs(scimoz.tabWidth))
-        nextIndentWidth = currentIndentWidth + delta * scimoz.indent
+        indent = scimoz.indent
+        if not indent:
+            indent = scimoz.tabWidth # if 0, Scintilla uses tabWidth
+        nextIndentWidth = currentIndentWidth + delta * indent
         return scimozindent.makeIndentFromWidth(scimoz, nextIndentWidth)
 
     def _keyPressed(self, ch, scimoz, style_info):
@@ -279,21 +282,24 @@ class KoLanguageKeywordBase(KoLanguageBase):
             return
         # Dedent!
         ws_reduced = [None, None]
-        newWSLen = currWSLen - scimoz.indent
+        indent = scimoz.indent
+        if not indent:
+            indent = scimoz.tabWidth # if 0, Scintilla uses tabWidth
+        newWSLen = currWSLen - indent
         if newWSLen <= 0:
             ws_reduced[0] = ""
             posDelta = len(tokens[0].text)
         else:
             ws_reduced[0] = scimozindent.makeIndentFromWidth(scimoz, newWSLen)
-            posDelta = scimoz.indent
+            posDelta = indent
         currWSLen = len(prevTokens[0].text.expandtabs(scimoz.tabWidth))
-        newWSLen = currWSLen - scimoz.indent
+        newWSLen = currWSLen - indent
         if newWSLen <= 0:
             ws_reduced[1] = ""
             posDelta += len(prevTokens[0].text)
         else:
             ws_reduced[1] = scimozindent.makeIndentFromWidth(scimoz, newWSLen)
-            posDelta += scimoz.indent
+            posDelta += indent
         scimoz.beginUndoAction()
         try:
             # Dedent the second line first
@@ -373,7 +379,10 @@ class KoLanguageKeywordBase(KoLanguageBase):
             return
                        
         # Dedent!
-        newWSLen = currWSLen - scimoz.indent
+        indent = scimoz.indent
+        if not indent:
+            indent = scimoz.tabWidth # if 0, Scintilla uses tabWidth
+        newWSLen = currWSLen - indent
         if newWSLen <= 0:
             ws_reduced = ""
         else:
@@ -434,11 +443,14 @@ class KoCommonBasicLanguageService(KoLanguageKeywordBase):
                                              style_info):
             return None
         tok0 = calculatedData['tokens'][0]
+        indent = scimoz.indent
+        if not indent:
+            indent = scimoz.tabWidth # if 0, Scintilla uses tabWidth
         if tok0.style in style_info._default_styles:
             currWSLen = len(tok0.text.expandtabs(scimoz.tabWidth))
-            newWSLen = currWSLen + scimoz.indent
+            newWSLen = currWSLen + indent
         else:
-            newWSLen = scimoz.indent
+            newWSLen = indent
         return scimozindent.makeIndentFromWidth(scimoz, newWSLen)
 
     def _lookingAtReturnFunction(self, non_ws_tokens, style_info):
