@@ -1408,8 +1408,7 @@ class KoLanguageBase:
         currentIndentWidth = self._getIndentWidthForLine(scimoz, lineNo)
         indent = scimoz.indent
         if indent == 0:
-            indentlog.error('indent was 0, defaulting to 8')
-            indent = 8
+            indent = scimoz.tabWidth # if 0, Scintilla uses tabWidth
         return (divmod(currentIndentWidth, indent)[0] + 1) * indent        
     
     def _shouldIndent(self, scimoz, pos, style_info):
@@ -1937,8 +1936,7 @@ class KoLanguageBase:
         currentIndentWidth = self._getIndentWidthForLine(scimoz, lineNo)
         indent = scimoz.indent
         if indent == 0:
-            log.error('indent was 0, defaulting to 8')
-            indent = 8 # XXX
+            indent = scimoz.tabWidth # if 0, Scintilla uses tabWidth
         indentLevel, extras = divmod(currentIndentWidth, indent)
         if indentLevel and not extras:
             indentLevel -= 1
@@ -2418,8 +2416,7 @@ class KoLanguageBase:
             currentIndentWidth = self._getIndentWidthForLine(scimoz, lineNo)
             indent = scimoz.indent
             if indent == 0:
-                log.error('indent was 0, defaulting to 8')
-                indent = 8 # XXX
+                indent = scimoz.tabWidth # if 0, Scintilla uses tabWidth
             indentLevel, extras = divmod(currentIndentWidth, indent)
             if indentLevel and not extras:
                 indentLevel -= 1
