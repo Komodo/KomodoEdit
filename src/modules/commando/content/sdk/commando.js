@@ -1745,7 +1745,9 @@
     {
         if (elem('search').visible())
         {
-            window.focus();
+            if (times == 0)
+                window.focus();
+                
             elem('panel').focus();
             elem('search').focus();
     
