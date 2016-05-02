@@ -414,6 +414,7 @@
 <!ENTITY komodoBugDatabase.label "Report a Bug">
 <!ENTITY komodoBugDatabase.tooltiptext "Report a bug on GitHub">
 <!ENTITY komodoCommunity.label "Komodo Community">
+<!ENTITY runStartupWizard.label "Run First Start Wizard Again">
 <!ENTITY komodoCommunity.tooltiptext "Komodo Community">
 <!ENTITY komodoEmailLists.tooltiptext "Komodo Email Lists">
 <!ENTITY komodoMemoryUsage.desc "Utilities: Report of Komodo's Memory Usage">

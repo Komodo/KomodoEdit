@@ -1692,6 +1692,11 @@
                                 oncommand="ko.launch.checkForUpdates()"
                                 />
 <!-- #endif -->
+                            <menuitem
+                                id="menu_runStartupWizard"
+                                label="&runStartupWizard.label;"
+                                oncommand="ko.windowManager.openDialog('chrome://komodo/content/startupWizard/startupWizard.xul')"
+                            />
 <!-- #if PLATFORM != "darwin" -->
                             <menuseparator/>
                             <menuitem
