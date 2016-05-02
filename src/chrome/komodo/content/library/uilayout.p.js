@@ -637,6 +637,14 @@ this.fullScreen = function uilayout_FullScreen()
     root.setAttribute("hidechrome", !hide);
     root.setAttribute("hidechrome", hide);
 // #endif
+
+// #if PLATFORM == "win"
+    // Work around black frame appearing on windows
+    if ( ! window.fullScreen) {
+        window.outerWidth = window.outerWidth+1;
+        window.outerWidth = window.outerWidth-1;
+    }
+// #endif
 }
 
 // #if PLATFORM != "darwin"

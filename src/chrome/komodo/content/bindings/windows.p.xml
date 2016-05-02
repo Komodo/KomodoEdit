@@ -33,6 +33,21 @@
             w.dispatchEvent(evt);
             
             this.loadVirtualStylesheets();
+            
+<!-- #if PLATFORM == "win" -->
+            window.addEventListener("resize", this.onResizeConstraintChecker.bind(this));
+            this.onResizeConstraintChecker();
+            
+            if ("maximize" in window) {
+                window._maximize = window.maximize;
+                window.maximize = this.maximize;
+            }
+            
+            if ("restore" in window) {
+                window._restore = window.restore;
+                window.restore = this.restore;
+            }
+<!-- #endif -->
           }
           catch(e)
           {
@@ -40,6 +55,103 @@
           }
         ]]>
       </constructor>
+<!-- #if PLATFORM == "win" -->
+      <method name="onResizeConstraintChecker">
+        <body>
+        <![CDATA[
+        var hideChrome = require("ko/prefs").getBoolean("ui.hide.chrome");
+        if ( ! hideChrome || document.documentElement.getAttribute("sizemode") != "maximized") return;
+        
+        // If we didn't maximize store the state
+        if (window.outerHeight < window.screen.availHeight &&
+            window.outerWidth < window.screen.availWidth)
+          this.restoreState = [window.outerWidth, window.outerHeight, window.screenX, window.screenY];
+        
+        if (window.outerHeight > window.screen.availHeight)
+          window.outerHeight = window.screen.availHeight;
+        
+        if (window.outerWidth > window.screen.availWidth)
+          window.outerWidth = window.screen.availWidth;
+        
+        setTimeout(function() {
+          if (window.outerWidth == window.screen.availWidth &&
+              window.outerHeight == window.screen.availHeight)
+          {
+            window.moveTo(window.screen.availLeft, window.screen.availTop);
+            document.documentElement.setAttribute("_sizeMode", "maximized");
+          }
+          else
+          {
+            document.documentElement.setAttribute("_sizeMode", "normal");
+          }
+        }, 0);
+        ]]>
+        </body>
+      </method>
+      <method name="maximize">
+        <body>
+        <![CDATA[
+        if (typeof require == "undefined" || (window.parent != window && ! window.opener)) {
+            return window._maximize(); // not ready, or embedded
+        }
+        
+        var hideChrome = require("ko/prefs").getBoolean("ui.hide.chrome");
+        if ( ! hideChrome)
+          return window._maximize();
+        
+        var restore = document.documentElement.getAttribute("_sizeMode") == "maximized";
+        
+        // Restore state
+        if (restore) {
+          this.restore();
+        }
+        
+        // Maximize
+        else
+        {
+          this.restoreState = [window.outerWidth, window.outerHeight, window.screenX, window.screenY];
+          window.outerWidth = window.screen.availWidth;
+          window.outerHeight = window.screen.availHeight;
+          window.moveTo(window.screen.availLeft, window.screen.availTop);
+          document.documentElement.setAttribute("_sizeMode", "maximized");
+        }
+        
+        ]]>
+        </body>
+      </method>
+      <method name="restore">
+        <body>
+        <![CDATA[
+        if (typeof require == "undefined" || (window.parent != window && ! window.opener)) {
+            return window._restore(); // not ready, or embedded
+        }
+        
+        var hideChrome = require("ko/prefs").getBoolean("ui.hide.chrome");
+        if ( ! hideChrome)
+          return window._restore();
+        
+        // No previous state, so just center the window
+        if ( ! this.restoreState) {
+          window.outerWidth = Math.round(window.screen.availWidth / 1.5);
+          window.outerHeight = Math.round(window.screen.availHeight / 1.5);
+          window.moveTo(window.screen.left + Math.round((window.screen.availWidth - window.outerWidth) / 2),
+                        window.screen.top + Math.round((window.screen.availHeight - window.outerHeight) / 2));
+        }
+        
+        // Restore previous state
+        else
+        {
+          var [w,h,x,y] = this.restoreState;
+          window.outerWidth = w;
+          window.outerHeight = h;
+          window.moveTo(x, y);
+        }
+        
+        document.documentElement.setAttribute("_sizeMode", "normal");
+        ]]>
+        </body>
+      </method>
+<!-- #endif -->
       <method name="loadVirtualStylesheets">
         <body>
         <![CDATA[

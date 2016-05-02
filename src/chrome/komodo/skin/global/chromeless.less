@@ -48,6 +48,15 @@ dialog:root[_hidechrome="true"]:not(.embedded)
             width: 90px;
         }
     }
+    
+    &[_sizemode="maximized"],
+    &[sizemode="maximized"]
+    {
+        resizer
+        {
+            visibility: collapse;
+        }
+    }
 }
 
 dialog #windowButtons .icon-plus-circle2,
@@ -74,7 +83,8 @@ dialog:not([_hidechrome="true"]):not(.embedded)
 
 #komodo_main[_hidechrome="true"]
 {
-    #toolbox_main #main-toolboxrow-wrapper
+    &:not([_sizemode="maximized"]) #toolbox_main #main-toolboxrow-wrapper,
+    &:not([sizemode="maximized"]) #toolbox_main #main-toolboxrow-wrapper
     {
         padding-top: 0;
     }
@@ -112,6 +122,15 @@ dialog:not([_hidechrome="true"]):not(.embedded)
     }
     
     /* Main window resizers */
+    
+    &[_sizemode="maximized"],
+    &[sizemode="maximized"]
+    {
+        resizer
+        {
+            visibility: collapse;
+        }
+    }
     
     /**
      * Top resizer. We do not support top left or top right.
