@@ -276,6 +276,19 @@ var koLess = function koLess()
                     blackoutTimer = Timer.setTimeout(function () {
                         while (blackouts.length) {
                             var blackout = blackouts.pop();
+                            
+                            // Toggle the UI chrome because windows tends to unhide it
+                            var hide = prefs.getBoolean("ui.hide.chrome");
+                            var root = blackout.element().ownerDocument.documentElement;
+                            if (require("sdk/system").platform == "Darwin") {
+                                root.setAttribute("drawintitlebar", ! hide);
+                                root.setAttribute("drawintitlebar", hide);
+                            }
+                            else {
+                                root.setAttribute("hidechrome", ! hide);
+                                root.setAttribute("hidechrome", hide);
+                            }
+                            
                             blackout.remove();
                         }
                     }, delay + 1000);
