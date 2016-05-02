@@ -41,6 +41,7 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
         // MAKE IT!
         window.addEventListener("focus", this.forcePaint);
         this.forcePaint();
+        window.sizeToContent();
     };
 
     this.forcePaint = (isRepaint) =>
