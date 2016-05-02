@@ -1260,7 +1260,7 @@ function _buildMenuTree(hierarchy, toplevel) {
         menuitem.setAttribute("anonid", "menu_viewAs" + languageNameNospaces);
         menuitem.setAttribute('label', hierarchy.name);
         menuitem.setAttribute("accesskey", hierarchy.key);
-        menuitem.setAttribute("type", "checkbox");
+        menuitem.setAttribute("type", "radio");
         menuitem.setAttribute("class", "languageicon");
         menuitem.setAttribute("language", hierarchy.name);
         menuitem.setAttribute("oncommand", "ko.views.manager.do_ViewAs('" + hierarchy.name + "');");
