@@ -120,6 +120,7 @@
                     <view id="snippetvalue"
                           flex="1"
                           type="buffer"
+                          height="200"
                           onmouseup="updateOK();"
                           onmousedown="scintillaFocus()"
                           onkeyup="updateOK()"
