@@ -338,6 +338,10 @@
       </method>
       <method name="savePosition">
         <body>
+          <![CDATA[
+          if (window.screenX <= 0) // don't save minimized windows
+            return;
+          
           var dimensions = [window.outerWidth, window.outerHeight, window.screenX, window.screenY];
 
           var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator);
@@ -348,6 +352,7 @@
           var id = document.documentElement.id || window.location.href;
           
           w.ko.prefs.setString("windowDimensions-" + id, dimensions.join(","));
+          ]]>
         </body>
       </method>
     </implementation>
