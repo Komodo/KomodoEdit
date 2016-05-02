@@ -323,8 +323,25 @@
             }, 0);
           });
         }
+
+        window._sizeToContent = window.sizeToContent;
+        window.sizeToContent = this.sizeToContent;
+        
         ]]>
       </constructor>
+      <method name="sizeToContent">
+        <body>
+        <![CDATA[
+          var hideChrome = require("ko/prefs").getBoolean("ui.hide.chrome");
+          if ( ! hideChrome) {
+            return window._sizeToContent();
+          }
+          
+          // Defer call, hidechrome doesnt like if this is called during the load event
+          setTimeout(window._sizeToContent, 0);
+        ]]>
+        </body>
+      </method>
     </implementation>
     </binding>
     
