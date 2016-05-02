@@ -1910,9 +1910,10 @@
                          kohidden="false"
                          not-draggable="true"
                          insertafter="main-toolboxrow"
+                         flex="1"
                         >
                         
-                        <hbox id="notification-widget-textbox">
+                        <hbox id="notification-widget-textbox" flex="1">
                             <hbox id="notification-widget-default" flex="1" align="center">
                                 <label anonid="notification-widget-text" id="notification-widget-default-text" flex="1" value=""/>
                                 <button anonid="notification-widget-button" class="notification-icon unstyled" oncommand="ko.uilayout.toggleTab('notifications-widget', false)"/>
