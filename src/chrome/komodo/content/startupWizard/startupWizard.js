@@ -125,7 +125,7 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
         fields.indentWidth.value( prefs.getLong("tabWidth") );
         
         fields.snippetBehavior = require("ko/ui/radiogroup").create(
-            "Snippet Behaviour: ",
+            "Snippet Behavior: ",
         [
             { attributes: {
                 label: "Trigger automatically while typing",
@@ -321,7 +321,7 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
         moreGroupbox.addRow([
             require("ko/ui/span").create(
                 "Want to Customize Komodo even further? Hit " + prefSteps +
-                " after this window closes to access all of Komodo Preferences.",
+                " after this window closes in order to access all of Komodo Preferences.",
                 textStyle
             )
         ]);
