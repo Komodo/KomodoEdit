@@ -127,6 +127,27 @@ module.exports = Module;
                 this.$element.append(element);
             }
         };
+        
+        this.enable = function()
+        {
+            this.$element.removeAttr("disabled");
+        };
+        
+        this.disable = function()
+        {
+            this.$element.attr("disabled", "true");
+        };
+        
+        this.hide = function()
+        {
+            this.$element.hide();
+        };
+        
+        this.show = function()
+        {
+            this.$element.show();
+        };
+        
     }).apply(this.Model);
     
     this.create = function () 
