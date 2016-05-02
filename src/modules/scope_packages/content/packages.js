@@ -127,7 +127,7 @@
                 {
                     this.openCategory('packages-update', "Update Packages");
                 }.bind(this),
-                icon: "koicon://ko-svg/chrome/icomoon/skin/arrow-up13.svg",
+                icon: "koicon://ko-svg/chrome/icomoon/skin/arrow-up13.svg?size=16",
                 duration: 10000 // 10 seconds
             });
         }.bind(this));
@@ -167,7 +167,7 @@
             commando.renderResult({
                 id: "packages-manage",
                 name: "Manage Packages",
-                icon: "koicon://ko-svg/chrome/icomoon/skin/cog.svg",
+                icon: "koicon://ko-svg/chrome/icomoon/skin/cog.svg?size=16",
                 isScope: true,
                 scope: "scope-packages"
             }, uuid);
@@ -222,13 +222,13 @@
     {
         var kinds = this.getPackageKinds();
         
-        var icon = "koicon://ko-svg/chrome/icomoon/skin/arrow-down13.svg";
+        var icon = "koicon://ko-svg/chrome/icomoon/skin/arrow-down13.svg?size=16";
         if (pkg.id in _cache.installed)
-            icon = "koicon://ko-svg/chrome/icomoon/skin/checkmark-circle2.svg";
+            icon = "koicon://ko-svg/chrome/icomoon/skin/checkmark-circle2.svg?size=16";
         if (pkg.id in _cache.upgradeable)
-            icon = "koicon://ko-svg/chrome/icomoon/skin/arrow-up13.svg";
+            icon = "koicon://ko-svg/chrome/icomoon/skin/arrow-up13.svg?size=16";
         if (pkg.id in _cache.outdated)
-            icon = "koicon://ko-svg/chrome/icomoon/skin/cancel-circle2.svg";
+            icon = "koicon://ko-svg/chrome/icomoon/skin/cancel-circle2.svg?size=16";
         
         var result = {
             id: pkg.id,
@@ -320,37 +320,37 @@
         var results = {};
         results[ADDONS] = {
             locale: l.get(ADDONS),
-            icon: "koicon://ko-svg/chrome/icomoon/skin/plus-circle2.svg",
+            icon: "koicon://ko-svg/chrome/icomoon/skin/plus-circle2.svg?size=16",
             weight: 10
         };
         results[MACROS] = {
             locale: l.get(MACROS),
-            icon: "koicon://ko-svg/chrome/icomoon/skin/play3.svg",
+            icon: "koicon://ko-svg/chrome/icomoon/skin/play3.svg?size=16",
             weight: 9
         };
         results[TOOLBOX] = {
             locale: l.get(TOOLBOX),
-            icon: "koicon://ko-svg/chrome/icomoon/skin/briefcase3.svg",
+            icon: "koicon://ko-svg/chrome/icomoon/skin/briefcase3.svg?size=16",
             weight: 8
         };
         results[SCHEMES] = {
             locale: l.get(SCHEMES),
-            icon: "koicon://ko-svg/chrome/icomoon/skin/text-color.svg",
+            icon: "koicon://ko-svg/chrome/icomoon/skin/text-color.svg?size=16",
             weight: 7
         };
         results[SKINS] = {
             locale: l.get(SKINS),
-            icon: "koicon://ko-svg/chrome/icomoon/skin/palette.svg",
+            icon: "koicon://ko-svg/chrome/icomoon/skin/palette.svg?size=16",
             weight: 6
         };
         results[LANGS] = {
             locale: l.get(LANGS),
-            icon: "koicon://ko-svg/chrome/icomoon/skin/globe2.svg",
+            icon: "koicon://ko-svg/chrome/icomoon/skin/globe2.svg?size=16",
             weight: 5
         };
         results[KEYBINDS] = {
             locale: l.get(KEYBINDS),
-            icon: "koicon://ko-svg/chrome/icomoon/skin/keyboard.svg",
+            icon: "koicon://ko-svg/chrome/icomoon/skin/keyboard.svg?size=16",
             weight: 4
         };
         
