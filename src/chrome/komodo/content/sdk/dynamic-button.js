@@ -15,7 +15,7 @@
             button = $("<toolbarbutton>");
             button.attr({
                 id: "dynamicBtn-" + opts.id,
-                tooltip: opts.tooltip,
+                tooltiptext: opts.tooltip,
                 type: "button",
                 disabled: "true",
                 class: "dynamic-button " + opts.classList
