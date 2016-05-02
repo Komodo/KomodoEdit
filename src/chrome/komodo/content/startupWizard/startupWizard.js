@@ -89,11 +89,13 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
             {
                 fields.nativeBorders.checked(true);
                 fields.colorScheme.value("Classic");
+                fields.colorScheme.disable();
                 fields.keybinding.value("Legacy");
             }
             else
             {
                 fields.nativeBorders.checked(false);
+                fields.colorScheme.enable();
             }
         });
         
@@ -250,6 +252,14 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
         
         // I don't like changes
         appearanceGroupbox.addRow(fields.classicMode);
+        
+        appearanceGroupbox.addRow([
+            require("ko/ui/label").create(""),
+            require("ko/ui/span").create(
+                "Enables native platform styling for various elements, " + 
+                "and uses the classic toolbar layout",
+                {attributes: { style: "margin-left: 16px; width: 300px; display: inline-block;", class: "description" }})
+        ]);
         
         // Native window borders
         appearanceGroupbox.addRow(fields.nativeBorders);
