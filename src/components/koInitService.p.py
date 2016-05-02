@@ -1167,6 +1167,7 @@ class KoInitService(object):
             prefs.setStringPref("ui.tabs.sidepanes.right.layout", "icons")
             prefs.setBoolean("koSkin_use_custom_scrollbars", True)
             prefs.deletePref("lintJavaScript_SpiderMonkey") # deprecated
+            prefs.setBoolean("lintWithJSHint", True)
             
         # Set the version so we don't have to upgrade again.
         prefs.setLongPref("version", self._current_pref_version)
