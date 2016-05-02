@@ -228,6 +228,7 @@
 <!ENTITY exportAsZipFile.label "Export as Zip File...">
 <!ENTITY extensionManager.accesskey "A">
 <!ENTITY extensionManager.label "Add-ons">
+<!ENTITY extensionManagerLegacy.label "Add-ons (Legacy)">
 <!ENTITY file.label "File">
 <!ENTITY fileOpen.label "File...">
 <!ENTITY fileEncoding.tooltiptext "File Encoding">

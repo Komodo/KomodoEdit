@@ -1495,6 +1495,10 @@
                                       id="menu_extensionmanager"
                                       accesskey="&extensionManager.accesskey;"
                                       observes="cmd_openextmgr" />
+                            <menuitem label="&extensionManagerLegacy.label;"
+                                      id="menu_extensionmanagerLegacy"
+                                      oncommand="ko.windowManager.openOrFocusDialog('chrome://mozapps/content/extensions/extensions.xul', 'Addons:Manager')" />
+
 
                             <menuseparator id="menu_tools_separator"/>
                             <menuitem label="&watchFile.label;"
