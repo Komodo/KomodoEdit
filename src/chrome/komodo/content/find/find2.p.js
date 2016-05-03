@@ -105,6 +105,8 @@ function on_load() {
                 if (e.keyCode == KeyEvent.DOM_VK_ESCAPE)
                     closeFindFrame();
             });
+            
+            document.getElementById('find-box-closer').addEventListener("click", closeFindFrame.bind(this));
         }
     } catch (ex) {
         log.exception(ex);
@@ -1406,7 +1408,7 @@ function updateWrapperHeight(repeat=true)
 {
     var elem = opener.document.getElementById("findReplaceWrap");
     var bo = document.getElementById('find-box-wrap').boxObject;
-    elem.setAttribute("height", bo.height);
+    elem.setAttribute("height", bo.height + 6);
     
     if (repeat) setTimeout(updateWrapperHeight.bind(null, false), 100);
 }

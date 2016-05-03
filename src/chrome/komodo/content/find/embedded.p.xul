@@ -71,6 +71,8 @@
     <popupset>
         <panel type="autocomplete" id="popupTextboxAutoComplete" noautofocus="true"/>
     </popupset>
+    
+    <hbox id="find-box-closer" tooltiptext="Click to close. You can also use ESC to close the find frame while the frame has focus."></hbox>
 
     <vbox id="find-box-wrap">
 
