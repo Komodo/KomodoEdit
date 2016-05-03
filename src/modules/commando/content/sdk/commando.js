@@ -55,7 +55,8 @@
         firstShow: true,
         state: {},
         resultHeightTimer: null,
-        lastSearch: 0
+        lastSearch: 0,
+        showing: false
     };
 
     var elems = {
@@ -162,6 +163,10 @@
         });
 
         window.addEventListener("click", onWindowClick);
+        window.addEventListener("blur", function (e) {
+            if ( ! local.showing)
+                c.hideCommando();
+        });
     }
 
     var elem = function(name, noCache)
@@ -501,6 +506,17 @@
     {
         log.debug("Showing Commando");
         
+        var panel = elem('panel');
+        if (panel.element().state != "open")
+        {
+            local.showing = true;
+            panel.on("popupshown", function() {
+                setTimeout(function() {
+                    local.showing = false;
+                }, 200); // Allow for event handlers to finish
+            });
+        }
+        
         if (quickSearch === undefined)
         {
             var wm = Cc["@mozilla.org/appshell/window-mediator;1"].getService(Ci.nsIWindowMediator);
@@ -530,7 +546,6 @@
         
         local.scopeOpener = scope;
         
-        var panel = elem('panel');
         var search = elem('search');
         var widget = elem('notifyWidget');
         
@@ -909,7 +924,7 @@
 
     this.hideCommando = function()
     {
-        this.stop();
+        c.stop();
         log.debug("Hiding Commando");
         elem('panel').element().hidePopup();
     }
