@@ -415,7 +415,7 @@ ko-pane:not([customizing]) .pane-drop-target
 .pane-container tabs .tabstrip-box 
 {
     /* Don't show buttons on pane tab bar */
-    & > toolbarbutton
+    & > toolbarbutton:not([anonid="panel-close-button"])
     {
         visibility: collapse;
     }
