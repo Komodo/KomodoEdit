@@ -81,10 +81,19 @@ dialog:not([_hidechrome="true"]):not(.embedded)
 
 /* Main window with hidden chrome */
 
+#komodo_main[_hidechrome="true"][os-name="Windows_NT"][sizemode="maximized"],
+#komodo_main[_hidechrome="true"][os-name="Windows_NT"][_sizemode="maximized"]
+{
+    #toolbox_main #main-toolboxrow-wrapper
+    {
+        /* For some reason windows seems to eat up approx 6 pixels of the window top */
+        padding-top: 10px;
+    }
+}
+
 #komodo_main[_hidechrome="true"]
 {
-    &:not([_sizemode="maximized"]) #toolbox_main #main-toolboxrow-wrapper,
-    &:not([sizemode="maximized"]) #toolbox_main #main-toolboxrow-wrapper
+    &:not([sizemode="maximized"]):not([_sizemode="maximized"]) #toolbox_main #main-toolboxrow-wrapper
     {
         padding-top: 0;
     }

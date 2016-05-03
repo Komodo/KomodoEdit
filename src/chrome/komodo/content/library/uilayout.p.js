@@ -633,6 +633,11 @@ this.fullScreen = function uilayout_FullScreen()
 // #if PLATFORM == "darwin"
     root.setAttribute("drawintitlebar", !hide);
     root.setAttribute("drawintitlebar", hide);
+// #elif PLATFORM == "win"
+    if (hide) {
+        root.setAttribute("chromemargin", "");
+        root.setAttribute("chromemargin", "0,0,0,0");
+    }
 // #else
     root.setAttribute("hidechrome", !hide);
     root.setAttribute("hidechrome", hide);
@@ -1710,6 +1715,8 @@ this.onload = function uilayout_onload()
     root.setAttribute("_hidechrome", hide);
 // #if PLATFORM == "darwin"
     root.setAttribute("drawintitlebar", hide);
+// #elif PLATFORM == "win"
+    root.setAttribute("chromemargin", "0,0,0,0");
 // #else
     root.setAttribute("hidechrome", hide);
 // #endif
@@ -1956,6 +1963,8 @@ _PrefObserver.prototype.observe = function(prefSet, prefName, prefSetID)
          root.setAttribute("_hidechrome", hide);
 // #if PLATFORM == "darwin"
         root.setAttribute("drawintitlebar", hide);
+// #elif PLATFORM == "win"
+        root.setAttribute("chromemargin", "0,0,0,0");
 // #else
         root.setAttribute("hidechrome", hide);
 // #endif
