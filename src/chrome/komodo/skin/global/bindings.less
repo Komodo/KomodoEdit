@@ -3,7 +3,8 @@
   -moz-binding: url("chrome://komodo/content/bindings/windows.xml#root-element");
 }
 
-window:not(#komodo_main):not(.embedded).dialog
+window:not(#komodo_main):not(.embedded).dialog,
+window#floating-pane
 {
   -moz-binding: url("chrome://komodo/content/bindings/windows.xml#window-chromeless");
 }
