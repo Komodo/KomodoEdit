@@ -145,6 +145,8 @@ function OnLoad()
 function LoadAvailableBrowsers(browserType)
 {
     try {
+        // default to configured if no browser was passed in
+        if(!browserType) browserType = "configured";
         var popup = widgets.browserMenupopup;
         // Only need to do this once.
         if (popup.childNodes.length > 0)
@@ -152,6 +154,7 @@ function LoadAvailableBrowsers(browserType)
 
         // Load the menuitems, though we must remove the oncommand attribute.
         var items = ko.uilayout.populatePreviewToolbarButton();
+        var selectedItem;
         for (let item of items) {
             let menuitem = document.createElement("menuitem");
             menuitem.setAttribute("label", item.label);
