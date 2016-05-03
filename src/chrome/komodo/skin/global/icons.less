@@ -405,18 +405,33 @@ treechildren::-moz-tree-twisty(open) {
     background-image: url("koicon://ko-svg/chrome/komodo/skin/images/trees/twisty-down.svg?size=14&color=@{escaped-icons}");
 }
 
-treechildren::-moz-tree-checkbox,
-treechildren::-moz-tree-cell(checkbox) {
-    background-image: url("koicon://ko-svg/chrome/fontawesome/skin/square.svg?size=16") !important;
-    background-size: 16px;
-    background-repeat: no-repeat;
+treecol[type="checkbox"]
+{
+    .icon();
+    .icon-checkmark();
+    font-size: 8px;
+    
+    &:before
+    {
+        margin-left: 6px;
+    }
+    
+    image
+    {
+        visibility: collapse;
+    }
 }
 
-treechildren::-moz-tree-checkbox(checked),
-treechildren::-moz-tree-cell(checkbox, checked) {
-    background-image: url("koicon://ko-svg/chrome/fontawesome/skin/check-square.svg?size=16") !important;
-    background-size: 16px;
-    background-repeat: no-repeat;
+treechildren::-moz-tree-checkbox {
+    list-style-image: url("koicon://ko-svg/chrome/fontawesome/skin/square.svg?size=16") !important;
+    margin: 0;
+    padding: 0;
+    margin-left: -2px;
+    width: 16px;
+}
+
+treechildren::-moz-tree-checkbox(checked) {
+    list-style-image: url("koicon://ko-svg/chrome/fontawesome/skin/check-square.svg?size=16") !important;
 }
 
 treechildren::-moz-tree-checkbox(disabled)
