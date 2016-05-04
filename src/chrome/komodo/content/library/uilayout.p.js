@@ -864,12 +864,12 @@ function _doUpdateMRUMenu(prefName, limit, addManageItem, MRUName, menupopup, se
 // #endif
                 menuitem.setAttribute("label", labelNum + " " + koFile.baseName);
             } else {
-                let pathPart = ko.views.labelFromPathInfo(koFile.baseName, koFile.dirName);
+                let pathPart = koFile.baseName;
                 if (prefName == "mruProjectList") {
                     // We don't need to show the ".komodoproject" extension.
                     let pos = pathPart.indexOf(".komodoproject");
                     if (pos >= 0) {
-                        pathPart = pathPart.slice(0, pos) + pathPart.slice(pos + 14);
+                        pathPart = pathPart.slice(0, pos);
                     }
                 }
                 menuitem.setAttribute("label", labelNum + " " + pathPart);
@@ -880,7 +880,7 @@ function _doUpdateMRUMenu(prefName, limit, addManageItem, MRUName, menupopup, se
             ko.fileutils.setFileStatusAttributesFromFile(menuitem, koFile);
 
             labelNum++;
-            menuitem.setAttribute("crop", "center");
+            menuitem.setAttribute("crop", "end");
             // XXX:HACK: For whatever reason, the "observes" attribute is
             // ignored when the menu item is inside a popup, so we call
             // ko.commands.doCommand directly. THIS IS NOT A GOOD THING!
