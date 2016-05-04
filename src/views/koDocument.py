@@ -1937,7 +1937,9 @@ class koDocumentBase(object):
     @property
     def tabWidth(self):
         if self._tabWidth is None:
-            self._tabWidth = self.prefs.getLong('tabWidth')
+            pref, value = self._getLangPref(('%lang/tabWidth', 'getLong'),
+                                            ('tabWidth', 'getLong'))
+            self._tabWidth = value
         return self._tabWidth
 
     @tabWidth.setter
