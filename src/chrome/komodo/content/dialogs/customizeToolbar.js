@@ -31,7 +31,14 @@
         {
             elem: $("#show-notification", window),
             checked: function() $("#middle-toolboxrow", w).attr("kohidden") != "true",
-            onToggle: function() $("#middle-toolboxrow", w).attr("kohidden", this.elem.element().checked ? "false" : "true")
+            onToggle: function() {
+                $("#middle-toolboxrow", w).attr("kohidden", this.elem.element().checked ? "false" : "true");
+                if ( ! this.elem.element().checked)
+                {
+                    $("#classic-layout", window).attr("checked", true);
+                    ko.prefs.setBoolean("ui.classic.toolbar", true);
+                }
+            }
         }
     ];
     

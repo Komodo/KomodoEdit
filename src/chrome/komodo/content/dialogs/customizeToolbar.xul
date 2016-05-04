@@ -33,10 +33,10 @@
             <hbox class="row">
                 <checkbox id="classic-layout"
                           label="Use classic layout"/>
-                <checkbox id="show-toolbar"
-                          label="Show Toolbar"/>
                 <checkbox id="show-notification"
                           label="Show Notification Box"/>
+                <checkbox id="show-toolbar"
+                          label="Show Toolbar"/>
                 <hbox>
                     <label value="Toolbar Mode: "/>
                     <menulist id="toolbar-mode">
