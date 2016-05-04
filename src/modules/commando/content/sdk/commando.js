@@ -555,7 +555,7 @@
             panel.addClass("quick-search");
              
             var body = _window.document.documentElement;
-            $(body).css("max-width", body.width + "px");
+            $(body).css("max-width", _window.innerWidth + "px");
             
             panel.on("popupshown", function() {
                 $(body).css("max-width", ""); 
