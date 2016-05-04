@@ -674,9 +674,17 @@ class MultiLangZone(LangZone):
                  (lang, tfifb.keys()[0]) # only one blob per lang in a resource
                  for lang, tfifb in res_data.items()
                 ):
-                dbsubpath = join(dhash, blob_index[lang][blobname])
                 try:
+                    dbsubpath = join(dhash, blob_index[lang][blobname])
                     blob = self.load_blob(dbsubpath)
+                except KeyError, ex:
+                    self.db.corruption("MultiLangZone.get_buf_data",
+                        "could not find lang `%s' or blob `%s' for buffer `%s'"\
+                            % (lang, blobname, buf.path))
+                    self.remove_buf_data(buf)
+                    raise NotFoundInDatabase(
+                        "`%s' buffer %s `%s' blob not found in database"
+                        % (buf.path, lang, blobname))
                 except ET.XMLParserError, ex:
                     self.db.corruption("MultiLangZone.get_buf_data",
                         "could not parse dbfile for '%s' blob: %s"\
