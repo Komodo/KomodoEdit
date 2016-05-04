@@ -133,20 +133,29 @@ window.app = {};
     this.execute = function()
     {
         var input = elem.input.value;
-        this.print("input", input, true);
         
-        var result;
-        try
+        if (input == "/clear")
         {
-            result = win.eval(input);
+            elem.output.innerHTML = "";
+            this.print("output", "Console Cleared", true);
         }
-        catch (e)
+        else
         {
-            this.print("exception", e);
-            result = false;
+            this.print("input", input, true);
+            
+            var result;
+            try
+            {
+                result = win.eval(input);
+            }
+            catch (e)
+            {
+                this.print("exception", e);
+                result = false;
+            }
+            
+            if (result !== undefined) this.print("output", result);
         }
-        
-        if (result !== undefined) this.print("output", result);
         
         history.unshift(input);
         history = history.slice(0, 50);
