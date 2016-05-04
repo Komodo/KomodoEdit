@@ -638,9 +638,6 @@ this.fullScreen = function uilayout_FullScreen()
         root.setAttribute("chromemargin", "");
         root.setAttribute("chromemargin", "0,0,0,0");
     }
-// #else
-    root.setAttribute("hidechrome", !hide);
-    root.setAttribute("hidechrome", hide);
 // #endif
 
 // #if PLATFORM == "win"

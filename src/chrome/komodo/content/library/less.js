@@ -291,10 +291,6 @@ var koLess = function koLess()
                                     root.setAttribute("chromemargin", "0,0,0,0");
                                 }
                             }
-                            else {
-                                root.setAttribute("hidechrome", ! hide);
-                                root.setAttribute("hidechrome", hide);
-                            }
                             
                             blackout.remove();
                         }
