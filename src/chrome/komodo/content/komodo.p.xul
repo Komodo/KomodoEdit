@@ -2045,18 +2045,19 @@
                 buttonstyle="pictures"
                 oncommand="document.getElementById('unifiedMenuPopup').openPopup(event.target, 'after_end')"
                 collapsed="true"
+                ordinal="100"
             />
             
-            <hbox id="windowButtons" align="center" pack="right">
+            <!-- #if PLATFORM == "darwin" -->
+                <toolbarbutton id="fullscreen-restore-button" fullscreencontrol="true"
+                               oncommand="ko.uilayout.fullScreen();" ordinal="110" />
+            <!-- #endif -->
+            
+            <hbox id="windowButtons" align="center" pack="right" ordinal="120">
                 <toolbarbutton buttonstyle="pictures" id="min" class="icon-minus-circle2" onclick="window.minimize();"/>
                 <toolbarbutton buttonstyle="pictures" id="max" class="icon-plus-circle2" onclick="window.windowState === 1 ? window.restore() : window.maximize();"/>
                 <toolbarbutton buttonstyle="pictures" id="close" class="icon-cancel-circle2" onclick="if (window.tryToClose()) window.close();"/>
             </hbox>
-
-            <!-- #if PLATFORM == "darwin" -->
-                <toolbarbutton id="fullscreen-restore-button" fullscreencontrol="true"
-                               oncommand="ko.uilayout.fullScreen();"/>
-            <!-- #endif -->
         </hbox>
 
         <toolbarpalette id="komodo-toolbarpalette"/>

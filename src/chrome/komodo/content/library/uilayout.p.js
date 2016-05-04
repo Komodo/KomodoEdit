@@ -1772,7 +1772,7 @@ this.updateWindowButtons = function (w) {
         else
         {
             windowButtons.setAttribute("pack", "end");
-            windowButtons.removeAttribute("ordinal");
+            windowButtons.setAttribute("ordinal", 120);
         }
             
         min.setAttribute("ordinal", _gPrefs.getLong("ui.windowbuttons.min.ordinal", 0) + 1); 
@@ -1784,18 +1784,33 @@ this.updateWindowButtons = function (w) {
     var spacer = w.document.getElementById('windowButtonsSpacer');
     if (spacer) {
         if (leftSide)
-            spacer.setAttribute("ordinal", 10);
+            spacer.setAttribute("ordinal", 120);
         else
             spacer.removeAttribute("ordinal");
+    }
+    
+    // Move menu button to left side
+    var unifiedMenuButton = w.document.getElementById('unifiedMenuButton');
+    if (unifiedMenuButton) {
+        if (leftSide)
+            unifiedMenuButton.setAttribute("ordinal", 0);
+        else
+            unifiedMenuButton.setAttribute("ordinal", 100);
     }
     
     // Move prefix to right side (technically now a suffix)
     var prefix = w.document.getElementById('windowButtonsPrefix');
     if (prefix) {
         if (leftSide)
-            prefix.setAttribute("ordinal", 10);
+        {
+            prefix.setAttribute("ordinal", 120);
+            prefix.setAttribute("style", "-moz-box-direction: reverse");
+        }
         else
+        {
             prefix.setAttribute("ordinal", 0);
+            prefix.removeAttribute("style");
+        }
     }
 }
 
