@@ -70,7 +70,8 @@
         </groupbox>
         <separator class="thin"/>
         
-        <groupbox id="pref-languages-primary-selector-groupbox">
+        <groupbox id="pref-languages-primary-selector-groupbox"
+				  flex="1">
             <caption label="&primaryLanguages.label;"/>
             <description>&primaryLanguages.description;</description>
             <hbox align="center">
