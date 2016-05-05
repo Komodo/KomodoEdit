@@ -80,6 +80,7 @@
 <!ENTITY commentRegion.label "Comment Region">
 <!ENTITY community.label "Community">
 <!ENTITY compareFiles.label "Compare Files...">
+<!ENTITY colorSchemeEditor.label "Color Scheme Editor">
 <!ENTITY completeWord.label "Complete Word">
 <!ENTITY content.label "Content">
 <!ENTITY controlClick.accesskey "Ctrl+Click">
