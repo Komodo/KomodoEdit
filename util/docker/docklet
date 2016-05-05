@@ -151,7 +151,7 @@ function build {
 
 function run {
     cd $KODIRNAME
-    ./mozilla/build/moz3500-ko9.10/mozilla/ko-rel/dist/bin/komodo # Todo: auto-detect path
+    ./mozilla/build/moz3500-ko10.10/mozilla/ko-rel/dist/bin/komodo # Todo: auto-detect path
 }
 
 function image {
