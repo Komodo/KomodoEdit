@@ -58,3 +58,8 @@ groupbox#pref-languages-primary-selector-groupbox.collapse {
 {
     outline: 1px solid red;
 }
+
+#ui_tabs_sidepanes_groupbox > box
+{
+    float: left;
+}
