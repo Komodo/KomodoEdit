@@ -149,6 +149,11 @@ function build {
     ${SSH_CMD} "PATH=/komodo/dev/util/black:\$PATH && cd /komodo/dev && bk build"
 }
 
+function build-quick {
+    setSshCmd
+    ${SSH_CMD} "PATH=/komodo/dev/util/black:\$PATH && cd /komodo/dev && bk build quick"
+}
+
 function run {
     cd $KODIRNAME
     ./mozilla/build/moz3500-ko10.10/mozilla/ko-rel/dist/bin/komodo # Todo: auto-detect path
@@ -178,6 +183,7 @@ function help {
     echo "stop                      stop container"
     echo "clean                     bk distclean"
     echo "build                     build Komodo"
+    echo "build-quick               build quick Komodo"
     echo "run                       run Komodo on host"
     echo "status                    show container status"    
     echo "ssh                       ssh into container"
@@ -213,6 +219,10 @@ while true; do
             ;;
         build)
             build
+            shift
+            ;;
+        build-quick)
+            build-quick
             shift
             ;;
         run)
