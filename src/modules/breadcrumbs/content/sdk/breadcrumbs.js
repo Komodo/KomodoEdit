@@ -636,9 +636,7 @@ var breadcrumbs = function(view) {
         var textbox = xtk.domutils.getChildByProperty(
             menupopup, 'nodeName', 'textbox'
         );
-        var items = xtk.domutils.getChildrenByProperty(
-            menupopup, 'nodeName', ['menuitem', 'menu']
-        );
+        var items = menupopup.querySelectorAll("menuitem, menu");
         var highlighted = false; // Record whether we have a highlighted item
 
         // Prepare the filter Regex
