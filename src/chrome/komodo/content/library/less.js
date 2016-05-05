@@ -209,7 +209,7 @@ var koLess = function koLess()
                         return;
                         
                     for (let blackout of blackouts) {
-                        if (blackout.element().state != 'open')
+                        if (blackout.element().state != 'open' && blackout.element().openPopup)
                             blackout.element().openPopup(blackout.element().ownerDocument.documentElement, 'topleft');
                     }
                     
@@ -277,6 +277,9 @@ var koLess = function koLess()
                         var platform = require("sdk/system").platform;
                         while (blackouts.length) {
                             var blackout = blackouts.pop();
+                            
+                            if ( ! blackout.element() || ! blackout.element().ownerDocument)
+                                continue;
                             
                             // Toggle the UI chrome because windows tends to unhide it
                             var hide = prefs.getBoolean("ui.hide.chrome");
