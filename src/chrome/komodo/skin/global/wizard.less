@@ -50,7 +50,29 @@ wizard:root
     }
 }
 
+.wizard-buttons,
+.wizard-buttons button
+{
+    -moz-appearance: none;
+}
+
 #startup-wizard
 {
     max-width: 600px;
+}
+
+wizard#updates
+{
+    
+    #licenseContent,
+    #historyItems,
+    {
+        -moz-appearance: none !important;
+    }
+    
+    .update-type
+    {
+        color: @foreground !important;
+    }
+    
 }
