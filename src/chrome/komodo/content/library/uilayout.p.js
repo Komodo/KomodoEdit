@@ -1617,13 +1617,11 @@ this.unload = function uilayout_unload()
     // nsIDOMChromeWindow STATE_MAXIMIZED = 1
     _gPrefs.setBooleanPref("startupMaximized", window.windowState==1);
     
-// #if PLATFORM == "darwin"
     var ws = require("ko/windows").getWindows("Komodo");
     if (ws.length == 1)
     {
         ko.commands.doCommand('cmd_quit');
     }
-// #endif
 }
 
 /**
