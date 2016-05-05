@@ -120,10 +120,19 @@ this.generateKomodoLanguage = function koextgen_komodolang(projectDir, data) {
 this.createExtGenProject = function(targetName) {
     try {
         var project = ko.projects.manager.createNewProject();
-        var projectURI = project.url;
         if (!project) {
             return;
         }
+        
+        setTimeout(this._createExtGenProject.bind(this, targetName, project), 0);
+    } catch(ex) {
+        dump("\n\n*** Error in createExtProject: " + ex + "\n");
+    }
+}
+        
+this._createExtGenProject = function(targetName, project) {
+    try {
+        var projectURI = project.url;
         var projectFileEx = project.getFile();
         // Get the project's location, then from one point higher populate it.
         var projectPath = projectFileEx.path;
@@ -224,7 +233,7 @@ this.createExtGenProject = function(targetName) {
             "centerscreen,chrome,resizable,scrollbars,dialog=no,close,modal=no",
         data);
     } catch(ex) {
-        dump("\n\n*** Error in createExtProject: " + ex + "\n");
+        dump("\n\n*** Error in _createExtProject: " + ex + "\n");
     }
 };
 }).apply(ko.koextgen);
