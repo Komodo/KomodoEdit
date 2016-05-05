@@ -184,7 +184,7 @@ komodoCmdLineHandler.prototype = {
         this.handleUpgrades();
       } catch (e)
       {
-        log.exception(e, "Error handling addon upgrades");
+        Components.utils.reportError(e);
       }
       prefSvc.prefs.deletePref("isMajorUpgrade");
     }
@@ -283,8 +283,17 @@ komodoCmdLineHandler.prototype = {
     {
       for (let addon of aAddons)
       {
-        if ( ! addon.isCompatible)
-          addon.uninstall();
+        try
+        {
+          if ( ! addon.isCompatible && addon.scope == AddonManager.SCOPE_PROFILE)
+          {
+            addon.uninstall();
+          }
+        }
+        catch (e)
+        {
+          Components.utils.reportError(e);
+        }
       }
     });
   },
