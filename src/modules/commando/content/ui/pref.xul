@@ -21,113 +21,113 @@
             parent.hPrefWindow.onpageload();
         }
     </script>
-
-    <groupbox orient="vertical" id="search-behaviour">
-        <caption label="Search Behaviour" />
-        <vbox>
-            <hbox align="center">
-                <label value="Max Results:" />
-                <textbox size="4"
-                         pref="true"
-                         id="commando_search_max_results"
-                         preftype="long"
-                         tooltiptext="Setting this to a high value (100+) may result in sluggish search results"/>
-            </hbox>
-            <spacer/>
-            
-            <hbox align="center">
-                <label value="Search Delay (ms):" />
-                <textbox size="4"
-                         pref="true"
-                         id="commando_search_delay"
-                         preftype="long"
-                         tooltiptext="Search input will be delayed/grouped by this interval"/>
-            </hbox>
-            <spacer/>
-            
-            <hbox align="center">
-                <label value="Result Render Delay (ms):" />
-                <textbox size="4"
-                         pref="true"
-                         id="commando_result_render_delay"
-                         preftype="long"
-                         tooltiptext="Groups multiple results together in the given timeframe and renders them together"/>
-            </hbox>
-            <spacer/>
-            <hbox align="center">
-                <label value="Max Search Depth:" />
-                <textbox size="2"
-                         pref="true"
-                         id="commando_files_max_depth"
-                         preftype="long"
-                         tooltiptext="How many folders deep should Commando search?"/>
-            </hbox>
-            <spacer/>
-            
-        </vbox>
-        <vbox>
-            <hbox>
-                <checkbox pref="true"
-                          id="commando_relative_from_currentview"
-                          preftype="boolean"
-                          prefdefault="false"
-                          label="&relativePathsFromCurrentFile.checkbox.label;"
-                          tooltiptext="&relativePathsFromCurrentFile.checkbox.tooltiptext;" />
-            </hbox>
-        </vbox>
-    </groupbox>
-    
-    <groupbox orient="vertical" id="results-behaviour">
-        <caption label="Results" />
-        <vbox>
-            <hbox>
-                <checkbox label="&preserveQuery.checkbox.label;"
+    <vbox>
+        <groupbox orient="vertical" id="search-behaviour">
+            <caption label="Search Behaviour" />
+            <vbox>
+                <hbox align="center">
+                    <label value="Max Results:" />
+                    <textbox size="4"
+                             pref="true"
+                             id="commando_search_max_results"
+                             preftype="long"
+                             tooltiptext="Setting this to a high value (100+) may result in sluggish search results"/>
+                </hbox>
+                <spacer/>
+                
+                <hbox align="center">
+                    <label value="Search Delay (ms):" />
+                    <textbox size="4"
+                             pref="true"
+                             id="commando_search_delay"
+                             preftype="long"
+                             tooltiptext="Search input will be delayed/grouped by this interval"/>
+                </hbox>
+                <spacer/>
+                
+                <hbox align="center">
+                    <label value="Result Render Delay (ms):" />
+                    <textbox size="4"
+                             pref="true"
+                             id="commando_result_render_delay"
+                             preftype="long"
+                             tooltiptext="Groups multiple results together in the given timeframe and renders them together"/>
+                </hbox>
+                <spacer/>
+                <hbox align="center">
+                    <label value="Max Search Depth:" />
+                    <textbox size="2"
+                             pref="true"
+                             id="commando_files_max_depth"
+                             preftype="long"
+                             tooltiptext="How many folders deep should Commando search?"/>
+                </hbox>
+                <spacer/>
+                
+            </vbox>
+            <vbox>
+                <hbox>
+                    <checkbox pref="true"
+                              id="commando_relative_from_currentview"
+                              preftype="boolean"
+                              prefdefault="false"
+                              label="&relativePathsFromCurrentFile.checkbox.label;"
+                              tooltiptext="&relativePathsFromCurrentFile.checkbox.tooltiptext;" />
+                </hbox>
+            </vbox>
+        </groupbox>
+        
+        <groupbox orient="vertical" id="results-behaviour">
+            <caption label="Results" />
+            <vbox>
+                <hbox>
+                    <checkbox label="&preserveQuery.checkbox.label;"
+                              pref="true"
+                              id="commando_preserve_query"
+                              preftype="boolean"
+                              prefdefault="true" />
+                </hbox>
+            </vbox>
+            <vbox>
+                <hbox>
+                    <checkbox pref="true"
+                              id="commando_navigate_by_number"
+                              preftype="boolean"
+                              prefdefault="false"
+                              label="&navigateByNumber.checkbox.label;" />
+                </hbox>
+            </vbox>
+        </groupbox>
+        
+        <groupbox orient="vertical" id="shell-commands-behaviour">
+            <caption label="Shell Commands" />
+            <hbox id="defaultShellOutputBox"
+                  align="center">
+                <label id="defaultShellOutputLabel"
+                       value="Default Shell Output" />
+                <menulist id="commando_shell_output"
                           pref="true"
-                          id="commando_preserve_query"
-                          preftype="boolean"
-                          prefdefault="true" />
+                          prefattribute="value">
+                    <menupopup id="defaultShellOutputPopup">
+                        <menuitem id="defaultShellOutputHud"
+                                  label="HUD"
+                                  value="hud"
+                                  />
+                        <menuitem id="defaultShellOutputCmdOut"
+                                  label="Command Output Panel"
+                                  value="command-output-window"
+                                  />
+                        <menuitem id="defaultShellOutputTerminal"
+                                  label="Terminal Window"
+                                  value="new-console"
+                                  />
+                        <menuitem id="defaultShellOutputNone"
+                                  label="Don't Show Output"
+                                  value="no-console"
+                                  />
+                    </menupopup>
+                </menulist>
             </hbox>
-        </vbox>
-        <vbox>
-            <hbox>
-                <checkbox pref="true"
-                          id="commando_navigate_by_number"
-                          preftype="boolean"
-                          prefdefault="false"
-                          label="&navigateByNumber.checkbox.label;" />
-            </hbox>
-        </vbox>
-    </groupbox>
-    
-    <groupbox orient="vertical" id="shell-commands-behaviour">
-        <caption label="Shell Commands" />
-        <hbox id="defaultShellOutputBox"
-              align="center">
-            <label id="defaultShellOutputLabel"
-                   value="Default Shell Output" />
-            <menulist id="commando_shell_output"
-                      pref="true"
-                      prefattribute="value">
-                <menupopup id="defaultShellOutputPopup">
-                    <menuitem id="defaultShellOutputHud"
-                              label="HUD"
-                              value="hud"
-                              />
-                    <menuitem id="defaultShellOutputCmdOut"
-                              label="Command Output Panel"
-                              value="command-output-window"
-                              />
-                    <menuitem id="defaultShellOutputTerminal"
-                              label="Terminal Window"
-                              value="new-console"
-                              />
-                    <menuitem id="defaultShellOutputNone"
-                              label="Don't Show Output"
-                              value="no-console"
-                              />
-                </menupopup>
-            </menulist>
-        </hbox>
-    </groupbox>
-
+        </groupbox>
+    </vbox>
 </window>
