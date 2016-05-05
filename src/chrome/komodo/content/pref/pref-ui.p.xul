@@ -63,34 +63,36 @@
         <groupbox id="pref_appearance_interface">
             <caption label="&interface.caption;" />
         
-            <hbox flex="1">
-                <vbox align="right" flex="1">
-                    <label value="Interface Colors: " flex="1"/>
-                    <label value="Widget Colors: " flex="1"/>
-                    <label value="Editor Colors: " flex="1"/>
-                </vbox>
-                
-                <vbox align="left" flex="1">
-                    <menulist id="interface-scheme"
-                              pref="true"
-                              preftype="string"
-                              width="300">
-                        <menupopup/>
-                    </menulist>
-                    <menulist id="widget-scheme"
-                              pref="true"
-                              preftype="string"
-                              width="300">
-                        <menupopup/>
-                    </menulist>
-                    <menulist id="editor-scheme"
-                              pref="true"
-                              preftype="string"
-                              width="300">
-                        <menupopup/>
-                    </menulist>
-                </vbox>
+            <hbox>
+                <label value="Interface Colors: " />
+                <menulist id="interface-scheme"
+                          pref="true"
+                          preftype="string"
+                          width="300">
+                    <menupopup/>
+                </menulist>
             </hbox>
+
+            <hbox>
+                <label value="Widget Colors: " />
+                <menulist id="widget-scheme"
+                          pref="true"
+                          preftype="string"
+                          width="300">
+                    <menupopup/>
+                </menulist>
+            </hbox>
+            
+            <hbox>
+                <label value="Editor Colors: " />
+                <menulist id="editor-scheme"
+                          pref="true"
+                          preftype="string"
+                          width="300">
+                    <menupopup/>
+                </menulist>
+            </hbox>
+            
             <checkbox id="link-schemes" pref="true" label="Use the same color scheme for everything"/>
 
         </groupbox>
@@ -134,84 +136,86 @@
             
         </groupbox>
 
-        <groupbox id="ui_tabs_sidepanes_groupbox">
+        <groupbox id="ui.tabs.sidepanes.groupbox">
             <caption label="&sidePaneTabStyles.caption;" />
-            <hbox flex="1">
-                <vbox align="right" flex="1">
-                    <label id="ui.tabs.sidepanes.left.label"
-                           value="&uiPaneSidepanes.left.layout.label;"
-                           flex="1"/>
-                    <label id="ui.tabs.sidepanes.bottom.label"
-                           value="&uiPaneSidepanes.bottom.layout.label;"
-                           flex="1"/>
-                    <label id="ui.tabs.sidepanes.right.label"
-                           value="&uiPaneSidepanes.right.layout.label;"
-                           flex="1"/>
-                </vbox>
-                <vbox align="left" flex="1">
-                    <menulist id="ui.tabs.sidepanes.left.layout"
-                              pref="true"
-                              prefattribute="value">
-                        <menupopup id="ui.tabs.sidepanes.left.menupopup">
-                            <menuitem id="ui.tabs.sidepanes.left.sidebar.menu"
-                                      label="&uiPaneSidebars.menuitem.label;"
-                                      value="sidebar"
-                                      />
-                            <menuitem id="ui.tabs.sidepanes.left.vertical.menu"
-                                      label="&uiPaneVerticalTabs.menuitem.label;"
-                                      value="vertical"
-                                      />
-                            <menuitem id="ui.tabs.sidepanes.left.horizontal.menu"
-                                      label="&uiPaneHorizontalTabs.menuitem.label;"
-                                      value="horizontal"
-                                      />
-                            <menuitem id="ui.tabs.sidepanes.left.icons.menu"
-                                      label="&uiPaneIconTabs.menuitem.label;"
-                                      value="icons"
-                                      />
-                        </menupopup>
-                    </menulist>
-                    <menulist id="ui.tabs.sidepanes.right.layout"
-                              pref="true"
-                              prefattribute="value">
-                        <menupopup id="ui.tabs.sidepanes.right.menupopup">
-                            <menuitem id="ui.tabs.sidepanes.right.sidebar.menu"
-                                      label="&uiPaneSidebars.menuitem.label;"
-                                      value="sidebar"
-                                      />
-                            <menuitem id="ui.tabs.sidepanes.right.vertical.menu"
-                                      label="&uiPaneVerticalTabs.menuitem.label;"
-                                      value="vertical"
-                                      />
-                            <menuitem id="ui.tabs.sidepanes.right.horizontal.menu"
-                                      label="&uiPaneHorizontalTabs.menuitem.label;"
-                                      value="horizontal"
-                                      />
-                            <menuitem id="ui.tabs.sidepanes.right.icons.menu"
-                                      label="&uiPaneIconTabs.menuitem.label;"
-                                      value="icons"
-                                      />
-                        </menupopup>
-                    </menulist>
-                    <menulist id="ui.tabs.sidepanes.bottom.layout"
-                              pref="true"
-                              prefattribute="value">
-                        <menupopup id="ui.tabs.sidepanes.bottom.menupopup">
-                            <menuitem id="ui.tabs.sidepanes.bottom.sidebar.menu"
-                                      label="&uiPaneSidebars.menuitem.label;"
-                                      value="sidebar"
-                                      />
-                            <menuitem id="ui.tabs.sidepanes.bottom.horizontal.menu"
-                                      label="&uiPaneHorizontalTabs.menuitem.label;"
-                                      value="horizontal"
-                                      />
-                            <menuitem id="ui.tabs.sidepanes.bottom.icons.menu"
-                                      label="&uiPaneIconTabs.menuitem.label;"
-                                      value="icons"
-                                      />
-                        </menupopup>
-                    </menulist>
-                </vbox>
+            <hbox id="ui.tabs.sidepanes.left.hbox"
+                  align="center">
+                <label id="ui.tabs.sidepanes.left.label"
+                       value="&uiPaneSidepanes.left.layout.label;" />
+                <menulist id="ui.tabs.sidepanes.left.layout"
+                          pref="true"
+                          prefattribute="value">
+                    <menupopup id="ui.tabs.sidepanes.left.menupopup">
+                        <menuitem id="ui.tabs.sidepanes.left.sidebar.menu"
+                                  label="&uiPaneSidebars.menuitem.label;"
+                                  value="sidebar"
+                                  />
+                        <menuitem id="ui.tabs.sidepanes.left.vertical.menu"
+                                  label="&uiPaneVerticalTabs.menuitem.label;"
+                                  value="vertical"
+                                  />
+                        <menuitem id="ui.tabs.sidepanes.left.horizontal.menu"
+                                  label="&uiPaneHorizontalTabs.menuitem.label;"
+                                  value="horizontal"
+                                  />
+                        <menuitem id="ui.tabs.sidepanes.left.icons.menu"
+                                  label="&uiPaneIconTabs.menuitem.label;"
+                                  value="icons"
+                                  />
+                    </menupopup>
+                </menulist>
+            </hbox>
+    
+            <hbox id="ui.tabs.sidepanes.right.hbox"
+                  align="center">
+                <label id="ui.tabs.sidepanes.right.label"
+                       value="&uiPaneSidepanes.right.layout.label;" />
+                <menulist id="ui.tabs.sidepanes.right.layout"
+                          pref="true"
+                          prefattribute="value">
+                    <menupopup id="ui.tabs.sidepanes.right.menupopup">
+                        <menuitem id="ui.tabs.sidepanes.right.sidebar.menu"
+                                  label="&uiPaneSidebars.menuitem.label;"
+                                  value="sidebar"
+                                  />
+                        <menuitem id="ui.tabs.sidepanes.right.vertical.menu"
+                                  label="&uiPaneVerticalTabs.menuitem.label;"
+                                  value="vertical"
+                                  />
+                        <menuitem id="ui.tabs.sidepanes.right.horizontal.menu"
+                                  label="&uiPaneHorizontalTabs.menuitem.label;"
+                                  value="horizontal"
+                                  />
+                        <menuitem id="ui.tabs.sidepanes.right.icons.menu"
+                                  label="&uiPaneIconTabs.menuitem.label;"
+                                  value="icons"
+                                  />
+                    </menupopup>
+                </menulist>
+            </hbox>
+    
+            <hbox id="ui.tabs.sidepanes.bottom.hbox"
+                  align="center">
+                <label id="ui.tabs.sidepanes.bottom.label"
+                       value="&uiPaneSidepanes.bottom.layout.label;" />
+                <menulist id="ui.tabs.sidepanes.bottom.layout"
+                          pref="true"
+                          prefattribute="value">
+                    <menupopup id="ui.tabs.sidepanes.bottom.menupopup">
+                        <menuitem id="ui.tabs.sidepanes.bottom.sidebar.menu"
+                                  label="&uiPaneSidebars.menuitem.label;"
+                                  value="sidebar"
+                                  />
+                        <menuitem id="ui.tabs.sidepanes.bottom.horizontal.menu"
+                                  label="&uiPaneHorizontalTabs.menuitem.label;"
+                                  value="horizontal"
+                                  />
+                        <menuitem id="ui.tabs.sidepanes.bottom.icons.menu"
+                                  label="&uiPaneIconTabs.menuitem.label;"
+                                  value="icons"
+                                  />
+                    </menupopup>
+                </menulist>
             </hbox>
         </groupbox>
 
