@@ -297,6 +297,9 @@ var koLess = function koLess()
                             
                             blackout.remove();
                         }
+                        
+                        mw.dispatchEvent(new mw.CustomEvent("interface_scheme_changed"));
+                        
                     }, delay + 1000);
                         
                 }

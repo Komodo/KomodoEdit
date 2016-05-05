@@ -164,6 +164,7 @@ viewMgrClass.prototype = {
         } catch(ex) {
             log.exception(ex, "Error in _setupProjectView");
         }
+        
     },
 
     observe: function(subject, topic, data) {
@@ -3251,6 +3252,20 @@ this.onLoad_aux = function places_onLoad_aux() {
         }
     }.bind(this);
     mruProjectViewerID = setInterval(launch_createProjectMRUView, 50);
+    
+    // Changing the interface scheme makes CSS reload, which makes bindings reload
+    // So we have to reinitialize the project deck
+    // Todo: extend the deck binding to fire the event from there
+    var mw = require("ko/windows").getMain();
+    mw.addEventListener("interface_scheme_changed", function () {
+        var spv = this.single_project_view = !_globalPrefs.getBooleanPref("places.multiple_project_view");
+        gPlacesViewMgr._setupProjectView(spv);
+        
+        // Once more for good measure on slower machines
+        setTimeout(function() {
+            gPlacesViewMgr._setupProjectView(spv);
+        }, 2000);
+    }.bind(this));
 }
 
 this.handle_show_fullPath_tooltip = function() {
