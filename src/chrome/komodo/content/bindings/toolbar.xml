@@ -345,10 +345,11 @@
                 }
                 
                 var lastParent = null;
-                var overflown = Array.slice(this.querySelectorAll('toolbarbutton[overflown="true"]'));
+                var q = 'toolbaritem:not([kohidden="true"]) > toolbarbutton[overflown="true"]:not([kohidden="true"])';
+                var overflown = Array.slice(this.querySelectorAll(q));
                 for (let elem of overflown)
                 {
-                    if (elem.getAttribute("kohidden") == "true") 
+                    if ( ! elem.getAttribute("label"))
                         continue;
                     
                     if (lastParent && lastParent != elem.parentNode)
