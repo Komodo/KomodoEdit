@@ -2108,7 +2108,7 @@
                             <!-- This box is used in the widget/pane customization mode
                                - (hiding the main text editing area).
                                -->
-                            <browser src="chrome://komodo/content/dialogs/customizeToolbar.xul" flex="1" style="width: 100vw"/>
+                            <browser id="customizeToolbarBrowser" src="chrome://komodo/content/dialogs/customizeToolbar.xul" flex="1" style="width: 100vw"/>
                             <hbox pack="center">
                                 <description>&pane.customize.placeholder.label;</description>
                                 <button label="&pane.customize.done.label;"

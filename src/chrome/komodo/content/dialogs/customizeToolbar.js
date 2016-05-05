@@ -90,17 +90,25 @@
         window.onConfirmDialog = function() {};
         
         this.updateToolbarViewState();
-    }
+    };
+    
+    this.reload = function()
+    {
+        this.populateList("main");
+        this.populateList("second");
+    };
+    window.reload = this.reload;
     
     this.populateList = function(which = "main")
     {
         var el = elems[which + "Tb"];
-        $("#"+which+"-toolboxrow toolbaritem:not(.custom-toolbar)", w).each(function() {
+        el.empty();
+        $("#"+which+"-toolboxrow toolbaritem", w).each(function() {
             
             var listitem = $("<hbox class='list-item'/>");
             listitem.attr("ishidden", this.getAttribute("kohidden"));
             listitem.element()._originalElement = this;
-            el.append(listitem)
+            el.append(listitem);
             
             $(this).children().each(function() {
                 var el = $(this).clone(true, false);

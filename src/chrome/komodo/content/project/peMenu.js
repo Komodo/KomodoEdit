@@ -341,6 +341,16 @@ this.addToolbarFromPart = function peMenu_addToolbarFromPart(part) {
         // The toolbaritem wrapper is used primarily for styling
         var toolbaritem = document.createElement('toolbaritem');
         toolbaritem.classList.add("custom-toolbar");
+        toolbaritem.setAttribute("id", id + "-toolbaritem");
+        toolbaritem.setAttribute("persist", "kohidden");
+        
+        var xulStore = Cc["@mozilla.org/xul/xulstore;1"].getService(Ci.nsIXULStore);
+        var hidden = xulStore.getValue(document.location.href, id + "-toolbaritem", "kohidden");
+        if (hidden)
+        {
+            toolbaritem.setAttribute("kohidden", "true");
+        }
+        
         toolbar.appendChild(toolbaritem);
         toolbox.insertBefore(toolbar, toolbox.firstChild);
 

@@ -324,6 +324,8 @@ this.customize = (function uilayout_customize() {
     this.ensurePaneShown('workspace_left_area');
     this.ensurePaneShown('workspace_right_area');
     this.ensurePaneShown('workspace_bottom_area');
+    
+    document.getElementById('customizeToolbarBrowser').contentWindow.window.reload();
 }).bind(this);
 
 this._customizeComplete = (function uilayout__customizeComplete() {
