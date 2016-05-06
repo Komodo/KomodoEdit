@@ -1200,6 +1200,7 @@
         tmpResultElem.parentNode.replaceChild(resultElem.element(), tmpResultElem);
         resultElem.element().selectedIndex = 0;
         resultElem.element().scrollTop = 0;
+        resultElem.element().ensureIndexIsVisible(0);
         
         elem('panel').css("min-height", "auto");
         elem('panel').removeAttr("height");
@@ -1207,6 +1208,8 @@
         setTimeout(function() {
             elem('panel').removeAttr("height");
             elem('panel').removeAttr("width");
+            resultElem.element().scrollTop = 0;
+            resultElem.element().ensureIndexIsVisible(0);
         }, 100);
         
         // Work around weird XUL flex issue where the richlistbox shows a scrollbar
