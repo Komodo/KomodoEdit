@@ -507,9 +507,10 @@ window.app = {};
         else
         {
             keys = keys.concat(keys, Object.getOwnPropertyNames(ob.constructor));
-            keys = keys.concat(keys, Object.getOwnPropertyNames(Object));
             keys = keys.concat(keys, Object.getOwnPropertyNames(Object.prototype));
         }
+        
+        keys = keys.concat(keys, Object.getOwnPropertyNames(Object));
             
         var _keys = [];
         var _processed = {};
@@ -518,12 +519,6 @@ window.app = {};
         for (k of keys)
         {
             if (k in _processed) continue;
-            
-            if (ob.hasOwnProperty(k))
-            {
-                var descriptor = Object.getOwnPropertyDescriptor(ob, k);
-                if (descriptor.get) continue;
-            } 
             
             _processed[k] = true;
             _keys.push(k);
