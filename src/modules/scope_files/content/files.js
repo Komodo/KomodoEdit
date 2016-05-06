@@ -9,6 +9,7 @@
     const sep       = system.platform == "winnt" ? "\\" : "/";
     const isep      = sep == "/" ? /\\/g : /\//g;
     const pathsep   = system.platform == "winnt" ? ":" : ";";
+    const w         = require("ko/windows").getMain();
 
     const scope     = Cc["@activestate.com/commando/koScopeFiles;1"].getService(Ci.koIScopeFiles);
     const partSvc   = Cc["@activestate.com/koPartService;1"].getService(Ci.koIPartService);
@@ -18,6 +19,7 @@
     //log.setLevel(require("ko/logging").LOG_DEBUG);
     var activeUuid = null;
 
+    var ko    = w.ko;
     var local = {warned: {}};
 
     var init = function()
@@ -82,10 +84,10 @@
             {
                 log.debug("Including curProject shorcuts");
                 shortcutsCache["%i"] = curProject.liveDirectory;
-                shortcutsCache["%P"] = sdkUrl.URL(curProject.url).path;
+                shortcutsCache["%P"] = ko.uriparse.URIToLocalPath(curProject.url);
             }
 
-            shortcutsCache["%w"] = sdkUrl.URL(ko.places.getDirectory()).path;
+            shortcutsCache["%w"] = ko.uriparse.URIToLocalPath(ko.places.getDirectory());
         }
 
         if ( ! "observing" in getShortcuts)
