@@ -600,6 +600,12 @@
                 var subscopeId = scopeIds.shift();
                 if (! subscopeId) return;
                 
+                if (typeof subscopeId == "function")
+                {
+                    subscopeId(); // callback
+                    return;
+                }
+                
                 var subscope = resultElem.find(`richlistitem[result-id="${subscopeId}"]`);
                 if (subscope.length)
                 {
