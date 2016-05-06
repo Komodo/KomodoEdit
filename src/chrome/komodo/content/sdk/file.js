@@ -17,7 +17,7 @@
     var ioFile      = require("sdk/io/file");
     var system      = require("sdk/system");
     
-    this.separator = system.platform == "WINNT" ? "\\" : "/";
+    this.separator = system.platform == "winnt" ? "\\" : "/";
 
     /**
      * Returns the last component of the given path. For example, basename("/foo/bar/baz") returns "baz".
@@ -56,7 +56,17 @@
      *
      * @returns {Boolean}
      */
-    this.exists = () => ioFile.exists.apply(ioFile, arguments);
+    this.exists = function()
+    {
+        try
+        {
+            return ioFile.exists.apply(ioFile, arguments);
+        }
+        catch (e)
+        {
+            return false;
+        }
+    };
     
     /**
      * Takes a variable number of strings, joins them on the file system's path separator, and returns the result.
@@ -65,7 +75,15 @@
      *
      * @returns {String}    A single string formed by joining the strings on the file system's path separator.
      */
-    this.join = () => ioFile.join.apply(ioFile, arguments);
+    this.join = function()
+    {
+        var args = Array.from(arguments);
+        var pathBits = [];
+        for (let arg of args)
+            pathBits = pathBits.concat(arg.split(/[\\\/]/g));
+        
+        return pathBits.join(this.separator);
+    };
     
     /**
      * Returns an array of file names in the given directory.
