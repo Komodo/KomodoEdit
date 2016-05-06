@@ -35,8 +35,8 @@ var koLess = function koLess()
                                 .getService(Ci.koIPrefService).prefs;
                                 
     var _loadSheetNo = 0;
-    var blackouts = [];
-    var blackoutTimer;
+    var windowsUpdating = [];
+    var updateTimer;
 
     koLess.prototype =
     {
@@ -171,52 +171,6 @@ var koLess = function koLess()
                         return;
                 }
                 
-                var addBlackout = function (w)
-                {
-                    var $ = require("ko/dom");
-                    var blackout = $($.create("panel", {
-                            style: "background: Window;",
-                            noautohide: true,
-                            ignorekeys: true,
-                            width: w.document.width,
-                            height: w.document.height,
-                            align: "center",
-                            pack: "center",
-                            level: "parent"
-                        },
-                        $.create("description", {
-                            style: "max-width: 50%; color: WindowText; font: message-box; font-weight: bold; font-size: 1.5rem",
-                            value: "Loading .."})
-                    ).toString());
-                    
-                    $(w.document.documentElement).append(blackout);
-                    blackout.element().openPopup(w.document.documentElement, 'topleft');
-
-                    blackouts.push(blackout);
-                };
-                
-                var windows = require("ko/windows").getWindows();
-                for (let w of windows)
-                {
-                    addBlackout(w);
-                }
-                
-                // More XUL weirdness. Panels like to hide themselves without firing events
-                // when you reload stylesheets. Presumably related to the bindings?
-                var ensureShown = function ()
-                {
-                    if (blackouts.length === 0)
-                        return;
-                        
-                    for (let blackout of blackouts) {
-                        if (blackout.element().state != 'open' && blackout.element().openPopup)
-                            blackout.element().openPopup(blackout.element().ownerDocument.documentElement, 'topleft');
-                    }
-                    
-                    Timer.setTimeout(ensureShown, 50);
-                };
-                ensureShown();
-                
                 Components.classes["@mozilla.org/chrome/chrome-registry;1"]
                   .getService(Components.interfaces.nsIXULChromeRegistry)
                   .refreshSkins();
@@ -224,30 +178,46 @@ var koLess = function koLess()
                 var delay = 0;
                   
                 var suffix = (new  Date().valueOf());
+                var windows = require("ko/windows").getWindows();
+                
                 windows = require("ko/windows").getAll();
                 for (let w of windows)
                 {
+                    windowsUpdating.push(w);
+                    
+                    w._pendingSheetDeletions = [];
                     Timer.setTimeout(function(w) {
-                        
                         try {
                             var body = w.document.documentElement;
+                            
+                            // Update xml-stylesheets
                             for (let child of Array.slice(body.parentNode.childNodes))
                             {
+                                var value = null;
                                 if (child.nodeName == "xml-stylesheet" && child.nodeValue.indexOf('.less') != -1)
                                 {
-                                    child.nodeValue = child.nodeValue.replace(
+                                    value = child.nodeValue.replace(
                                         /(href="[a-zA-Z0-9\/:\.\-\_]*\.less)(?:\?\d+|)/,
                                         '$1?' + suffix);
                                 }
                                 
+                                // Some windows use the old notation
                                 if (child.nodeName == "xml-stylesheet" && child.nodeValue.indexOf('href="chrome://komodo/skin/"') != -1)
                                 {
-                                    child.nodeValue = child.nodeValue.replace(
+                                    value = child.nodeValue.replace(
                                         'href="chrome://komodo/skin/"',
                                         'href="chrome://komodo/skin/global.less?' + suffix + '"');
                                 }
+                                
+                                if (value)
+                                {
+                                    let replacement = w.document.createProcessingInstruction('xml-stylesheet', value);
+                                    w.document.insertBefore(replacement, child);
+                                    w._pendingSheetDeletions.push(child);
+                                }
                             }
                             
+                            // Update link stylesheets
                             var links = body.getElementsByTagName("link");
                             for (var link of links)
                             {
@@ -255,9 +225,13 @@ var koLess = function koLess()
                                     link.href.indexOf('.less') == -1)
                                     continue;
                                 
-                                    link.href = link.href.replace(
-                                        /([a-zA-Z0-9\/:\.\-\_]*\.less)(?:\?\d+|)/,
-                                        '$1?' + suffix);
+                                let replacement = link.cloneNode();
+                                replacement.href = replacement.href.replace(
+                                    /([a-zA-Z0-9\/:\.\-\_]*\.less)(?:\?\d+|)/,
+                                    '$1?' + suffix);
+                                
+                                w.document.insertBefore(replacement, link);
+                                w._pendingSheetDeletions.push(link);
                             }
                             
                             if ("loadVirtualStylesheets" in w)
@@ -267,42 +241,46 @@ var koLess = function koLess()
                         
                     }.bind(null,w), delay);
                     
+                    // Delay the first iteration by 1 second to give it plenty
+                    // of time to generate the cache
                     if (delay === 0)
-                        delay += 1000;
+                        delay += 1000; 
                     else
                         delay += 10;
+                }
+                
+                // Set timer to delete the old stylesheet reference
+                Timer.clearTimeout(updateTimer);
+                updateTimer = Timer.setTimeout(function () {
+                    var platform = require("sdk/system").platform;
+                    while (windowsUpdating.length) {
+                        let w = windowsUpdating.pop();
+                        let pending = w._pendingSheetDeletions;
                         
-                    Timer.clearTimeout(blackoutTimer);
-                    blackoutTimer = Timer.setTimeout(function () {
-                        var platform = require("sdk/system").platform;
-                        while (blackouts.length) {
-                            var blackout = blackouts.pop();
-                            
-                            if ( ! blackout.element() || ! blackout.element().ownerDocument)
-                                continue;
-                            
-                            // Toggle the UI chrome because windows tends to unhide it
-                            var hide = prefs.getBoolean("ui.hide.chrome");
-                            var root = blackout.element().ownerDocument.documentElement;
-                            if (platform == "Darwin") {
-                                root.setAttribute("drawintitlebar", ! hide);
-                                root.setAttribute("drawintitlebar", hide);
+                        delete w._pendingSheetDeletions;
+                        
+                        // Toggle the UI chrome because windows tends to unhide it
+                        var hide = prefs.getBoolean("ui.hide.chrome");
+                        var root = w.document.documentElement;
+                        if (platform == "Darwin") {
+                            root.setAttribute("drawintitlebar", ! hide);
+                            root.setAttribute("drawintitlebar", hide);
+                        }
+                        else if (root.getAttribute("chromemargin") && platform == "WINNT") { 
+                            if (hide) {
+                                root.setAttribute("chromemargin", "");
+                                root.setAttribute("chromemargin", "0,0,0,0");
                             }
-                            else if (root.getAttribute("chromemargin") && platform == "WINNT") { 
-                                if (hide) {
-                                    root.setAttribute("chromemargin", "");
-                                    root.setAttribute("chromemargin", "0,0,0,0");
-                                }
-                            }
-                            
-                            blackout.remove();
                         }
                         
-                        mw.dispatchEvent(new mw.CustomEvent("interface_scheme_changed"));
-                        
-                    }, delay + 1000);
-                        
-                }
+                        for (let p of pending)
+                            p.remove();
+                    }
+                    
+                    mw.dispatchEvent(new mw.CustomEvent("interface_scheme_changed"));
+                    
+                }, delay + 1000);
+                
             }, Ci.nsIEventTarget.DISPATCH_NORMAL);
         },
 
