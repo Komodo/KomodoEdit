@@ -178,7 +178,7 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
         
         var menulist = require("ko/ui/menulist").create();
         menulist.addMenuItem({ attributes: {
-            label: platform == "WINNT" ? "System defined default browser" : "Ask when browser is launched the next time",
+            label: platform == "winnt" ? "System defined default browser" : "Ask when browser is launched the next time",
             value: "",
             selected: currentBrowser === ""
         } });
@@ -324,7 +324,7 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
         var resourcesGroupbox = page.addGroupbox({caption: "Additional Resources"}).addColumn();
         
         var prefSteps;
-        if (platform == "Darwin")
+        if (platform == "darwin")
             prefSteps = "Komodo > Preferences";
         else
             prefSteps = "Edit > Preferences";

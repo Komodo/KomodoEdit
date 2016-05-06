@@ -262,11 +262,11 @@ var koLess = function koLess()
                         // Toggle the UI chrome because windows tends to unhide it
                         var hide = prefs.getBoolean("ui.hide.chrome");
                         var root = w.document.documentElement;
-                        if (platform == "Darwin") {
+                        if (platform == "darwin") {
                             root.setAttribute("drawintitlebar", ! hide);
                             root.setAttribute("drawintitlebar", hide);
                         }
-                        else if (root.getAttribute("chromemargin") && platform == "WINNT") { 
+                        else if (root.getAttribute("chromemargin") && platform == "winnt") { 
                             if (hide) {
                                 root.setAttribute("chromemargin", "");
                                 root.setAttribute("chromemargin", "0,0,0,0");
