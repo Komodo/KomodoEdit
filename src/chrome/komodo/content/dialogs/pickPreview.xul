@@ -49,6 +49,7 @@
         onload="OnLoad()"
         orient="vertical"
         persist="width"
+        width="600"
         buttons="accept,cancel"
         ondialogaccept="return Preview();"
         ondialogcancel="return Cancel();">
