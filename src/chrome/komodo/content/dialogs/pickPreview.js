@@ -132,11 +132,14 @@ function OnLoad()
         }
 
         window.sizeToContent();
-        if (opener.innerHeight == 0) { // indicator that opener hasn't loaded yet
-            dialog.centerWindowOnScreen();
-        } else {
-            dialog.moveToAlertPosition(); // requires a loaded opener
-        }
+        
+        setTimeout(function() {
+            if (opener.innerHeight == 0) { // indicator that opener hasn't loaded yet
+                dialog.centerWindowOnScreen();
+            } else {
+                dialog.moveToAlertPosition(); // requires a loaded opener
+            }
+        }, 10);
     } catch(ex) {
         log.exception(ex, "Error loading pickPreview dialog.");
     }

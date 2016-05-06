@@ -65,7 +65,7 @@
 
     <hbox align="center">
         <label value="&previewUrl.label;" width="100" style="text-align: right"/>
-        <textbox id="file-uri" flex="1"
+        <textbox id="file-uri" flex="1" style="min-width: 400px"
                  onkeyup="UpdateFileTextbox();"/>
         <button id="browse-button" label="&browse.label;" accesskey="&browseButton.accesskey;"
                 oncommand="Browse();"/>
