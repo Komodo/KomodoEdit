@@ -306,7 +306,7 @@
             icon: icon,
             image: null,
             classList: "",
-            events: ["project_opened", "workspace_restored"]
+            events: ["current_place_opened", "project_opened", "workspace_restored"]
         }, opts);
         
         buttons[id] = new dynamicButton(opts);
