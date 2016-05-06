@@ -16,6 +16,8 @@
     const prefs         = ko.prefs;
 
     const log           = require("ko/logging").getLogger("ko-shell");
+    const platform      = require("sdk/system").platform;
+    const pathSplitter  = platform == "winnt" ? /;/g : /:/g;
     //log.setLevel(require("ko/logging").LOG_DEBUG);
     
     /**
@@ -62,7 +64,7 @@
      */
     this.lookup = function(command, env)
     {
-        var ioFile = require("sdk/io/file");
+        var ioFile = require("ko/file");
         
         var isExecutable = function(str)
         {
@@ -84,14 +86,17 @@
         
         env = env || this.getEnv();
         let commands = [command];
-        if (require("sdk/system").platform == "WINNT" && "PATHEXT" in env)
+        if (platform == "winnt" && "PATHEXT" in env)
         {
-            var pathExt = env.PATHEXT.split(/;|:/);
+            var pathExt = env.PATHEXT.split(pathSplitter);
             for (let ext of pathExt)
+            {
                 commands.push(command + ext);
+                commands.push(command + ext.toLowerCase());
+            }
         }
         
-        var paths = (env.PATH || "").split(/;|:/);
+        var paths = (env.PATH || "").split(pathSplitter);
         for (let path of paths)
         {
             for (let cmd of commands)
@@ -128,6 +133,12 @@
             _opts.env = this.getEnv();
         
         binary = this.lookup(binary) || binary;
+        
+        if (platform == "winnt")
+        {
+            args.unshift("/c", binary);
+            binary = this.lookup("cmd");
+        }
         
         var proc = require("sdk/system/child_process");
         var process = proc.spawn(binary, args, _opts);
