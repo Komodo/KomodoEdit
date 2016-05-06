@@ -612,11 +612,12 @@
                     var data = subscope.element().resultData;
                     if ( ! data.isScope) return;
                     
-                    c.setSubscope(data, false, selectSubscope);
+                    c.setSubscope(data, true, selectSubscope);
                 }
             }, prefs.getLong("commando_result_render_delay") + 10);
         }
         
+        c.setSubscope(); // reset
         c.search("", selectSubscope, true);
     }
     
