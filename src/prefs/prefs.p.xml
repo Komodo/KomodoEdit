@@ -1060,7 +1060,7 @@
 
   <string id="bugsnag_key">a0ffb67a805253227e906fb6ec1a1cde</string>
 
-  <string id="package_api_endpoint">http://komodoide.com/json/resources/</string>
+  <string id="package_api_endpoint">http://komodoide.com/json/packages/v10/</string>
   
   <boolean id="pin_find_frame">0</boolean>
   
