@@ -15,6 +15,8 @@
     
     const _document = _window.document;
     const _ko = _window.ko;
+    
+    //log.setLevel(10);
 
     var _noWindowWarned = false;
 
@@ -452,21 +454,10 @@
             if (el.widgetDefault().visible())
             {
                 log.debug("Default widget is active, hiding it and showing notification");
-                if (animate)
-                {
-                    el.widgetDefault().fadeOut(function() {
-                        el.widgetActive().append(panel);
-                        el.widgetActive().show();
-                        panel.fadeIn();
-                    });
-                }
-                else
-                {
-                    el.widgetDefault().hide();
-                    el.widgetActive().append(panel);
-                    el.widgetActive().show();
-                    panel.show();
-                }
+                el.widgetDefault().hide();
+                el.widgetActive().append(panel);
+                el.widgetActive().show();
+                panel.show();
             }
             else
             {
