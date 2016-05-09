@@ -166,6 +166,8 @@
 
             <!-- Element to enable/disable when overflowed/underflowed. -->
             <field name="toolbar_overflow">null</field>
+            
+            <field name="last_check_width">0</field>
 
             <field name="_updateTimerId">0</field>
 
@@ -212,7 +214,11 @@
               <![CDATA[
                 switch (event.type) {
                     case "resize":
-                        this._updateChildVisibility(event);
+                        if (window.outerWidth != this.lastCheckWidth)
+                        {
+                            this.lastCheckWidth = window.outerWidth;
+                            this._updateChildVisibility(event);
+                        }
                         break;
                 }
               ]]>
