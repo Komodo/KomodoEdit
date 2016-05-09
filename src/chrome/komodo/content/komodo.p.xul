@@ -553,7 +553,7 @@
         <resizer dir="top" flex="1"/>
         
         <hbox id="titlebar" pack="center" align="center">
-            <spacer></spacer>
+            <spacer id="windowButtonsSpacer"/>
             
             <label id="alt-title" flex="1" style="text-align: center" value="Komodo"/>
           

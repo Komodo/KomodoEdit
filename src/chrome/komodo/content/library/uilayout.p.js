@@ -1793,15 +1793,7 @@ this.updateWindowButtons = function (w) {
             spacer.setAttribute("ordinal", 120);
         else
             spacer.removeAttribute("ordinal");
-    }
-    
-    // Move menu button to left side
-    var unifiedMenuButton = w.document.getElementById('unifiedMenuButton');
-    if (unifiedMenuButton) {
-        if (leftSide)
-            unifiedMenuButton.setAttribute("ordinal", 0);
-        else
-            unifiedMenuButton.setAttribute("ordinal", 100);
+        spacer.parentNode.insertBefore(spacer, spacer); // more xul weirdness, DO WHAT I SAY! 
     }
     
     // Move prefix to right side (technically now a suffix)
