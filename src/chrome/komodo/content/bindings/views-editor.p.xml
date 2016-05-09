@@ -60,6 +60,31 @@
                 </xul:deck>
             </xul:statusbarpanel>
             
+            <xul:statusbarpanel anonid="statusbar-line-col"
+                            tooltiptext="&filePosition.tooltiptext;"
+                            align="center"/>
+            <xul:statusbarpanel anonid="statusbar-selection"
+                            label="&noSelection.label;"
+                            tooltiptext="&selectionInformation.tooltiptext;"
+                            align="center"/>
+            
+            <xul:statusbarpanel anonid="statusbar-encoding"
+                                style="min-width: 5rem"
+                            tooltiptext="&fileEncoding.tooltiptext;"
+                            >
+                <xul:toolbarbutton class="statusbar-label"
+                      anonid="statusbar-encoding-label"
+                      flex="1"
+                      orient="horizontal"
+                      type="menu"
+                      persist="buttonstyle"
+                      label="--"
+                      buttonstyle="text">
+                    <xul:menupopup anonid="statusbar-encoding-menupopup"
+                               onpopupshowing="ko.statusBar.setupEncodingMenu(this);" />
+                </xul:toolbarbutton>
+            </xul:statusbarpanel>
+            
             <xul:statusbarpanel anonid="statusbar-language"
                                 style="min-width: 5rem"
                             pack="end"
@@ -79,31 +104,6 @@
                 </xul:toolbarbutton>
             </xul:statusbarpanel>
 
-            <xul:statusbarpanel anonid="statusbar-encoding"
-                                style="min-width: 5rem"
-                            tooltiptext="&fileEncoding.tooltiptext;"
-                            >
-                <xul:toolbarbutton class="statusbar-label"
-                      anonid="statusbar-encoding-label"
-                      flex="1"
-                      orient="horizontal"
-                      type="menu"
-                      persist="buttonstyle"
-                      label="--"
-                      buttonstyle="text">
-                    <xul:menupopup anonid="statusbar-encoding-menupopup"
-                               onpopupshowing="ko.statusBar.setupEncodingMenu(this);" />
-                </xul:toolbarbutton>
-            </xul:statusbarpanel>
-
-            <xul:statusbarpanel anonid="statusbar-line-col"
-                            tooltiptext="&filePosition.tooltiptext;"
-                            align="center"/>
-            <xul:statusbarpanel anonid="statusbar-selection"
-                            label="&noSelection.label;"
-                            tooltiptext="&selectionInformation.tooltiptext;"
-                            align="center"/>
-            
         </xul:statusbar>
         <xul:scintilla xbl:inherits="flex,focused,context,mozcontext" flex="1"
                        anonid="scintilla"
