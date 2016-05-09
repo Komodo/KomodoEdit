@@ -82,6 +82,7 @@
   <boolean id="ui.hide.chrome">1</boolean>
   <boolean id="ui.classic.mode">0</boolean>
   <boolean id="ui.classic.toolbar">0</boolean>
+  <boolean id="ui.classic.statusbar">0</boolean>
 <!-- #if PLATFORM == "darwin" -->
   <boolean id="ui.windowbuttons.left">1</boolean>
   <long id="ui.windowbuttons.min.ordinal">1</long>

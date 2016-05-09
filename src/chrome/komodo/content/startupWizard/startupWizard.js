@@ -426,6 +426,7 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
         prefs.setString("selectedbrowser", fields.browser.value());
         prefs.setBoolean("ui.classic.mode", fields.classicMode.checked());
         prefs.setBoolean("ui.classic.toolbar", fields.classicMode.checked());
+        prefs.setBoolean("ui.classic.statusbar", fields.classicMode.checked());
         prefs.setBoolean("ui.hide.chrome", ! fields.nativeBorders.checked());
         prefs.setBoolean("editShowMinimap", fields.minimap.checked());
         prefs.setBoolean("useTabs", fields.taborspace.checked());

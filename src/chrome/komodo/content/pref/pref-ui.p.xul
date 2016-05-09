@@ -110,6 +110,7 @@
             
             <checkbox id="ui.hide.chrome" class="ui-hide-chrome" pref="true" invert="true" label="Use native window borders"/>
             <checkbox id="ui.classic.toolbar" pref="true" label="Use classic toolbar layout"/>
+            <checkbox id="ui.classic.statusbar" pref="true" label="Place statusbar below editor"/>
     <!-- #if PLATFORM == "linux" -->
             <vbox id="windowButtonPrefs">
                 <separator/>

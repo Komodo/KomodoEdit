@@ -1723,6 +1723,12 @@ this.onload = function uilayout_onload()
         document.getElementById("komodo_main").setAttribute("classic-toolbar", "true");
     else
         document.getElementById("komodo_main").removeAttribute("classic-toolbar");
+        
+    // Set classic statusbar mode
+    if (ko.prefs.getBoolean("ui.classic.statusbar"))
+        document.getElementById("komodo_main").setAttribute("classic-statusbar", "true");
+    else
+        document.getElementById("komodo_main").removeAttribute("classic-statusbar");
     
     // preload the embedded find replace frame (no rush)
     setTimeout(function() {
@@ -2015,6 +2021,12 @@ _PrefObserver.prototype.observe = function(prefSet, prefName, prefSetID)
         else
             document.getElementById("komodo_main").removeAttribute("classic-toolbar");
     }
+    else if (prefName == "ui.classic.statusbar") {
+        if (ko.prefs.getBoolean(prefName))
+            document.getElementById("komodo_main").setAttribute("classic-statusbar", "true");
+        else
+            document.getElementById("komodo_main").removeAttribute("classic-statusbar");
+    }
     else if (prefName.indexOf("ui.windowbuttons") === 0) {
         var windows = require("ko/windows").getWindows();
         for (let w of windows) {
@@ -2031,6 +2043,7 @@ _PrefObserver.topics = [
     "ui.hide.chrome",
     "ui.classic.mode",
     "ui.classic.toolbar",
+    "ui.classic.statusbar",
     "ui.windowbuttons.left",
     "ui.windowbuttons.min.ordinal",
     "ui.windowbuttons.max.ordinal",

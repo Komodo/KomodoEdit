@@ -345,9 +345,27 @@ statusbar
     }
     
     statusbarpanel > label,
-    .toolbarbutton-text
+    .toolbarbutton-text,
+    label[anonid="section-label"]
     {
         opacity: 0.6;
+    }
+}
+
+&[classic-statusbar="true"]
+{
+    view[type="editor"] scintilla
+    {
+        -moz-box-ordinal-group: 1;
+    }
+    
+    statusbar
+    {
+        -moz-box-ordinal-group: 2;
+        border-top: 1px solid @background;
+        padding-bottom: 0;
+        border-bottom: 0;
+        height: 30px;
     }
 }
 
