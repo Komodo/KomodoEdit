@@ -188,53 +188,20 @@ ko.analytics = new function()
     this.onPrefChanged = { observe: (subject, topic, data) => {
         switch (topic) {
 
-            // Iconset / Skin prefs
-            case 'koSkin_custom_skin':
-            case 'koSkin_custom_icons':
-                var val = ko.prefs.getStringPref(topic);
-                if (val.indexOf("chrome:") !== 0) return;
-                this.trackEvent(CAT_PREF_METRIC, data + "_" + topic, val);
-                break;
-
             // Scheme prefs
             case 'keybinding-scheme':
             case 'editor-scheme':
-                if (topic == 'editor-scheme')
-                {
-                    var schemeService = Cc['@activestate.com/koScintillaSchemeService;1'].getService();
-                    var schemes = [], defaults = [];
-                    schemeService.getSchemeNames(schemes, new Object());
-                    for (var i = 0; i < schemes.value.length; i++) {
-                        let name = schemes.value[i];
-                        let scheme = schemeService.getScheme(name);
-                        if (scheme && ! scheme.writeable) {
-                            defaults.push(name);
-                        }
-                    }
-                }
-                else
-                {
-                    // These are unlikely to change (often), so just hardcode it
-                    var defaults = ["Default", "Emacs", "Vi", "Windows"];
-                }
-
-                var val = ko.prefs.getStringPref(topic);
-                if (defaults.indexOf(val) == -1)
-                {
-                    // Don't track values of custom schemes
-                    this.trackEvent(CAT_PREF_METRIC, data + "_" + topic, "Custom");
-                }
-                else
-                {
-                    this.trackEvent(CAT_PREF_METRIC, data + "_" + topic, val);
-                }
+            case 'interface-scheme':
+            case 'widget-scheme':
+                let val = ko.prefs.getStringPref(topic);
+                this.trackEvent(CAT_PREF_METRIC, data + "_" + topic, val);
                 break;
 
             // Track the string value for these prefs
             case 'ui.tabs.sidepanes.left.layout':
             case 'ui.tabs.sidepanes.right.layout':
             case 'ui.tabs.sidepanes.bottom.layout':
-                var val = ko.prefs.getStringPref(topic);
+                let val = ko.prefs.getStringPref(topic);
                 this.trackEvent(CAT_PREF_METRIC, data + "_" + topic, val);
                 break;
 
@@ -242,12 +209,12 @@ ko.analytics = new function()
             default:
                 if (prefs.getPrefType(topic) == 'boolean')
                 {
-                    var val = ko.prefs.getBooleanPref(topic);
+                    let val = ko.prefs.getBooleanPref(topic);
                     this.trackEvent(CAT_PREF_METRIC, data + "_" + topic, val, val ? 1 : 0);
                 }
                 else if (prefs.getPrefType(topic) == 'long')
                 {
-                    var val = ko.prefs.getLongPref(topic);
+                    let val = ko.prefs.getLongPref(topic);
                     this.trackEvent(CAT_PREF_METRIC, data + "_" + topic, val, val);
                 }
                 else
