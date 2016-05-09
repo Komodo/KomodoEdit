@@ -617,8 +617,7 @@
             }, prefs.getLong("commando_result_render_delay") + 10);
         }
         
-        c.setSubscope(); // reset
-        c.search("", selectSubscope, true);
+        c.selectScope(scopeId, c.search.bind(c, "", selectSubscope, true));
     }
     
     this.center = function(returnValues)
@@ -1044,7 +1043,7 @@
         }
     }
 
-    this.selectScope = function(scopeId, hotSwap = false)
+    this.selectScope = function(scopeId, callback)
     {
         this._selectScope(scopeId);
         
@@ -1052,7 +1051,7 @@
         
         c.stop();
         c.empty();
-        c.setSubscope(null); 
+        c.setSubscope(null, true, callback); 
     }
     
     this._selectScope = function(scopeId)
