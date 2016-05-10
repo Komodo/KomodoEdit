@@ -1713,7 +1713,9 @@ this.onload = function uilayout_onload()
 // #if PLATFORM == "darwin"
     root.setAttribute("drawintitlebar", hide);
 // #elif PLATFORM == "win"
-    root.setAttribute("chromemargin", "0,0,0,0");
+    if (hide) {
+        root.setAttribute("chromemargin", "0,0,0,0");
+    }
 // #else
     root.setAttribute("hidechrome", hide);
 // #endif
@@ -1974,7 +1976,12 @@ _PrefObserver.prototype.observe = function(prefSet, prefName, prefSetID)
 // #if PLATFORM == "darwin"
         root.setAttribute("drawintitlebar", hide);
 // #elif PLATFORM == "win"
-        root.setAttribute("chromemargin", "0,0,0,0");
+        if (hide) {
+            root.setAttribute("chromemargin", "0,0,0,0");
+        }
+        else {
+            root.removeAttribute("chromemargin");
+        }
 // #else
         root.setAttribute("hidechrome", hide);
 // #endif
