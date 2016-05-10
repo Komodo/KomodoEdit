@@ -3,11 +3,11 @@
 <Include>
 <!-- #if PRODUCT_TYPE == "edit" -->
 <!-- #if PP_UPDATE_CHANNEL == "nightly" -->
-    <?define ProductCode = "13a8ed25-e2de-4b7d-a218-a608cb9a7483" ?>
-    <?define UpgradeCode = "a48b7bb9-de6f-4e52-8eef-7ee09adce5bb" ?>
+    <?define ProductCode = "B745B57D-B73C-4F84-8C5B-E0E6C9EEBF41" ?>
+    <?define UpgradeCode = "22D9DB0B-B95F-463D-B6E3-015F27E88777" ?>
 <!-- #else -->
-    <?define ProductCode = "7925ef85-6af6-40dd-89f8-6e2d9c488ed9" ?>
-    <?define UpgradeCode = "1c8d698a-47e9-44af-9dfe-621ccb52cbc8" ?>
+    <?define ProductCode = "80375DA2-CFB8-4DC3-9E01-9AC82443C88B" ?>
+    <?define UpgradeCode = "7C68973D-662E-48AE-A50B-4DA4C9E5D1D1" ?>
 <!-- #endif -->
 <!-- #else -->
 <!-- #error "Invalid product type." -->
