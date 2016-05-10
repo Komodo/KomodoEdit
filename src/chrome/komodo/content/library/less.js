@@ -234,8 +234,8 @@ var koLess = function koLess()
                                 w._pendingSheetDeletions.push(link);
                             }
                             
-                            if ("loadVirtualStylesheets" in w)
-                                w.loadVirtualStylesheets();
+                            if ("loadVirtualStylesheets" in w.document.documentElement)
+                                w.document.documentElement.loadVirtualStylesheets();
                         } catch (e) {
                         }
                         
