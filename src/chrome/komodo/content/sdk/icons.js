@@ -47,18 +47,25 @@
         pixelRatio = window.devicePixelRatio;
         if (system.platform == "linux")
         {
-            var cmd = "gsettings get org.gnome.desktop.interface text-scaling-factor";
-            shell.exec(cmd, {}, (error, stdout) => {
-                if (error)
-                {
-                    log.error(error);
-                    return;
-                }
-                
-                pixelRatio = parseFloat(stdout.trim().match(/\d(?:\.\d{1,2}|)/));
-                
-                log.debug("Using pixelRatio: " + pixelRatio);
-            });
+            if (prefs.hasPref('pixelRatio'))
+            {
+                pixelRatio = parseFloat(prefs.getString('pixelRatio'));
+            }
+            else
+            {
+                var cmd = "gsettings get org.gnome.desktop.interface text-scaling-factor";
+                shell.exec(cmd, {}, (error, stdout) => {
+                    if (error)
+                    {
+                        log.error(error);
+                        return;
+                    }
+                    
+                    pixelRatio = parseFloat(stdout.trim().match(/\d(?:\.\d{1,2}|)/));
+                    
+                    log.debug("Using pixelRatio: " + pixelRatio);
+                });
+            }
         }
 
     };
