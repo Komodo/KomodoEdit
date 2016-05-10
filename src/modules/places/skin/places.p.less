@@ -102,6 +102,11 @@ tree.projectPlacesTree {
 	display: none;
 }
 
+treechildren#places-files-tree-body::-moz-tree-image {
+  width: 14px;
+  height: 14px;
+}
+
 /* Hidden Icons State */
 
 #places-files-tree.hideIcons {
@@ -120,11 +125,6 @@ tree.projectPlacesTree {
     background-image: none;
     margin-left: 2px;
     padding-left: 0;
-  }
-
-  treechildren#places-files-tree-body::-moz-tree-cell-text(places_folder_open),
-  treechildren#places-files-tree-body::-moz-tree-cell-text(places_folder_closed) {
-    font-weight: bold;
   }
 
 }
