@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   preserveAspectRatio="xMidYMid"
+   height="16"
+   width="16"
+   scaleAuto="16"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.91 r13725"
+   sodipodi:docname="angularjs.svg">
+  <metadata
+     id="metadata10">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs8" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1077"
+     inkscape:window-height="741"
+     id="namedview6"
+     showgrid="false"
+     inkscape:zoom="20.85965"
+     inkscape:cx="10.693499"
+     inkscape:cy="3.1613641"
+     inkscape:window-x="699"
+     inkscape:window-y="225"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg2" />
+  <path
+     inkscape:connector-curvature="0"
+     style="fill:#c4473a"
+     d="m 6.4775029,7.9990045 2.9494562,0 -1.5678484,-3.278482 z M 7.8643047,0.02052365 0.3567491,2.6626177 1.5429922,12.498824 7.8722866,15.977484 14.234141,12.451821 15.420004,2.6158678 7.8643047,0.02052365 Z m -1.997471,9.37212425 -0.9204373,2.3028041 -1.7206436,0.0071 4.6380453,-10.2722896 -0.00883,-0.019382 -0.00812,0 1.269e-4,-0.016851 0.00802,0.016851 0.017868,0 0.015584,-0.034711 0,0.034711 -0.015706,0 -0.00873,0.019382 4.83835,10.3151136 -1.656408,-0.03636 -1.018881,-2.3539896 -2.1757303,0.010385"
+     id="path4" />
+</svg>

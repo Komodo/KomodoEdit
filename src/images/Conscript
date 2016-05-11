@@ -244,6 +244,8 @@ $cons->InstallAs("$mozChromeDir/komodo/content/dialogs/iconlist_fontawesome.html
 $cons->InstallAs("$mozExtensionDir/industrial\@openoffice.org.xpi", "openoffice/industrial.xpi");
 
 # install fileicons
+$cons->InstallAs("$mozChromeDir/icons/default/fileicons/angularjs.svg", 'fileicons/angularjs.svg');
+$cons->InstallAs("$mozChromeDir/icons/default/fileicons/go.svg", 'fileicons/go.svg');
 $cons->InstallAs("$mozChromeDir/icons/default/fileicons/template.svg", 'fileicons/template.svg');
 $cons->InstallAs("$mozChromeDir/icons/default/fileicons/apache.svg", 'fileicons/apache.svg');
 $cons->InstallAs("$mozChromeDir/icons/default/fileicons/bash.svg", 'fileicons/bash.svg');
