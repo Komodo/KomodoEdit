@@ -43,7 +43,6 @@
         favourites: null,
         history: [],
         uilayoutTimer: -1,
-        open: false,
         quickSearch: false,
         altPressed: false,
         altNumber: null,
@@ -149,7 +148,6 @@
             // cause of the issue - https://bugs.activestate.com/show_bug.cgi?id=106266
             panel.removeAttr("height");
             
-            local.open = true;
             c.focus();
         });
 
@@ -158,7 +156,6 @@
             if (e.originalTarget != panel.element()) return;
             
             elem('notifyWidget').css("min-width", 0);
-            local.open = false;
             local.useQuickScope = false;
         });
 
@@ -467,7 +464,7 @@
 
     var onWindowClick = function(e)
     {
-        if ( ! local.open) return;
+        if ( ! c.isOpen()) return;
         var bo = elem('panel').element().boxObject;
         if ((e.screenX > bo.screenX && e.screenX < (bo.screenX + bo.width)) &&
             (e.screenY > bo.screenY && e.screenY < (bo.screenY + bo.height)))
@@ -479,7 +476,7 @@
     
     var onQuickSearchFocus = function(e)
     {
-        if (local.open) return;
+        if (c.isOpen()) return;
         
         setTimeout(function() {
             c.show(undefined, true);
@@ -572,9 +569,6 @@
             search.element().select();
             c.tip();
         }
-        
-        // Force local.open now for sync calls that depend on it
-        local.open = true;
         
         if (scopeChanged || local.firstShow)
         {
@@ -719,7 +713,8 @@
     
     this.isOpen = function()
     {
-        return local.open;
+        var state = elem('panel').element().state;
+        return state == "open" || state == "showing";
     }
 
     this.hide = function()
