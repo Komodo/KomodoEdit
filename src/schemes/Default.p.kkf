@@ -14,7 +14,7 @@ binding cmd_right Right
 binding cmd_home Home 
 binding cmd_end End 
 binding cmd_newline Return
-binding cmd_newlineExtra Shift + Return
+binding cmd_newlineExtra Shift+Return
 
 binding cmd_newlineSame Ctrl+Shift+Return
 binding cmd_pageDown Page_Down 
