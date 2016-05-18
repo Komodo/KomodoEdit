@@ -1899,13 +1899,12 @@ class koDocumentBase(object):
     @property
     def useTabs(self):
         if self._useTabs is None:
-            pref, value = self._getLangPref(('useSmartTabs', 'getBoolean'),
-                                            ('%lang/useTabs', 'getBoolean'),
-                                            ('useTabs', 'getBoolean'))
-            assert pref is not None, "Should have default useTabs pref"
-            if pref == 'useSmartTabs' and value:
+            if self.prefs.getBoolean('useSmartTabs'):
                 self._guessFileIndentation()
             else:
+                pref, value = self._getLangPref(('%lang/useTabs', 'getBoolean'),
+                                                ('useTabs', 'getBoolean'))
+                assert pref is not None, "Should have default useTabs pref"
                 self._useTabs = value
         return self._useTabs
 
@@ -1917,12 +1916,11 @@ class koDocumentBase(object):
     @property
     def indentWidth(self):
         if self._indentWidth is None:
-            pref, value = self._getLangPref(('useSmartTabs', 'getBoolean'),
-                                            ('%lang/indentWidth', 'getLong'),
-                                            ('indentWidth', 'getLong'))
-            if pref == 'useSmartTabs' and value:
+            if self.prefs.getBoolean('useSmartTabs'):
                 self._guessIndentWidth()
             else:
+                pref, value = self._getLangPref(('%lang/indentWidth', 'getLong'),
+                                                ('indentWidth', 'getLong'))
                 self._indentWidth = value
         else:
             log.info("_indentWidth is not none, it's %s" % self._indentWidth)
