@@ -339,7 +339,8 @@ class KoCommenterLanguageService:
             for i in xrange(len(replacementLines)):
                 scimoz.targetStart = scimoz.positionFromLine(startIndexLine + i)
                 scimoz.targetEnd = scimoz.getLineEndPosition(startIndexLine + i)
-                scimoz.replaceTarget(replacementLines[i].rstrip('\r\n'))
+                replacementLine = replacementLines[i].rstrip('\r\n')
+                scimoz.replaceTarget(len(replacementLine), replacementLine)
             scimoz.endUndoAction()
             if self.DEBUG:
                 print "replacement length: naive=%r encoding-aware=%r"\
@@ -540,7 +541,8 @@ class KoCommenterLanguageService:
             for i in xrange(len(replacementLines)):
                 scimoz.targetStart = scimoz.positionFromLine(startIndexLine + i)
                 scimoz.targetEnd = scimoz.getLineEndPosition(startIndexLine + i)
-                scimoz.replaceTarget(replacementLines[i].rstrip('\r\n'))
+                replacementLine = replacementLines[i].rstrip('\r\n')
+                scimoz.replaceTarget(len(replacementLine), replacementLine)
             scimoz.endUndoAction()
             delta = len(replacement) - (workingEndIndex - startIndex)
 
