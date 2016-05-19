@@ -207,6 +207,9 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
         {
             let s = schemeService.getScheme(scheme);
             
+            if ( ! s)
+                continue;
+            
             menulist.addMenuItem({
                 attributes: {
                     label: scheme,
