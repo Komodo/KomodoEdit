@@ -186,9 +186,8 @@ ko.analytics = new function()
      * the prefobserver
      */
     this.onPrefChanged = { observe: (subject, topic, data) => {
+        var val;
         switch (topic) {
-            var val;
-
             // Scheme prefs
             case 'keybinding-scheme':
             case 'editor-scheme':
