@@ -2350,8 +2350,11 @@ class KoPlaceTreeView(TreeView):
                 itemType = _PLACE_FILE
             else:
                 itemType = _PLACE_OTHER
-            item = self._finishGettingItem(uriparse.localPathToURI(full_name), name, itemType)
-            items.append(item)
+            try:
+                item = self._finishGettingItem(uriparse.localPathToURI(full_name), name, itemType)
+                items.append(item)
+            except ValueError, e:
+                log.warn(e)
         return items
 
     def getDirListFromRemoteURI(self, uri):
