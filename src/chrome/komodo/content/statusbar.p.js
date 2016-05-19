@@ -229,7 +229,7 @@ function _updateSelectionInformation(view) {
     }
     var xv = getXulView(view);
     var selectionWidget = xv.findAnonymous('anonid', "statusbar-selection").element();
-    selectionWidget.label = selectionLabel;
+    selectionWidget.value = selectionLabel;
     selectionWidget.removeAttribute("collapsed");
 }
 
@@ -249,7 +249,7 @@ function _updateLineCol(view, currentLine, currentColumn) {
         var lineColText = lazy.bundle.formatStringFromName("lineColCount.label",
             [currentLine, currentColumn], 2);
         var lineColWidget = xv.findAnonymous('anonid', 'statusbar-line-col').element();
-        lineColWidget.setAttribute('label', lineColText);
+        lineColWidget.setAttribute('value', lineColText);
         lineColWidget.removeAttribute("collapsed");
     } catch(ex) {
         // not a view that supports these

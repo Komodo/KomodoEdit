@@ -60,13 +60,15 @@
                 </xul:deck>
             </xul:statusbarpanel>
             
-            <xul:statusbarpanel anonid="statusbar-line-col"
+            <xul:statusbarpanel anonid="statusbar-pos-info"
                             tooltiptext="&filePosition.tooltiptext;"
-                            align="center"/>
-            <xul:statusbarpanel anonid="statusbar-selection"
-                            label="&noSelection.label;"
-                            tooltiptext="&selectionInformation.tooltiptext;"
-                            align="center"/>
+                            align="center"
+                            pack="end">
+                
+                <xul:label anonid="statusbar-selection"/>
+                <xul:label anonid="statusbar-line-col"/>
+                
+            </xul:statusbarpanel>
             
             <xul:statusbarpanel anonid="statusbar-encoding"
                                 style="min-width: 5rem"
