@@ -2354,7 +2354,7 @@ class KoPlaceTreeView(TreeView):
                 item = self._finishGettingItem(uriparse.localPathToURI(full_name), name, itemType)
                 items.append(item)
             except ValueError, e:
-                log.warn(e)
+                log.warn('localPathToURI failed: %s' % e)
         return items
 
     def getDirListFromRemoteURI(self, uri):
