@@ -495,7 +495,6 @@ this.toggleTab = function uilayout_toggleTab(widgetId, collapseIfFocused /* =tru
     } catch (e) {
         _log.exception(e);
     }
-    document.getElementById('alt-title').setAttribute("value", title);
 }
 
 
@@ -1604,6 +1603,7 @@ this.updateTitlebar = function uilayout_updateTitlebar(view)  {
 //#endif
 
     document.title = title + branding;
+    document.getElementById('alt-title').setAttribute("value", title);
 }
 
 
