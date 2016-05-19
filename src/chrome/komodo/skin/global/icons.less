@@ -23,12 +23,27 @@ button, toolbarbutton, menuitem, tab
             max-width: 16px;
         }
     }
+    
+}
+
+button, toolbarbutton, menuitem, dropmarker, tab,
+.textbox-search-icons, .toolbarbutton-text
+{
+    &:before
+    {
+        color: @icons;
+    }
 }
 
 .icon
 {
     background-image: none;
     list-style-image: none;
+    
+    &:before
+    {
+        color: @icons;
+    }
     
     & > .toolbarbutton-icon,
     .tab-icon

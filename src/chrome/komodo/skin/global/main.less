@@ -40,6 +40,11 @@
         background: @special;
     }
     
+    #unifiedMenuButton .toolbarbutton-text:before
+    {
+        color: @icons-special;
+    }
+    
     toolbar toolbaritem
     {
         background: @contrast-special;
@@ -48,13 +53,30 @@
         padding: 0;
         
         & > toolbarbutton,
-        .toolbaritem > toolbarbutton
+        .toolbaritem > toolbarbutton,
         {
             min-width: 18px;
             margin: 0;
             padding: 5px;
             border-radius: 1px;
-            color: @foreground-special;
+            
+            &:before,
+            dropmarker:before
+            {
+                color: @icons-special;
+            }
+            
+            &:before,
+            toolbarbutton:before,
+            dropmarker:before
+            {
+                color: @icons-special;
+            }
+            
+            .toolbarbutton-text
+            {
+                color: @foreground-special;
+            }
             
             &:hover
             {
@@ -76,6 +98,11 @@
     
     toolboxrow [overflown="true"] {
       visibility: collapse;
+    }
+    
+    .overflow-toolbarbutton > label:before
+    {
+        color: @icons-special;
     }
     
     .overflow-toolbarbutton > .toolbarbutton-menu-dropmarker {
@@ -215,6 +242,11 @@
     border-radius: 2px;
     background: @textbox-special;
     
+    .notification-icon:before
+    {
+        color: @textbox-foreground-special;
+    }
+    
     label[anonid="notification-widget-text"]
     {
         margin: 0 8px;
@@ -237,10 +269,10 @@
         min-width: 0;
     }
     
-    .p-error > label, .p-error > .notification-icon { color: @state-error; }
-    .p-warning > label, .p-warning > .notification-icon { color: @state-warning; }
-    .p-notification > label, .p-notification > .notification-icon { color: @state-info; }
-    .p-info > label, .p-info > .notification-icon { color: @state-info; }
+    .p-error > label, .p-error > .notification-icon:before { color: @state-error; }
+    .p-warning > label, .p-warning > .notification-icon:before { color: @state-warning; }
+    .p-notification > label, .p-notification > .notification-icon:before { color: @state-info; }
+    .p-info > label, .p-info > .notification-icon:before { color: @state-info; }
     
     .clickable > label
     {
@@ -297,6 +329,11 @@
     .dynamic-button
     {
         min-width: 24px;
+    }
+    
+    .dynamic-button toolbarbutton.box-inherit:before
+    {
+        color: @icons-special;
     }
     
     .dynamic-button[type="menu-button"]:before

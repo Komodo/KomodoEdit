@@ -121,8 +121,11 @@ peMenu.prototype.observe_aux = function(part, topic, data)
                     id = ko.projects.customIdFromPart(part);
                     var xulelt = document.getElementById(id);
                     if (xulelt) {
-                        xulelt.setAttribute('image', part.iconurl)
-                        xulelt.setAttribute('label', part.name)
+                        if (xulelt.nodeName == "toolbarbutton")
+                            xulelt.setAttribute('image', part.iconurl + "?scheme-name=interface&scheme-color=icons-special");
+                        else
+                            xulelt.setAttribute('image', part.iconurl);
+                        xulelt.setAttribute('label', part.name);
                     }
                 } catch (e) {
                     this.log.exception(e);
@@ -527,7 +530,7 @@ function _createToolbaritemFromPart(toolbar, part)
                                 "ko.projects.invokePartById('" + part.id + "');");
             break;
         }
-    button.setAttribute('image', part.iconurl);
+    button.setAttribute('image', part.iconurl + "?scheme-name=interface&scheme-color=icons-special");
     button.setAttribute('tooltiptext', name);
     button.setAttribute('tooltip', 'aTooltip');
     button.setAttribute('label', name);

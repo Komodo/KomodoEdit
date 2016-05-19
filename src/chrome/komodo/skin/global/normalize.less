@@ -347,6 +347,15 @@ textbox, menulist
             box-shadow: 0px 0px 0px 2px @secondary-special;
         }
     }
+    
+    button, toolbarbutton, menuitem, dropmarker, tab,
+    .textbox-search-icons, .toolbarbutton-text
+    {
+        &:before
+        {
+            color: @icons-widget !important;
+        }
+    }
 }
 
 toolbarbutton, button, checkbox, radio
