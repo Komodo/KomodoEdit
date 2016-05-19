@@ -187,13 +187,14 @@ ko.analytics = new function()
      */
     this.onPrefChanged = { observe: (subject, topic, data) => {
         switch (topic) {
+            var val;
 
             // Scheme prefs
             case 'keybinding-scheme':
             case 'editor-scheme':
             case 'interface-scheme':
             case 'widget-scheme':
-                let val = ko.prefs.getStringPref(topic);
+                val = ko.prefs.getStringPref(topic);
                 this.trackEvent(CAT_PREF_METRIC, data + "_" + topic, val);
                 break;
 
@@ -201,7 +202,7 @@ ko.analytics = new function()
             case 'ui.tabs.sidepanes.left.layout':
             case 'ui.tabs.sidepanes.right.layout':
             case 'ui.tabs.sidepanes.bottom.layout':
-                let val = ko.prefs.getStringPref(topic);
+                val = ko.prefs.getStringPref(topic);
                 this.trackEvent(CAT_PREF_METRIC, data + "_" + topic, val);
                 break;
 
@@ -209,12 +210,12 @@ ko.analytics = new function()
             default:
                 if (prefs.getPrefType(topic) == 'boolean')
                 {
-                    let val = ko.prefs.getBooleanPref(topic);
+                    val = ko.prefs.getBooleanPref(topic);
                     this.trackEvent(CAT_PREF_METRIC, data + "_" + topic, val, val ? 1 : 0);
                 }
                 else if (prefs.getPrefType(topic) == 'long')
                 {
-                    let val = ko.prefs.getLongPref(topic);
+                    val = ko.prefs.getLongPref(topic);
                     this.trackEvent(CAT_PREF_METRIC, data + "_" + topic, val, val);
                 }
                 else
