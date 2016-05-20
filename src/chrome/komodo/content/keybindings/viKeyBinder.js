@@ -3040,6 +3040,9 @@ function cmd_vim_right(scimoz, allowWhichWrap /* true */) {
 function cmd_vim_linePrevious(scimoz) {
     // Vi moves full lines at a time, so ignore word wrap - bug 87356.
     var lineNo = scimoz.lineFromPosition(gVimController._currentPos) - 1;
+    while (lineNo > 0 && !scimoz.getLineVisible(lineNo)) {
+      lineNo--;
+    }
     if (lineNo < 0) {
         return;
     }
@@ -3053,6 +3056,9 @@ function cmd_vim_linePrevious(scimoz) {
 function cmd_vim_lineNext(scimoz) {
     // Vi moves full lines at a time, so ignore word wrap - bug 87356.
     var lineNo = scimoz.lineFromPosition(gVimController._currentPos) + 1;
+    while (lineNo < scimoz.lineCount - 1 && !scimoz.getLineVisible(lineNo)) {
+      lineNo++;
+    }
     if (lineNo >= scimoz.lineCount) {
         return;
     }
