@@ -1511,11 +1511,6 @@
                                       id="menu_compareFiles"
                                       oncommand="window.openDialog('chrome://komodo/content/dialogs/compare.xul', '_blank', 'chrome,modal,titlebar,resizable');"
                                       />
-                            <menuitem label="&compareFiles.label;"
-                                      accesskey="&menuCompareFiles.accesskey;"
-                                      id="menu_compareFiles"
-                                      oncommand="window.openDialog('chrome://komodo/content/dialogs/compare.xul', '_blank', 'chrome,modal,titlebar,resizable');"
-                                      />
                             <menuitem label="&colorSchemeEditor.label;"
                                       id="menu_colorSchemeEditor"
                                       oncommand="window.openDialog('chrome://komodo/content/dialogs/colorscheme.xul', 'Komodo:ColorSchemeEditor', 'chrome,resizable,close,centerscreen');"
