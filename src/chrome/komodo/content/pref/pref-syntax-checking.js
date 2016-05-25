@@ -544,7 +544,7 @@ function Less_setup() {
         languageInfo.Less = Less_Info();
     }
     languageInfo.Less.populateInterpreters();
-    languageInfo.Less.updateUI((dialog.Less.lessLinterType.selectedItem || {value:"builtin"}).value);
+    languageInfo.Less.updateUI((dialog.Less.lessLinterType.selectedItem || {value:"none"}).value);
 }
 
 languageSetup.Less = Less_setup;
@@ -1071,7 +1071,7 @@ function SCSS_setup() {
         languageInfo.SCSS = SCSS_Info('SCSS', 'scss');
     }
     languageInfo.SCSS.populateInterpreters();
-    languageInfo.SCSS.updateUI((dialog.SCSS.scssLinterType.selectedItem || {value:"builtin"}).value);
+    languageInfo.SCSS.updateUI((dialog.SCSS.scssLinterType.selectedItem || {value:"none"}).value);
 }
 languageSetup.SCSS = SCSS_setup;
 
@@ -1087,7 +1087,7 @@ function Sass_setup() {
         languageInfo.Sass = SCSS_Info('Sass', 'sass'); // Note overload
     }
     languageInfo.Sass.populateInterpreters();
-    languageInfo.Sass.updateUI((dialog.Sass.sassLinterType.selectedItem || {value:"builtin"}).value);
+    languageInfo.Sass.updateUI((dialog.Sass.sassLinterType.selectedItem || {value:"none"}).value);
 }
 languageSetup.Sass = Sass_setup;
 

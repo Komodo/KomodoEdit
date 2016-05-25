@@ -322,9 +322,6 @@
                                 <button label="&browse.label;" id="browseLess" oncommand="languageInfo.Less.load_Less_Executable();"/>
                             </hbox>
                             <radio group="lessLinterType"
-                                   id="lessLinterType_builtin" value="builtin"
-                                   label="&lessKomodoChecker.label;" />
-                            <radio group="lessLinterType"
                                    id="lessLinterType_none" value="none"
                                    label="&none.label;" />
                         </vbox>
@@ -636,9 +633,6 @@
                                 </menulist>
                                 <button label="&browse.label;" id="browse_SCSS" oncommand="languageInfo.SCSS.loadExecutable();"/>
                             </hbox>
-                            <radio group="scssLinterType"
-                                   id="scssLinterType_builtin" value="builtin"
-                                   label="&scssKomodoChecker.label;" />
                             <radio group="scssLinterType"
                                    id="scssLinterType_none" value="none"
                                    label="&none.label;" />

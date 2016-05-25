@@ -322,7 +322,6 @@ adding an additional caret at the clicked position.">
 <!ENTITY languageSpecificDefaultEncoding.label "Language-specific Default Encoding">
 <!ENTITY languages.label "Languages">
 <!ENTITY leaveFilenameAlone.label "Leave filename alone">
-<!ENTITY lessKomodoChecker.label "Use Built-In Less Syntax Checker:">
 <!ENTITY lessUseInterpreter.label "Use Less Interpreter:">
 <!ENTITY lineCursor.label "Line cursor">
 <!ENTITY lintEOLs.label "Enable checking of mixed end-of-line (EOL) characters">
@@ -419,7 +418,6 @@ adding an additional caret at the clicked position.">
 <!ENTITY ruby.label "Ruby">
 <!ENTITY saveOptions.label "File Saving">
 <!ENTITY sassUseInterpreter.label "Use Sass Interpreter:">
-<!ENTITY scssKomodoChecker.label "Use Built-In SCSS Syntax Checker:">
 <!ENTITY scssUseInterpreter.label "Use SCSS Interpreter:">
 <!ENTITY scrolling.label "Scrolling">
 <!ENTITY search.accesskey "s">
