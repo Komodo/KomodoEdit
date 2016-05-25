@@ -1599,17 +1599,24 @@ def paths_from_path_patterns(path_patterns, files=True, dirs="never",
                     _filenames = []
                     _dirnames = []
                     for filename in os.listdir(path):
-                        filepath = os.path.join(path,filename)
-                        if _should_include_path(filepath, includes, excludes):
-                            filetype = "dir" if os.path.isdir(filepath) else "file"
+                        try:
+                            filepath = os.path.join(path,filename)
+                            if _should_include_path(filepath, includes, excludes):
+                                filetype = "dir" if os.path.isdir(filepath) else "file"
 
-                            if yield_structure:
-                                if filetype is "dir":
-                                    _dirnames.append(filename)
+                                if yield_structure:
+                                    if filetype is "dir":
+                                        _dirnames.append(filename)
+                                    else:
+                                        _filenames.append(filename)
                                 else:
-                                    _filenames.append(filename)
-                            else:
-                                yield filepath
+                                    yield filepath
+                        except UnicodeDecodeError, ex:
+                            # This may happen with remote filesystems whose
+                            # encoding does not match the current system's.
+                            log.exception("Unable to search in `%s/%s' due to UTF-8 decoding error",
+                                          path.decode('utf-8', 'replace'),
+                                          filename.decode('utf-8', 'replace'))
 
                     if yield_structure:
                         yield path, _dirnames, _filenames
