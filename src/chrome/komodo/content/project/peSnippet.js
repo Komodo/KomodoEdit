@@ -43,7 +43,7 @@ if (typeof(ko.projects)=='undefined') {
 
 (function() {
 
-var _log = ko.logging.getLogger('peSnippet');
+var log = ko.logging.getLogger('peSnippet');
 var ANCHOR_MARKER = '!@#_anchor';
 var CURRENTPOS_MARKER = '!@#_currentPos';
 
