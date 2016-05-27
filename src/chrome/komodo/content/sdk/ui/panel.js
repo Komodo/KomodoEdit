@@ -40,6 +40,10 @@ module.exports = Module;
          */
         this.open = function panel_open(args = {})
         {
+            if( ! this.element.parentNode || ! this.element.parentNode.parentNode)
+            {
+                require("ko/dom")("#komodo_main").append(this.$element);
+            }
             var anchor =  args.anchor || null;
             var position = args.position || null;
             var x = args.x || 0;
