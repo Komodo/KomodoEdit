@@ -457,17 +457,16 @@
                 el.widgetDefault().hide();
                 el.widgetActive().append(panel);
                 el.widgetActive().show();
+                panel.css("opacity", 1);
                 panel.show();
             }
             else
             {
                 log.debug("Default widget is inactive, show notification right away");
                 el.widgetActive().append(panel);
-                
-                if (animate)
-                    panel.fadeIn();
-                else
-                    panel.show();
+
+                panel.css("opacity", 1);
+                panel.show();
             }
             
             var time = notif.opts.duration || prefs.getLong("notify_duration", 4000);
@@ -639,30 +638,15 @@
         if (animate === undefined) animate = prefs.getBoolean("notify_use_animations", true);
         if (notif.opts.from == "widget")
         {
-            var self = this;
-            var _hideWidgetNotification = function ()
+            panel.remove();
+            
+            if ( ! queue["widget"].length)
             {
-                panel.remove();
-                
-                if ( ! queue["widget"].length)
-                {
-                    el.widgetActive().hide();
-                    el.widgetDefault().fadeIn();
-                }
-                
-                self.queue.process(notif.opts.from);
+                el.widgetActive().hide();
+                el.widgetDefault().show();
             }
             
-            if ( ! animate)
-            {
-                _hideWidgetNotification();
-            }
-            else
-            {
-                panel.fadeOut(function() {
-                    _hideWidgetNotification();
-                }.bind(this));
-            }
+            this.queue.process(notif.opts.from);
         }
         else
         {
