@@ -935,7 +935,7 @@
                                 response: l.get("restartLater.label")
                             }))
                         {
-                            utils.restart(false);
+                            utils.restart(true);
                         }
                         commando.focus();
                     }
@@ -1034,7 +1034,7 @@
                         response: l.get("restartLater.label")
                     }))
                 {
-                    utils.restart(false);
+                    utils.restart(true);
                 }
                 commando.focus();
             }
