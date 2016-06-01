@@ -47,8 +47,6 @@ function Onload()
     }
     switchToPanel(selectedItem);
     koFilteredTreeView.loadPrefsFullText();
-
-    koFilteredTreeView.updateFilter();
 }
 
 function switchToPanel(selectedItem) {
