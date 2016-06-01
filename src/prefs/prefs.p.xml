@@ -460,7 +460,7 @@
 
   <string id="fileDefaultNew">Text</string>
   <long id="gui_port">11010</long> <!-- port to be used in socket communication -->
-  <string id="defaultSelectedPref">editorItem</string>
+  <string id="defaultSelectedPref">ui</string>
   <string id="encodingDefault">utf-8</string>
   <boolean id="encodingAutoDetect">1</boolean>
   <boolean id="encodingXMLDec">1</boolean>
