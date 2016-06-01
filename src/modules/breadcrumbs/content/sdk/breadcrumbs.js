@@ -1660,6 +1660,8 @@ var breadcrumbs = function(view) {
         {
             return true;
         };
+        
+        this.init();
 
         return this;
     };
