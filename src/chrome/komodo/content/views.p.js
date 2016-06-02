@@ -2382,7 +2382,7 @@ viewManager.prototype.is_cmd_minimap_hide_enabled = function () {
 // -8 is the lowest possible zoom. Lower values are accepted, but
 // have no effect, and make it look like ctrl-scroll doesn't work.
 // Ref bug 97447
-viewManager.prototype.DEFAULT_MINIMAP_ZOOM = -8;
+viewManager.prototype.DEFAULT_MINIMAP_ZOOM = -7;
 
 viewManager.prototype._do_cmd_minimap_fontZoom = function(arg) {
     var minimap, view = this.currentView;

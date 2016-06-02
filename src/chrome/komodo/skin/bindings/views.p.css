@@ -78,9 +78,6 @@ view[type='xul']  {
 
 minimap {
   -moz-binding: url('chrome://komodo/content/bindings/views-minimap.xml#view-minimap');
-  width: 150px;
-  max-width: 150px;
-  border-left: 1px solid ThreeDShadow;
 }
 minimap.hideMinimap  {
   visibility: collapse;
