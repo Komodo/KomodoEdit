@@ -640,7 +640,7 @@ this.fullScreen = function uilayout_FullScreen()
     root.setAttribute("drawintitlebar", hide);
 // #elif PLATFORM == "win"
     if (hide) {
-        root.setAttribute("chromemargin", "");
+        root.removeAttribute("chromemargin");
         root.setAttribute("chromemargin", "0,0,0,0");
     }
 // #endif

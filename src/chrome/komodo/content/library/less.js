@@ -268,7 +268,7 @@ var koLess = function koLess()
                         }
                         else if (root.getAttribute("chromemargin") && platform == "winnt") { 
                             if (hide) {
-                                root.setAttribute("chromemargin", "");
+                                root.removeAttribute("chromemargin");
                                 root.setAttribute("chromemargin", "0,0,0,0");
                             }
                         }
