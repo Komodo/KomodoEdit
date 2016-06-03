@@ -321,7 +321,17 @@
                 {
                     let child = children.value[i];
                     if (child.type == "livefolder")
-                        paths.push(ko.uriparse.URIToLocalPath(child.url));
+                    {
+                        try
+                        {
+                            let folderPath = ko.uriparse.URIToLocalPath(child.url);
+                            paths.push(folderPath);
+                        }
+                        catch (e)
+                        {
+                            log.debug("Not adding non-local folder path: " + child.url);
+                        }
+                    }
                 }
             }
         }
