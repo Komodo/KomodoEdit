@@ -140,12 +140,16 @@ this.setToolbarsVisibility = function uilayout_setToolbarsVisibility(showToolbar
     {
         toolboxrow.setAttribute('collapsed', 'true');
     }
-
+    
     if (toolboxId == "main-toolboxrow-wrapper")
     {
         document.documentElement.setAttribute("show-toolbar", showToolbars ? "true" : "false");
         document.persist('komodo_main', 'show-toolbar');
         document.persist('cmd_toggleToolbars', 'checked');
+    }
+    else
+    {
+        document.persist(toolboxId, 'collapsed');
     }
 
 // #if PLATFORM != "darwin"
