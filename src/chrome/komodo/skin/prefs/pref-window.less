@@ -23,19 +23,24 @@
 
     treechildren::-moz-tree-cell-text
     {
-        padding-left: 14px;
+        padding-left: 18px;
+    }
+    
+    treechildren::-moz-tree-cell(child-row)
+    {
+        margin-left: 16px;
     }
     
     treechildren::-moz-tree-cell-text(child-row)
     {
-        padding-left: 2px;
-        font-weight: normal;
+        padding-left: 0;
     }
 
     treechildren::-moz-tree-cell
     {
+        padding-left: 4px;
         background-size: 16px 16px;
-        background-position: 12px center;
+        background-position: 16px center;
         background-repeat: no-repeat;
     }
 
