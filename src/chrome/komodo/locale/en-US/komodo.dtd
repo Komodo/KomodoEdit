@@ -770,7 +770,7 @@
 <!ENTITY userInterfaceFocusOnToolboxPane.desc "User Interface: Focus on Toolbox Pane">
 <!ENTITY userInterfaceFocusOtherSplitEditorPane.desc "User Interface: Focus on Other Split View">
 <!ENTITY userInterfaceFullScreen.desc "User Interface: Full Screen">
-<!ENTITY userInterfaceMoveTabToAnotherTabWindow.desc "User Interface: Move tab to another tab window">
+<!ENTITY userInterfaceMoveTabToAnotherTabWindow.desc "User Interface: Move tab to other split view">
 <!ENTITY userInterfaceMoveTabToANewWindow.desc "User Interface: Move tab to a new window">
 <!ENTITY userInterfaceOpenTabInANewWindow.desc "User Interface: Open tab in a new window">
 <!ENTITY userInterfaceShowHideEndOfLines.desc "User Interface: Show/Hide End of Lines">
