@@ -210,18 +210,6 @@ binding cmd_fontZoomReset Meta+0
 # Projects and SCC
 binding cmd_refreshStatus Ctrl+K R
 
-# Debugging / DBGP
-binding cmd_dbgGo Meta+G
-binding cmd_dbgGoSkipDialog Meta+Shift+G
-binding cmd_dbgStop Meta+Ctrl+P
-binding cmd_dbgRun Meta+R
-binding cmd_dbgStepCursor Meta+Ctrl+Shift+I
-binding cmd_dbgStepIn Meta+Ctrl+I
-binding cmd_dbgStepOut Meta+Ctrl+T
-binding cmd_dbgStepOver Meta+Ctrl+O
-binding cmd_dbgBreakpointToggle Meta+\
-binding cmd_dbgBreakpointClearAllInURI Meta+Ctrl+\
-
 # Macros
 binding cmd_executeLastMacro Ctrl+K _
 binding cmd_startMacroMode Ctrl+K (
