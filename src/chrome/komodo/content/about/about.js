@@ -56,6 +56,7 @@ function onLoad()
     // Note: Would be nice to translate '\n' to <br> or put in a styled textarea.
     buildInfoWidget.appendChild(iframe.document.createTextNode(buildInfo));
 
+    window.sizeToContent(); // See #1632. Window doesn't fit content.
     window.getAttention();
 }
 
