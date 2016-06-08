@@ -93,13 +93,13 @@ binding cmd_htmlTagRelocator Ctrl+Shift+Z
 # Search/Replace
 binding cmd_startIncrementalSearch Meta+F
 binding cmd_startIncrementalSearch Meta+I
-binding cmd_findNext F3
+binding cmd_findNext Meta+G
 binding cmd_findNextSelected Meta+F3
 binding cmd_findPrevious Shift+F3
 binding cmd_findNextResult Meta+Shift+F3
 binding cmd_findInFiles Meta+Shift+F
 binding cmd_replaceInFiles Meta+Shift+H
-binding cmd_replace Meta+H
+binding cmd_replace Meta+=
 
 # Buffer management
 binding cmd_save Meta+S
