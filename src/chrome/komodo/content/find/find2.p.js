@@ -240,9 +240,13 @@ function update(changed /* =null */) {
         switch (search_in) {
         case "files":
             _collapse_widget(widgets.dirs_row, false);
+            _hide_widget(widgets.includes_label, false);
+            _hide_widget(widgets.includes, false);
             break;
         default:
             _collapse_widget(widgets.dirs_row, true);
+            _hide_widget(widgets.includes_label, true);
+            _hide_widget(widgets.includes, true);
 
             // Persist the context type in some cases. This is used
             // to tell cmd_findNext and cmd_findPrevious whether to
@@ -836,6 +840,7 @@ function _init_widgets()
     widgets.dirs = document.getElementById('dirs');
     widgets.subdirs_row = document.getElementById('subdirs-row');
     widgets.search_in_subdirs = document.getElementById('search-in-subdirs');
+    widgets.includes_label = document.getElementById('includes-label');
     widgets.includes = document.getElementById('includes');
     widgets.excludes = document.getElementById('excludes');
 

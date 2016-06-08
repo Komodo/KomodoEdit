@@ -380,7 +380,7 @@
                     </hbox>
                     
                     <!--field-options -->
-                    <label value="&include.label;" control="includes"
+                    <label id="includes-label" value="&include.label;" control="includes"
                      accesskey="&include.accesskey;" style="text-align: right"/>
                     
                     <!--buttons -->
