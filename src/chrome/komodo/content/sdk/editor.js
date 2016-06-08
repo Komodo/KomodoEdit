@@ -431,6 +431,19 @@ var sdkEditor = function(_scintilla, _scimoz) {
      */
     this.getCursorWindowPosition = function(relativeToScreen = false)
     {
+        var _scimoz = scimoz();
+        return this.getWindowPosition(_scimoz.currentPos, relativeToScreen);
+    };
+    
+    /**
+     * Get the window position of the given character 
+     *
+     * @returns {Object} {x: .., y: ..}
+     */
+    this.getWindowPosition = function(pos, relativeToScreen = false)
+    {
+        pos = this._posFormat(pos, "absolute");
+        
         var _scintilla = scintilla();
         var _scimoz = scimoz();
         if ( ! _scintilla || ! _scimoz) return {x: 0, y: 0};
@@ -447,9 +460,8 @@ var sdkEditor = function(_scintilla, _scimoz) {
             scy = _scintilla.boxObject.screenY;
         }
 
-        var currentPos = _scimoz.currentPos;
-        var curx = _scimoz.pointXFromPosition(currentPos);
-        var cury = _scimoz.pointYFromPosition(currentPos);
+        var curx = _scimoz.pointXFromPosition(pos);
+        var cury = _scimoz.pointYFromPosition(pos);
 
         return {x: (scx + curx), y: (scy + cury)};
     };
