@@ -197,6 +197,7 @@
             window._restore = window.restore;
             window.restore = this.restore;
         }
+        window.sizeToContent();
 <!-- #endif -->
         ]]>
       </constructor>
