@@ -418,7 +418,7 @@ this.populatePreviewToolbarButton = function uilayout_populatePreviewToolbarButt
         {
             label: _bundle.GetStringFromName("configuredBrowser"),
             tooltiptext: _bundle.GetStringFromName("seePreferencesWebBrowser"),
-            command: "ko.views.manager.currentView.viewPreview(); event.stopPropagation();",
+            command: "ko.views.manager.currentView.viewPreview();",
             classList: "",
             value: "configured"
         },
@@ -426,7 +426,7 @@ this.populatePreviewToolbarButton = function uilayout_populatePreviewToolbarButt
         {
             label: _bundle.GetStringFromName("internalBrowser.menu.label"),
             tooltiptext: _bundle.GetStringFromName("internalBrowser.menu.tooltiptext"),
-            command: "ko.views.manager.currentView.viewPreview('komodo'); event.stopPropagation();",
+            command: "ko.views.manager.currentView.viewPreview('komodo');",
             classList: "menuitem-iconic komodo-16x16",
             value: "komodo"
         }

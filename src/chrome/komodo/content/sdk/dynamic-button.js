@@ -233,11 +233,19 @@
                     
                 if (menuitem.checked)
                     elem.attr("checked", menuitem.checked);
-                
+                    
                 if (typeof menuitem.command == "string")
-                    elem.attr("oncommand", menuitem.command);
+                {
+                    let cmd = menuitem.command;
+                    
+                    // Wrap with doCommand if this is just a word (command name)
+                    if (menuitem.command.match(/^[\w-]*$/))
+                        cmd = "ko.commands.doCommandAsync('"+menuitem.command+"', event)";
+                        
+                    elem.attr("oncommand", menuitem.command.replace(/[\s;]*$/g,'') + "; event.stopPropagation();");
+                }
                 else
-                    elem.on("command", menuitem.command);
+                    elem.on("command", function(m, event) { m.command(); event.stopPropagation(); }.bind(null, menuitem));
                 
                 menupopup.append(elem);
             }
