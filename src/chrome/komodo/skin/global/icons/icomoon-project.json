@@ -1412,7 +1412,7 @@
 					"tempChar": ""
 				},
 				{
-					"order": 0,
+					"order": 203,
 					"prevSize": 16,
 					"ligatures": "eye, views",
 					"name": "eye4",
@@ -1421,7 +1421,7 @@
 					"tempChar": ""
 				},
 				{
-					"order": 0,
+					"order": 202,
 					"prevSize": 16,
 					"ligatures": "eye3, views7",
 					"name": "eye3",
@@ -29987,7 +29987,7 @@
 					"id": 941
 				},
 				{
-					"order": 203,
+					"order": 0,
 					"prevSize": 16,
 					"ligatures": "eye, views",
 					"name": "eye4",
@@ -30031,7 +30031,7 @@
 					"id": 947
 				},
 				{
-					"order": 202,
+					"order": 0,
 					"prevSize": 16,
 					"ligatures": "eye3, views7",
 					"name": "eye3",
