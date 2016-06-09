@@ -1590,7 +1590,7 @@ var breadcrumbs = function(view) {
                 cache.childrenSorted = [];
                 var children = this.getChildren();
 
-                for (let [name,child] in children)
+                for (let [name,child] in Iterator(children))
                 {
                     cache.childrenSorted.push(child);
                 }
