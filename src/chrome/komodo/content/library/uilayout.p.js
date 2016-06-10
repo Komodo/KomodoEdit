@@ -288,6 +288,8 @@ this.updateToolboxVisibility = function uilayout_updateToolboxVisibility()
         require("notify/notify").interact("Toolbar & Menubar hidden, hit ALT to access the Komodo menu", "customization");
     }
     // #endif
+    
+    ko.uilayout._updateToolbarViewStates();
 }
 
 // #endif
@@ -1759,6 +1761,11 @@ this.onload = function uilayout_onload()
     window.addEventListener("window_opened", function (e) {
         this.updateWindowButtons(e.detail);
     }.bind(this));
+    
+    // Todo: find an event for this
+    setTimeout(function() {
+        ko.uilayout._updateToolbarViewStates();
+    }, 3000);
 }
 
 this.updateWindowButtons = function (w) {
