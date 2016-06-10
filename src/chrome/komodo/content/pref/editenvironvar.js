@@ -85,7 +85,7 @@ function Startup()
         }
     }
     obj.res = "cancel";  // default response
-
+    window.sizeToContent();
     SetWindowLocation();
 }
 
