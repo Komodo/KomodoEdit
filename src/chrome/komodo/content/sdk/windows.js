@@ -25,6 +25,13 @@
      */
     this.getMain = function()
     {
+        // Return the topWindow global if it's set, this is the topmost window
+        // as detected by jetpack.js
+        if (topWindow)
+        {
+            return topWindow;
+        }
+        
         var wm = Cc["@mozilla.org/appshell/window-mediator;1"].getService(Ci.nsIWindowMediator);
         return wm.getMostRecentWindow("Komodo");
     }

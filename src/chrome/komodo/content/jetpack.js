@@ -13,7 +13,33 @@ const [JetPack, require] = (function() {
     const { Services } = Cu.import("resource://gre/modules/Services.jsm", {});
     const { main, Loader, resolve, resolveURI } =
         Cu.import('resource://gre/modules/commonjs/toolkit/loader.js', {}).Loader;
-
+        
+    var topHref = "chrome://komodo/content/komodo.xul";
+    var topWindow = null;
+    if (typeof window != 'undefined' && window)
+    {
+        topWindow = window;
+        
+        var assignWindow = function(w, k)
+        {
+            while (w.location.href != topHref && w[k] && w[k] != w)
+                w = w[k];
+            return w;
+        };
+        
+        var prevWindow = null;
+        while (prevWindow != topWindow)
+        {
+            prevWindow = topWindow;
+            topWindow = assignWindow(topWindow, "opener");
+            topWindow = assignWindow(topWindow, "parent");
+            topWindow = assignWindow(topWindow, "top");
+        }
+        
+        if (topWindow.location.href != topHref)
+            topWindow = null;
+    }
+    
     /* Populate requirePaths with category entries */
     const catMan = Cc["@mozilla.org/categorymanager;1"]
                         .getService(Ci.nsICategoryManager);
@@ -69,7 +95,7 @@ const [JetPack, require] = (function() {
     AddonManager.addInstallListener({onInstallEnded: setRequirePaths});
     // TODO: May need to reset "loader.modules" when the add-on is loaded?
 
-    var globals = { ko: ko };
+    var globals = { ko: ko, topWindow: topWindow };
     if (String(this).contains("Window")) {
         // Have a window scope available
         globals.window = window;
