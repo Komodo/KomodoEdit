@@ -55,10 +55,6 @@
         screenY="20"
         persist="width screenX screenY"
         orient="vertical"
-        style="background-repeat: no-repeat;
-               background-color: white;
-               overflow: auto;
-               padding: 10px;"
         buttonpack="center"
         buttons="cancel"
         ondialogcancel="return Cancel();">
@@ -71,169 +67,162 @@
     <script src="chrome://komodo/content/dialogs/featureControlPanel.js" type="application/x-javascript;version=1.7"/>
 
 <!--    <vbox>-->
-        <vbox style="background-color: #E7E3DE; padding: 1px;" flex="1">
-        <vbox style="background-color: white; padding: 0px;" flex="1">
-            <grid>
-                <columns>
-                    <column style="min-width: 200px;"/> <!-- feature name -->
-                    <column flex="1"/> <!-- feature status -->
-                </columns>
-                <rows>
-                    <row style="margin: 1px;">
-                        <hbox style="background-color: #E7E3DE; min-height: 21px;"
-                              flex="1" align="center" pack="start">
-                            <label value="&languageFeatures.label;" style="font-weight: bold;"/>
-                        </hbox>
-                        <hbox style="background-color: #E7E3DE;"/>
-                    </row>
-                    <row id="nodejs-feature-row">
-                        <hbox class="sp-mru-row" align="center" pack="start">
-                            <label value="&nodejs.label;"/>
-                        </hbox>
-                        <hbox class="sp-mru-row" flex="1" align="center" pack="start">
-                            <label id="nodejs-syntax-checking-status"
-                                   value="&sintaxCheckingUnknown.label;"/>
-                            <image id="nodejs-syntax-checking-status-image"
-                                   class="status-pending"
-                                   />
-                            <button class="help-icon button-toolbar-a" style="background-color: transparent;"
-                                    tooltiptext="&helpOnBackgroundSyntaxChecking.tooltiptext;"
-                                    oncommand="LaunchHelp('background_syntax_checking');"/>
-                            <separator flex="1"/>
-                            <button class="configure-icon button-toolbar-a" style="background-color: transparent;"
-                                    tooltiptext="&configureNodeJS.tooltiptext;"
-                                    oncommand="LaunchPrefs('nodejsItem')"/>
-                        </hbox>
-                    </row>
-                    <row id="perl-feature-row">
-                        <hbox class="sp-mru-row" align="center" pack="start">
-                            <label value="&perl.label;"/>
-                        </hbox>
-                        <hbox class="sp-mru-row" flex="1" align="center" pack="start">
-                            <label id="perl-syntax-checking-status"
-                                   value="&sintaxCheckingUnknown.label;"/>
-                            <image id="perl-syntax-checking-status-image"
-                                   class="status-pending"
-                                   />
-                            <button class="help-icon button-toolbar-a" style="background-color: transparent;"
-                                    tooltiptext="&helpOnBackgroundSyntaxChecking.tooltiptext;"
-                                    oncommand="LaunchHelp('background_syntax_checking');"/>
-                            <separator flex="1"/>
-                            <button class="configure-icon button-toolbar-a" style="background-color: transparent;"
-                                    tooltiptext="&configurePerl.tooltiptext;"
-                                    oncommand="LaunchPrefs('perlItem')"/>
-                        </hbox>
-                    </row>
-                    <row id="php-feature-row">
-                        <hbox class="sp-mru-row" align="center" pack="start">
-                            <label value="&php.label;"/>
-                        </hbox>
-                        <hbox class="sp-mru-row" flex="1" align="center" pack="start">
-                            <label id="php-syntax-checking-status"
-                                   value="&sintaxCheckingUnknown.label;"/>
-                            <image id="php-syntax-checking-status-image"
-                                   class="status-pending"
-                                   />
-                            <button class="help-icon button-toolbar-a" style="background-color: transparent;"
-                                    tooltiptext="&helpOnBackgroundSyntaxChecking.tooltiptext;"
-                                    oncommand="LaunchHelp('background_syntax_checking');"/>
-                            <separator flex="1"/>
-                            <button class="configure-icon button-toolbar-a" style="background-color: transparent;"
-                                    tooltiptext="&configurePHP.tooltiptext;"
-                                    oncommand="LaunchPrefs('phpItem')"/>
-                        </hbox>
-                    </row>
-                    <row id="python-feature-row">
-                        <hbox class="sp-mru-row" align="center" pack="start">
-                            <label value="&python.label;"/>
-                        </hbox>
-                        <hbox class="sp-mru-row" align="center" pack="start">
-                            <label id="python-syntax-checking-status"
-                                   value="&sintaxCheckingUnknown.label;"/>
-                            <image id="python-syntax-checking-status-image"
-                                   class="status-pending"
-                                   />
-                            <button class="help-icon button-toolbar-a" style="background-color: transparent;"
-                                    tooltiptext="&helpOnBackgroundSyntaxChecking.tooltiptext;"
-                                    oncommand="LaunchHelp('background_syntax_checking');"/>
-                            <separator flex="1"/>
-                            <button class="configure-icon button-toolbar-a" style="background-color: transparent;"
-                                    tooltiptext="&configurePython.tooltiptext;"
-                                    oncommand="LaunchPrefs('pythonItem')"/>
-                        </hbox>
-                    </row>
-                    <row id="python3-feature-row">
-                        <hbox class="sp-mru-row" align="center" pack="start">
-                            <label value="&python3.label;"/>
-                        </hbox>
-                        <hbox class="sp-mru-row" align="center" pack="start">
-                            <label id="python3-syntax-checking-status"
-                                   value="&sintaxCheckingUnknown.label;"/>
-                            <image id="python3-syntax-checking-status-image"
-                                   class="status-pending"
-                                   />
-                            <button class="help-icon button-toolbar-a" style="background-color: transparent;"
-                                    tooltiptext="&helpOnBackgroundSyntaxChecking.tooltiptext;"
-                                    oncommand="LaunchHelp('background_syntax_checking');"/>
-                            <separator flex="1"/>
-                            <button class="configure-icon button-toolbar-a" style="background-color: transparent;"
-                                    tooltiptext="&configurePython3.tooltiptext;"
-                                    oncommand="LaunchPrefs('python3Item')"/>
-                        </hbox>
-                    </row>
-                    <row id="ruby-feature-row">
-                        <hbox class="sp-mru-row" align="center" pack="start">
-                            <label value="&ruby.label;"/>
-                        </hbox>
-                        <hbox class="sp-mru-row" align="center" pack="start">
-                            <label id="ruby-syntax-checking-status"
-                                   value="&sintaxCheckingUnknown.label;"/>
-                            <image id="ruby-syntax-checking-status-image"
-                                   class="status-pending"
-                                   />
-                            <button class="help-icon button-toolbar-a" style="background-color: transparent;"
-                                    tooltiptext="&helpOnBackgroundSyntaxChecking.tooltiptext;"
-                                    oncommand="LaunchHelp('background_syntax_checking');"/>
-                            <separator flex="1"/>
-                            <button class="configure-icon button-toolbar-a" style="background-color: transparent;"
-                                    tooltiptext="&configureRuby.tooltiptext;"
-                                    oncommand="LaunchPrefs('rubyItem')"/>
-                        </hbox>
-                    </row>
-                    <row id="xslt-feature-row">
-                        <hbox class="sp-mru-row" align="center" pack="start">
-                            <label value="&xslt.label;"/>
-                        </hbox>
-                        <hbox class="sp-mru-row" flex="1" align="center" pack="start">
-                            <label value="&sintaxCheckingReady.label;"/>
-                            <image id="xslt-syntax-checking-status-image"
-                                   class="status-ready"
-                                   />
-                            <button class="help-icon button-toolbar-a" style="background-color: transparent;"
+        <vbox flex="1">
+            <groupbox>
+                <caption label="&languageFeatures.label;"/>
+                <grid>
+                    <columns>
+                        <column width="200"/> <!-- feature name -->
+                        <column flex="1"/> <!-- feature status -->
+                    </columns>
+                    <rows>
+                        <row id="nodejs-feature-row">
+                            <hbox class="sp-mru-row" align="center" pack="start">
+                                <label value="&nodejs.label;"/>
+                            </hbox>
+                            <hbox class="sp-mru-row" flex="1" align="center" pack="start">
+                                <label id="nodejs-syntax-checking-status"
+                                       value="&sintaxCheckingUnknown.label;"/>
+                                <image id="nodejs-syntax-checking-status-image"
+                                       class="status-pending"
+                                       />
+                                <button class="help-icon button-toolbar-a"
                                         tooltiptext="&helpOnBackgroundSyntaxChecking.tooltiptext;"
                                         oncommand="LaunchHelp('background_syntax_checking');"/>
-                        </hbox>
-                    </row>
-                    <row id="other-languages-feature-row">
-                        <hbox class="sp-mru-row" align="center" pack="start">
-                            <label value="&otherLanguages.label;"/>
-                        </hbox>
-                        <hbox class="sp-mru-row" flex="1" align="center" pack="start">
-                            <label value="&sintaxCheckingReadyJavscriptHtmlXml.label;"/>
-                            <image id="other-languages-syntax-checking-status-image"
-                                   class="status-ready"
-                                   />
-                            <button class="help-icon button-toolbar-a" style="background-color: transparent;"
+                                <separator flex="1"/>
+                                <button class="configure-icon button-toolbar-a"
+                                        tooltiptext="&configureNodeJS.tooltiptext;"
+                                        oncommand="LaunchPrefs('nodejsItem')"/>
+                            </hbox>
+                        </row>
+                        <row id="perl-feature-row">
+                            <hbox class="sp-mru-row" align="center" pack="start">
+                                <label value="&perl.label;"/>
+                            </hbox>
+                            <hbox class="sp-mru-row" flex="1" align="center" pack="start">
+                                <label id="perl-syntax-checking-status"
+                                       value="&sintaxCheckingUnknown.label;"/>
+                                <image id="perl-syntax-checking-status-image"
+                                       class="status-pending"
+                                       />
+                                <button class="help-icon button-toolbar-a"
                                         tooltiptext="&helpOnBackgroundSyntaxChecking.tooltiptext;"
                                         oncommand="LaunchHelp('background_syntax_checking');"/>
-                        </hbox>
-                    </row>
-                </rows>
-            </grid>
+                                <separator flex="1"/>
+                                <button class="configure-icon button-toolbar-a"
+                                        tooltiptext="&configurePerl.tooltiptext;"
+                                        oncommand="LaunchPrefs('perlItem')"/>
+                            </hbox>
+                        </row>
+                        <row id="php-feature-row">
+                            <hbox class="sp-mru-row" align="center" pack="start">
+                                <label value="&php.label;"/>
+                            </hbox>
+                            <hbox class="sp-mru-row" flex="1" align="center" pack="start">
+                                <label id="php-syntax-checking-status"
+                                       value="&sintaxCheckingUnknown.label;"/>
+                                <image id="php-syntax-checking-status-image"
+                                       class="status-pending"
+                                       />
+                                <button class="help-icon button-toolbar-a"
+                                        tooltiptext="&helpOnBackgroundSyntaxChecking.tooltiptext;"
+                                        oncommand="LaunchHelp('background_syntax_checking');"/>
+                                <separator flex="1"/>
+                                <button class="configure-icon button-toolbar-a"
+                                        tooltiptext="&configurePHP.tooltiptext;"
+                                        oncommand="LaunchPrefs('phpItem')"/>
+                            </hbox>
+                        </row>
+                        <row id="python-feature-row">
+                            <hbox class="sp-mru-row" align="center" pack="start">
+                                <label value="&python.label;"/>
+                            </hbox>
+                            <hbox class="sp-mru-row" align="center" pack="start">
+                                <label id="python-syntax-checking-status"
+                                       value="&sintaxCheckingUnknown.label;"/>
+                                <image id="python-syntax-checking-status-image"
+                                       class="status-pending"
+                                       />
+                                <button class="help-icon button-toolbar-a"
+                                        tooltiptext="&helpOnBackgroundSyntaxChecking.tooltiptext;"
+                                        oncommand="LaunchHelp('background_syntax_checking');"/>
+                                <separator flex="1"/>
+                                <button class="configure-icon button-toolbar-a"
+                                        tooltiptext="&configurePython.tooltiptext;"
+                                        oncommand="LaunchPrefs('pythonItem')"/>
+                            </hbox>
+                        </row>
+                        <row id="python3-feature-row">
+                            <hbox class="sp-mru-row" align="center" pack="start">
+                                <label value="&python3.label;"/>
+                            </hbox>
+                            <hbox class="sp-mru-row" align="center" pack="start">
+                                <label id="python3-syntax-checking-status"
+                                       value="&sintaxCheckingUnknown.label;"/>
+                                <image id="python3-syntax-checking-status-image"
+                                       class="status-pending"
+                                       />
+                                <button class="help-icon button-toolbar-a"
+                                        tooltiptext="&helpOnBackgroundSyntaxChecking.tooltiptext;"
+                                        oncommand="LaunchHelp('background_syntax_checking');"/>
+                                <separator flex="1"/>
+                                <button class="configure-icon button-toolbar-a"
+                                        tooltiptext="&configurePython3.tooltiptext;"
+                                        oncommand="LaunchPrefs('python3Item')"/>
+                            </hbox>
+                        </row>
+                        <row id="ruby-feature-row">
+                            <hbox class="sp-mru-row" align="center" pack="start">
+                                <label value="&ruby.label;"/>
+                            </hbox>
+                            <hbox class="sp-mru-row" align="center" pack="start">
+                                <label id="ruby-syntax-checking-status"
+                                       value="&sintaxCheckingUnknown.label;"/>
+                                <image id="ruby-syntax-checking-status-image"
+                                       class="status-pending"
+                                       />
+                                <button class="help-icon button-toolbar-a"
+                                        tooltiptext="&helpOnBackgroundSyntaxChecking.tooltiptext;"
+                                        oncommand="LaunchHelp('background_syntax_checking');"/>
+                                <separator flex="1"/>
+                                <button class="configure-icon button-toolbar-a"
+                                        tooltiptext="&configureRuby.tooltiptext;"
+                                        oncommand="LaunchPrefs('rubyItem')"/>
+                            </hbox>
+                        </row>
+                        <row id="xslt-feature-row">
+                            <hbox class="sp-mru-row" align="center" pack="start">
+                                <label value="&xslt.label;"/>
+                            </hbox>
+                            <hbox class="sp-mru-row" flex="1" align="center" pack="start">
+                                <label value="&sintaxCheckingReady.label;"/>
+                                <image id="xslt-syntax-checking-status-image"
+                                       class="status-ready"
+                                       />
+                                <button class="help-icon button-toolbar-a"
+                                            tooltiptext="&helpOnBackgroundSyntaxChecking.tooltiptext;"
+                                            oncommand="LaunchHelp('background_syntax_checking');"/>
+                            </hbox>
+                        </row>
+                        <row id="other-languages-feature-row">
+                            <hbox class="sp-mru-row" align="center" pack="start">
+                                <label value="&otherLanguages.label;"/>
+                            </hbox>
+                            <hbox class="sp-mru-row" flex="1" align="center" pack="start">
+                                <label value="&sintaxCheckingReadyJavscriptHtmlXml.label;"/>
+                                <image id="other-languages-syntax-checking-status-image"
+                                       class="status-ready"
+                                       />
+                                <button class="help-icon button-toolbar-a"
+                                            tooltiptext="&helpOnBackgroundSyntaxChecking.tooltiptext;"
+                                            oncommand="LaunchHelp('background_syntax_checking');"/>
+                            </hbox>
+                        </row>
+                    </rows>
+                </grid>
+            </groupbox>
         </vbox>
         
-        </vbox>
-
         <separator class="thin"/>
 
 <!--    </vbox>-->

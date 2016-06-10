@@ -18,7 +18,17 @@ image.status-error {
     list-style-image: url('chrome://fugue/skin/icons/cross-script.png');
 }
 
-row#rx-feature-row {
-    border-bottom: 1px solid #ddd;
+image {
+    margin-left: 4px;
 }
 
+/* Hide help icons, as the links are currently broken */
+/* TODO: Fix links */
+.help-icon {
+    visibility: collapse;
+}
+
+label {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
