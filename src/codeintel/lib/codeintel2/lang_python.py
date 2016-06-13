@@ -326,6 +326,7 @@ class PythonLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
     lang = lang
     interpreterPrefName = "python"
     extraPathsPrefName = "pythonExtraPaths"
+    excludePathsPrefName = "pythonExcludePaths"
 
     # Used by ProgLangTriggerIntelMixin.preceding_trg_from_pos().
     trg_chars = tuple(" (.")
@@ -478,15 +479,23 @@ class PythonLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
 
     def _extra_dirs_from_env(self, env):
         extra_dirs = set()
+        exclude_dirs = set()
         for pref in env.get_all_prefs(self.extraPathsPrefName):
             if not pref: continue
             extra_dirs.update(d.strip() for d in pref.split(os.pathsep)
                               if exists(d.strip()))
+        for pref in env.get_all_prefs(self.excludePathsPrefName):
+            if not pref: continue
+            exclude_dirs.update(d.strip() for d in pref.split(os.pathsep)
+                                if exists(d.strip()))
         if extra_dirs:
             extra_dirs = set(
                 self._gen_python_import_paths_from_dirs(extra_dirs)
             )                
-            log.debug("Python extra lib dirs: %r", extra_dirs)
+            for exclude_dir in exclude_dirs:
+                if exclude_dir in extra_dirs:
+                    extra_dirs.remove(exclude_dir)
+            log.debug("Python extra lib dirs: %r (minus %r)", extra_dirs, exclude_dirs)
         return tuple(extra_dirs)
 
     def interpreter_from_env(self, env):
@@ -557,6 +566,8 @@ class PythonLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
         if libs is None:
             env.add_pref_observer(self.interpreterPrefName, self._invalidate_cache)
             env.add_pref_observer(self.extraPathsPrefName,
+                                  self._invalidate_cache_and_rescan_extra_dirs)
+            env.add_pref_observer(self.excludePathsPrefName,
                                   self._invalidate_cache_and_rescan_extra_dirs)
             env.add_pref_observer("codeintel_selected_catalogs",
                                   self._invalidate_cache)

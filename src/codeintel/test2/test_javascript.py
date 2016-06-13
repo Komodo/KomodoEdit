@@ -1290,6 +1290,36 @@ class CplnTestCase(CodeIntelTestCase):
         """))
         self.assertCompletionsInclude(markup_text(content, positions[1]),
             [("variable", "length")])
+            
+    def test_exclude_dirs(self):
+        """
+        Test ignoring specific directories, like that pesky "node_modules"
+        folder.
+        """
+        test_dir = join(self.test_dir, "test_javascript_exclude_dirs")
+        content, positions = unmark_text(dedent("""\
+            require('exclude').<1>;
+        """))
+        manifest = {
+            "test.js": content,
+            "node_modules/exclude.js": """
+                var Foo = function() {
+                    this.foo = function() { }
+                    this.bar = function() { }
+                }
+                exports = new Foo();
+            """
+        }
+        for file, content in manifest.items():
+            path = join(test_dir, file)
+            writefile(path, content)
+        buf = self.mgr.buf_from_path(join(test_dir, "test.js"),
+                                     lang="JavaScript",
+                                     env=SimplePrefsEnvironment(javascriptExtraPaths=test_dir,
+                                                                javascriptExcludePaths=join(test_dir, "node_modules")))
+        self.assertCompletionsDoNotInclude2(buf, positions[1],
+            [("function", "bar"),
+             ("function", "foo")])
              
 class CalltipTestCase(CodeIntelTestCase):
     lang = "JavaScript"

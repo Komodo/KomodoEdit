@@ -182,11 +182,17 @@
   <!-- Additional  directories for Python, Perl, etc. These are
        stored as pathsep-separated local paths. -->
   <string id="javascriptExtraPaths"></string>
+  <string id="javascriptExcludePaths"></string>
   <string id="nodejsExtraPaths"></string>
+  <string id="nodejsExcludePaths"></string>
   <string id="phpExtraPaths"></string>
+  <string id="phpExcludePaths"></string>
   <string id="pythonExtraPaths"></string>
+  <string id="pythonExcludePaths"></string>
   <string id="python3ExtraPaths"></string>
+  <string id="python3ExcludePaths"></string>
   <string id="perlExtraPaths"></string>
+  <string id="perlExcludePaths"></string>
 
   <!-- Namespace mappings for Codeintel. These are stored as-->
   <!-- '::'-separated local paths. Keys and values are-->
@@ -273,6 +279,7 @@
 <!-- ruby start -->
   <!-- Ruby strings -->
   <string id="rubyExtraPaths"></string>
+  <string id="rubyExcludePaths"></string>
   <string id="rubyDefaultInterpreter"/>
   <string id="ruby_lintOption">cwT</string>
 <!-- ruby end -->

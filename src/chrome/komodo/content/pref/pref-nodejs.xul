@@ -66,6 +66,16 @@
                       pref="true"
                       prefwidget="true"
                       prefstring="nodejsExtraPaths"/>
+            <description>
+                &nodejsExcludeFolder.description;
+            </description>
+            <pathlist id="nodejsExcludePaths"
+                      flex="1"
+                      seltype="multiple"
+                      rows="4"
+                      pref="true"
+                      prefwidget="true"
+                      prefstring="nodejsExcludePaths"/>
         </groupbox>
         <groupbox orient="vertical" >
             <caption label="&nodejsNamespaceMapping.label;"/>

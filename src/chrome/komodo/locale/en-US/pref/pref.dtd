@@ -697,6 +697,7 @@ adding an additional caret at the clicked position.">
 <!ENTITY lintJavaScriptEnableWarnings.label "Enable warning messages">
 <!ENTITY lintJavaScriptEnableStrict.label "Enable strict warning messages">
 <!ENTITY javascriptFolder.description "Specify any directories that you want Komodo to use for autocomplete and calltips. Komodo will recursively scan these directories for information.">
+<!ENTITY javascriptExcludeFolder.description "Specify any directories you want to exclude from the scan.">
 <!ENTITY javascriptNamespaceMapping.description "Specify any custom namespace mappings for Komodo to use when looking up modules in 'require' statements for code intelligence. These mappings are useful for projects that have non-standard module locations.">
 
 <!--pref-nodejs.xul-->
@@ -706,6 +707,7 @@ adding an additional caret at the clicked position.">
 <!ENTITY noNodejsInterpreter.description "No node.js interpreter was found on your system. If you would like to debug and run node.js programs in Komodo you will need to install node.js.">
 <!ENTITY nodejsDirectories.label "Node.js Directories">
 <!ENTITY nodejsFolder.description "Specify any directories you want to load Node modules from. Komodo will recursively scan these directories for autocomplete and calltip information.">
+<!ENTITY nodejsExcludeFolder.description "Specify any directories you want to exclude from the scan.">
 <!ENTITY nodejsNamespaceMapping.label "Node.js Namespace Mapping">
 
 <!-- JSHint, a fork of jshint -->
@@ -784,6 +786,7 @@ adding an additional caret at the clicked position.">
 <!ENTITY filePrefPerlUseThisInterpreter.label "Use this interpreter">
 <!ENTITY filePrefPerlLevelStricness.description "You can configure the level of strictness that is used when doing background syntax checks.">
 <!ENTITY filePrefPerlAdditionalDirectory.description "Specify any additional directories that you want Komodo to add to the Perl path when debugging, syntax checking or in the interactive shell.">
+<!ENTITY filePrefPerlExcludeDirectory.description "Specify any directories you want to exclude from code autocompletion scans.">
 <!ENTITY filePrefPerlIncludeCurrDirForLinting.label "Have syntax checking include the current directory">
 <!ENTITY disableBEGINBlockExecution.label "Don't execute BEGIN blocks in current document during syntax-checking.">
 
@@ -804,6 +807,7 @@ adding an additional caret at the clicked position.">
 <!ENTITY filePrefPhpUseThisInterpreter.label "Use this interpreter">
 <!ENTITY filePrefPhpInifileDirectory.description "Directory containing php.ini">
 <!ENTITY phpFolder.description "Specify any directories that you want Komodo to use for autocomplete and calltips. Komodo will recursively scan these directories for information.">
+<!ENTITY phpExcludeFolder.description "Specify any directories you want to exclude from the scan.">
 <!ENTITY commentStyle.label "Comment Style:">
 <!ENTITY phpDoubleClickSelectsEntireVariable.label "Double-click selects entire variable (including $).">
 <!ENTITY phpDoubleClickSelectsEntireVariable.description "Any changes will only apply to newly opened or re-opened PHP files.">
@@ -814,6 +818,7 @@ adding an additional caret at the clicked position.">
 <!ENTITY noteRestartPython.alert "Note: Komodo must be restarted for it to recognize new Python installations.">
 <!ENTITY filePrefPythonUseThisInterpreter.label "Use this interpreter">
 <!ENTITY filePrefPythonAdditionalDirectory.description "Specify any additional directories that you want Komodo to add to the Python path when debugging, syntax checking or in the interactive shell.">
+<!ENTITY filePrefPythonExcludeDirectory.description "Specify any directories you want to exclude from code autocompletion scans.">
 <!ENTITY ClassicPythonChecking.label "Python Interpreter Syntax Checking">
 <!ENTITY lintWithPychecker.label "Do Pychecker Linting">
 <!ENTITY pycheckerWarning.descr "Warning: Pychecker will load modules and run top-level statements. ActiveState recommends using pylint instead.">
@@ -828,6 +833,7 @@ adding an additional caret at the clicked position.">
 <!ENTITY filePrefRubyUseThisInterpreter.label "Use this interpreter">
 <!ENTITY filePrefRubyLevelStricness.description "You can configure the level of strictness that is used when doing background syntax checks.">
 <!ENTITY filePrefRubyAdditionalDirectory.description "Specify any additional directories that you want Komodo to add to the Ruby path when debugging, syntax checking or in the interactive shell.">
+<!ENTITY filePrefRubyExcludeDirectory.description "Specify any directories you want to exclude from code autocompletion scans.">
 
 <!--pref-syntax-checking.xul-->
 <!ENTITY langSpecificSyntaxCheckingProperties.label "Language-specific syntax checking properties">

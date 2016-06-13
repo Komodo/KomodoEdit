@@ -253,6 +253,14 @@ class NodeJSTreeEvaluator(JavaScriptTreeEvaluator):
                     continue
                 if not dir in extra_dirs:
                     extra_dirs.append(dir)
+        for pref in self.buf.env.get_all_prefs(self.langintel.excludePathsPrefName):
+            if not pref:continue
+            for dir in pref.split(os.pathsep):
+                dir = dir.strip()
+                if not os.path.isdir(dir):
+                    continue
+                if dir in extra_dirs:
+                    extra_dirs.remove(dir)
         for dir in extra_dirs:
             hits = load_as_file(os.path.join(dir, requirename))
             if hits is None:
@@ -274,6 +282,7 @@ class NodeJSLangIntel(JavaScriptLangIntel):
     _evaluatorClass = NodeJSTreeEvaluator
     interpreterPrefName = "nodejsDefaultInterpreter"
     extraPathsPrefName = "nodejsExtraPaths"
+    excludePathsPrefName = "nodejsExcludePaths"
     namespaceMappingPrefName = "nodejsNamespaceMapping"
 
     def _get_nodejs_version_from_env(self, env=None):

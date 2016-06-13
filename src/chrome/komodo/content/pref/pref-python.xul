@@ -101,6 +101,16 @@
                     rows="4"
                     pref="true" prefwidget="true"
                     prefstring="pythonExtraPaths"/>
+            <description>
+                &filePrefPythonExcludeDirectory.description;
+            </description>
+            <pathlist
+                    id="pythonExcludePaths"
+                    flex="1"
+                    seltype="multiple"
+                    rows="4"
+                    pref="true" prefwidget="true"
+                    prefstring="pythonExcludePaths"/>
         </groupbox>
 
     </vbox>

@@ -28,6 +28,7 @@ class Python3LangIntel(PythonLangIntel):
     lang = lang
     interpreterPrefName = "python3"
     extraPathsPrefName = "python3ExtraPaths"
+    excludePathsPrefName = "python3ExcludePaths"
 
     @LazyClassAttribute
     def keywords(self):

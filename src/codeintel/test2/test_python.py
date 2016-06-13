@@ -1244,6 +1244,44 @@ class CplnTestCase(CodeintelPythonTestCase):
         self.assertCompletionsInclude(
             markup_text(oracle_content, pos=oracle_positions[1]),
             [("variable", "ULTIMATE")])
+            
+    def test_excludedirs(self):
+        test_dir = join(self.test_dir, "test_excludedirs")
+        content, positions = unmark_text(dedent("""\
+            import foo
+            import bar
+            foo.<1>
+            bar.<2>
+        """))
+        manifest = [
+            ("src/foo/__init__.py", dedent("""
+                class Foo:
+                    pass
+            """)),
+            ("src/bar/__init__.py", dedent("""
+                class Bar:
+                    pass
+            """)),
+            ("exclude.py", content)
+        ]
+        for file, content in manifest:
+            path = join(test_dir, file)
+            writefile(path, content)
+            
+        # Hack in our Environment for the Manager. Normally this is
+        # passed in when creating the Manager.
+        prefs = self._ci_env_prefs_ or {}
+        prefs["%sExtraPaths" % self.lang.lower()] = join(test_dir, "src")
+        prefs["%sExcludePaths" % self.lang.lower()] = join(test_dir, "src", "bar")
+        env = SimplePrefsEnvironment(**prefs)
+        self.mgr.env = env
+        
+        self.assertCompletionsInclude(
+            markup_text(content, pos=positions[1]),
+            [("class", "Foo")])
+        self.assertCompletionsDoNotInclude(
+            markup_text(content, pos=positions[2]),
+            [("class", "Bar")])
 
 
     #TODO: add test case:

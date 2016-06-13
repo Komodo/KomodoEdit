@@ -117,7 +117,7 @@ def guess_lang_from_path(path):
 
 
 def gen_dirs_under_dirs(dirs, max_depth, interesting_file_patterns=None,
-                        skip_scc_control_dirs=True):
+                        skip_scc_control_dirs=True, exclude_dirs=[]):
     """Generate all dirs under the given dirs (including the given dirs
     themselves).
     
@@ -128,8 +128,9 @@ def gen_dirs_under_dirs(dirs, max_depth, interesting_file_patterns=None,
             not included (though sub-directories of these may be).
         "skip_scc_control_dirs" is a boolean (default True) indicating if
             svn and cvs control dirs should be skipped.
+        "exclude_dirs" is a set of directories to exclude.
     """
-    from os.path import normpath, abspath, expanduser
+    from os.path import normpath, abspath, expanduser, join
     from fnmatch import fnmatch
 
     dirs_to_skip = (skip_scc_control_dirs
@@ -151,6 +152,9 @@ def gen_dirs_under_dirs(dirs, max_depth, interesting_file_patterns=None,
                 for dir_to_skip in dirs_to_skip:
                     if dir_to_skip in dirnames:
                         dirnames.remove(dir_to_skip)
+                for dirname in dirnames[:]:
+                    if join(dirpath, dirname) in exclude_dirs:
+                        dirnames.remove(dirname)
             if interesting_file_patterns:
                 for pat, filename in (
                     (p,f) for p in interesting_file_patterns

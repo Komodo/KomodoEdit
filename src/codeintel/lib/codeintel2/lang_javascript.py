@@ -189,6 +189,7 @@ class JavaScriptLangIntel(CitadelLangIntel,
     lang = lang
     _evaluatorClass = JavaScriptTreeEvaluator
     extraPathsPrefName = "javascriptExtraPaths"
+    excludePathsPrefName = "javascriptExcludePaths"
     namespaceMappingPrefName = "javascriptNamespaceMapping"
 
     # The way namespacing is done with variables in JS means that grouping
@@ -681,6 +682,7 @@ class JavaScriptLangIntel(CitadelLangIntel,
 
     def _extra_dirs_from_env(self, env):
         extra_dirs = set()
+        exclude_dirs = set()
         include_project = env.get_pref("codeintel_scan_files_in_project", True)
         if include_project:
             proj_base_dir = env.get_proj_base_dir()
@@ -690,8 +692,12 @@ class JavaScriptLangIntel(CitadelLangIntel,
             if not pref: continue
             extra_dirs.update(d.strip() for d in pref.split(os.pathsep)
                               if exists(d.strip()))
+        for pref in env.get_all_prefs(self.excludePathsPrefName):
+            if not pref: continue
+            exclude_dirs.update(d.strip() for d in pref.split(os.pathsep)
+                                if exists(d.strip()))
         if extra_dirs:
-            log.debug("%s extra lib dirs: %r", self.lang, extra_dirs)
+            log.debug("%s extra lib dirs: %r minus %r", self.lang, extra_dirs, exclude_dirs)
             max_depth = env.get_pref("codeintel_max_recursive_dir_depth", 10)
             # Always include common JS associations - bug 91915.
             js_assocs = env.assoc_patterns_from_lang("JavaScript") 
@@ -703,7 +709,8 @@ class JavaScriptLangIntel(CitadelLangIntel,
             extra_dirs = tuple(
                 util.gen_dirs_under_dirs(extra_dirs,
                     max_depth=max_depth,
-                    interesting_file_patterns=js_assocs)
+                    interesting_file_patterns=js_assocs,
+                    exclude_dirs=exclude_dirs)
             )
         else:
             extra_dirs = () # ensure retval is a tuple
@@ -723,6 +730,8 @@ class JavaScriptLangIntel(CitadelLangIntel,
 
         if buf not in cache:
             env.add_pref_observer(self.extraPathsPrefName,
+                self._invalidate_cache_and_rescan_extra_dirs)
+            env.add_pref_observer(self.excludePathsPrefName,
                 self._invalidate_cache_and_rescan_extra_dirs)
             env.add_pref_observer("codeintel_selected_catalogs",
                                   self._invalidate_cache)

@@ -440,11 +440,19 @@ class RubyLangIntel(CitadelLangIntel,
 
     def _extra_dirs_from_env(self, env):
         extra_dirs = set()
+        exclude_dirs = set()
         for pref in env.get_all_prefs("rubyExtraPaths"):
             if not pref: continue
             #TODO: need to support Gems specially?
             extra_dirs.update(d.strip() for d in pref.split(os.pathsep)
                               if exists(d.strip()))
+        for pref in env.get_all_prefs("rubyExcludePaths"):
+            if not pref: continue
+            exclude_dirs.update(d.strip() for d in pref.split(os.pathsep)
+                                if exists(d.strip()))
+        for exclude_dir in exclude_dirs:
+            if exclude_dir in extra_dirs:
+                extra_dirs.remove(exclude_dir)
         return tuple(extra_dirs)
 
     def _buf_indep_libs_from_env(self, env):
@@ -453,6 +461,8 @@ class RubyLangIntel(CitadelLangIntel,
         if cache_key not in env.cache:
             env.add_pref_observer("ruby", self._invalidate_cache)
             env.add_pref_observer("rubyExtraPaths",
+                                  self._invalidate_cache_and_rescan_extra_dirs)
+            env.add_pref_observer("rubyExcludePaths",
                                   self._invalidate_cache_and_rescan_extra_dirs)
             env.add_pref_observer("codeintel_selected_catalogs",
                                   self._invalidate_cache)

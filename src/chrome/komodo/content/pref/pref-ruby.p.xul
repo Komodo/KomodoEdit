@@ -110,6 +110,16 @@
                     rows="4"
                     pref="true" prefwidget="true"
                     prefstring="rubyExtraPaths"/>
+            <description>
+                &filePrefRubyExcludeDirectory.description;
+            </description>
+            <pathlist
+                    id="rubyExcludePaths"
+                    flex="1"
+                    seltype="multiple"
+                    rows="4"
+                    pref="true" prefwidget="true"
+                    prefstring="rubyExcludePaths"/>
         </groupbox>
 
     </vbox>
