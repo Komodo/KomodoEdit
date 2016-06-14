@@ -22,15 +22,29 @@ def _last_svn_commit():
             return last_svn_rev, last_svn_date
     raise RuntimeError("Failed to find last svn revision id")
 
+def _get_current_revision():
+    cmd = ["git", "rev-parse", "HEAD"]
+    return _capture_stdout(cmd)[:-1] #trim newline char from end of output
+
 def buildnum_from_revision(revision=None):
     """Get the Komodo build number for the given revision (or HEAD)"""
     if revision is None:
-        revision = "--all"
+        revision = _get_current_revision()
     # count the number of commits since the last known svn commit
     last_svn_rev, last_svn_date = _last_svn_commit()
     cmd = ["git", "rev-list", "--since=" + last_svn_date, revision]
     git_revisions = _capture_stdout(cmd)
-    return git_revisions.count('\n') + last_svn_rev
+    # because of how this was originally implemented it's been providing the
+    # wrong build number which ended up in incorrect build numbers.
+    # Fixing the issue results in a much lower build number.  To keep public
+    # builds consistent we have to add an appropriate offset.
+    import black
+    offset = 0
+    if black.configure.items["productType"].Get() is "ide":
+        offset = 105
+    else:
+        offset = 89
+    return git_revisions.count('\n') + last_svn_rev + offset
 
 def revision_from_buildnum(buildnum):
     """Return the git revision for the given Komodo build number"""
