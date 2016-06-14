@@ -55,6 +55,17 @@
         return windows;
     }
     
+    this.getWindowByUrl = function(url)
+    {
+        for (let w of this.getAll())
+        {
+            if (w.location.href == url)
+                return w;
+        }
+        
+        return false;
+    }
+    
     /**
      * Retrieve all windows (including internal)
      * 
