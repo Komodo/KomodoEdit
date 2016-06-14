@@ -642,7 +642,7 @@ this.saveWorkspace = function view_saveWorkspace(saveNow)
                                           windowWorkspace, saveCoordinates);
         }
         // Use the current window's layout as the default for new windows
-        mainWindow.ko.widgets.unload([]);
+        mainWindow.ko.widgets.unload(require("ko/prefs"),[]);
         var prefSvc = Components.classes["@activestate.com/koPrefService;1"].getService(Components.interfaces.koIPrefService);
         if (saveNow) {
             prefSvc.saveState();
