@@ -40,10 +40,18 @@ def buildnum_from_revision(revision=None):
     # builds consistent we have to add an appropriate offset.
     import black
     offset = 0
-    if black.configure.items["productType"].Get() is "ide":
+    productType = black.configure.items["productType"].Get()
+    if "ide" in productType.lower() :
         offset = 105
-    else:
+    elif "edit" in productType.lower():
         offset = 89
+    else:
+        offset = 105
+        import sys
+        for arg in sys.argv[1:]:
+            if arg.startswith("--product-type="):
+                if "edit" in arg.lower():
+                    offset = 89
     return git_revisions.count('\n') + last_svn_rev + offset
 
 def revision_from_buildnum(buildnum):
