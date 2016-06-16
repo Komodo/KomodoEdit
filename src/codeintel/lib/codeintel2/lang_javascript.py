@@ -3843,6 +3843,10 @@ class JavaScriptCiler:
                     break # do not export anonymous classes
                 for attrname in ("classes", "members", "functions", "variables"):
                     d = getattr(func, attrname, {})
+                    if attrname == "members":
+                        # Scopes do not have members, so transform them into
+                        # variables instead.
+                        attrname = "variables"
                     for k, v in d.items():
                         getattr(scope, attrname, {})[k] = v
                 scope.anonymous_functions.remove(func)
