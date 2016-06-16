@@ -302,6 +302,7 @@ adding an additional caret at the clicked position.">
 <!ENTITY indentation.label "Indentation">
 <!ENTITY indentationGlobalSettings.label "Global Indentation Settings">
 <!ENTITY indentation-per-language.label "Per Language Indentation Settings">
+<!ENTITY indentation-per-language-reload-notice.descr "If you make any changes to these per-language settings, you will need to reload any open files of that type or restart Komodo in order for your changes to take effect.">
 <!ENTITY internationalization.label "Internationalization">
 <!ENTITY invisible.label "Invisible">
 <!ENTITY javaScript.label "JavaScript">

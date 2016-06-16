@@ -240,6 +240,9 @@ function changeNewLanguage(item, name)  {
                 <textbox id="tabWidthLang" size="3"/>
                 <text value="&filePrefIndentationWhidtTabChar.label;"/>
             </hbox>
+            <description id="indentation-per-language-reload-notice">
+                &indentation-per-language-reload-notice.descr;
+            </description>
         </groupbox>
 
     </vbox>
