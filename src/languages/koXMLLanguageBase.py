@@ -107,7 +107,7 @@ class koXMLLanguageBase(KoUDLLanguage):
             indentStyle = 'plain'  # Don't indent new part
             
         closeIndentWidth = self._getIndentWidthForLine(scimoz, startTagLineNo)
-        if indentStyle == 'smart' and self.supportsSmartIndent == 'XML':
+        if indentStyle.startswith('smart') and self.supportsSmartIndent == 'XML':
             """
             i<foo>|</foo> ==>
             

@@ -168,6 +168,7 @@ function changeNewLanguage(item, name)  {
               <menulist id="editAutoIndentStyle" pref="true" prefattribute="data">
                   <menupopup>
                       <menuitem data="smart" label="&useSmartIndent.label;"/>
+                      <menuitem data="smart_no_lineup" label="&useSmartIndentNoLineUp.label;"/>
                       <menuitem data="plain" label="&indentToFirstNonEmptyColumn.label;"/>
                       <menuitem data="none" label="&donTAutoIndent.label;"/>
                   </menupopup>

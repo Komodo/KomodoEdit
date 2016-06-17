@@ -62,7 +62,7 @@ class KoEJSLanguage(koHTMLLanguageBase):
             return None        
         lineNo = scimoz.lineFromPosition(currentPos)
         closeIndentWidth = self._getIndentWidthForLine(scimoz, lineNo)
-        if indentStyle == 'smart':
+        if indentStyle.startswith('smart'):
             """
             i<%|% ==>
             

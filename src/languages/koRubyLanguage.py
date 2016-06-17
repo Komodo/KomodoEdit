@@ -107,7 +107,7 @@ class KoRubyLanguage(KoLanguageKeywordBase):
             getService(components.interfaces.koIPrefService)
         self._prefs = self.prefService.prefs
         self._indent_style = self._prefs.getStringPref("editAutoIndentStyle")
-        self._handle_keypress = self._indent_style == 'smart'
+        self._handle_keypress = self._indent_style.startswith('smart')
         log.debug("Ruby indent style: %s", self._indent_style)
         try:
             self._prefs.prefObserverService.addObserver(self, "editAutoIndentStyle", 0)
@@ -164,7 +164,7 @@ class KoRubyLanguage(KoLanguageKeywordBase):
         if topic == "editAutoIndentStyle":
             log.debug("**************** observer: subject %s, topic %s, data %s", subject, topic, data)
             self._indent_style = self._prefs.getStringPref("editAutoIndentStyle")
-            self._handle_keypress = self._indent_style == 'smart'
+            self._handle_keypress = self._indent_style.startswith('smart')
         elif topic == "rubyDefaultInterpreter":
             if self._lexer:
                 self.updateLexerVersionProperties()

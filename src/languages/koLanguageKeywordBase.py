@@ -328,7 +328,7 @@ class KoLanguageKeywordBase(KoLanguageBase):
         5. Assume self._keyword_dedenting_keywords is non-empty.
            Otherwise why would the subclass be using this as a superclass?
         """
-        if self._editAutoIndentStyle != "smart":
+        if not self._editAutoIndentStyle.startswith("smart"):
             return
         if ch in ('\n', '\r'):
             return self._checkIndentingCurrentAndPreviousLine(ch, scimoz, style_info)

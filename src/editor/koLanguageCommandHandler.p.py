@@ -877,7 +877,8 @@ class GenericCommandHandler:
                 if (textToRight
                     and languageObj is not None
                     and (len(textToRight) == 1
-                         or self._remainingCharsAreSoft(sm, currentPos))):
+                         or self._remainingCharsAreSoft(sm, currentPos))
+                         or indentStyle == 'smart_no_lineup'):
                     openingChar = sm.getWCharAt(sm.positionBefore(currentPos))
                     matchedChar = languageObj.getMatchingChar(openingChar)
                     if (matchedChar

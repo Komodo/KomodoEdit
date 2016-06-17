@@ -2339,7 +2339,7 @@ class KoLanguageBase:
         openChar = chr(scimoz.getCharAt(openCharPosn))
         currentEOL = eollib.eol2eolStr[eollib.scimozEOL2eol[scimoz.eOLMode]]
         textToInsert = currentEOL
-        smartBraceIndent = (indentStyle == 'smart' and
+        smartBraceIndent = (indentStyle.startswith('smart') and
                             self.supportsSmartIndent in ('brace', 'python', 'keyword'))
 
         # These blocks show the effect of each path. The leading "i" marks the
