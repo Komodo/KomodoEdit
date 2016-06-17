@@ -341,9 +341,13 @@ _EOD_
       end
       # Now get modules, classes, other constants, and methods found on this object.
       if ilk == "namespace"
-        methods = (liveObject.instance_methods + liveObject.methods - Module.methods).sort
+        methods = (liveObject.instance_methods + (liveObject.methods - Module.methods)).sort
       else
-        methods = (liveObject.instance_methods - liveObject.superclass.instance_methods).sort
+        if !@@badNames.include?(liveObject.superclass.name)
+          methods = (liveObject.instance_methods - liveObject.superclass.instance_methods).sort
+        else
+          methods = liveObject.instance_methods.sort
+        end
       end
       if name != "Object" && name != "BasicObject"
         liveObject.included_modules.each do | mod |

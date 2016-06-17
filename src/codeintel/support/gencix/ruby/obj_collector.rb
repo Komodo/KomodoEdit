@@ -120,7 +120,7 @@ class ObjWalker
       node['constants'] = []
       mc_obj.constants.each {|c|
         begin
-          obj = mc_obj.module_eval(c)
+          obj = mc_obj.module_eval(c.to_s)
           fq_child_name = "#{fq_name}.#{c}"
           # print "Class(#{c}) = #{obj.class}\n" if @verbose
           if [Class, Module].member?(obj.class)
@@ -133,13 +133,13 @@ class ObjWalker
           else
             node['constants'] << {'name' => c, 'citdl' => obj.class.name}
           end
-        rescue SyntaxError
+        rescue SyntaxError, NameError, LoadError
           #XXX Return error messages in test context
-          # $stderr.write("Trouble eval'ing #{c}:#{$!}\n")
+          $stderr.write("Trouble eval'ing #{c}:#{$!}\n")
         end
       }
     end
-    node['included_modules'] = mc_obj.included_modules.map{|mod|mod.name}
+    node['included_modules'] = mc_obj.included_modules.map{|mod|mod.name}.compact
     return node
   end
 end

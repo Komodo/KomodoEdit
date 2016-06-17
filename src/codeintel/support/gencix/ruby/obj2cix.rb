@@ -61,7 +61,7 @@ class CixGenerator
   end
   
   def h(str) # used by the rails cix generator.
-    s2 = str.gsub("&", "&amp;").gsub("<", "&lt;").gsub(">", "&gt;").
+    s2 = str.to_s.gsub("&", "&amp;").gsub("<", "&lt;").gsub(">", "&gt;").
       gsub('"', "&quot;").gsub("'", "&apos;")
     return escape_nl(s2)
   end
