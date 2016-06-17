@@ -152,7 +152,7 @@ class TclLangInfo(LangInfo):
 class RubyLangInfo(LangInfo):
     name = "Ruby"
     conforms_to_bases = ["Text"]
-    exts = ['.rb', '.mab']
+    exts = ['.rb', '.mab', '.ru']
     filename_patterns = ["Rakefile"]
     magic_numbers = [
         (0, "regex", re.compile('\A#!.*ruby.*$', re.I | re.M)),

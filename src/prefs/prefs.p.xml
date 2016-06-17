@@ -425,6 +425,7 @@
  '*.rake': 'Ruby',
  '*.rb': 'Ruby',
  '*.rjs': 'Ruby',
+ '*.ru': 'Ruby',
  '*.rxml': 'Ruby',
  '*.sass': 'Sass',
  '*.scss': 'SCSS',
