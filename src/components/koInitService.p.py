@@ -211,8 +211,10 @@ def _copy(src, dst, overwriteExistingFiles=True, ignoreErrors=False,
                               % (repr(s), repr(d), str(why)))
                     
         elif not usingWildcards:
-            raise OSError("Source file %s does not exist" % repr(srcFile))
-
+            if ignoreErrors:
+                log.warn("Source file %r does not exist", srcFile)
+            else:
+                raise OSError("Source file %r does not exist" % srcFile)
 
 def _rmtreeOnError(rmFunction, filePath, excInfo):
     if excInfo[0] == OSError:
