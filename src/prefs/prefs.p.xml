@@ -403,6 +403,7 @@
  '*.mm': 'C++',
  '*.module': 'PHP',
  '*.mp': 'Metapost',
+ '*.mustache': 'Mustache',
  '*.mysql': 'MySQL',
  '*.nim': 'Nimrod',
  '*.nsi': 'Nsis',
