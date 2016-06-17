@@ -26,30 +26,40 @@ end_style SSL_VARIABLE
 keyword_style SSL_IDENTIFIER => SSL_WORD
 keywords [
         # Keywords
-        "include",
-        "@render",
-        "@for",
-        "@endfor",
-        "@foreach",
-        "@endforeach",
-        "@while",
-        "@endwhile",
-        "@if",
-        "@endif",
+        "@break",
+        "@can",
+        "@continue",
+        "@each",
         "@else",
         "@elseif",
-        "@forelse",
         "@empty",
+        "@endcan",
+        "@endfor",
+        "@endforeach",
         "@endforelse",
-        "@unless",
-        "@endunless",
-        "@section",
-        "@yield",
-        "@yield_section",
+        "@endif",
+        "@endpush",
         "@endsection",
+        "@endunless",
+        "@endwhile",
+        "@extends",
+        "@for",
+        "@foreach",
+        "@forelse",
+        "@hasSection",
+        "@if",
+        "@include",
+        "@inject",
         "@layout",
-        "@parent"
-
+        "@parent",
+        "@push",
+        "@render",
+        "@section",
+        "@stack",
+        "@unless",
+        "@while",
+        "@yield",
+        "@yield_section"
         ]
 
 # Set the basic patterns we'll be using for styling transitions.
@@ -118,13 +128,13 @@ state IN_SSL_DEFAULT:
 
 ################ In Comments - determines how we exit a comment ################
 
-state IN_SSL_COMMENT_TO_EOL: 
+state IN_SSL_COMMENT_TO_EOL:
 /[\r\n]/ : paint(upto, SSL_COMMENT), => IN_SSL_DEFAULT  # back to default state
 
-state IN_SSL_COMMENT_C_BLOCK: 
+state IN_SSL_COMMENT_C_BLOCK:
 '*/' : paint(include, SSL_COMMENTBLOCK), => IN_SSL_DEFAULT  # back to default state
 
-state IN_SSL_COMMENT_PASCAL_BLOCK: 
+state IN_SSL_COMMENT_PASCAL_BLOCK:
 '*)' : paint(include, SSL_COMMENTBLOCK), => IN_SSL_DEFAULT  # back to default state
 
 ################ In Strings - determines how we exit a string ################
