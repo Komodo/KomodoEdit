@@ -580,7 +580,9 @@ editor_editorController.prototype.do_cmd_addNextWordToCaretSet = function() {
     var scimoz = view.scimoz;
     scimoz.targetWholeDocument();
     scimoz.searchFlags = scimoz.SCFIND_MATCHCASE;
-    if (scimoz.selectionEmpty || scimoz.isRangeWord(scimoz.selectionStart, scimoz.selectionEnd)) {
+    if (scimoz.selectionEmpty
+        || (scimoz.isRangeWord(scimoz.selectionStart, scimoz.selectionEnd)
+            && scimoz.selText.match(/^[\w_\128-\255]+$/))) {
         scimoz.searchFlags |= scimoz.SCFIND_WHOLEWORD;
     }
     scimoz.multipleSelectAddNext();
