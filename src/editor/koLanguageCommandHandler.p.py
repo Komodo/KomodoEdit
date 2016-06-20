@@ -1626,6 +1626,29 @@ class GenericCommandHandler:
         # pref and the action call for it
         self._wrap_indent_dedent(self._continue_cmd_dedent)
 
+    def _do_cmd_dedent_always(self):
+        """
+        Always dedent the current line or selected lines. Normally an in-line
+        selection (or no selection at all) prevents any indentation change.
+        """
+        sm = self._view.scimoz
+        if sm.lineFromPosition(sm.selectionStart) == sm.lineFromPosition(sm.selectionEnd):
+            sm.beginUndoAction()
+            try:
+                anchor, current_pos = sm.anchor, sm.currentPos
+                line = sm.lineFromPosition(current_pos)
+                line_end = sm.getLineEndPosition(line)
+                self._regionShift(-1)
+                dedent_width = line_end - sm.getLineEndPosition(line)
+                sm.anchor = anchor - dedent_width
+                sm.currentPos = current_pos - dedent_width
+                if dedent_width > 0 and self._view.prefs.getBooleanPref("repositionCaretAfterTab"):
+                    sm.chooseCaretX()
+            finally:
+                sm.endUndoAction()
+        else:
+            self._do_cmd_dedent()
+            
     def _wrap_indent_dedent(self, indent_func):
         view = self._view
         sm = view.scimoz
@@ -1781,6 +1804,28 @@ class GenericCommandHandler:
         # Do the indentation and then reset the x-caret if the
         # pref and the action call for it
         self._wrap_indent_dedent(self._continue_cmd_indent)
+        
+    def _do_cmd_indent_always(self):
+        """
+        Always indent the current line or selected lines. Normally an in-line
+        selection (or no selection at all) causes a '\t' to be inserted (or its
+        equivalent in spaces).
+        """
+        sm = self._view.scimoz
+        if sm.lineFromPosition(sm.selectionStart) == sm.lineFromPosition(sm.selectionEnd):
+            sm.beginUndoAction()
+            try:
+                anchor, current_pos = sm.anchor, sm.currentPos
+                line = sm.lineFromPosition(current_pos)
+                line_end = sm.getLineEndPosition(line)
+                self._regionShift(1)
+                indent_width = sm.getLineEndPosition(line) - line_end
+                sm.anchor = anchor + indent_width
+                sm.currentPos = current_pos + indent_width
+            finally:
+                sm.endUndoAction()
+        else:
+            self._do_cmd_indent()
             
     def _continue_cmd_indent(self, view, sm):
         """

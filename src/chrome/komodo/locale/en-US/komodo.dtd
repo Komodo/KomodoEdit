@@ -122,6 +122,7 @@
 <!ENTITY editorCutRegion.desc "Editor: Cut Region">
 <!ENTITY editorCutRestOfLine.desc "Editor: Cut rest of line">
 <!ENTITY editorDecreaseLineIndent.desc "Editor: Decrease Line Indentation">
+<!ENTITY editorDecreaseLineIndentAlways.desc "Editor: Decrease Line Indentation (Including Single Lines)">
 <!ENTITY editorDelete.desc "Editor: Delete">
 <!ENTITY editorDeleteLine.desc "Editor: Delete Line">
 <!ENTITY editorDeleteWordLeft.desc "Editor: Delete Word Left">
@@ -140,6 +141,7 @@
 <!ENTITY editorGoToPreviousLine.desc "Editor: Go to Previous Line">
 <!ENTITY editorGoToTopOfDocument.desc "Editor: Go to Top of Document">
 <!ENTITY editorIncreaseLineIndent.desc "Editor: Increase Line Indentation">
+<!ENTITY editorIncreaseLineIndentAlways.desc "Editor: Increase Line Indentation (Including Single Lines)">
 <!ENTITY editorInsertNewline.desc "Editor: Insert Newline">
 <!ENTITY editorInsertNewlineAlignWithCurrentLine.desc "Editor: Insert Newline (align with current line)">
 <!ENTITY editorInsertNewlineContinueComments.desc "Editor: Insert Newline (continue comments)">

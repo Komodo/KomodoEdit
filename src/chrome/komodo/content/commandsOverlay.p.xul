@@ -1251,6 +1251,11 @@
             disabled="true"
             desc="&editorIncreaseLineIndent.desc;"/>
         <command
+            id="cmd_indent_always" key="key_cmd_indent_always"
+            oncommand="ko.commands.doCommand('cmd_indent_always')"
+            disabled="true"
+            desc="&editorIncreaseLineIndentAlways.desc;"/>
+        <command
             id="cmd_tabstopClear" key="key_cmd_tabstopClear"
             oncommand="ko.commands.doCommand('cmd_tabstopClear')"
             disabled="true"
@@ -1260,6 +1265,11 @@
             oncommand="ko.commands.doCommand('cmd_dedent')"
             disabled="true"
             desc="&editorDecreaseLineIndent.desc;"/>
+        <command
+            id="cmd_dedent_always" key="key_cmd_dedent_always"
+            oncommand="ko.commands.doCommand('cmd_dedent_always')"
+            disabled="true"
+            desc="&editorDecreaseLineIndentAlways.desc;"/>
         <command
             id="cmd_tabify" key="key_cmd_tabify"
             oncommand="ko.commands.doCommand('cmd_tabify')"
