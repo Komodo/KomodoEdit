@@ -547,14 +547,86 @@ class koScintillaController:
     def _do_cmd_wordLeft(self):
         self.scimoz().wordLeft()
 
+    def _do_cmd_wordLeftSameLine(self):
+        sm = self.scimoz()
+        pos = sm.currentPos
+        prev_word_pos = sm.wordStartPosition(sm.currentPos, False)
+        if sm.lineFromPosition(pos) != sm.lineFromPosition(prev_word_pos):
+            sm.home()
+        else:
+            self._do_cmd_wordLeft()
+
+    def _do_cmd_selectWordLeftSameLine(self):
+        sm = self.scimoz()
+        pos = sm.currentPos
+        prev_word_pos = sm.wordStartPosition(sm.currentPos, False)
+        if sm.lineFromPosition(pos) != sm.lineFromPosition(prev_word_pos):
+            sm.homeExtend()
+        else:
+            sm.wordLeftExtend()
+
     def _do_cmd_wordRight(self):
         self.scimoz().wordRight()
+
+    def _do_cmd_wordRightSameLine(self):
+        sm = self.scimoz()
+        pos = sm.currentPos
+        prev_word_pos = sm.wordEndPosition(sm.currentPos, False)
+        if sm.lineFromPosition(pos) != sm.lineFromPosition(prev_word_pos):
+            sm.lineEnd()
+        else:
+            self._do_cmd_wordRight()
+
+    def _do_cmd_selectWordRightSameLine(self):
+        sm = self.scimoz()
+        pos = sm.currentPos
+        prev_word_pos = sm.wordEndPosition(sm.currentPos, False)
+        if sm.lineFromPosition(pos) != sm.lineFromPosition(prev_word_pos):
+            sm.lineEndExtend()
+        else:
+            sm.wordRightExtend()
         
     def _do_cmd_wordPartLeft(self):
         self.scimoz().wordPartLeft()
+
+    def _do_cmd_wordPartLeftSameLine(self):
+        sm = self.scimoz()
+        pos = sm.currentPos
+        prev_word_pos = sm.wordStartPosition(sm.currentPos, False)
+        if sm.lineFromPosition(pos) != sm.lineFromPosition(prev_word_pos):
+            sm.home()
+        else:
+            self._do_cmd_wordPartLeft()
+
+    def _do_cmd_wordPartLeftExtendSameLine(self):
+        sm = self.scimoz()
+        pos = sm.currentPos
+        prev_word_pos = sm.wordStartPosition(sm.currentPos, False)
+        if sm.lineFromPosition(pos) != sm.lineFromPosition(prev_word_pos):
+            sm.homeExtend()
+        else:
+            sm.wordPartLeftExtend()
         
     def _do_cmd_wordPartRight(self):
         self.scimoz().wordPartRight()
+
+    def _do_cmd_wordPartRightSameLine(self):
+        sm = self.scimoz()
+        pos = sm.currentPos
+        prev_word_pos = sm.wordEndPosition(sm.currentPos, False)
+        if sm.lineFromPosition(pos) != sm.lineFromPosition(prev_word_pos):
+            sm.lineEnd()
+        else:
+            self._do_cmd_wordPartRight()
+
+    def _do_cmd_wordPartRightExtendSameLine(self):
+        sm = self.scimoz()
+        pos = sm.currentPos
+        prev_word_pos = sm.wordEndPosition(sm.currentPos, False)
+        if sm.lineFromPosition(pos) != sm.lineFromPosition(prev_word_pos):
+            sm.lineEndExtend()
+        else:
+            sm.wordPartRightExtend()
 
     def _do_cmd_wordLeftEnd(self):
         self.scimoz().wordLeftEnd()

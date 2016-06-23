@@ -505,6 +505,10 @@
             oncommand="ko.commands.doCommand('cmd_wordLeft')"
             desc="&editorMoveOneWordLeft.desc;"/>
         <command
+            id="cmd_wordLeftSameLine" key="key_cmd_wordLeftSameLine"
+            oncommand="ko.commands.doCommand('cmd_wordLeftSameLine')"
+            desc="&editorMoveOneWordLeftSameLine.desc;"/>
+        <command
             id="cmd_wordLeftEnd" key="key_cmd_wordLeftEnd"
             oncommand="ko.commands.doCommand('cmd_wordLeftEnd')"
             desc="&editorMoveToEndOfWordToLeft.desc;"/>
@@ -513,29 +517,57 @@
             oncommand="ko.commands.doCommand('cmd_wordRight')"
             desc="&editorMoveOneWordRight.desc;"/>
         <command
+            id="cmd_wordRightSameLine" key="key_cmd_wordRightSameLine"
+            oncommand="ko.commands.doCommand('cmd_wordRightSameLine')"
+            desc="&editorMoveOneWordRightSameLine.desc;"/>
+        <command
             id="cmd_selectWordLeft" key="key_cmd_selectWordLeft"
             oncommand="ko.commands.doCommand('cmd_selectWordLeft')"
             desc="&editorSelectPreviousWord.desc;"/>
+        <command
+            id="cmd_selectWordLeftSameLine" key="key_cmd_selectWordLeftSameLine"
+            oncommand="ko.commands.doCommand('cmd_selectWordLeftSameLine')"
+            desc="&editorSelectPreviousWordSameLine.desc;"/>
         <command
             id="cmd_selectWordRight" key="key_cmd_selectWordRight"
             oncommand="ko.commands.doCommand('cmd_selectWordRight')"
             desc="&editorSelectNextWord.desc;"/>
         <command
+            id="cmd_selectWordRightSameLine" key="key_cmd_selectWordRightSameLine"
+            oncommand="ko.commands.doCommand('cmd_selectWordRightSameLine')"
+            desc="&editorSelectNextWordSameLine.desc;"/>
+        <command
             id="cmd_wordPartLeft" key="key_cmd_wordPartLeft"
             oncommand="ko.commands.doCommand('cmd_wordPartLeft')"
             desc="&editorMoveBackPartOfWord.desc;"/>
+        <command
+            id="cmd_wordPartLeftSameLine" key="key_cmd_wordPartLeftSameLine"
+            oncommand="ko.commands.doCommand('cmd_wordPartLeftSameLine')"
+            desc="&editorMoveBackPartOfWordSameLine.desc;"/>
         <command
             id="cmd_wordPartRight" key="key_cmd_wordPartRight"
             oncommand="ko.commands.doCommand('cmd_wordPartRight')"
             desc="&editorMoveForwardPartOfWord.desc;"/>
         <command
+            id="cmd_wordPartRightSameLine" key="key_cmd_wordPartRightSameLine"
+            oncommand="ko.commands.doCommand('cmd_wordPartRightSameLine')"
+            desc="&editorMoveForwardPartOfWordSameLine.desc;"/>
+        <command
             id="cmd_wordPartLeftExtend" key="key_cmd_wordPartLeftExtend"
             oncommand="ko.commands.doCommand('cmd_wordPartLeftExtend')"
             desc="&editorSelectPreviousPartOfWord.desc;"/>
         <command
+            id="cmd_wordPartLeftExtendSameLine" key="key_cmd_wordPartLeftExtendSameLine"
+            oncommand="ko.commands.doCommand('cmd_wordPartLeftExtendSameLine')"
+            desc="&editorSelectPreviousPartOfWordSameLine.desc;"/>
+        <command
             id="cmd_wordPartRightExtend" key="key_cmd_wordPartRightExtend"
             oncommand="ko.commands.doCommand('cmd_wordPartRightExtend')"
             desc="&editorSelectNextPartOfWord.desc;"/>
+        <command
+            id="cmd_wordPartRightExtendSameLine" key="key_cmd_wordPartRightExtendSameLine"
+            oncommand="ko.commands.doCommand('cmd_wordPartRightExtendSameLine')"
+            desc="&editorSelectNextPartOfWordSameLine.desc;"/>
         <command
             id="cmd_selectWordUnderCursor" key="key_cmd_selectWordUnderCursor"
             oncommand="ko.commands.doCommand('cmd_selectWordUnderCursor')"
