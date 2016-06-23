@@ -85,7 +85,8 @@ function OnPreferencePageOK(prefset) {
  */
 var _mappedNames = {
     "HTML5": "HTML",
-    "Node.js": "JavaScript"
+    "Node.js": "JavaScript",
+    "AngularJS": "HTML"
 };
 function getMappedName(languageName) {
     return (languageName in _mappedNames

@@ -1033,6 +1033,13 @@ class KoHTML5TidyLinter(CommonTidyLinter):
     def filterLines(self, lines):
         return [line for line in lines if "is not approved by W3C" not in line]
 
+class KoAngularJSLinter(KoHTML5TidyLinter):
+    _reg_desc_ = "Komodo AngularJS Linter"
+    _reg_clsid_ = "{fa879100-f590-491a-9767-85a478421c4e}"
+    _reg_contractid_ = "@activestate.com/koAngularJSLinter;1"
+    _reg_categories_ = [
+         ("category-komodo-linter", 'AngularJS'),
+         ]
 
 class _invokePerlLinter(object):
     _com_interfaces_ = [components.interfaces.koILinter]
