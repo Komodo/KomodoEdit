@@ -152,15 +152,15 @@
 <!ENTITY editorJoinCurrentAndNextLines.desc "Editor: Join current and next lines">
 <!ENTITY editorLaunchColorPicker.desc "Editor: Launch the Color Picker">
 <!ENTITY editorMoveBackPartOfWord.desc "Editor: Move Back Part of Word">
-<!ENTITY editorMoveBackPartOfWordSameLine.desc "Editor: Move Back Part of Word (Stay on Line)">
+<!ENTITY editorMoveBackPartOfWordSameLine.desc "Editor: Move Back Part of Word (Prefer Current Line)">
 <!ENTITY editorMoveForwardPartOfWord.desc "Editor: Move Forward Part of Word">
-<!ENTITY editorMoveForwardPartOfWordSameLine.desc "Editor: Move Forward Part of Word (Stay on Line)">
+<!ENTITY editorMoveForwardPartOfWordSameLine.desc "Editor: Move Forward Part of Word (Prefer Current Line)">
 <!ENTITY editorMoveLeftOneCharacter.desc "Editor: Move Left One Character">
 <!ENTITY editorMoveOneCharacterRight.desc "Editor: Move One Character Right">
 <!ENTITY editorMoveOneWordLeft.desc "Editor: Move One Word Left">
-<!ENTITY editorMoveOneWordLeftSameLine.desc "Editor: Move One Word Left (Stay on Line)">
+<!ENTITY editorMoveOneWordLeftSameLine.desc "Editor: Move One Word Left (Prefer Current Line)">
 <!ENTITY editorMoveOneWordRight.desc "Editor: Move One Word Right">
-<!ENTITY editorMoveOneWordRightSameLine.desc "Editor: Move One Word Right (Stay on Line)">
+<!ENTITY editorMoveOneWordRightSameLine.desc "Editor: Move One Word Right (Prefer Current Line)">
 <!ENTITY editorMoveToEndOfWordToLeft.desc "Editor: Move To End Of Word To Left">
 <!ENTITY editorMoveToPreviousMarkInMarkRing.desc "Editor: Move to previous mark in mark ring">
 <!ENTITY editorPageDown.desc "Editor: Page Down">
@@ -185,16 +185,16 @@
 <!ENTITY editorSelectAllDeprecatedBinding.desc "Editor: Select All (Deprecated Binding)">
 <!ENTITY editorSelectNextCharacter.desc "Editor: Select Next Character">
 <!ENTITY editorSelectNextPartOfWord.desc "Editor: Select Next Part of Word">
-<!ENTITY editorSelectNextPartOfWordSameLine.desc "Editor: Select Next Part of Word (Stay on Line)">
+<!ENTITY editorSelectNextPartOfWordSameLine.desc "Editor: Select Next Part of Word (Prefer Current Line)">
 <!ENTITY editorSelectNextWord.desc "Editor: Select Next Word">
-<!ENTITY editorSelectNextWordSameLine.desc "Editor: Select Next Word (Stay on Line)">
+<!ENTITY editorSelectNextWordSameLine.desc "Editor: Select Next Word (Prefer Current Line)">
 <!ENTITY editorSelectPageDown.desc "Editor: Select Page Down">
 <!ENTITY editorSelectPageUp.desc "Editor: Select Page Up">
 <!ENTITY editorSelectPreviousCharacter.desc "Editor: Select Previous Character">
 <!ENTITY editorSelectPreviousPartOfWord.desc "Editor: Select Previous Part of Word">
-<!ENTITY editorSelectPreviousPartOfWordSameLine.desc "Editor: Select Previous Part of Word (Stay on Line)">
+<!ENTITY editorSelectPreviousPartOfWordSameLine.desc "Editor: Select Previous Part of Word (Prefer Current Line)">
 <!ENTITY editorSelectPreviousWord.desc "Editor: Select Previous Word">
-<!ENTITY editorSelectPreviousWordSameLine.desc "Editor: Select Previous Word (Stay on Line)">
+<!ENTITY editorSelectPreviousWordSameLine.desc "Editor: Select Previous Word (Prefer Current Line)">
 <!ENTITY editorSelectRectangularNextCharacter.desc "Editor: Select Rectangular Next Character">
 <!ENTITY editorSelectRectangularPageDown.desc "Editor: Select Rectangular Page Down">
 <!ENTITY editorSelectRectangularPageUp.desc "Editor: Select Rectangular Page Up">

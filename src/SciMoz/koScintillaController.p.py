@@ -550,20 +550,20 @@ class koScintillaController:
     def _do_cmd_wordLeftSameLine(self):
         sm = self.scimoz()
         pos = sm.currentPos
-        prev_word_pos = sm.wordStartPosition(sm.currentPos, False)
-        if sm.lineFromPosition(pos) != sm.lineFromPosition(prev_word_pos):
+        line = sm.lineFromPosition(pos)
+        self._do_cmd_wordLeft()
+        if line != sm.lineFromPosition(sm.currentPos) and pos != sm.positionFromLine(line):
+            self._do_cmd_wordRight()
             sm.home()
-        else:
-            self._do_cmd_wordLeft()
 
     def _do_cmd_selectWordLeftSameLine(self):
         sm = self.scimoz()
         pos = sm.currentPos
-        prev_word_pos = sm.wordStartPosition(sm.currentPos, False)
-        if sm.lineFromPosition(pos) != sm.lineFromPosition(prev_word_pos):
+        line = sm.lineFromPosition(pos)
+        sm.wordLeftExtend()
+        if line != sm.lineFromPosition(sm.currentPos) and pos != sm.positionFromLine(line):
+            sm.wordRightExtend()
             sm.homeExtend()
-        else:
-            sm.wordLeftExtend()
 
     def _do_cmd_wordRight(self):
         self.scimoz().wordRight()
@@ -571,20 +571,20 @@ class koScintillaController:
     def _do_cmd_wordRightSameLine(self):
         sm = self.scimoz()
         pos = sm.currentPos
-        prev_word_pos = sm.wordEndPosition(sm.currentPos, False)
-        if sm.lineFromPosition(pos) != sm.lineFromPosition(prev_word_pos):
+        line = sm.lineFromPosition(pos)
+        self._do_cmd_wordRight()
+        if line != sm.lineFromPosition(sm.currentPos) and pos != sm.getLineEndPosition(line):
+            self._do_cmd_wordLeft()
             sm.lineEnd()
-        else:
-            self._do_cmd_wordRight()
 
     def _do_cmd_selectWordRightSameLine(self):
         sm = self.scimoz()
         pos = sm.currentPos
-        prev_word_pos = sm.wordEndPosition(sm.currentPos, False)
-        if sm.lineFromPosition(pos) != sm.lineFromPosition(prev_word_pos):
+        line = sm.lineFromPosition(pos)
+        sm.wordRightExtend()
+        if line != sm.lineFromPosition(sm.currentPos) and pos != sm.getLineEndPosition(line):
+            sm.wordLeftExtend()
             sm.lineEndExtend()
-        else:
-            sm.wordRightExtend()
         
     def _do_cmd_wordPartLeft(self):
         self.scimoz().wordPartLeft()
@@ -592,20 +592,20 @@ class koScintillaController:
     def _do_cmd_wordPartLeftSameLine(self):
         sm = self.scimoz()
         pos = sm.currentPos
-        prev_word_pos = sm.wordStartPosition(sm.currentPos, False)
-        if sm.lineFromPosition(pos) != sm.lineFromPosition(prev_word_pos):
+        line = sm.lineFromPosition(pos)
+        self._do_cmd_wordPartLeft()
+        if line != sm.lineFromPosition(sm.currentPos) and pos != sm.positionFromLine(line):
+            self._do_cmd_wordPartRight()
             sm.home()
-        else:
-            self._do_cmd_wordPartLeft()
 
     def _do_cmd_wordPartLeftExtendSameLine(self):
         sm = self.scimoz()
         pos = sm.currentPos
-        prev_word_pos = sm.wordStartPosition(sm.currentPos, False)
-        if sm.lineFromPosition(pos) != sm.lineFromPosition(prev_word_pos):
+        line = sm.lineFromPosition(pos)
+        sm.wordPartLeftExtend()
+        if line != sm.lineFromPosition(sm.currentPos) and pos != sm.positionFromLine(line):
+            sm.wordPartRightExtend()
             sm.homeExtend()
-        else:
-            sm.wordPartLeftExtend()
         
     def _do_cmd_wordPartRight(self):
         self.scimoz().wordPartRight()
@@ -613,20 +613,20 @@ class koScintillaController:
     def _do_cmd_wordPartRightSameLine(self):
         sm = self.scimoz()
         pos = sm.currentPos
-        prev_word_pos = sm.wordEndPosition(sm.currentPos, False)
-        if sm.lineFromPosition(pos) != sm.lineFromPosition(prev_word_pos):
+        line = sm.lineFromPosition(pos)
+        self._do_cmd_wordPartRight()
+        if line != sm.lineFromPosition(sm.currentPos) and pos != sm.getLineEndPosition(line):
+            self._do_cmd_wordPartLeft()
             sm.lineEnd()
-        else:
-            self._do_cmd_wordPartRight()
 
     def _do_cmd_wordPartRightExtendSameLine(self):
         sm = self.scimoz()
         pos = sm.currentPos
-        prev_word_pos = sm.wordEndPosition(sm.currentPos, False)
-        if sm.lineFromPosition(pos) != sm.lineFromPosition(prev_word_pos):
+        line = sm.lineFromPosition(pos)
+        sm.wordPartRightExtend()
+        if line != sm.lineFromPosition(sm.currentPos) and pos != sm.getLineEndPosition(line):
+            sm.wordPartLeftExtend()
             sm.lineEndExtend()
-        else:
-            sm.wordPartRightExtend()
 
     def _do_cmd_wordLeftEnd(self):
         self.scimoz().wordLeftEnd()
