@@ -660,25 +660,22 @@ class _CommonHTMLLinter(object):
                 startPtn, insertion = startCheck[langName]
                 if not startPtn.match(textSubset):
                     textSubset = insertion + textSubset
-            if langName.startswith("HTML"):
+            if langName.startswith("HTML") and not textSubset.startswith('<?xml '):
                 # Is there an explicit doctype?
-                if textSubset.startswith('<?xml '):
-                    langName = "HTML"
-                else:
-                    m = _doctype_re.match(textSubset)
-                    if m:
-                        if not m.group(1):
-                            langName = "HTML5"
-                        else:
-                            langName = "HTML"
-                    elif langName == "HTML" and self.lang == "HTML5":
-                        # Use the correct aggregator class.
+                m = _doctype_re.match(textSubset)
+                if m:
+                    if not m.group(1):
                         langName = "HTML5"
-                    elif koDoc_language not in ("HTML", "HTML5"):
-                        # For HTML markup langs and templating langs, use the
-                        # default HTML decl to see if they want HTML5 - bug 88884.
-                        if "HTML 5" in request.prefset.getStringPref("defaultHTMLDecl"):
-                            langName = "HTML5"
+                    else:
+                        langName = "HTML"
+                elif langName == "HTML" and self.lang == "HTML5":
+                    # Use the correct aggregator class.
+                    langName = "HTML5"
+                elif koDoc_language not in ("HTML", "HTML5"):
+                    # For HTML markup langs and templating langs, use the
+                    # default HTML decl to see if they want HTML5 - bug 88884.
+                    if "HTML 5" in request.prefset.getStringPref("defaultHTMLDecl"):
+                        langName = "HTML5"
             linter = self._linterByName(langName, lintersByName)
             if linter:
                 try:
