@@ -1341,9 +1341,9 @@ static void ColouriseRbDoc(unsigned int startPos, int length, int initStyle,
                            || isSafeDigit(chNext))) {
                 advance_char(i, ch, chNext, chNext2); // pass by ref
                 // Can't end a number with a bare 'E', so do more checking.
-            } else if (isSafeAlnumOrHigh(ch) || ch == '_') {
+            } else if ((isSafeAlnumOrHigh(ch) || ch == '_') && numDots == 0) {
                 // Keep going
-            } else if (ch == '.' && ++numDots == 1) {
+            } else if (ch == '.' && ++numDots == 1 && chNext != '.') {
                 // Keep going
             } else {
                 styler.ColourTo(i - 1, state);
