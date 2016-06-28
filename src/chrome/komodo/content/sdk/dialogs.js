@@ -57,7 +57,7 @@
                      "validator", "multiline", "screenX", "screenY",
                      "tacType", "tacParam", "tacShowCommentColumn",
                      "selectionStart", "selectionEnd", "classNames",
-                     "hidechrome"];
+                     "hidechrome","pin"];
 
         _.each(props, (prop) => { _opts[prop] = opts[prop] || null });
         _opts.prompt = message;
@@ -118,7 +118,7 @@
     {
         var _opts = {};
         var props = ["response", "text", "title", "doNotAskPref", "helpTopic",
-                     "yes", "no", "classNames","hidechrome"];
+                     "yes", "no", "classNames","hidechrome", "pin"];
         _.each(props, (prop) => { _opts[prop] = opts[prop] || null });
         _opts.prompt = message;
 

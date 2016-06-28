@@ -146,6 +146,31 @@
         }
         
         return windows;
-    }
+    };
+    
+    /**
+     * Pin window ontop of other windows including non Komodo windows.
+     *
+     * @param   {Window}    _window     The window to pin.
+     */
+    this.pin = (_window) =>
+    {
+        function getXULWindowForDOMWindow(win)
+            win.QueryInterface(Ci.nsIInterfaceRequestor)
+               .getInterface(Ci.nsIWebNavigation)
+               .QueryInterface(Ci.nsIDocShellTreeItem)
+               .treeOwner
+               .QueryInterface(Ci.nsIInterfaceRequestor)
+               .getInterface(Ci.nsIXULWindow)
+
+        let rootWin = getXULWindowForDOMWindow(_window);
+        let opener = _window.opener;
+        let parentWin = ((opener && !opener.closed) ?
+                         getXULWindowForDOMWindow(opener)
+                         : null);
+        Cc["@activestate.com/koIWindowManagerUtils;1"]
+          .getService(Ci.koIWindowManagerUtils)
+          .setOnTop(rootWin, parentWin, true);
+    };
     
 }).apply(module.exports);
