@@ -88,7 +88,6 @@ command_map = {
     'cmd_lineScrollDown' : 'lineScrollDown',
     'cmd_lineCut' : 'lineCut',
     'cmd_lineDelete' : 'lineDelete',
-    'cmd_lineDuplicateDown' : 'selectionDuplicate', # Falls back on line if no selection
 #    'cmd_lineTranspose' : 'lineTranspose',  # commented out because its undo behavior is wrong.
     'cmd_fontZoomIn' : 'zoomIn',
     'cmd_fontZoomOut' : 'zoomOut',
@@ -762,39 +761,28 @@ class koScintillaController:
         if sm.selections > 1:
             return # do not duplicate multiple or rectangular selections
 
-        startPos = sm.selectionStart
-        endPos = sm.selectionEnd
-        startLine = sm.lineFromPosition(startPos)
-        if startPos == endPos:
-            endLine = startLine + 1
-        else:
-            endLine = sm.lineFromPosition(endPos)
-            if startLine == endLine:
-                # Duplicate the in-line selection left.
-                sm.selectionDuplicate()
-                return
-            elif sm.getColumn(endPos) != 0:
-                endLine = endLine + 1
-
-        cutStart = sm.positionFromLine(startLine)
-        cutStop = sm.positionFromLine(endLine)
-
         sm.beginUndoAction()
-
         try:
-            sm.setSel(cutStart, cutStop)
-            orig = sm.selText
-
-            pasteStart = sm.positionFromLine(endLine)
-            sm.setSel(pasteStart, pasteStart)
-            if endLine >= sm.lineCount:
-                # Prepend a newline to the text to duplicate since there is no
-                # line below.
-                eol = eollib.eol2eolStr[eollib.scimozEOL2eol[sm.eOLMode]]
-                orig = eol + orig
-            sm.replaceSel(orig)
-
-            sm.setSel(startPos, endPos)
+            sm.selectionDuplicate()
+            if not sm.selectionEmpty:
+                if sm.lineFromPosition(sm.selectionStart) == sm.lineFromPosition(sm.selectionEnd):
+                    # Duplicated an in-line selection to the right. Move it up
+                    # onto its own line.
+                    text = sm.selText
+                    sm.deleteBack()
+                    sm.home()
+                    sm.addText(len(text), text)
+                    sm.newLine()
+                    sm.lineUp()
+                    sm.home()
+                    sm.lineEndExtend()
+                elif sm.getColumn(sm.selectionEnd) != 0:
+                    # Duplicated a multi-line selection to the right, but the
+                    # first line is not on a new line. Put it on one.
+                    start, end = sm.selectionStart, sm.selectionEnd
+                    sm.gotoPos(end)
+                    sm.newLine()
+                    sm.setSel(start, end)
         finally:
             sm.endUndoAction()
 
@@ -806,43 +794,31 @@ class koScintillaController:
         if sm.selections > 1:
             return # do not duplicate multiple or rectangular selections
 
-        startPos = sm.selectionStart
-        endPos = sm.selectionEnd
-        startLine = sm.lineFromPosition(startPos)
-        if startPos == endPos:
-            endLine = startLine + 1
-        else:
-            endLine = sm.lineFromPosition(endPos)
-            if startLine == endLine:
-                # Duplicate the in-line selection right.
-                sm.selectionDuplicate()
-                selLen = endPos - startPos
-                sm.setSel(sm.anchor + selLen, sm.currentPos + selLen)
-                return
-            elif sm.getColumn(endPos) != 0:
-                endLine = endLine + 1
-
-        cutStart = sm.positionFromLine(startLine)
-        cutStop = sm.positionFromLine(endLine)
-
         sm.beginUndoAction()
-
         try:
-            sm.setSel(cutStart, cutStop)
-            orig = sm.selText
-
-            pasteStart = sm.positionFromLine(endLine)
-            sm.setSel(pasteStart, pasteStart)
-            if endLine >= sm.lineCount:
-                # Prepend a newline to the text to duplicate since there is no
-                # line below.
-                eol = eollib.eol2eolStr[eollib.scimozEOL2eol[sm.eOLMode]]
-                orig = eol + orig
-                pasteStart += len(eol) # adjust for correct selection bounds
-            sm.replaceSel(orig)
-
-            offset = pasteStart - cutStart
-            sm.setSel(startPos + offset, endPos + offset)
+            sm.selectionDuplicate()
+            if not sm.selectionEmpty:
+                if sm.lineFromPosition(sm.selectionStart) == sm.lineFromPosition(sm.selectionEnd):
+                    # Duplicated an in-line selection to the right. Move it
+                    # down onto its own line.
+                    text = sm.selText
+                    sm.deleteBack()
+                    sm.lineEnd()
+                    sm.newLine()
+                    sm.addText(len(text), text)
+                    sm.home()
+                    sm.lineEndExtend()
+                elif sm.getColumn(sm.selectionEnd) != 0:
+                    # Duplicated a multi-line selection to the right, but the
+                    # first line is not on a new line. Put it on one.
+                    start, end = sm.selectionStart, sm.selectionEnd
+                    length = end - start
+                    sm.gotoPos(sm.selectionEnd)
+                    sm.newLine()
+                    offset = sm.currentPos - end # newline length
+                    sm.setSel(start + length + offset, end + length + offset)
+            else:
+                sm.lineDown() # move to duplicated line
         finally:
             sm.endUndoAction()
 
