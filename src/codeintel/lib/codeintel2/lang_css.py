@@ -1525,6 +1525,12 @@ class CSSCile:
             return # not looking for selectors right now
         
         if len(self.selector) > 0 or not re.match(self.whitespace, text):
+            if text[0] == ' ' and len(self.selector) > 0 and \
+               self.selector[-1] == ':':
+                # Less and SCSS allow for nested selectors. "foo:bar" should be
+                # considered a selector, while "foo: bar" should not be.
+                self.ignoreStatement = True
+                return
             self.selector.append(text)
             if not self.selectorStartLine:
                 self.selectorStartLine = start_line
