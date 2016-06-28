@@ -1105,7 +1105,7 @@ class PHPTreeEvaluator(TreeEvaluator):
                     self.log("_hits_from_namespace:: found sub-namespace locally, now find %r",
                              last_token)
                     try:
-                        hit_scoperef = [global_scoperef[0], (partial_fqn, )]
+                        hit_scoperef = (global_scoperef[0], [partial_fqn])
                         hits.append((elem.names[last_token], hit_scoperef))
                     except KeyError:
                         # Fall through to other possible library matches (bug 85643).

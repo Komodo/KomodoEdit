@@ -3242,7 +3242,6 @@ EOD;
     @tag("bug752")
     def test_multiple_var_annotations(self):
         content, positions = unmark_text(dedent(php_markup("""\
-            <?php
             class MySuperObject {
                 public function foo() {
                     echo 1;
@@ -4870,6 +4869,40 @@ class DefnTestCase(CodeIntelTestCase):
         """)))
         self.assertCompletionsAre(markup_text(content, pos=positions[1]),
             [("function", "string")])
+        
+    @tag("bug 1638")
+    def test_inherited_calltip(self):
+        content, positions = unmark_text(php_markup(dedent("""\
+            <?php
+
+            namespace Test\Core\Controller;
+            class CoreController  {
+                /**
+                 * @var \Test\Core\Controller\CoreApi
+                 * @inject
+                 */
+                public $api;
+            }
+
+            class CoreApi {
+                /**
+                 * Method Description...
+                 */
+                public function myMethod($param1) {
+
+                }
+            }
+            
+            $test1 = \Test\Core\Controller\CoreApi();
+            $test1->myMethod(<1>);
+
+            $test2 = \Test\Core\Controller\CoreController();
+            $test2->api->myMethod(<2>);
+        """)))
+        self.assertCalltipIs(markup_text(content, pos=positions[1]),
+                             "myMethod($param1)\n\nMethod Description...")
+        self.assertCalltipIs(markup_text(content, pos=positions[2]),
+                             "myMethod($param1)\n\nMethod Description...")
 
 class EscapingTestCase(CodeIntelTestCase):
     lang = "PHP"
