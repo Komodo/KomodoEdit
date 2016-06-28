@@ -1263,6 +1263,16 @@
             disabled="true"
             oncommand="ko.commands.doCommand('cmd_lineTransposeDown')"
             desc="&editorTransposeLineDown.desc;"/>
+        <command
+            id="cmd_inlineSelectionDuplicateLeft" key="key_cmd_inlineSelectionDuplicateLeft"
+            disabled="true"
+            oncommand="ko.commands.doCommand('cmd_inlineSelectionDuplicateLeft')"
+            desc="&editorDuplicateSelectionLeft.desc;"/>
+        <command
+            id="cmd_inlineSelectionDuplicateRight" key="key_cmd_inlineSelectionDuplicateRight"
+            disabled="true"
+            oncommand="ko.commands.doCommand('cmd_inlineSelectionDuplicateRight')"
+            desc="&editorDuplicateSelectionRight.desc;"/>
 
         <!-- The remaining ones are only available when a scintilla-style
              editor has focus: optimization possible -->

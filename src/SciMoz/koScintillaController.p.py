@@ -874,6 +874,23 @@ class koScintillaController:
         finally:
             sm.endUndoAction()
         
+    def _do_cmd_inlineSelectionDuplicateLeft(self):
+        sm = self.scimoz()
+        if sm.selections > 1 or sm.selectionEmpty or \
+           sm.lineFromPosition(sm.selectionStart) != sm.lineFromPosition(sm.selectionEnd):
+            return # only duplicate single-line selections
+        sm.selectionDuplicate()
+        
+    def _do_cmd_inlineSelectionDuplicateRight(self):
+        sm = self.scimoz()
+        if sm.selections > 1 or sm.selectionEmpty or \
+           sm.lineFromPosition(sm.selectionStart) != sm.lineFromPosition(sm.selectionEnd):
+            return # only duplicate single-line selections
+        anchor, pos = sm.anchor, sm.currentPos
+        length = sm.selectionEnd - sm.selectionStart
+        sm.selectionDuplicate()
+        sm.setSel(anchor + length, pos + length)
+        
     # Used by vim binding B
     def _do_cmd_wordLeftPastPunctuation(self):
         sm = self.scimoz()

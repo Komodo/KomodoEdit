@@ -129,6 +129,8 @@
 <!ENTITY editorDeleteWordRight.desc "Editor: Delete Word Right">
 <!ENTITY editorDuplicateLineUp.desc "Editor: Duplicate Line/Selection Up">
 <!ENTITY editorDuplicateLineDown.desc "Editor: Duplicate Line/Selection Down">
+<!ENTITY editorDuplicateSelectionLeft.desc "Editor: Duplicate In-line Selection Left">
+<!ENTITY editorDuplicateSelectionRight.desc "Editor: Duplicate In-line Selection Right">
 <!ENTITY editorEndOfLine.desc "Editor: End of Line">
 <!ENTITY editorExchangeCurrentPointAndMark.desc "Editor: Exchange Current Point and Mark">
 <!ENTITY editorGoToBeginningOfWord.desc "Editor: Go to Beginning of word">
