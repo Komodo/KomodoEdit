@@ -1545,6 +1545,11 @@
             oncommand="ko.commands.doCommandAsync('cmd_addNextWordToCaretSet', event)"
             disabled="true"
             desc="&addNextWordToCaretSet.desc;"/>
+        <command
+            id="cmd_addNextSubstringToCaretSet" key="key_cmd_addNextSubstringToCaretSet"
+            oncommand="ko.commands.doCommandAsync('cmd_addNextSubstringToCaretSet', event)"
+            disabled="true"
+            desc="&addNextSubstringToCaretSet.desc;"/>
     </commandset>
 
     <!-- Commands that are enabled when the editor has focus and

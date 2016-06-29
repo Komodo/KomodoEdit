@@ -589,6 +589,22 @@ editor_editorController.prototype.do_cmd_addNextWordToCaretSet = function() {
     scimoz.sendUpdateCommands("select");
 };
 
+editor_editorController.prototype.is_cmd_addNextSubstringToCaretSet_enabled = function() {
+    return !!is_cmd_addAdditionalCaret_enabled_aux();
+}
+  
+editor_editorController.prototype.do_cmd_addNextSubstringToCaretSet = function() {
+    var view = is_cmd_addAdditionalCaret_enabled_aux();
+    if (!view) {
+        return;
+    }
+    var scimoz = view.scimoz;
+    scimoz.targetWholeDocument();
+    scimoz.searchFlags = scimoz.SCFIND_MATCHCASE;
+    scimoz.multipleSelectAddNext();
+    scimoz.sendUpdateCommands("select");
+};
+
 var is_cmd_removeAdditionalCaret_enabled_aux = function() {
     var view = _getCurrentScimozView();
     if (!view) {
