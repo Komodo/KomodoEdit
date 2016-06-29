@@ -147,8 +147,8 @@
 <!ENTITY search.tooltiptext "Search icons by name">
 
 <!--internalError.xul-->
-<!ENTITY pleaseReport.label "You can help make Komodo better by reporting this to:">
-<!ENTITY or.label "or">
+<!ENTITY pleaseReport.label "Help make Komodo better by reporting this to the developers:">
+<!ENTITY pleaseReport.button "Report Bug">
 <!ENTITY pleaseInclude.label "Please be sure to include the following text. Thank you.">
 
 <!--pickPreview.xul-->

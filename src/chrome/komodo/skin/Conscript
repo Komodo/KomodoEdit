@@ -74,3 +74,4 @@ $cons->InstallInChrome('dialogs/customizeToolbar.css');
 $cons->InstallInChrome('dialogs/find2.less');
 
 $cons->InstallInChrome('dialogs/colorscheme.less');
+$cons->InstallInChrome('dialogs/internalError.css');

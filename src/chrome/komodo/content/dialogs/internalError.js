@@ -60,49 +60,44 @@ var log = ko.logging.getLogger("dialogs.internalError");
 
 function OnLoad()
 {
-    try {
-        var dialog = document.getElementById("dialog-internalerror");
-        var okButton = dialog.getButton("accept");
-        okButton.setAttribute("accesskey", "o");
+    var dialog = document.getElementById("dialog-internalerror");
+    var okButton = dialog.getButton("accept");
+    okButton.setAttribute("accesskey", "o");
 
-        var error, text;
-        if (typeof(window.arguments[0]) == "string") {
-            error = window.arguments[0];
-            text = window.arguments[1];
-        } else {
-            error = window.arguments[0].error;
-            text = window.arguments[0].text;
-        }
-
-        // error
-        var errorWidget = document.getElementById("error");
-        var textUtils = Components.classes["@activestate.com/koTextUtils;1"]
-                            .getService(Components.interfaces.koITextUtils);
-        error = textUtils.break_up_words(error, 50);
-        var textNode = document.createTextNode(error);
-        errorWidget.appendChild(textNode);
-
-        // text
-        var textWidget = document.getElementById("text");
-        var infoSvc = Components.classes["@activestate.com/koInfoService;1"].
-                      getService(Components.interfaces.koIInfoService);
-        var verInfo = "Komodo " + infoSvc.prettyProductType + ", version " +
-                      infoSvc.version + ", build " + infoSvc.buildNumber +
-                      ".\nBuilt on " + infoSvc.buildASCTime + ".";
-        textWidget.removeAttribute("collapsed");
-        textWidget.value = text + "\n\n" + verInfo;
-
-        window.sizeToContent();
-        if (!opener || opener.innerHeight == 0) { // indicator that opener hasn't loaded yet
-            dialog.centerWindowOnScreen();
-        } else {
-            dialog.moveToAlertPosition(); // requires a loaded opener
-        }
-        // Otherwise the textbox is given focus and it eats <Enter>.
-        okButton.focus();
-    } catch(ex) {
-        log.exception(ex, "Error loading 'Internal Error' dialog.");
+    var error, text;
+    if (typeof(window.arguments[0]) == "string") {
+        error = window.arguments[0];
+        text = window.arguments[1];
+    } else {
+        error = window.arguments[0].error;
+        text = window.arguments[0].text;
     }
+
+    // error
+    var errorWidget = document.getElementById("error");
+    var textUtils = Components.classes["@activestate.com/koTextUtils;1"]
+                        .getService(Components.interfaces.koITextUtils);
+    error = textUtils.break_up_words(error, 50);
+    var textNode = document.createTextNode(error);
+    errorWidget.appendChild(textNode);
+
+    // text
+    var textWidget = document.getElementById("text");
+    var infoSvc = Components.classes["@activestate.com/koInfoService;1"].
+                  getService(Components.interfaces.koIInfoService);
+    var verInfo = "Komodo " + infoSvc.prettyProductType + ", version " +
+                  infoSvc.version + ", build " + infoSvc.buildNumber +
+                  ".\nBuilt on " + infoSvc.buildASCTime + ".";
+    textWidget.value = text + "\n\n" + verInfo;
+
+    if (!opener || opener.innerHeight == 0) { // indicator that opener hasn't loaded yet
+        dialog.centerWindowOnScreen();
+    } else {
+        dialog.moveToAlertPosition(); // requires a loaded opener
+    }
+    // Otherwise the textbox is given focus and it eats <Enter>.
+    okButton.focus();
+    window.sizeToContent();
     window.getAttention();
 }
 

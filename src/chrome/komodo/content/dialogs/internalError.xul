@@ -42,18 +42,17 @@
 
 <?xml-stylesheet href="less://komodo/skin/global/global.less" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/buttons.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/dialogs/internalError.css" type="text/css"?>
 
 <dialog id="dialog-internalerror"
-        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        onload="OnLoad()"
-        orient="vertical"
-        style="min-width: 40em;"
-        title="&internalKomodoError.title;"
-        flex="1"
-        width="640"
-        persist="width"
-        buttons="accept"
-        buttonpack="center">
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+    onload="OnLoad()"
+    orient="vertical"
+    title="&internalKomodoError.title;"
+    flex="1"
+    persist="width"
+    buttons="accept"
+    buttonpack="center">
 
     <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/logging.js"       type="application/x-javascript;version=1.7"/>
@@ -61,32 +60,24 @@
     <script src="chrome://komodo/content/browse.js"                type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/dialogs/internalError.js" type="application/x-javascript;version=1.7"/>
 
-    <hbox flex="1">
-        <hbox align="start">
-            <image class="warning-icon spaced"/>
-        </hbox>
-        <separator orient="vertical" class="thin"/>
-        <vbox flex="1">
+    <vbox flex="1" align="left">
+        <hbox flex="1" align="left" pack="center">
+            <label class="warning-icon"/>
             <description id="error" flex="1"/>
+        </hbox>
+        <hbox flex="1" align="center" pack="center">
             <label value="&pleaseReport.label;"/>
-            <hbox align="center">
-                <separator style="width: 20px;"/>
-                <button label="&lt;https://github.com/Komodo/KomodoEdit&gt;"
-                        class="button-link"
-                        style="margin: -10px; color: #b82619;"
-                        oncommand="Browse('https://github.com/Komodo/KomodoEdit/issues/new');"/>
-                <label value="&or.label;"/>
-                <button label="&lt;komodo-feedback@ActiveState.com&gt;"
-                        class="button-link"
-                        style="margin: -10px; color: #b82619;"
-                        oncommand="Browse('mailto:komodo-feedback@ActiveState.com');"/>
-            </hbox>
+            <button label="&pleaseReport.button;"
+                class="button-link"
+                oncommand="Browse('https://github.com/Komodo/KomodoEdit/issues/new');"/>
+            <separator orient="vertical"/>
+        </hbox>
+        <vbox>
             <label value="&pleaseInclude.label;"/>
             <textbox id="text" multiline="true" flex="1"
-                     style="min-width: 40em; min-height: 8em;"
                      readonly="true"/>
         </vbox>
-    </hbox>
+    </vbox>
     <separator class="thin"/>
 
 </dialog>

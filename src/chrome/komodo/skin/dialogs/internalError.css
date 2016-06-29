@@ -1,0 +1,11 @@
+#dialog-internalerror
+{
+    max-width: 40em;
+    width: 640px;
+}
+
+#text
+{
+    min-width: 40em;
+    min-height: 8em;
+}
