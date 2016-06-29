@@ -154,8 +154,16 @@ ko.windowManager = {
     getMainWindow: function windowManager_getMainWindow() {
         var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                         .getService(Components.interfaces.nsIWindowMediator);
-        return wm.getMostRecentWindow('Komodo');
+        var mw = wm.getMostRecentWindow('Komodo');
+        
+        if (mw.require) // should pretty much always be true
+        {
+            return mw.require("ko/windows").getMain();
+        }
+        
+        return mw;
     },
+    
     /**
      * return true if this is the only Komodo window open
      *
