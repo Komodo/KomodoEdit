@@ -422,6 +422,13 @@ static void ColouriseTclDoc(unsigned int startPos_,
 		    colourString(i, SCE_TCL_OPERATOR, styler);
 		    if (!inEscape) {
 			if (ch == '{' || ch == '[') {
+			    if (testBitStateNotTopLevel(bitState, BITSTATE_IN_COMMAND)) {
+				// The idea is that in a line like
+				// "if {[cmd ... [...]]} ...",
+				// a nested '[' -^
+				// will not be considered the start of a cmd.
+				cmdStart = true;
+			    }
 			    if (ch == '{') {
 				if (levelMinPrev > levelCurrent) {
 				    levelMinPrev = levelCurrent;
@@ -431,7 +438,6 @@ static void ColouriseTclDoc(unsigned int startPos_,
 				pushBitState(bitState, BITSTATE_IN_COMMAND);
 			    }
 			    ++levelCurrent;
-			    cmdStart = true;
 			} else if (ch == ']' || ch == '}') {
 			    if ((levelCurrent & SC_FOLDLEVELNUMBERMASK) > SC_FOLDLEVELBASE) {
 				--levelCurrent;
