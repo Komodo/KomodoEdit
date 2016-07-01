@@ -178,6 +178,7 @@
   <string id="phpCommentStyle">//,#</string>
   <boolean id="phpDoubleClickSelectsEntireVariable">1</boolean>
   <boolean id="phpLintWithINIFile">1</boolean>
+  <long id="phpGetOutputAndErrorTimeout">5</long>
 
   <!-- Additional  directories for Python, Perl, etc. These are
        stored as pathsep-separated local paths. -->

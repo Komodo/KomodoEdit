@@ -842,7 +842,7 @@ class KoPHPInfoInstance(KoAppInfoEx):
                     log.error("Caught PHP execution exception: %s", e.strerror)
                 return None, e.strerror
             try:
-                p.wait(5)
+                p.wait(self._prefs.getLong("phpGetOutputAndErrorTimeout", 5))
             except process.ProcessError:
                 # Timed out.
                 log.error("PHP command timed out: %r", argv)
