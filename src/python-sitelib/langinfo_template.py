@@ -177,4 +177,9 @@ class GroovyServerPagesLangInfo(LangInfo):
 class MustacheLangInfo(LangInfo):
     name = "Mustache"
     conforms_to_bases = ["Text"]
-    exts = [".hbs", ".mustache"]
+    exts = [".mustache"]
+    
+class HandlebarsLangInfo(LangInfo):
+    name = "Handlebars"
+    conforms_to_bases = ["Text"]
+    exts = [".hbs"]

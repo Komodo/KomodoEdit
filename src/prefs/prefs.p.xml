@@ -362,7 +362,7 @@
  '*.gc': 'Gui4Cli',
  '*.gsp': 'HTML',
  '*.h': 'C++',
- '*.hbs': 'Mustache',
+ '*.hbs': 'Handlebars',
  '*.h++': 'C++',
  '*.hpp': 'C++',
  '*.hlsl': 'HLSL',

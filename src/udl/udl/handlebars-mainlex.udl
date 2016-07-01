@@ -1,0 +1,18 @@
+language Handlebars
+
+include "handlebars/html2handlebars.udl"
+include "html2css.udl"
+include "html2js.udl"
+
+include "handlebars/css2handlebars.udl"
+include "css2html.udl"
+
+include "handlebars/js2handlebars.udl"
+include "js2html.udl"
+
+include "handlebars/handlebars2html.udl"
+
+include "html.udl"
+include "csslex.udl"
+include "jslex.udl"
+include "handlebars/handlebarslex.udl"

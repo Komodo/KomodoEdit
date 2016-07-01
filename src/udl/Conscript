@@ -248,6 +248,12 @@ my @lexers = (
                codename => "angularjs_language",
                udl_path => "angularjs-mainlex.udl",
                skel => "skel/AngularJS",
+              },
+              {
+               language_name => "Handlebars",
+               codename => "handlebars_language",
+               udl_path => "handlebars-mainlex.udl",
+               skel => "skel/Handlebars",
               }
              );
 foreach my $info (@lexers) {

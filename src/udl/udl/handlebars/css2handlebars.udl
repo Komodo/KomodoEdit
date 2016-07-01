@@ -1,0 +1,5 @@
+family css
+
+state IN_CSS_DEFAULT:
+/\{\{\{?/ : paint(upto, CSS_DEFAULT), paint(include, TPL_OPERATOR), \
+            spush_check(IN_CSS_DEFAULT) => IN_TPL_DEFAULT
