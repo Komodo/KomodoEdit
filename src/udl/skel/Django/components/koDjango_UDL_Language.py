@@ -208,7 +208,16 @@ class KoDjangoLinter(object):
         env = koprocessutils.getUserEnv()
         settingsDir = env.get("DJANGO_SETTINGS_MODULE", None)
         if not settingsDir:
+            # Django wants to do something like "import project.settings", which
+            # means "project/settings.py" needs to exist. First, try to find it.
             settingsDir = self._getSettingsDir(cwd)
+            # Ultimately, Komodo's Django linter (djangoLinter.py) sets the
+            # DJANGO_SETTINGS_MODULE env variable to be the basename of
+            # "settingsDir", which needs to be a module in the PYTHONPATH (which
+            # the linter will append the dirname of "settingsDir" to). Append
+            # ".settings" so when Django tries to do something like
+            # "import project.settings", it will behave as expected.
+            settingsDir += ".settings"
         if settingsDir:
             # Save the current buffer to a temporary file.
             tmpFileName = tempfile.mktemp()

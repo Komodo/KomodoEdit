@@ -25,14 +25,19 @@ def loadTemplate(pathname):
         sys.stderr.write("TemplateSyntaxError: %s\n" % ex[0])
         return 1
     except Exception as ex:
-        sys.stdout.write("Unexpected error: %s\n" % ex[0])
+        sys.stderr.write("Unexpected error: %s\n" % ex[0])
     return 0
 
 def main(argv):
     pathname, projectPath = argv[1:3]
-    sys.path.insert(0, os.path.dirname(projectPath))
-    sys.path.insert(0, projectPath)
-    os.environ["DJANGO_SETTINGS_MODULE"] = "%s.settings" % os.path.basename(projectPath)
+    if os.path.dirname(projectPath):
+        # When Komodo tries to auto-find a "project/settings.py", it will pass
+        # the full directory path of "project". Add it to PYTHONPATH such that
+        # when Django tries to do something like "import project.settings", it
+        # will behave as expected.
+        sys.path.insert(0, os.path.dirname(projectPath))
+        sys.path.insert(0, projectPath)
+    os.environ["DJANGO_SETTINGS_MODULE"] = os.path.basename(projectPath)
     return loadTemplate(pathname)
     
 if __name__ == "__main__":
