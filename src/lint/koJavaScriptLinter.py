@@ -329,6 +329,8 @@ class KoJSHintLinter(CommonJSLinter):
             #log.debug("<< no text")
             return
         prefset = request.prefset
+        if not prefset.getBooleanPref("lintWithJSHint"):
+            return
         jsfilename, isMacro, datalines = self._make_tempfile_from_text(request, text)
         jsInterp = self._get_js_interp_path()
         jsLintDir = os.path.join(self.koDirs.supportDir, "lint", "javascript")
