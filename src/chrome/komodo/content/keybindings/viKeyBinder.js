@@ -707,13 +707,17 @@ VimController.prototype.__defineSetter__("mode", function(new_mode) {
         } else if ((new_mode == VimController.MODE_NORMAL) &&
                    (old_mode == VimController.MODE_VISUAL)) {
             // Remove any selection when leaving visual mode for normal mode
+            // unless we're coming from visual block mode and going immediately
+            // into insert mode (I).
             scimoz = ko.views.manager.currentView.scimoz;
-            // scimoz.cancel() used to ensure removal of the selectionmode
-            // http://bugs.activestate.com/show_bug.cgi?id=65580
-            scimoz.selectionMode = scimoz.SC_SEL_STREAM;
-            scimoz.cancel();
-            scimoz.setSel(-1, scimoz.currentPos);  // anchorPos of -1 means remove any selection
-            this._visualMode = VimController.VISUAL_CHAR;
+            if (scimoz.selectionMode != scimoz.SC_SEL_THIN) {
+                // scimoz.cancel() used to ensure removal of the selectionmode
+                // http://bugs.activestate.com/show_bug.cgi?id=65580
+                scimoz.selectionMode = scimoz.SC_SEL_STREAM;
+                scimoz.cancel();
+                scimoz.setSel(-1, scimoz.currentPos);  // anchorPos of -1 means remove any selection
+                this._visualMode = VimController.VISUAL_CHAR;
+            }
         }
         this.updateCaretStyle(scimoz || (ko.views.manager.currentView &&
                                          ko.views.manager.currentView.scimoz));
@@ -2409,7 +2413,7 @@ VimController.command_mappings = {
                                                                     VimController.MODIFY_ACTION |
                                                                     VimController.WORKS_IN_VISUAL_MODE |
                                                                     VimController.CANCELS_VISUAL_MODE ],
-    "cmd_vim_insertHome" :          [ "cmd_home",                   VimController.REPEATABLE_ACTION |
+    "cmd_vim_insertHome" :          [ VimController.SPECIAL_COMMAND,VimController.REPEATABLE_ACTION |
                                                                     VimController.ENTER_MODE_INSERT |
                                                                     VimController.MODIFY_ACTION |
                                                                     VimController.WORKS_IN_VISUAL_MODE |
@@ -3212,6 +3216,22 @@ function cmd_vim_scrollLineToBottomHome(scimoz) {
 
 function cmd_vim_insert(scimoz) {
     scimoz.replaceSel("");
+}
+
+function cmd_vim_insertHome(scimoz) {
+    if (gVimController._visualMode != VimController.VISUAL_BLOCK) {
+        ko.commands.doCommand('cmd_home');
+    } else {
+        // While this does reduce the block selection to a thin selection
+        // spanning multiple lines for multi-line typing, it differs from Vim in
+        // that: (1) it only goes to the beginning of the block selection if the
+        // selection was created from left to right; (2) it only puts the caret
+        // on the "first" line if the selection was created bottom to top.
+        // (1) is not a deal-breaker, but (2) should be handled properly (note
+        // that I've tried `swapMainAnchorCaret()` and `rotateSelection()`;
+        // neither work).
+        scimoz.selectionMode = scimoz.SC_SEL_THIN;
+    }
 }
 
 function cmd_vim_append(scimoz) {
