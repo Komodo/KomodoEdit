@@ -1,0 +1,105 @@
+<?xml version="1.0"?>
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc.
+     See the file LICENSE.txt for licensing information. -->
+
+<!DOCTYPE bindings PUBLIC "-//MOZILLA//DTD XBL V1.0//EN" "http://www.mozilla.org/xbl" [
+  <!ENTITY % komodoDTD SYSTEM "chrome://komodo/locale/komodo.dtd">
+  %komodoDTD;
+  <!ENTITY % komodoDTD.INTERNAL SYSTEM "chrome://komodo/locale/komodo-internal.dtd">
+  %komodoDTD.INTERNAL;
+]>
+
+<bindings xmlns="http://www.mozilla.org/xbl"
+          xmlns:xbl="http://www.mozilla.org/xbl"
+          xmlns:html="http://www.w3.org/1999/xhtml"
+          xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+<binding id="view-findresults" display="xul:box"
+         extends="chrome://komodo/content/bindings/views.xml#view-base">
+    <content>
+        
+        <xul:browser anonid="browser" src="chrome://komodo/content/find/findResultsTab.xul" flex="1"></xul:browser>
+
+    </content>
+    <implementation name="view-findresults" implements="koIFindResultsView, nsIObserver">
+
+        <property name="title" readonly="true" onget="return 'Find Results'"/>
+        
+        <property name="browser" readonly="true" onget="return document.getAnonymousElementByAttribute(this, 'anonid', 'browser')"/>
+        <property name="window" readonly="true" onget="return this.browser.contentWindow"/>
+        <property name="document" readonly="true" onget="return this.browser.contentDocument"/>
+
+        <constructor><![CDATA[
+            var tab = this.parentNode._tab;
+            
+            tab.setAttribute("tooltiptext", "Find results");
+            tab.setAttribute("view-type", "findresults");
+        ]]></constructor>
+        
+        <method name="init">
+        <body> <![CDATA[
+        ]]></body>    
+        </method>
+        
+        <method name="replace">
+        <parameter name="command"/>
+        <parameter name="event"/>
+        <body> <![CDATA[
+            ko.commands.doCommandAsync(command, event);
+            this.close();
+        ]]> </body>
+        </method>
+        
+        <method name="close">
+        <body> <![CDATA[
+            this.log.info("close");
+            /////// copied from view-base.close due to xbl inheritance issues //////
+            xtk.domutils.fireEvent(this, 'view_closed');
+            try {
+                if (this.parentView)
+                    this.parentView.removeView(this);
+            } catch (e) {
+                this.log.exception(e,"Unable to remove the view from the parentView, logging and continuing.");
+            }
+            return true;
+            ////////////////////////////////////////////////////////////////////////
+        ]]> </body>
+        </method>
+
+        <method name="initWithDocument">
+        <parameter name="doc"/>
+        <body> <![CDATA[
+            this.koDoc = doc;
+            this.parentView.updateLeafName(this);
+            this.parentView.updateFileStatus(this);
+            xtk.domutils.fireEvent(this, 'view_document_attached');
+            xtk.domutils.fireEvent(this, 'current_view_changed');
+        ]]> </body>
+        </method>
+
+        <method name="doFocus">
+        <parameter name="event"/>
+        <body>
+        <![CDATA[
+            // do nothing, just implements view api
+        ]]>
+        </body>
+        </method>
+
+        <method name="setFocus">
+        <body> <![CDATA[
+            try {
+                this.focus();
+            } catch(ex) {
+                this.log.error("setFocus error: "+ex);
+            }
+        ]]> </body>
+        </method>
+
+
+    </implementation>
+
+
+</binding>
+
+</bindings>

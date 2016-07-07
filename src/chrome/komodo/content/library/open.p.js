@@ -401,6 +401,11 @@ this.quickStart = function open_openStartPage() {
                                  "quickstart");
 }
 
+this.findResults = function open_findResults() {
+    return ko.views.manager._doFileOpen("chrome://komodo/content/find/findResultsTab.xul?"+Date.now(),
+                                 "findresults");
+}
+
 this.multipleURIs = function open_openMultipleURIs(urls, viewType, isRecent)
 {
     var i,j;

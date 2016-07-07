@@ -56,6 +56,10 @@ view[type='quickstart']  {
   -moz-binding: url('chrome://komodo/content/quickstart.xml#view-quickstart');
 }
 
+view[type='findresults']  {
+  -moz-binding: url('chrome://komodo/content/bindings/views-findresults.xml#view-findresults');
+}
+
 view[type='diff']  {
   -moz-binding: url('chrome://komodo/content/bindings/views-diff.xml#view-diff');
 }

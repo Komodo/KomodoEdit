@@ -650,6 +650,7 @@ adding an additional caret at the clicked position.">
 <!ENTITY find.label "Find">
 <!ENTITY findFrame.label "Find Frame">
 <!ENTITY pinFindFrame.label "Never auto-close the find frame">
+<!ENTITY findInView.label "Open find results as file tabs">
 <!ENTITY findInFiles.label "Find in Files">
 <!ENTITY findHighlighting.label "Highlighting">
 <!ENTITY findHighlightEnabled.label "Enable highlighting of find and replace results">

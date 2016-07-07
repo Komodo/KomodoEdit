@@ -72,6 +72,7 @@ $cons->Preprocess('views-terminal.p.xml', 'views-terminal.xml');
 $cons->InstallInChrome('views-terminal.xml');
 $cons->Preprocess('views-minimap.p.xml', 'views-minimap.xml');
 $cons->InstallInChrome('views-minimap.xml');
+$cons->InstallInChrome('views-findresults.xml');
 $cons->InstallInChrome('pane.xml');
 $cons->InstallInChrome('toolbar.xml');
 $cons->Preprocess('windows.p.xml', 'windows.xml');

@@ -94,6 +94,12 @@ this.getManager = function FindResultsTab_GetManager(id)
 // is moved.
 this.create = function _FindResultsTab_Create(id, searchAgain, callback)
 {
+    if (ko.prefs.getBoolean("find_in_view", false))
+    {
+        return this.createWithView(id, searchAgain, callback);
+        return;
+    }
+    
     var idstr = "findresults_tabpanel" + id;
     ko.widgets.registerWidget(idstr, "Find Results", "chrome://komodo/content/find/findResultsTab.xul", {
             defaultPane: "workspace_bottom_area",
@@ -133,6 +139,32 @@ this.create = function _FindResultsTab_Create(id, searchAgain, callback)
     }.bind(this));
 }
 
+this.createWithView = function _FindResultsTab_CreateWithView(id, searchAgain, callback)
+{
+    var view = ko.open.findResults();
+
+    view.addEventListener("view_closed", function(e) {
+        var findSvc = Components.classes["@activestate.com/koFindService;1"].
+                  getService(Components.interfaces.koIFindService);
+        findSvc.stopfindreplaceinfiles(id);
+        
+        delete this.managers[id];
+        
+        e.preventDefault();
+        return false;
+    }.bind(this));
+    
+    checkReadyState = function() {
+        if (view.document.readyState == "complete") {
+            var manager = new ko.findresults.FindResultsTabManager();
+            manager.initializeWithView(id, view, searchAgain);
+            callback(manager);
+            return;
+        }
+        setTimeout(checkReadyState, 100);
+    };
+    checkReadyState();
+}
 
 this.FindResultsTabManager = function FindResultsTabManager() { }
 this.FindResultsTabManager.prototype.constructor = this.FindResultsTabManager;
@@ -160,6 +192,7 @@ this.FindResultsTabManager.prototype.initialize = function(id, searchAgain)
         // to go ask the containing browser instead.
         var widget = ko.widgets.getWidget("findresults_tabpanel" + id);
         this.doc = widget.contentDocument;
+        this.tab = widget.parentNode.tab;
 
         // Ensure the nsITreeView instance is bound to the <tree>.
         var treeWidget = this.doc.getElementById("findresults");
@@ -184,6 +217,52 @@ this.FindResultsTabManager.prototype.initialize = function(id, searchAgain)
     }
 }
 
+this.FindResultsTabManager.prototype.initializeWithView = function(id, view, searchAgain)
+{
+    try {
+        this.id = id; // Number identifying this FindResultsTabManager from others.
+        this._searchAgain = searchAgain;
+        this._isSearchingAgain = false;
+        this._idprefix = "findresults"+this.id;
+
+        // Should be called in the onload handler for the window containing the
+        // find results tab XUL.
+        // THIS is HORRIBLY named and should never have been called a "view" - BEWARE
+        this.view = Components.classes['@activestate.com/koFindResultsView;1']
+            .createInstance(Components.interfaces.koIFindResultsView);
+        if (!this.view) {
+            throw new Error("couldn't create a koFindResultsView");
+        }
+        this.view.id = this.id;
+
+        // since the two find results tabs share ko.findresults.*, we can't
+        // depend on |window| or |document| (or other normally window-specific
+        // globals) to help us distinguish which document we want.  We need
+        // to go ask the containing browser instead.
+        this.doc = view.document;
+        this.tab = view.parentNode._tab;
+
+        // Ensure the nsITreeView instance is bound to the <tree>.
+        var treeWidget = this.doc.getElementById("findresults");
+        var boxObject = treeWidget.treeBoxObject
+                .QueryInterface(Components.interfaces.nsITreeBoxObject);
+        if (boxObject.view == null) {
+            // We are in a collapsed state -- we need to force the tree to be
+            // visible before we can assign the view to it.
+            findResultsLog.info("manager "+this.id+" initialize(): forcing it to show");
+            this.show();
+        }
+        boxObject.view = this.view;
+
+        // Make sure the tab can find its own manager
+        view.window.gFindResultsTabManager = this;
+
+        this.clear();
+    } catch(ex) {
+        findResultsLog.exception(ex);
+    }
+}
+
 
 this.FindResultsTabManager.prototype.show = function(focus /* =false */)
 {
@@ -193,7 +272,8 @@ this.FindResultsTabManager.prototype.show = function(focus /* =false */)
         findResultsLog.info("[manager "+this.id+"] show");
 
         var widget = this.doc.defaultView.frameElement;
-        ko.uilayout.ensureTabShown(widget, focus);
+        if (widget.getAttribute("type") == "ko-widget")
+            ko.uilayout.ensureTabShown(widget, focus);
 
         if (focus) {
             // Give the find results tab the focus. See bug 79487 for why
@@ -508,8 +588,8 @@ this.FindResultsTabManager.prototype.configure = function(
     searchWidget.value = this._pattern;
     searchWidget.setAttribute("collapsed", true);
     
-    var widget = ko.widgets.getWidget("findresults_tabpanel" + this.id);
-    var tab = widget.parentNode.tab;
+    var tab = this.tab;
+    
     var prefix = this._repl ? 'Replace "' : 'Find "';
     var _pattern = pattern;
     if (pattern.length > 15) _pattern = pattern.substr(0,15) + "..";

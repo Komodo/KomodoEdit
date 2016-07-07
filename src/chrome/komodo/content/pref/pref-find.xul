@@ -68,6 +68,10 @@
                       label="&pinFindFrame.label;"
                       pref="true"
                       prefattribute="checked" />
+            <checkbox id="find_in_view"
+                      label="&findInView.label;"
+                      pref="true"
+                      prefattribute="checked" />
         </groupbox>
 
         <groupbox orient="vertical">
