@@ -292,7 +292,7 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
         
         var indentGroupbox = page.addGroupbox({caption: "Indentation"});
         var autoGroupbox = page.addGroupbox({caption: "Automation"});
-        var helpKomodoGroupbox = page.addGroupbox({caption: "Help Komodo"});
+        var helpKomodoGroupbox = page.addGroupbox({caption: "Analytics (Attention!)"});
         
         indentGroupbox.addRow([
             require("ko/ui/label").create("Indentation Width: "),
@@ -312,6 +312,23 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
         autoGroupbox.addRow(fields.showLineNumbers);
         
         helpKomodoGroupbox.addRow(fields.analytics);
+        
+        var textStyle = {attributes: { style: "width: 500px; display: inline-block; text-align: center; opacity: 0.7;" }};
+        helpKomodoGroupbox.addRow([
+            require("ko/ui/span").create(
+                "Komodo tracks very basic non-identifiable user data (such as what features or languages are used). " +
+                "This information is used to focus the development efforts for Komodo. " +
+                "The analytics code is open source and can be inspected on github.",
+                textStyle
+            )
+        ]);
+        
+        helpKomodoGroupbox.addRow([
+            require("ko/ui/link").create("View Analytics Code", { attributes: {
+                href: "https://github.com/Komodo/KomodoEdit/tree/master/src/modules/analytics",
+                style: "width: 500px; display: inline-block; text-align: center;" 
+            } })
+        ]);
                 
         return page;
     };
