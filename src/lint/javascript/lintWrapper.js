@@ -98,32 +98,5 @@ if (!badArgs) {
                 }
             }
         }
-        try {
-            var jsData = JSHINT.data();
-            var unusedVars = jsData.unused;
-            if (unusedVars) {
-                if (unusedVars.length && !printedHeader) {
-                    print("++++JSHINT OUTPUT:");  // Handler expects this line.
-                    printedHeader = true;
-                }
-                for each (var unusedVar in unusedVars) {
-                        var msg = ('jshint error: at line '
-                                   + unusedVar.line
-                                   + ' column 1: unused var: '
-                                   + unusedVar.name);
-                        if (unusedVar['function']) {
-                            var funcName = unusedVar['function'];
-                            funcName = funcName.replace(/^[\"\']/, '').replace(/[\"\']$/, '');
-                            if (!/'?anonymous'?/.test(funcName)) {
-                                msg += ", defined in '" + funcName + "'";
-                            }
-                        }
-                        print(msg);
-                        print("");
-                    }
-            }
-        } catch(ex) {
-            print("++++ Error getting unusedVars: " + ex);
-        }
     })(options);
 }
