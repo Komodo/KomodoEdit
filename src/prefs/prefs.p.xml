@@ -982,7 +982,7 @@
 
   <!-- Analytics -->
   <string id="analytics_ga_id">UA-47685083-3</string>
-  <boolean id="analytics_enabled">0</boolean> <!-- Analytics is opt-in, not opt-out -->
+  <boolean id="analytics_enabled">1</boolean> <!-- Analytics is opt-out, not opt-in -->
 
   <ordered-preference id="analytics_track_prefs">
     <string>activestate_notification_messages_enabled</string>
