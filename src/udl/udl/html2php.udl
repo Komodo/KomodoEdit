@@ -45,7 +45,7 @@ family markup
 # Let the standard markup routine handle '<?' 
 # Here we check to see if there's a 'php' immediately following '<?'
 
-pattern ENTERPHP = '<(?:\?(?:php\b|=|(?=\W))|%)'
+pattern ENTERPHP = '<(?:\?(?:php\b|=)?|%)'
 
 state IN_M_DEFAULT:
 '<%' : paint(upto, M_STRING), paint(include, SSL_OPERATOR) => IN_SSL_DEFAULT
