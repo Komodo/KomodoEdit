@@ -853,6 +853,17 @@ editor_editorController.prototype.do_cmd_htmlTagRelocator = function() {
     }
 }
 
+/** Places carets on either end of the current selection. */
+editor_editorController.prototype.do_cmd_wrapSelectionWithCarets = function() {
+    var view = _getCurrentScimozView();
+    var scimoz = view.scimoz;
+    if (scimoz.selectionStart == scimoz.selectionEnd) return; // no word selected
+    var start = scimoz.anchor;
+    var end = scimoz.currentPos;
+    scimoz.setSelection(start, start);
+    scimoz.addSelection(end, end);
+};
+
 /**
  * highlights the initial tag and sets view variables;
  * @precondition view be defined

@@ -1622,6 +1622,11 @@
             oncommand="ko.commands.doCommandAsync('cmd_removePrevWordInCaretSet', event)"
             disabled="true"
             desc="&removePrevWordInCaretSet.desc;"/>
+        <command
+            id="cmd_wrapSelectionWithCarets" key="key_cmd_wrapSelectionWithCarets"
+            oncommand="ko.commands.doCommandAsync('cmd_wrapSelectionWithCarets')"
+            disabled="true"
+            desc="&wrapSelectionWithCarets.desc;"/>
     </commandset>
     
     <!-- These commands need to be updated on window open,

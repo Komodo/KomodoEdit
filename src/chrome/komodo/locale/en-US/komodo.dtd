@@ -832,6 +832,7 @@
 <!ENTITY wordWrap.label "Word Wrap">
 <!ENTITY workspace.label "Workspace">
 <!ENTITY workspaceToolbar.tooltiptext "Workspace Toolbar">
+<!ENTITY wrapSelectionWithCarets.desc "Editor: Wrap Selection With Multiple Carets">
 
 <!ENTITY helpForLanguages.label "Help for Languages">
 <!ENTITY helpLanguagesMenu.accesskey "L">
