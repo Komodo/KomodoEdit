@@ -537,36 +537,29 @@ this.getFocusedProjectView = function() {
 };
 
 this.toggleSubpanel = function() {
-    var button = document.getElementById("placesSubpanelToggle");
-    var state = button.getAttribute("state");
-    switch(state) {
-    case "collapsed":
-        button.setAttribute("state", "open");
-        break;
-    case "open":
-    default:
-        button.setAttribute("state", "collapsed");
-        break;
+    var splitter = document.getElementById("placesSubpanelSplitter");
+    var state = splitter.getAttribute("state");
+    if (state == "collapsed") {
+        splitter.setAttribute("state", "");
+    }
+    else {
+        splitter.setAttribute("state", "collapsed");
     }
     this._updateSubpanelFromState();
 };
 
 this._updateSubpanelFromState = function() {
-    var button = document.getElementById("placesSubpanelToggle");
+    var splitter = document.getElementById("placesSubpanelSplitter");
     var deck = document.getElementById("placesSubpanelDeck");
-    var state = button.getAttribute("state");
+    var state = splitter.getAttribute("state");
 	
 	if (state == "collapsed")
 	{
 		deck.collapsed = true;
-		button.setAttribute("tooltiptext",
-							_bundle.GetStringFromName("Open the Projects Subpanel"));
 	}
 	else
 	{
 		deck.collapsed = false;
-		button.setAttribute("tooltiptext",
-							_bundle.GetStringFromName("Close the Projects Subpanel"));
 	}
 }
 
