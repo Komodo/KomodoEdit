@@ -45,6 +45,7 @@ interface koIFindResultsView : nsITreeView {
     // An tree view for find results data.
 
     attribute long id; // the unique id of this results view, set by creator
+    attribute wstring rootPath;
 
     // Clear the list of find results.
     void Clear();

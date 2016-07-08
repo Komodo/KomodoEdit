@@ -63,6 +63,7 @@ class KoFindResultsView(TreeView):
         self._tree = None
         self._sortedBy = None
         self.id = None
+        self.rootPath = None
 
         atomSvc = components.classes["@mozilla.org/atom-service;1"].\
                   getService(components.interfaces.nsIAtomService)
@@ -117,6 +118,15 @@ class KoFindResultsView(TreeView):
         self._tree.rowCountChanged(0, -length)
         self._tree.invalidate()
         self._tree.endUpdateBatch()
+        
+    def NormalizeFilename(self, fileName):
+        if not self.rootPath:
+            return fileName
+        
+        if fileName.index(self.rootPath) is not 0:
+            return fileName
+        
+        return "<%s>%s" % (os.path.basename(self.rootPath), fileName[len(self.rootPath):])
 
     def AddFindResult(self, type, url, startIndex, endIndex, value,
                       fileName, lineNum, columnNum, context):
@@ -129,7 +139,7 @@ class KoFindResultsView(TreeView):
                  "value": value,
                  "lineNum": lineNum,
                  "columnNum": columnNum,
-                 "findresults-filename": fileName,
+                 "findresults-filename": self.NormalizeFilename(fileName),
                  "findresults-linenum": lineNum,
                  "findresults-context": context}
         if type == "warning":
@@ -161,7 +171,7 @@ class KoFindResultsView(TreeView):
                      "value": value,
                      "lineNum": lineNum,
                      "columnNum": columnNum,
-                     "findresults-filename": fileName,
+                     "findresults-filename": self.NormalizeFilename(fileName),
                      "findresults-linenum": lineNum,
                      "findresults-context": context}
             if type == "warning":
@@ -193,7 +203,7 @@ class KoFindResultsView(TreeView):
                  "replacement": replacement,
                  "lineNum": lineNum,
                  "columnNum": columnNum,
-                 "findresults-filename": fileName,
+                 "findresults-filename": self.NormalizeFilename(fileName),
                  "findresults-linenum": lineNum,
                  "findresults-context": context}
         if type == "warning":
@@ -228,7 +238,7 @@ class KoFindResultsView(TreeView):
                      "replacement": replacement,
                      "lineNum": lineNum,
                      "columnNum": columnNum,
-                     "findresults-filename": fileName,
+                     "findresults-filename": self.NormalizeFilename(fileName),
                      "findresults-linenum": lineNum,
                      "findresults-context": context}
             if type == "warning":

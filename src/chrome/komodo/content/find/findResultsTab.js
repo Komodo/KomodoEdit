@@ -185,6 +185,11 @@ this.FindResultsTabManager.prototype.initialize = function(id, searchAgain)
             throw new Error("couldn't create a koFindResultsView");
         }
         this.view.id = this.id;
+        this.view.rootPath = "";
+        
+        try {
+            this.view.rootPath = ko.uriparse.URIToLocalPath(ko.places.getDirectory());
+        } catch (e) {}
 
         // since the two find results tabs share ko.findresults.*, we can't
         // depend on |window| or |document| (or other normally window-specific
@@ -193,7 +198,7 @@ this.FindResultsTabManager.prototype.initialize = function(id, searchAgain)
         var widget = ko.widgets.getWidget("findresults_tabpanel" + id);
         this.doc = widget.contentDocument;
         this.tab = widget.parentNode.tab;
-
+        
         // Ensure the nsITreeView instance is bound to the <tree>.
         var treeWidget = this.doc.getElementById("findresults");
         var boxObject = treeWidget.treeBoxObject
@@ -234,6 +239,10 @@ this.FindResultsTabManager.prototype.initializeWithView = function(id, view, sea
             throw new Error("couldn't create a koFindResultsView");
         }
         this.view.id = this.id;
+        this.view.rootPath = "";
+        try {
+            this.view.rootPath = ko.uriparse.URIToLocalPath(ko.places.getDirectory());
+        } catch (e) {}
 
         // since the two find results tabs share ko.findresults.*, we can't
         // depend on |window| or |document| (or other normally window-specific
