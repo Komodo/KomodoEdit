@@ -130,7 +130,8 @@ function onLoad() {
         gMacroContents.setFoldStyle(_gPrefSvc.prefs.getStringPref("editFoldStyle"));
         gMacroContents.setFocus();
         gScintilla = gMacroContents.scimoz;
-        gScintilla.useTabs = 0;
+        gScintilla.useTabs = _gPrefSvc.prefs.getBooleanPref("useTabs");
+        gScintilla.indent = gScintilla.tabWidth = _gPrefSvc.prefs.getLongPref('indentWidth');
         
         // On Mac OSX, ensure the Scintilla view is visible by forcing a repaint.
         // TODO: investigate why this happens and come up with a better solution.
