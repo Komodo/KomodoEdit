@@ -1925,12 +1925,15 @@ class GenericCommandHandler:
                 break
         if currentIndentWidth == 0 and shift == -1:
             return # nothing to do, nothing's indented!
-        numIndents, extras = divmod(currentIndentWidth, sm.tabWidth)
+        if not sm.useTabs and sm.indent > 0:
+            numIndents, extras = divmod(currentIndentWidth, sm.indent)
+        else:
+            numIndents, extras = divmod(currentIndentWidth, sm.tabWidth)
         if shift == 1:
             numIndents += 1
         elif shift == -1 and numIndents and not extras:
             numIndents -= 1
-        if sm.indent > 0:
+        if not sm.useTabs and sm.indent > 0:
             newIndentWidth = numIndents * sm.indent
         else:
             # When indent is 0, Scintilla uses tabWidth; we should mimic.
