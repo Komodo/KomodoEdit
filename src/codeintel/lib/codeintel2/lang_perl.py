@@ -1040,6 +1040,16 @@ class PerlLangIntel(CitadelLangIntel,
                 ctlr.done("no trigger")
                 return
             line = buf.accessor.line_from_pos(trg.pos)
+            if trg.id[1] == TRG_FORM_DEFN and \
+               (re.match(r'^[%@$]\$\w', citdl_expr) or
+                re.match(r'^[\\][$@%]\w', citdl_expr)):
+                # When encountering a scalar dereference to a hash, array, or
+                # another scalar, or when encounting a typical dereference,
+                # drop the dereferencing part.
+                # This is needed in order for goto-definition for
+                # "%$hashref", "@$arrayref", "$$scalarref", "\$scalar",
+                # "\@array", and "\%hash" to work.
+                citdl_expr = citdl_expr[1:]
             if trg.id[1] == TRG_FORM_DEFN and citdl_expr[0] == '$':
                 current_pos = trg.pos
                 lim = buf.accessor.length

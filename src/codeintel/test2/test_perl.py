@@ -1877,6 +1877,63 @@ class DefnTestCase(CodeintelPerlTestCase):
         self.assertScopeLpathIs(markup_text(content, positions[12]),
                           lpath=["RequestAgent", "get_basic_credentials"])
 
+    @tag("bug1514")
+    def test_deref(self):
+        content, positions = unmark_text(dedent("""\
+            my $hashref = {};
+            my %y = %$hashref<1>;
+            my %z = %{$hashref<2>};
+
+            my $arrayref = [];
+            my @a2 = @$arrayref<3>;
+            my @a1 = @{$arrayref<4>};
+
+            my $scalar = '';
+            my $s1 = $$scalar<5>;
+            my $s2 = ${$scalar<6>};
+
+            my @array;
+            my $aref1 = \ @array<7>;
+            my $aref2 = \@array<8>;
+            my $aref3 = [@array<9>];
+
+            my %hash;
+            my $href1 = \ %hash<10>;
+            my $href2 = \%hash<11>;
+            my %href3 = {%hash<12>};
+
+            my $sc = '';
+            my $sref1 = \ $sc<13>;
+            my $sref2 = \$sc<14>;
+        """))
+        self.assertDefnMatches(markup_text(content, positions[1]),
+                               ilk="variable", name="$hashref")
+        self.assertDefnMatches(markup_text(content, positions[2]),
+                               ilk="variable", name="$hashref")
+        self.assertDefnMatches(markup_text(content, positions[3]),
+                               ilk="variable", name="$arrayref")
+        self.assertDefnMatches(markup_text(content, positions[4]),
+                               ilk="variable", name="$arrayref")
+        self.assertDefnMatches(markup_text(content, positions[5]),
+                               ilk="variable", name="$scalar")
+        self.assertDefnMatches(markup_text(content, positions[6]),
+                               ilk="variable", name="$scalar")
+        self.assertDefnMatches(markup_text(content, positions[7]),
+                               ilk="variable", name="@array")
+        self.assertDefnMatches(markup_text(content, positions[8]),
+                               ilk="variable", name="@array")
+        self.assertDefnMatches(markup_text(content, positions[9]),
+                               ilk="variable", name="@array")
+        self.assertDefnMatches(markup_text(content, positions[10]),
+                               ilk="variable", name="%hash")
+        self.assertDefnMatches(markup_text(content, positions[11]),
+                               ilk="variable", name="%hash")
+        self.assertDefnMatches(markup_text(content, positions[12]),
+                               ilk="variable", name="%hash")
+        self.assertDefnMatches(markup_text(content, positions[13]),
+                               ilk="variable", name="$sc")
+        self.assertDefnMatches(markup_text(content, positions[14]),
+                               ilk="variable", name="$sc")
 
 
 
