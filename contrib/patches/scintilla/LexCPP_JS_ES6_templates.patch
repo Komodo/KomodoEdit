@@ -39,26 +39,22 @@ there's no time to learn how.
  
  	int activitySet = preproc.IsInactive() ? activeFlag : 0;
  
-@@ -753,6 +759,9 @@ void SCI_METHOD LexerCPP::Lex(unsigned int startPos, int length, int initStyle,
+@@ -753,6 +759,7 @@ void SCI_METHOD LexerCPP::Lex(unsigned int startPos, int length, int initStyle,
  			if (rawStringTerminator != "") {
  				rawSTNew.Set(lineCurrent-1, rawStringTerminator);
  			}
-+			if (backquotedInterpolatedBraceCount > 0) {
-+				styler.SetLineState(lineCurrent, backquotedInterpolatedBraceCount);
-+			}
++			styler.SetLineState(lineCurrent, backquotedInterpolatedBraceCount);
  		}
  
  		// Handle line continuation generically.
-@@ -762,6 +771,12 @@ void SCI_METHOD LexerCPP::Lex(unsigned int startPos, int length, int initStyle,
+@@ -762,6 +771,10 @@ void SCI_METHOD LexerCPP::Lex(unsigned int startPos, int length, int initStyle,
  				lineCurrent++;
  				lineEndNext = styler.LineEnd(lineCurrent);
  				vlls.Add(lineCurrent, preproc);
 +				if (rawStringTerminator != "") {
 +					rawSTNew.Set(lineCurrent-1, rawStringTerminator);
 +				}
-+				if (backquotedInterpolatedBraceCount > 0) {
-+					styler.SetLineState(lineCurrent, backquotedInterpolatedBraceCount);
-+				}
++				styler.SetLineState(lineCurrent, backquotedInterpolatedBraceCount);
  				sc.Forward();
  				if (sc.ch == '\r' && sc.chNext == '\n') {
  					// Even in UTF-8, \r and \n are separate
