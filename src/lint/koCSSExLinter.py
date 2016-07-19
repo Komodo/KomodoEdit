@@ -115,7 +115,11 @@ class KoSCSSCommonLinter(KoCommonCSSLintCode):
             fout.write(text)
             fout.close()
             textlines = text.splitlines()
-            cmd = [rubyPath, scssPath, "-c", tmpfilename]
+            try:
+                which.which("rbenv")
+                cmd = [scssPath, "-c", tmpfilename]
+            except which.WhichError:
+                cmd = [rubyPath, scssPath, "-c", tmpfilename]
             #koLintResult.insertNiceness(cmd)
             cwd = request.cwd or None
             # We only need the stderr result.
