@@ -126,6 +126,24 @@ static char *getNSRectStr(NSRect rect, char *buf) {
   reinterpret_cast<SciMoz*>(mTarget)->VisibilityTimerCallback(timer);
 }
 
+- (void) startTimerOnce
+{
+  if (mTimer != nil) {
+	[self stopTimer];
+  }
+
+  mTimer = [NSTimer scheduledTimerWithTimeInterval:0.5
+	                target:self
+	                selector:@selector(timerFiredOnce:)
+	                userInfo:nil
+	                repeats:NO];
+}
+
+- (void) timerFiredOnce: (NSTimer *) timer
+{
+  reinterpret_cast<SciMoz*>(mTarget)->VisibilityTimerCallback(timer);
+  [self stopTimer];
+}
 @end
 
 //--------------------------------------------------------------------------------------------------
@@ -532,8 +550,11 @@ int16 SciMoz::PlatformHandleEvent(void *ev) {
 #endif
         return kNPEventNotHandled;
     }
-#ifdef SCIMOZ_COCOA_DEBUG
+
     NPCocoaEvent *event = (NPCocoaEvent *) ev;
+    if (event->type == NPCocoaEventWindowFocusChanged && event->data.focus.hasFocus)
+        [visibilityTimer startTimerOnce]; // ensure view is visible after un-hide
+#ifdef SCIMOZ_COCOA_DEBUG
     if (event->type != NPCocoaEventMouseMoved)
         fprintf(stderr, "PlatformHandleEvent: event #%d\n", event->type);
 #endif

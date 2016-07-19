@@ -225,6 +225,8 @@ PlatformInstance;
 - (void) startTimer;
 - (void) stopTimer;
 - (void) timerFired: (NSTimer*) timer;
+- (void) startTimerOnce;
+- (void) timerFiredOnce: (NSTimer*) timer;
 @end
 
 #endif
