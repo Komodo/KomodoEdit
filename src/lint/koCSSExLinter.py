@@ -72,7 +72,7 @@ class KoSCSSCommonLinter(KoCommonCSSLintCode):
     using the same processor.
     """
     _scss_emsg_ptn = re.compile(r'^\s*on line (\d+) of (.*)$')
-    _syntaxErrorPtn = re.compile(r'^Syntax error:\s*(.*)$')
+    _syntaxErrorPtn = re.compile(r'^(?:Syntax )?[eE]rror:\s*(.*)$')
     def lint_with_text(self, request, text):
         try:
             prefset = request.prefset
