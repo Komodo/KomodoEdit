@@ -143,7 +143,7 @@ class KoSCSSCommonLinter(KoCommonCSSLintCode):
                 else:
                     severity = koLintResult.SEV_WARNING
                     msg = prevLine
-                desc = "scss: " + msg
+                desc = self.cmd + ": " + msg
                 koLintResult.createAddResult(results, textlines, severity, lineNo, desc)
             else:
                 prevLine = line
