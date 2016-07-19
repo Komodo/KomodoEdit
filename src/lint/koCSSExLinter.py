@@ -73,6 +73,7 @@ class KoSCSSCommonLinter(KoCommonCSSLintCode):
     """
     _scss_emsg_ptn = re.compile(r'^\s*on line (\d+) of (.*)$')
     _syntaxErrorPtn = re.compile(r'^(?:Syntax )?[eE]rror:\s*(.*)$')
+    _sass_wmsg_pth = re.compile(r'^WARNING on line (\d+) of (.*)$')
     def lint_with_text(self, request, text):
         try:
             prefset = request.prefset
@@ -132,8 +133,15 @@ class KoSCSSCommonLinter(KoCommonCSSLintCode):
             warnLines = []
         results = koLintResults()
         prevLine = ""
-        for line in warnLines:
+        for i, line in enumerate(warnLines):
             m = self._scss_emsg_ptn.match(line)
+            w = self._sass_wmsg_pth.match(line)
+            if w:
+                lineNo = int(w.group(1))
+                severity = koLintResult.SEV_WARNING
+                msg = warnLines[i + 1]
+                desc = self.cmd + ": " + msg
+                koLintResult.createAddResult(results, textlines, severity, lineNo, desc)
             if m:
                 lineNo = int(m.group(1))
                 m2 = self._syntaxErrorPtn.match(prevLine)
