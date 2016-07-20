@@ -1347,9 +1347,9 @@ ko.codeintel = {};
                 // defines vars without a '$', but refers to them with one.
                 opts.patternType = Ci.koIFindOptions.FOT_REGEX_PYTHON;
                 if (searchText[0] === '$') {
-                    searchText = "\\$?" + searchText.substring(1);
+                    searchText = "\\$?\\{?" + searchText.substring(1) + "\\}?";
                 } else {
-                    searchText = "\\$?" + searchText;
+                    searchText = "\\$?\\{?" + searchText + "\\}?";
                 }
             }
             this._last_highlight_async =
