@@ -72,9 +72,11 @@ binding cmd_copy Ctrl+C
 binding cmd_cut Ctrl+X
 binding cmd_paste Ctrl+V
 binding cmd_delete Delete
+binding cmd_delete Shift+Delete
 binding cmd_deleteWordLeft Ctrl+Backspace
 binding cmd_deleteWordRight Ctrl+Delete
 binding cmd_backSmart Backspace
+binding cmd_backSmart Shift+Backspace
 binding cmd_lineTransposeUp Alt+Up
 binding cmd_lineTransposeDown Alt+Down
 binding cmd_htmlTagRelocator Ctrl+Shift+Z

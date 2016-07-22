@@ -83,9 +83,11 @@ binding cmd_copy Meta+C
 binding cmd_cut Meta+X
 binding cmd_paste Meta+V
 binding cmd_delete Delete
+binding cmd_delete Shift+Delete
 binding cmd_deleteWordLeft Meta+Backspace
 binding cmd_deleteWordRight Meta+Delete
 binding cmd_backSmart Backspace
+binding cmd_backSmart Shift+Backspace
 binding cmd_lineTransposeUp Alt+Up
 binding cmd_lineTransposeDown Alt+Down
 binding cmd_htmlTagRelocator Ctrl+Shift+Z
