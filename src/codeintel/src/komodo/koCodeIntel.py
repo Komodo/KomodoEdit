@@ -322,10 +322,7 @@ class KoCodeIntelService:
                 instead of being queued if the manager is not available
             @note This is used directly by the code browser implementation
         """
-        if not self._enabled:
-            log.warn("send called when not enabled (ignoring command) %r", kwargs)
-            return
-        if self.mgr:
+        if self._enabled and self.mgr:
             self.mgr.send(**kwargs)
         elif not discardable:
             self._queue.put(kwargs)
@@ -338,6 +335,7 @@ class KoCodeIntelService:
         with self._mgr_lock:
             if self.mgr is mgr:
                 self.mgr = None
+            self._enabled = False
 
     # nsIMemoryReporter
     name = "codeintel"
@@ -1137,7 +1135,7 @@ class KoCodeIntelManager(threading.Thread):
         calling thread until the data has been written (though possibly not yet
         received on the other end)."""
 
-        if self.state is KoCodeIntelManager.STATE.QUITTING:
+        if self.state in (self.STATE.QUITTING, self.STATE.DESTROYED):
             return # Nope, eating all commands during quit
         req_id = hex(self._next_id)
         kwargs["req_id"] = req_id
