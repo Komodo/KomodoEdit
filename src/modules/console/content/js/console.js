@@ -139,6 +139,36 @@ window.app = {};
             elem.output.innerHTML = "";
             this.print("output", "Console Cleared", true);
         }
+        else if (input == "/windows")
+        {
+            var windows = require("ko/windows").getAll();
+            var li = document.createElement("li");
+            li.classList.add("output");
+            
+            var wrap = document.createElement("div");
+            wrap.classList.add("message");
+            li.appendChild(wrap);
+            
+            var w, a, l;
+            for (w of windows)
+            {
+                l = document.createElement("li");
+                a = document.createElement("a");
+                l.appendChild(a);
+                
+                var title = w.document.title || "unnamed";
+                
+                a.textContent = `${w.location.href} (${title})`;
+                a.addEventListener("click", function(w) {
+                    win = w;
+                    this.print("output", `Selected window: ${w.location.href}`, true);
+                }.bind(this, w));
+                
+                wrap.appendChild(l);
+            }
+            
+            this.printLi(li);
+        }
         else
         {
             this.print("input", input, true);
