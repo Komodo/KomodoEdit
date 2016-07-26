@@ -878,6 +878,13 @@ if (typeof(ko.widgets)=='undefined') {
         }
     };
 
+    /**
+     * Save the UI state as JSON string in PrefPath
+     *
+     * @argument {Array} prefpath array of string prefIds, where to save state
+     *                            in prefs.xml.  Empty list saves globaly UI. ie.
+     *                            all new windows will load this state.
+     */                           
     this.unload = function koWidgetManager_onunload(prefpath) {
         // Note that this doesn't use this._persist_state; that's for restoring
         // only, we want to record the state as it is now
