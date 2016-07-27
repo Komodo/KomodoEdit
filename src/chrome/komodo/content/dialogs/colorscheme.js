@@ -177,9 +177,10 @@
                 property.locale = property.locale || property.name;
                 
                 let style = this.getBasicPropertyStyle(property);
-                let item = $("<listitem>");
+                let item = $("<richlistitem>");
                 item.attr("label", property.locale);
                 item.attr("name", property.name);
+                item.append($("<label>").attr("value", property.locale));
                 if (style.color) item.css("color", style.color);
                 if (style.background) item.css("background", style.background);
                 item.element()._property = property;
@@ -216,9 +217,10 @@
             property.locale = property.locale || property.name;
             
             let style = this.getBasicPropertyStyle(property);
-            let item = $("<listitem>");
+            let item = $("<richlistitem>");
             item.attr("label", property.locale);
             item.attr("name", property.name);
+            item.append($("<label>").attr("value", property.locale));
             if (style.color) item.css("color", style.color);
             if (style.background) item.css("background", style.background);
             item.element()._property = property;
@@ -247,9 +249,10 @@
             };
             
             let style = this.getBasicPropertyStyle(property);
-            let item = $("<listitem>");
+            let item = $("<richlistitem>");
             item.attr("label", property.name);
             item.attr("name", property.name);
+            item.append($("<label>").attr("value", property.name));
             if (style.color) item.css("color", style.color);
             if (style.background) item.css("background", style.background);
             item.element()._property = property;
@@ -508,13 +511,13 @@
                 propertyName = 'default_fixed';
         }
         
-        var item = $(`#propertyList listitem[name="${propertyName}"]`);
+        var item = $(`#propertyList richlistitem[name="${propertyName}"]`);
         if ( ! item.length && loadedSampleId != 'indicators')
         {
             $("#languageList").element().selection = selectedLanguage;
             this.onUpdateLanguage();
             
-            item = $(`#propertyList listitem[name="${propertyName}"]`);
+            item = $(`#propertyList richlistitem[name="${propertyName}"]`);
         }
         
         if ( ! item.length) return;
@@ -546,7 +549,7 @@
         var selected = $("#propertyList").element().selectedItem;
         if (! selected) return setTimeout(this.onSelectProperty, 10); // race condition
         
-        $("#propertyList listitem[selected]").removeAttr("selected");
+        $("#propertyList richlistitem[selected]").removeAttr("selected");
         selected.setAttribute("selected", "true");
         
         var property = selected._property;
@@ -666,7 +669,7 @@
                     this.pickColor($("#fontFore"), (color) => {
                         var property = this.getSelectedProperty();
                         selectedScheme.setFore(this.getSelectedLanguage(), property.name, color);
-                        $(`#propertyList listitem[name="${property.name}"]`).css("color", color);
+                        $(`#propertyList richlistitem[name="${property.name}"]`).css("color", color);
                         this.updateScintilla();
                     });
                 });
@@ -685,7 +688,7 @@
                     this.pickColor($("#fontBack"), (color) => {
                         var property = this.getSelectedProperty();
                         selectedScheme.setBack(this.getSelectedLanguage(), property.name, color);
-                        $(`#propertyList listitem[name="${property.name}"]`).css("background", color);
+                        $(`#propertyList richlistitem[name="${property.name}"]`).css("background", color);
                         this.updateScintilla();
                     });
                 });
@@ -704,7 +707,7 @@
                     this.pickColor($("#color"), (color) => {
                         var property = this.getSelectedProperty();
                         selectedScheme.setColor(property.name, color);
-                        $(`#propertyList listitem[name="${property.name}"]`).css("background", color);
+                        $(`#propertyList richlistitem[name="${property.name}"]`).css("background", color);
                         this.updateScintilla();
                     });
                 });
@@ -766,7 +769,7 @@
                         values.color.value = color;
                         selectedScheme.setIndicator(property.name, values.style.value, values.color.value,
                                                                    values.alpha.value, values.draw_underneath.value);
-                        $(`#propertyList listitem[name="${property.name}"]`).css("background", color);
+                        $(`#propertyList richlistitem[name="${property.name}"]`).css("background", color);
                         this.updateScintilla();
                     });
                 });
@@ -893,7 +896,7 @@
                     this.pickColor($("#iface-fore"), (color) => {
                         var property = this.getSelectedProperty();
                         selectedScheme.setInterfaceStyle(property.name, "fore", color);
-                        $(`#propertyList listitem[name="${property.name}"]`).css("color", color);
+                        $(`#propertyList richlistitem[name="${property.name}"]`).css("color", color);
                     });
                 });
             },
@@ -911,7 +914,7 @@
                     this.pickColor($("#iface-back"), (color) => {
                         var property = this.getSelectedProperty();
                         selectedScheme.setInterfaceStyle(property.name, "back", color);
-                        $(`#propertyList listitem[name="${property.name}"]`).css("background", color);
+                        $(`#propertyList richlistitem[name="${property.name}"]`).css("background", color);
                     });
                 });
             },

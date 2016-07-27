@@ -68,8 +68,8 @@
             <hbox flex="1" id="content">
                 <vbox>
                     <langlist id="languageList" default="Editor,Interface,----------" default-value="-1,-2,disabled" width="250"/>
-                    <listbox id="propertyList" width="200" flex="1">
-                    </listbox>
+                    <richlistbox id="propertyList" width="200" flex="1">
+                    </richlistbox>
                 </vbox>
                 
                 <groupbox id="propertyEditor" width="250">
