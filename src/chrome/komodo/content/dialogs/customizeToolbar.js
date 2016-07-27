@@ -9,6 +9,9 @@
     var $ = require("ko/dom");
     var prefs = require("ko/prefs");
     
+    // Ensure we have the right window
+    w = require("ko/windows").getMain();
+    
     var self = this;
     
     var elems = {

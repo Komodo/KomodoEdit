@@ -399,7 +399,7 @@
                     // find.  See bug 91696.
                     win = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                                     .getService(Components.interfaces.nsIWindowMediator)
-                                    .getMostRecentWindow("Komodo");
+                                    .getMostRecentWindow("Komodo").require("ko/windows").getMain();
                     ko = win.ko;
                 }
                 if (!ko || !ko.views) {

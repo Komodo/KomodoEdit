@@ -30,7 +30,7 @@
         {
             isCancel = true; // accel + W
         } else {
-            let win = Services.wm.getMostRecentWindow("Komodo");
+            let win = Services.wm.getMostRecentWindow("Komodo").require("ko/windows").getMain();
             if (win) {
                 let keyMgr = win.ko.keybindings.manager;
                 let keylabel = keyMgr.event2keylabel(event, true, true);

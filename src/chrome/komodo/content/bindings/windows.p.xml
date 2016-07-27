@@ -26,7 +26,7 @@
             document.documentElement.setAttribute("os-name", sysInfo.get("name"));
             
             var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator);
-            var w = wm.getMostRecentWindow("Komodo");
+            var w = wm.getMostRecentWindow("Komodo").require("ko/windows").getMain();
             if ( ! w) return;
             
             var evt = new CustomEvent("window_opened", { detail: window });
@@ -44,7 +44,7 @@
         <body>
         <![CDATA[
           var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator);
-          var w = wm.getMostRecentWindow("Komodo");
+          var w = wm.getMostRecentWindow("Komodo").require("ko/windows").getMain();
           
           if ( ! w) return;
             
@@ -78,7 +78,7 @@
             document.documentElement.setAttribute("os-name", sysInfo.get("name"));
             
             var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator);
-            var w = wm.getMostRecentWindow("Komodo");
+            var w = wm.getMostRecentWindow("Komodo").require("ko/windows").getMain();
             if ( ! w) return;
             
             var evt = new CustomEvent("window_opened", { detail: window });
@@ -96,7 +96,7 @@
         <body>
         <![CDATA[
           var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator);
-          var w = wm.getMostRecentWindow("Komodo");
+          var w = wm.getMostRecentWindow("Komodo").require("ko/windows").getMain();
           
           if ( ! w) return;
             
@@ -311,7 +311,7 @@
         <body>
         <![CDATA[
           var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator);
-          var _window = wm.getMostRecentWindow("Komodo");
+          var _window = wm.getMostRecentWindow("Komodo").require("ko/windows").getMain();
           
           var id = document.documentElement.id || window.location.href;
           var dimensions =  _window ? _window.ko.prefs.getString("windowDimensions-" + id, "").split(",") : [];
@@ -357,7 +357,7 @@
           var dimensions = [window.outerWidth, window.outerHeight, window.screenX, window.screenY];
 
           var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator);
-          var w = wm.getMostRecentWindow("Komodo");
+          var w = wm.getMostRecentWindow("Komodo").require("ko/windows").getMain();
           
           if ( ! w) return;
           
@@ -418,7 +418,7 @@
         {
             var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
                         .getService(Components.interfaces.nsIWindowMediator);
-            var w = wm.getMostRecentWindow("Komodo");
+            var w = wm.getMostRecentWindow("Komodo").require("ko/windows").getMain();
             if ( ! w) return;
             var require = w.require;
         }

@@ -1484,9 +1484,7 @@ this.isTabShown = function uilayout_isTabShown(widgetId) {
                 widget = widgetId;
             }
         } else {
-            var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                            .getService(Components.interfaces.nsIWindowMediator);
-            var mainWindow = wm.getMostRecentWindow('Komodo');
+            var mainWindow = require("ko/windows").getMain();
             widget = mainWindow.document.getElementById(widgetId);
             if (!widget) {
                 _log.error("ko.uilayout.isTabShown: couldn't find tab: " + widgetId);
@@ -1536,10 +1534,7 @@ this.ensureTabShown = function uilayout_ensureTabShown(widgetId, focusToo) {
                 callback(widgetId);
             }
         } else {
-            var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                            .getService(Components.interfaces.nsIWindowMediator);
-            var mainWindow = wm.getMostRecentWindow('Komodo');
-            mainWindow.ko.widgets.getWidgetAsync(widgetId, callback);
+            require("ko/windows").getMain().ko.widgets.getWidgetAsync(widgetId, callback);
         }
     } catch (e) {
         _log.exception(e);

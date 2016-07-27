@@ -160,7 +160,7 @@ var koLess = function koLess()
             // (The bug mainly happens when you switch away and back.)
             Services.tm.currentThread.dispatch(() => {
                 var wm = Cc["@mozilla.org/appshell/window-mediator;1"].getService(Ci.nsIWindowMediator);
-                var mw = wm.getMostRecentWindow("Komodo");
+                var mw = wm.getMostRecentWindow("Komodo").require("ko/windows").getMain();
                 
                 if (typeof require == "undefined")
                 {
