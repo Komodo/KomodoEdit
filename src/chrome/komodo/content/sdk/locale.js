@@ -50,19 +50,27 @@
                 var args = Array.prototype.slice.call(arguments);
                 args.shift();
                 
-                if ( ! args.length)
+                try
                 {
-                    if (args.length == 1 && Array.isArray(args[0]))
+                    if ( ! args.length)
                     {
-                        args = args[0];
+                        if (args.length == 1 && Array.isArray(args[0]))
+                        {
+                            args = args[0];
+                        }
+                        
+                        return bundle.GetStringFromName(name);
                     }
-                    
-                    return bundle.GetStringFromName(name)
+                    else
+                    {
+                        args = Array.prototype.slice.call(args);
+                        return bundle.formatStringFromName(name, args, args.length);
+                    }
                 }
-                else
+                catch (e)
                 {
-                    args = Array.prototype.slice.call(args);
-                    return bundle.formatStringFromName(name, args, args.length);
+                    log.warn("Locale not found, returning default for " + name + " in " + properties);
+                    return name;
                 }
             }
         }
