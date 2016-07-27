@@ -325,9 +325,9 @@ this.note_curr_loc = function note_curr_loc(view, /* = currentView */
                 deferred_loc = [view, loc, check_section_change];
             else
                 this._note_loc(view, loc, check_section_change);
-            
-            this._marking = false;
         }
+        
+        this._marking = false;
     });
 };
 
