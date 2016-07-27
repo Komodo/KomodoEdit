@@ -180,9 +180,11 @@
                 let item = $("<richlistitem>");
                 item.attr("label", property.locale);
                 item.attr("name", property.name);
+                let styleguide = $("<label class='styleguide' value='A'/>");
+                if (style.color) styleguide.css("color", style.color);
+                if (style.background) styleguide.css("background", style.background);
+                item.append(styleguide);
                 item.append($("<label>").attr("value", property.locale));
-                if (style.color) item.css("color", style.color);
-                if (style.background) item.css("background", style.background);
                 item.element()._property = property;
                 
                 list.append(item);
@@ -220,9 +222,11 @@
             let item = $("<richlistitem>");
             item.attr("label", property.locale);
             item.attr("name", property.name);
+            let styleguide = $("<label class='styleguide' value='A'/>");
+            if (style.color) styleguide.css("color", style.color);
+            if (style.background) styleguide.css("background", style.background);
+            item.append(styleguide);
             item.append($("<label>").attr("value", property.locale));
-            if (style.color) item.css("color", style.color);
-            if (style.background) item.css("background", style.background);
             item.element()._property = property;
             
             list.append(item);
@@ -252,9 +256,11 @@
             let item = $("<richlistitem>");
             item.attr("label", property.name);
             item.attr("name", property.name);
+            let styleguide = $("<label class='styleguide' value='A'/>");
+            if (style.color) styleguide.css("color", style.color);
+            if (style.background) styleguide.css("background", style.background);
+            item.append(styleguide);
             item.append($("<label>").attr("value", property.name));
-            if (style.color) item.css("color", style.color);
-            if (style.background) item.css("background", style.background);
             item.element()._property = property;
             
             list.append(item);
