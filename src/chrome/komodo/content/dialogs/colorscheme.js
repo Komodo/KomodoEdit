@@ -20,11 +20,11 @@
     var loadedSampleId;
     
     var log = require("ko/logging").getLogger("colorscheme-editor");
+    var locale = require("ko/locale").use("chrome://komodo/locale/dialogs/colorscheme.properties");
     
     var styleProperties =  {
 
         'InterfaceStyles': {
-            locale: 'Interface',
             fields: ['iface-back'],
             properties: [
                 {
@@ -66,32 +66,29 @@
         },
 
         'CommonStyles': {
-            locale: 'Common',
             fields: ['reset', 'fore', 'back', 'bold', 'italic'],
             properties: [
                 {
                     name: 'default_fixed',
-                    locale: 'default font',
                     fields: ['back', 'fore', 'face', 'size', 'bold', 'italic', 'lineSpacing', 'useSelFore', 'caretLineVisible'],
                     explicit: { 'eolfilled': 0, 'hotspot': 0, 'useFixed': 1 }
                 },
-                { name: 'linenumbers', fields: ['back', 'fore', 'size', 'useFixed', 'bold', 'italic'] },
-                { name: 'stringeol', explicit: { 'eolfilled': true } },
-                
+                'classes','comments','functions','identifiers','keywords','keywords2','numbers',
+                'operators','strings','tags','variables','preprocessor','regex',
                 'attribute name','attribute value','bracebad','bracehighlight',
-                'classes','comments','control characters','fold markers','functions',
-                'identifiers','indent guides','keywords','keywords2','numbers',
-                'operators','preprocessor','regex','match_highlight','stderr',
-                'stdin','stdout','strings','tags','variables'
+                'match_highlight','stderr','stdin','stdout','control characters',
+                { name: 'stringeol', explicit: { 'eolfilled': true } },
+                'indent guides',
+                { name: 'linenumbers', fields: ['back', 'fore', 'size', 'useFixed', 'bold', 'italic'] },
+                'fold markers'
             ]
         },
         
         'Colors': {
             fields: ['color'],
             properties: [
-                'bookmarkColor','callingLineColor','caretFore','caretLineBack',
-                'changeMarginDeleted','changeMarginInserted','changeMarginReplaced',
-                'currentLineColor','edgeColor','foldMarginColor','selBack','selFore',
+                'foldMarginColor','bookmarkColor','callingLineColor','caretFore',
+                'caretLineBack','currentLineColor','edgeColor','selBack','selFore',
                 'whitespaceColor',
             ]
         },
@@ -163,7 +160,6 @@
                 continue;
             let parent = clone(styleProperties[parentName]);
             parent.name = parentName;
-            parent.locale = parent.locale || parent.name;
             delete parent.properties;
             
             for (let property of styleProperties[parentName].properties)
@@ -174,17 +170,15 @@
                 }
                 
                 property.parent = parent;
-                property.locale = property.locale || property.name;
                 
                 let style = this.getBasicPropertyStyle(property);
                 let item = $("<richlistitem>");
-                item.attr("label", property.locale);
                 item.attr("name", property.name);
                 let styleguide = $("<label class='styleguide' value='A'/>");
                 if (style.color) styleguide.css("color", style.color);
                 if (style.background) styleguide.css("background", style.background);
                 item.append(styleguide);
-                item.append($("<label>").attr("value", property.locale));
+                item.append($("<label>").attr("value", locale.get(property.name)));
                 item.element()._property = property;
                 
                 list.append(item);
@@ -205,7 +199,6 @@
         let parentName = 'InterfaceStyles';
         let parent = clone(styleProperties[parentName]);
         parent.name = parentName;
-        parent.locale = parent.locale || parent.name;
         delete parent.properties;
         
         for (let property of styleProperties[parentName].properties)
@@ -216,17 +209,15 @@
             }
             
             property.parent = parent;
-            property.locale = property.locale || property.name;
             
             let style = this.getBasicPropertyStyle(property);
             let item = $("<richlistitem>");
-            item.attr("label", property.locale);
             item.attr("name", property.name);
             let styleguide = $("<label class='styleguide' value='A'/>");
             if (style.color) styleguide.css("color", style.color);
             if (style.background) styleguide.css("background", style.background);
             item.append(styleguide);
-            item.append($("<label>").attr("value", property.locale));
+            item.append($("<label>").attr("value", locale.get(property.name)));
             item.element()._property = property;
             
             list.append(item);
@@ -254,13 +245,12 @@
             
             let style = this.getBasicPropertyStyle(property);
             let item = $("<richlistitem>");
-            item.attr("label", property.name);
             item.attr("name", property.name);
             let styleguide = $("<label class='styleguide' value='A'/>");
             if (style.color) styleguide.css("color", style.color);
             if (style.background) styleguide.css("background", style.background);
             item.append(styleguide);
-            item.append($("<label>").attr("value", property.name));
+            item.append($("<label>").attr("value", locale.get(property.name)));
             item.element()._property = property;
             
             list.append(item);
