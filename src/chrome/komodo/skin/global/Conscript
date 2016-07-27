@@ -67,6 +67,7 @@ $cons->InstallInChrome('components/scrolltabs.less');
 $cons->InstallInChrome('components/scc.less');
 $cons->InstallInChrome('components/customize.less');
 $cons->InstallInChrome('components/filestatus.less');
+$cons->InstallInChrome('components/toolbox.less');
 
 $cons->InstallInChrome('icons/style.less');
 $cons->InstallInChrome('icons/variables.less');
