@@ -1615,7 +1615,7 @@ class KoLanguageBase:
         indentlog.info("Found nothing, returning the line we ended up at.")
         return lineNo
     
-    def _analyzeIndentNeededAtPos(self, scimoz, pos, continueComments, style_info):
+    def _analyzeIndentNeededAtPos(self, scimoz, pos, continueComments, style_info, indentStyle=None):
         """ This function returns:
         
           - None if a 'plain' style indent should be done
@@ -1659,14 +1659,14 @@ class KoLanguageBase:
         log.debug("pos = %d, jumped = %d" % (pos, jumped))
         if pos != jumped:
             # recurse from the beginning of the statement
-            return self._analyzeIndentNeededAtPos(scimoz, jumped, continueComments, style_info)
+            return self._analyzeIndentNeededAtPos(scimoz, jumped, continueComments, style_info, indentStyle)
 
         # We're not indenting.  We may be doing a line-up,
         # having just finished a line-up
         # closing a comment, or doing a comment prefix
 
         shouldLineUp = self._shouldLineUp(scimoz, pos, style_info)
-        if shouldLineUp is not None:
+        if shouldLineUp is not None and (not indentStyle or not indentStyle.endswith('no_lineup')):
             indentlog.info("detected line-up")
             return shouldLineUp
 
@@ -2303,7 +2303,7 @@ class KoLanguageBase:
                 indentWidth = min(indentWidth, scimoz.getColumn(scimoz.currentPos))
                 return scimozindent.makeIndentFromWidth(scimoz, indentWidth)
             if self.supportsSmartIndent in ('brace', 'python', 'keyword'):
-                retVal = self._getSmartBraceIndent(scimoz, continueComments, style_info)
+                retVal = self._getSmartBraceIndent(scimoz, continueComments, style_info, indentStyle)
                 if retVal or self.supportsSmartIndent == 'python':
                     return retVal
             if self.supportsSmartIndent == 'XML':
@@ -2391,7 +2391,7 @@ class KoLanguageBase:
                                       allowExtraNewline, style_info):
         return None
         
-    def _getSmartBraceIndent(self, scimoz, continueComments, style_info):
+    def _getSmartBraceIndent(self, scimoz, continueComments, style_info, indentStyle=None):
         """ return the indent for the next line using the 'smart' algorithm"""
         currentPos = scimoz.currentPos
         if (scimoz.getColumn(currentPos) == 0):
@@ -2399,7 +2399,7 @@ class KoLanguageBase:
         # Save the current pos in case we end up checking for an
         # indenting/dedenting keyword
         self._originalPos = currentPos
-        analysis = self._analyzeIndentNeededAtPos(scimoz, currentPos, continueComments, style_info)
+        analysis = self._analyzeIndentNeededAtPos(scimoz, currentPos, continueComments, style_info, indentStyle)
         #indentlog.debug("_getSmartBraceIndent: self._analyzeIndentNeededAtPos(%d,%d) => <<%s>>", currentPos, continueComments, repr(analysis))
         if analysis == None:
             return self._getPlainIndent(scimoz, style_info)
