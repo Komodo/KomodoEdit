@@ -374,6 +374,8 @@ class _BaseCSSTestCase(CodeIntelTestCase):
         self.assertTriggerDoesNotMatch("@ <|>import;", name="css-complete-at-rule")
         at_rule_names = [ "import", "media", "charset", "font-face", "page" ]
         self.assertCompletionsInclude("@<|>import", [ ("rule", s) for s in at_rule_names ] )
+        non_at_rule_names = [ "extend", "mixin", "include" ] # some Sass and SCSS directives
+        self.assertCompletionsDoNotInclude("@<|>import", [ ("rule", s) for s in non_at_rule_names ] )
         # assert no trig in string or URL
         self.assertNoTrigger('body { background: "@<|>import"')
         #self.assertNoTrigger('body { background: url(@<|>media)')

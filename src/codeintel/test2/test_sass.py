@@ -330,6 +330,9 @@ class SassTestCase(CodeIntelTestCase):
         # Does not allow extra whitespace
         self.assertTriggerDoesNotMatch("@ <|>import;", name="css-complete-at-rule")
         at_rule_names = [ "import", "media", "charset", "font-face", "page" ]
+        at_rule_names += ["extend", "at-root", "debug", "warn", "error", "if",
+                          "for", "each", "while", "mixin", "include",
+                          "function"] # Sass and SCSS specific rules
         self.assertCompletionsInclude("@<|>import", [ ("rule", s) for s in at_rule_names ] )
         # assert no trig in string or URL
         self.assertNoTrigger('body\n   background: "@<|>import"')

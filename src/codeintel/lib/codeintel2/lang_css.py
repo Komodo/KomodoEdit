@@ -477,6 +477,13 @@ class CSSLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin):
 
         return sorted(["import", "media", "charset", "font-face", "page", "namespace", "keyframes"],
                       key=OrdPunctLast)
+    
+    @LazyClassAttribute
+    def SCSS_AT_RULE_NAMES(self):
+        return sorted(self.CSS_AT_RULE_NAMES +
+                      ["extend", "at-root", "debug", "warn", "error", "if",
+                       "for", "each", "while", "mixin", "include",
+                       "function"], key=OrdPunctLast)
 
     def preceding_trg_from_pos(self, buf, pos, curr_pos):
         DEBUG = DebugStatus # not using 'logging' system, because want to be fast
@@ -916,8 +923,12 @@ class CSSLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin):
                 ctlr.set_cplns(cplns)
                 ctlr.done("success")
             elif trg.id == ("CSS", TRG_FORM_CPLN, "at-rule"):
-                cplns = [("rule", v)
-                         for v in self.CSS_AT_RULE_NAMES]
+                if self.lang != "SCSS" and self.lang != "Sass":
+                    cplns = [("rule", v)
+                             for v in self.CSS_AT_RULE_NAMES]
+                else:
+                    cplns = [("rule", v)
+                             for v in self.SCSS_AT_RULE_NAMES]
                 ctlr.set_cplns(cplns)
                 ctlr.done("success")
     
