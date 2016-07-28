@@ -7,7 +7,7 @@
   "trigger": "trigger_postopen", 
   "value": [
     "try {", 
-    "    ko.extensions.rails.generateRailsObject(this,", 
+    "    ko.extensions.rails.generateRailsObject(window,", 
     "                                        null, // extensions", 
     "                                        'migration');", 
     "} catch(ex) {", 

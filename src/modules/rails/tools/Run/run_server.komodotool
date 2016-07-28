@@ -14,7 +14,7 @@
     "        }", 
     "        var versionNo = ko.extensions.rails.getRailsVersionInRange(2, 3);", 
     "        var cmd = cmd_by_version[versionNo];", 
-    "        ko.extensions.rails.launchRubyAppInConsole(this, cmd);", 
+    "        ko.extensions.rails.launchRubyAppInConsole(window, cmd);", 
     "    } catch(ex) {", 
     "        alert(ex + \"\\n\");", 
     "    }", 

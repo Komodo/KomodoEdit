@@ -8,7 +8,7 @@
   "value": [
     "(function() {    ", 
     "    try {", 
-    "        ko.extensions.rails.manageDatabases(this, 'delete', 'deletion');", 
+    "        ko.extensions.rails.manageDatabases(window, 'delete', 'deletion');", 
     "    } catch(ex) {", 
     "\tif (ex.message == \"You cancelled.\") {", 
     "\t    return;", 

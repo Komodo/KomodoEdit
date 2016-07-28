@@ -8,7 +8,7 @@
   "value": [
     "try {", 
     "    var uri = 'git://github.com/mislav/will_paginate.git';", 
-    "    ko.extensions.rails.installPlugin(this, uri);", 
+    "    ko.extensions.rails.installPlugin(window, uri);", 
     "} catch(ex) {", 
     "    alert(ex + \"\\n\");", 
     "}"

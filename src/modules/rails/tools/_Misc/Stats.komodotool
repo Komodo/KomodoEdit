@@ -12,7 +12,7 @@
     "    var options = {", 
     "        env: obj.env", 
     "    };", 
-    "    ko.extensions.rails.runCommand(this, obj.rake + ' stats', options);", 
+    "    ko.extensions.rails.runCommand(window, obj.rake + ' stats', options);", 
     "} catch(ex) {", 
     "    alert(ex + \"\\n\");", 
     "}"

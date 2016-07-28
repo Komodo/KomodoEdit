@@ -8,7 +8,7 @@
   "value": [
     "try {", 
     "    var uri = 'https://github.com/rails/in_place_editing.git';", 
-    "    ko.extensions.rails.installPlugin(this, uri);", 
+    "    ko.extensions.rails.installPlugin(window, uri);", 
     "} catch(ex) {", 
     "    alert(ex + \"\\n\");", 
     "}"

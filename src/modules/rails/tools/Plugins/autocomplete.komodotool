@@ -7,7 +7,7 @@
   "trigger": "trigger_postopen", 
   "value": [
     "try {", 
-    "    ko.extensions.rails.installPlugin(this, 'http://svn.rubyonrails.org/rails/plugins/auto_complete');", 
+    "    ko.extensions.rails.installPlugin(window, 'http://svn.rubyonrails.org/rails/plugins/auto_complete');", 
     "} catch(ex) {", 
     "    alert(ex + \"\\n\");", 
     "}"

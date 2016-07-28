@@ -13,7 +13,7 @@
     "        env: obj.env,", 
     "        __END__ : null", 
     "    };", 
-    "    ko.extensions.rails.runCommand(this, obj.rake + ' test:units', options);", 
+    "    ko.extensions.rails.runCommand(window, obj.rake + ' test:units', options);", 
     "} catch(ex) {", 
     "    alert(ex + \"\\n\");", 
     "}"

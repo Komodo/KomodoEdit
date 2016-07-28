@@ -14,7 +14,7 @@
     "    } else {", 
     "        names = ['model', 'list of name:type attributes'];", 
     "    }", 
-    "    ko.extensions.rails.generateRailsObject(this,", 
+    "    ko.extensions.rails.generateRailsObject(window,", 
     "                                        {'.rb':null, '.rhtml':null, '.html.erb':null}, // extensions", 
     "                                        'scaffold',", 
     "                                        names);", 

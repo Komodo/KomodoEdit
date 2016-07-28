@@ -74,7 +74,7 @@
     "            }", 
     "        }", 
     "        var port = ko.dbg.listener.port;", 
-    "        launchDebugger(this, host, port, rbpath);", 
+    "        launchDebugger(window, host, port, rbpath);", 
     "    } catch(ex) {", 
     "        alert(ex + \"\\n\");", 
     "    }", 

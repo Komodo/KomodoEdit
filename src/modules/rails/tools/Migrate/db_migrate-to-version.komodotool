@@ -18,7 +18,7 @@
     "    if (version && /^\\d+$/.test(version)) {", 
     "        cmd += \" VERSION=\" + version;", 
     "    }", 
-    "    ko.extensions.rails.runCommand(this, cmd, options);", 
+    "    ko.extensions.rails.runCommand(window, cmd, options);", 
     "} catch(ex) {", 
     "    alert(ex + \"\\n\");", 
     "}"
