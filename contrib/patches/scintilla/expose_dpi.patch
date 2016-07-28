@@ -79,7 +79,7 @@ index a6ae84e..b6b2117 100644
  int SurfaceImpl::DeviceHeightFont(int points) {
  	int logPix = LogPixelsY();
 -	return (points * logPix + logPix / 2) / 72;
-+	return (points * logPix + logPix / 2) / 96;
++	return (points * logPix + logPix / 2) / logPix;
  }
  
  void SurfaceImpl::MoveTo(int x_, int y_) {
