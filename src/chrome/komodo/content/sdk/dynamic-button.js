@@ -140,6 +140,26 @@
             if (menuitems instanceof window.XULElement)
             {
                 for (let childNode of Array.slice(menuitems.childNodes)) {
+                    
+                    // Add stopPropagation to oncommand and command
+                    let type = null;
+                    if (childNode.getAttribute("oncommand"))
+                        type = "oncommand";
+                    if (childNode.getAttribute("command"))
+                        type = "command";
+                        
+                    if (type)
+                    {
+                        let cmd = childNode.getAttribute(type);
+                        
+                        // Wrap with doCommand if this is just a word (command name)
+                        if (cmd.match(/^[\w-]*$/))
+                            cmd = "ko.commands.doCommandAsync('"+cmd+"', event)";
+                            
+                        childNode.setAttribute(type, cmd.replace(/[\s;]*$/g,'') + "; event.stopPropagation();");
+                        childNode.removeAttribute("observes"); // observes overrides oncommand
+                    }
+                    
                     menupopup.append(childNode);
                 }
                 return;
@@ -239,10 +259,10 @@
                     let cmd = menuitem.command;
                     
                     // Wrap with doCommand if this is just a word (command name)
-                    if (menuitem.command.match(/^[\w-]*$/))
+                    if (cmd.match(/^[\w-]*$/))
                         cmd = "ko.commands.doCommandAsync('"+menuitem.command+"', event)";
                         
-                    elem.attr("oncommand", menuitem.command.replace(/[\s;]*$/g,'') + "; event.stopPropagation();");
+                    elem.attr("oncommand", cmd.replace(/[\s;]*$/g,'') + "; event.stopPropagation();");
                 }
                 else
                     elem.on("command", function(m, event) { m.command(); event.stopPropagation(); }.bind(null, menuitem));
