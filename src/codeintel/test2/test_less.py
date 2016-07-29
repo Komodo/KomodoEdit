@@ -160,6 +160,31 @@ class Less_StraightTest(_BaseCSSTestCase):
 class SCSS_StraightTest(Less_StraightTest):
     lang = "SCSS"
 
+    def test_complete_at_rule(self):
+        #        @<|>import:<|>hover;  # implicit: on "@"
+        #        @<|>page;
+        self.assertTriggerMatches("@<|>import;", name="css-complete-at-rule", pos=1)
+        self.assertTriggerMatches("@<|>media;", name="css-complete-at-rule", pos=1)
+        # Can trigger inside the word
+        # XXX - Scopped for now
+        #self.assertTriggerMatches("@med<|>ia;", name="css-complete-at-rule", pos=1)
+        # Does not occurs in block sections
+        # XXX - Fails, due to lexer not highlighting this correctly
+        #self.assertTriggerDoesNotMatch("h1\n   @<|>import ", name="css-complete-at-rule")
+        # Only occurs before rule sets
+        # XXX - Fails, due to lexer not highlighting correctly
+        #self.assertTriggerDoesNotMatch("h1\n   color: blue \n\n@<|>import ", name="css-complete-at-rule")
+        # Does not allow extra whitespace
+        self.assertTriggerDoesNotMatch("@ <|>import;", name="css-complete-at-rule")
+        at_rule_names = [ "import", "media", "charset", "font-face", "page" ]
+        at_rule_names += ["extend", "at-root", "debug", "warn", "error", "if",
+                          "for", "each", "while", "mixin", "include",
+                          "function"] # Sass and SCSS specific rules
+        self.assertCompletionsInclude("@<|>import", [ ("rule", s) for s in at_rule_names ] )
+        # assert no trig in string or URL
+        self.assertNoTrigger('body\n   background: "@<|>import"')
+        #self.assertNoTrigger('body\n   background: url(@<|>media)')
+
     def test_trg_at_sign(self):
         """
         SCSS does not have @variables, so ensure all @ triggers are for
