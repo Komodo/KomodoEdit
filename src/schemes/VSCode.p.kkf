@@ -152,9 +152,6 @@ binding cmd_scope-docs Shift+F1
 
 # Code completion
 binding cmd_goToDefinition F12
-# #if WITH_CODE_BROWSER
-binding cmd_codeBrowserLocate Ctrl+K Ctrl+L
-# #endif
 binding cmd_completeWord Ctrl+Space
 binding cmd_triggerPrecedingCompletion Ctrl+J
 binding cmd_triggerPrecedingCompletion Ctrl+Shift+Space
@@ -201,9 +198,6 @@ binding cmd_viewPlaces Ctrl+Shift+E
 binding cmd_viewToolbox Ctrl+Shift+L
 binding cmd_viewFullScreen F11
 binding cmd_focusmode Shift+F11
-# #if WITH_CODE_BROWSER
-#binding cmd_viewCodeBrowser Ctrl+Shift+C
-# #endif
 
 # Zoom
 binding cmd_fontZoomIn Ctrl++
@@ -217,17 +211,6 @@ binding cmd_fontZoomReset Ctrl+0
 
 # Projects and SCC
 binding cmd_refreshStatus Ctrl+K R
-# #if WITH_SCC
-binding cmd_SCCedit Ctrl+K E
-binding cmd_SCCremove_File_File Ctrl+K O
-binding cmd_SCCdiff Ctrl+K D
-binding cmd_SCChistory Ctrl+K H
-binding cmd_SCCrevert Ctrl+K V
-binding cmd_SCCupdate Ctrl+K U
-binding cmd_SCCadd_File_File Ctrl+K A
-binding cmd_SCCcommit Ctrl+K C
-binding cmd_SCCcheckout Ctrl+K K
-# #endif
 
 # Debugging / DBGP
 binding cmd_dbgGo F5 
@@ -246,11 +229,6 @@ binding cmd_dbgBreakNow Ctrl+ShiftF5
 binding cmd_executeLastMacro Ctrl+K _
 binding cmd_startMacroMode Ctrl+K (
 binding cmd_stopMacroMode Ctrl+K )
-
-# Tests
-# #if WITH_SLEUTH
-binding cmd_runCurrentTestPlan Ctrl+K T
-# #endif
 
 # Commando
 binding cmd_scope-combined Ctrl+Shift+O
