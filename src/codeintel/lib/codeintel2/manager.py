@@ -421,6 +421,10 @@ class Manager(threading.Thread, Queue):
     MAX_FILESIZE = 1 * 1024 * 1024   # 1MB
 
     def buf_from_path(self, path, lang=None, env=None, encoding=None):
+        if lang != "Ruby":
+            path = os.path.normpath(path) # reduce ./, ../, etc.
+            # TODO: Ruby handles relative imports really weirdly. If
+            # `normpath()` is used in Ruby, many of the Rails tests will fail.
         # Detect and abort on large files - to avoid memory errors, bug 88487.
         # The maximum size is 1MB - someone uses source code that big?
         filestat = os.stat(path)
