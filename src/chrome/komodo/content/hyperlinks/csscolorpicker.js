@@ -61,6 +61,8 @@ ko.hyperlinks.ColorPickerHandler = function()
     prefs.prefObserverService.addObserver(this, this.enabledPrefName, 0);
     this.enabled = prefs.getBooleanPref(this.enabledPrefName);
     ko.main.addWillCloseHandler(this.destroy, this);
+    
+    this.hideTimer = null;
 }
 
 // The following two lines ensure proper inheritance (see Flanagan, p. 144).
@@ -266,32 +268,27 @@ ko.hyperlinks.ColorPickerHandler.prototype.show = function(
 
     if (hyperlink) {
         // Show a color swatch element (as well as the hyperlink).
+        var reposition = false;
+        var div;
         var popup = document.getElementById("colorpicker_swatch_popup");
-        if (popup != null) {
-            popup.remove();
+        if (popup) {
+            reposition = true;
+            clearTimeout(this.hideTimer);
+            div = popup.firstChild;
+        }
+        else {
+            popup = document.createElement('tooltip');
+            popup.setAttribute('id', 'colorpicker_swatch_popup');
+            popup.setAttribute('noautohide', 'true');
+            div = document.createElement('div');
+            div.setAttribute("id", "colorpicker_swatch");
+            div.setAttribute("class", "colorpicker_swatch");
+            popup.appendChild(div);
+            document.documentElement.appendChild(popup);
         }
         
-        var div;
-        var os_prefix = window.navigator.platform.substring(0, 3).toLowerCase();
-        // This swatch element works better as a "tooltip" on Linux, as the
-        // "popup" element causes mouse cursor flickering on mouseover.
-        // Windows can go either way, though the "tooltip" gives a
-        // nicer looking border.
-        // For the Mac, it's better as a "tooltip", otherwise there can be
-        // problems clicking on the hyperlink whilst the color swatch is
-        // shown.
-        popup = document.createElement('tooltip');
-        popup.setAttribute('id', 'colorpicker_swatch_popup');
-        div = document.createElement('div');
-        div.setAttribute("id", "colorpicker_swatch");
-        div.setAttribute("class", "colorpicker_swatch");
-        div.setAttribute("style", "cursor: pointer");
-        popup.appendChild(div);
-        document.documentElement.appendChild(popup);
-
         var sm = view.scimoz;
         var color = sm.getTextRange(hyperlink.startPos, hyperlink.endPos);
-        div.textContent = color;
         if (color.substr(0, 4) == "rgba" || color.substr(0, 3) == "hsl") {
             div.style.background = color;
         } else {
@@ -299,22 +296,14 @@ ko.hyperlinks.ColorPickerHandler.prototype.show = function(
             div.style.background = color;
         }
         
-        var koColorScheme = require("ko/colorscheme");
-        var scheme = koColorScheme.get("editor-scheme");
         var koEditor = require("ko/editor");
-        var koColor = require("ko/color");
+        var pos = koEditor.getWindowPosition(hyperlink.endPos);
+        var textWidth = koEditor.defaultTextWidth();
         
-        var pos = koEditor.getWindowPosition(hyperlink.startPos);
-        var lineHeight = koEditor.defaultTextHeight();
-        
-        div.style.fontFamily = scheme.getFont("fixed");
-        div.style.fontSize = scheme.getSize("default", "fixed") + "pt";
-        div.style.color = koColor.isDark(color) ? "#FFF" : "#000";
-        
-        popup.openPopup(null, null, pos.x, pos.y+1, false, false);
-        popup.moveTo(window.screenX + pos.x, window.screenY + pos.y+1);
-        
-        popup.addEventListener("click", this.jump.bind(this, view, hyperlink));
+        if (!reposition) {
+            popup.openPopup(null, null, pos.x + textWidth, pos.y+1, false, false);
+        }
+        popup.moveTo(window.screenX + pos.x + textWidth, window.screenY + pos.y+1);
     }
     return hyperlink;
 }
@@ -332,8 +321,10 @@ ko.hyperlinks.ColorPickerHandler.prototype.remove = function(view, hyperlink, re
     ko.hyperlinks.RegexHandler.prototype.remove.apply(this, arguments);
     var popup = document.getElementById("colorpicker_swatch_popup");
     if (popup) {
-        popup.remove();
+        clearTimeout(this.hideTimer);
+        this.hideTimer = setTimeout(function() { popup.remove(); }, 200);
     }
+    this.activeHyperlink = null;
     return true;
 }
 
@@ -348,10 +339,10 @@ ko.hyperlinks.ColorPickerHandler.prototype.jump = function(view, hyperlink)
     // Remove the color swatch tooltip if it's still showing.
     var popup = document.getElementById("colorpicker_swatch_popup");
     if (popup) {
-        popup.remove();
+        clearTimeout(this.hideTimer);
+        this.hideTimer = setTimeout(function() { popup.remove(); }, 200);
     }
-    view.removeHyperlinks("mouseup");
-    view._isHyperlinkAllowed = false;
+    this.activeHyperlink = null;
     this.showColorPicker(view, hyperlink);
 }
 
