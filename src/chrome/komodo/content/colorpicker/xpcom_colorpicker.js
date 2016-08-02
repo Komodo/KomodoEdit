@@ -33,7 +33,7 @@ koColorPicker.prototype = {
     QueryInterface: XPCOMUtils.generateQI([Ci.koIColorPicker,
                                            Ci.koIColorPickerAsync]),
 
-    chromeURL: "chrome://komodo/content/colorpicker/colorpicker.html",
+    chromeURL: "chrome://komodo/content/colorpicker/colorpicker.xul",
 
     /**
      * Select a color from the Komodo color picker dialog.

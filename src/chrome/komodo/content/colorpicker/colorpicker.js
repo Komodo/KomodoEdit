@@ -367,7 +367,7 @@ Refresh.Web.ColorPicker.prototype = {
 				break;
 				
 			default:
-				alert('invalid mode');
+				window.opener.require('ko/dialogs').alert('invalid mode');
 				break;
 		}
 		
@@ -589,7 +589,7 @@ Refresh.Web.ColorPicker.prototype = {
 			var rgba = [c.r, c.g, c.b, c.a].join(',');
 			this._preview.style.backgroundColor = 'rgba(' + rgba + ")";
 		} catch (e) {
-			alert(e.message);
+			_window.opener.require('ko/dialogs').alert(e.message);
 		}
 	},
 	updateMapVisuals: function() {
@@ -707,6 +707,6 @@ Refresh.Web.ColorPicker.prototype = {
 function colorpicker_keypress_handler(event)
 {
 	if (event.keyCode == KeyEvent.DOM_VK_ESCAPE) {
-	    window.close();
+	    _window.close();
 	}
 }

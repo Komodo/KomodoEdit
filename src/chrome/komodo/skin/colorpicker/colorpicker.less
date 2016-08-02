@@ -1,0 +1,49 @@
+@import url("chrome://komodo/skin/global/colors.less");
+@import url("resource://profile/colors.less");
+
+body {
+    font-family: @font;
+    font-size: @size;
+    background: @contrast;
+    foreground: @foreground;
+    width: 100%;
+    overflow: hidden;
+}
+
+::-moz-selection {
+    background: @selected;
+    color: @selected-foreground;
+}
+
+table {
+    margin: 0;
+    
+    & input {
+        background: @textbox;
+        color: @textbox-foreground;
+        border: none;
+        padding: 3px;
+        box-sizing: border-box;
+        margin: 4px 0;
+        
+        &:focus {
+            border: 2px solid @secondary-special;
+        }
+    }
+}
+
+.dialog-buttons {
+    margin-top: 20px;
+    text-align: center;
+    
+    & > input {
+        background: @button;
+        color: @button-foreground;
+        border: none;
+        padding: 3px;
+        
+        &:hover {
+            background: @secondary-special;
+        }
+    }
+}

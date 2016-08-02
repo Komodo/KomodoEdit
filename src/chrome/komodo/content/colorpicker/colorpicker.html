@@ -31,21 +31,16 @@
 	<html xmlns="http://www.w3.org/1999/xhtml" >
 	<head>
 		<title>Color Picker</title>
-		<style type="text/css">
-		body, td {
-			font-family: tahoma;
-			font-size: 10pt;
-		}
-		</style>
-	
+		<link href="less://komodo/skin/colorpicker/colorpicker.less" rel="stylesheet" />
 		<script type="text/javascript" src="chrome://komodo/content/colorpicker/colormethods.js" ></script>
 		<script type="text/javascript" src="chrome://komodo/content/colorpicker/colorvaluepicker.js" ></script>
 		<script type="text/javascript" src="chrome://komodo/content/colorpicker/slider.js" ></script>
 		<script type="text/javascript" src="chrome://komodo/content/colorpicker/colorpicker.js" ></script>
 		<script type="text/javascript">
-			window.addEventListener("load", function(e) {
-				var color = window.arguments[0].color;
-				var alpha = window.arguments[0].alpha;
+            window._window = window.parent; // we're referring to window in some color scripts, so make it global
+			_window.addEventListener("load", function(e) {
+				var color = _window.arguments[0].color;
+				var alpha = _window.arguments[0].alpha;
 				var startMode;
 				var colorMode;
 				if (parseInt(alpha) == 1) {
@@ -60,14 +55,14 @@
 				window.cp1 = new window.Refresh.Web.ColorPicker('cp1',{color: color, startMode: startMode, colorMode: colorMode, alpha: alpha});
 				window.addEventListener("keypress", colorpicker_keypress_handler, true);
 			}, true);
-			window.addEventListener("unload", function(e) {
+			_window.addEventListener("unload", function(e) {
 				var color = window.cp1.getColorAsHex();
 				var alpha = window.cp1.getAlphaValue();
-				window.arguments[0].color = color;
-				window.arguments[0].alpha = alpha;
-				window.arguments[0].retval = window.retval;
-				if (window.retval && window.arguments[0].callback) {
-					window.arguments[0].callback(window.arguments[0].color);
+				_window.arguments[0].color = color;
+				_window.arguments[0].alpha = alpha;
+				_window.arguments[0].retval = _window.retval;
+				if (window.retval && _window.arguments[0].callback) {
+					_window.arguments[0].callback(_window.arguments[0].color);
 				}
 				window.removeEventListener("keypress", colorpicker_keypress_handler, true);
 			}, true);
@@ -107,9 +102,9 @@
             </tr>
 		</table>
 	
-	<div style="text-align: center">
-		<input type="button" id="ok_button" accesskey="O" onclick="window.retval = 1; window.close();" value="OK" style="min-width: 70px">
-		<input type="button" id="cancel_button" accesskey="C" onclick="window.retval = 0; window.close();" value="Cancel" style="min-width: 70px">
+	<div class="dialog-buttons">
+		<input type="button" id="ok_button" accesskey="O" onclick="_window.retval = 1; _window.close();" value="OK" style="min-width: 70px">
+		<input type="button" id="cancel_button" accesskey="C" onclick="_window.retval = 0; _window.close();" value="Cancel" style="min-width: 70px">
 	</div>
 
 </body>
