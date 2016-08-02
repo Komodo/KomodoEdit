@@ -98,9 +98,13 @@ Refresh.Web.ColorValuePicker.prototype = {
 		_rgb[0] = this._setValueInRange(rgb[0],0,255);
 		_rgb[1] = this._setValueInRange(rgb[1],0,255);
 		_rgb[2] = this._setValueInRange(rgb[2],0,255);
-		_rgb[3] = this._setValueInRange(rgb[3],0.0,1.0,true);
-		if (rgb.join() != _rgb.join() && (rgb[3] != "0." || rgb[3].length == 3))
-			this._rgbInput.value = 'rgb(' + [_rgb[0],_rgb[1],_rgb[2]].join(',') + ')';
+        if (rgb[3].length != 2)
+            _rgb[3] = this._setValueInRange(rgb[3],0.0,1.0,true);
+        else
+            _rgb[3] = rgb[3];
+		if (rgb.join() != _rgb.join()) {
+			this._rgbInput.value = 'rgba(' + [_rgb[0],_rgb[1],_rgb[2],_rgb[3]].join(',') + ')';
+        }
 		
 		return null;
 	},
