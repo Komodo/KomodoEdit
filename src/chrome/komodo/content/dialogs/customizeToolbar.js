@@ -110,7 +110,7 @@
             
             var listitem = $("<hbox class='list-item'/>");
             if (this.id) {
-                listitem.attr("id", this.id);
+                listitem.attr("id", "customize-"+this.id);
             }
             listitem.attr("ishidden", this.getAttribute("kohidden"));
             listitem.element()._originalElement = this;
