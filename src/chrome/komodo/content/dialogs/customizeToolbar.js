@@ -109,6 +109,9 @@
         $("#"+which+"-toolboxrow toolbaritem", w).each(function() {
             
             var listitem = $("<hbox class='list-item'/>");
+            if (this.id) {
+                listitem.attr("id", this.id);
+            }
             listitem.attr("ishidden", this.getAttribute("kohidden"));
             listitem.element()._originalElement = this;
             el.append(listitem);
