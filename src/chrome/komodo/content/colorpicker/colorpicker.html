@@ -44,26 +44,30 @@
 		<script type="text/javascript" src="chrome://komodo/content/colorpicker/colorpicker.js" ></script>
 		<script type="text/javascript">
 			window.addEventListener("load", function(e) {
-				var hexColor = window.arguments[0].hexColor;
-				var startMode = window.arguments[0].colorMode || 'h';
-				window.addHash = false;
-				if (hexColor[0] == "#") {
-					window.addHash = true;
-					hexColor = hexColor.substr(1);
+				var color = window.arguments[0].color;
+				var alpha = window.arguments[0].alpha;
+				var startMode;
+				var colorMode;
+				if (parseInt(alpha) == 1) {
+					colorMode = "hex";
+					startMode = "h";
 				}
-				window.cp1 = new window.Refresh.Web.ColorPicker('cp1',{startHex: hexColor, startMode: startMode});
+				if (parseFloat(alpha) < 1) {
+					colorMode = "rgb";
+					startMode = "h";
+				}
+				window.startMode = startMode;
+				window.cp1 = new window.Refresh.Web.ColorPicker('cp1',{color: color, startMode: startMode, colorMode: colorMode, alpha: alpha});
 				window.addEventListener("keypress", colorpicker_keypress_handler, true);
 			}, true);
 			window.addEventListener("unload", function(e) {
-				var hexColor = window.cp1.getColorAsHex();
-				if (window.addHash) {
-					hexColor = "#" + hexColor;
-				}
-				window.arguments[0].hexColor = hexColor;
-				window.arguments[0].colorMode = window.cp1.ColorMode;
+				var color = window.cp1.getColorAsHex();
+				var alpha = window.cp1.getAlphaValue();
+				window.arguments[0].color = color;
+				window.arguments[0].alpha = alpha;
 				window.arguments[0].retval = window.retval;
 				if (window.retval && window.arguments[0].callback) {
-					window.arguments[0].callback(hexColor);
+					window.arguments[0].callback(window.arguments[0].color);
 				}
 				window.removeEventListener("keypress", colorpicker_keypress_handler, true);
 			}, true);

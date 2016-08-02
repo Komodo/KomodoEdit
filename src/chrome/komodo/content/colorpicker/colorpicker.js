@@ -18,14 +18,19 @@ Refresh.Web.ColorPicker = function(id, settings) {
 	this.id = id;
 	this.settings = {
 		startMode:'h',
-		startHex:'ff0000',
+		color:'ff0000',
+        alpha: 1,
 		clientFilesPath: 'chrome://komodo/skin/images/colorpicker/'
 	}
 	if (settings) {
 		if ('startMode' in settings)
 			this.settings.startMode = settings.startMode;
-		if ('startHex' in settings)
-			this.settings.startHex = settings.startHex;
+        if ('startMode' in settings)
+			this.settings.startMode = settings.startMode;
+		if ('color' in settings)
+			this.settings.color = settings.color;
+        if ('alpha' in settings)
+			this.settings.alpha = settings.alpha;
 		if ('clientFilesPath' in settings)
 			this.settings.clientFilesPath = settings.clientFilesPath;
 	}
@@ -119,7 +124,7 @@ Refresh.Web.ColorPicker = function(id, settings) {
 	this._slider = new Refresh.Web.Slider(this._barL4, {xMinValue: 1,xMaxValue: 1, yMinValue: 255, arrowImage: this.settings.clientFilesPath + 'rangearrows.gif', width: "24px"});
 
 	// attach color values
-	this._cvp = new Refresh.Web.ColorValuePicker(this.id);
+	this._cvp = new Refresh.Web.ColorValuePicker(this.id, this, this.settings);
 	
 	this._cvp._hexInput.addEventListener("click", function(e) {
 		this_.setColorMode("h");
@@ -168,12 +173,21 @@ Refresh.Web.ColorPicker = function(id, settings) {
 	this.setColorFromHex(this.settings.startHex);
 	this.color = null;
 	
-	this._preview2.style.backgroundColor = '#' + this.settings.startHex;
+	
+	if (this.settings.alpha == 1) {
+		this.setColorFromHex(this.settings.color);
+		this._preview2.style.backgroundColor = '#' + this.settings.color;
+    } else {
+		this.setColorFromHexToRgba(this.settings.color, this.settings.alpha, this._preview2);
+	}
 }
 Refresh.Web.ColorPicker.prototype = {
 
 	getColorAsHex: function()  {
 		return this._cvp._hexInput.value;
+	},
+	getAlphaValue: function() {
+		return this._cvp._rgbInput.value.split(/(?:rgba\(|\))/)[1].split(/\s*,\s*/)[3];
 	},
 	setColorFromHex: function(hexValue)  {
 		if (!hexValue) {
@@ -182,6 +196,16 @@ Refresh.Web.ColorPicker.prototype = {
 		this._cvp._hexInput.value = "#" + hexValue;
 		this._cvp.setValuesFromHex();
 
+		this.positionMapAndSliderArrows();
+		this.updateVisuals();
+	},
+	setColorFromHexToRgba: function (hex, alpha, preview) {
+		this._cvp._hexInput.value = "#" + hex;
+		var rgb = Refresh.Web.ColorMethods.hexToRgb(hex);
+		var rgba = [rgb.r, rgb.g, rgb.b, alpha];
+		preview.style.backgroundColor = "rgba(" + rgba.join(",") + ")";
+		this._cvp._rgbInput.value = "rgba(" + rgba.join(",") + ")";
+		this._cvp.setValuesFromRgb();
 		this.positionMapAndSliderArrows();
 		this.updateVisuals();
 	},
@@ -380,7 +404,7 @@ Refresh.Web.ColorPicker.prototype = {
 	},
 	mapValueChanged: function() {
 		// update values
-
+		var alpha = this._cvp.color.a;
 		switch(this.ColorMode) {
 			case 'h':
 				this._cvp._hslInput.value = 'hsl(' + [this._cvp.color.h,
@@ -398,19 +422,19 @@ Refresh.Web.ColorPicker.prototype = {
 													  this._cvp.color.v].join(',') + ')';
 				break;
 			case 'r':
-				this._cvp._rgbInput.value = 'rgb(' + [this._cvp.color.r,
+				this._cvp._rgbInput.value = 'rgba(' + [this._cvp.color.r,
 													  256 - this._map.yValue,
-													  this._map.xValue].join(',') + ')';
+													  this._map.xValue,alpha].join(',') + ')';
 				break;
 			case 'g':
-				this._cvp._rgbInput.value = 'rgb(' + [256 - this._map.yValue,
+				this._cvp._rgbInput.value = 'rgba(' + [256 - this._map.yValue,
 													  this._cvp.color.g,
-													  this._map.xValue].join(',') + ')';
+													  this._map.xValue,alpha].join(',') + ')';
 				break;
 			case 'b':
-				this._cvp._rgbInput.value = 'rgb(' + [this._map.xValue,
+				this._cvp._rgbInput.value = 'rgba(' + [this._map.xValue,
 													  256 - this._map.yValue,
-													  this._cvp.color.b].join(',') + ')';
+													  this._cvp.color.b,alpha].join(',') + ')';
 		}
 		
 		switch(this.ColorMode) {
@@ -431,7 +455,7 @@ Refresh.Web.ColorPicker.prototype = {
 		this.updateVisuals();
 	},
 	sliderValueChanged: function() {
-		
+		var alpha = this._cvp.color.a;
 		switch(this.ColorMode) {
 			case 'h':
 				this._cvp._hslInput.value = 'hsl(' + [360 - this._slider.yValue,
@@ -450,19 +474,19 @@ Refresh.Web.ColorPicker.prototype = {
 				break;
 				
 			case 'r':
-				this._cvp._rgbInput.value = 'rgb(' + [255 - this._slider.yValue,
+				this._cvp._rgbInput.value = 'rgba(' + [255 - this._slider.yValue,
 													  this._cvp.color.g,
-													  this._cvp.color.b].join(',') + ')';
+													  this._cvp.color.b,alpha].join(',') + ')';
 				break;
 			case 'g':
-				this._cvp._rgbInput.value = 'rgb(' + [this._cvp.color.r,
+				this._cvp._rgbInput.value = 'rgba(' + [this._cvp.color.r,
 													  255 - this._slider.yValue,
-													  this._cvp.color.b].join(',') + ')';
+													  this._cvp.color.b,alpha].join(',') + ')';
 				break;
 			case 'b':
-				this._cvp._rgbInput.value = 'rgb(' + [this._cvp.color.r,
+				this._cvp._rgbInput.value = 'rgba(' + [this._cvp.color.r,
 													  this._cvp.color.g,
-													  255 - this._slider.yValue].join(',') + ')';
+													  255 - this._slider.yValue,alpha].join(',') + ')';
 				break;				
 		}
 		
@@ -561,7 +585,9 @@ Refresh.Web.ColorPicker.prototype = {
 	},
 	updatePreview: function() {
 		try {
-			this._preview.style.backgroundColor = '#' + this._cvp.color.hex;
+			var c = this._cvp.color;
+			var rgba = [c.r, c.g, c.b, c.a].join(',');
+			this._preview.style.backgroundColor = 'rgba(' + rgba + ")";
 		} catch (e) {
 			alert(e.message);
 		}
@@ -622,7 +648,7 @@ Refresh.Web.ColorPicker.prototype = {
 				var hValue = 0;
 				var vValue = 0;
 				
-				var rgb = this._cvp._rgbInput.value.split(/(?:rgb\(|\))/)[1].split(/\s*,\s*/)
+				var rgb = this._cvp._rgbInput.value.split(/(?:rgba\(|\))/)[1].split(/\s*,\s*/)
 				if (this.ColorMode == 'r') {
 					hValue = rgb[2];
 					vValue = rgb[1];
