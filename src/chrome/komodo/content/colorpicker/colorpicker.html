@@ -65,7 +65,6 @@
                 var alpha = window.cp1.getAlphaValue();
                 window.arguments[0].color = color;
                 window.arguments[0].alpha = alpha;
-                window.arguments[0].colorMode = window.cp1.ColorMode;
                 window.arguments[0].retval = window.retval;
                 if (window.retval && window.arguments[0].callback) {
                     window.arguments[0].callback(window.arguments[0].color);
@@ -104,11 +103,6 @@
             <tr>
                 <td colspan="2">
                     <input type="text" id="cp1_HSL" value="hsl(0,100%,100%)" style="text-align: center; letter-spacing: 2px; font-weight: bold; width: 290px;" />
-                </td>
-            </tr>
-            <tr>
-                <td colspan="2">
-                    <input type="text" id="cp1_A" value="1.0" style="text-align: center; letter-spacing: 2px; font-weight: bold; width: 290px;" />
                 </td>
             </tr>
         </table>

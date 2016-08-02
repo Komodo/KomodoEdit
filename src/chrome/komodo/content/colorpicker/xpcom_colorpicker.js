@@ -112,7 +112,6 @@ koColorPicker.prototype = {
         }
 
         var colorString = aStartingColor.replace(/^#/, "");
-        var colorMode = "hex";
 
         var args = {
             color: colorString,
@@ -133,7 +132,7 @@ koColorPicker.prototype = {
 
         if (args.retval) {
             colorString = args.color;
-            colorAlpha = args.alpha;
+            var colorAlpha = args.alpha;
             aCallback.handleResult(colorString, colorAlpha);
         } else {
             aCallback.handleResult(null, aStartingAlpha);

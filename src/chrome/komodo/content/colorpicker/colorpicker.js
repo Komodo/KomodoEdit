@@ -144,7 +144,7 @@ Refresh.Web.ColorPicker = function(id, settings) {
         this.setColorFromHex(this.settings.color);
         this._preview2.style.backgroundColor = '#' + this.settings.color;
     } else {
-        this.setColorFromAlpha(this.settings.color, this.settings.alpha, this._preview2);
+        this.setColorFromHexToRgba(this.settings.color, this.settings.alpha, this._preview2);
     }
 
     this.color = null;
@@ -155,7 +155,8 @@ Refresh.Web.ColorPicker.prototype = {
         return this._cvp._hexInput.value;
     },
     getAlphaValue: function() {
-        return this._cvp._alphaInput.value;
+        var rgb = this._cvp._rgbInput.value.split(/(?:rgba\(|\))/)[1].split(/\s*,\s*/);
+        return rgb[3];
     },
     setColorFromHex: function(hexValue)  {
         if (!hexValue) {
@@ -167,16 +168,13 @@ Refresh.Web.ColorPicker.prototype = {
         this.positionMapAndSliderArrows();
         this.updateVisuals();
     },
-    setColorFromAlpha: function (hex, alpha, preview) {
-        if (!hex) {
-            hex = '000000';
-        }
+    setColorFromHexToRgba: function (hex, alpha, preview) {
         this._cvp._hexInput.value = "#" + hex;
-        this._cvp._alphaInput.value = alpha;
-        this._cvp.setValuesFromAlpha(hex);
         var rgb = Refresh.Web.ColorMethods.hexToRgb(hex);
         var rgba = [rgb.r, rgb.g, rgb.b, alpha];
         preview.style.backgroundColor = "rgba(" + rgba.join(",") + ")";
+        this._cvp._rgbInput.value = "rgba(" + rgba.join(",") + ")";
+        this._cvp.setValuesFromRgb();
         this.positionMapAndSliderArrows();
         this.updateVisuals();
     },
@@ -202,24 +200,7 @@ Refresh.Web.ColorPicker.prototype = {
         this.positionMapAndSliderArrows();
         this.updateVisuals();
     },
-    setReturnColorMode: function (colorMode, scope) {
-        switch (colorMode) {
-            case 'h':
-                this.ReturnColorMode = "hex";
-                break;
-            case 's':
-            case 'v':
-                this.ReturnColorMode = "hsv";
-                break;
-            case 'r':
-            case 'g':
-            case 'b':
-                this.ReturnColorMode = "rgb";
-                break;
-        }
-    },
     setColorMode: function(colorMode) {
-        this.setReturnColorMode(colorMode, "setColorMode");
         this.color = this._cvp.color;
 
         // reset all images
@@ -391,8 +372,7 @@ Refresh.Web.ColorPicker.prototype = {
     },
     mapValueChanged: function() {
         // update values
-        var alpha = this._cvp._alphaInput.value;
-        this.setReturnColorMode(this.ColorMode, "mapValueChanged");
+        var alpha = this._cvp.color.a;
         switch(this.ColorMode) {
             case 'h':
                 this._cvp._hslInput.value = 'hsl(' + [this._cvp.color.h,
@@ -442,15 +422,8 @@ Refresh.Web.ColorPicker.prototype = {
 
         this.updateVisuals();
     },
-    alphaValueChanged: function() {
-        var alpha = this._cvp._alphaInput.value;
-        this._cvp._rgbInput.value = 'rgba(' + [this._cvp.color.r,
-                                               this._cvp.color.g,
-                                               this._cvp.color.b,
-                                               alpha].join(',') + ')';
-    },
     sliderValueChanged: function() {
-        var alpha = this._cvp._alphaInput.value;
+        var alpha = this._cvp.color.a;
         switch(this.ColorMode) {
             case 'h':
                 this._cvp._hslInput.value = 'hsl(' + [360 - this._slider.yValue,
@@ -580,8 +553,7 @@ Refresh.Web.ColorPicker.prototype = {
     updatePreview: function() {
         try {
             var c = this._cvp.color;
-            var a = this._cvp._alphaInput.value;
-            var rgba = [c.r, c.g, c.b, a].join(',');
+            var rgba = [c.r, c.g, c.b, c.a].join(',');
             this._preview.style.backgroundColor = 'rgba(' + rgba + ")";
         } catch (e) {
             alert(e.message);

@@ -11,7 +11,7 @@ Refresh.Web.Color = function(init) {
         r: 0,
         g: 0,
         b: 0,
-        a: 0,
+        a: 1,
 
         h: 0,
         s: 0,
@@ -42,7 +42,6 @@ Refresh.Web.Color = function(init) {
             this.r = newRgb.r;
             this.g = newRgb.g;
             this.b = newRgb.b;
-            this.a = 1;
 
             this.hex = Refresh.Web.ColorMethods.rgbToHex(newRgb);
         },
@@ -54,7 +53,6 @@ Refresh.Web.Color = function(init) {
             this.r = newRgb.r;
             this.g = newRgb.g;
             this.b = newRgb.b;
-            this.a = 1;
 
             var newHsv = Refresh.Web.ColorMethods.rgbToHsv(newRgb);
             this.h = newHsv.h;
