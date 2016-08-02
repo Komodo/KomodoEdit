@@ -11,17 +11,18 @@ Refresh.Web.Color = function(init) {
 		r: 0,
 		g: 0,
 		b: 0,
-		
+		a: 1,
 		h: 0,
 		s: 0,
 		v: 0,
 		
 		hex: '',
 		
-		setRgb: function(r, g, b) {
+		setRgb: function(r, g, b, a) {
 			this.r = r;
 			this.g = g;
 			this.b = b;
+			this.a = a;
 						
 			var newHsv = Refresh.Web.ColorMethods.rgbToHsv(this);
 			this.h = newHsv.h;
@@ -63,7 +64,7 @@ Refresh.Web.Color = function(init) {
 		if ("hex" in init)
 			color.setHex(init.hex);
 		else if ("r" in init)
-			color.setRgb(init.r, init.g, init.b);
+			color.setRgb(init.r, init.g, init.b, init.a);
 		else if ("h" in init)
 			color.setHsv(init.h, init.s, init.v);			
 	}
@@ -109,7 +110,7 @@ Refresh.Web.ColorMethods = {
 	validateHex: function(hex) {
 		hex = new String(hex).toUpperCase();
 		hex = hex.replace(/[^A-F0-9]/g, '0');
-		if (hex.length > 6) hex = hex.substring(0, 6);
+		if (hex[0] == "#") hex = hex.substring(1, 7);
 		return hex;
 	},
 	webSafeDec: function (dec) {

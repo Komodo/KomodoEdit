@@ -6,9 +6,9 @@ MIT style license
 if (!window.Refresh) Refresh = {};
 if (!Refresh.Web) Refresh.Web = {};
 
-Refresh.Web.ColorValuePicker = function(id) {
+Refresh.Web.ColorValuePicker = function(id, parent, settings) {
 	this.id = id;
-
+	this.parent = parent;
 	this.onValuesChanged = null;
 
 	this._hexInput = document.getElementById(this.id + '_Hex');
@@ -34,6 +34,9 @@ Refresh.Web.ColorValuePicker = function(id) {
 	this._event_onHexKeyUp = function(e) {
 		this_._onHexKeyUp(e);
 	}
+	this._event_onHexBlur = function(e) {
+		this_._onHexBlur(e);
+	}
 
 	this._hexInput.addEventListener('keyup', this._event_onHexKeyUp, false);
 	this._rgbInput.addEventListener('keyup', this._event_onRgbKeyUp, false);
@@ -51,8 +54,8 @@ Refresh.Web.ColorValuePicker = function(id) {
 		
 		
 	// set the others based on initial value
-	this._hexInput.value = this.color.hex;
-	this._rgbInput.value = 'rgb(' + [this.color.r,this.color.g,this.color.b].join(',') + ')';
+	this._hexInput.value = "#" + settings.color;
+	this._rgbInput.value = 'rgba(' + [this.color.r,this.color.g,this.color.b,settings.alpha].join(',') + ')';
 	this._hslInput.value = 'hsl(' + [this.color.h,this.color.s,this.color.v].join(',') + ')';
 }
 
@@ -85,23 +88,23 @@ Refresh.Web.ColorValuePicker.prototype = {
 	},
 	_onHexBlur: function(e) {
 		if (e.target.value == '')
-			this.setValuesFromHsv();
-	},
-	HexBlur: function(e) {
-		if (e.target.value == '')
-			this.setValuesFromHsv();
+			this.setValuesFromHex();
 	},
 	validateRgb: function(e) {
 		if (!this._keyNeedsValidation(e)) return e;
-		var rgb = this._rgbInput.value.split(/(?:rgb\(|\))/)[1].split(/\s*,\s*/)
+		var rgb = this._rgbInput.value.split(/(?:rgba\(|\))/)[1].split(/\s*,\s*/)
 		var _rgb = [];
 		
 		_rgb[0] = this._setValueInRange(rgb[0],0,255);
 		_rgb[1] = this._setValueInRange(rgb[1],0,255);
 		_rgb[2] = this._setValueInRange(rgb[2],0,255);
-		
-		if (rgb.join() != _rgb.join())
-			this._rgbInput.value = 'rgb(' + [_rgb[0],_rgb[1],_rgb[2]].join(',') + ')';
+        if (rgb[3].length != 2)
+            _rgb[3] = this._setValueInRange(rgb[3],0.0,1.0,true);
+        else
+            _rgb[3] = rgb[3];
+		if (rgb.join() != _rgb.join()) {
+			this._rgbInput.value = 'rgba(' + [_rgb[0],_rgb[1],_rgb[2],_rgb[3]].join(',') + ')';
+        }
 		
 		return null;
 	},
@@ -143,11 +146,16 @@ Refresh.Web.ColorValuePicker.prototype = {
 
 		return true;
 	},
-	_setValueInRange: function(value,min,max) {
+	_setValueInRange: function(value,min,max,is_float) {
+		if (typeof(is_float) === 'undefined') is_float = false;
 		if (value == '' || isNaN(value)) 		
 			return min;
 		
-		value = parseInt(value);
+		if (is_float) {
+			value = parseFloat(value);
+		} else {
+			value = parseInt(value);
+		}
 		if (value > max) 
 			return max;
 		if (value < min) 
@@ -156,8 +164,8 @@ Refresh.Web.ColorValuePicker.prototype = {
 		return value;
 	},
 	setValuesFromRgb: function() {
-		var rgb = this._rgbInput.value.split(/(?:rgb\(|\))/)[1].split(/\s*,\s*/)
-		this.color.setRgb(rgb[0],rgb[1],rgb[2]);
+		var rgb = this._rgbInput.value.split(/(?:rgba\(|\))/)[1].split(/\s*,\s*/)
+		this.color.setRgb(rgb[0],rgb[1],rgb[2],rgb[3]);
 		
 		this._hexInput.value = "#" + this.color.hex;
 		this._hslInput.value = 'hsl(' + [this.color.h,this.color.s,this.color.v].join(',') + ')';
@@ -167,12 +175,12 @@ Refresh.Web.ColorValuePicker.prototype = {
 		this.color.setHsv(hsv[0],hsv[1],hsv[2]);
 		
 		this._hexInput.value = "#" + this.color.hex;
-		this._rgbInput.value = 'rgb(' + [this.color.r,this.color.g,this.color.b].join(',') + ')';
+		this._rgbInput.value = 'rgba(' + [this.color.r,this.color.g,this.color.b,this.color.a].join(',') + ')';
 	},
 	setValuesFromHex: function() {
 		this.color.setHex(this._hexInput.value.substr(1));
 
-		this._rgbInput.value = 'rgb(' + [this.color.r,this.color.g,this.color.b].join(',') + ')';
+		this._rgbInput.value = 'rgba(' + [this.color.r,this.color.g,this.color.b,this.color.a].join(',') + ')';
 		this._hslInput.value = 'hsl(' + [this.color.h,this.color.s,this.color.v].join(',') + ')';
 	}
 };
