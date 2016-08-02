@@ -311,7 +311,8 @@ ko.hyperlinks.ColorPickerHandler.prototype.show = function(
         div.style.fontSize = scheme.getSize("default", "fixed") + "pt";
         div.style.color = koColor.isDark(color) ? "#FFF" : "#000";
         
-        popup.openPopup(null, null, pos.x, pos.y, false, false);
+        popup.openPopup(null, null, pos.x, pos.y+1, false, false);
+        popup.moveTo(window.screenX + pos.x, window.screenY + pos.y+1);
         
         popup.addEventListener("click", this.jump.bind(this, view, hyperlink));
     }
