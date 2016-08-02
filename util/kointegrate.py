@@ -972,10 +972,14 @@ class GitRevision(Revision):
 
     @LazyProperty
     def integration_message(self):
-        message = "\n\n(integrated from {branch} change {rev} by {author})"
+        remote_name = self.remote_name
+        pretty_rev = self.pretty_rev
+        message = "\n\n(integrated from the {remote} {branch} change {rev} by {author})"
         message = message.format(branch=self.branch.desc,
-                                 rev=self.pretty_rev,
-                                 author=self.author)
+                                 rev=pretty_rev,
+                                 author=self.author,
+                                 remote=remote_name)
+        message += "\n\nhttps://github.com/Komodo/%s/commit/%s" % (remote_name, pretty_rev)
         return self.description + message
 
     @LazyProperty
@@ -994,12 +998,11 @@ class GitRevision(Revision):
 
     @LazyProperty
     def pretty_rev(self):
-        cmd = ["describe", "--long", "--always", self.revision]
+        cmd = ["rev-parse", "--short", self.revision]
         return self.branch._capture_output(*cmd).strip()
-
+    
     @LazyProperty
-    def commit_summary(self):
-        # PROJECT-NAME:HASH (BRANCH-NAME)
+    def remote_name(self):
         try:
             remote = self.branch._capture_output("config", "--get",
                                                  "remote.origin.url").strip()
@@ -1012,8 +1015,15 @@ class GitRevision(Revision):
             else:
                 remote = remote.rsplit("/", 1)[-1]
         except subprocess.CalledProcessError:
-            pass
-        summary = "https://github.com/Komodo/%s/commit/%s" % (remote.replace(".git", ""), self.pretty_rev)
+            return "Unknown"
+        
+        return remote.replace(".git", "")
+    
+    @LazyProperty
+    def commit_summary(self):
+        # PROJECT-NAME:HASH (BRANCH-NAME)
+
+        summary = "https://github.com/Komodo/%s/commit/%s" % (self.remote_name, self.pretty_rev)
         branch = (self.branch
                       ._capture_output("describe", "--all", "--abbrev=0")
                       .strip())
@@ -1285,7 +1295,7 @@ def main(argv=None):
 
     if commits:
         log.info("\n")
-        log.info("-- Check-in summary (for bugzilla comment):")
+        log.info("-- Check-in summary:")
         log.info("  %s", args.revision.commit_summary)
         for commit in commits:
             log.info("  %s", commit.commit_summary)
