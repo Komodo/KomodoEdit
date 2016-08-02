@@ -144,8 +144,7 @@ Refresh.Web.ColorPicker = function(id, settings) {
         this.setColorFromHex(this.settings.color);
         this._preview2.style.backgroundColor = '#' + this.settings.color;
     } else {
-        this.setColorFromAlpha(this.settings.color, this.settings.alpha);
-        this._preview2.style.backgroundColor = this.settings.color;
+        this.setColorFromAlpha(this.settings.color, this.settings.alpha, this._preview2);
     }
 
     this.color = null;
@@ -168,14 +167,16 @@ Refresh.Web.ColorPicker.prototype = {
         this.positionMapAndSliderArrows();
         this.updateVisuals();
     },
-    setColorFromAlpha: function (hex, alpha) {
+    setColorFromAlpha: function (hex, alpha, preview) {
         if (!hex) {
             hex = '000000';
         }
         this._cvp._hexInput.value = "#" + hex;
         this._cvp._alphaInput.value = alpha;
         this._cvp.setValuesFromAlpha(hex);
-
+        var rgb = Refresh.Web.ColorMethods.hexToRgb(hex);
+        var rgba = [rgb.r, rgb.g, rgb.b, alpha];
+        preview.style.backgroundColor = "rgba(" + rgba.join(",") + ")";
         this.positionMapAndSliderArrows();
         this.updateVisuals();
     },
