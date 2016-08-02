@@ -5,7 +5,7 @@
 
 	<!--
 	Copyright (c) 2007 John Dyer (http://johndyer.name)
-	
+
 	Permission is hereby granted, free of charge, to any person
 	obtaining a copy of this software and associated documentation
 	files (the "Software"), to deal in the Software without
@@ -14,10 +14,10 @@
 	copies of the Software, and to permit persons to whom the
 	Software is furnished to do so, subject to the following
 	conditions:
-	
+
 	The above copyright notice and this permission notice shall be
 	included in all copies or substantial portions of the Software.
-	
+
 	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 	EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
 	OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -27,7 +27,7 @@
 	FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 	OTHER DEALINGS IN THE SOFTWARE.
 	-->
-	
+
 	<html xmlns="http://www.w3.org/1999/xhtml" >
 	<head>
 		<title>Color Picker</title>
@@ -37,47 +37,51 @@
 			font-size: 10pt;
 		}
 		</style>
-	
+
 		<script type="text/javascript" src="chrome://komodo/content/colorpicker/colormethods.js" ></script>
 		<script type="text/javascript" src="chrome://komodo/content/colorpicker/colorvaluepicker.js" ></script>
 		<script type="text/javascript" src="chrome://komodo/content/colorpicker/slider.js" ></script>
 		<script type="text/javascript" src="chrome://komodo/content/colorpicker/colorpicker.js" ></script>
 		<script type="text/javascript">
 			window.addEventListener("load", function(e) {
-				var hexColor = window.arguments[0].hexColor;
-				var startMode = window.arguments[0].colorMode || 'h';
-				window.addHash = false;
-				if (hexColor[0] == "#") {
-					window.addHash = true;
-					hexColor = hexColor.substr(1);
+				var color = window.arguments[0].color;
+				var alpha = window.arguments[0].alpha;
+				var startMode;
+				var colorMode;
+				if (parseInt(alpha) == 1) {
+					colorMode = "hex";
+					startMode = "h";
 				}
-				window.cp1 = new window.Refresh.Web.ColorPicker('cp1',{startHex: hexColor, startMode: startMode});
+				if (parseFloat(alpha) < 1) {
+					colorMode = "rgb";
+					startMode = "h";
+				}
+				window.startMode = startMode;
+				window.cp1 = new window.Refresh.Web.ColorPicker('cp1',{color: color, startMode: startMode, colorMode: colorMode, alpha: alpha});
 				window.addEventListener("keypress", colorpicker_keypress_handler, true);
 			}, true);
 			window.addEventListener("unload", function(e) {
-				var hexColor = window.cp1.getColorAsHex();
-				if (window.addHash) {
-					hexColor = "#" + hexColor;
-				}
-				window.arguments[0].hexColor = hexColor;
-				window.arguments[0].colorMode = window.cp1.ColorMode;
+				var color = window.cp1.getColorAsHex();
+				var alpha = window.cp1.getAlphaValue();
+				window.arguments[0].color = color;
+				window.arguments[0].alpha = alpha;
 				window.arguments[0].retval = window.retval;
 				if (window.retval && window.arguments[0].callback) {
-					window.arguments[0].callback(hexColor);
+					window.arguments[0].callback(window.arguments[0].color);
 				}
 				window.removeEventListener("keypress", colorpicker_keypress_handler, true);
 			}, true);
 		</script>
 	</head>
 	<body class="editor-field">
-	
+
 		<table>
-            <tr>
-                <td colspan="2">
-                    <div id="cp1_Preview" style="width: 143px; height: 60px; padding: 0; margin: 0; border: 0; display: inline-block;"></div>
-                    <div id="cp1_Preview2" style="width: 143px; height: 60px; padding: 0; margin: 0; border: 0; display: inline-block;"></div>
-                </td>
-            </tr>
+			<tr>
+				<td colspan="2">
+					<div id="cp1_Preview" style="width: 143px; height: 60px; padding: 0; margin: 0; border: 0; display: inline-block;"></div>
+					<div id="cp1_Preview2" style="width: 143px; height: 60px; padding: 0; margin: 0; border: 0; display: inline-block;"></div>
+				</td>
+			</tr>
 			<tr>
 				<td valign="top">
 					<div id="cp1_ColorMap"></div>
@@ -85,24 +89,24 @@
 				<td valign="top">
 					<div id="cp1_ColorBar"></div>
 				</td>
-            </tr>
-            <tr>
-                <td colspan="2">
-                    <input type="text" id="cp1_Hex" value="#FF0000" style="text-align: center; letter-spacing: 2px; font-weight: bold; width: 290px;" />
-                </td>
-            </tr>
-            <tr>
-                <td colspan="2">
-                    <input type="text" id="cp1_RGB" value="rgb(255,0,0)" style="text-align: center; letter-spacing: 2px; font-weight: bold; width: 290px;" />
-                </td>
-            </tr>
-            <tr>
-                <td colspan="2">
-                    <input type="text" id="cp1_HSL" value="hsl(0,100%,100%)" style="text-align: center; letter-spacing: 2px; font-weight: bold; width: 290px;" />
-                </td>
-            </tr>
+			</tr>
+			<tr>
+				<td colspan="2">
+					<input type="text" id="cp1_Hex" value="#FF0000" style="text-align: center; letter-spacing: 2px; font-weight: bold; width: 290px;" />
+				</td>
+			</tr>
+			<tr>
+				<td colspan="2">
+					<input type="text" id="cp1_RGB" value="rgb(255,0,0)" style="text-align: center; letter-spacing: 2px; font-weight: bold; width: 290px;" />
+				</td>
+			</tr>
+			<tr>
+				<td colspan="2">
+					<input type="text" id="cp1_HSL" value="hsl(0,100%,100%)" style="text-align: center; letter-spacing: 2px; font-weight: bold; width: 290px;" />
+				</td>
+			</tr>
 		</table>
-	
+
 	<div style="text-align: center">
 		<input type="button" id="ok_button" accesskey="O" onclick="window.retval = 1; window.close();" value="OK" style="min-width: 70px">
 		<input type="button" id="cancel_button" accesskey="C" onclick="window.retval = 0; window.close();" value="Cancel" style="min-width: 70px">

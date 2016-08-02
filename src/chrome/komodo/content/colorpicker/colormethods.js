@@ -6,76 +6,77 @@ MIT style license
 if (typeof(Refresh) == 'undefined') window.Refresh = {};
 if (typeof(Refresh.Web) == 'undefined') Refresh.Web = {};
 
-Refresh.Web.Color = function(init) {	
+Refresh.Web.Color = function(init) {
 	var color = {
 		r: 0,
 		g: 0,
 		b: 0,
-		
+		a: 1,
+
 		h: 0,
 		s: 0,
 		v: 0,
-		
+
 		hex: '',
-		
-		setRgb: function(r, g, b) {
+
+		setRgb: function(r, g, b, a) {
 			this.r = r;
 			this.g = g;
 			this.b = b;
-						
+			this.a = a;
+
 			var newHsv = Refresh.Web.ColorMethods.rgbToHsv(this);
 			this.h = newHsv.h;
 			this.s = newHsv.s;
 			this.v = newHsv.v;
-			
-			this.hex = Refresh.Web.ColorMethods.rgbToHex(this);					
+
+			this.hex = Refresh.Web.ColorMethods.rgbToHex(this);
 		},
-		
+
 		setHsv: function(h, s, v) {
 			this.h = h;
 			this.s = s;
 			this.v = v;
-			
+
 			var newRgb = Refresh.Web.ColorMethods.hsvToRgb(this);
 			this.r = newRgb.r;
 			this.g = newRgb.g;
 			this.b = newRgb.b;
-			
-			this.hex = Refresh.Web.ColorMethods.rgbToHex(newRgb);	
+
+			this.hex = Refresh.Web.ColorMethods.rgbToHex(newRgb);
 		},
-		
+
 		setHex: function(hex) {
 			this.hex = hex;
-			
+
 			var newRgb = Refresh.Web.ColorMethods.hexToRgb(this.hex);
 			this.r = newRgb.r;
 			this.g = newRgb.g;
 			this.b = newRgb.b;
-			
+
 			var newHsv = Refresh.Web.ColorMethods.rgbToHsv(newRgb);
 			this.h = newHsv.h;
 			this.s = newHsv.s;
-			this.v = newHsv.v;			
+			this.v = newHsv.v;
 		}
 	};
-	
+
 	if (init) {
 		if ("hex" in init)
 			color.setHex(init.hex);
 		else if ("r" in init)
-			color.setRgb(init.r, init.g, init.b);
+			color.setRgb(init.r, init.g, init.b, init.a);
 		else if ("h" in init)
-			color.setHsv(init.h, init.s, init.v);			
+			color.setHsv(init.h, init.s, init.v);
 	}
-	
+
 	return color;
 };
 Refresh.Web.ColorMethods = {
 	hexToRgb: function(hex) {
 		hex = this.validateHex(hex);
+		var r='00', g='00', b='00', a = '1';
 
-		var r='00', g='00', b='00';
-		
 		/*
 		if (hex.length == 3) {
 			r = hex.substring(0,1);
@@ -89,7 +90,7 @@ Refresh.Web.ColorMethods = {
 		if (hex.length == 6) {
 			r = hex.substring(0,2);
 			g = hex.substring(2,4);
-			b = hex.substring(4,6);	
+			b = hex.substring(4,6);
 		} else {
 			if (hex.length > 4) {
 				r = hex.substring(4, hex.length);
@@ -101,15 +102,14 @@ Refresh.Web.ColorMethods = {
 			}
 			if (hex.length > 0) {
 				b = hex.substring(0,hex.length);
-			}					
+			}
 		}
-		
-		return { r:this.hexToInt(r), g:this.hexToInt(g), b:this.hexToInt(b) };
+		return { r:this.hexToInt(r), g:this.hexToInt(g), b:this.hexToInt(b), a:a };
 	},
 	validateHex: function(hex) {
-		hex = new String(hex).toUpperCase();
+		hex = String(hex).toUpperCase();
 		hex = hex.replace(/[^A-F0-9]/g, '0');
-		if (hex.length > 6) hex = hex.substring(0, 6);
+		if (hex[0] == "#") hex = hex.substring(1, 7); // # has not been removed for some reason
 		return hex;
 	},
 	webSafeDec: function (dec) {
@@ -132,7 +132,7 @@ Refresh.Web.ColorMethods = {
 		return intToHex(this.webSafeDec(this.hexToInt(r))) + this.intToHex(this.webSafeDec(this.hexToInt(g))) + this.intToHex(this.webSafeDec(this.hexToInt(b)));
 	},
 	rgbToWebSafe: function(rgb) {
-		return {r: this.webSafeDec(rgb.r), g: this.webSafeDec(rgb.g), b: this.webSafeDec(rgb.b) };
+		return {r: this.webSafeDec(rgb.r), g: this.webSafeDec(rgb.g), b: this.webSafeDec(rgb.b), a:1 };
 	},
 	rgbToHex: function (rgb) {
 		return this.intToHex(rgb.r) + this.intToHex(rgb.g) + this.intToHex(rgb.b);
@@ -154,7 +154,7 @@ Refresh.Web.ColorMethods = {
 
 		var hsv = {h:0, s:0, v:0};
 
-		var min = 0
+		var min = 0;
 		var max = 0;
 
 		if (r >= g && r >= b) {
@@ -188,7 +188,7 @@ Refresh.Web.ColorMethods = {
 				hsv.h += 360;
 			}
 		}
-		
+
 		if (hsv.h >= 360) {
 			hsv.h = 0;
 		}
@@ -199,14 +199,14 @@ Refresh.Web.ColorMethods = {
 	},
 	hsvToRgb: function (hsv) {
 
-		var rgb = {r:0, g:0, b:0};
-		
+		var rgb = {r:0, g:0, b:0, a:1};
+
 		var h = hsv.h;
 		var s = hsv.s;
 		var v = hsv.v;
 
-		if (s == 0) {
-			if (v == 0) {
+		if (s === 0) {
+			if (v === 0) {
 				rgb.r = rgb.g = rgb.b = 0;
 			} else {
 				rgb.r = rgb.g = rgb.b = parseInt(v * 255 / 100);

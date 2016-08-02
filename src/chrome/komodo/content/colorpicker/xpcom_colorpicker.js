@@ -24,10 +24,10 @@ function koColorPicker() {}
 
 // Class definition.
 koColorPicker.prototype = {
-    
+
     // properties required for XPCOM registration:
     classDescription: _bundle.GetStringFromName("johnDyersColorPicker.desc"),
-    
+
     classID:          Components.ID("{57dbf673-ce91-4858-93f9-2e47fea3495d}"),
 
     QueryInterface: XPCOMUtils.generateQI([Ci.koIColorPicker,
@@ -38,7 +38,7 @@ koColorPicker.prototype = {
     /**
      * Select a color from the Komodo color picker dialog.
      * @deprecated since Komodo 7.0b1 - use pickColorAsync instead
-     * 
+     *
      * @param {string} hexColor - The initial color.
      */
     pickColor: function(hexColor) {
@@ -112,19 +112,10 @@ koColorPicker.prototype = {
         }
 
         var colorString = aStartingColor.replace(/^#/, "");
-        if (!/^[0-9a-f]{6}$/i.test(colorString)) {
-            throw Components.results.NS_ERROR_INVALID_ARG;
-        }
-        /**
-         * @type {Components.interfaces.koIPreferenceSet}
-         */
-        var prefs = Components.classes["@activestate.com/koPrefService;1"].
-                        getService(Components.interfaces.koIPrefService).prefs;
-        var colorMode = prefs.getString("colorpicker.colorMode", "h");
 
         var args = {
-            hexColor: colorString,
-            colorMode: colorMode,
+            color: colorString,
+            alpha: aStartingAlpha,
             retval: 0
         };
         args.wrappedJSObject = args;
@@ -140,10 +131,9 @@ koColorPicker.prototype = {
                        windowFeatures, args);
 
         if (args.retval) {
-            // Remember the last color mode used, for next time.
-            prefs.setStringPref("colorpicker.colorMode", args.colorMode);
-            colorString = "#" + args.hexColor.replace(/^#/, "");
-            aCallback.handleResult(colorString, aStartingAlpha);
+            colorString = args.color;
+            var colorAlpha = args.alpha;
+            aCallback.handleResult(colorString, colorAlpha);
         } else {
             aCallback.handleResult(null, aStartingAlpha);
         }
