@@ -349,6 +349,8 @@ ko.hyperlinks.ColorPickerHandler.prototype.jump = function(view, hyperlink)
     if (popup) {
         popup.remove();
     }
+    view.removeHyperlinks("mouseup");
+    view._isHyperlinkAllowed = false;
     this.showColorPicker(view, hyperlink);
 }
 
