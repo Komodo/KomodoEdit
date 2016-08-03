@@ -124,6 +124,19 @@
     }
     
     /**
+     * Retrieve most recently accessed (current) window
+     * 
+     * @param   {string} id 
+     * 
+     * @returns {Window} 
+     */
+    this.getMostRecent = function(id = "")
+    {
+        var wm = Cc["@mozilla.org/appshell/window-mediator;1"].getService(Ci.nsIWindowMediator);
+        return wm.getMostRecentWindow(id);
+    }
+    
+    /**
      * Retrieve all windows (excluding internal)
      * 
      * @returns {Array} 
