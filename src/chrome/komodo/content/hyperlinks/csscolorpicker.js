@@ -46,7 +46,15 @@ ko.hyperlinks.ColorPickerHandler = function()
     var find_regex = /#(([0-9a-f]{3}){1,2})\b|(rgba?|hsla?)\(\s*(\d+\%?)\s*,\s*(\d+\%?)\s*,\s*(\d+\%?)\s*(,\s*(\d|\d?\.\d+)\s*)?\)/i;
     var fn = null;   /* unnecessary, as it's over-riden by the "jump" method */
     var replace_str = null;
-    var lang_names = ["CSS", "Less", "SCSS", "HTML", "HTML5", "Sass"];   /* Language types */
+    
+    var prefs = Components.classes["@activestate.com/koPrefService;1"].
+                getService(Components.interfaces.koIPrefService).prefs;
+    
+    var lang_names = null;
+    if ( ! prefs.getBoolean('hyperlinksColorpickerAlwaysEnable')) {
+        lang_names = prefs.getString('hyperlinksColorpickerEnabled').split(",");
+    }
+    
     //var indic_style = Components.interfaces.ISciMoz.INDIC_ROUNDBOX;
     var indic_style = Components.interfaces.ISciMoz.INDIC_PLAIN;
     var indic_color = require("ko/color").RGBToBGR(0xd0,0x40,0xff);
@@ -56,8 +64,6 @@ ko.hyperlinks.ColorPickerHandler = function()
     
     // Listen for enabled pref changes.
     this.enabledPrefName = "hyperlinksEnableColorPicker";
-    var prefs = Components.classes["@activestate.com/koPrefService;1"].
-                getService(Components.interfaces.koIPrefService).prefs;
     prefs.prefObserverService.addObserver(this, this.enabledPrefName, 0);
     this.enabled = prefs.getBooleanPref(this.enabledPrefName);
     ko.main.addWillCloseHandler(this.destroy, this);
@@ -254,14 +260,19 @@ ko.hyperlinks.ColorPickerHandler.prototype.show = function(
     if (!this.enabled) {
         return null;
     }
-
+    
     var start = scimoz.wordStartPosition(position, true);
     var end = scimoz.wordEndPosition(position, true);
     var hyperlink;
     // Check if it's a named css color, else try the regex matching.
     if ((start < end) &&
         (ko.hyperlinks.ColorPickerHandler.named_css_colors.indexOf(scimoz.getTextRange(start, end).toLowerCase()) >= 0)) {
-        hyperlink = this.setHyperlink(view, start, end, null);
+        var prefs = Components.classes["@activestate.com/koPrefService;1"].
+                        getService(Components.interfaces.koIPrefService).prefs;
+        var languages = prefs.getString('hyperlinksColorpickerEnabled').split(",");
+        if (languages.indexOf(view.language) != -1) {
+            hyperlink = this.setHyperlink(view, start, end, null);
+        }
     } else {
         hyperlink = ko.hyperlinks.RegexHandler.prototype.show.apply(this, arguments);
     }

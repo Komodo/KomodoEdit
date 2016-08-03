@@ -962,6 +962,9 @@
   <boolean id="hyperlinksEnabled">1</boolean>
   <boolean id="hyperlinksEnableGotoDefinition">1</boolean>
   <boolean id="hyperlinksEnableColorPicker">1</boolean>
+  
+  <boolean id="hyperlinksColorpickerAlwaysEnable">1</boolean>
+  <string id="hyperlinksColorpickerEnabled">CSS,Less,SCSS,Sass,HTML,HTML5</string>
 
   <!-- Color picker -->
   <string id="colorpicker_cid" nonvital="true">@activestate.com/koColorPicker;1</string>
