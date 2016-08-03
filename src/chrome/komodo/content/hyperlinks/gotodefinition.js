@@ -116,6 +116,17 @@
         if (!this.enabled || !view.isCICitadelStuffEnabled) {
             return null;
         }
+        
+        var style = scimoz.getStyleAt(position);
+        var langObj = view.koDoc.languageObj;
+        var styleCount = new Object();
+        var commentStyles = langObj.getCommentStyles(styleCount);
+        var stringStyles = langObj.getStringStyles(styleCount);
+        if ((commentStyles.indexOf(style) >= 0) ||
+            (stringStyles.indexOf(style) >= 0)){
+            // Doesn't work in strings or comments.
+            return null;
+        }
 
         var start = scimoz.wordStartPosition(position, true);
         var end = scimoz.wordEndPosition(position, true);
