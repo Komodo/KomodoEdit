@@ -3149,34 +3149,9 @@ function cmd_vim_gotoLine(scimoz, lineNumber) {
 }
 
 function cmd_vim_jumpToMatchingBrace(scimoz) {
-    try {
-        var braces = "[]{}()";
-        if (["Python", "YAML"].indexOf(ko.views.manager.currentView.language)) {
-            braces += ":";
-        }
-        var currentPos = scimoz.currentPos;
-        var lineNo = scimoz.lineFromPosition(currentPos);
-        var lineEndPos = scimoz.getLineEndPosition(lineNo);
-        var line = scimoz.getTextRange(currentPos, lineEndPos);
-        var re_expr = new RegExp("[\\" + braces.split("").join("\\") + "]");
-        var match = re_expr.exec(line);
-        if (match) {
-            var newPos = currentPos + ko.stringutils.bytelength(line.substr(0, match.index));
-            scimoz.currentPos = newPos;
-            scimoz.anchor = newPos;
-            ko.commands.doCommand('cmd_jumpToMatchingBrace');
-            // Move one char back to the left - to keep vim compatibility.
-            currentPos = scimoz.currentPos;
-            lineNo = scimoz.lineFromPosition(currentPos);
-            var lineStartPos = scimoz.positionFromLine(lineNo);
-            if (currentPos > lineStartPos) {
-                currentPos = scimoz.positionBefore(currentPos);
-                scimoz.currentPos = currentPos;
-                scimoz.anchor = currentPos;
-            }
-        }
-    } catch (e) {
-        vimlog.exception(e);
+    var pos = scimoz.braceMatch(scimoz.currentPos);
+    if (pos != -1) {
+      scimoz.gotoPos(pos);
     }
 }
 
