@@ -2421,7 +2421,6 @@ viewManager.prototype.notify_visited_directory = function(path) {
 this.viewManager = viewManager;
 
 var _manager = null;
-var _gCheckFilesObserver = null;
 
 /**
  * Get the view manager.
@@ -2434,48 +2433,26 @@ function()
     _manager = new viewManager();
     Services.koViewSvc.setViewMgr(_manager);
 
-// #if PLATFORM == "linux"
-    if (window == ko.windowManager.getMainWindow())
-        window.addEventListener("focus", ko.window.checkDiskFiles, false);
-// #else
-    function _checkFilesObserver() {
-        Services.obs.addObserver(this, "application-activated",false);
-
-        var me = this;
-        this.removeListener = function() { me.finalize(); }
-        window.addEventListener("unload", this.removeListener, false);
-    };
-    _checkFilesObserver.prototype = {
-        finalize: function() {
-            if (!this.removeListener) return;
-            window.removeEventListener("unload", this.removeListener, false);
-            this.removeListener = null;
-            Services.obs.removeObserver(this, "application-activated");
-        },
-        observe: function(subject, topic, data)
-        {
-            if (topic == 'application-activated'){
-                var activated = subject.QueryInterface(Components.interfaces.nsISupportsPRBool).data;
-                if (activated) {
-                    ko.window.checkDiskFiles();
+    if (window == ko.windowManager.getMainWindow()) {
+        window.addEventListener("activate", function(e) {
+            ko.window.checkDiskFiles();
+            
 // #if PLATFORM == "win"
-                    // Ensure the Komodo focus is set correctly - bug 86766.
-                    var focusedElement = document.commandDispatcher.focusedElement;
-                    if (focusedElement &&
-                        focusedElement.localName == "embed" &&
-                        focusedElement.parentNode.localName == "scintilla") {
-                        // Should not be focused on the embed element, should
-                        // always be focused on the Scintilla element.
-                        ko.views.manager.log.warn("The focus is on the embed element - changing it to scintilla");
-                        document.getBindingParent(focusedElement).focus();
-                    }
-// #endif
-                }
+            // Ensure the Komodo focus is set correctly - bug 86766.
+            var focusedElement = document.commandDispatcher.focusedElement;
+            if (focusedElement &&
+                focusedElement.localName == "embed" &&
+                focusedElement.parentNode.localName == "scintilla") {
+                // Should not be focused on the embed element, should
+                // always be focused on the Scintilla element.
+                ko.views.manager.log.warn("The focus is on the embed element - changing it to scintilla");
+                document.getBindingParent(focusedElement).focus();
             }
-        }
-    }
-    _gCheckFilesObserver = new _checkFilesObserver();
 // #endif
+            
+        }, false);
+    }
+
     return _manager;
 });
 this.onload = function views_onload() {
