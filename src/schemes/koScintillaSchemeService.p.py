@@ -721,6 +721,8 @@ class Scheme(SchemeBase):
         registryService = components.classes['@activestate.com/koLanguageRegistryService;1'].\
             getService(components.interfaces.koILanguageRegistryService)
         languageObj = registryService.getLanguage(language)
+        prefs = components.classes["@activestate.com/koPrefService;1"].\
+                getService(components.interfaces.koIPrefService).prefs
         # Don't worry about document-specific lexers.
         if languageObj:
             lexer = languageObj.getLanguageService(components.interfaces.koILexerLanguageService)
@@ -770,7 +772,11 @@ class Scheme(SchemeBase):
         if prop_font_style_name in self._commonStyles:
             propStyle.update(self._commonStyles[prop_font_style_name])
 
-        fixedStyle['face'] = self._getFontEffective(fixedStyle['face'])
+        if not prefs.getBoolean('editor-font-defer'):
+            fixedStyle['face'] = self._getFontEffective(prefs.getString('editor-font'))
+            fixedStyle['size'] = prefs.getLong('editor-font-size')
+        else:
+            fixedStyle['face'] = self._getFontEffective(fixedStyle['face'])
         propStyle['face'] = self._getFontEffective(propStyle['face'])
 
         useFixed = self._booleans['preferFixed']
@@ -796,7 +802,10 @@ class Scheme(SchemeBase):
             font = self._buildFontSpec(defaultStyle['face'], encoding)
             scimoz.styleSetFont(scimoz.STYLE_DEFAULT, font)
 
-        spacing = float(defaultStyle.get("lineSpacing", 0))
+        if not prefs.getBoolean('editor-font-defer'):
+            spacing = prefs.getLong('editor-line-spacing')
+        else:
+            spacing = float(defaultStyle.get("lineSpacing", 0))
 
         extraDescent = int(math.ceil(spacing / 2))
         extraAscent = int(math.floor(spacing / 2))

@@ -768,6 +768,8 @@ adding an additional caret at the clicked position.">
 <!ENTITY uiPaneVerticalTabs.menuitem.label "Vertical tabs">
 <!ENTITY uiPaneIconTabs.menuitem.label "Icons in tabs">
 <!ENTITY interface.caption "Interface">
+<!ENTITY fonts.caption "Fonts">
+<!ENTITY colorscheme.caption "Color Scheme">
 <!ENTITY useGtkDetection.label "Auto detect skin">
 <!ENTITY skin.label "Skin: ">
 <!ENTITY skin.tooltip "Select what UI skin Komodo should use. Note that 'compatibility' skins serve to offer compatibility with existing OS themes, they are not full skins.">

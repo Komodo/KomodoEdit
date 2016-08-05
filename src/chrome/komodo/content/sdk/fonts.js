@@ -29,6 +29,9 @@
                           "Telegrama", "Terminus", "Terminus", "Triskweline",
                           "Triskweline-Code", "UW ttyp0", "VGA Font", "VT323"];
     
+    var cache;
+    var cacheAge = 0;
+    
     this.getMonoFonts = () =>
     {
         var fonts = this.getSystemFonts();
@@ -44,16 +47,21 @@
             
             return false;
         });
-    }
+    };
     
     this.getSystemFonts = () =>
     {
+        var timestamp = Math.floor(Date.now() / 1000);
+        if (cache && timestamp - cacheAge < 60) // refresh every 60 seconds - 1 minute
+        {
+            return cache;
+        }
+        
         var enumerator = Cc["@mozilla.org/gfx/fontenumerator;1"].createInstance().QueryInterface(Ci.nsIFontEnumerator);
         var system = require("sdk/system");
         var strFontSpecs;
         var j;
         var fontmap = {};
-        var re = /^([^-]+)-([^-]+)/;
         var fName = "";
         for (var i=0;i<fontLanguages.length;i++) {
             for (var t = 0; t < fontTypes.length; t++ )
@@ -61,7 +69,7 @@
                 // build and populate the font list for the newly chosen font type
                 strFontSpecs = enumerator.EnumerateFonts(fontLanguages[i],
                                                          fontTypes[t],
-                                                         new Object());
+                                                         {});
                 for (j=0; j < strFontSpecs.length; j++) {
                     fName = strFontSpecs[j];
                     if (typeof(fontmap[fName])=='undefined' ||
@@ -77,7 +85,6 @@
             // Did we miss any?
             // Assume unrecognized fonts are proportional
             var allLanguages = enumerator.EnumerateAllFonts({});
-            var lang;
             var lim = allLanguages.length;
             for (i = 0; i < lim; i++) {
                 fName = allLanguages[i];
@@ -86,7 +93,27 @@
             }
         }
     
-        return Object.keys(fontmap);
-    }
+        cache = Object.keys(fontmap);
+        cacheAge = timestamp;
+        
+        return cache;
+    };
+    
+    this.getEffectiveFont = (fontlist) =>
+    {
+        fontstack = fontlist.split(",");
+        for (let i=0;i<fontstack.length;i++)
+            fontstack[i] = fontstack[i].replace(/['"]/g, '');
+
+        var fonts = this.getSystemFonts();
+
+        for (let font of fontstack)
+        {
+            if (fonts.indexOf(font) != -1)
+                return font;
+        }
+        
+        return fontstack.slice(-1)[0];
+    };
     
 }).apply(module.exports);

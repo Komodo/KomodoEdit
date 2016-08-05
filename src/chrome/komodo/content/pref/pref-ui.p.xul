@@ -61,10 +61,10 @@
     <vbox id="ui-prefs-vbox" flex="1" class="autoscroll">
         
         <groupbox id="pref_appearance_interface">
-            <caption label="&interface.caption;" />
+            <caption label="&colorscheme.caption;" />
         
             <hbox align="center">
-                <label value="Interface Colors: " />
+                <label value="Interface Colors: " width="100" />
                 <menulist id="interface-scheme"
                           pref="true"
                           preftype="string"
@@ -74,7 +74,7 @@
             </hbox>
 
             <hbox align="center">
-                <label value="Widget Colors: " />
+                <label value="Widget Colors: " width="100" />
                 <menulist id="widget-scheme"
                           pref="true"
                           preftype="string"
@@ -84,7 +84,7 @@
             </hbox>
             
             <hbox align="center">
-                <label value="Editor Colors: " />
+                <label value="Editor Colors: " width="100" />
                 <menulist id="editor-scheme"
                           pref="true"
                           preftype="string"
@@ -93,8 +93,132 @@
                 </menulist>
             </hbox>
             
-            <checkbox id="link-schemes" pref="true" label="Use the same color scheme for everything"/>
+            <hbox align="center">
+                <label value="" width="100"/>
+                <checkbox id="link-schemes" pref="true" label="Use the same color scheme for everything"/>
+            </hbox>
 
+        </groupbox>
+        
+        <groupbox id="pref_appearance_font">
+            <caption label="&fonts.caption;" />
+            
+            <hbox align="center">
+                <description value="Interface" style="font-weight: bold" width="100"/>
+                <checkbox id="interface-font-defer" pref="true" label="Let the color scheme decide"/>
+            </hbox>
+            
+            <hbox align="center">
+                <label value="&filePrefAllLangFontFamily.label;" width="100"/>
+                <menulist id="interface-font" width="300">
+                    <menupopup>
+                        <menu label="Monospace" class="mono"><menupopup/></menu>
+                        <menu label="All Fonts" class="all"><menupopup/></menu>
+                    </menupopup>
+                </menulist>
+            </hbox>
+            
+            <hbox align="center">
+                <label value="&filePrefAllLangSize.label;" width="100"/>
+                <menulist id="interface-font-size" pref="true" preftype="string">
+                    <menupopup>
+                        <menuitem value="0.5rem" label="0.5rem"/>
+                        <menuitem value="0.9rem" label="0.9rem"/>
+                        <menuitem value="1rem" label="1rem"/>
+                        <menuitem value="1.1rem" label="1.1rem"/>
+                        <menuitem value="1.5rem" label="1.5rem"/>
+                        <menuitem value="2rem" label="2rem"/>
+                        <menuitem id="fontSize_5" value="5" label="&label.5;"/>
+                        <menuitem id="fontSize_6" value="6" label="&label.6;"/>
+                        <menuitem id="fontSize_7" value="7" label="&label.7;"/>
+                        <menuitem id="fontSize_8" value="8" label="&label.8;"/>
+                        <menuitem id="fontSize_9" value="9" label="&label.9;"/>
+                        <menuitem id="fontSize_10" value="10" label="&label.10;"/>
+                        <menuitem id="fontSize_11" value="11" label="&label.11;"/>
+                        <menuitem id="fontSize_12" value="12" label="&label.12;"/>
+                        <menuitem id="fontSize_13" value="13" label="&label.13;"/>
+                        <menuitem id="fontSize_14" value="14" label="&label.14;"/>
+                        <menuitem id="fontSize_15" value="15" label="&label.15;"/>
+                        <menuitem id="fontSize_16" value="16" label="&label.16;"/>
+                        <menuitem id="fontSize_18" value="18" label="&label.18;"/>
+                        <menuitem id="fontSize_20" value="20" label="&label.20;"/>
+                        <menuitem id="fontSize_24" value="24" label="&label.24;"/>
+                        <menuitem id="fontSize_26" value="26" label="&label.26;"/>
+                        <menuitem id="fontSize_28" value="28" label="&label.28;"/>
+                        <menuitem id="fontSize_32" value="32" label="&label.32;"/>
+                        <menuitem id="fontSize_36" value="36" label="&label.36;"/>
+                        <menuitem id="fontSize_40" value="40" label="&label.40;"/>
+                        <menuitem id="fontSize_48" value="48" label="&label.48;"/>
+                        <menuitem id="fontSize_56" value="56" label="&label.56;"/>
+                        <menuitem id="fontSize_64" value="64" label="&label.64;"/>
+                        <menuitem id="fontSize_72" value="72" label="&label.72;"/>
+                    </menupopup>
+                </menulist>
+            </hbox>
+            
+            <spacer height="10"/>
+            <hbox align="center">
+                <description value="Editor" style="font-weight: bold" width="100"/>
+                <checkbox id="editor-font-defer" pref="true" label="Let the color scheme decide"/>
+            </hbox>
+            
+            <hbox align="center">
+                <label value="&filePrefAllLangFontFamily.label;" width="100"/>
+                <menulist id="editor-font" width="300">
+                    <menupopup>
+                        <menu label="Monospace" class="mono"><menupopup/></menu>
+                        <menu label="All Fonts" class="all"><menupopup/></menu>
+                    </menupopup>
+                </menulist>
+            </hbox>
+            
+            <hbox align="center">
+                <label value="&filePrefAllLangSize.label;" width="100"/>
+                <menulist id="editor-font-size" pref="true" preftype="long">
+                    <menupopup>
+                        <menuitem id="fontSize_4" value="4" label="&label.4;"/>
+                        <menuitem id="fontSize_5" value="5" label="&label.5;"/>
+                        <menuitem id="fontSize_6" value="6" label="&label.6;"/>
+                        <menuitem id="fontSize_7" value="7" label="&label.7;"/>
+                        <menuitem id="fontSize_8" value="8" label="&label.8;"/>
+                        <menuitem id="fontSize_9" value="9" label="&label.9;"/>
+                        <menuitem id="fontSize_10" value="10" label="&label.10;"/>
+                        <menuitem id="fontSize_11" value="11" label="&label.11;"/>
+                        <menuitem id="fontSize_12" value="12" label="&label.12;"/>
+                        <menuitem id="fontSize_13" value="13" label="&label.13;"/>
+                        <menuitem id="fontSize_14" value="14" label="&label.14;"/>
+                        <menuitem id="fontSize_15" value="15" label="&label.15;"/>
+                        <menuitem id="fontSize_16" value="16" label="&label.16;"/>
+                        <menuitem id="fontSize_18" value="18" label="&label.18;"/>
+                        <menuitem id="fontSize_20" value="20" label="&label.20;"/>
+                        <menuitem id="fontSize_24" value="24" label="&label.24;"/>
+                        <menuitem id="fontSize_26" value="26" label="&label.26;"/>
+                        <menuitem id="fontSize_28" value="28" label="&label.28;"/>
+                        <menuitem id="fontSize_32" value="32" label="&label.32;"/>
+                        <menuitem id="fontSize_36" value="36" label="&label.36;"/>
+                        <menuitem id="fontSize_40" value="40" label="&label.40;"/>
+                        <menuitem id="fontSize_48" value="48" label="&label.48;"/>
+                        <menuitem id="fontSize_56" value="56" label="&label.56;"/>
+                        <menuitem id="fontSize_64" value="64" label="&label.64;"/>
+                        <menuitem id="fontSize_72" value="72" label="&label.72;"/>
+                    </menupopup>
+                </menulist>
+            </hbox>
+            
+            <hbox align="center">
+                <label value="&lineSpacing.label;" width="100"/>
+                <textbox id="editor-line-spacing"
+                         type="number"
+                         hidespinbuttons="true"
+                         min="0"
+                         max="99"
+                         value="0"
+                         size="2"
+                         pref="true"
+                         preftype="long"
+                         />
+            </hbox>
+            
         </groupbox>
 
         <groupbox id="pref_appearance_interface2">

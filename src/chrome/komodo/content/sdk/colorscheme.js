@@ -155,6 +155,10 @@
         fp.write(style);
         fp.close();
         
+        var defer = prefs.getBoolean("interface-font-defer");
+        var font = prefs.getString("interface-font");
+        var size = prefs.getString("interface-font-size");
+        
         // Write colors.less
         style = "";
         var path = koFile.join(koDirSvc.userDataDir, "colors.less");
@@ -163,13 +167,27 @@
         {
             for (let k in mapping)
             {
+                // Defer font to global pref
+                if ( ! defer && k == "font")
+                {
+                    style += `@${k}: ${font};` + "\n";
+                    continue;
+                }
+                
+                // Defer font size to global pref
+                if ( ! defer && k == "size")
+                {
+                    style += `@${k}: ${size};` + "\n";
+                    continue;
+                }
+                
                 let v = mapping[k];
                 let value = scheme.getInterfaceStyle(v[0], v[1]);
                 
                 if (value && value.length)
                     style += `@${k}: ${value};` + "\n";
             }
-        }
+        };
         
         _apply(scheme, interfaceMapping);
         

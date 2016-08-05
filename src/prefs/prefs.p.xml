@@ -806,6 +806,15 @@
   <string id="interface-scheme">Default</string>
   <string id="widget-scheme">Default</string>
   <boolean id="link-schemes">1</boolean>
+  
+  <boolean id="interface-font-defer">1</boolean>
+  <string id="interface-font">"Lucida Grande", "Segoe UI", "Droid Sans", "Open Sans", sans-serif</string>
+  <string id="interface-font-size">1rem</string>
+  
+  <boolean id="editor-font-defer">1</boolean>
+  <string id="editor-font">Monaco, Consolas, Inconsolata, "DejaVu Sans Mono", "Bitstream Vera Sans Mono", Menlo, Monaco, "Courier New", Courier, Monospace</string>
+  <long id="editor-font-size">11</long>
+  <long id="editor-line-spacing">2</long>
 
   <!-- #if PLATFORM == "darwin" -->
   <!-- Use a different fontQuality setting on the Mac - see bug 99891. -->

@@ -58,3 +58,11 @@ groupbox#pref-languages-primary-selector-groupbox.collapse {
 {
     outline: 1px solid red;
 }
+
+#interface-font label,
+#interface-font .menulist-label-box,
+#editor-font label,
+#editor-font .menulist-label-box
+{
+    font-family: inherit;
+}

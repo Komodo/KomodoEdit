@@ -6,24 +6,88 @@ var schemeService = Cc['@activestate.com/koScintillaSchemeService;1'].getService
 var $ = require("ko/dom");
 var originalValues = {};
 
-function OnPreferencePageOK()
+function OnPreferencePageOK(prefset)
 {
-    var editorValue = $(`#editor-scheme`, window).attr("value");
-    var interfaceValue = $(`#interface-scheme`, window).attr("value");
-    var widgetValue = $(`#widget-scheme`, window).attr("value");
+    prefset.setString("editor-font", $("#editor-font").attr("label"));
+    prefset.setString("interface-font", $("#interface-font").attr("label"));
+    
+    return true;
+}
+
+function OnPreferencePageSaved(prefset)
+{
+    var newValEditor = prefset.getString("editor-scheme");
+    var newValInterface = prefset.getString("interface-scheme");
+    var newValWidget = prefset.getString("widget-scheme");
+    
+    var newValInterfaceFontDefer = prefset.getBoolean("interface-font-defer");
+    var newValInterfaceFont = prefset.getString("interface-font");
+    var newValInterfaceFontSize = prefset.getString("interface-font-size");
+    
+    var newValEditorFontDefer = prefset.getBoolean("editor-font-defer");
+    var newValEditorFont = prefset.getString("editor-font");
+    var newValEditorFontSize = prefset.getLong("editor-font-size");
+    var newValEditorFontSpace = prefset.getLong("editor-line-spacing");
     
     var colorscheme = require("ko/colorscheme");
     
-    if (editorValue != originalValues.editor)
-        colorscheme.applyEditor($(`#editor-scheme`, window).attr("value"));
+    if (newValEditor != originalValues.editor ||
+        newValEditorFontDefer != originalValues.editorFontDefer ||
+        newValEditorFont != originalValues.editorFont ||
+        newValEditorFontSize != originalValues.editorFontSize ||
+        newValEditorFontSpace != originalValues.editorFontSpace)
+    {
+        colorscheme.applyEditor(newValEditor);
+    }
         
-    if (interfaceValue != originalValues.interface)
-        colorscheme.applyInterface($(`#interface-scheme`, window).attr("value"));
+    if (newValInterface != originalValues.interface ||
+        newValInterfaceFontDefer != originalValues.interfaceFontDefer ||
+        newValInterfaceFont != originalValues.interfaceFont ||
+        newValInterfaceFontSize != originalValues.interfaceFontSize)
+    {
+        colorscheme.applyInterface(newValInterface);
+    }
     
-    if (widgetValue != originalValues.widget)
-        colorscheme.applyWidgets($(`#widget-scheme`, window).attr("value"));
+    if (newValWidget != originalValues.widget ||
+        newValInterfaceFontDefer != originalValues.interfaceFontDefer ||
+        newValInterfaceFont != originalValues.interfaceFont ||
+        newValInterfaceFontSize != originalValues.interfaceFontSize)
+    {
+        colorscheme.applyWidgets(newValWidget);
+    }
+        
+    updateOriginalValues(prefset);
     
     return true;
+}
+
+function OnPreferencePageLoading(prefset) {
+    var sdkFonts = require("ko/fonts");
+    var font = sdkFonts.getEffectiveFont(prefset.getString("editor-font"));
+    
+    $("#editor-font").attr("label", font);
+    $("#editor-font").css("font-family", font);
+    
+    font = sdkFonts.getEffectiveFont(prefset.getString("interface-font"));
+    $("#interface-font").attr("label", font);
+    $("#interface-font").css("font-family", font);
+    
+    updateOriginalValues(prefset);
+}
+
+function updateOriginalValues(prefset) {
+    originalValues.editor = prefset.getString("editor-scheme");
+    originalValues.interface = prefset.getString("interface-scheme");
+    originalValues.widget = prefset.getString("widget-scheme");
+    
+    originalValues.interfaceFontDefer = prefset.getBoolean("interface-font-defer");
+    originalValues.interfaceFont = prefset.getString("interface-font");
+    originalValues.interfaceFontSize = prefset.getString("interface-font-size");
+    
+    originalValues.editorFontDefer = prefset.getBoolean("editor-font-defer");
+    originalValues.editorFont = prefset.getString("editor-font");
+    originalValues.editorFontSize = prefset.getLong("editor-font-size");
+    originalValues.editorFontSpace = prefset.getLong("editor-line-spacing");
 }
 
 function PrefUi_OnLoad() {
@@ -90,6 +154,52 @@ function PrefUi_OnLoad() {
     populateSchemeList("widget-scheme");
     populateSchemeList("editor-scheme");
     
+    var populateFontList = function()
+    {
+        var fontlistmono = $("#editor-font menu.mono menupopup");
+        var fontlistall = $("#editor-font menu.all menupopup");
+        fontlistall.empty();
+        fontlistmono.empty();
+        
+        var fontlist2mono = $("#interface-font menu.mono menupopup");
+        var fontlist2all = $("#interface-font menu.all menupopup");
+        fontlist2all.empty();
+        fontlist2mono.empty();
+        
+        var fonts = require("ko/fonts").getSystemFonts();
+        for (let font of fonts)
+        {
+            let item = $("<menuitem>");
+            item.attr("label", font);
+            fontlistall.append(item);
+            fontlist2all.append(item.clone());
+        }
+        
+        fonts = require("ko/fonts").getMonoFonts();
+        for (let font of fonts)
+        {
+            let item = $("<menuitem>");
+            item.attr("label", font);
+            item.css("font-family", font);
+            fontlistmono.append(item);
+            fontlist2mono.append(item.clone());
+        }
+        
+        $("#editor-font").on("command", (e) => {
+            var face = e.target.getAttribute("label");
+            $("#editor-font").attr("label", face);
+            $("#editor-font").css("font-family", face);
+        });
+        
+        $("#interface-font").on("command", (e) => {
+            var face = e.target.getAttribute("label");
+            $("#interface-font").attr("label", face);
+            $("#interface-font").css("font-family", face);
+        });
+    };
+    
+    populateFontList();
+    
     parent.hPrefWindow.onpageload();
     
     setTimeout(function () {
@@ -137,9 +247,23 @@ function PrefUi_OnLoad() {
             $(`#editor-scheme`, window).element().selectedItem = $(`#editor-scheme menuitem[label="${val}"]`, window).element();
         });
         
-        originalValues.editor = $(`#editor-scheme`, window).attr("value");
-        originalValues.interface = $(`#interface-scheme`, window).attr("value");
-        originalValues.widget = $(`#widget-scheme`, window).attr("value");
+        var updateFontState = function()
+        {
+            if ($("#interface-font-defer", window).attr("checked") == "true")
+                $("#interface-font, #interface-font-size", window).attr("disabled", "true");
+            else
+                $("#interface-font, #interface-font-size", window).removeAttr("disabled");
+                
+            if ($("#editor-font-defer", window).attr("checked") == "true")
+                $("#editor-font, #editor-font-size, #editor-line-spacing", window).attr("disabled", "true");
+            else
+                $("#editor-font, #editor-font-size, #editor-line-spacing", window).removeAttr("disabled");
+                
+        };
+        updateFontState();
+        
+        $("#interface-font-defer", window).on("command", updateFontState);
+        $("#editor-font-defer", window).on("command", updateFontState);
     }, 250);
     
 }

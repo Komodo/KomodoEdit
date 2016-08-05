@@ -252,6 +252,27 @@ koPrefWindow.prototype =
         }
         return true;
     },
+    
+    _doSavedHandlers: function() {
+        var frameName, prefset, contentFrame;
+        for( frameName in this.contentFrames ) {
+            prefset = this._getCurrentPrefSet();
+            contentFrame = this.contentFrames[frameName];
+            if( contentFrame && ('OnPreferencePageSaved' in contentFrame.contentWindow)) { // is there a start function.
+                let ok = false;
+                try {
+                    ok = contentFrame.contentWindow.OnPreferencePageSaved(prefset);
+                } catch(e) {
+                    prefLog.exception(e);
+                }
+                if (!ok) {
+                    prefLog.debug("Saved handler for " + frameName + " returned false - not closing dialog");
+                    return false;
+                }
+            }
+        }
+        return true;
+    },
 
     _doClosingHandlers: function(ok) {
         var frameName, prefset, contentFrame;
@@ -301,6 +322,8 @@ koPrefWindow.prototype =
         }
 
         this.savePrefs();
+        
+        this._doSavedHandlers();
 
         if (close) {
             this._doClosingHandlers(true);
