@@ -487,27 +487,35 @@ this.waitForProjectManager = function(callback) {
     // First make sure the places widget exists ,and then verify
     // the project manager has been hooked up, so the tree is loaded.
     ko.widgets.getWidgetAsync('placesViewbox', function() {
-            var delayFunc;
-            var limit = 100; // iterations
-            var delay = 100;  // time in msec
-            delayFunc = function(tryNum) {
-                try {
-                    if (ko.toolbox2 && ko.toolbox2.manager &&
-                        ko.projects.manager.viewMgr.owner.projectsTreeView) {
-                        callback();
-                        return;
-                    }
-                } catch(ex) {
-                    log.info("waitForProjectManager: Failure: " + tryNum + ": "  + ex);
-                };
-                if (tryNum < limit) {
-                    setTimeout(delayFunc, delay, tryNum + 1);
-                } else {
-                    log.error("waitForProjectManager: Gave up trying to restore the projects workspace");
+        var delayFunc;
+        var limit = 100; // iterations
+        var delay = 100;  // time in msec
+        delayFunc = function(tryNum) {
+            var success = false;
+            try {
+                if (ko.toolbox2 && ko.toolbox2.manager &&
+                    ko.projects.manager.viewMgr.owner.projectsTreeView) {
+                    success = true;
                 }
+            } catch(ex) {
+                log.info("waitForProjectManager: Failure: " + tryNum + ": "  + ex);
+            };
+            
+            // This should not be in the try/catch as it would cause a loop if the
+            // callback has an exception
+            if (success) {
+                callback();
+                return;
             }
-            setTimeout(delayFunc, delay, 0);
-        });
+            
+            if (tryNum < limit) {
+                setTimeout(delayFunc, delay, tryNum + 1);
+            } else {
+                log.error("waitForProjectManager: Gave up trying to restore the projects workspace");
+            }
+        }
+        setTimeout(delayFunc, delay, 0);
+    });
 };
 
 this._calledInitializeEssentials = false;
