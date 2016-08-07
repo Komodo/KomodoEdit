@@ -44,8 +44,8 @@ binding cmd_wordPartRight Ctrl+Alt+Right
 binding cmd_selectCharNext Shift+Right
 binding cmd_selectCharPrevious Shift+Left
 binding cmd_selectLineNext Shift+Down
-binding cmd_selectWordLeft Ctrl+Shift+Left
-binding cmd_endOfWordExtend Ctrl+Shift+Right
+binding cmd_selectWordLeft Alt+Shift+Left
+binding cmd_endOfWordExtend Alt+Shift+Right
 binding cmd_wordPartLeftExtend Ctrl+Alt+Shift+Left
 binding cmd_WordPartRightExtend Ctrl+Alt+Shift+Right
 binding cmd_addNextSubstringToCaretSet Meta+D
