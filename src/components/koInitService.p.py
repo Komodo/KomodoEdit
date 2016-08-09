@@ -1362,6 +1362,10 @@ class KoInitService(object):
                 "apicatalogs": "apicatalogs",
                 "dictionaries": "dictionaries",
                 "publishing": "publishing",
+                "colors.less": "colors.less",
+                "classic.less": "classic.less",
+                "interfaceChrome.less": "interfaceChrome.less",
+                "userChrome.less": "userChrome.less",
             }
 
         # Minor upgrade
@@ -1383,6 +1387,10 @@ class KoInitService(object):
                 "breakpoints.pickle": "breakpoints.pickle",
                 "history.sqlite": "history.sqlite",
                 "autosave": "autosave",
+                "colors.less": "colors.less",
+                "classic.less": "classic.less",
+                "interfaceChrome.less": "interfaceChrome.less",
+                "userChrome.less": "userChrome.less",
             }
             pass
 
