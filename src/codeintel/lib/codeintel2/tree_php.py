@@ -379,6 +379,12 @@ class PHPTreeEvaluator(TreeEvaluator):
             if "__not_yet_defined__" in attr_split:
                 self.log("_return_with_hit:: hit was a not_yet_defined, ignoring it: %r", hit)
                 return False
+        # For functions, particularly in "go to definition" or "show calltip"
+        # cases, ignore functions tagged with "@ignore" (which is transformed
+        # into "Ignore" in the parsing process -- "Misc @ prefixed entries" in
+        # lang_php.py).
+        if elem.get("doc") and elem.get("doc").strip().lower() == 'ignore':
+            return False
         self.log("_return_with_hit:: hit is okay: %r", hit)
         return True
 

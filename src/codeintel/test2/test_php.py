@@ -4904,6 +4904,38 @@ class DefnTestCase(CodeIntelTestCase):
         self.assertCalltipIs(markup_text(content, pos=positions[2]),
                              "myMethod($param1)\n\nMethod Description...")
 
+    @tag("bug1672")
+    def test_multiple_defs(self):
+        test_dir = join(self.test_dir, "test_defn", "multiple_defs")
+        content, positions = unmark_text(php_markup(dedent("""\
+            add_filter<1>(<2>);
+        """)))
+
+        manifest = [
+            ("noop.php", php_markup(dedent("""\
+                /**
+                 * @ignore
+                 */
+                function add_filter() { }
+                """))),
+            ("plugin.php", php_markup(dedent("""\
+                /**
+                 * Correct
+                 */
+                function add_filter() { }
+                """))),
+            ("test.php", content),
+        ]
+        for file, content in manifest:
+            path = join(test_dir, file)
+            writefile(path, content)
+
+        buf = self.mgr.buf_from_path(join(test_dir, "test.php"))
+        self.assertDefnMatches2(buf, positions[1],
+            ilk="function", name="add_filter", line=4,
+            path=join(test_dir, "plugin.php"), )
+        self.assertCalltipIs2(buf, positions[2], "add_filter()\n\nCorrect")
+
 class EscapingTestCase(CodeIntelTestCase):
     lang = "PHP"
     test_dir = join(os.getcwd(), "tmp")
