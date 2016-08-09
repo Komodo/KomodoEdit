@@ -48,8 +48,8 @@ binding cmd_selectWordLeft Ctrl+Shift+Left
 binding cmd_endOfWordExtend Ctrl+Shift+Right
 binding cmd_wordPartLeftExtend Ctrl+Alt+Shift+Left
 binding cmd_WordPartRightExtend Ctrl+Alt+Shift+Right
-binding cmd_addNextWordToCaretSet Meta+D
-binding cmd_addNextWordToCaretSet Ctrl+D
+binding cmd_addNextSubstringToCaretSet Meta+D
+binding cmd_addNextSubstringToCaretSet Ctrl+D
 binding cmd_removePrevWordInCaretSet Meta+Shift+D
 binding cmd_removePrevWordInCaretSet Ctrl+Shift+D
 binding cmd_removeNextWordToCaretSet Meta+Alt+Shift+D
