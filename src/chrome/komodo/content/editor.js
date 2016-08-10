@@ -72,6 +72,9 @@ const OPEN_TAG_STYLES = [START_TAG_OPEN,
     
 function editor_editorController() {
     ko.main.addWillCloseHandler(this.destructor, this);
+    // By default, adding words to the caret set (Ctrl+D) adds substrings, not
+    // whole words, so SCFIND_WHOLEWORD is not needed.
+    this.addWordToCaretSetSearchFlags = 4; // scimoz.SCFIND_MATCHCASE
 }
 
 // The following two lines ensure proper inheritance (see Flanagan, p. 144).
@@ -579,11 +582,16 @@ editor_editorController.prototype.do_cmd_addNextWordToCaretSet = function() {
     }
     var scimoz = view.scimoz;
     scimoz.targetWholeDocument();
-    scimoz.searchFlags = scimoz.SCFIND_MATCHCASE;
-    if (scimoz.selectionEmpty
-        || (scimoz.isRangeWord(scimoz.selectionStart, scimoz.selectionEnd)
-            && scimoz.selText.match(/^[\w_\128-\255]+$/))) {
-        scimoz.searchFlags |= scimoz.SCFIND_WHOLEWORD;
+    if (scimoz.selections == 1) {
+        scimoz.searchFlags = scimoz.SCFIND_MATCHCASE;
+        if (scimoz.selectionEmpty
+            || (scimoz.isRangeWord(scimoz.selectionStart, scimoz.selectionEnd)
+                && scimoz.selText.match(/^[\w_\128-\255]+$/))) {
+            scimoz.searchFlags |= scimoz.SCFIND_WHOLEWORD;
+        }
+        this.addWordToCaretSetSearchFlags = scimoz.searchFlags;
+    } else {
+        scimoz.searchFlags = this.addWordToCaretSetSearchFlags;
     }
     scimoz.multipleSelectAddNext();
     scimoz.sendUpdateCommands("select");
