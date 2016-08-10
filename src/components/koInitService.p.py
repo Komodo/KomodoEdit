@@ -1417,7 +1417,9 @@ class KoInitService(object):
             names = ["extensions",
                      "extensions.ini",
                      "extensions.json",
-                     "extensions.sqlite"]
+                     "extensions.sqlite",
+                     "logins.json",
+                     "keys3.db"]
             for fileName in names:
                 _copy(join(prevUserDataDir, "XRE", fileName),
                       join(currUserDataDir, "XRE", fileName),
