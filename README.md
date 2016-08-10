@@ -119,7 +119,7 @@ should be a lot faster as much of the compiled data is cached.
 
    If you prefer the Python builds from python.org should be sufficient as well.
 
- * Xcode 6.4.  You can get version 6.4 from [the developer downloads site](https://developer.apple.com/downloads/).
+ * Xcode 6.4.  You can get version 6.4 from [the developer downloads site](https://developer.apple.com/download/more/).
   
   * MacOSX10.10.sdk or older
   * If you have/need other versions of Xcode installed then you can use `xcode-select` to change the active Xcode:
