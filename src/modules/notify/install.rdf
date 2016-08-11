@@ -10,6 +10,7 @@
         <em:homepageURL>http://www.activestate.com/komodo-ide</em:homepageURL>
         <em:iconURL>chrome://notify/skin/icon.png</em:iconURL>
         <em:type>2</em:type> <!-- type=extension -->
+        <em:unpack>true</em:unpack>
 
         <em:targetApplication>
             <Description>
