@@ -120,7 +120,7 @@ this.updateCommandset = function command_updateCommandset(commandset) {
         return;
     
     commandset._updateTimer = setTimeout(function() {
-        _log.warn('updateCommandset: ' + commandset.id);
+        _log.debug('updateCommandset: ' + commandset.id);
         
         delete commandset._updateTimer;
         
