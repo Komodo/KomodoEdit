@@ -6,7 +6,7 @@ var startupData;
 function loadIntoWindow(window) {
     try {
         window.require.setRequirePath("elastic-tabstops/", "chrome://elastic-tabstops/content/");
-        window.require("elastic-tabstops/elastic_tabstops").load();
+        window.require("elastic-tabstops/elastic-tabstops").load();
     } catch (e) {
         Cu.reportError("Elastic Tabstops: Exception while registering elastic tabstops");
         Cu.reportError(e);
@@ -15,7 +15,7 @@ function loadIntoWindow(window) {
 
 function unloadFromWindow(window) {
     if (!window) return;
-    window.require("elastic-tabstops/elastic_tabstops").unload();
+    window.require("elastic-tabstops/elastic-tabstops").unload();
 }
 
 var windowListener = {

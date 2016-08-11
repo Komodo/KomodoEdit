@@ -14,4 +14,4 @@ Import(
     'unsiloedPythonExe',
 );
 
-$cons->KoExt("koinstall");
+$cons->KoExt("kodistinstall --unjarred");

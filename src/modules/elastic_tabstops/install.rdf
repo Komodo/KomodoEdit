@@ -11,6 +11,7 @@ http://nickgravgaard.com/elastic-tabstops/</em:description>
         <em:homepageURL>http://www.activestate.com/komodo-ide</em:homepageURL>
         <em:type>2</em:type> <!-- type=extension -->
         <em:bootstrap>true</em:bootstrap> <!-- Restartless Addon -->
+        <em:unpack>true</em:unpack>
 
         <em:targetApplication>
             <Description>
