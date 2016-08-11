@@ -2060,7 +2060,7 @@
             <hbox id="windowButtons" align="center" pack="right" ordinal="120">
                 <toolbarbutton buttonstyle="pictures" id="min" class="icon-minus-circle2" onclick="window.minimize();"/>
                 <toolbarbutton buttonstyle="pictures" id="max" class="icon-plus-circle2" onclick="window.windowState === 1 ? window.restore() : window.maximize();"/>
-                <toolbarbutton buttonstyle="pictures" id="close" class="icon-cancel-circle2" onclick="if (window.tryToClose()) window.close();"/>
+                <toolbarbutton buttonstyle="pictures" id="close" class="icon-cancel-circle2" onclick="ko.main.close()"/>
             </hbox>
         </hbox>
 

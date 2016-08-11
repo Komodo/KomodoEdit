@@ -211,6 +211,31 @@ this._onClose = function(event) {
 }
 window.addEventListener("close", ko.main._onClose, true);
 
+this.close = function() {
+    _log.debug(">> ko.main.close");
+
+    // If this is the last main Komodo window, then call toolkit's
+    // `goQuitApplication` to handle quitting.
+    if (ko.windowManager.lastWindow()) {
+        // quitApplication eventually calls runCanCloseHandlers
+        ko.main.quitApplication();
+        return;
+    }
+    
+    ko.workspace.saveWorkspaceForIdx(ko.main.__koNum);
+    // Otherwise, this isn't the last Komodo window, just handle closing
+    // this window.
+    if (!ko.main.runCanCloseHandlers()) {
+        return;
+    }
+    ko.main.windowIsClosing = true;
+    ko.projects.prepareForShutdown();
+    ko.main.runWillCloseHandlers();
+    window.close();
+    _log.debug("<< ko.main.close");
+
+    return;
+}
 
 /**
  * Window "DOMWindowClose" event sent when the window is about to be closed by

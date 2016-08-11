@@ -1617,12 +1617,6 @@ this.unload = function uilayout_unload()
 	_gPrefs.setBooleanPref("startupFullScreen", window.fullScreen);
     // nsIDOMChromeWindow STATE_MAXIMIZED = 1
     _gPrefs.setBooleanPref("startupMaximized", window.windowState==1);
-    
-    var ws = require("ko/windows").getWindows("Komodo");
-    if (ws.length == 1)
-    {
-        ko.commands.doCommand('cmd_quit');
-    }
 }
 
 /**
