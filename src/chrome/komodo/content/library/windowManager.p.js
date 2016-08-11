@@ -156,7 +156,7 @@ ko.windowManager = {
                         .getService(Components.interfaces.nsIWindowMediator);
         var mw = wm.getMostRecentWindow('Komodo');
         
-        if (mw.require) // should pretty much always be true
+        if (mw && mw.require) // should pretty much always be true
         {
             return mw.require("ko/windows").getMain();
         }

@@ -26,7 +26,9 @@
             document.documentElement.setAttribute("os-name", sysInfo.get("name"));
             
             var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator);
-            var w = wm.getMostRecentWindow("Komodo").require("ko/windows").getMain();
+            var w = wm.getMostRecentWindow("Komodo");
+            if ( ! w) return;
+            w = w.require("ko/windows").getMain();
             if ( ! w) return;
             
             var evt = new CustomEvent("window_opened", { detail: window });
@@ -311,7 +313,9 @@
         <body>
         <![CDATA[
           var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator);
-          var _window = wm.getMostRecentWindow("Komodo").require("ko/windows").getMain();
+          var _window = wm.getMostRecentWindow("Komodo");
+          if (_window)
+            _window = _window.require("ko/windows").getMain();
           
           var id = document.documentElement.id || window.location.href;
           var dimensions =  _window ? _window.ko.prefs.getString("windowDimensions-" + id, "").split(",") : [];
@@ -322,7 +326,7 @@
           if (dimensions.length != 4)
           {
             // If no dimensions were stored just center the window
-            centerWindow(_window);
+            centerWindow(window);
             return;
           }
           
