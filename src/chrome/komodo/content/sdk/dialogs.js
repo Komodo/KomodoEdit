@@ -67,8 +67,10 @@
                      "dialogs. 'mruName' will be ignored.");
             _opts.mruName = null;
         }
+        
+        w = opts.window || window;
 
-        window.openDialog("chrome://komodo/content/dialogs/prompt.xul",
+        w.openDialog("chrome://komodo/content/dialogs/prompt.xul",
                   "_blank",
                   opts.features || "chrome,modal,titlebar,centerscreen",
                   _opts);
@@ -154,8 +156,10 @@
                 }
             }
         }
+        
+        w = opts.window || window;
 
-        window.openDialog("chrome://komodo/content/dialogs/yesNo.xul",
+        w.openDialog("chrome://komodo/content/dialogs/yesNo.xul",
                           "_blank",
                           opts.features || "chrome,modal,titlebar,centerscreen",
                           _opts);
@@ -245,8 +249,10 @@
         var props = ["prompt", "text", "title", "classNames","hidechrome"];
         _.each(props, (prop) => { _opts[prop] = opts[prop] || null });
         _opts.prompt = message;
+        
+        w = opts.window || window;
 
-        window.openDialog("chrome://komodo/content/dialogs/alert.xul",
+        w.openDialog("chrome://komodo/content/dialogs/alert.xul",
                           "_blank",
                           opts.features || "chrome,modal,titlebar,centerscreen",
                           _opts);
