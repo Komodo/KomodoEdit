@@ -657,7 +657,7 @@ def removeFileAssociation(ext, action, exe, fromHKLM=False):
                 actionKeyName, actionDisplayName, command = currAction
                 break
     else:
-        log.warn("could not find relevant current action to remove: '%s'",
+        log.info("could not find relevant current action to remove: '%s'",
                  action)
         return False
     log.info("relevant current action: '%s' command: '%s'",
