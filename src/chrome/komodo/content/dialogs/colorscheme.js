@@ -463,6 +463,12 @@
         var language = $("#languageList").element().selection;
         if (language == -1)
         {
+            if (selectedLanguage == -2)
+            {
+                selectedLanguage = "Python";
+                this.loadSample();
+            }
+                
             this.populatePropertiesList();
             prefs.deletePref(p);
         }
@@ -792,7 +798,6 @@
                                                                values.alpha.value, values.draw_underneath.value);
                     selectedScheme.getIndicator(property.name, values.style, values.color,
                                                                values.alpha, values.draw_underneath);
-                    console.log(values);
                     this.updateScintilla();
                 });
             },
