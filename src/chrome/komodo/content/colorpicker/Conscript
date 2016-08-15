@@ -15,6 +15,7 @@ Import(
     'unsiloedPythonExe',
 );
 
+$cons->InstallInChrome('colorpicker.xul');
 $cons->InstallInChrome('colorpicker.html');
 $cons->InstallInChrome('colorpicker.js');
 $cons->InstallInChrome('colormethods.js');
