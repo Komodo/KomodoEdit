@@ -276,28 +276,7 @@ ko-pane[type="vertical"] tabs[anonid="tabs"][rotation="270"] ko-vertical-text .l
 menuitem.menuitem-file-status {
   -moz-binding: url("chrome://komodo/content/bindings/widgets.xml#menuitem-file-status");
 }
-.menu-file-status-image-box {
-  /* Ensure these is enough room to display all icons evenly - keeps the
-     list of menuitems a uniform width. */
-  min-width: 34px;
-  width: auto;
-}
 
-.menu-file-status-image-box .native_file_image
-{
+menuitem.menuitem-file-status > label {
   margin: 0 4px;
-}
-
-.menu-file-status-image-box .file-readonly-icon[file_readonly="readonly"]
-{
-  -moz-image-region: inherit;
-  width: 16px;
-  margin: 0 -8px 0 -8px;
-}
-
-.menu-file-status-image-box .file-status-icon:not([file_scc_status]):not([file_status])
-{
-  display: inherit !important;
-  visibility: hidden;
-  width: 12px;
 }
