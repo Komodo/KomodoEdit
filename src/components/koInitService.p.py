@@ -513,7 +513,7 @@ class KoInitService(object):
             profds = self._getProfileDirs()
             
             for d in profds:
-                paths.push(d[2])
+                paths.append(d[2])
             
             for path in paths:
                 n = 0
