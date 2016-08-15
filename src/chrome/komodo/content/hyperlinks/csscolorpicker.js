@@ -333,7 +333,10 @@ ko.hyperlinks.ColorPickerHandler.prototype.remove = function(view, hyperlink, re
     var popup = document.getElementById("colorpicker_swatch_popup");
     if (popup) {
         clearTimeout(this.hideTimer);
-        this.hideTimer = setTimeout(function() { popup.remove(); }, 200);
+        if (reason == "mouseup")
+            popup.remove();
+        else
+            this.hideTimer = setTimeout(function() { popup.remove(); }, 200);
     }
     this.activeHyperlink = null;
     return true;
