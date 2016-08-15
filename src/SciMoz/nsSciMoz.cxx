@@ -628,8 +628,15 @@ void SciMoz::Notify(long lParam) {
 #endif
 				int logPixelsX = SendEditor(SCI_GETLOGPIXELSX, 0, 0);
 				int logPixelsY = SendEditor(SCI_GETLOGPIXELSY, 0, 0);
+#ifdef XP_UNIX
+				// GTK handles DPI on its own; don't re-scale.
+				int dwell_x = notification->x;
+				int dwell_y = notification->y;
+#else
+				// Re-scale coordinates based on Win/OSX default DPI.
 				int dwell_x = (notification->x * kDefaultDPI) / logPixelsX;
 				int dwell_y = (notification->y * kDefaultDPI) / logPixelsY;
+#endif
 				if (notification->nmhdr.code == SCN_DWELLSTART) {
 					mask = ISciMozEvents::SME_DWELLSTART;
 					while ( nullptr != (handle = listeners.GetNext(mask, handle, getter_AddRefs(eventSink))))
