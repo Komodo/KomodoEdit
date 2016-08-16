@@ -200,6 +200,16 @@
     }
 }
 
+#toolbox_side
+{
+    // Color the dynamic button icons
+    .dynamic-button toolbarbutton:before,
+    .dynamic-button dropmarker:before
+    {
+        color: @foreground !important;
+    }
+}
+
 &[os-name="Darwin"]
 {
     #main-toolboxrow,
