@@ -14,6 +14,8 @@ ko.analytics = new function()
     const CAT_INSTALL_METRIC = 'Install Metrics';
     const CAT_SYSTEM_METRIC  = 'System Metrics';
     const CAT_PREF_METRIC    = 'Pref Metrics';
+    const CAT_BUTTONS_METRIC    = 'Button Metrics';
+    const CAT_WIDGET_METRIC    = 'Widget Metrics';
 
     const DIM_PRODUCT     = 'dimension1';
     const DIM_VERSION     = 'dimension2';
@@ -132,6 +134,8 @@ ko.analytics = new function()
     {
         window.addEventListener('editor_view_opened', this._eventProxy.bind(this, this.onViewOpened));
         window.addEventListener('focus', this._eventProxy.bind(this, this.onWindowFocus));
+        document.getElementById('toolbox_side').addEventListener('click', this._eventProxy.bind(this, this.onSidetoolbarClick));
+        window.addEventListener('current_widget_changed', this._eventProxy.bind(this, this.onWidgetChanged));
         //window.addEventListener('loadDialog', e => e.detail["dialog"]
         //                                            .addEventListener('focus',_proxy.bind(this, this.onWindowFocus)) );
 
@@ -319,6 +323,27 @@ ko.analytics = new function()
         this.trackPageView(section);
     };
     this.onWindowFocus._previous = null;
+    
+    this.onSidetoolbarClick = (e) =>
+    {
+        if (e.target.nodeName != "toolbarbutton")
+            return;
+        
+        if (e.target.classList.contains("dynamic-button"))
+        {
+            this.trackEvent(CAT_BUTTONS_METRIC, "dynamic-button", e.target.getAttribute("label") || e.target.getAttribute("id"));
+        }
+        
+        if (e.target.parentNode.getAttribute("id") == "toolsToolbarGroup")
+        {
+            this.trackEvent(CAT_BUTTONS_METRIC, "static-tool-button", e.target.getAttribute("label") || e.target.getAttribute("id"));
+        }
+    };
+    
+    this.onWidgetChanged = (e) =>
+    {
+        this.trackEvent(CAT_WIDGET_METRIC, "widget-accessed", e.detail.getAttribute("label") || e.detail.getAttribute("id"));
+    };
 
     var _lastPageView = null;
     /**
