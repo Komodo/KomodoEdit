@@ -74,9 +74,11 @@ button#pattern-shortcuts
 }
 
 #opt-case,
-checkbox[checked]
+#opt-case .checkbox-spacer-box:before,
+checkbox[checked],
+checkbox[checked] .checkbox-spacer-box:before
 {
-    color: @secondary-special;
+    color: @secondary-special !important;
 }
 
 checkbox:not(#confirm-replacements-in-files) .checkbox-label-box
