@@ -188,6 +188,12 @@
                 setTimeout(function() {
                   tabpanel.firstChild.focus();
                   tabpanel.firstChild.contentWindow.focus();
+                  
+                  var wm = Cc["@mozilla.org/appshell/window-mediator;1"].getService(Ci.nsIWindowMediator);
+                  var w = wm.getMostRecentWindow("Komodo").require("ko/windows").getMain();
+                  
+                  var evt = new CustomEvent("current_widget_changed", { detail: tabpanel.firstChild });
+                  w.dispatchEvent(evt);
                 }, 100);
               });
               
