@@ -23,7 +23,6 @@ Useful functions used by the rest of paramiko.
 from __future__ import generators
 
 import array
-from binascii import hexlify, unhexlify
 import errno
 import sys
 import struct
@@ -106,27 +105,20 @@ def format_binary_line(data):
     return '%-50s %s' % (left, right)
 
 
-def hexify(s):
-    return hexlify(s).upper()
-
-
-def unhexify(s):
-    return unhexlify(s)
-
-
 def safe_string(s):
-    out = ''
+    out = b('')
     for c in s:
-        if (byte_ord(c) >= 32) and (byte_ord(c) <= 127):
-            out += c
+        i = byte_ord(c)
+        if 32 <= i <= 127:
+            out += byte_chr(i)
         else:
-            out += '%%%02X' % byte_ord(c)
+            out += b('%%%02X' % i)
     return out
 
 
 def bit_length(n):
     try:
-        return n.bitlength()
+        return n.bit_length()
     except AttributeError:
         norm = deflate_long(n, False)
         hbyte = byte_ord(norm[0])
@@ -307,9 +299,9 @@ class Counter (object):
         self.value = array.array('c', zero_byte * (self.blocksize - len(x)) + x)
         return self.value.tostring()
 
+    @classmethod
     def new(cls, nbits, initial_value=long(1), overflow=long(0)):
         return cls(nbits, initial_value=initial_value, overflow=overflow)
-    new = classmethod(new)
 
 
 def constant_time_bytes_eq(a, b):
