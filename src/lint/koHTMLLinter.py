@@ -830,7 +830,7 @@ class CommonTidyLinter(object):
         #
         # Later on it's possible to request warnings and filter out ones
         # that obviously don't make sense. 
-        allowTidyWarnings = (languageName in ("HTML", "HTML5", "XML")
+        allowTidyWarnings = (languageName in ("HTML", "HTML5", "XML", "AngularJS")
                              or _doctype_re.match(text)
                              or text.startswith("<?xml "))
         cwd = request.cwd
