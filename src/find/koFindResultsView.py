@@ -123,7 +123,7 @@ class KoFindResultsView(TreeView):
         if not self.rootPath:
             return fileName
         
-        if fileName.index(self.rootPath) is not 0:
+        if fileName.find(self.rootPath) is not 0:
             return fileName
         
         return "<%s>%s" % (os.path.basename(self.rootPath), fileName[len(self.rootPath):])
