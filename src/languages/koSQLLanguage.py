@@ -62,13 +62,16 @@ class koCommonSQLLanguage(KoLanguageBase):
     commentDelimiterInfo = {
         "line": [ "--" ],
         "block": [ ("/*", "*/") ],
+        "markup": "*"
     }
     searchURL = "http://www.google.com/search?q=sql+%W"
+    supportsSmartIndent = "keyword" # just to get block comment '*' continuation
 
     def __init__(self):
         KoLanguageBase.__init__(self)
         self._style_info.update(
-            _block_comment_styles = [sci_constants.SCE_SQL_COMMENT]
+            _block_comment_styles = [sci_constants.SCE_SQL_COMMENT,
+                                     sci_constants.SCE_SQL_COMMENTDOC]
             )
         del self.matchingSoftChars['"']
         self._fastCharData = \
