@@ -204,7 +204,10 @@
 {
     // Color the dynamic button icons
     .dynamic-button toolbarbutton:before,
-    .dynamic-button dropmarker:before
+    .dynamic-button dropmarker:before,
+    toolbaritem > toolbarbutton:before,
+    toolbaritem > toolbarbutton > toolbarbutton:before,
+    toolbaritem > dropmarker:before
     {
         color: @foreground !important;
     }
