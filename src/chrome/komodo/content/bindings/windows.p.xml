@@ -38,7 +38,8 @@
           }
           catch(e)
           {
-            require("ko/logging").getLogger("window-bindings").exception(e);
+            var {logging} = Components.utils.import("chrome://komodo/content/library/logging.js");
+            logging.getLogger("window-bindings").exception(e);
           }
         ]]>
       </constructor>
@@ -90,7 +91,8 @@
           }
           catch(e)
           {
-            require("ko/logging").getLogger("window-bindings").exception(e);
+            var {logging} = Components.utils.import("chrome://komodo/content/library/logging.js");
+            logging.getLogger("window-bindings").exception(e);
           }
         ]]>
       </constructor>
