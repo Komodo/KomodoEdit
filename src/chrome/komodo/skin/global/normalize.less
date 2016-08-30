@@ -682,7 +682,7 @@ button[type="checkbox"][checked="true"]
     box-shadow: inset 0px 0px 0px 1px @secondary-special;
 }
 
-toolbarbutton[type="checkbox"][checked="true"]:before
+:not(toolbaritem) > toolbarbutton[type="checkbox"][checked="true"]:before
 {
     color: @secondary-special !important;
 }
