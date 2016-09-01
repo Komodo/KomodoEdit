@@ -40,6 +40,9 @@ class KoConsoleLogger:
             exc.QueryInterface(Ci.nsIException)
         except COMException:
             return False
+        except Exception:
+            self.log.error("Exception occurred while handling exception. Failing gracefully, but this could cause issues ..")
+            return False
         def make_frame(frame):
             if not frame:
                 return None
@@ -97,6 +100,9 @@ class KoConsoleLogger:
             error.QueryInterface(Ci.nsIScriptError)
         except COMException:
             return False
+        except Exception:
+            self.log.error("Exception occurred while handling error. Failing gracefully, but this could cause issues ..")
+            return False
 
         errorMessage = error.errorMessage or ""
         sourceName = error.sourceName or ""
@@ -127,8 +133,12 @@ class KoConsoleLogger:
         if self._handleScriptError(message):
             return
 
-        messagetext = message.message
-        if any(x in messagetext for x in self.ignored_error_strings):
-            self.log.debug("FILTERED: %s", messagetext)
-        else:
-            self.log.info("%s", messagetext)
+        try:
+            messagetext = message.message
+            if any(x in messagetext for x in self.ignored_error_strings):
+                self.log.debug("FILTERED: %s", messagetext)
+            else:
+                self.log.info("%s", messagetext)
+        except Exception:
+            self.log.error("Exception occurred while handling logging message. Failing gracefully.")
+            return
