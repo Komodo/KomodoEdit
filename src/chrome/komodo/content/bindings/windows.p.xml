@@ -482,6 +482,13 @@
 
           window.addEventListener("load", function() {
             setTimeout(function() {
+              window.sizeToContent();
+              
+              // Force the window to respect its minimum width, (yet another XUL bug)
+              var width = window.innerWidth;
+              window.innerWidth = 1000;
+              window.innerWidth = width;
+              
               if (window.screenX !== 0 || window.screenY !== 0)
                 return;
               var x = window.screen.left + Math.round((window.screen.availWidth - window.outerWidth) / 2);
@@ -500,7 +507,6 @@
           _sizeToContent();
           window.sizeToContent = _sizeToContent;
         }, 0);
-        
         ]]>
       </constructor>
     </implementation>
