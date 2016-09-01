@@ -48,9 +48,6 @@
 
 <binding id="view-browser" display="xul:box"
     extends="chrome://komodo/content/bindings/views.xml#view-base">
-    <resources>
-        <stylesheet src="chrome://komodo/skin/browser.less"/>
-    </resources>
     <content>
         <xul:vbox flex="1">
             <xul:toolbox xbl:inherits="collapsed=collapsenavbar"   collapsed="false">
