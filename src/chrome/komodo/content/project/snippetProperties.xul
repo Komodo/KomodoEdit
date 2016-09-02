@@ -62,7 +62,7 @@
         ondialogaccept="return OK()"
         ondialogcancel="return Cancel()"
         ondialogextra1="return Apply()"
-        ondialoghelp="ko.help.open('snippet_options');">
+        ondialoghelp="ko.help.open('snippets#snippets_snippet-options');">
 
     <script src="chrome://xtk/content/xtk.js"                          type="application/x-javascript;version=1.7"/>
     <script src="chrome://global/content/fullScreen.js"                type="application/x-javascript;version=1.7"/>

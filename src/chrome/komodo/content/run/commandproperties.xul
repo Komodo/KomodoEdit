@@ -67,7 +67,7 @@
         buttons="accept,extra1,cancel,help"
         ondialogaccept="return OK();"
         ondialogextra1="return Apply();"
-        ondialoghelp="ko.help.open('run_command_properties');"
+        ondialoghelp="ko.help.open('run#run-commands_storing-run-commands-in-a-toolbox_run-command-properties');"
         ondialogcancel="return Cancel();">
 
     <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>

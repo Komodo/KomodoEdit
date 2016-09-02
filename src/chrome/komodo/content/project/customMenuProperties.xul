@@ -58,7 +58,7 @@
         ondialogaccept="return OK()"
         ondialogextra1="return Apply()"
         ondialogcancel="return Cancel()"
-        ondialoghelp="ko.help.open('custom_menu_and_toolbar_properties');">
+        ondialoghelp="ko.help.open('custtbi#custom-toolbars-and-menus_custom-menu-and-toolbar-properties');">
 
     <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/dialogs.js"

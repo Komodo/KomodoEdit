@@ -39,6 +39,7 @@ var bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
 
 xtk.include('domutils');
         
+var ko = require("ko/windows").getMain().ko;
 var gPartname, gKeybinding, gPart, gItem, gScintilla = null;
 var gDefaultPartIconURL = null;
 var gTriggerGroup, gRank, gLanguage, gTriggerCheckbox, gRunInBackground;

@@ -42,6 +42,7 @@
 //        type: the type of the part ('URL', 'template', etc...)
 //        src:  the chrome of the image to be used in the dialog
 
+var ko = require("ko/windows").getMain().ko;
 var gPriority, gPriorityLabel, gOKButton, gPart, gItem;
 var gAccessKey = null;
 var tabs, gApplyButton;

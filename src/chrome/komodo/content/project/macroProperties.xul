@@ -68,7 +68,7 @@
         buttons="accept,extra1,cancel,help"
         ondialogaccept="return OK(event)"
         ondialogextra1="return Apply()"
-        ondialoghelp="ko.help.open('macro_properties');"
+        ondialoghelp="ko.help.open('macros#macros-and-userscripts_userscript-properties');"
         ondialogcancel="return Cancel()">
 
     <script src="chrome://xtk/content/xtk.js"                         type="application/x-javascript;version=1.7"/>

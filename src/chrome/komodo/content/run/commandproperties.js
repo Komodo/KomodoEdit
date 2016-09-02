@@ -44,6 +44,7 @@
 
 //---- globals
 
+var ko = require("ko/windows").getMain().ko;
 var log = ko.logging.getLogger("commandproperties")
 
 var gDlg = null;    // Object to hold all XUL element references.

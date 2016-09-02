@@ -58,7 +58,7 @@
         buttons="accept,extra1,cancel,help"
         ondialogaccept="return Open();"
         ondialogextra1="return OpenTemplateFolder();"
-        ondialoghelp="ko.help.open('creating_files');"
+        ondialoghelp="ko.help.open('files#working-with-files_creating-files_creating-files-from-templates');"
         ondialogcancel="return Cancel();">
 
     <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>

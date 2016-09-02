@@ -50,6 +50,7 @@
 //                              'value' textbox and converts it to what
 //                              will be stuffed in the part's value.
 
+var ko = require("ko/windows").getMain().ko;
 var log = ko.logging.getLogger("simplePartProperties");
 
 var partname, partvalue, gOKButton, keybinding, gItem, gItem;
@@ -232,10 +233,10 @@ function Help() {
     switch (gItemType) {
     case "url":
     case "URL":
-        ko.help.open("url_shortcut_options");
+        ko.help.open("urls#url-shortcuts_url-shortcut-options");
         break;
     case "template":
-        ko.help.open("template_options");
+        ko.help.open("templates#templates_storing-templates-in-a-toolbox_template-options");
         break;
     default:
         log.error("cannot launch help: unknown part type: '"+gItemType+"'\n");

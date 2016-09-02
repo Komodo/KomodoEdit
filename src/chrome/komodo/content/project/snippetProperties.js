@@ -42,6 +42,7 @@
 
 xtk.include("domutils");
 
+var ko = require("ko/windows").getMain().ko;
 var log = ko.logging.getLogger("snippetProperties");
 
 var snippetname, snippetvalue, snippetnamelabel;

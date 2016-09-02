@@ -61,6 +61,7 @@
  */
 
 
+var ko = require("ko/windows").getMain().ko;
 var log = ko.logging.getLogger("templates");
 //log.setLevel(ko.logging.LOG_DEBUG);
 
