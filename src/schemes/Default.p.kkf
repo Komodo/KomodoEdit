@@ -214,7 +214,9 @@ binding cmd_stopMacroMode Ctrl+K )
 # Commando
 binding cmd_scope-combined Ctrl+Shift+O
 binding cmd_scope-combined-toolscmds Ctrl+Shift+K
+binding cmd_scope-openfiles Ctrl+Shift+<
 binding cmd_scope-openfiles Ctrl+<
+binding cmd_scope-files Ctrl+Shift+>
 binding cmd_scope-files Ctrl+>
 binding cmd_scope-combined-toolscmds Meta+Shift+C
 binding cmd_scope-packages Ctrl+P
