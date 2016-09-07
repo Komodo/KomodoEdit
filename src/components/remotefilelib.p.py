@@ -821,7 +821,8 @@ class koRemoteSSH(koRFConnection):
             agent_keys = agent.get_keys()
             if len(agent_keys) > 0:
                 for key in agent_keys:
-                    self.log.debug('Trying ssh-agent key %s', paramiko.util.hexify(key.get_fingerprint()))
+                    from binascii import hexlify
+                    self.log.debug('Trying ssh-agent key %s', hexlify(key.get_fingerprint()))
                     try:
                         self._connection.auth_publickey(self.username, key)
                         #self._connection.auth_publickey(self.username, key, event)
