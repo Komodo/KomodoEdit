@@ -114,6 +114,15 @@
             }
                 
             button.parent().attr("collapsed", visibleChildren ? "false" : "true");
+            
+            // On Komodo Edit we also need to hide the toolbar element, because
+            // XUL weirdness seems to make it think the parent is overflowing otherwise
+            // bug #2003
+            visibleChildren = false;
+            var parent = button.parent();
+            sel = '.dynamic-button[disabled="false"], .dynamic-button:not([disabled])';
+            visibleChildren = parent.parent().find(sel).length;
+            parent.parent().attr("collapsed", visibleChildren ? "false" : "true");
         };
         this.update._timer = null;
         
