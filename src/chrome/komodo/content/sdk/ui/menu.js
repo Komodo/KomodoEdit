@@ -26,6 +26,7 @@ module.exports = Module;
             if ( ! Array.isArray(menuitems) && typeof menuitems == "object")
             {
                 options = menuitems;
+                menuitems = null;
             }
             
             if ("menuitems" in options)
