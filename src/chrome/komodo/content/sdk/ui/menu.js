@@ -9,6 +9,8 @@
 var parent = require("./element");
 var Module = Object.assign({}, parent);
 var $ = require("ko/dom");
+var log = require("ko/logging").getLogger("sdk/ui/menu");
+log.setLevel(require("ko/logging").LOG_DEBUG);
 module.exports = Module;
 
 // Main module (module.exports)
@@ -38,9 +40,14 @@ module.exports = Module;
             this.$element = $($.create(this.name, options.attributes || {}).toString());
             this.element = this.$element.element();
             
-            if (menuitems)
+            if (menuitems && Array.isArray(menuitems))
             {
                 this.addMenuItems(menuitems);
+            }
+            else if ( ! Array.isArray(menuitems) )
+            {
+                log.warn("Menu items must be in an array.  Failed to add menu "+
+                         "items to menu.");
             }
         };
         
