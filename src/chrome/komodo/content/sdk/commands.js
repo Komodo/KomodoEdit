@@ -82,7 +82,7 @@
         commandNode.attr({
             id: commandName,
             key: "key_" + commandName,
-            onCommand: "ko.commands.doCommandAsync('"+commandName+"', event)",
+            oncommand: "ko.commands.doCommandAsync('"+commandName+"', event)",
             desc: opts.label || commandName
         });
         $("#allcommands", _window).append(commandNode);
