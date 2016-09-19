@@ -10,7 +10,7 @@ var parent = require("./element");
 var Module = Object.assign({}, parent);
 var $ = require("ko/dom");
 var log = require("ko/logging").getLogger("sdk/ui/menu");
-log.setLevel(require("ko/logging").LOG_DEBUG);
+//log.setLevel(require("ko/logging").LOG_DEBUG);
 module.exports = Module;
 
 // Main module (module.exports)
