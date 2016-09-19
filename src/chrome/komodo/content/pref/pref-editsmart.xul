@@ -88,6 +88,10 @@
             widgets.restoreAutoAbbreviationTriggerCharacters = document.getElementById("restoreAutoAbbreviationTriggerCharacters");
             widgets.enableAutoAbbreviations = document.getElementById("enableAutoAbbreviations");
             check_trigger_characters_changed();
+            if (!document.getElementById("enableAutoAbbreviations").checked) {
+                widgets.autoAbbreviationTriggerCharacters.disabled = true;
+                widgets.restoreAutoAbbreviationTriggerCharacters.disabled  = true;
+            }
         } catch (ex) {
             // Ignore any errors.
         }
