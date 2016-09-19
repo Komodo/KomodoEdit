@@ -44,7 +44,7 @@ module.exports = Module;
             {
                 this.addMenuItems(menuitems);
             }
-            else if ( ! Array.isArray(menuitems) )
+            else if (menuitems && ! Array.isArray(menuitems))
             {
                 log.warn("Menu items must be in an array.  Failed to add menu "+
                          "items to menu.");
