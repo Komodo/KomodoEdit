@@ -53,3 +53,4 @@ find_style.patch
 expose_setticking.patch
 expose_addCharUTF.patch
 gtk_wrap_gtk.patch
+gtk_clipboard_persist.patch

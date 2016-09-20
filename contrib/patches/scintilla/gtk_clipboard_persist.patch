@@ -1,0 +1,14 @@
+--- gtk/ScintillaGTK.cxx.orig	2016-07-18 11:10:11.005195946 -0400
++++ gtk/ScintillaGTK.cxx	2016-09-20 17:03:47.217830846 -0400
+@@ -1984,6 +1947,11 @@
+ 	if (gtk_clipboard_set_with_data(clipBoard, clipboardCopyTargets, nClipboardCopyTargets,
+ 				    ClipboardGetSelection, ClipboardClearSelection, clipText)) {
+ 		gtk_clipboard_set_can_store(clipBoard, clipboardCopyTargets, nClipboardCopyTargets);
++		// Persist the clipboard on exit. Mozilla does some funny stuff,
++		// changing clipboard ownership and unintentionally clobbering the
++		// current clipboard when it quits. Patching Scintilla here is easier
++		// than patching Mozilla.
++		gtk_clipboard_store(clipBoard);
+ 	}
+ }
+ 
