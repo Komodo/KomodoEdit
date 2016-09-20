@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<!DOCTYPE dialog SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % dialogsDTD SYSTEM "chrome://komodo/locale/dialogs.dtd">
+  %dialogsDTD;
+]>
+
+<!-- Copyright (c) 2003-2006 ActiveState Software Inc.
+     See the file LICENSE.txt for licensing information. -->
+
+<!-- Select a preview file for the given URL. -->
+
+<?xml-stylesheet href="less://komodo/skin/global/global.less" type="text/css"?>
+<window
+    id="komodo_slackauth_window"
+    windowtype="Komodo:BroswerWindow"
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+    width="2000"
+    height="1500"
+    screenX="20"
+    screenY="20"
+    persist="screenX screenY width height"
+    onload="OnLoad();"
+    orient="vertical">
+    <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://xtk/content/domutils.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/logging.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/dialogs.js" type="application/x-javascript;version=1.7"/>
+
+    <!-- Scintilla overlay - required files. -->
+    <script src="chrome://komodo/content/library/windowManager.js" type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/timers.js"       type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/stringutils.js"  type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/commands.js"     type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/dragdrop.js"     type="application/x-javascript;version=1.7"/>
+    
+    <script src="chrome://komodo/content/dialogs/slackauth.js"     type="application/x-javascript;version=1.7"/>
+
+    <browser
+        id="slackauth_browser"
+        type="content"
+        flex="1"/>
+</window>

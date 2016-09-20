@@ -74,6 +74,8 @@ $cons->InstallInChrome('authenticate.js');
 $cons->InstallInChrome('authenticate.xul');
 $cons->InstallInChrome('pickPreview.js');
 $cons->InstallInChrome('pickPreview.xul');
+$cons->InstallInChrome('slackauth.js');
+$cons->InstallInChrome('slackauth.xul');
 
 $cons->InstallInChrome('compare.js');
 $cons->InstallInChrome('compare.xul');
