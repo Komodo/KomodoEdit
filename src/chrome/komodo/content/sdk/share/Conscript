@@ -11,4 +11,5 @@ Import(
 );
 
 $cons->InstallInChrome('kopy.js');
+$cons->InstallInChrome('slack.js');
 
