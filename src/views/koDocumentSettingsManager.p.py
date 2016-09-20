@@ -72,6 +72,7 @@ class koDocumentSettingsManager:
                      'editor_font_quality',
                      # Code Intelligence stuff:
                      'codeintel_completion_triggering_enabled',
+                     'codeintel_calltip_triggering_enabled',
                      'codeintel_rescan_while_typing_enabled',
                 ]
 

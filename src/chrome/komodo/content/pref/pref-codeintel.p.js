@@ -67,6 +67,7 @@ function PrefCodeIntel_OnLoad()
     log.info("PrefCodeIntel_OnLoad");
     try {
         gWidgets.triggeringEnabledCheckbox = document.getElementById("codeintel_completion_triggering_enabled");
+        gWidgets.triggeringCalltipEnabledCheckbox = document.getElementById("codeintel_calltip_triggering_enabled");
         gWidgets.fillupsEnabledCheckbox = document.getElementById("codeintel_completion_auto_fillups_enabled");
         gWidgets.scanProjectCheckbox = document.getElementById("codeintel_scan_files_in_project");
         gWidgets.scanDepthTextbox = document.getElementById("codeintel_max_recursive_dir_depth");
@@ -89,6 +90,7 @@ function OnPreferencePageLoading(prefset)
         gEnabled = prefset.getBooleanPref("codeintel_enabled");
         _setElementEnabledState(gWidgets.fillupsEnabledCheckbox, gEnabled);
         _setElementEnabledState(gWidgets.triggeringEnabledCheckbox, gEnabled);
+        _setElementEnabledState(gWidgets.triggeringCalltipEnabledCheckbox, gEnabled);
         _setElementEnabledState(gWidgets.catalogs, gEnabled);
         _setElementEnabledState(gWidgets.addCatalogButton, gEnabled);
         _setElementEnabledState(gWidgets.removeCatalogButton, gEnabled);

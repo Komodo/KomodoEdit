@@ -225,7 +225,8 @@
 <!ENTITY editWithKomodoAssociations.label "&quot;Edit with Komodo&quot; Associations">
 <!ENTITY editor.label "Editor">
 <!ENTITY enableAutocompleteFillUpCharacters.label "Enable autocomplete fill-up characters">
-<!ENTITY enableAutomaticAutocompleteAndCalltipTriggeringWhileYouType.label "Enable automatic autocomplete and calltip triggering while you type">
+<!ENTITY enableAutomaticAutocompleteTriggeringWhileYouType.label "Enable automatic autocomplete triggering while you type">
+<!ENTITY enableAutomaticCalltipTriggeringWhileYouType.label "Enable automatic calltip triggering while you type">
 <!ENTITY enableAutoAbbreviationsWithTriggerCharacters.label "Enable %autoAbbreviationName.name;s, with Trigger Characters:">
 <!ENTITY enableBackgroundSyntaxCheckingAfter.label "Enable background syntax checking after">
 <!ENTITY enableElasticTabstops.label "Enable elastic tabstops">

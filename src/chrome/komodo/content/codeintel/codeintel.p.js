@@ -271,8 +271,14 @@ ko.codeintel = {};
     /**
      * Trigger a completion (i.e. an autocomplete or calltip session)
      * if appropriate.
+     * @param view The view to trigger completions on.
+     * @param trigger_pref_check Whether or not to check trigger preferences
+     *   for autocomplete or calltips before evaluating the trigger (showing the
+     *   popup). This should be `true` when calling this method based on user
+     *   typing since it is not possible to discern between an autocomplete or
+     *   calltip trigger at that time.
      */
-    this.trigger = function ko_codeintel_trigger(view) {
+    this.trigger = function ko_codeintel_trigger(view, trigger_pref_check) {
 
         log.debug("ko.codeintel.trigger: " + view);
         var scimoz = view.scimoz;
@@ -307,12 +313,14 @@ ko.codeintel = {};
             // Check if the trigger form is enabled:
             switch (trg.form) {
                 case Ci.koICodeIntelTrigger.TRG_FORM_CPLN:
-                    if (!ko.prefs.getBoolean("codeintel_completions_enabled", true)) {
+                    if (!ko.prefs.getBoolean("codeintel_completions_enabled", true) ||
+                        (trigger_pref_check && !ko.prefs.getBoolean("codeintel_completion_triggering_enabled"))) {
                         return;
                     }
                     break;
                 case Ci.koICodeIntelTrigger.TRG_FORM_CALLTIP:
-                    if (!ko.prefs.getBoolean("codeintel_calltips_enabled", true)) {
+                    if (!ko.prefs.getBoolean("codeintel_calltips_enabled", true) ||
+                        (trigger_pref_check && !ko.prefs.getBoolean("codeintel_calltip_triggering_enabled"))) {
                         return;
                     }
                     break;

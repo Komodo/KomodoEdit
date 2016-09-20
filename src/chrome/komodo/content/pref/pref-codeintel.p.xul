@@ -82,7 +82,10 @@
             </description>
 
             <checkbox id="codeintel_completion_triggering_enabled"
-                      label="&enableAutomaticAutocompleteAndCalltipTriggeringWhileYouType.label;"
+                      label="&enableAutomaticAutocompleteTriggeringWhileYouType.label;"
+                      pref="true" prefattribute="checked"/>
+            <checkbox id="codeintel_calltip_triggering_enabled"
+                      label="&enableAutomaticCalltipTriggeringWhileYouType.label;"
                       pref="true" prefattribute="checked"/>
     
             <separator class="thin"/>

@@ -243,7 +243,7 @@
              
              XXX:PERF Cache this and use pref observer. -->
         <property name="_isCITriggeringEnabled"
-                  onget="return this.__globalPrefs.getBooleanPref('codeintel_completion_triggering_enabled');"/>
+                  onget="return this.__globalPrefs.getBooleanPref('codeintel_completion_triggering_enabled') || this.__globalPrefs.getBooleanPref('codeintel_calltip_triggering_enabled');"/>
 
         <property name="ciCompletionUIHandler">
             <getter><![CDATA[
@@ -262,7 +262,7 @@
         <property name="_doAutoComplete"
             onget="return this.__globalPrefs.getBooleanPref('codeintel_completion_triggering_enabled')"/>
         <property name="_doStartCallTip"
-            onget="return this.__globalPrefs.getBooleanPref('codeintel_completion_triggering_enabled')"/>
+            onget="return this.__globalPrefs.getBooleanPref('codeintel_calltip_triggering_enabled')"/>
 
         <field name="_transientMarkRingSize">16</field>
         <field name="_transientMarkRing">[]</field>
@@ -1135,7 +1135,7 @@
             if (this.lastCharAdded) {
                 if (this.isCICplnEnabled && this._isCITriggeringEnabled) {
                     // Trigger completions or calltip.
-                    ko.codeintel.trigger(this);
+                    ko.codeintel.trigger(this, true);
                 }
 
                 this.doCommandCompletion();
