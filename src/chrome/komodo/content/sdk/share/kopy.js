@@ -40,15 +40,7 @@
             label: "kopy: Share Code via kopy.io"
         });
 
-        require("ko/share").register("kopy", "Share Code via kopy.io");
-
-        //menu.register({
-        //    id: "kopy",
-        //    label: "Share Code via kopy.io",
-        //    image: "chrome://kopy/skin/icon.png",
-        //    command: ko.commands.doCommandAsync.bind(ko.commands, "cmd_kopy"),
-        //    context: menuContext
-        //});
+        require("ko/share").register("ko/share/kopy", "Share Code via kopy.io");
         
         require("notify/notify").categories.register("kopy",
         {

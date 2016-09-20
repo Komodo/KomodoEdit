@@ -1,5 +1,5 @@
 /**
- * @copyright (c) 2015 ActiveState Software Inc.
+ * @copyright (c) 2016 ActiveState Software Inc.
  * @license Mozilla Public License v. 2.0
  * @author ActiveState
  * @overview - Interface to add new sharing tool to Komodo
@@ -15,7 +15,6 @@
     const log = require("ko/logging").getLogger("sharing");
     const w = require("ko/windows").getMain();
     const $ = require("ko/dom");
-    const commands = require("ko/commands");
     
     var shareMenu; // Stores the dropdown menu that holds all the added share modules
                    // We append new modules to it in register() and update all locations
@@ -27,7 +26,7 @@
                            //    lable: label,
                            //    menuItem: ko/ui/menuItem
                            // }
-    
+    //  Append list IDs to append the share menu to.
     var elementIDs = ["editorContextMenu"];  
     
     /**
@@ -39,35 +38,28 @@
      *
      *  The added
      *
-     * @argument    {String}    id    used to register namespace
+     * @argument    {String}    namespace    namespace/path used to require your module that implements your share library
      * @argument    {String}    label Label for menuitems  
      */
-    this.register = function (id , label)
+    this.register = function (namespace , label)
     {
-        var namespace = "ko/share/"+id;
-        try
+        if( ! w.require.exists(namespace))
         {
-            require(namespace);
-        } catch(e)
-        {
-             log.warn(e);
-             return;
-        } 
-        var shareModule = require(namespace);
-        if ( ! shareModule.share )
-        {
-            log.warn("Package 'ko/share/" + id + "' appears to be missing a `share()` function." +
-                     "You must provide a `share()` function to register with ko/share.");
+            log.warn(namespace + " not in require path.  Try adding your addon " +
+                     "to the path:"+
+                     "\n`window.require.setRequirePath('myAddon/', 'chrome://myAddon/content');`");
             return;
         }
-        //commands.register("share_"+id, shareModule.share.bind(this), {
-        //    label: "Share kopy: Share Code via kopy.io"
-        //});
-        var shareCommand = function()
-            {
-                shareModule.share();
-            };
-        console.log("Creating menu");
+        
+        var shareModule = require(namespace); 
+        if ( ! shareModule.share )
+        {
+            log.warn("Package '"+ namespace + "' appears to be missing a " +
+                     "`share()` function.  You must provide a `share()` " +
+                     "function to register your lib with `require('ko/share')`");
+            return;
+        }
+
         if( ! shareMenu )
         {
             shareMenu = require("ko/ui/menu").create(
@@ -78,7 +70,6 @@
                 }
             });
         }
-        console.log("adding menu item");
         var shareMenuItem = require("ko/ui/menuitem").create(
             {
                 attributes: {
@@ -89,27 +80,26 @@
         );
         shareMenu.addMenuItem(shareMenuItem);
         shareModules.push({
-            id:id,
+            namespace:namespace,
             label: label,
             menuItem: shareMenuItem
         });
-        console.log(shareMenuItem);
         updateShareMenu();
         //updateShareDynButton();
     };
     
     
-    function updateShareMenu(menu)
+    function updateShareMenu()
     {
         console.log("adding to menu");
         // Add the share menu to a set list of locations which are
         // specified by their id from the Komodo UI.
-        for (var i in elementIDs)
+        for (var elementID of elementIDs)
         {
             shareMenu.element.parentElement.removeChild(shareMenu.element);
-            var location = $("#" + elementIDs[i]);
+            let location = $("#" + elementID);
             if ( ! location ) {
-                log.warn("Skipping element in menu update.  Does not exist: " + elementIDs[i]);
+                log.warn("Skipping element in menu update.  Does not exist: " + elementID);
                 continue;
             }
             location.append(shareMenu.$element);

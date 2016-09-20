@@ -47,6 +47,7 @@ $cons->InstallInChrome('wizard.js');
 $cons->InstallInChrome('profiler.js');
 $cons->InstallInChrome('filestatus.js');
 $cons->InstallInChrome('simple-storage.js');
+$cons->InstallInChrome('share.js');
 
 if ($buildFlavour eq "dev") {
     $cons->InstallInChrome('benchmark.js');

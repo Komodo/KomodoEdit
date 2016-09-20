@@ -1755,6 +1755,8 @@ this.onload = function uilayout_onload()
     setTimeout(function() {
         ko.uilayout._updateToolbarViewStates();
     }, 3000);
+    
+    require("ko/share/kopy").load()
 }
 
 this.updateWindowButtons = function (w) {
