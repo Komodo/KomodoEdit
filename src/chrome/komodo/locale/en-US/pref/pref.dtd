@@ -622,6 +622,7 @@ adding an additional caret at the clicked position.">
 <!ENTITY fileChanged.label "If files have been changed:">
 <!ENTITY fileDeleted.label "If files have been deleted:">
 <!ENTITY minimumNumberLineAboveBelowCursor.label "Minimum number of lines to keep above and below cursor:">
+<!ENTITY minimumNumberColumnAfterCursor.label "Minimum number of columns to keep after cursor:">
 <!ENTITY horizScrollWidth.label "Minimum horizontal scrollbar width (in pixels):">
 <!ENTITY horizScrollWidthTracking.label "Automatically adjust the horizontal scrollbar width">
 <!ENTITY horizScrollWidthTracking.tooltiptext "When enabled, this will automatically adjust the horizontal scrollbar width to fit the document width. Note: Enabling this feature can decrease the editor performance.">

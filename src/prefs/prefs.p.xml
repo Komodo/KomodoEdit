@@ -662,6 +662,8 @@
 
   <!-- number of lines to keep above and below cursor - see scintilla setYCaretPolicy -->
   <long id="ySlop">5</long>
+  <!-- number of columns to keep after cursor - see scintilla setXCaretPolicy -->
+  <long id="xSlop">0</long>
 
   <!-- horizontal scrollbar width (in pixels) -->
   <long id="scrollWidth">2000</long>

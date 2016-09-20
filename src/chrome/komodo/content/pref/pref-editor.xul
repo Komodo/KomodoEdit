@@ -280,6 +280,15 @@
                             prefstring="ySlop"
                             prefattribute="value"/>
             </hbox>
+            <hbox align="center"
+                  class="load-context-check" showIfLoadContext="global">
+                <label value="&minimumNumberColumnAfterCursor.label;"/>
+                <textbox id="xSlop"
+                            size="3"
+                            pref="true"
+                            prefstring="xSlop"
+                            prefattribute="value"/>
+            </hbox>
             <hbox id="scrollWidthBox"
                   align="center"
                   class="load-context-check" showIfLoadContext="global">

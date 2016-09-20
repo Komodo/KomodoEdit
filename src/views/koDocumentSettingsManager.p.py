@@ -196,6 +196,8 @@ class koDocumentSettingsManager:
         slop = prefs.getLongPref('ySlop')
         scimoz.setYCaretPolicy(scimoz.CARET_SLOP | scimoz.CARET_STRICT | scimoz.CARET_EVEN, slop)
         scimoz.setVisiblePolicy(scimoz.VISIBLE_SLOP | scimoz.VISIBLE_STRICT, slop)
+        slop = prefs.getLongPref('xSlop') * scimoz.textWidth(scimoz.STYLE_DEFAULT, ' ')
+        scimoz.setXCaretPolicy(scimoz.CARET_SLOP | scimoz.CARET_STRICT, slop)
 
         if prefs.hasLongPref('firstVisibleLine'):
             scimoz.lineScroll(0, prefs.getLongPref('firstVisibleLine'))
