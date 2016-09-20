@@ -2969,6 +2969,11 @@ class KoLanguageBase:
             scimoz.insertText(currentPos, soft_chars)
             scimoz.indicatorCurrent = _softCharDecorator
             scimoz.indicatorFillRange(currentPos, len(soft_chars)) #only ascii chars here
+            # Since brace matching depends on accurate styling, style the
+            # inserted soft characters before attempting a brace match.
+            scimoz.colourise(currentPos, currentPos + len(soft_chars))
+            if scimoz.braceMatch(currentPos) != -1:
+                scimoz.doBraceMatch()
         if indent is not None:                                   
             start = scimoz.positionFromLine(scimoz.lineFromPosition(charPos))
             end = charPos
