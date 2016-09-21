@@ -278,14 +278,14 @@ def tagStartFromEndViaFoldLevels(scimoz, endTagPos):
 def _getCloseTagPos(scimoz, tagStartPos):
     scimoz.currentPos = scimoz.anchor = tagStartPos + 1
     scimoz.searchAnchor()
-    nextTagOpenPos = scimoz.searchNext(0, "<")
-    nextTagClosePos = scimoz.searchNext(0, ">")
+    nextTagOpenPos = scimoz.searchNext(scimoz.SCFIND_REGEXP, "<[^?%]")
+    nextTagClosePos = scimoz.searchNext(scimoz.SCFIND_REGEXP, "[^?%]>")
     if nextTagOpenPos == -1:
         return nextTagClosePos
     elif nextTagOpenPos < nextTagClosePos:
         return -1
     else:
-        return nextTagClosePos
+        return nextTagClosePos + 1 # skip character matched before '>'
 
 def tagStartFromEndViaMatchingName(scimoz, endTagPos, firstVisiblePos):
     """
