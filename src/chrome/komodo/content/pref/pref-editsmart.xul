@@ -300,10 +300,10 @@
                       label="&wrapSelection.label;"
                       pref="true"
                       oncommand="pref_wrapSelection_doEnabling(this);"/>
-            <checkbox id="editSmartWrapSelectionKeep"
-                      label="&wrapSelectionKeep.label;"
-                      pref="true"/>
             <vbox id="wrapSelectionDetails" class="indentedPref01 advanced">
+                <checkbox id="editSmartWrapSelectionKeep"
+                          label="&wrapSelectionKeep.label;"
+                          pref="true"/>
                 <checkbox id="wrapSelectionOnlyPlainText"
                           label="&wrapSelectionOnlyPlainText.label;"
                           pref="true"/>
@@ -319,6 +319,9 @@
                             oncommand="pref_wrapSelection_restoreDefaults();"/>
                 </hbox>
             </vbox>
+            <checkbox id="editMatchingDelimiter"
+                      label="&editMatchingDelimiter.label;"
+                      pref="true"/>
     
             <separator class="thin"/>
             <checkbox id="editSmartCutCopyWithoutSelection"

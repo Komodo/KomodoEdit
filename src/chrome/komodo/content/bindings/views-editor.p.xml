@@ -1816,6 +1816,46 @@
                     }
                 }
                 
+                // When the delimiter of a styled text range is selected (e.g. a 
+                // string, regex, etc.), select its complement as a multiple
+                // selection to allow paired editing.
+                // This only works with identical delimiter characters over
+                // unbroken style ranges.
+                if ((updated & this.scimoz.SC_UPDATE_SELECTION) > 0
+                    && this.prefs.getBooleanPref("editMatchingDelimiter")
+                    && this.scimoz.selections == 1
+                    && this.scimoz.selText.length == 1) {
+                    var scimoz = this.scimoz;
+                    var pos = scimoz.selectionStart;
+                    var style = scimoz.getStyleAt(pos);
+                    if (pos > 0 && scimoz.getStyleAt(pos - 1) != style) {
+                        // At a boundary like ["]foo"
+                        var end_pos = pos + 1;
+                        while (end_pos < scimoz.length - 1
+                               && scimoz.getStyleAt(end_pos + 1) == style) {
+                            end_pos++;
+                        }
+                        if (scimoz.getCharAt(end_pos) == scimoz.getCharAt(pos)
+                            && end_pos - pos > 1) {
+                            scimoz.addSelection(end_pos, end_pos + 1);
+                            scimoz.mainSelection = 0;
+                        }
+                    } else if (pos < scimoz.length - 1
+                               && scimoz.getStyleAt(pos + 1) != style) {
+                        // At a boundary like 'foo[']
+                        var end_pos = pos - 1;
+                        while (end_pos > 0
+                               && scimoz.getStyleAt(end_pos - 1) == style) {
+                            end_pos--;
+                        }
+                        if (scimoz.getCharAt(end_pos) == scimoz.getCharAt(pos)
+                            && pos - end_pos > 1) {
+                            scimoz.addSelection(end_pos, end_pos + 1);
+                            scimoz.mainSelection = 0;
+                        }
+                    }
+                }
+                
                 return this.__proto__.__proto__.onUpdateUI.call(this, updated);
             } finally {
                 this.in_updateui = false;

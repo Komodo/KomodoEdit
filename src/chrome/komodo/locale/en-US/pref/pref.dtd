@@ -606,6 +606,7 @@ adding an additional caret at the clicked position.">
 
 <!--pref-editsmart.xul-->
 <!ENTITY msecs.label "msecs">
+<!ENTITY editMatchingDelimiter.label "Edit matching delimiter on select">
 <!ENTITY fileEditSmartWrapLines.label "Wrap long lines by:">
 <!ENTITY fileEditSmartWrapIndentation.label "Wrap indentation:">
 <!ENTITY fileEditSmartWrapMarkers.label "Wrap markers:">
