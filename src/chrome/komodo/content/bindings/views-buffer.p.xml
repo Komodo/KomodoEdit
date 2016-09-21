@@ -130,8 +130,6 @@
         <property name="scimoz"
             onget="return this.scintilla.scimoz;"/>
 
-        <field name="_uiTimer">null</field>
-
         <property name="dragHandler"
             onget="return this.scintilla;"/>
 
@@ -601,8 +599,6 @@
         <body>
         <![CDATA[
             //this.log.info('view-buffer is closing')
-            if (this._uiTimer)
-                clearTimeout(this._uiTimer);
             // Note that we have to deal with being called after scintilla has
             // already been unloaded.
             try {
@@ -1044,13 +1040,12 @@
         </method>
 
         
-        <!-- Called in a timer from onUpdateUI. -->
-        <method name="doUpdateUI">
+        <method name="onUpdateUI">
+        <parameter name="updated"/>
         <body>
         <![CDATA[
             if (!this.log) return; // closed
             this.log.debug('doUpdateUI called');
-            this._uiTimer = null;
             var scimoz = this.scimoz;
             // None of the registered callbacks should need to do
             // a timeout, because they're already run after a delay.
@@ -1153,21 +1148,6 @@
                 window.updateCommands('undo');
                 this.textChangeUndoPending = false;
             }
-        ]]>
-        </body>
-        </method>
-
-        <method name="onUpdateUI">
-        <parameter name="updated"/>
-        <body>
-        <![CDATA[
-            // often painting during onUpdateUI doesn't work correctly since it
-            // has to reenter scimoz, if we set it in a timeout, it works.
-            if (this._uiTimer) {
-                clearTimeout(this._uiTimer);
-            }
-            this._uiTimer = setTimeout(function(this_) { this_.doUpdateUI(); }, 50, this);
-            return true;
         ]]>
         </body>
         </method>
