@@ -281,7 +281,7 @@ def _getCloseTagPos(scimoz, tagStartPos):
     nextTagOpenPos = scimoz.searchNext(scimoz.SCFIND_REGEXP, "<[^?%]")
     nextTagClosePos = scimoz.searchNext(scimoz.SCFIND_REGEXP, "[^?%]>")
     if nextTagOpenPos == -1:
-        return nextTagClosePos
+        return nextTagClosePos + 1 # skip character matched before '>'
     elif nextTagOpenPos < nextTagClosePos:
         return -1
     else:
