@@ -1,0 +1,6 @@
+# How to generate PHPUnit cix catalog
+
+1. Download a zip file of PHPUnit source.
+2. run `ci2 scan -fpnr /path/to/phpunit/src > phpunit-X.cix`
+3. Open the cix file and add `description` and `name` attributes to the
+   top-level "codeintel" tag.
