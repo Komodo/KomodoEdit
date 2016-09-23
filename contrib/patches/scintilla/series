@@ -18,6 +18,7 @@ cocoa_tab_close_crash.patch
 coffeescript_instance_props.patch
 coffeescript_ranges.patch
 coffeescript_regex.patch
+coffeescript_interpolated_code.patch
 custom_scrollbars.patch
 editor_background2.patch
 editor_cxx.patch
