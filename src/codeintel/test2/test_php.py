@@ -3268,6 +3268,25 @@ EOD;
             [("function", "foo")])
         self.assertCompletionsAre(markup_text(content, pos=positions[2]),
             [("function", "bar")])
+            
+    def test_phpunit_catalog(self):
+        """
+        Tests the built-in phpunit-5.cix codeintel catalog.
+        It should be in lib/codeintel2/catalogs/.
+        """
+        content, positions = unmark_text(dedent(php_markup("""\
+            use PHPUnit\Framework\TestCase;
+            
+            class MyTestClass extends <1>PHPUnit_Framework_TestCase {
+                function testMe() {
+                    $this-><2>
+                }
+            }
+        """)))
+        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
+            [("class", "PHPUnit_Framework_TestCase")])
+        self.assertCompletionsInclude(markup_text(content, pos=positions[2]),
+            [("function", "assertEquals")])
 
 class IncludeEverythingTestCase(CodeIntelTestCase):
     lang = "PHP"
