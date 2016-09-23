@@ -1,6 +1,10 @@
 # How to generate PHPUnit cix catalog
 
 1. Download a zip file of PHPUnit source.
-2. run `ci2 scan -fpnr /path/to/phpunit/src > phpunit-X.cix`
+2. run `ci2 scan -fpnr /path/to/phpunit/src/Framework > phpunit-X.cix`
 3. Open the cix file and add `description` and `name` attributes to the
    top-level "codeintel" tag.
+4. Also search for "Warning.php" and "Exception.php" and remove the second
+   occurrences of each since catalog.py will throw assertion errors that there
+   is more than one.
+5. Run the PHP test suite (`python test.py test_php`) and ensure all is well.
