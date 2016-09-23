@@ -4935,6 +4935,22 @@ class DefnTestCase(CodeIntelTestCase):
             ilk="function", name="add_filter", line=4,
             path=join(test_dir, "plugin.php"), )
         self.assertCalltipIs2(buf, positions[2], "add_filter()\n\nCorrect")
+        
+    @tag("bug1682")
+    def test_defn_in_control_structure(self):
+        test_dir = join(self.test_dir, "test_defn_in_control_structure")
+        foo_content, foo_positions = unmark_text(php_markup(dedent("""\
+            if ($var = "something") {
+                $var<1>
+            }
+        """)))
+
+        path = join(test_dir, "foo.php")
+        writefile(path, foo_content)
+
+        buf = self.mgr.buf_from_path(path)
+        self.assertDefnMatches2(buf, foo_positions[1],
+            ilk="variable", name="var", line=1, path=path, )
 
 class EscapingTestCase(CodeIntelTestCase):
     lang = "PHP"
