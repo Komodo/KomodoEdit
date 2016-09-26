@@ -1,0 +1,26 @@
+# UDL lexer for Jinja2.
+# Contributed by Nguyễn Hồng Quân (see ../skel/Jinja2/ for license).
+#
+# This language is a lot like Django, see the Django files for any comments.
+
+language Jinja2
+
+include "html2js.udl"
+
+include "html2css.udl"
+
+include "html2django.udl"
+
+include "css2html.udl"
+
+include "js2html.udl"
+include "js2django.udl"
+
+include "django2html.udl"
+
+include "html.udl"
+include "csslex.udl"
+include "jslex.udl"
+
+include "jinja2lex.udl"
+

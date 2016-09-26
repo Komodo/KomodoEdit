@@ -254,6 +254,12 @@ my @lexers = (
                codename => "handlebars_language",
                udl_path => "handlebars-mainlex.udl",
                skel => "skel/Handlebars",
+              },
+              {
+               language_name => "Jinja2",
+               codename => "jinja2_language",
+               udl_path => "jinja2-mainlex.udl",
+               skel => "skel/Jinja2",
               }
              );
 foreach my $info (@lexers) {

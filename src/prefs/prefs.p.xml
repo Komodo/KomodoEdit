@@ -375,6 +375,7 @@
  '*.inc': 'PHP',
  '*.inl': 'C++',
  '*.java': 'Java',
+ '*.jinja': 'Jinja2',
  '*.js': 'JavaScript',
  '*.json': 'JSON',
  '*.jsm': 'JavaScript',

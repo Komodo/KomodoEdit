@@ -183,3 +183,8 @@ class HandlebarsLangInfo(LangInfo):
     name = "Handlebars"
     conforms_to_bases = ["Text"]
     exts = [".hbs"]
+
+class Jinja2LangInfo(LangInfo):
+    name = "Jinja2"
+    conforms_to_bases = ["Text"]
+    exts = [".jinja"]

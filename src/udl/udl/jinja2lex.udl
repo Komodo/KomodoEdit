@@ -1,0 +1,82 @@
+# Lexer for Jinja2, a Django-like language for PHP
+# Contributed by Nguyễn Hồng Quân (see ../skel/Jinja2/ for license).
+
+family tpl
+sublanguage Jinja2
+
+start_style TPL_DEFAULT
+end_style TPL_VARIABLE
+
+keyword_style TPL_IDENTIFIER => TPL_WORD
+
+keywords [
+    'and'
+    'as',
+    'autoescape',
+    'endautoescape',
+    'block',
+    'endblock',
+    'break',
+    'call',
+    'endcall',
+    'context',
+    'continue',
+    'do',
+    'extends',
+    'false',
+    'filter',
+    'endfilter',
+    'for',
+    'endfor',
+    'from',
+    'if',
+    'elif',
+    'ignore',
+    'import',
+    'else',
+    'endif',
+    'in',
+    'include',
+    'is',
+    'macro',
+    'endmacro',
+    'missing',
+    'not',
+    'or',
+    'pluralize',
+    'trans',
+    'endtrans',
+    'raw',
+    'endraw',
+    'set',
+    'endset',
+    'true',
+    'with',
+    'endwith'
+    'without',
+]
+
+include "django-twig-template.udl"
+
+################ Folding Directives ################
+
+fold "{#" TPL_OPERATOR +
+fold "autoescape" TPL_WORD +
+fold "call" TPL_WORD +
+fold "filter" TPL_WORD +
+fold "for" TPL_WORD +
+fold "if" TPL_WORD +
+fold "macro" TPL_WORD +
+fold "raw" TPL_WORD +
+fold "trans" TPL_WORD +
+
+fold "#}" TPL_OPERATOR -
+fold "endautoescape" TPL_WORD -
+fold "endcall" TPL_WORD -
+fold "endfilter" TPL_WORD -
+fold "endfor" TPL_WORD -
+fold "endif" TPL_WORD -
+fold "endmacro" TPL_WORD -
+fold "endraw" TPL_WORD -
+fold "endtrans" TPL_WORD -
+
