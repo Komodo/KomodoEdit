@@ -530,6 +530,24 @@ StateMap = {
         'commentdockeyworderror': ('SCE_COFFEESCRIPT_COMMENTDOCKEYWORDERROR',),
         'globalclass': ('SCE_COFFEESCRIPT_GLOBALCLASS',),
         'stringeol' : ('SCE_COFFEESCRIPT_STRINGEOL',),
+    },
+    'GetText': {
+        'default': ('SCE_PO_DEFAULT',
+                    'SCE_PO_ERROR'),
+        'comments': ('SCE_PO_COMMENT',
+                     'SCE_PO_FUZZY',
+                     'SCE_PO_PROGRAMMER_COMMENT',
+                     'SCE_PO_REFERENCE',
+                     'SCE_PO_FLAGS'),
+        'strings': ('SCE_PO_MSGID_TEXT',
+                    'SCE_PO_MSGSTR_TEXT',
+                    'SCE_PO_MSGCTXT_TEXT',
+                    'SCE_PO_MSGID_TEXT_EOL',
+                    'SCE_PO_MSGSTR_TEXT_EOL',
+                    'SCE_PO_MSGCTXT_TEXT_EOL'),
+        'keywords': ('SCE_PO_MSGID',
+                     'SCE_PO_MSGSTR',
+                     'SCE_PO_MSGCTXT'),
     }
 }
 
