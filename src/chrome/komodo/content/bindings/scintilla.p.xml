@@ -821,10 +821,11 @@
                     var scimoz = this.scimoz;
                     switch (foldstyle) {
                         case 'none':
-                            // Handled by koDocumentSettingsManager, should not
-                            // get called.
-                            log.error("setFoldStyle called with style none");
-                            break;
+                            // Normally handled by koDocumentSettingsManager,
+                            // but for non-document views, handle it here.
+                            scimoz.setProperty("fold", "0");
+                            scimoz.setMarginWidthN(scimoz.MARGIN_FOLDING, 0);
+                            return;
                         case 'arrows':
                             // Arrow pointing right for contracted folders,
                             // arrow pointing down for expanded
