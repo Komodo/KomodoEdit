@@ -118,9 +118,9 @@ class KoSCSSCommonLinter(KoCommonCSSLintCode):
             textlines = text.splitlines()
             try:
                 which.which("rbenv")
-                cmd = [scssPath, "-c", tmpfilename]
+                cmd = [scssPath, "-I", request.cwd or '.', "-c", tmpfilename]
             except which.WhichError:
-                cmd = [rubyPath, scssPath, "-c", tmpfilename]
+                cmd = [rubyPath, scssPath, "-I", request.cwd or '.', "-c", tmpfilename]
             #koLintResult.insertNiceness(cmd)
             cwd = request.cwd or None
             # We only need the stderr result.
