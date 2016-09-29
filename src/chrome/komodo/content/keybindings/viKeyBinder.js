@@ -3450,7 +3450,7 @@ function _cmd_vim_pasteLines_handler(scimoz, buf, pasteAfter, repeatCount) {
                 scimoz.lineEnd();
                 scimoz.newLine();
             } else {
-                scimoz.lineDown();
+                scimoz.gotoLine(lineNo + 1); // lineDown stays on the same word wrapped line
             }
         }
         // Go to column 0 on current line
