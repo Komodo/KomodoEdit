@@ -12,14 +12,11 @@
 <?xml-stylesheet href="less://komodo/skin/global/global.less" type="text/css"?>
 <window
     id="komodo_slackauth_window"
-    windowtype="Komodo:BroswerWindow"
+    windowtype="Komodo:BrowserWindow"
     xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-    width="2000"
-    height="1500"
-    screenX="20"
-    screenY="20"
+    width="500"
+    height="750"
     persist="screenX screenY width height"
-    onload="OnLoad();"
     orient="vertical">
     <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
     <script src="chrome://xtk/content/domutils.js" type="application/x-javascript;version=1.7"/>
@@ -33,10 +30,12 @@
     <script src="chrome://komodo/content/library/commands.js"     type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/dragdrop.js"     type="application/x-javascript;version=1.7"/>
     
-    <script src="chrome://komodo/content/dialogs/slackauth.js"     type="application/x-javascript;version=1.7"/>
-
     <browser
         id="slackauth_browser"
         type="content"
         flex="1"/>
+
+    <script src="chrome://komodo/content/dialogs/slackauth.js"
+            type="application/x-javascript;version=1.7"/>
+
 </window>

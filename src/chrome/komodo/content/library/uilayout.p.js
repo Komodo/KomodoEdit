@@ -1756,7 +1756,8 @@ this.onload = function uilayout_onload()
         ko.uilayout._updateToolbarViewStates();
     }, 3000);
     
-    require("ko/share/kopy").load()
+    require("ko/share/kopy").load();
+    require("ko/share/slack").load();
 }
 
 this.updateWindowButtons = function (w) {
