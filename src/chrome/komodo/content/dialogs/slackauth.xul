@@ -16,7 +16,7 @@
     xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
     width="500"
     height="750"
-    persist="screenX screenY width height"
+    persist="screenX screenY"
     orient="vertical">
     <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
     <script src="chrome://xtk/content/domutils.js" type="application/x-javascript;version=1.7"/>
