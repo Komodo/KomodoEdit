@@ -122,7 +122,7 @@
 <!ENTITY editorViSelectToTopOfDocument.desc "Editor: Vi: Select to Top of Document">
 <!ENTITY editorViSetRegister.desc "Editor: Vi: Set Register">
 <!ENTITY editorViStartChangeTextOperation.desc "Editor: Vi: Start Change Text Operation">
-<!ENTITY editorViStartDedentTextOperation.desc "Editor: Vi: Start Dedent Text Operation">
+<!ENTITY editorViStartDedentTextOperation.desc "Editor: Vi: Start Unindent Text Operation">
 <!ENTITY editorViStartDeleteTextOperation.desc "Editor: Vi: Start Delete Text Operation">
 <!ENTITY editorViStartIndentTextOperation.desc "Editor: Vi: Start Indent Text Operation">
 <!ENTITY editorViStartYankTextOperation.desc "Editor: Vi: Start Yank Text Operation">

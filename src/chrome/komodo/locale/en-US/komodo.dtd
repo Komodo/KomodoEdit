@@ -100,7 +100,7 @@
 <!ENTITY cutButton.accesskey "T">
 <!ENTITY decreaseFont.accesskey "D">
 <!ENTITY decreaseFont.label "Decrease Font Size">
-<!ENTITY decreaseLineIndent.label "Dedent">
+<!ENTITY decreaseLineIndent.label "Unindent">
 <!ENTITY delete.label "Delete">
 <!ENTITY deleteBlankLines.desc "Editor: Delete Blank Lines">
 <!ENTITY edit.label "Edit">
