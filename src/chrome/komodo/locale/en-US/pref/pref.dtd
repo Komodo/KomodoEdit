@@ -185,7 +185,7 @@
 <!ENTITY dDayOfTheMonth0131.label "&#37;d : day of the month [01,31]">
 <!ENTITY debuggerCallingLineBackgroundColor.label "Debugger calling line background color">
 <!ENTITY debuggerCurrentLineBackgroundColor.label "Debugger current line background color">
-<!ENTITY dedentOnColon.label "Dedent line after colon (Python)">
+<!ENTITY dedentOnColon.label "Unindent line after colon (Python)">
 <!ENTITY defaultConnectionTimeout.label "Default Connection Timeout">
 <!ENTITY defaultEditorEncoding.label "Default Editor Encoding">
 <!ENTITY defaultHTMLDocumentType.label "Default HTML Document Type">
