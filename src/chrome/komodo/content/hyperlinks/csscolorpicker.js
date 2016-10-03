@@ -231,6 +231,7 @@ ko.hyperlinks.ColorPickerHandler.named_css_colors = [
     "tan",
     "teal",
     "thistle",
+    "transparent",
     "tomato",
     "turquoise",
     "violet",
@@ -387,7 +388,13 @@ ko.hyperlinks.ColorPickerHandler.prototype.colorToHex = function(color) {
 ko.hyperlinks.ColorPickerHandler.prototype.colorToRGB = function(color) {
     var span = document.createElement('span');
     span.style.color = color;
-    return window.getComputedStyle(span, null).color;
+    var computedColor = window.getComputedStyle(span, null).color;
+    if (computedColor == 'transparent' && color != 'transparent') {
+        computedColor = color;
+    } else if (color == 'transparent') {
+        computedColor = 'rgba(0,0,0,0)';
+    }
+    return computedColor;
 }
 
 ko.hyperlinks.ColorPickerHandler.prototype.showColorPicker = function(view, hyperlink) {
