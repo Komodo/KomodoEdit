@@ -388,13 +388,13 @@ ko.hyperlinks.ColorPickerHandler.prototype.colorToHex = function(color) {
 ko.hyperlinks.ColorPickerHandler.prototype.colorToRGB = function(color) {
     var span = document.createElement('span');
     span.style.color = color;
-    var _color = window.getComputedStyle(span, null).color;
-    if (_color == 'transparent' && color != 'transparent') {
-        _color = color;
+    var computedColor = window.getComputedStyle(span, null).color;
+    if (computedColor == 'transparent' && color != 'transparent') {
+        computedColor = color;
     } else if (color == 'transparent') {
-        _color = 'rgba(0,0,0,0)';
+        computedColor = 'rgba(0,0,0,0)';
     }
-    return _color;
+    return computedColor;
 }
 
 ko.hyperlinks.ColorPickerHandler.prototype.showColorPicker = function(view, hyperlink) {
