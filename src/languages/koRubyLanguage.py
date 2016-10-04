@@ -111,7 +111,6 @@ class KoRubyLanguage(KoLanguageKeywordBase):
         log.debug("Ruby indent style: %s", self._indent_style)
         try:
             self._prefs.prefObserverService.addObserver(self, "editAutoIndentStyle", 0)
-            self._prefs.prefObserverService.addObserver(self, "rubyDefaultInterpreter", 0)
         except Exception, e:
             print e
         
@@ -165,34 +164,17 @@ class KoRubyLanguage(KoLanguageKeywordBase):
             log.debug("**************** observer: subject %s, topic %s, data %s", subject, topic, data)
             self._indent_style = self._prefs.getStringPref("editAutoIndentStyle")
             self._handle_keypress = self._indent_style.startswith('smart')
-        elif topic == "rubyDefaultInterpreter":
-            if self._lexer:
-                self.updateLexerVersionProperties()
         else:
             KoLanguageKeywordBase.observe(self, subject, topic, data)
         
     def getVariableStyles(self):
         return self._style_info._variable_styles
 
-    def updateLexerVersionProperties(self):
-        try:
-            version = self.rubyInfoEx = components.classes["@activestate.com/koAppInfoEx?app=Ruby;1"].\
-                      getService(components.interfaces.koIAppInfoEx).version
-            majorVersion = int(version.split(".", 1)[0])
-        except ServerException:
-            majorVersion = 1
-        except:
-            majorVersion = 1
-            log.exception("Unexpected exception in KoRubyLanguage.updateLexerVersionProperties")            
-        self._lexer.setProperty("supportISymbolArray",
-                                majorVersion >= 2 and "1" or "0")
-
     def get_lexer(self):
         if self._lexer is None:
             self._lexer = KoLexerLanguageService()
             self._lexer.setLexer(sci_constants.SCLEX_RUBY)
             self._lexer.setKeywords(0, self.keywords)
-            self.updateLexerVersionProperties()
             self._lexer.supportsFolding = 1
         return self._lexer
 
