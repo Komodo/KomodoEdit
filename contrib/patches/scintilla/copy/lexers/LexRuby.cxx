@@ -866,8 +866,9 @@ static void ColouriseRbDoc(unsigned int startPos, int length, int initStyle,
                              SCE_RB_STRING_QW,
                              SCE_RB_STRING_QI,
                              SCE_RB_STRING_QI,
-                             SCE_RB_STRING_QX};
-    static const char* q_chars = "qQrwWiIx";
+                             SCE_RB_STRING_QX,
+                             SCE_RB_STRING_QI}; // TODO: QS
+    static const char* q_chars = "qQrwWiIxs";
 
     // In most cases a value of 2 should be ample for the code in the
     // Ruby library, and the code the user is likely to enter.
