@@ -119,7 +119,7 @@ should be a lot faster as much of the compiled data is cached.
 
    If you prefer the Python builds from python.org should be sufficient as well.
 
- * Xcode 6.4.  You can get version 6.4 from [the developer downloads site](https://developer.apple.com/download/more/).
+ * Xcode 6.4. For 8.0 see below. You can get version 6.4 from [the developer downloads site](https://developer.apple.com/downloads/).
   
   * MacOSX10.10.sdk or older
   * If you have/need other versions of Xcode installed then you can use `xcode-select` to change the active Xcode:
@@ -142,6 +142,17 @@ should be a lot faster as much of the compiled data is cached.
 See <http://developer.mozilla.org/en/docs/Mac_OS_X_Build_Prerequisites>
 for more details on Mac OS X build prerequisites. However, following the
 above steps is *meant to be sufficient* to get Komodo building.
+
+### Xcode 8 Prerequisites
+
+Officially we do not support Xcode 8, however it is possible to build Komodo
+under Xcode 8 using a new extra steps.
+
+ * Copy over the 10.8 and 10.9 SDK's from an older XCode install, they should be in:
+   Xcode.app/Contents/Developer/Platforms/macOSX.platform/
+ * Set MinimumSDKVersion to 10.9 in Xcode.app/Contents/Developer/Platforms/macOSX.platform/Info.plist
+ * Ensure you are using ccache 3.1 (later versions will break)
+ * Configure Mozilla with `--options=disable-webrtc`
 
 #### Linux Prerequisites
 

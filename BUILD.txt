@@ -131,6 +131,18 @@ See <http://developer.mozilla.org/en/docs/Mac_OS_X_Build_Prerequisites>
 for more details on Mac OS X build prerequisites. However, following the
 above steps is *meant to be sufficient* to get building Komodo.
 
+Xcode 8 Prerequisites
+=====================
+
+Officially we do not support Xcode 8, however it is possible to build Komodo
+under Xcode 8 using a new extra steps.
+
+ * Copy over the 10.8 and 10.9 SDK's from an older XCode install, they should be in:
+   Xcode.app/Contents/Developer/Platforms/macOSX.platform/
+ * Set MinimumSDKVersion to 10.9 in Xcode.app/Contents/Developer/Platforms/macOSX.platform/Info.plist
+ * Ensure you are using ccache 3.1 (later versions will break)
+ * Configure Mozilla with `--options=disable-webrtc`
+
 
 Build Prerequisites for Linux
 =============================
