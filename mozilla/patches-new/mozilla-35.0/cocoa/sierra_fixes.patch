@@ -1,0 +1,60 @@
+# Bugs (in order:) 1187613, 1283036
+
+diff --git a/widget/cocoa/nsChildView.mm b/widget/cocoa/nsChildView.mm
+--- a/widget/cocoa/nsChildView.mm
++++ b/widget/cocoa/nsChildView.mm
+@@ -6558,21 +6558,21 @@ HandleEvent(CGEventTapProxy aProxy, CGEv
+ - (void)shutdownAndReleaseCalledOnEventThread
+ {
+   CFRunLoopStop(CFRunLoopGetCurrent());
+ }
+ 
+ - (void)shutdownAndReleaseCalledOnAnyThread
+ {
+   [self performSelector:@selector(shutdownAndReleaseCalledOnEventThread) onThread:mThread withObject:nil waitUntilDone:NO];
+ }
+ 
+-static const CGEventField kCGWindowNumberField = 51;
++static const CGEventField kCGWindowNumberField = (const CGEventField) 51;
+ 
+ // Called on scroll thread
+ - (void)handleEvent:(CGEventRef)cgEvent type:(CGEventType)type
+ {
+   if (type != kCGEventScrollWheel) {
+     return;
+   }
+ 
+   int windowNumber = CGEventGetIntegerValueField(cgEvent, kCGWindowNumberField);
+   NSWindow* window = [NSApp windowWithWindowNumber:windowNumber];
+
+diff --git a/widget/cocoa/TextInputHandler.mm b/widget/cocoa/TextInputHandler.mm
+--- a/widget/cocoa/TextInputHandler.mm
++++ b/widget/cocoa/TextInputHandler.mm
+@@ -74,7 +74,10 @@
+ {
+   switch (aNativeKeyCode) {
+     case kVK_Escape:              return "Escape";
+-    case kVK_RightCommand:        return "Right-Command";
++#if !defined(MAC_OS_X_VERSION_10_12) || \
++    MAC_OS_X_VERSION_MAX_ALLOWED < MAC_OS_X_VERSION_10_12
++     case kVK_RightCommand:        return "Right-Command";
++#endif
+     case kVK_Command:             return "Command";
+     case kVK_Shift:               return "Shift";
+     case kVK_CapsLock:            return "CapsLock";
+
+diff --git a/widget/cocoa/TextInputHandler.mm b/widget/cocoa/TextInputHandler.h
+--- a/widget/cocoa/TextInputHandler.h
++++ b/widget/cocoa/TextInputHandler.h
+@@ -27,7 +27,10 @@
+ // Key code constants
+ enum
+ {
+-  kVK_RightCommand    = 0x36, // right command key
++#if !defined(MAC_OS_X_VERSION_10_12) || \
++  MAC_OS_X_VERSION_MAX_ALLOWED < MAC_OS_X_VERSION_10_12
++   kVK_RightCommand    = 0x36, // right command key
++#endif
+ 
+   kVK_PC_PrintScreen     = kVK_F13,
+   kVK_PC_ScrollLock      = kVK_F14,
