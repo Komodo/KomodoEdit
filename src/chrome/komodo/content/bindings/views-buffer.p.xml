@@ -1700,8 +1700,7 @@
         if (!result.value) {
             return;
         }
-        // Highlight the indentation guide as long as the indentation of the
-        // matching tags is the same.
+        // Highlight the indentation guide.
         // Note that Scintilla requires brace highlighting in order to highlight
         // indentation guides, so highlight the line end positions as "braces".
         var startTagPos = result.value[1];
