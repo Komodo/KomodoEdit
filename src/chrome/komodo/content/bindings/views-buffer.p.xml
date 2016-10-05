@@ -1103,6 +1103,11 @@
 
             scimoz.doBraceMatch();
 
+            if (updated & (scimoz.SC_UPDATE_CONTENT | scimoz.SC_UPDATE_SELECTION)) {
+                // Highlight indentation guide for matching XML tags, as necessary.
+                this._xmlTagsHighlightGuide();
+            }
+
             // If there is an active calltip, then update it as necessary.
             if (this.isCICplnEnabled) { 
                 this.ciCompletionUIHandler.updateCallTip();
@@ -1631,6 +1636,85 @@
                 }
             }
             return -1;
+        ]]>
+        </body>
+        </method>
+
+        <method name="_xmlTagsHighlightGuide">
+        <body>
+        <![CDATA[
+        // Show indentation guide for matching XML tags.
+        // This needs to be as fast as possible since it is in the UpdateUI
+        // notification.
+        // First, check for XML language. Then check to make sure the caret is
+        // in an XML tag. Next, find the matching tag. Finally, show the guide.
+        var scimoz = this.scimoz;
+        var xmlLang = this.languageObj.supportsXMLIndentHere(scimoz, scimoz.currentPos);
+        if (!xmlLang) {
+            return;
+        }
+        var pos = scimoz.currentPos;
+        if (scimoz.getLineIndentation(scimoz.lineFromPosition(pos)) == 0) {
+            // No indent means no guide can be shown. This also guarantees that
+            // pos > 0 and that any matching XML tag's start position > 0.
+            return;
+        }
+        // Ensure the current position is on, in, or just after an XML tag.
+        var style = scimoz.getStyleAt(pos);
+        var prevStyle = scimoz.getStyleAt(scimoz.positionBefore(pos));
+        var validStyles = [scimoz.SCE_UDL_M_STAGO,
+                           scimoz.SCE_UDL_M_TAGNAME,
+                           scimoz.SCE_UDL_M_TAGSPACE,
+                           scimoz.SCE_UDL_M_ATTRNAME,
+                           scimoz.SCE_UDL_M_OPERATOR,
+                           scimoz.SCE_UDL_M_STAGC,
+                           scimoz.SCE_UDL_M_STRING,
+                           scimoz.SCE_UDL_M_ETAGO,
+                           scimoz.SCE_UDL_M_ETAGC];
+        if (validStyles.indexOf(style) === -1
+            && validStyles.indexOf(prevStyle) === -1) {
+            return;
+        }
+        // Then ensure `pos` is at a tag name (e.g. <|div>). This is needed for
+        // the `getMatchingTagInfo()` function call later.
+        if (style == scimoz.SCE_UDL_M_STAGO
+            || style == scimoz.SCE_UDL_M_ETAGO) {
+            // At starting '<'. Get position after.
+            pos = scimoz.positionAfter(pos);
+        } else {
+            // Move back to the tag's starting '<' and get the position after.
+            for (pos = scimoz.positionBefore(pos); pos > 0; pos = scimoz.positionBefore(pos)) {
+                style = scimoz.getStyleAt(pos);
+                if (style == scimoz.SCE_UDL_M_STAGO
+                    || style == scimoz.SCE_UDL_M_ETAGO) {
+                    pos = scimoz.positionAfter(pos);
+                    break;
+                } else if (validStyles.indexOf(style) === -1) {
+                    break; // invalid tag; abort
+                }
+            }
+        }
+        // Check for matching XML tags.
+        var result = {};
+        xmlLang.getMatchingTagInfo(scimoz, pos, false, result, {});
+        if (!result.value) {
+            return;
+        }
+        // Highlight the indentation guide as long as the indentation of the
+        // matching tags is the same.
+        // Note that Scintilla requires brace highlighting in order to highlight
+        // indentation guides, so highlight the line end positions as "braces".
+        var startTagPos = result.value[1];
+        var endTagPos = result.value[3];
+        var startTagLine = scimoz.lineFromPosition(startTagPos);
+        var endTagLine = scimoz.lineFromPosition(endTagPos);
+        if (scimoz.getLineIndentation(startTagLine)
+            == scimoz.getLineIndentation(endTagLine)) {
+            var bracePos = scimoz.getLineEndPosition(startTagLine);
+            var bracePos2 = scimoz.getLineEndPosition(endTagLine);
+            scimoz.braceHighlight(bracePos, bracePos2);
+            scimoz.highlightGuide = scimoz.getLineIndentation(startTagLine);
+        }
         ]]>
         </body>
         </method>
