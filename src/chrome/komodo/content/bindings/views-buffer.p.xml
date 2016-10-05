@@ -1708,13 +1708,10 @@
         var endTagPos = result.value[3];
         var startTagLine = scimoz.lineFromPosition(startTagPos);
         var endTagLine = scimoz.lineFromPosition(endTagPos);
-        if (scimoz.getLineIndentation(startTagLine)
-            == scimoz.getLineIndentation(endTagLine)) {
-            var bracePos = scimoz.getLineEndPosition(startTagLine);
-            var bracePos2 = scimoz.getLineEndPosition(endTagLine);
-            scimoz.braceHighlight(bracePos, bracePos2);
-            scimoz.highlightGuide = scimoz.getLineIndentation(startTagLine);
-        }
+        var bracePos = scimoz.getLineEndPosition(startTagLine);
+        var bracePos2 = scimoz.getLineEndPosition(endTagLine);
+        scimoz.braceHighlight(bracePos, bracePos2);
+        scimoz.highlightGuide = scimoz.getLineIndentation(startTagLine);
         ]]>
         </body>
         </method>
