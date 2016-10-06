@@ -1,13 +1,13 @@
 (function()
 {
     const ajax = require("ko/ajax");
-    const log = require("ko/logging").getLogger("Slack");
+    const log = require("ko/logging").getLogger("slack");
     const prefs = require("ko/prefs");
-
+    const _window = require("ko/windows").getMain();
+    const slackAPI = require("ko/share/slack/api");
     // Slack variables
-    const realm = "Slack Integration User Key"; // Used while saving key
-    //var title = "Post from Komodo IDE via Slack APIs";
-    var title = channels = key = null;
+    var title = null;
+    var channels = null;
     var comment = "";
     
     this.load = function()
@@ -40,7 +40,7 @@
      * If there is no module Key set then it uses useKey which will execute
      * share() AND save the key in the module for later use
      */ 
-    this.share = function()
+    this.share = () => 
     {
         var content = getContent();
         // If `content` is empty then stop.  Slack won't accept it any way.
@@ -49,21 +49,15 @@
         {
             return;
         }
-        if( ! key )
-        {
-            this.useKey(this.share);
-            return;
-        }
         var params =
         {
-            token: key,
             content: content,
             filetype: getFileLangName(),
             filename: getFilename(),
         };
         
         // function to pass to API request to process response
-        function callback(code, respText)
+        function processResponse(code, respText)
         {
             /** Notify instead of console.log
              * Write a proper callback that handles results from the API using
@@ -72,6 +66,7 @@
              */
             
             var respJSON = JSON.parse(respText);
+            console.log(respJSON);
             if( respJSON.ok )
             {
                 /** XXX Include channels posted to and link in notification
@@ -139,8 +134,77 @@
                 return;    
             }
         };
+        getPostData(params, processResponse);
     };
 
+    // Title text field
+    function createTitleField()
+    {
+        var options = { attributes:
+        {
+            id:"slackTitle",
+            type:"autocomplete",
+            value: title,
+            label:"Title:",
+            width: 70,
+        }};
+        return require("ko/ui/textbox").create(options);
+    }
+    
+    // Title reset button
+    function createTitleResetBtn() {
+        function resetTitle()
+        {
+            // This won't do `filename-snippet.js`. Lame but when I'm in the
+            // panel I no longer have access to getFilename. I can't make it
+            // public just for that.
+            require("ko/dom")("#slackTitle").value(require("ko/views").current().filename);
+        }
+        var resetBtn =  require("ko/ui/button").create( {attributes: { label:"Reset Title"} });
+        resetBtn.onCommand(resetTitle);
+        return resetBtn;
+    }
+
+    // Channel selection list        
+    function createChannelField() {
+        options = { attributes:
+            {
+                label:"Channels",
+                value:"Loading...",
+                disabled:"true",
+                seltype:"multiple"
+            }
+        }
+        var availableChannels = require("ko/ui/listbox").create(options);
+        availableChannels.disable
+        return availableChannels;
+    }
+
+    // Message Text field
+    function createMsgField() {
+        options = {
+            attributes:
+            {
+                type:"autocomplete",
+                label:"Message:",
+                multiline:true,
+                rows: 3,
+                width: 60
+            }
+        };
+        return require("ko/ui/textbox").create(options);
+    }
+
+    // Post button
+    function createPostBtn() {
+       return require("ko/ui/button").create({attributes:{label:"Post",disabled:true}});
+    }
+    
+    // Close Button
+    function createCloseBtn() {
+        return require("ko/ui/button").create({attributes:{label:"Close"}});
+    }
+    
     /**
      * Trigger a dialog for a user to fill in fields for posting to slack
      * Asks for (* means madatory):
@@ -157,304 +221,136 @@
      */
     function getPostData(params, callback)
     {
-        // Retrieve title from prefs
-        if( prefs.hasPref("slack.title") )
+        try
         {
-            var userSetTitle = true;
-            title = prefs.getStringPref("slack.title");
-        }
-        else
-        {
-            var userSetTitle = false;
-            title = getFilename();
-        }
-        // Have to open the panel before appending anything
-        var panel = require("ko/ui/panel").create(null,{
-            attributes: {
-                backdrag: true,
-                noautohide: true,
-                width: 200,
-                height: 100
-            }
-        });
-        var komodo = require("ko/dom")("#komodo_main");
-        komodo.append(panel.$element);
-        var x = (window.innerWidth/2)-(200/2);
-        var y = (window.innerHeight/2)-(50/2);
-        panel.open({ x:x, y:y });
-        
-        // Title text field
-        var options = { attributes:
-        {
-            id:"slackTitle",
-            type:"autocomplete",
-            value: title,
-            label:"Title:",
-            width: 70,
-        }};
-        var textTitle = require("ko/ui/textbox").create(options);
-        panel.addRow(textTitle);
-        
-        // Title reset button
-        var resetTitleBtn = require(ko/ui/button).create(
+                // Retrieve title from prefs
+            if( prefs.hasPref("slack.title") )
             {
-                attributes:
-                {
-                    label:"Reset Title",
-                    oncommand: function()
-                    {
-                        require("ko/dom")("#slackTitle").text(getFilename());
-                    }
-                }
-            }
-        )
-        panel.addRow(resetTitleBtn);
-        
-        // Channel selection list        
-        options = { attributes:
-            {
-                label:"Channels",
-                value:"Loading...",
-                disabled:"true",
-                seltype:"multiple"
-            }
-        }
-        var channelList = require("ko/ui/listbox").create(options);
-        panel.addRow(channelList);
-        channelList.disable();
-        // Must retrieve the channels async as they might need to be retrieved
-        // through an API call.
-        function populateChannels(channels)
-        {
-            channelList.addListItems(channels.split(","));
-            channelList.enable();
-            postButton.enable();
-        }
-        getChannels(populateChannels);
-        
-        // Message Text field
-        options = { attributes:
-        {
-            type:"autocomplete",
-            label:"Message:",
-            multiline:true,
-            rows: 3,
-            width: 60
-        }};
-        var textMessage = require("ko/ui/textbox").create(options);
-        panel.addRow(textMessage.$element);
-        
-        // Post button
-        var postButton = require("ko/ui/button").create(
-            {
-                attributes:
-                {
-                    label:"Post",
-                    disabled:true
-                }
-            });
-        var onClick = function()
-        {
-            title = textTitle.$element.text();
-            var channelsList = [];
-            channelList.getSelectedItem().forEach(function(elem){channelList.push(elem.value)});
-            var message = textMessage.$element.text();
-            if( "" == title )
-            {
-                prefs.deletePref("slack.title");
-                title = null;
-            }
-            else if( getFilename() == title )
-            {
-                prefs.deletePref("slack.title");
+                var userSetTitle = true;
+                title = prefs.getStringPref("slack.title");
             }
             else
             {
-                prefs.setStringPref("slack.title", title);
+                var userSetTitle = false;
+                title = getFilename();
             }
-            params.title = title;
-            params.channels = channelList.join(",");
-            params.initial_comment = message;
-            makeAPIcall("files.upload", params, callback);
-            panel.element.hidePopup();
-        }
-        postButton.onCommand(onClick);
-        panel.addRow(postButton)
-        
-        //   Done button
-        // Add listener to button to retrieve fields
-        //   save Title to prefs & add to postData
-      
-        //   add selected channels to postData & save to global var
-        //   add message to 
-        //   return postData obj.
-    }
-    
-    /**
-     * Make an API call and process the result
-     *
-     * @argument {String}   method  The API method to be called
-     * @argument {Object}   params  An object of API call parameters
-     * @argument {function} callback    To process response
-     *    Callback takes req.status and req.responseTextText, req.
-     *    This function uses ko/ajax.post
-     */
-    function makeAPIcall(method, params, callback) {
-        
-        var reqUrl =  "https://slack.com/api/"+method+"?"+
-            require("sdk/querystring").stringify(params);
-        ajax.post(reqUrl, callback);
-    }
-    /**
-     * Authenticate the user trying to post to Slack
-     * 
-     * This need to be async as well so it can call whatever function was trying
-     * to run when it was asked to authenticate.
-     *
-     * @argument    {function}  callback  function to be run with the key  
-     */
-    this.authenticate = function(callback)
-    {
-        // ### If I cancel in the dialog this gets stuck in a loop.
-        // Also server fails to handle and sends back garbage.
-        ko.windowManager.openDialog("chrome://komodo/content/dialogs/slackauth.xul",
-                                    "Slack Auth",
-                                    "chrome,modal,titlebar,centerscreen");
-        // Confirm a key was saved then run the callback if it was passed in
-        require("sdk/passwords").search(
-        {
-            username: "slack",
-            url: "https://slack.com/api",
-            onComplete: function (credentials)
+            // Have to open the panel before appending anything
+            // XXX this should check for a panel and not recreate it if it already
+            // exists.
+            var panel = require("ko/ui/panel").create(null,{
+                attributes: {
+                    backdrag: true,
+                    noautohide: true,
+                    width: 200,
+                    height: 100
+                }
+            });
+            var x = (window.innerWidth/2)-(200/2);
+            var y = (window.innerHeight/2)-(50/2);
+            panel.open({ x:x, y:y });
+            
+            var titleField = createTitleField();
+            panel.addRow(titleField);
+
+            var titleRstBtn = createTitleResetBtn();
+            panel.addRow(titleRstBtn);
+            
+            var availableChannels = createChannelField();
+            panel.addRow(availableChannels);
+            
+            var selectedChannels = [];
+            if( prefs.hasPref("slack.selected.channels") )
             {
-                
-                if( credentials.length > 0 )
+                selectedChannels = JSON.parse(prefs.getStringPref("slack.selected.channels"));
+            }
+
+            var msgField = createMsgField();
+            panel.addRow(msgField);
+            
+            var postButton = createPostBtn();
+            var post = function()
+            {
+                title = titleField.$element.value();
+                availableChannels.getSelectedItems().forEach(function(elem){selectedChannels.push(elem.value)});
+                // save the selected channels
+                prefs.setStringPref("slack.selected.channels",JSON.stringify(selectedChannels));
+                var message = msgField.$element.value();
+                if( "" == title )
                 {
-                    if( callback ) this.useKey(callback);
+                    prefs.deletePref("slack.title");
+                    title = null;
+                }
+                else if( getFilename() == title )
+                {
+                    prefs.deletePref("slack.title");
                 }
                 else
                 {
-                    var locale = "Authentication cancelled or failed.";
-                    require("notify/notify").interact(locale, "slack", {priority: "info"});
-                    return;    
+                    prefs.setStringPref("slack.title", title);
                 }
-                
-            }.bind(this)
-        });
-    };
-    
-    /**
-     * Delete the currently saved key.  Just incase.
-     * May be used later if we need to handle invalid keys.
-     */
-    this.deleteKey = function()
-    {
-        require("sdk/passwords").search({
-            username: "slack",
-            url: "https://slack.com/api",
-            onComplete: function (credentials) {
-                credentials.forEach(require("sdk/passwords").remove);
-            }   
-        });
-        key = null
-    };
-    
-    /**
-     * Save the API key
-     * Only saves one key.  Deletes the previously saved key if it exists.
-     */
-    this.saveKey = function(APIkey)
-    {
-        // delete any saved keys
-        require("sdk/passwords").search({
-            username: "slack",
-            url: "https://slack.com/api",
-            onComplete: function (credentials) {
-                credentials.forEach(require("sdk/passwords").remove);
-                // Safest place to save the key is inside the search callback
-                // where the deletion might happen as it will run regardless of
-                // anything being found and I wouldn't want to save the key only
-                // to have this callback delete it later.
-                //
-                // Save the new key
-                require("sdk/passwords").store({
-                    url: "https://slack.com/api",
-                    username: "slack",
-                    password: APIkey,
-                    realm: realm
-                });
-                // Set module key variable
-                require("sdk/passwords").search({
-                    username: "slack",
-                    url: "https://slack.com/api",
-                    onComplete: function (credentials) {
-                        credentials.forEach
-                        (
-                            function(element)
-                            {
-                                key = element.password;
-                            }
-                        );
-                    }   
-                });
-            }   
-        });
-    };
-    
-    /**
-     * Get the saved Slack API key
-     *
-     * @argument {function} callback    The function to run once key is set.
-     *
-     * This function ensures that global key var is set when the user tries to
-     * post something.  It goes through the following workflow:
-     *  - The function that retrieves keys from storage is async so we can't just
-     * return it if it's not set yet.
-     *  - If not authenticated then the callback is passed to
-     * authenticate(callback) to, you know, authenticate, then passed to
-     * useKey(callback) again.
-     *
-     */
-    this.useKey = function(callback)
-    {
-        // Check if key has been set or this is the second time this has run.
-        // If not, grab it, save key globally, then check again.
-        if ( ! key ) {
-            // Once you're in this `if` you won't get a return from the function
-            // I feel like this is terrible UX.
-            require("sdk/passwords").search(
-            {
-                username: "slack",
-                url: "https://slack.com/api",
-                onComplete: function (credentials)
+                params.title = title;
+                params.channels = selectedChannels.join(",");
+                if( 0 >= params.channels.length )
                 {
-                    if( credentials.length < 1 )
+                    require("notify/notify").interact("Choose a channel.", "slack", {priority: "warn"});
+                }
+                else
+                {
+                    params.initial_comment = message;
+                    slackAPI.post(params, callback);
+                    panel.close();
+                }
+            }
+            postButton.onCommand(post);
+            panel.addRow(postButton)
+            
+            var closeButton = createCloseBtn();
+            var close = function()
+            {
+                panel.close();
+            }
+            closeButton.onCommand(close);
+            panel.addRow(closeButton)
+            
+             // Must retrieve the channels async as they might need to be retrieved
+            // through an API call.
+            function populateChannels(channels)
+            {
+                channels = channels.split(",");
+                // XXX This preselects but it doesn't actually select some
+                // it seems to break the items that don't end up getting
+                // selected
+                var itemsToSelect = [];
+                //Populate the list and create a list of items to select
+                for ( var channel of channels ) {
+                    var opts = {attributes:{label:channel,value:channel}}
+                    var listitem = require("ko/ui/listitem").create(opts)
+                    availableChannels.addListItem(listitem);
+                    if( selectedChannels.indexOf(channel) > -1 )
                     {
-                        log.warn("You have not been authenticated with a slack channel.  Let's do that now...");
-                        this.authenticate(callback); 
-                        return;
+                        itemsToSelect.push(listitem);
                     }
-                    // Otherwise, save the key globally
-                    credentials.forEach
-                    (
-                        function(element)
-                        {
-                            key = element.password;
-                            if( callback )
-                            {
-                                callback(key);
-                            }
-                        }
-                    );
-                }.bind(this)
-            });
+                }
+                // now go through and select those items
+                for ( var item of itemsToSelect ) {
+                    console.log("@ 336");
+                    console.log(item);
+                    availableChannels.selectItem(item.element, false);
+                }
+                // reset the list until it's repopulated during post process
+                selectedChannels = []; 
+                availableChannels.enable();
+                postButton.enable();
+            }
+            slackAPI.getChannels(populateChannels);            
         }
-        else
+        catch(e)
         {
-            callback(key);
+            console.log(e);
+            panel.close();
         }
-    };
-     
+    }
+  
     /**
      * Get or create a file name to be displayed.
      * Takes the file name if nothing selected
@@ -488,50 +384,7 @@
         var view = require("ko/views").current().get();
         return view.koDoc.language || "text";
     }
-    /**
-     * Retrieve the list of available channels for the authenticated user and
-     * save it to the prefs.  Just pull them from the prefs if they are already
-     * there.
-     * 
-     * @argument {function} callback  function to do something with the return
-     *                                channels.  This callback gets passed a
-     *                                comma separate string of channel names
-     * 
-     */
-    function getChannels(callback)
-    {
-        var pref = "slack.channels";
-        if (prefs.hasPref(pref))
-        {
-            callback(prefs.getStringPref(pref).split(","));
-        }
-        if( ! key )
-        {
-            this.useKey(getChannels());
-            return;
-        }
-        var params = require("sdk/querystring").stringify(
-        {
-            token: key,
-            exclude_archived:1
-        });
-        //var baseUrl = "https://slack.com/api/channels.list?";
-        function processResponse(code, respText)
-        {
-            // Notify instead of console.log
-            var respJSON = JSON.parse(respText);
-            var channelsJSON = respJSON.channels;
-            var channels = [];
-            for (let channel of channelsJSON) {
-                channels.push(channel.name);
-            }
-            var chanString = channels.join(",");
-            prefs.setStringPref(pref,chanString)
-            callback(chanString);
-        }
-        makeAPIcall("channels.list", params, callback);
-    };
-    
+ 
     /**
      * Get content to post to Slack
      * 
@@ -547,9 +400,9 @@
         }
         // Get whole file or get selection
         if ( view.scimoz.selectionEmpty ) {
-            content = view.scimoz.text;
+            var content = view.scimoz.text;
         } else {
-            content = view.scimoz.selText;
+            var content = view.scimoz.selText;
         }
         if( content == "" )
         {
