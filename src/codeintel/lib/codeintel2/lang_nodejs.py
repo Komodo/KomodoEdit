@@ -38,6 +38,7 @@
 """NodeJS support for CodeIntel"""
 
 import os
+import sys
 import json
 import logging
 
@@ -99,6 +100,10 @@ class NodeJSTreeEvaluator(JavaScriptTreeEvaluator):
             hits = []
             basename = os.path.basename(filename)
             blobs = lib.blobs_with_basename(basename, ctlr=self.ctlr)
+            if sys.platform.startswith("win"):
+                # The database stores lower-cased blob names on Windows, so
+                # ensure filename argument is lower-cased too.
+                filename = filename.lower()
             for blob in blobs or []:
                 if os.path.normpath(blob.get("src")) != filename:
                     # wrong file
