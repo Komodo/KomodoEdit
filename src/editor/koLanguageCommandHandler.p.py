@@ -1010,6 +1010,99 @@ class GenericCommandHandler:
         sm.ensureVisibleEnforcePolicy(startLine)
         sm.sendUpdateCommands("select")
 
+    def _do_cmd_delimitedBlockSelect(self):
+        """
+        Selects blocks of text based on logical delimiters, rather than some
+        sort of code intelligence. Selects text inside delimiters first, then
+        the delimiters themselves next, then text inside parent delimiters, and
+        so on.
+        One example ("|" is the caret, "[foobar]" is a selection):
+            if (...) { for(...) { print("foo|bar") } }
+            if (...) { for(...) { print("[foobar]") } }
+            if (...) { for(...) { print(["foobar"]) } }
+            if (...) { for(...) { print[("foobar")] } }
+            if (...) { for(...) {[ print("foobar") ]} }
+            if (...) { for(...) [{ print("foobar") }] }
+            if (...) {[ for(...) { print("foobar") } ]}
+            if (...) [{ for(...) { print("foobar") } }]
+            [if (...) { for(...) { print("foobar") } }]
+        Another:
+            <div class="..."><h1>foo|bar</h1></div>
+            <div class="..."><h1>[foobar]</h1></div>
+            <div class="...">[<h1>foobar</h1>]</div>
+            [<div class="..."><h1>foobar</h1></div>]
+        """
+        sm = self._view.scimoz
+        
+        s, e = sm.selectionStart, sm.selectionEnd
+        if s == 0:
+            return # nothing more to do
+        ch = chr(sm.getCharAt(s))
+        chPrev = chr(sm.getCharAt(sm.positionBefore(s)))
+        
+        # Determine the delimiters to consider.
+        # This is a product of the configured delimiters and whether or not the
+        # current language is an XML-based one.
+        delimiters = self._view.prefs.getStringPref('editDelimitedBlockSelectDelimiters')
+        xml = self._view.languageObj.supportsXMLIndentHere(sm, sm.currentPos)
+        if xml:
+            if chPrev == '>':
+                # Assume text within tag is selected (e.g. <div>[foobar]</div>),
+                # so now only look for '<' in order to select entire tag.
+                delimiters = "<"
+            else:
+                # Also consider '<' and '>' such that:
+                #   <div>foo|bar</div>     => <div>[foobar]</div>
+                #   <div class|="foobar">  => [<div class="foobar">]
+                delimiters += "<>"
+        endDelimiters = {'(': ')', '[': ']', '{': '}', '<': '>', '>': '<'}
+        
+        if not sm.selectionEmpty and chPrev in delimiters:
+            # Text between delimiters is already selected. Select delimiters.
+            sm.setSel(sm.selectionEnd + 1, sm.selectionStart - 1)
+        else:
+            # Search behind for a delimiter and then select all text within it
+            # (but not including the delimiter).
+            # If an end delimiter is encountered, keep track of it such that
+            # when its complement is encountered, that complement is skipped.
+            # This correctly selects the if block's '{' '}' for example:
+            #   if (...) { for(...) [{ ... }] }
+            #                       ^-------^-- existing selection
+            ignore = {'(': 0, '[': 0, '{': 0}
+            delimiter = None
+            while s > 0:
+                ch = chr(sm.getCharAt(sm.positionBefore(s)))
+                if ch in delimiters and not ignore.get(ch, 0):
+                    # Found a beginning delimiter. Now look for its ending
+                    # complement and select the text in-between.
+                    delimiter = endDelimiters.get(ch, ch)
+                    if xml and ch == '<':
+                        # Instead of selecting in-between '<' and '>', include
+                        # '<' in the selection.
+                        s = sm.positionBefore(s)
+                    break
+                elif ch in delimiters:
+                    # Found a beginning delimiter to skip.
+                    ignore[ch] -= 1
+                elif ch in endDelimiters.values():
+                    # Check if this is an end delimiter. If so, its beginning
+                    # complement needs to be skipped when encountered.
+                    for key in ignore.keys():
+                        if endDelimiters[key] == ch:
+                            ignore[key] += 1
+                            break
+                s = sm.positionBefore(s)
+            while e < sm.length - 1:
+                ch = chr(sm.getCharAt(e))
+                if ch == delimiter:
+                    if xml and ch == '>':
+                        # Instead of selecting in-between '<' and '>', include
+                        # '>' in the selection.
+                        e = sm.positionAfter(e)
+                    break
+                e = sm.positionAfter(e)
+            sm.setSel(e, s)
+
     def _is_cmd_comment_enabled(self):
         commenter = self._view.languageObj.getLanguageService(
             components.interfaces.koICommenterLanguageService)

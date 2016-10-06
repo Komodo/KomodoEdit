@@ -1338,6 +1338,11 @@
             disabled="true"
             desc="&sourceCodeSelectBlock.desc;"/>
         <command
+            id="cmd_delimitedBlockSelect" key="key_cmd_delimitedBlockSelect"
+            oncommand="ko.commands.doCommand('cmd_delimitedBlockSelect')"
+            disabled="true"
+            desc="&editorDelimitedBlockSelect.desc;"/>
+        <command
             id="cmd_cleanLineEndings" key="key_cmd_cleanLineEndings"
             oncommand="ko.commands.doCommandAsync('cmd_cleanLineEndings', event)"
             disabled="true"

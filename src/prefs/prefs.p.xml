@@ -548,6 +548,9 @@
   <string id="wrapSelectionDelimiters_FactorySetting">([{&lt;&quot;&apos;`*/</string>
   <string id="wrapSelectionDelimiters">([{&lt;&quot;&apos;`*/</string>
   
+  <string id="editDelimitedBlockSelectDelimiters_FactorySetting">&apos;&quot;`([{</string>
+  <string id="editDelimitedBlockSelectDelimiters">&apos;&quot;`([{</string>
+
   <boolean id="editMatchingDelimiter">1</boolean>
   
   <boolean id="enableElasticTabstops">0</boolean>

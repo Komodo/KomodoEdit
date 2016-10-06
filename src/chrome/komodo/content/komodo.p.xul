@@ -278,6 +278,11 @@
                           accesskey="&menuBlockSelect.accesskey;"
                           observes="cmd_blockSelect"
                           />
+                <menuitem label="&selectDelimitedBlock.label;"
+                          id="menu_delimitedBlockSelect"
+                          accesskey="&menuDelimitedBlockSelect.accesskey;"
+                          observes="cmd_delimitedBlockSelect"
+                          />
                 <menuitem label="&selectToMatchingBrace.label;"
                           id="menu_selectToMatchingBrace"
                           accesskey="&selectToMatchingBrace.menu.accesskey;"
@@ -885,6 +890,11 @@
                                               id="menu_blockSelect"
                                               accesskey="&menuBlockSelect.accesskey;"
                                               observes="cmd_blockSelect"
+                                              />
+                                    <menuitem label="&selectDelimitedBlock.label;"
+                                              id="menu_delimitedBlockSelect"
+                                              accesskey="&menuDelimitedBlockSelect.accesskey;"
+                                              observes="cmd_delimitedBlockSelect"
                                               />
                                     <menuitem label="&selectToMatchingBrace.label;"
                                               id="menu_selectToMatchingBrace"

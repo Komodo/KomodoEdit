@@ -129,6 +129,7 @@
 <!ENTITY editorDeleteLine.desc "Editor: Delete Line">
 <!ENTITY editorDeleteWordLeft.desc "Editor: Delete Word Left">
 <!ENTITY editorDeleteWordRight.desc "Editor: Delete Word Right">
+<!ENTITY editorDelimitedBlockSelect.desc "Editor: Delimited Block Select">
 <!ENTITY editorDuplicateLineUp.desc "Editor: Duplicate Line/Selection Up">
 <!ENTITY editorDuplicateLineDown.desc "Editor: Duplicate Line/Selection Down">
 <!ENTITY editorDuplicateSelectionLeft.desc "Editor: Duplicate In-line Selection Left">
@@ -456,6 +457,7 @@
 <!ENTITY makeUppercase.label "Make Uppercase">
 <!ENTITY menu.tooltiptext "Menu">
 <!ENTITY menuBlockSelect.accesskey "B">
+<!ENTITY menuDelimitedBlockSelect.accesskey "D">
 <!ENTITY menuBookmarkGotoNext.accesskey "N">
 <!ENTITY menuBookmarkGotoPrevious.accesskey "P">
 <!ENTITY menuBookmarkRemoveAll.accesskey "R">
@@ -678,6 +680,7 @@
 <!ENTITY selectAll.label "Select All">
 <!ENTITY selectAll.menu.accesskey "A">
 <!ENTITY selectBlock.label "Select Block">
+<!ENTITY selectDelimitedBlock.label "Select Delimited Block">
 <!ENTITY selectToMatchingBrace.label "Select to Matching Brace">
 <!ENTITY selectToMatchingBrace.menu.accesskey "C">
 <!ENTITY selection.label "selection">

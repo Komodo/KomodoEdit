@@ -200,6 +200,8 @@
 <!ENTITY deleteScheme.accesskey "D">
 <!ENTITY deleteServer.label "Delete Server">
 <!ENTITY deleteServer.tooltiptext "Delete Server">
+<!ENTITY delimitedBlockSelectDelimiters.label "Delimited block select delimiters:">
+<!ENTITY delimitedBlockSelectDelimiters.description "Note: XML-type documents add &apos;&lt;&apos; and &apos;&gt;&apos; automatically">
 <!ENTITY description.label "Description">
 <!ENTITY detectWhenFilesAreChangedOutsideTheEnvironment.label "Detect when files are changed outside the environment">
 <!ENTITY detectWhenNetworkFilesAreChangedOutsideTheEnvironment.label "Detect when networked files are changed outside the environment">
@@ -416,6 +418,7 @@ adding an additional caret at the clicked position.">
 <!ENTITY resetToStandardValueOf15.tooltiptext "Reset to standard value of 1.5">
 <!ENTITY restoreFoldStateOnDocumentLoadSlowsDownFileOpening.label "Restore fold state on document load (slows down file opening)">
 <!ENTITY restoreLastWorkspace.label "Restore last workspace">
+<!ENTITY restoreDelimitedBlockSelectDelimiters.label "Restore default delimiters">
 <!ENTITY restoreWrapSelectionDelimiters.label "Restore default delimiters">
 <!ENTITY ruby.label "Ruby">
 <!ENTITY saveOptions.label "File Saving">
