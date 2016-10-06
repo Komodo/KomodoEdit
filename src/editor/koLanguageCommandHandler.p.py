@@ -1041,9 +1041,16 @@ class GenericCommandHandler:
         chPrev = chr(sm.getCharAt(sm.positionBefore(s)))
         
         # Determine the delimiters to consider.
-        # This is a product of the configured delimiters and whether or not the
-        # current language is an XML-based one.
+        # This is a product of the configured delimiters, whether or not there
+        # is a multi-line selection, and whether or not the current language is
+        # an XML-based one.
         delimiters = self._view.prefs.getStringPref('editDelimitedBlockSelectDelimiters')
+        if sm.lineFromPosition(s) != sm.lineFromPosition(e):
+            # For multi-line selections, ignore any delimiters whose start and
+            # end is the same. When coming across a '"' for example, it's not
+            # clear if it is the beginning of a multi-line string or the end
+            # of a singe-line string without considering syntax highlighting.
+            delimiters = re.sub('[^(\[{<]', '', delimiters)
         xml = self._view.languageObj.supportsXMLIndentHere(sm, sm.currentPos)
         if xml:
             if chPrev == '>':
