@@ -15,7 +15,7 @@
      * @argument    {Object}    params  params to push a file
      * @argument    {function}  callback    function run when post is complete
      */
-    this.post = (params, callback) =>
+    this.post = function(params, callback)
     {
         if( ! key )
         {
@@ -49,7 +49,7 @@
      *
      * @argument    {function}  callback  function to be run with the key  
      */
-    this.authenticate = callback =>
+    var authenticate = function(callback)
     {
         // ### If I cancel in the dialog this gets stuck in a loop.
         // Also server fails to handle and sends back garbage.
@@ -83,7 +83,7 @@
      * Delete the currently saved key.  Just incase.
      * May be used later if we need to handle invalid keys.
      */
-    this.deleteKey = () =>
+    this.deleteKey = function()
     {
         require("sdk/passwords").search({
             username: "slack",
@@ -99,7 +99,7 @@
      * Save the API key
      * Only saves one key.  Deletes the previously saved key if it exists.
      */
-    this.saveKey = APIkey =>
+    this.saveKey = function(APIkey)
     {
         // delete any saved keys
         require("sdk/passwords").search({
@@ -167,7 +167,7 @@
                     if( credentials.length < 1 )
                     {
                         log.warn("You have not been authenticated with a slack channel.  Let's do that now...");
-                        this.authenticate(callback); 
+                        authenticate(callback); 
                         return;
                     }
                     // Otherwise, save the key globally
@@ -201,7 +201,7 @@
      *                                comma separate string of channel names
      * 
      */
-    this.getChannels = callback =>
+    this.getChannels = function(callback)
     {
         var prefName = "slack.channels";
         if (prefs.hasPref(prefName))

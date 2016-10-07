@@ -333,8 +333,6 @@
                 }
                 // now go through and select those items
                 for ( var item of itemsToSelect ) {
-                    console.log("@ 336");
-                    console.log(item);
                     availableChannels.selectItem(item.element, false);
                 }
                 // reset the list until it's repopulated during post process

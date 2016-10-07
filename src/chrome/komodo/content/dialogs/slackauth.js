@@ -52,7 +52,7 @@ var slackApp = {};
         if(keyDiv)
         {
             console.log("key: " + keyDiv.innerHTML.trim());
-            require("ko/share/slack").saveKey(keyDiv.innerHTML.trim());
+            require("ko/share/slack/api").saveKey(keyDiv.innerHTML.trim());
         }
         doneDiv.addEventListener("animationend",function(){window.close();});
     }
