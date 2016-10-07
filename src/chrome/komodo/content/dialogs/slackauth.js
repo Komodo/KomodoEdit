@@ -27,12 +27,11 @@ var slackApp = {};
     }
     this.getScope = function()
     {
-        return "files:write:user"; //// identify,read,post',
+        return "files:write:user,channels:read"; //// identify,read,post',
     }
     this.getRedirectUri = function()
     {
-        return "http://localhost:8001/slack/auth";
-        //return "http://komodo.activestate.com/slack/auth";
+        return "http://komodo.activestate.com/slack/auth";
     }
     this.getClientId = function()
     {

@@ -91,7 +91,6 @@
     
     function updateShareMenu()
     {
-        console.log("adding to menu");
         // Add the share menu to a set list of locations which are
         // specified by their id from the Komodo UI.
         for (var elementID of elementIDs)
