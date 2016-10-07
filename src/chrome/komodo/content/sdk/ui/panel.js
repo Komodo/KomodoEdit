@@ -8,6 +8,7 @@
 
 var parent = require("./container");
 var Module = Object.assign({}, parent); 
+var _window = require("ko/windows").getMain();
 module.exports = Module;
 
 // Main module (module.exports)
@@ -25,7 +26,7 @@ module.exports = Module;
          * Show the panel.
          *
          * @param {object} args, options object can contain the following:
-         *   
+         *    Defaults to opening in the middle of the Komodo main window
          *    {
          *        anchor : dom object to anchor to,
          *        position:   "before_start, before_end, after_start, after_end, start_before, start_after, end_before, end_after, overlap, and after_pointer",
@@ -44,10 +45,12 @@ module.exports = Module;
             {
                 require("ko/dom")("#komodo_main").append(this.$element);
             }
+            var x = (_window.innerWidth/2)-(200/2);
+            var y = (_window.innerHeight/2)-(50/2);
             var anchor =  args.anchor || null;
             var position = args.position || null;
-            var x = args.x || 0;
-            var y = args.y || 0;
+            var x = args.x || x;
+            var y = args.y || y;
             var isContextMenu = args.isContextMenu || false;
             var attributesOverride = args.attributes || false;
             var triggerEvent = args.triggerEvent || null;
