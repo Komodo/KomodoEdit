@@ -56,6 +56,15 @@ module.exports = Module;
                                    triggerEvent)
         };
         
+        /**
+         * Close the popup.  This does not delete the panel, it just hides it.
+         *
+         */
+        this.close = function panel_close()
+        {
+            this.element.hidePopup();
+        }
+        
     }).apply(this.Model); 
     
 }).apply(Module);

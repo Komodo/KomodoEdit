@@ -58,6 +58,26 @@ module.exports = Module;
             }
         };
         
+        /**
+         * Add an item to the container
+         *
+         * @argument {ko/ui/obj, ko/dom/obj, DOM, Object} item item to be added
+         * to the container.
+         *
+         * Object refers to an Options object used through this SDK. The options
+         * should contain an attributes property to assign a label at the very
+         * least:
+         *
+         *  {
+         *      attributes:
+         *      {
+         *          label:"itemLable"
+         *      }
+         *  }
+         *
+         *
+         * 
+         */ 
         this.addMenuItem = function (menuitem)
         {
             if ( ! this.menupopup)
