@@ -39,4 +39,6 @@ $cons->InstallInChrome('wizardpage.js');
 $cons->InstallInChrome('link.js');
 $cons->InstallInChrome('span.js');
 $cons->InstallInChrome('list.js');
+$cons->InstallInChrome('listbox.js');
+$cons->InstallInChrome('listitem.js');
 
