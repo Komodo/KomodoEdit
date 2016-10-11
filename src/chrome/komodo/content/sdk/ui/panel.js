@@ -60,9 +60,11 @@ module.exports = Module;
                                    isContextMenu,
                                    attributesOverride,
                                    triggerEvent)
-            if ( ! args.x && ! args.y ) {
-                var x = (_window.innerWidth/2)-(panelElement.width/2);
-                var y = (_window.innerHeight/2)-(panelElement.height/2);
+            
+            if ( ! args.x && ! args.y )
+            {
+                var x = _window.screenX + (_window.innerWidth/2)-(panelElement.boxObject.width/2);
+                var y = _window.screenY + (_window.innerHeight/2)-(panelElement.boxObject.height/2);
                 panelElement.moveTo(x,y);
             }
         };
