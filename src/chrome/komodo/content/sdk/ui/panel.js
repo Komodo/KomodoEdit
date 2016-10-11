@@ -45,22 +45,26 @@ module.exports = Module;
             {
                 require("ko/dom")("#komodo_main").append(this.$element);
             }
-            var x = (_window.innerWidth/2)-(200/2);
-            var y = (_window.innerHeight/2)-(50/2);
             var anchor =  args.anchor || null;
             var position = args.position || null;
-            var x = args.x || x;
-            var y = args.y || y;
+            var x = args.x || 0;
+            var y = args.y || 0;
             var isContextMenu = args.isContextMenu || false;
             var attributesOverride = args.attributes || false;
             var triggerEvent = args.triggerEvent || null;
-            this.element.openPopup(anchor,
+            var panelElement = this.element;
+            panelElement.openPopup(anchor,
                                    position,
                                    x,
                                    y,
                                    isContextMenu,
                                    attributesOverride,
                                    triggerEvent)
+            if ( ! args.x && ! args.y ) {
+                var x = (_window.innerWidth/2)-(panelElement.width/2);
+                var y = (_window.innerHeight/2)-(panelElement.height/2);
+                panelElement.moveTo(x,y);
+            }
         };
         
         /**
