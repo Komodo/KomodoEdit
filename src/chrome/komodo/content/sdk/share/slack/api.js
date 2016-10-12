@@ -211,7 +211,7 @@
         }
         if( ! key )
         {
-            useKey(getChannels.bind(this, callback));
+            useKey(this.getChannels.bind(this, callback));
             return;
         }
         var params = require("sdk/querystring").stringify(
