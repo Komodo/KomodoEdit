@@ -6,20 +6,16 @@ var slackApp = {};
     const {classes: Cc, interfaces: Ci, utils: Cu} = Components;
     var $ = require("ko/dom");
     var $gBrowser = $("#slackauth_browser");
-    var gBrowserWindows = $gBrowser.element().contentWindows;
+    var gBrowserDocument = function () {return $gBrowser.element().contentDocument};
     var slack = require("ko/share/slack");
     // Set load event for when each webpage loads so we can get key from komodo
     // auth server
     this.init = function()
     {
         //Add event listner to content load to get page and process it
-        if($gBrowser) $gBrowser.element().addEventListener("DOMContentLoaded", this.onPageLoad, false);
+        $gBrowser.element().addEventListener("DOMContentLoaded", this.onPageLoad, false);
         this.loadSlackAuthPage();
         window.sizeToContent();
-    }
-    this.getBrowserContent = function()
-    {
-        return gBrowserWindows;
     }
     this.getSlackAuthURI = function()
     {
@@ -47,14 +43,13 @@ var slackApp = {};
     // Process page and look for auth key returned from Komodo/slack/auth
     this.onPageLoad = function()
     {
-        var keyDiv = document.getElementById("slackauth_browser").contentDocument.getElementById("key");
-        var doneDiv = document.getElementById("slackauth_browser").contentDocument.getElementById("done");
+        var keyDiv = gBrowserDocument().getElementById("key");
+        var doneDiv = gBrowserDocument().getElementById("done");
         if(keyDiv)
         {
-            console.log("key: " + keyDiv.innerHTML.trim());
             require("ko/share/slack/api").saveKey(keyDiv.innerHTML.trim());
+            window.close();
         }
-        doneDiv.addEventListener("animationend",function(){window.close();});
     }
     // Load slack auth page
     this.loadSlackAuthPage = function()
