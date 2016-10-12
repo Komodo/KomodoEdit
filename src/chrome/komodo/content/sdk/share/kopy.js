@@ -40,7 +40,7 @@
             label: "kopy: Share Code via kopy.io"
         });
 
-        require("ko/share").register("ko/share/kopy", "Share Code via kopy.io");
+        require("ko/share").register("kopy", "ko/share/kopy", "Share Code via kopy.io");
         
         require("notify/notify").categories.register("kopy",
         {
@@ -65,7 +65,7 @@
         if (trackChanges) button.unregister("kopyTrackChanges", buttonContext);
     }
 
-    this.share = function(data, language)
+    this.share = function(data, filename, language)
     {
         var locale;
         var useClipboard = prefs.getBoolean("kopy_copy_to_clipboard", true);

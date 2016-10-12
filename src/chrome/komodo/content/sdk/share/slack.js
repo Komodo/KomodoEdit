@@ -18,7 +18,7 @@
                                             label: "Slack: Share Code on your slack"
                                         });
         
-        require("ko/share").register("ko/share/slack", "Share Code via Slack");
+        require("ko/share").register("slack", "ko/share/slack", "Share Code via Slack");
         
         // Create a pref page for this that is appended into the existing prefs
         // dialog.
@@ -40,20 +40,13 @@
      * If there is no module Key set then it uses useKey which will execute
      * share() AND save the key in the module for later use
      */ 
-    this.share = () => 
+    this.share = function(content, filename, fileType) 
     {
-        var content = getContent();
-        // If `content` is empty then stop.  Slack won't accept it any way.
-        // Response: {"ok":false,"error":"no_file_data"}
-        if( content == "" )
-        {
-            return;
-        }
         var params =
         {
             content: content,
-            filetype: getFileLangName(),
-            filename: getFilename(),
+            filetype: filename,
+            filename: fileType
         };
         
         // function to pass to API request to process response
@@ -280,10 +273,6 @@
                     prefs.deletePref("slack.title");
                     title = null;
                 }
-                else if( getFilename() == title )
-                {
-                    prefs.deletePref("slack.title");
-                }
                 else
                 {
                     prefs.setStringPref("slack.title", title);
@@ -348,67 +337,4 @@
             panel.close();
         }
     }
-  
-    /**
-     * Get or create a file name to be displayed.
-     * Takes the file name if nothing selected
-     * Inserts `-snippet` before extension if
-     *
-     * @returns {String}    filename    name of file with "-snippet" appended
-     *                                  if only sending selection.
-     */
-    function getFilename()
-    {
-        var view = require("ko/views").current().get();
-        var filename;
-        if ( view.scimoz.selectionEmpty ) {
-            filename = view.title;
-        } else {
-            let viewTitlesplit = view.title.split(".");
-            let name = viewTitlesplit.shift() + "-snippet";
-            // support multi ext. filenames common in templating
-            let extension = viewTitlesplit.join(".");
-            // Filter out empty string if this file had no extension
-            filename = [name,extension].filter(function(e){return e}).join(".");
-        }
-        return filename;
-    }
-    /**
-     * Get the currently open files languages name
-     * Defaults to "text"
-     */
-    function getFileLangName()
-    {
-        var view = require("ko/views").current().get();
-        return view.koDoc.language || "text";
-    }
- 
-    /**
-     * Get content to post to Slack
-     * 
-     */
-    function getContent()
-    {
-        var view = require("ko/views").current().get();
-        if ( ! view.scimoz )
-        {
-            var locale = "You don't have a file open to post any content to Slack.";
-            require("notify/notify").interact(locale, "slack", {priority: "info"});
-            return "";
-        }
-        // Get whole file or get selection
-        if ( view.scimoz.selectionEmpty ) {
-            var content = view.scimoz.text;
-        } else {
-            var content = view.scimoz.selText;
-        }
-        if( content == "" )
-        {
-            var locale = "You're file is empty.  You don't want to share that.  Don't be weird.";
-            require("notify/notify").interact(locale, "slack", {priority: "info"});
-            return content;
-        }
-        return content;
-    };
-    
 }).apply(module.exports);
