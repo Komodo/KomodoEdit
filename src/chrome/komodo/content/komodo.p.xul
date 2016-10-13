@@ -2118,12 +2118,12 @@
                         (e.g. the find dialog) load. -->
                         <textbox id="hidden-input-buffer" collapsed="true"
                              onfocus="ko.inputBuffer.focus(event);"/>
-                        <vbox id="customizingPlaceHolder" align="center" valign="middle">
+                        <vbox id="customizingPlaceHolder">
                             <!-- This box is used in the widget/pane customization mode
                                - (hiding the main text editing area).
                                -->
                             <browser id="customizeToolbarBrowser" src="chrome://komodo/content/dialogs/customizeToolbar.xul" flex="1" style="width: 100vw"/>
-                            <hbox pack="center">
+                            <hbox pack="center" align="center" class="statusbar">
                                 <description>&pane.customize.placeholder.label;</description>
                                 <button label="&pane.customize.done.label;"
                                         oncommand="ko.uilayout._customizeComplete(true);"/>

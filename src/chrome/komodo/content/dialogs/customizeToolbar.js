@@ -15,11 +15,11 @@
     var self = this;
     
     var elems = {
-        mainTb: $("#main-toolbar", window),
-        secondTb: $("#second-toolbar", window)
-    }
+        "main-toolboxrow": $("#main-toolbar", window),
+        "second-toolboxrow": $("#second-toolbar", window),
+        "side-top-toolbar": $("#side-toolbar", window)
+    };
     
-    var warnedRestart = false;
     var checkboxes = [
         {
             elem: $("#classic-layout", window),
@@ -48,7 +48,7 @@
     var menus = [
         {
             elem: $("#toolbar-mode", window),
-            value: function() $("#toolbox_main", w).attr("_mode"),
+            value: function() $("#toolbox_main", w).attr("_mode") || "icons",
             onChange: function() {
                 var menu = this;
                 var mode = menu.elem.element().value;
@@ -74,8 +74,9 @@
     
     this.init = function ()
     {
-        this.populateList("main");
-        this.populateList("second");
+        this.populateList("main-toolboxrow");
+        this.populateList("second-toolboxrow");
+        this.populateList("side-top-toolbar");
         
         for (let checkbox of checkboxes)
         {
@@ -97,16 +98,17 @@
     
     this.reload = function()
     {
-        this.populateList("main");
-        this.populateList("second");
+        this.populateList("main-toolboxrow");
+        this.populateList("second-toolboxrow");
+        this.populateList("side-top-toolbar");
     };
     window.reload = this.reload;
     
-    this.populateList = function(which = "main")
+    this.populateList = function(which)
     {
-        var el = elems[which + "Tb"];
+        var el = elems[which];
         el.empty();
-        $("#"+which+"-toolboxrow toolbaritem", w).each(function() {
+        $("#"+which+" toolbaritem", w).each(function() {
             
             var listitem = $("<hbox class='list-item'/>");
             if (this.id) {
@@ -130,6 +132,7 @@
                 el.removeAttr("onclick");
                 el.removeAttr("disabled");
                 el.removeAttr("checked");
+                el.removeAttr("ordinal");
                 
                 wrapper.prepend(el);
                 listitem.append(wrapper);
@@ -147,13 +150,22 @@
     
     this.hideElem = function(el)
     {
-        var hide = ! (el.attr("ishidden") == "true");
-        hide = hide ? "true" : "false";
+        var hide = el.attr("ishidden") != "true";
+        var hideStr = hide ? "true" : "false";
+        var button = el.element()._originalElement;
         
-        el.attr("ishidden", hide);
-        el.element()._originalElement.setAttribute("kohidden", hide);
+        if (button.classList.contains("dynamic-button"))
+        {
+            var dB = button._dynamicButton;
+            if (hide)
+                dB.hide();
+            else
+                dB.show();
+        }
         
-        el.element()._originalElement.ownerDocument.persist(el.element()._originalElement.id, "kohidden");
+        el.attr("ishidden", hideStr);
+        button.setAttribute("kohidden", hideStr);
+        button.ownerDocument.persist(button.id, "kohidden");
         
         this.updateToolbarViewState();
     }
@@ -162,12 +174,12 @@
     {
         // Update hidden / visible state of toolbar items
         // and set relevant ancestry classes
-        ko.uilayout._updateToolbarViewStates(elems.mainTb.element());
-        ko.uilayout._updateToolbarViewStates(elems.secondTb.element());
+        ko.uilayout._updateToolbarViewStates(elems["main-toolboxrow"].element());
+        ko.uilayout._updateToolbarViewStates(elems["second-toolboxrow"].element());
 
         // make the overflow button rebuild the next time it's open
-        elems.mainTb.element().dirty = true;
-        elems.secondTb.element().dirty = true;
+        elems["main-toolboxrow"].element().dirty = true;
+        elems["second-toolboxrow"].element().dirty = true;
         
         $(".list-item", window).each(function()
         {
@@ -183,9 +195,16 @@
             
             if (allHidden)
             {
-                this.setAttribute("ishidden", "true");
                 this._originalElement.setAttribute("kohidden", "true");
                 this._originalElement.ownerDocument.persist(this._originalElement.id, "kohidden");
+            }
+            else
+            {
+                if (this.getAttribute("ishidden") != "true")
+                {
+                    this._originalElement.setAttribute("kohidden", "false");
+                    this._originalElement.ownerDocument.persist(this._originalElement.id, "kohidden");
+                }
             }
         });
     }

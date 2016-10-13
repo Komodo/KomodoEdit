@@ -5,6 +5,8 @@
     var $   = require("ko/dom");
     var tb  = $("#side-top-toolbar");
     
+    var ss = require("ko/simple-storage").get("dynamic-button");
+    
     var dynamicButton = function(opts)
     {
         var button;
@@ -20,6 +22,7 @@
                 disabled: "true",
                 class: "dynamic-button " + opts.classList
             });
+            button.element()._dynamicButton = this;
             
             if (typeof opts.command == "string")
             {
@@ -79,6 +82,9 @@
                     opts.isEnabled = () => false;
             }
             
+            if (ss.storage.buttons[opts.id].hide)
+                this.hide();
+            
             groupItem.append(button);
             
             for (let event of opts.events)
@@ -89,6 +95,18 @@
             }
             
             this.update();
+        }
+        
+        this.hide = function()
+        {
+            ss.storage.buttons[opts.id].hide = true;
+            button.attr("kohidden", "true");
+        }
+        
+        this.show = function()
+        {
+            ss.storage.buttons[opts.id].hide = false;
+            button.removeAttr("kohidden");
         }
         
         this.update = function(now = false)
@@ -311,6 +329,9 @@
     
     this.init = function()
     {
+        if ( ! ss.storage.buttons)
+            ss.storage.buttons = {};
+        console.log(ss.storage.buttons);
     }
     
     this.register = function(label, opts)
@@ -345,6 +366,9 @@
             classList: "",
             events: ["current_place_opened", "project_opened", "workspace_restored"]
         }, opts);
+        
+        if ( ! ss.storage.buttons[id])
+            ss.storage.buttons[id] = {};
         
         buttons[id] = new dynamicButton(opts);
         return buttons[id];

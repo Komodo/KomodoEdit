@@ -22,14 +22,7 @@
         ondialogaccept="onConfirmDialog();">
 
     <vbox class="wrapper autoscroll" flex="1">
-        <caption label="Toolbar - Left"/>
-        <hbox id="main-toolbar" class="list-box"></hbox>
-        
-        <caption label="Toolbar - Right"/>
-        <hbox id="second-toolbar" class="list-box"></hbox>
-        
         <groupbox>
-            <caption label="Options"/>
             <hbox class="row">
                 <checkbox id="classic-layout"
                           label="Use classic layout"/>
@@ -49,6 +42,15 @@
                 </hbox>
             </hbox>
         </groupbox>
+        
+        <caption label="Toolbar - Left"/>
+        <hbox id="main-toolbar" class="list-box"></hbox>
+        
+        <caption label="Toolbar - Right"/>
+        <hbox id="second-toolbar" class="list-box"></hbox>
+        
+        <caption label="Dynamic Toolbar"/>
+        <hbox id="side-toolbar" class="list-box"></hbox>
     </vbox>
     
     <script src="customizeToolbar.js"/>
