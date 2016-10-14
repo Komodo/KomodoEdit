@@ -237,7 +237,42 @@ tab[widget^="debugsession"][dbg_status="interactive"] { .icon(); .icon-play-circ
 tab[widget^="findresults_tabpanel"] { .icon(); .icon-binoculars(); }
 tab[widget^="klint_tabpanel"] { .icon(); .icon-circle-code(); }
 
+/* Find results view */
 tab[view-type="findresults"] .tab-icons:first-child { .icon(); .icon-binoculars(); }
+richlistitem.file-item[view-type="findresults"]
+{
+    .icon();
+    .icon-binoculars();
+    
+    .file-icon
+    {
+        display: none;
+    }
+}
+
+/* Browser preview view */
+tab[view-type="browser"]
+{
+    .tab-icons:first-child
+    {
+        .icon(); .icon-earth2();
+    }
+    
+    .tab-icon
+    {
+        display: none;
+    }
+}
+richlistitem.file-item[view-type="browser"]
+{
+    .icon();
+    .icon-earth2();
+    
+    .file-icon
+    {
+        display: none;
+    }
+}
 
 /* Breakpoints */
 .breakpoint-new-icon > .box-inherit

@@ -823,11 +823,14 @@ if (typeof ko.openfiles == 'undefined')
             var listItem = template.fileItem.cloneNode(true);
             
             var dirName = editorView.koDoc.file ? editorView.koDoc.file.dirName : '';
-            var tooltip = dirName == '' ? editorView.title : dirName;
+            var tooltip = "";
+            if (["editor", "browser"].indexOf(editorView.getAttribute("type")) != -1)
+                tooltip = dirName == '' ? editorView.title : dirName;
             
             // Set ID, tooltip, title and path
             listItem.setAttribute('id', editorView.uid.number);
             listItem.setAttribute('tooltiptext', tooltip);
+            listItem.setAttribute('view-type', editorView.getAttribute("type"));
             listItem.querySelector('.file-title')
                         .setAttribute('value', editorView.title);
             listItem.querySelector('.file-path')
@@ -1430,14 +1433,23 @@ if (typeof ko.openfiles == 'undefined')
                 /**
                  * Retrieve group information
                  * 
-                 * @param   {Object} editorView     The current view for this item
+                 * @param   {Object}    editorView     The current view for this item
                  * 
                  * @returns {Object}    Object containing group info
                  *                      keys: name, classlist, attributes
                  */
                 group: function openfiles_group(editorView)
                 {
-                    var language = editorView.koDoc ? editorView.koDoc.language : '';
+                    var language;
+                    if (editorView.getAttribute("type") == "editor")
+                    {
+                        language = editorView.koDoc ? editorView.koDoc.language : '';
+                    }
+                    else
+                    {
+                        language = "Other";
+                    }
+                    
                     return {
                         name: language,
                         classlist: ['languageicon'],
