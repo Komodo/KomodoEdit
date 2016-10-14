@@ -1427,11 +1427,9 @@ viewManager.prototype.do_cmd_bufferCloseOthers = function() {
         var viewType = view.getAttribute("type");
         if (view == currView) {
             continue;
-        } else if (viewType == "browser") {
+        } else if (viewType != "editor") {
             filtered_views.push(view);
-        } else if (view.getAttribute("type") != "editor" || !view.koDoc) {
-            continue;
-        } else if (view.koDoc.isUntitled) {
+        } else if (view.koDoc && view.koDoc.isUntitled) {
             if (view.isDirty) {
                 var res = ko.dialogs.yesNoCancel("Save changes to " + view.koDoc.baseName +
                                                 "?");
