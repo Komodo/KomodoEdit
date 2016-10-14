@@ -45,8 +45,8 @@
         var params =
         {
             content: content,
-            filetype: filename,
-            filename: fileType
+            filetype: fileType,
+            filename: filename
         };
         
         // function to pass to API request to process response
@@ -126,7 +126,7 @@
                 log.warn(locale + "\n" + respText);
                 return;    
             }
-        };
+        }
         getPostData(params, processResponse);
     };
 
@@ -160,22 +160,22 @@
 
     // Channel selection list        
     function createChannelField() {
-        options = { attributes:
+        var options = { attributes:
             {
                 label:"Channels",
                 value:"Loading...",
                 disabled:"true",
                 seltype:"multiple"
             }
-        }
+        };
         var availableChannels = require("ko/ui/listbox").create(options);
-        availableChannels.disable
+        availableChannels.disable();
         return availableChannels;
     }
 
     // Message Text field
     function createMsgField() {
-        options = {
+        var options = {
             attributes:
             {
                 type:"autocomplete",
@@ -216,16 +216,17 @@
     {
         try
         {
+            var userSetTitle;
                 // Retrieve title from prefs
             if( prefs.hasPref("slack.title") )
             {
-                var userSetTitle = true;
+                userSetTitle = true;
                 title = prefs.getStringPref("slack.title");
             }
             else
             {
-                var userSetTitle = false;
-                title = getFilename();
+                userSetTitle = false;
+                title = params.filename ? params.filename : "";
             }
             // Have to open the panel before appending anything
             // XXX this should check for a panel and not recreate it if it already
@@ -264,11 +265,11 @@
             var post = function()
             {
                 title = titleField.$element.value();
-                availableChannels.getSelectedItems().forEach(function(elem){selectedChannels.push(elem.value)});
+                availableChannels.getSelectedItems().forEach(function(elem){selectedChannels.push(elem.value);});
                 // save the selected channels
                 prefs.setStringPref("slack.selected.channels",JSON.stringify(selectedChannels));
                 var message = msgField.$element.value();
-                if( "" == title )
+                if( "" === title )
                 {
                     prefs.deletePref("slack.title");
                     title = null;
@@ -289,21 +290,21 @@
                     slackAPI.post(params, callback);
                     panel.close();
                 }
-            }
+            };
             postButton.onCommand(post);
-            panel.addRow(postButton)
+            panel.addRow(postButton);
             
             var closeButton = createCloseBtn();
             var close = function()
             {
                 panel.close();
-            }
+            };
             closeButton.onCommand(close);
-            panel.addRow(closeButton)
+            panel.addRow(closeButton);
             
              // Must retrieve the channels async as they might need to be retrieved
             // through an API call.
-            function populateChannels(channels)
+            var populateChannels = function (channels)
             {
                 channels = channels.split(",");
                 // XXX This preselects but it doesn't actually select some
@@ -312,8 +313,8 @@
                 var itemsToSelect = [];
                 //Populate the list and create a list of items to select
                 for ( var channel of channels ) {
-                    var opts = {attributes:{label:channel,value:channel}}
-                    var listitem = require("ko/ui/listitem").create(opts)
+                    var opts = {attributes:{label:channel,value:channel}};
+                    var listitem = require("ko/ui/listitem").create(opts);
                     availableChannels.addListItem(listitem);
                     if( selectedChannels.indexOf(channel) > -1 )
                     {
@@ -328,7 +329,7 @@
                 selectedChannels = []; 
                 availableChannels.enable();
                 postButton.enable();
-            }
+            };
             slackAPI.getChannels(populateChannels);            
         }
         catch(e)
