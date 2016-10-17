@@ -1,9 +1,9 @@
 (function()
 {
-    const ajax = require("ko/ajax");
     const log = require("ko/logging").getLogger("slack");
     const prefs = require("ko/prefs");
     const _window = require("ko/windows").getMain();
+    const slackSS = require("ko/simple-storage").get("slack");
     const slackAPI = require("ko/share/slack/api");
     // Slack variables
     var title = null;
@@ -57,64 +57,41 @@
              * notify.  See errors section for API function:
              *   https://api.slack.com/methods/files.upload
              */
-            
-            var respJSON = JSON.parse(respText);
-            console.log(respJSON);
+            var respJSON;
+            try
+            {
+                respJSON = JSON.parse(respText);
+            } catch(e)
+            {
+                log.error("Could not parse response from server: " + e);
+                return;
+            }
             if( respJSON.ok )
             {
-                /** XXX Include channels posted to and link in notification
+                /**
+                 * XXX Include channels posted to and link in notification
                  * XXX If option is enable, add link to clipboard
                  * XXX If option enabled, open the link? Might be annoying to
                  *     have a new slack window opened everytime you share code.
                  */
-                var locale = "Content posted successfully to Slack";
-                require("notify/notify").interact(locale, "slack", {priority: "info"});
-                /** We get a link and a bunch of other stuff that we can use here
-                 * 
-                "file": {
-                    "id": "F2HA5CFB4",
-                    "created": 1475104033,
-                    "timestamp": 1475104033,
-                    "name": "Text-1.txt",
-                    "title": "Sent from Komodo IDE 10.1 using ko\/share\/slack",
-                    "mimetype": "text\/plain",
-                    "filetype": "text",
-                    "pretty_type": "Plain Text",
-                    "user": "U03AEA29V",
-                    "editable": true,
-                    "size": 4,
-                    "mode": "snippet",
-                    "is_external": false,
-                    "external_type": "",
-                    "is_public": true,
-                    "public_url_shared": false,
-                    "display_as_bot": false,
-                    "username": "",
-                    "url_private": "https:\/\/files.slack.com\/files-pri\/T0336E9KP-F2HA5CFB4\/text-1.txt",
-                    "url_private_download": "https:\/\/files.slack.com\/files-pri\/T0336E9KP-F2HA5CFB4\/download\/text-1.txt",
-                    "permalink": "https:\/\/activestate.slack.com\/files\/careyh\/F2HA5CFB4\/text-1.txt",
-                    "permalink_public": "https:\/\/slack-files.com\/T0336E9KP-F2HA5CFB4-fe078814ce",
-                    "edit_link": "https:\/\/activestate.slack.com\/files\/careyh\/F2HA5CFB4\/text-1.txt\/edit",
-                    "preview": "boop",
-                    "preview_highlight": "<div class=\"CodeMirror cm-s-default CodeMirrorServer\" oncopy=\"if(event.clipboardData){event.clipboardData.setData('text\/plain',window.getSelection().toString().replace(\/\\u200b\/g,''));event.preventDefault();event.stopPropagation();}\">\n<div class=\"CodeMirror-code\">\n<div><pre>boop<\/pre><\/div>\n<\/div>\n<\/div>\n",
-                    "lines": 1,
-                    "lines_more": 0,
-                    "preview_is_truncated": false,
-                    "channels": ["C03NU4MN5", "C03NU99VB", "C22B2S1KK"],
-                    "groups": [],
-                    "ims": [],
-                    "comments_count": 1,
-                    "initial_comment": {
-                        "id": "Fc2H9U7T1T",
-                        "created": 1475104033,
-                        "timestamp": 1475104033,
-                        "user": "U03AEA29V",
-                        "is_intro": true,
-                        "comment": "@carey This is working!!!",
-                        "channel": ""
-                    }
-                }*/
-                // XXX Include name
+                
+                var file = respJSON.file;
+                var url = file.permalink;
+                if (slackSS.useClipboard)
+                {
+                    require("sdk/clipboard").set(url);
+                }
+                if (slackSS.showInBrowser)
+                {
+                    ko.browse.openUrlInDefaultBrowser(url);
+                }
+                
+                var msg = "Content posted successfully to Slack: " + url;
+                require("notify/notify").interact(msg, "kopy",
+                {
+                    command: () => { ko.browse.openUrlInDefaultBrowser(url) }
+                });
+                //  https://api.slack.com/types/file
                 log.debug("code: "+code+"\nResponse: "+respText);
             }
             else
@@ -173,6 +150,20 @@
         return availableChannels;
     }
 
+    function createUseClipboard()
+    {
+        var elem = require("ko/ui/checkbox").create("Add Slack URL to Clipboard");
+        elem.checked( slackSS.useClipboard ? true : false );
+        return elem;
+    }
+    
+    function createShowInBrowser()
+    {
+        var elem = require("ko/ui/checkbox").create("Open slack after posting content. Does not work for desktop App.");
+        elem.checked( slackSS.showInBrowser ? true : false );
+        return elem;
+    }
+    
     // Message Text field
     function createMsgField() {
         var options = {
@@ -253,13 +244,19 @@
             panel.addRow(availableChannels);
             
             var selectedChannels = [];
-            if( prefs.hasPref("slack.selected.channels") )
+            if( slackSS.selectedChannels ) 
             {
-                selectedChannels = JSON.parse(prefs.getStringPref("slack.selected.channels"));
+                selectedChannels = JSON.parse(slackSS.selectedChannels);
             }
 
             var msgField = createMsgField();
             panel.addRow(msgField);
+            
+            var useClipboard = createUseClipboard();
+            panel.addRow(useClipboard);
+            
+            var showInBrowser = createShowInBrowser();
+            panel.addRow(showInBrowser);
             
             var postButton = createPostBtn();
             var post = function()
@@ -267,20 +264,25 @@
                 title = titleField.$element.value();
                 availableChannels.getSelectedItems().forEach(function(elem){selectedChannels.push(elem.value);});
                 // save the selected channels
-                prefs.setStringPref("slack.selected.channels",JSON.stringify(selectedChannels));
+                
+                slackSS.selectedChannels = JSON.stringify(selectedChannels);
                 var message = msgField.$element.value();
                 if( "" === title )
                 {
-                    prefs.deletePref("slack.title");
+                    slackSS.remove("title");
                     title = null;
                 }
                 else
                 {
-                    prefs.setStringPref("slack.title", title);
+                    slackSS.title = title;
                 }
+                
+                slackSS.useClipboard = useClipboard.checked();
+                slackSS.showInBrowser = showInBrowser.checked();
                 params.title = title;
                 params.channels = selectedChannels.join(",");
-                if( 0 >= params.channels.length )
+                
+                if( ! params.channels.length )
                 {
                     require("notify/notify").interact("Choose a channel.", "slack", {priority: "warn"});
                 }
