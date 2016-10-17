@@ -4,7 +4,7 @@
   %dialogsDTD;
 ]>
 
-<!-- Copyright (c) 2003-2006 ActiveState Software Inc.
+<!-- Copyright (c) 2016 ActiveState Software Inc.
      See the file LICENSE.txt for licensing information. -->
 
 <!-- Select a preview file for the given URL. -->
@@ -15,11 +15,8 @@
     windowtype="Komodo:BrowserWindow"
     xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
     width="500"
-    height="750"
-    persist="screenX screenY"
+    height="780"
     orient="vertical">
-    <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
-    <script src="chrome://xtk/content/domutils.js" type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/logging.js" type="application/x-javascript;version=1.7"/>
     <browser
         id="slackauth_browser"
