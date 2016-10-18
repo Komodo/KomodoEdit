@@ -83,7 +83,8 @@
             url: get("koDoc", "file", "URI"),
             prefs: get("koDoc", "prefs"),
             language: get("koDoc", "language"),
-            filename: get("title"),
+            title: get("title"),
+            filename: get("koDoc","file","baseName"),
             
             type: view ? view.getAttribute("type") : false
         }
