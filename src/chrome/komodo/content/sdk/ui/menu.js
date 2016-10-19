@@ -81,7 +81,7 @@ module.exports = Module;
         /**
          * Add an item to the container
          *
-         * @argument {ko/ui/obj, ko/dom/obj, DOM, Object} item item to be added
+         * @argument {string, ko/ui/obj, ko/dom/obj, DOM, Object} item item to be added
          * to the container.
          *
          * Object refers to an Options object used through this SDK. The options
