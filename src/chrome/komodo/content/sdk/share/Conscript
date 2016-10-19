@@ -13,4 +13,7 @@ Import(
 $cons->InstallInChrome('kopy.js');
 $cons->InstallInChrome('slack.js');
 $cons->InstallInChrome('slack/api.js');
-
+$cons->InstallInChrome('sources/diff.js');
+$cons->InstallInChrome('sources/editor.js');
+$cons->InstallInChrome('sources/logs.js');
+$cons->InstallInChrome('sources/trackchanges.js');
