@@ -14,32 +14,38 @@
 {
     const log = require("ko/logging").getLogger("sharing");
     const w = require("ko/windows").getMain();
-    const $ = require("ko/dom");
     
-    var shareMenu;
-    var shareDynBtn;
-    var moduleNames = [] // Store the name of each of the modules
-                         // Mainly to avoid using Object.keys() to iterate over
-                         // the sharedModules object.
+    var sources =
+    [
+        require("ko/share/sources/editor"),
+        require("ko/share/sources/trackchanges"),
+        require("ko/share/sources/logs"),
+        //require("ko/share/sources/diff"),
+    ];
     var shareModules = {}; // List of attached modules.
                            // Each item looks like:
                            // {
                            //    slack:
                            //    {
+                           //       name: name,
                            //       namespace: path,
                            //       label: label,
-                           //       menuItem: ko/ui/menuItem
                            //    }
                            // }
-    //  Append list IDs to append the share menu to.
-    var elementIDs = ["editorContextMenu"];  
-    
+    require("notify/notify").categories.register("Share",
+    {
+        label: "Komodo Share"
+    });
     /**
      * Register a new sharing tool
      * Registers the modules namespace and adds available menu items
      * The UI elements that are augmented with the Share menu are:
      *  - Editor context menu
      *  - Dynamic toolbar
+     *  - trackchanges button
+     *  - diff dialogs
+     *  - RX generator?
+     *  - logs dialog
      * Modules share function should take (content, filename, fileType)
      *
      *  The added
@@ -67,75 +73,40 @@
             return;
         }
         
-        moduleNames.push(name);
         shareModules[name] = {
+            name: name,
             namespace: namespace,
             label: label
+        };
+        // Create cmd for the function
+        require("ko/commands").register("share_file_on_"+name,
+            this.share.bind(this, name),
+            {
+                label: name+": Share Code on your "+name
+            }); 
+        // Update the various sources.
+        for ( let source of sources )
+        {
+            source.load(shareModules[name]);
         }
-
-        updateShareMenu(name);
-        //updateShareDynButton();
     };
     
+   
     /**
      * Share content on specified moduel
      *
      * @argument {String}   name module name to share on
+     * @argument {Object} source an object holding all information needed for
+     * sharing content
      */
-    this.share = function(name)
+    this.share = function(name, content = null, filetype = null, title = null)
     {
-        var moduleObject = getModule(name);
-        var content = getContent();
-        var filename = getFilename();
-        var fileType = getFileLangName();
-        require(moduleObject.namespace).share(content, filename, fileType);
-    }
-    
-    /**
-     * Get the module to use
-     */
-    var getModule = function(name)
-    {
-        return shareModules[name];
-    }
-    
-    function updateShareMenu(name)
-    {
-        var module = getModule(name);
-        if( ! shareMenu )
-        {
-            shareMenu = require("ko/ui/menu").create(
-            {
-                attributes:
-                {
-                    label: "Share..."
-                }
-            });
-        }
-        var shareMenuItem = require("ko/ui/menuitem").create(
-        {
-            attributes: {
-                label:  name,
-                tooltiptext: module.label,
-                oncommand: "require('ko/share').share('"+name+"');"
-            }
-        });
-        shareMenu.addMenuItem(shareMenuItem);
-        module.menuItem = shareMenuItem;
-        // Add the share menu to a set list of locations which are
-        // specified by their id from the Komodo UI.
-        for (var elementID of elementIDs)
-        {
-            shareMenu.element.parentElement.removeChild(shareMenu.element);
-            let location = $("#" + elementID);
-            if ( ! location ) {
-                log.warn("Skipping element in menu update.  Does not exist: " + elementID);
-                continue;
-            }
-            location.append(shareMenu.$element);
-        }
-    }
-    
+        content = content ? content : getContent();
+        title = title ? title : getFilename();
+        filetype = filetype ? filetype : getFileLangName();
+        require(shareModules[name].namespace).share(content, title, filetype);
+    };
+
     /**
      * Get or create a file name to be displayed.
      * Takes the file name if nothing selected
@@ -148,15 +119,15 @@
     {
         var view = require("ko/views").current().get();
         var filename;
-        if ( view.scimoz.selectionEmpty ) {
-            filename = view.title;
+        if ( view && view.scimnoz && view.scimoz.selectionEmpty ) {
+            filename = view.filename;
         } else {
             let viewTitlesplit = view.title.split(".");
             let name = viewTitlesplit.shift() + "-snippet";
             // support multi ext. filenames common in templating
             let extension = viewTitlesplit.join(".");
             // Filter out empty string if this file had no extension
-            filename = [name,extension].filter(function(e){return e}).join(".");
+            filename = [name,extension].filter(function(e){return e;}).join(".");
         }
         return filename;
     }
@@ -177,25 +148,28 @@
     function getContent()
     {
         var view = require("ko/views").current().get();
+        var locale;
         if ( ! view.scimoz )
         {
-            var locale = "You don't have a file open to post any content to Slack.";
+            locale = "You don't have a file open to post any content to Slack.";
             require("notify/notify").interact(locale, "slack", {priority: "info"});
             return "";
         }
         // Get whole file or get selection
-        if ( view.scimoz.selectionEmpty ) {
-            var content = view.scimoz.text;
-        } else {
-            var content = view.scimoz.selText;
-        }
-        if( content == "" )
+        var content;
+        if ( view.scimoz.selectionEmpty )
         {
-            var locale = "You're file is empty.  You don't want to share that.  Don't be weird.";
+            content = view.scimoz.text;
+        } else {
+            content = view.scimoz.selText;
+        }
+        if(  "" === content )
+        {
+            locale = "You're file is empty.  You don't want to share that.  Don't be weird.";
             require("notify/notify").interact(locale, "slack", {priority: "info"});
             return content;
         }
         return content;
-    };
+    }
     
 }).apply(module.exports);
