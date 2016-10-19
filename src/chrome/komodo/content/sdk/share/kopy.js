@@ -24,38 +24,12 @@
 
     this.load = function()
     {
-        var addonMgr = Cc["@activestate.com/platform/addons/addon-manager;1"]
-                        .getService(Ci.koamIAddonManager)
-        addonMgr.getAddonByID("trackchanges@activestate.com", function(addon)
-        {
-            if (addon && addon.isActive)
-                trackChanges = true;
-        }.bind(this));
-        this._load();
-    }
-
-    this._load = function()
-    {
-        commands.register("kopy", this.share.bind(this, undefined), {
-            label: "kopy: Share Code via kopy.io"
-        });
-
         require("ko/share").register("kopy", "ko/share/kopy", "Share Code via kopy.io");
         
         require("notify/notify").categories.register("kopy",
         {
             label: "kopy.io Integration"
         });
-
-        if (trackChanges)
-        {
-            button.register({
-                id: "kopyTrackChanges",
-                label: "Share via kopy.io",
-                command: this.changeTrackerShare.bind(this),
-                context: buttonContext
-            });
-        }
     }
 
     this.unload = function()
@@ -164,23 +138,4 @@
             require("notify/notify").interact(errorMsg, "kopy", {priority: "error"});
         }
     }
-    
-    this.changeTrackerShare = function()
-    {
-        try
-        {
-            var tracker = ko.views.manager.currentView.changeTracker;
-            var patch = tracker.getFormattedPatch();
-        }
-        catch (e)
-        {
-            log.exception(e);
-            var errorMsg = "Sharing failed, exception occured: " + e.message;
-            require("notify/notify").interact(errorMsg, "kopy", {priority: "error"});
-            return;
-        }
-
-        this.share(patch, "diff");
-    }
-
 }).apply(module.exports);
