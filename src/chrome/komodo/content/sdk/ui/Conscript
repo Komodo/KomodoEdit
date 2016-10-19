@@ -18,6 +18,7 @@ Import(
 );
 
 $cons->InstallInChrome('button.js');
+$cons->InstallInChrome('toolbarbutton.js');
 $cons->InstallInChrome('caption.js');
 $cons->InstallInChrome('checkbox.js');
 $cons->InstallInChrome('column.js');
