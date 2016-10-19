@@ -4,6 +4,7 @@
     const log = require("ko/logging").getLogger("slack/api");
     const _window = require("ko/windows").getMain();
     const prefs = require("ko/prefs");
+    const slackAPI_SS = require("ko/simple-storage").get("slackAPI");
     // Slack variables
     const realm = "Slack Integration User Key"; // Used while saving key
     //var title = "Post from Komodo IDE via Slack APIs"
@@ -64,15 +65,14 @@
             onComplete: function (credentials)
             {
                 
-                if( credentials.length > 0 )
+                if( credentials.length )
                 {
                     if( callback ) useKey(callback.bind(this));
                 }
                 else
                 {
                     var locale = "Authentication cancelled or failed.";
-                    require("notify/notify").interact(locale, "slack", {priority: "info"});
-                    return;    
+                    require("notify/notify").interact(locale, "share", {priority: "info"});
                 }
                 
             }.bind(this)
@@ -92,7 +92,7 @@
                 credentials.forEach(require("sdk/passwords").remove);
             }   
         });
-        key = null
+        key = null;
     };
     
     /**
@@ -119,20 +119,7 @@
                     password: APIkey,
                     realm: realm
                 });
-                // Set module key variable
-                require("sdk/passwords").search({
-                    username: "slack",
-                    url: "https://slack.com/api",
-                    onComplete: function (credentials) {
-                        credentials.forEach
-                        (
-                            function(element)
-                            {
-                                key = element.password;
-                            }
-                        );
-                    }   
-                });
+                key = APIkey;
             }   
         });
     };
@@ -164,7 +151,7 @@
                 url: "https://slack.com/api",
                 onComplete: function (credentials)
                 {
-                    if( credentials.length < 1 )
+                    if( ! credentials.length )
                     {
                         log.warn("You have not been authenticated with a slack channel.  Let's do that now...");
                         authenticate(callback); 
@@ -203,10 +190,9 @@
      */
     this.getChannels = function(callback)
     {
-        var prefName = "slack.channels";
-        if (prefs.hasPref(prefName))
+        if (slackAPI_SS.storage.channels)
         {
-            callback(prefs.getStringPref(prefName));
+            callback(slackAPI_SS.storage.channels);
             return;
         }
         if( ! key )
@@ -221,22 +207,29 @@
         });
         function processResponse(code, respText)
         {
-            var respJSON = JSON.parse(respText);
-            if (true == respJSON.ok) {
+            var respJSON;
+            var message = "Could not process response from Slack.  No channels available.  Please try again: ";
+            try
+            {
+                respJSON = JSON.parse(respText);
+            } catch(e) {
+                log.error(message+e);
+                require("notify/notify").interact(message+e, "share", {priority: "info"});
+                return;
+            }
+            if ( true === respJSON.ok )
+            {
                 var channelsJSON = respJSON.channels;
-                console.log(channelsJSON);
                 var channels = [];
-                for (let channel of channelsJSON) {
+                for ( let channel of channelsJSON ) {
                     channels.push(channel.name);
                 }
-                var chanString = channels.join(",");
-                console.log(chanString);
-                prefs.setStringPref(prefName,chanString)
-                callback(chanString);
+                slackAPI_SS.storage.channels = channels;
+                callback(channels);
             }
             else
             {
-                callback(respJSON.error);
+                require("notify/notify").interact(message+respJSON.error, "share", {priority: "info"});
             }
            
         }
