@@ -54,7 +54,7 @@ module.exports = Module;
         /**
          * Add an item to the container
          *
-         * @argument {ko/ui/obj, ko/dom/obj, DOM, Object} item item to be added
+         * @argument {string, ko/ui/obj, ko/dom/obj, DOM, Object} item item to be added
          * to the container.
          *
          * Object refers to an Options object used through this SDK. The options
@@ -100,14 +100,17 @@ module.exports = Module;
          */ 
         this.addMenuItem = function (menuitem)
         {
-            if ( ! this.menupopup)
+            if ( ! this.menupopup )
             {
                 this.menupopup = require("./menupopup").create();
                 this.$element.append(this.menupopup.element);
             }
             
             var element;
-            if ("isSdkElement" in menuitem)
+            if (typeof menuitem == "string") {
+                element = require("ko/ui/menuitem").create(menuitem).element;
+            }
+            else if ("isSdkElement" in menuitem)
             {
                 element = menuitem.element;
             }
@@ -131,7 +134,7 @@ module.exports = Module;
                 element = require('./' + type).create(menuitem).element;
             }
             
-            this.menupopup.$element.append(element);
+            this.menupopup.addMenuItem(element);
             
             if (element.getAttribute("selected") == "true" && "selectedItem" in this.element)
             {
