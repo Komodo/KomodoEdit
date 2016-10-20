@@ -338,7 +338,13 @@ ko.analytics = new function()
     
     this.onWidgetChanged = (e) =>
     {
-        this.trackEvent(CAT_WIDGET_METRIC, "widget-accessed", e.detail.getAttribute("label") || e.detail.getAttribute("id"));
+        var label = e.detail.getAttribute("label") || e.detail.getAttribute("id");
+        
+        // Debug widget labels include the filename, so force the label
+        if (label.indexOf("Debug:") === 0)
+            label = "Debugging";
+        
+        this.trackEvent(CAT_WIDGET_METRIC, "widget-accessed", label);
     };
 
     var _lastPageView = null;
