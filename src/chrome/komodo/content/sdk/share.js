@@ -20,7 +20,7 @@
         require("ko/share/sources/editor"),
         require("ko/share/sources/trackchanges"),
         require("ko/share/sources/logs"),
-        //require("ko/share/sources/diff"),
+        require("ko/share/sources/diff"),
     ];
     var shareModules = {}; // List of attached modules.
                            // Each item looks like:

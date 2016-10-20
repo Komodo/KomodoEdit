@@ -3,27 +3,29 @@
     const log = require("ko/logging").getLogger("sharing");
     const w = require("ko/windows").getMain();
     const $ = require("ko/dom");
+    const {Cc, Ci}  = require("chrome");
     
     var shareBtn;
     var shareMenu;
-    var _shareModule;
+    var storeModuleNames = [];  // Check this list for the name otherwise it
+                                // creates a menuitem every time a diff dialog
+                                // is loaded.
     this.load = function(shareModule)
     {
         w.addEventListener("window_opened", function(e) {
-            var diffWindowPath = "chrome://komodo/content/dialogs/diff.xul";
-            if( diffWindowPath === e.detail.location.href)
+            var windowPath = "chrome://komodo/content/dialogs/diff.xul";
+            if( windowPath === e.detail.location.href)
             {
-                console.log("it's loading something in a diff....even though it's not open.")
-                _shareModule = shareModule;
-                updateDiffButton();
+                e.detail.addEventListener("load", updateButton.bind(null,shareModule,e.detail));
             }
         });
-        
     };
     
-    function updateDiffButton()
+    function updateButton(shareModule, logWindow)
     {
-       var $diffView = $("#view");
+        // $ is instaniated on the main window so pass in the log window from
+        // the event
+        var $view = $("#view", logWindow);
         // Create the button if it doens't exist
         if( ! shareBtn )
         {
@@ -32,12 +34,12 @@
                     attributes:
                     {
                         type: "menu-button",
-                        id: "diff-"+$diffView.element().id+"-share_menu",
+                        id: $view.element().id+"-share_menu",
                         tooltiptext:"Share code on..."
                     }
                 });
             // Append the share button to the track changes panel
-            $diffView.after(shareBtn.element);
+            $view.after(shareBtn.element);
         }
         // Create the TC menu if it doesn't exist
         // We're creating this for it's menupopup attribute.  We don't actually
@@ -47,25 +49,37 @@
             shareMenu = require("ko/ui/menu").create();
         }
         
-        //Create the new modules menuitem for this menu
-        var menuitem = require("ko/ui/menuitem").create(
+        //Create the new modules menuitem for this menu if it hasn't already
+        if ( storeModuleNames.indexOf(shareModule.name) < 0 )
         {
-            attributes: {
-                label:  _shareModule.name,
-                tooltiptext: _shareModule.label,
-                oncommand: "require('ko/share/sources/diff').diffShare('"+_shareModule.name+"');"
-            }
-        });
-        // Add it to the menu
-        shareBtn.addMenuItem(menuitem);
-
+            storeModuleNames.push(shareModule.name);
+            var menuitem = require("ko/ui/menuitem").create(
+            {
+                attributes: {
+                    label:  shareModule.name,
+                    tooltiptext: shareModule.label,
+                    oncommand: "require('ko/share/sources/diff').share('"+shareModule.name+"');"
+                }
+            });
+            // Add it to the menu
+            shareBtn.addMenuItem(menuitem);
+        }
     }
-    this.diffShare = function(name)
+    this.share = function(name)
     {
         // get the content from the diff view
-        var $diffView = $("#view");
-        console.log($diffView.text);
-        // construct a file name
-        require("ko/share").share(name, $diffView.text, "diff"/*, title*/);
+        var content;
+        var scimoz = $("#view").element().scimoz;
+        if ( scimoz.selectionEmpty )
+        {
+            content = scimoz.text;
+        } else {
+            content = scimoz.selText;
+        }
+        // Generate a relevant title
+        var title = window.document.title;
+        // Has to be called on the main window as this windows require
+        // doesn't know about the registered share modules
+        w.require("ko/share").share(name, content, "diff", title);
     };
 }).apply(module.exports);
