@@ -38,7 +38,16 @@
                     }
                 });
             // Append the share button to the track changes panel
-            $view.after(shareBtn.element);
+            var properties =
+            {
+                attributes:
+                {
+                    align: "center",
+                    pack: "center"
+                }
+            };
+            var row = require("ko/ui/row").create(shareBtn,properties);
+            $view.after(row.element);
         }
         //Create the new modules menuitem for this menu if it hasn't already
         if ( storeModuleNames.indexOf(shareModule.name) < 0 )

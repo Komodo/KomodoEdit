@@ -38,8 +38,16 @@
                         tooltiptext:"Share code on..."
                     }
                 });
-            // Append the share button to the track changes panel
-            $view.after(shareBtn.element);
+            var properties =
+            {
+                attributes:
+                {
+                    align: "center",
+                    pack: "center"
+                }
+            };
+            var row = require("ko/ui/row").create(shareBtn,properties);
+            $view.after(row.element);
         }
         // Create the TC menu if it doesn't exist
         // We're creating this for it's menupopup attribute.  We don't actually
