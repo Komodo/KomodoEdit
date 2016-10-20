@@ -75,7 +75,7 @@
         try
         {
             patch = require("ko/views").current().get().changeTracker.getFormattedPatch();
-            title = require("ko/views").current().filename + " Changes.";
+            title = "Komodo TrackChanges in " + require("ko/views").current().basename;
         }
         catch (e)
         {
