@@ -760,6 +760,7 @@ class koPreferenceSetBase(object):
         if self._observerService:
             try:
                 self._observerService.notifyObservers(prefset, self.id, pref_id)
+                self._observerService.notifyObservers(prefset, "__all__", pref_id)
             except COMException, e:
                 pass # no one is listening
 
@@ -768,6 +769,7 @@ class koPreferenceSetBase(object):
         if "prefObserverService" in self.__dict__:
             try:
                 self.prefObserverService.notifyObservers(prefset, pref_id, self.id)
+                self.prefObserverService.notifyObservers(prefset, "__all__", pref_id)
             except COMException, e:
                 pass # no one is listening
 

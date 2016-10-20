@@ -142,11 +142,7 @@ ko.analytics = new function()
         var ww = Cc["@mozilla.org/embedcomp/window-watcher;1"].getService(Ci.nsIWindowWatcher);
         ww.registerNotification(this.onWindowOpened);
 
-        var _prefs = prefs.getPref('analytics_track_prefs');
-        for (let x=0;x<_prefs.length;x++)
-        {
-            prefs.prefObserverService.addObserver(this.onPrefChanged, _prefs.getString(x), false);
-        }
+        prefs.prefObserverService.addObserver(this.onPrefChanged, "__all__", false);
     };
 
     ///**
@@ -198,32 +194,32 @@ ko.analytics = new function()
             case 'interface-scheme':
             case 'widget-scheme':
                 val = ko.prefs.getStringPref(topic);
-                this.trackEvent(CAT_PREF_METRIC, data + "_" + topic, val);
+                this.trackEvent(CAT_PREF_METRIC, "global_" + data, val);
                 break;
 
             // Track the string value for these prefs
             case 'ui.tabs.sidepanes.left.layout':
             case 'ui.tabs.sidepanes.right.layout':
             case 'ui.tabs.sidepanes.bottom.layout':
-                val = ko.prefs.getStringPref(topic);
-                this.trackEvent(CAT_PREF_METRIC, data + "_" + topic, val);
+                val = ko.prefs.getStringPref(data);
+                this.trackEvent(CAT_PREF_METRIC, "global_" + data, val);
                 break;
 
             // Track boolean state, int value or otherwise just track that the pref was set
             default:
-                if (prefs.getPrefType(topic) == 'boolean')
+                if (prefs.getPrefType(data) == 'boolean')
                 {
-                    val = ko.prefs.getBooleanPref(topic);
-                    this.trackEvent(CAT_PREF_METRIC, data + "_" + topic, val, val ? 1 : 0);
+                    val = ko.prefs.getBooleanPref(data);
+                    this.trackEvent(CAT_PREF_METRIC, "global_" + data, val, val ? 1 : 0);
                 }
-                else if (prefs.getPrefType(topic) == 'long')
+                else if (prefs.getPrefType(data) == 'long')
                 {
-                    val = ko.prefs.getLongPref(topic);
-                    this.trackEvent(CAT_PREF_METRIC, data + "_" + topic, val, val);
+                    val = ko.prefs.getLongPref(data);
+                    this.trackEvent(CAT_PREF_METRIC, "global_" + data, val, val);
                 }
                 else
                 {
-                    this.trackEvent(CAT_PREF_METRIC, data + "_" + topic);
+                    this.trackEvent(CAT_PREF_METRIC, "global_" + data);
                 }
                 break;
         }
