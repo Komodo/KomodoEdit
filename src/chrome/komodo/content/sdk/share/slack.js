@@ -24,7 +24,7 @@
         {
             content: content,
             filetype: fileType,
-            filename: filename
+            title: filename
         };
         
         constructAndSendPost(params, onShareResponse);
@@ -196,7 +196,7 @@
             });
             panel.open();
             
-            title = params.filename ? params.filename : "";
+            var title = params.title ? params.title : "";
             var titleField = createTitleField(title);
             panel.addRow(titleField);
 

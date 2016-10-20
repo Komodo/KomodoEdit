@@ -97,7 +97,7 @@ module.exports = Module;
                 return;
             }
             
-            if ( ! this.menupopup)
+            if ( ! this.menupopup )
             {
                 this.menupopup = require("./menupopup").create();
                 this.element.appendChild(this.menupopup.element);

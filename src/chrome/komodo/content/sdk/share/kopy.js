@@ -7,8 +7,6 @@
     const commands  = require("ko/commands");
     const editor    = require("ko/editor");
 
-    var trackChanges = false;
-
     var menuContext = [
         {
             select: menu.context.editorContext,
