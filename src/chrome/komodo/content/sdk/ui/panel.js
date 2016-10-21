@@ -45,7 +45,8 @@ module.exports = Module;
             {
                 require("ko/dom")("#komodo_main").append(this.$element);
             }
-            var anchor =  args.anchor || null;
+            
+            var anchor =  args.anchor || _window.document.documentElement;
             var position = args.position || null;
             var x = args.x || 0;
             var y = args.y || 0;
@@ -59,14 +60,23 @@ module.exports = Module;
                                    y,
                                    isContextMenu,
                                    attributesOverride,
-                                   triggerEvent)
+                                   triggerEvent);
             
-            if ( ! args.x && ! args.y )
+            var center = function()
             {
-                var x = _window.screenX + (_window.innerWidth/2)-(panelElement.boxObject.width/2);
-                var y = _window.screenY + (_window.innerHeight/2)-(panelElement.boxObject.height/2);
-                panelElement.moveTo(x,y);
-            }
+                if ( ! args.x && ! args.y )
+                {
+                    var x = anchor.boxObject.screenX + ((anchor.boxObject.width/2)-(panelElement.boxObject.width/2));
+                    var y = anchor.boxObject.screenY + ((anchor.boxObject.height/2)-(panelElement.boxObject.height/2));
+                    panelElement.moveTo(x,y);
+                }
+            };
+            
+            // Yay XUL
+            center();
+            panelElement.addEventListener("popupshowing", center);
+            panelElement.addEventListener("popupshown", center);
+            _window.setTimeout(center, 100);
         };
         
         /**
