@@ -119,8 +119,8 @@
     {
         var view = require("ko/views").current().get();
         var filename;
-        if ( view && view.scimnoz && view.scimoz.selectionEmpty ) {
-            filename = view.filename;
+        if ( view && view.scimoz && view.scimoz.selectionEmpty ) {
+            filename = require("ko/views").current().filename;
         } else {
             let viewTitlesplit = view.title.split(".");
             let name = viewTitlesplit.shift() + "-snippet";

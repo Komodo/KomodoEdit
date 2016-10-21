@@ -17,7 +17,6 @@
     
     function updateEditorMenus()
     {
-        createMenuitem();
         updateShareMenu();
         updateDynButton();
     }

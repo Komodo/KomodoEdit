@@ -30,6 +30,16 @@
         constructAndSendPost(params, onShareResponse);
     };
     
+    /**
+     * Deletes your api key and deletes saved cookies that make you log into a
+     * particular team, ie. activestate.slack.com
+     */
+    this.signout = function()
+    {
+        slackAPI.deleteKey();
+        // delete other stuff here XXX NOT DONE
+    }
+    
     // function to pass to API request to process response
     function onShareResponse(code, respText)
     {
@@ -88,7 +98,7 @@
             value: title,
             defaultValue: title,
             label:"Title:",
-            width: 70,
+            col: 120,
         }};
         return require("ko/ui/textbox").create(options);
     }
@@ -147,7 +157,7 @@
                 label:"Message:",
                 multiline:true,
                 rows: 3,
-                width: 60
+                col: 120
             }
         };
         return require("ko/ui/textbox").create(options);
@@ -190,8 +200,8 @@
                 attributes: {
                     backdrag: true,
                     noautohide: true,
-                    width: 200,
-                    height: 100
+                    width: "200px",
+                    height: "150px"
                 }
             });
             panel.open();
