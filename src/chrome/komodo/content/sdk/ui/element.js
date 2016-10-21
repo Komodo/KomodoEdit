@@ -76,12 +76,10 @@ module.exports = Module;
 
         this.initWithElement = function(appendElement = null, options = {})
         {
-            var attributes = Object.assign(options.attributes || {}, this.attributes);
-            
             if ( ! Array.isArray(appendElement) && appendElement)
             {
                 if ("isSdkElement" in appendElement || "koDom" in appendElement ||
-                    "nodeName" in appendElement || "type" in appendElement)
+                    "nodeName" in appendElement || ("type" in appendElement && ! ("attributes" in appendElement)))
                 {
                     appendElement = [appendElement];
                 } 
@@ -92,6 +90,7 @@ module.exports = Module;
                 }
             }
             
+            var attributes = Object.assign(options.attributes || {}, this.attributes);
             var elements = [];
             
             if (Array.isArray(appendElement))
