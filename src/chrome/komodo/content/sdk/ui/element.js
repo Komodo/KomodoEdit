@@ -147,6 +147,10 @@ module.exports = Module;
             this.$element.show();
         };
         
+        this.on = function() { this.$element.on.apply(this.$element, arguments); };
+        this.off = function() { this.$element.off.apply(this.$element, arguments); };
+        this.once = function() { this.$element.once.apply(this.$element, arguments); };
+        
     }).apply(this.Model);
     
     this.create = function () 
