@@ -1,3 +1,15 @@
+/**
+ * @copyright (c) ActiveState Software Inc.
+ * @license Mozilla Public License v. 2.0
+ * @author ActiveState
+ * @overview -
+ */
+
+/**
+ * Sharing sub-module for ko/share that adds slack sharing
+ *
+ * @module ko/share/slack
+ */
 (function()
 {
     const api = require("ko/share/slack/api");
@@ -10,21 +22,21 @@
     
     /**
      * Share content on Slack
-     * Must have a file open
-     * Must have content in file
-     * If there is no module Key set then it uses useKey which will execute
-     * share() AND save the key in the module for later use
-     */ 
-    this.share = function(content, filename, fileType) 
+     * 
+     * @param   {String} data     Data to share
+     * @param   {Object} meta     Object containing meta information
+     * 
+     * @returns {Void} 
+     */
+    this.share = function(content, meta) 
     {
         var params =
         {
             content: content,
-            filetype: fileType,
-            title: filename
+            title: meta.title || null
         };
         
-        dialog.create(params, function(isSuccesful/*, code, responseText*/)
+        dialog.create(params, function(isSuccesful, url/*, code, responseText*/)
         {
             if (isSuccesful)
             {

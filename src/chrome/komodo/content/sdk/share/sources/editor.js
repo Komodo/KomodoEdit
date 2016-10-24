@@ -1,42 +1,20 @@
 (function()
 {
-    const log = require("ko/logging").getLogger("sharing");
-    const w = require("ko/windows").getMain();
+    const koShare = require("ko/share");
     const $ = require("ko/dom");
     
-    var shareMenu;
     var shareDynBtn;
-    var _shareModule;
     
-    this.load = function(shareModule)
-    {
-        _shareModule = shareModule;
-        updateEditorMenus(shareModule);
-    };
-    
-    
-    function updateEditorMenus()
+    this.load = function()
     {
         updateShareMenu();
         updateDynButton();
-    }
+    };
     
-    /**
-     * Create a menuitem
-     *
-     * @argument {String} name  name of the module
-     */
-    function createMenuitem()
+    function share(id)
     {
-        var menuitem = require("ko/ui/menuitem").create(
-        {
-            attributes: {
-                label:  _shareModule.name,
-                tooltiptext: _shareModule.label,
-                oncommand: "require('ko/share').share('"+_shareModule.name+"');"
-            }
-        });
-        return menuitem;
+        var meta = {title: require("ko/views").current().title, language: require("ko/views").current().language || "text"};
+        koShare.share(id, getContent(), meta);
     }
     
     /**
@@ -47,36 +25,53 @@
      */
     function updateShareMenu()
     {
-        if( ! shareMenu )
-        {
-            shareMenu = require("ko/ui/menu").create(
-            {
-                attributes:
-                {
-                    label: "Share..."
-                }
-            });
-        }
+        $("#editContextShareMenu").remove();
         
-        _shareModule.menuitem = createMenuitem();
-        shareMenu.addMenuItem(_shareModule.menuitem);
+        var shareMenu = require("ko/ui/menu").create(
+        {
+            attributes:
+            {
+                id: "editContextShareMenu",
+                label: "Share .."
+            }
+        });
+        
         var $editorContextMenu = $("#editorContextMenu");
-        $editorContextMenu.append(shareMenu.$element);
+        $editorContextMenu.append(shareMenu.element);
+        
+        shareMenu.addMenuItems(getShareMenuItems());
     }
     
+    function getShareMenuItems()
+    {
+        var items = [];
+        for (let id in koShare.modules)
+        {
+            let module = koShare.modules[id];
+            let menuitem = require("ko/ui/menuitem").create({
+                attributes: {
+                    label:  module.label
+                }
+            });
+            menuitem.on("command", share.bind(this, id));
+            items.push(menuitem.element);
+        }
+        
+        return items;
+    }
+
     function updateDynButton()
     {
         if( ! shareDynBtn )
         {
             shareDynBtn = require("ko/dynamic-button");
             shareDynBtn.register("Share", {
-                icon: "cloud",
-                tooltip: "Share content on...",
-                events: ["current_view_changed",
-                         "current_place_opened",
-                         "file_saved"],
+                icon: "share-alt",
+                tooltip: "Share Current File ..",
+                events: ["current_view_changed"],
+                groupOrdinal: 900,
                 //classList: "scc-menu",
-                menuitems: updateDynamicMenu.bind(this),
+                menuitems: getShareMenuItems.bind(this),
                 isEnabled: () => {
                     var view = require("ko/views").current().get();
                     if ( ! view.scimoz )
@@ -88,7 +83,35 @@
             });   
         }
     }
-    function updateDynamicMenu() {
-        return shareMenu.menupopup.element.cloneNode(true);
+    
+    /**
+     * Get content to post to Slack
+     * 
+     */
+    function getContent()
+    {
+        var view = require("ko/views").current().get();
+        var locale;
+        if ( ! view.scimoz )
+        {
+            locale = "You don't have a file open to post any content to Slack";
+            require("notify/notify").send(locale, "slack", {priority: "info"});
+            return "";
+        }
+        // Get whole file or get selection
+        var content;
+        if ( view.scimoz.selectionEmpty )
+        {
+            content = view.scimoz.text;
+        } else {
+            content = view.scimoz.selText;
+        }
+        if(  "" === content )
+        {
+            locale = "Your file is empty";
+            require("notify/notify").send(locale, "slack", {priority: "info"});
+            return content;
+        }
+        return content;
     }
 }).apply(module.exports);

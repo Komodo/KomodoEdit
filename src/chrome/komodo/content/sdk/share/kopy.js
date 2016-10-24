@@ -1,24 +1,20 @@
+/**
+ * @copyright (c) ActiveState Software Inc.
+ * @license Mozilla Public License v. 2.0
+ * @author ActiveState
+ * @overview -
+ */
+
+/**
+ * Sharing sub-module for ko/share that adds kopy.io sharing
+ *
+ * @module ko/share/kopy
+ */
 (function() {
     const log       = require("ko/logging").getLogger("kopy");
-    const {Cc, Ci}  = require("chrome");
     const prefs     = ko.prefs;
     const menu      = require("ko/menu");
     const button      = require("ko/button");
-    const commands  = require("ko/commands");
-    const editor    = require("ko/editor");
-
-    var menuContext = [
-        {
-            select: menu.context.editorContext,
-            after: "#editor-context-makeSnippet"
-        }
-    ];
-
-    var buttonContext = [
-        {
-            select: "#changeTracker_undo"
-        }
-    ];
 
     this.load = function()
     {
@@ -30,14 +26,14 @@
         });
     }
 
-    this.unload = function()
-    {
-        menu.unregister("kopy", menuContext);
-
-        if (trackChanges) button.unregister("kopyTrackChanges", buttonContext);
-    }
-
-    this.share = function(data, filename, language)
+    /**
+     * Share the given data on kopy.io
+     * 
+     * @param   {String} data     Data to share
+     * 
+     * @returns {Void} 
+     */
+    this.share = function(data, meta)
     {
         var locale;
         var useClipboard = prefs.getBoolean("kopy_copy_to_clipboard", true);
@@ -46,7 +42,7 @@
         if ( ! useClipboard && ! showInBrowser)
         {
             locale = "Could not share code via kopy.io; both clipboard and browser settings are disabled";
-            require("notify/notify").interact(locale, "kopy", {priority: "warning"});
+            require("notify/notify").send(locale, "kopy", {priority: "warning"});
             return;
         }
 
@@ -59,35 +55,15 @@
             return;
         }
 
-        if ( ! data)
+        if ( ! meta.language)
         {
-            if ( ! editor.available())
-            {
-                locale = "Please enter the code that you would like to share"; // todo: localize
-                data = require("ko/dialogs").prompt(locale, {});
-
-                if ( ! data) return;
-            }
-            else
-            {
-                data = editor.getSelection();
-                if (data == "")
-                {
-                    data = editor.getValue();
-                }
-                language = editor.getLanguage();
-            }
-        }
-
-        if ( ! language)
-        {
-            language = 'null';
+            meta.language = 'null';
         }
 
         var params = require("sdk/querystring").stringify(
         {
             data: data,
-            language: language,
+            language: meta.language,
             scheme: prefs.getStringPref("editor-scheme").replace(/\-(dark|light)$/, '.$1')
         });
 
@@ -109,7 +85,7 @@
             {
                 var errorMsg = "kopy.io: Code sharing failed, malformed response";
                 log.warn(errorMsg + ": " + this.responseText);
-                require("notify/notify").interact(errorMsg, "kopy", {priority: "error"});
+                require("notify/notify").send(errorMsg, "kopy", {priority: "error"});
             }
 
             var url = baseUrl + '/' + key;
@@ -117,7 +93,7 @@
             {
                 require("sdk/clipboard").set(url);
                 var msg = "URL copied to clipboard: " + url;
-                require("notify/notify").interact(msg, "kopy",
+                require("notify/notify").send(msg, "kopy",
                 {
                     command: () => { ko.browse.openUrlInDefaultBrowser(url) }
                 });
@@ -133,7 +109,7 @@
         {
             var errorMsg = "kopy.io: HTTP Request Failed: " + e.target.status;
             log.warn(errorMsg);
-            require("notify/notify").interact(errorMsg, "kopy", {priority: "error"});
+            require("notify/notify").send(errorMsg, "kopy", {priority: "error"});
         }
     }
 }).apply(module.exports);

@@ -1,93 +1,82 @@
 (function()
 {
-    const log = require("ko/logging").getLogger("sharing");
     const w = require("ko/windows").getMain();
+    const koShare = require("ko/share");
     const $ = require("ko/dom");
-    const {Cc, Ci}  = require("chrome");
     
-    var shareBtn;
-    var shareMenu;
-    var storeModuleNames = [];  // Check this list for the name otherwise it
-                                // creates a menuitem every time a diff dialog
-                                // is loaded.
-    this.load = function(shareModule)
+    var listening = false;
+    
+    this.load = function()
     {
+        if (listening)
+            return;
+        
+        listening = true;
+        
         w.addEventListener("window_opened", function(e) {
             var windowPath = "chrome://komodo/content/dialogs/diff.xul";
             if( windowPath === e.detail.location.href)
             {
-                e.detail.addEventListener("load", updateButton.bind(null,shareModule,e.detail));
+                e.detail.addEventListener("load", updateButton.bind(null,e.detail));
             }
         });
     };
     
-    function updateButton(shareModule, logWindow)
+    function updateButton(logWindow)
     {
         // $ is instaniated on the main window so pass in the log window from
         // the event
         var $view = $("#view", logWindow);
-        // Create the button if it doens't exist
-        if( ! shareBtn )
-        {
-            shareBtn = require("ko/ui/toolbarbutton").create('Share',
-                {
-                    attributes:
-                    {
-                        type: "menu-button",
-                        id: $view.element().id+"-share_menu",
-                        tooltiptext:"Share code on..."
-                    }
-                });
-            var properties =
+        
+        var shareBtn = require("ko/ui/button").create('Share',
             {
                 attributes:
                 {
-                    align: "center",
-                    pack: "center"
-                }
-            };
-            var row = require("ko/ui/row").create(shareBtn,properties);
-            $view.after(row.element);
-        }
-        // Create the TC menu if it doesn't exist
-        // We're creating this for it's menupopup attribute.  We don't actually
-        // need the menu.
-        if( ! shareMenu )
-        {
-            shareMenu = require("ko/ui/menu").create();
-        }
-        
-        //Create the new modules menuitem for this menu if it hasn't already
-        if ( storeModuleNames.indexOf(shareModule.name) < 0 )
-        {
-            storeModuleNames.push(shareModule.name);
-            var menuitem = require("ko/ui/menuitem").create(
-            {
-                attributes: {
-                    label:  shareModule.name,
-                    tooltiptext: shareModule.label,
-                    oncommand: "require('ko/share/sources/diff').share('"+shareModule.name+"');"
+                    type: "menu",
+                    id: $view.element().id+"-share_menu",
+                    tooltiptext:"Share Diff .."
                 }
             });
+        
+        var properties =
+        {
+            attributes:
+            {
+                align: "center",
+                pack: "center"
+            }
+        };
+        var row = require("ko/ui/row").create(shareBtn, properties);
+        
+        $view.after(row.element);
+        
+        //Create the new modules menuitem for this menu if it hasn't already
+        for (let id in koShare.modules)
+        {
+            let module = koShare.modules[id];
+            let menuitem = require("ko/ui/menuitem").create({
+                attributes: {
+                    label:  module.label
+                }
+            });
+            
+            menuitem.on("command", share.bind(this, module.name, logWindow));
+            
             // Add it to the menu
             shareBtn.addMenuItem(menuitem);
         }
     }
-    this.share = function(name)
+    
+    var share = function(id, logWindow)
     {
         // get the content from the diff view
         var content;
-        var scimoz = $("#view").element().scimoz;
+        var scimoz = $("#view", logWindow).element().scimoz;
         if ( scimoz.selectionEmpty )
-        {
             content = scimoz.text;
-        } else {
+        else
             content = scimoz.selText;
-        }
-        // Generate a relevant title
-        var title = window.document.title;
-        // Has to be called on the main window as this windows require
-        // doesn't know about the registered share modules
-        w.require("ko/share").share(name, content, "diff", title);
+            
+        koShare.share(id, content, {title: logWindow.document.title, language: "diff"});
     };
 }).apply(module.exports);

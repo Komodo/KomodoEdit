@@ -32,6 +32,8 @@
                            //       label: label,
                            //    }
                            // }
+    this.modules = shareModules;
+    
     require("notify/notify").categories.register("Share",
     {
         label: "Komodo Share"
@@ -83,11 +85,12 @@
             this.share.bind(this, name),
             {
                 label: name+": Share Code on your "+name
-            }); 
+            });
+        
         // Update the various sources.
-        for ( let source of sources )
+        for (let source of sources)
         {
-            source.load(shareModules[name]);
+            source.load();
         }
     };
     
@@ -95,81 +98,13 @@
     /**
      * Share content on specified moduel
      *
-     * @argument {String}   name module name to share on
-     * @argument {Object} source an object holding all information needed for
-     * sharing content
+     * @argument {String}   name        module name to share on
+     * @argument {string}   content     content to share
+     * @argument {object}   meta        (optional) additional meta information, eg. language
      */
-    this.share = function(name, content = null, filetype = null, title = null)
+    this.share = function(name, content, meta = null)
     {
-        content = content ? content : getContent();
-        title = title ? title : getFilename();
-        filetype = filetype ? filetype : getFileLangName();
-        require(shareModules[name].namespace).share(content, title, filetype);
+        require(shareModules[name].namespace).share(content, meta);
     };
-
-    /**
-     * Get or create a file name to be displayed.
-     * Takes the file name if nothing selected
-     * Inserts `-snippet` before extension if
-     *
-     * @returns {String}    filename    name of file with "-snippet" appended
-     *                                  if only sending selection.
-     */
-    function getFilename()
-    {
-        var view = require("ko/views").current().get();
-        var filename;
-        if ( view && view.scimoz && view.scimoz.selectionEmpty ) {
-            filename = require("ko/views").current().filename;
-        } else {
-            let viewTitlesplit = view.title.split(".");
-            let name = viewTitlesplit.shift() + "-snippet";
-            // support multi ext. filenames common in templating
-            let extension = viewTitlesplit.join(".");
-            // Filter out empty string if this file had no extension
-            filename = [name,extension].filter(function(e){return e;}).join(".");
-        }
-        return filename;
-    }
-    /**
-     * Get the currently open files languages name
-     * Defaults to "text"
-     */
-    function getFileLangName()
-    {
-        var view = require("ko/views").current().get();
-        return view.koDoc.language || "text";
-    }
- 
-    /**
-     * Get content to post to Slack
-     * 
-     */
-    function getContent()
-    {
-        var view = require("ko/views").current().get();
-        var locale;
-        if ( ! view.scimoz )
-        {
-            locale = "You don't have a file open to post any content to Slack.";
-            require("notify/notify").interact(locale, "slack", {priority: "info"});
-            return "";
-        }
-        // Get whole file or get selection
-        var content;
-        if ( view.scimoz.selectionEmpty )
-        {
-            content = view.scimoz.text;
-        } else {
-            content = view.scimoz.selText;
-        }
-        if(  "" === content )
-        {
-            locale = "You're file is empty.  You don't want to share that.  Don't be weird.";
-            require("notify/notify").interact(locale, "slack", {priority: "info"});
-            return content;
-        }
-        return content;
-    }
     
 }).apply(module.exports);

@@ -4,6 +4,7 @@
     const api = require("ko/share/slack/api");
     const ss = require("ko/simple-storage").get("slack");
     const log = require("ko/logging").getLogger("slack/dialog");
+    const w = require("ko/windows").getMain();
     
     var panel;
     var elem = {};
@@ -24,121 +25,128 @@
      */
     this.create = function(params, callback)
     {
+        this.close();
+        
         // Have to open the panel before appending anything
         // XXX this should check for a panel and not recreate it if it already
         // exists.
         panel = require("ko/ui/panel").create({
+            anchor: require("ko/windows").getMostRecent().document.documentElement,
             attributes: {
                 backdrag: true,
                 noautohide: true,
-                width: "400px",
+                width: "450px",
                 class: "dialog"
             }
         });
         panel.open();
-        panel.on("popuphidden", this.close); // ensure the panel doesnt stick around
+
+        panel.addRow(require("ko/ui/label").create("Share "+(title || "")+" on Slack"),
+                     {attributes: {flex: 1, align: "center", pack: "center"}});
         
         var title = params.title || ss.storage.title || "";
         elem.titleField = createTitleField(title);
-        panel.addRow(elem.titleField);
-
-        elem.titleRstBtn = createTitleResetBtn();
-        panel.addRow(elem.titleRstBtn);
+        panel.add(elem.titleField);
+        elem.titleField.focus();
         
         elem.availableChannels = createChannelField();
-        panel.addRow(elem.availableChannels);
+        panel.add(elem.availableChannels);
         
-        var selectedChannels = [];
-        if (ss.storage.selectedChannels) 
-        {
-            selectedChannels = ss.storage.selectedChannels;
-        }
-
         elem.msgField = createMsgField();
-        panel.addRow(elem.msgField);
+        panel.add(elem.msgField);
         
-        elem.useClipboard = createUseClipboard();
-        panel.addRow(elem.useClipboard);
-        
-        elem.showInBrowser = createShowInBrowser();
-        panel.addRow(elem.showInBrowser);
+        // Force placeholder, why timeout? XUL. The answer is XUL. And facepalms.
+        // Honestly I don't know why this doesn't work without a timeout, but
+        // this is XUL and I don't have time for its nonsense. 
+        setTimeout(function() {
+            elem.msgField.element.placeholder = "Message (optional)";
+        }, 100);
         
         elem.postButton = createPostBtn();
-        elem.postButton.onCommand(onPost.bind(this, callback));
-        panel.addRow(elem.postButton);
+        elem.postButton.onCommand(onPost.bind(this, false, params, callback));
+        
+        elem.postAndOpenButton = createPostAndOpenBtn();
+        elem.postAndOpenButton.onCommand(onPost.bind(this, true, params, callback));
         
         elem.closeButton = createCloseBtn();
         elem.closeButton.onCommand(this.close);
-        panel.addRow(elem.closeButton);
+        
+        panel.addRow([elem.postButton, elem.postAndOpenButton, elem.closeButton],
+                     {attributes: {flex: 1, align: "center", pack: "center"}});
         
         // Must retrieve the channels async as they might need to be retrieved
         // through an API call.
         var populateChannels = function (channels)
         {
-            // XXX This preselects but it doesn't actually select some
-            // it seems to break the items that don't end up getting
-            // selected
+            var selectedChannel = ss.storage.selectedChannel;
+            
             //Populate the list and create a list of items to select
+            var select = [];
             for ( let channel of channels ) {
-                let opts = {attributes:{label:channel,value:channel}};
-                let listitem = require("ko/ui/listitem").create(opts);
-                elem.availableChannels.addListItem(listitem);
-                if( selectedChannels.indexOf(channel) > -1 )
+                let opts = {attributes:{label:"# " + channel, value:channel}};
+                let listitem = require("ko/ui/menuitem").create(opts);
+                
+                if(channel == selectedChannel)
                 {
-                    elem.availableChannels.selectItem(listitem.element, false);
+                    listitem.$element.attr("selected", "true");
                 }
+                
+                elem.availableChannels.addMenuItem(listitem);
             }
+            
             elem.availableChannels.enable();
             elem.postButton.enable();
+            elem.postAndOpenButton.enable();
         };
         api.getChannels(populateChannels);
-    }
+    };
     
     this.close = function() 
     {
+        if ( ! panel)
+            return;
+        
         panel.close();
+        panel.element.remove();
+        panel = null;
     };
     
-    function onPost(callback)
+    function onPost(openInBrowser, params, callback)
     {
         params.title = elem.titleField.value();
-        params.initial_comment = msgField.value();
+        params.initial_comment = elem.msgField.value();
+        params.openInBrowser = openInBrowser;
         
-        var selectedChannels = []; 
-        availableChannels.getSelectedItems().forEach(function(elem){selectedChannels.push(elem.value);});
-        ss.storage.selectedChannels = selectedChannels;
-        params.channels = selectedChannels.join(",");
+        var channel = elem.availableChannels.value();
         
-        ss.storage.useClipboard = useClipboard.checked();
-        ss.storage.showInBrowser = showInBrowser.checked();
-        
-        if ( ! params.channels.length)
+        if ( ! channel)
         {
-            require("notify/notify").interact("Choose must choose at least one channel", "slack", {priority: "warn"});
+            require("notify/notify").interact("You must choose at least one channel", "slack", {priority: "warn"});
+            return;
         }
-        else
+        
+        ss.storage.selectedChannel = channel;
+        params.channels = channel;
+        var disabled = [];
+        for (let k in elem)
         {
-            var disabled = [];
-            for (let k in elems)
+            if ("disable" in elem[k])
             {
-                if ("disable" in elems[k])
-                {
-                    elems[k].disable();
-                    disabled.push(elems[k]);
-                }
+                elem[k].disable();
+                disabled.push(elem[k]);
             }
-            
-            api.post(params, function(code, respText)
-            {
-                for (let elem of disabled)
-                    elem.enable();
-                    
-                onPostComplete(code, respText, callback);
-            }.bind(this));
         }
+        
+        api.post(params, function(code, respText)
+        {
+            for (let elem of disabled)
+                elem.enable();
+                
+            onPostComplete(params, code, respText, callback);
+        }.bind(this));
     }
     
-    function onPostComplete(code, respText, callback)
+    function onPostComplete(params, code, respText, callback)
     {
         /** Write a proper callback that handles results from the API using
          * notify.  See errors section for API function:
@@ -160,24 +168,19 @@
             var file = respJSON.file;
             var url = file.permalink;
             
-            if (ss.storage.useClipboard)
-            {
-                require("sdk/clipboard").set(url);
-            }
-            
-            if (ss.storage.showInBrowser)
+            if (params.openInBrowser)
             {
                 ko.browse.openUrlInDefaultBrowser(url);
             }
             
             log.debug("code: "+code+"\nResponse: "+respText);
-            callback(true);
-            this.close();
+            callback(true, url);
+            require("ko/share/slack/dialog").close();
         }
         else
         {
-            log.warn(locale + "\n" + respText);
-            callback(false, code, respText);
+            log.warn("Slack share failed: \n" + respText);
+            callback(false, null, code, respText);
         }
     }
     
@@ -186,29 +189,12 @@
     {
         var options = { attributes:
         {
-            id:"slackTitle",
-            type:"autocomplete",
             value: title,
-            defaultValue: title,
-            label:"Title:",
+            placeholder: "Title",
             col: 120,
+            flex: 1
         }};
         return require("ko/ui/textbox").create(options);
-    }
-    
-    // Title reset button
-    function createTitleResetBtn()
-    {
-        function resetTitle()
-        {
-            // This won't do `filename-snippet.js`. Lame but when I'm in the
-            // panel I no longer have access to getFilename. I can't make it
-            // public just for that.
-            require("ko/dom")("#slackTitle").element().reset();
-        }
-        var resetBtn =  require("ko/ui/button").create( {attributes: { label:"Reset Title"} });
-        resetBtn.onCommand(resetTitle);
-        return resetBtn;
     }
 
     // Channel selection list        
@@ -216,29 +202,13 @@
     {
         var options = { attributes:
             {
-                label:"Channels",
-                value:"Loading...",
-                disabled:"true",
-                seltype:"multiple"
+                label: "Select a Channel",
+                disabled: "true"
             }
         };
-        var availableChannels = require("ko/ui/listbox").create(options);
+        var availableChannels = require("ko/ui/menulist").create(options);
         availableChannels.disable();
         return availableChannels;
-    }
-
-    function createUseClipboard()
-    {
-        var elem = require("ko/ui/checkbox").create("Add Slack URL to Clipboard");
-        elem.checked( ss.storage.useClipboard ? true : false );
-        return elem;
-    }
-    
-    function createShowInBrowser()
-    {
-        var elem = require("ko/ui/checkbox").create("Open slack after posting content. Does not work for desktop App.");
-        elem.checked( ss.storage.showInBrowser ? true : false );
-        return elem;
     }
     
     // Message Text field
@@ -246,11 +216,8 @@
         var options = {
             attributes:
             {
-                type:"autocomplete",
-                label:"Message:",
-                multiline:true,
-                rows: 3,
-                col: 120
+                multiline: true,
+                rows: 3
             }
         };
         return require("ko/ui/textbox").create(options);
@@ -259,13 +226,19 @@
     // Post button
     function createPostBtn()
     {
-       return require("ko/ui/button").create({attributes:{label:"Post",disabled:true}});
+       return require("ko/ui/button").create({attributes:{label:"Share on Slack",disabled:true}});
+    }
+    
+    // Post button
+    function createPostAndOpenBtn()
+    {
+       return require("ko/ui/button").create({attributes:{label:"Share & Open Browser",disabled:true}});
     }
     
     // Close Button
     function createCloseBtn()
     {
-        return require("ko/ui/button").create({attributes:{label:"Close"}});
+        return require("ko/ui/button").create({attributes:{label:"Cancel"}});
     }
     
 }).apply(module.exports);
