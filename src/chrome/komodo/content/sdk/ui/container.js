@@ -66,6 +66,19 @@ module.exports = Module;
             return groupbox;
         };
         
+         /**
+         * Insert an element to the page
+         *
+         * @param {koDom} appendElement     content to append to element on creation.
+         * @param {object} options          options to be used on element, OPTIONAL
+         *
+         * @returns {object} ko/UI SDK object
+         */
+        this.add = function (elements)
+        {
+            return this.addElement(elements);
+        };
+        
     }).apply(this.Model);
     
 }).apply(Module);
