@@ -9,6 +9,7 @@
 var parent = require("./container");
 var Module = Object.assign({}, parent); 
 var _window = require("ko/windows").getMain();
+var _ = require("contrib/underscore");
 module.exports = Module;
 
 // Main module (module.exports)
@@ -39,14 +40,20 @@ module.exports = Module;
          *    ref: https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XUL/Method/openPopup
          * 
          */
-        this.open = function panel_open(args = {})
+        this.open = function panel_open(args)
         {
+            if ( ! args)
+                args = {};
+                
+            args = _.extend(this.options, args);
+                
+            var anchor =  args.anchor || _window.document.documentElement;
+            
             if( ! this.element.parentNode || ! this.element.parentNode.parentNode)
             {
-                require("ko/dom")("#komodo_main").append(this.$element);
+                anchor.ownerDocument.documentElement.appendChild(this.element);
             }
             
-            var anchor =  args.anchor || _window.document.documentElement;
             var position = args.position || null;
             var x = args.x || 0;
             var y = args.y || 0;
