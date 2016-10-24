@@ -110,61 +110,9 @@ module.exports = Module;
         this.removeAllItems = function()
         {
             var rows = this.element.getRowCount();
-            console.log("deleting this many: " + rows);
             for ( let i = 0; i < rows; i++ )
             {
-                console.log(this.element. getItemAtIndex(0));
                 this.element.removeItemAt(0);
-            }
-        };
-        
-        /**
-         * Select one or more items in the list
-         * If singleSelect is true, only the item passed in will be select
-         * If it's false AND the list is multi select then it's added to the
-         * list of selected items
-         *
-         * @argument  @argument {ko/ui/obj | ko/dom/obj | DOM | Object} item
-         *      Item to be selected
-         * @argument {boolean}  singleSelect    only select the given item
-         */
-        this.selectItem = function(item,singleSelect)
-        {
-            if( singleSelect )
-            {
-                if ("isSdkElement" in item)
-                {
-                    this.element.selectItem(item.element);
-                    this.element.ensureElementIsVisible(item.element);
-                }
-                else if ("koDom" in item)
-                {
-                    this.element.selectItem(item.element());
-                    this.element.ensureElementIsVisible(item.element());
-                }
-                else if ("nodeName" in item)
-                {
-                    this.element.selectItem(item);
-                    this.element.ensureElementIsVisible(item);
-                }
-            }
-            else
-            {
-                if ("isSdkElement" in item)
-                {
-                    this.element.addItemToSelection(item.element);
-                    //this.element.ensureElementIsVisible(item.element);
-                }
-                else if ("koDom" in item)
-                {
-                    this.element.addItemToSelection(item.element());
-                    //this.element.ensureElementIsVisible(item.element());
-                }
-                else if ("nodeName" in item)
-                {
-                    this.element.addItemToSelection(item);
-                    //this.element.ensureElementIsVisible(item);
-                }
             }
         };
         
