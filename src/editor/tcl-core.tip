@@ -52,13 +52,14 @@ tcl_wordBreakBefore <str> <start>
 
 bgerror <message>
 
+# Introduced in 8.6
+binary decode <format> ?-option value ...? <data>
+# Introduced in 8.6
+binary encode <format> ?-option value ...? <data>
 binary format <formatString> ?arg arg ...?
 binary scan <string> <formatString> ?<varName> <varName> ...?
 
 break
-
-# Introduced in 8.6
-coroutine 
 
 catch <script> ?<varName>? ?<optionsArray>?
 
@@ -195,6 +196,8 @@ file split <name>
 file stat <name> <varName>
 file system <path>
 file tail <name>
+# Introduced in 8.6
+file tmpfile ?varName? ?template?
 file type <name>
 file volumes
 file writable <name>
@@ -232,10 +235,16 @@ incr <varName> ?increment?
 
 info args <procname>
 info body <procname>
+# Introduced in 8.6
+info class <subcommand> <class>
 info cmdcount
 info commands ?pattern?
 info complete <command>
+# Introduced in 8.6
+info coroutine
 info default <procname> <arg> <varname>
+# Introduced in 8.6
+info errorstack ?interp?
 info exists <varName>
 info frame ?number?
 info functions ?pattern? 
@@ -246,6 +255,8 @@ info library
 info loaded ?interp?
 info locals ?pattern?
 info nameofexecutable
+# Introduced in 8.6
+info object <subcommand> <object>
 info patchlevel
 info procs ?pattern?
 info script ?filename?
@@ -326,6 +337,9 @@ msgcat::mcload <dirname>
 msgcat::mcset <locale> <srcString> ?translate-string?
 msgcat::mcunknown <locale> <srcString>
 
+# Introduced in 8.6
+my <methodName> ?arg ...?
+
 namespace children ?namespace? ?pattern?
 namespace code <script>
 namespace current
@@ -347,6 +361,10 @@ namespace tail <string>
 namespace unknown ?script?
 namespace upvar <namespace> <otherVar> <myVar> ?otherVar myVar ...?
 namespace which ?-command? ?-variable? <name>
+
+# Introduced in 8.6
+next ?arg ...?
+nextto <class> ?arg ...?
 
 # Introduced in 8.6
 on <code> <variableList> <script>
@@ -412,6 +430,9 @@ scan <string> <format> ?<varName> <varName> ...?
 
 seek <channelId> <offset> ?start|current|end?
 
+# Introduced in 8.6
+self ?subcommand?
+
 set <varName> ?value?
 
 socket ?options? <host> <port>
@@ -436,6 +457,8 @@ string is boolean ?-strict? ?-failindex varname? <string>
 string is control ?-strict? ?-failindex varname? <string>
 string is digit ?-strict? ?-failindex varname? <string>
 string is double ?-strict? ?-failindex varname? <string>
+# Introduced in 8.6
+string is entier ?-strict? ?-failindex varname? <string>
 string is false ?-strict? ?-failindex varname? <string>
 string is graph ?-strict? ?-failindex varname? <string>
 string is integer ?-strict? ?-failindex varname? <string>
@@ -593,3 +616,21 @@ platform::shell::generic <shellpath>
 platform::shell::identify <shellpath>
 platform::shell::platform <shellpath>
 
+# Introduced in 8.6
+oo::class <method> ?arg ...?
+oo::class create <name> ?arg ...?
+oo::class new ?arg ...?
+
+# Introduced in 8.6
+oo::copy <sourceObject> ?targetObject?
+
+# Introduced in 8.6
+oo::define <class> <defScript>
+oo::define <class> <subcommand> arg ?arg ...?
+
+# Introduced in 8.6
+oo::objdefine <object> <defScript>
+oo::objdefine <object> <subcommand> arg ?arg ...?
+
+# Introduced in 8.6
+oo::object <method> ?arg ...?
