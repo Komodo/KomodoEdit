@@ -105,7 +105,12 @@ module.exports = Module;
         this.getSelectedItems = function()
         {
             return this.element.selectedItems;
-        }
+        };
+        
+        this.getSelectedItem = function()
+        {
+            return this.element.selectedItem;
+        };
         
         this.removeAllItems = function()
         {
