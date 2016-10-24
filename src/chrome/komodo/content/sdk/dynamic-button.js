@@ -205,6 +205,12 @@
                     continue;
                 }
                 
+                if (menuitem instanceof window.XULElement)
+                {
+                    menupopup.append(menuitem);
+                    continue;
+                }
+                
                 menuitem = _.extend({
                     label: "unnamed",
                     name: "",
