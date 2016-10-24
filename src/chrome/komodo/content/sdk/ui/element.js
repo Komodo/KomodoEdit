@@ -91,36 +91,45 @@ module.exports = Module;
             }
             
             var attributes = Object.assign(options.attributes || {}, this.attributes);
-            var elements = [];
-            
-            if (Array.isArray(appendElement))
-            {
-                for (let _element of appendElement)
-                {
-                    if ("isSdkElement" in _element)
-                    {
-                        elements.push(_element.element);
-                    }
-                    else if ("koDom" in _element)
-                    {
-                        elements.push(_element.element());
-                    }
-                    else if ("nodeName" in _element)
-                    {
-                        elements.push(_element);
-                    }
-                    else if ("type" in _element)
-                    {
-                        elements.push(require('./' + _element.type).create(_element).element);
-                    }
-                }
-            }
             
             this.options = options;
             this.attributes = attributes;
             this.$element = $($.create(this.name, attributes).toString());
             this.$element.addClass("ui-" + this.name);
             this.element = this.$element.element();
+            
+            this.addElement(appendElement);
+        };
+        
+        this.addElement = function(appendElement)
+        {
+            var elements = [];
+            
+            if ( ! appendElement)
+                return;
+            
+            if ( ! Array.isArray(appendElement))
+                appendElement = [appendElement];
+            
+            for (let _element of appendElement)
+            {
+                if ("isSdkElement" in _element)
+                {
+                    elements.push(_element.element);
+                }
+                else if ("koDom" in _element)
+                {
+                    elements.push(_element.element());
+                }
+                else if ("nodeName" in _element)
+                {
+                    elements.push(_element);
+                }
+                else if ("type" in _element)
+                {
+                    elements.push(require('./' + _element.type).create(_element).element);
+                }
+            }
             
             for (let element of elements) {
                 this.$element.append(element);
@@ -150,6 +159,8 @@ module.exports = Module;
         this.on = function() { this.$element.on.apply(this.$element, arguments); };
         this.off = function() { this.$element.off.apply(this.$element, arguments); };
         this.once = function() { this.$element.once.apply(this.$element, arguments); };
+        
+        this.focus = function() { this.$element.focus.apply(this.$element, arguments); };
         
     }).apply(this.Model);
     
