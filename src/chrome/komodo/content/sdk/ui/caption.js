@@ -18,7 +18,7 @@ module.exports = Module;
         
         this.name = "caption";
         
-        this.init = function (value, options) this.initWithAttribute("label", value, options);
+        this.init = function (value, options) { return this.initWithAttribute("label", value, options); };
         
         
     }).apply(this.Model); 

@@ -8,7 +8,7 @@
 /**
  * Easily add new sharing tool to the Komodo command set and UI
  *
- * @module ko/sharing
+ * @module ko/share
  */
 (function()
 {

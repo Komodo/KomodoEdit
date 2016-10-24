@@ -1,3 +1,15 @@
+/**
+ * @copyright (c) ActiveState Software Inc.
+ * @license Mozilla Public License v. 2.0
+ * @author ActiveState
+ * @overview -
+ */
+
+/**
+ * api methods for ko/share/slack
+ *
+ * @module ko/share/slack/api
+ */
 (function()
 {
     const ajax = require("ko/ajax");
@@ -13,8 +25,8 @@
     /**
      * Post your file to Slack
      *
-     * @argument    {Object}    params  params to push a file
-     * @argument    {function}  callback    function run when post is complete
+     * @param    {Object}    params  params to push a file
+     * @param    {function}  callback    function run when post is complete
      */
     this.post = function(params, callback)
     {
@@ -29,9 +41,9 @@
     /**
      * Make an API call and process the result
      *
-     * @argument {String}   method  The API method to be called
-     * @argument {Object}   params  An object of API call parameters
-     * @argument {function} callback    To process response
+     * @param {String}   method  The API method to be called
+     * @param {Object}   params  An object of API call parameters
+     * @param {function} callback    To process response
      *    Callback takes req.status and req.responseTextText, req.
      *    This function uses ko/ajax.post
      */
@@ -48,7 +60,7 @@
      * This need to be async as well so it can call whatever function was trying
      * to run when it was asked to authenticate.
      *
-     * @argument    {function}  callback  function to be run with the key  
+     * @param    {function}  callback  function to be run with the key  
      */
     var authenticate = function(callback)
     {
@@ -127,7 +139,7 @@
     /**
      * Get the saved Slack API key
      *
-     * @argument {function} callback    The function to run once key is set.
+     * @param {function} callback    The function to run once key is set.
      *
      * This function ensures that global key var is set when the user tries to
      * post something.  It goes through the following workflow:
@@ -183,7 +195,7 @@
      * save it to the prefs.  Just pull them from the prefs if they are already
      * there.
      * 
-     * @argument {function} callback  function to do something with the return
+     * @param {function} callback  function to do something with the return
      *                                channels.  This callback gets passed a
      *                                comma separate string of channel names
      * 

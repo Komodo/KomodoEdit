@@ -51,27 +51,7 @@ module.exports = Module;
             }
         };
         
-        /**
-         * Add an item to the container
-         *
-         * @argument {string, ko/ui/obj, ko/dom/obj, DOM, Object} item item to be added
-         * to the container.
-         *
-         * Object refers to an Options object used through this SDK. The options
-         * should contain an attributes property to assign a label at the very
-         * least:
-         *
-         *  {
-         *      attributes:
-         *      {
-         *          label:"itemLable"
-         *      }
-         *  }
-         *
-         *
-         * 
-         */ 
-        this.addMenuItems = function (menuitem)
+        this.addMenuItems = function (menuitems)
         {
             for (let menuitem of menuitems) {
                 this.addMenuItem(menuitem);
@@ -81,7 +61,7 @@ module.exports = Module;
         /**
          * Add an item to the container
          *
-         * @argument {string, ko/ui/obj, ko/dom/obj, DOM, Object} item item to be added
+         * @argument {ko/ui/obj|ko/dom/obj|DOM|Object} item item to be added
          * to the container.
          *
          * Object refers to an Options object used through this SDK. The options

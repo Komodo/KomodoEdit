@@ -10,7 +10,13 @@ var parent = require("./element");
 var Module = Object.assign({}, parent); 
 module.exports = Module;
 
-// Main module (module.exports)
+/**
+ * ko/ui button element
+ *
+ * Inherits from {ko/ui/element}
+ *
+ * @module ko/ui/button
+ */
 (function() {
     
     this.Model = Object.assign({}, this.Model);
@@ -19,8 +25,29 @@ module.exports = Module;
         
         this.name = "button";
         
+        /**
+         * `var button = require("ko/ui/button").create("Button Label", { attributes: { tooltiptext: "tooltip" } });`
+         *
+         * Uses {ko/ui/element}.initWithLabel
+         * 
+         * @param {String|Object} label    If this is an object it will be used as the options param
+         * @param {Object} options         { attributes: .. }
+         */
+        function create() {}
+        
         this.init = this.initWithLabel;
         
+        /**
+         * ```
+         * button.onCommand(function() {
+         *   console.log("button clicked");
+         * });
+         * ```
+         *
+         * Add a callback method that's used when the button is clicked
+         * 
+         * @param   {Type} callback Description
+         */
         this.onCommand = function (callback)
         {
             this.$element.on("command", callback);
