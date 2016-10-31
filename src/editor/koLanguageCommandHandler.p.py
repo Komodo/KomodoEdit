@@ -2041,10 +2041,11 @@ class GenericCommandHandler:
         delta = newIndentWidth - currentIndentWidth
         indentlog.info("delta = %d", delta)
         # apply that delta to each line in the region
-        region = sm.getTextRange(startPos, endPos)
-        lines = region.splitlines(1) # keep line ends
-        data = []
-        for line in lines:
+        sm.beginUndoAction()
+        for i in xrange(startLineNo, endLineNo + 1):
+            sm.targetStart = sm.positionFromLine(i)
+            sm.targetEnd = sm.getLineEndPosition(i)
+            line = sm.getTargetText()[1]
             count = 0
             for char in line:
                 if char in ' \t':
@@ -2056,18 +2057,9 @@ class GenericCommandHandler:
             numspaces = max(len(indent) + delta, 0)
             indent = scimozindent.makeIndentFromWidth(sm, numspaces)
             newline = indent + rest
-            data.append(newline)
-        region = ''.join(data)
-        regionUtf8Len = self.sysUtils.byteLength(region)
-        sm.targetStart = startPos
-        sm.targetEnd = endPos
-        # bug101318: try to keep the FVL in place, allow for wrapped lines
-        # (folded blocks will be unfolded by the tab operation).
-        firstVisibleLine = sm.firstVisibleLine
-        firstDocLine = sm.docLineFromVisible(firstVisibleLine)
-        sm.replaceTarget(len(region), region)
-        sm.firstVisibleLine = sm.visibleFromDocLine(firstDocLine)
-        endPos = startPos + regionUtf8Len
+            sm.replaceTarget(len(newline), newline)
+        sm.endUndoAction()
+        endPos = sm.getLineEndPosition(endLineNo + 1)
         if sm.selectionMode == sm.SC_SEL_LINES:
             # Maintain the same cursor position.
             startPos = sm.findColumn(startLineNo, startPosColumn + delta)
