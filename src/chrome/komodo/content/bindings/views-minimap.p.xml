@@ -63,6 +63,7 @@
             }
             mm_scimoz.selEOLFilled = true;
             mm_scimoz.caretStyle = mm_scimoz.CARETSTYLE_INVISIBLE;
+            mm_scimoz.caretLineVisible = false;
             mm_scimoz.setXCaretPolicy(0, 0);
             mm_scimoz.setYCaretPolicy(0, 0);
 // #if PLATFORM == "linux"
@@ -80,7 +81,7 @@
                 if (event.buttons === 1) {
                     // "1": The primary mouse button is down; all others are up.
                     // http://www.w3.org/TR/DOM-Level-3-Events/#events-MouseEvent-buttons
-                    this.handleButtonClick(event);
+                    this.handleButtonClick(event, true);
                 }
             };
             this._mouse_up_handler = event => {
@@ -322,6 +323,7 @@
 
         <method name="handleButtonClick">
         <parameter name="event" />
+        <parameter name="dragging" />
         <body>
         <![CDATA[
             var scimoz = this.scimoz;
@@ -329,10 +331,17 @@
             [targetDocLineNo, pos] = this.getClickedLineAndPosition(event, scimoz);
             var vs = this.view.scimoz;
             var targetVisibleLine_V = vs.visibleFromDocLine(targetDocLineNo);
-            // And position it in the middle of the V screen
             var numVisibleLinesBefore_V = Math.round(vs.linesOnScreen / 2);
-            var firstVisibleLine = targetVisibleLine_V - numVisibleLinesBefore_V;
-            if (firstVisibleLine < 0) firstVisibleLine = 0;
+            if (!dragging) {
+                // When clicking anywhere in the minimap, center the clicked
+                // line in the V screen.
+                var firstVisibleLine = targetVisibleLine_V - numVisibleLinesBefore_V;
+                if (firstVisibleLine < 0) firstVisibleLine = 0;
+            } else {
+                var midline = vs.firstVisibleLine + numVisibleLinesBefore_V;
+                var offset = targetDocLineNo - midline;
+                var firstVisibleLine = vs.firstVisibleLine + offset;
+            }
             
             // 1: Update the view FVL
             this.view.updateFirstVisibleLineAndUpdateBoundaries(firstVisibleLine);
@@ -403,12 +412,6 @@
                 return;
             }
             this._reportEvent(event);
-            setTimeout(function() {
-                // timeout in case the user clicked on an existing
-                // minimap selection. If we don't pause, the selection
-                // will be cleared.
-                this.handleButtonClick(event);
-                }.bind(this), 10);
             this._squelchEvent(event);
             ]]>
         </handler>
@@ -435,6 +438,7 @@
             if (event.buttons == 1) {
                 // "1": The primary mouse button is down; all others are up.
                 // http://www.w3.org/TR/DOM-Level-3-Events/#events-MouseEvent-buttons
+                this.handleButtonClick(event);
                 window.addEventListener("mousemove", this._mouse_drag_handler, true);
                 window.addEventListener("mouseup", this._mouse_up_handler, true);
             }
