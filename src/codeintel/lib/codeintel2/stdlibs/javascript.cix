@@ -420,7 +420,12 @@
         <variable doc="Returns a reference to the directories toolbar in the&#xA;current chrome" name="directories" />
         <variable citdl="HTMLDocument" doc="Returns a reference to the document that the window contains&#xA;Syntax : doc = window.document Parameters : doc is an object&#xA;reference to a document." name="document" />
         <variable doc="Returns an array of the subframes in the current window.&#xA;Syntax: frameList = window.frames; DOM Level 0." name="frames" />
-        <variable doc="Returns a reference to the history object, which provides an&#xA;interface for manipulating the browser history. Syntax:&#xA;historyObj = window.history Parameters: historyObject is an&#xA;object reference." name="history" />
+        <variable doc="Returns a reference to the history object, which provides an&#xA;interface for manipulating the browser history. Syntax:&#xA;historyObj = window.history Parameters: historyObject is an&#xA;object reference." name="history">
+          <scope doc="Moves backward through history." ilk="function" name="back" signature="back()" />
+          <scope doc="Moves forward through history." ilk="function" name="forward" signature="forward()" />
+          <scope doc="Loads a specific page from session history, identified by its relative position to the current page (with the current page being, of course, relative index 0)." ilk="function" name="go" signature="go(step)" />
+          <variable doc="The number of pages in the history stack." name="length" />
+        </variable>
         <variable doc="Height of the browser window viewport including, if&#xA;rendered, the horizontal scrollbar. Syntax: var&#xA;intViewportHeight = window.innerHeight; Value:&#xA;intViewportHeight stores the window.innerHeight property&#xA;value." name="innerHeight" />
         <variable doc="Width of the browser window viewport including, if rendered,&#xA;the vertical scrollbar. Syntax: var intViewportWidth =&#xA;window.innerWidth; Value: intViewportWidth stores the&#xA;window.innerWidth property value." name="innerWidth" />
         <variable doc="Returns the number of frames in the window. Syntax: ifrms =&#xA;window.length Parameters: ifrms is the number of frames as&#xA;an integer." name="length" />
@@ -569,6 +574,12 @@
         <scope doc="Updates the state of commands of the current chrome window&#xA;(UI). whether we are in bold right now)." ilk="function" name="updateCommands" signature="updateCommands(&quot;sCommandName&quot;)">
           <variable ilk="argument" name="sCommandName" />
         </scope>
+      </scope>
+      <variable citdl="History" name="history" />
+      <scope ilk="class" name="History">
+        <scope doc="Creates a history entry by changing the referrer that gets used in the HTTP header for XMLHttpRequest objects created after you change the state.&#xA;Syntax: history.pushState({foo: &quot;bar&quot;}, &quot;page 2&quot;, &quot;bar.html&quot;);" ilk="function" name="pushState" signature="pushState(stateObject, title, URL)" />
+        <scope doc="Modifies the current history entry by changing the referrer that gets used in the HTTP header for XMLHttpRequest objects created after you change the state.&#xA;Syntax: history.replaceState({foo: &quot;bar&quot;}, &quot;page 2&quot;, &quot;bar.html&quot;);" ilk="function" name="replaceState" signature="replaceState(stateObject, title, URL)" />
+        <variable doc="The state of the current history entry." name="state" />
       </scope>
       <scope classrefs="CharacterData" doc="This interface inherits from CharacterData and represents&#xA;the content of a comment, i.e., all the characters between&#xA;the starting &apos; &lt;!-- &apos; and ending &apos; --&gt; &apos;. Note that this is&#xA;the definition of a comment in XML, and, in practice, HTML,&#xA;although some HTML tools may implement the full SGML comment&#xA;structure." ilk="class" name="Comment" />
       <scope doc="The Event interface is used to provide contextual&#xA;information about an event to the handler processing the&#xA;event. An object which implements the Event interface is&#xA;generally passed as the first parameter to an event handler." ilk="class" name="Event">
