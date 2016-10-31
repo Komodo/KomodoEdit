@@ -424,7 +424,13 @@
         <variable doc="Height of the browser window viewport including, if&#xA;rendered, the horizontal scrollbar. Syntax: var&#xA;intViewportHeight = window.innerHeight; Value:&#xA;intViewportHeight stores the window.innerHeight property&#xA;value." name="innerHeight" />
         <variable doc="Width of the browser window viewport including, if rendered,&#xA;the vertical scrollbar. Syntax: var intViewportWidth =&#xA;window.innerWidth; Value: intViewportWidth stores the&#xA;window.innerWidth property value." name="innerWidth" />
         <variable doc="Returns the number of frames in the window. Syntax: ifrms =&#xA;window.length Parameters: ifrms is the number of frames as&#xA;an integer." name="length" />
-        <variable doc="Gets/sets the location, or current URL, of the window&#xA;object. Syntax: url = window.location window.location = url&#xA;Parameters: url is a string containing the URL for the&#xA;specified location." name="location" />
+        <variable doc="Gets/sets the location, or current URL, of the window&#xA;object. Syntax: url = window.location window.location = url&#xA;Parameters: url is a string containing the URL for the&#xA;specified location." name="location">
+          <variable doc="Returns the href (URL) of the current page." name="href" />
+          <variable doc="Returns the domain name of the web host." name="hostname" />
+          <variable doc="Returns the path and filename of the current page." name="pathname" />
+          <variable doc="Returns the web protocol used (http or https)." name="protocol" />
+          <variable doc="Loads a new document." name="assign" />
+        </variable>
         <variable doc="Returns the locationbar object, whose visibility can be&#xA;toggled in the window. Syntax: objRef = window.locationbar&#xA;When you load the example page above, the browser displays&#xA;the following dialog: Image:window.locationbar example&#xA;dialog.png To toggle the visibility of these bars, you must&#xA;either sign your scripts or enable the appropriate&#xA;privileges, as in the example above." name="locationbar" />
         <variable doc="Returns the menubar object, whose visibility can be toggled&#xA;in the window. Syntax: objRef = window.menubar When you load&#xA;the example page above, the browser displays the following&#xA;dialog: DOM Level 0." name="menubar" />
         <variable doc="Gets/sets the name of the window. Syntax: string =&#xA;window.name window.name = string The name of the window is&#xA;used primarily for setting targets for hyperlinks and forms." name="name" />

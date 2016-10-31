@@ -1321,6 +1321,24 @@ class CplnTestCase(CodeIntelTestCase):
             [("function", "bar"),
              ("function", "foo")])
              
+    @tag("bug2116")
+    def test_window_location(self):
+        """
+        Codeintel's JS stdlib is generated from some old XML files that do not
+        include some fields in `window.location`. These fields were added
+        manually to the generated stdlib. This test exists for the case where
+        the stdlib is regenerated, but these fields are not manually re-added.
+        """
+        content, positions = unmark_text(dedent("""\
+            var window.location.<1>
+        """))
+        self.assertCompletionsInclude(markup_text(content, positions[1]),
+            [("variable", "href"),
+             ("variable", "hostname"),
+             ("variable", "pathname"),
+             ("variable", "protocol"),
+             ("variable", "assign")])
+             
 class CalltipTestCase(CodeIntelTestCase):
     lang = "JavaScript"
     def test_default_args(self):
