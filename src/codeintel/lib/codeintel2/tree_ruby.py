@@ -583,7 +583,23 @@ class RubyTreeEvaluator(TreeEvaluatorHelper):
                 hits = self._hits_from_citdl(symbol_name)
                 for hit in hits:
                     for child in hit[0]:
-                        members.update(self._members_from_elem(child, allowed_cplns))
+                        if not self._framework_role.startswith("rails.") \
+                           or hit[0].get("ilk") != "namespace":
+                            members.update(self._members_from_elem(child, allowed_cplns))
+                        else:
+                            # Rails likes to put class methods in namespaces.
+                            # Codeintel classifies them as instance methods
+                            # (which cannot be helped), but include them anyway.
+                            members.update(self._members_from_elem(child, allowed_cplns|_CPLN_METHODS_INST))
+                            # Also, Rails has its own convention of defining
+                            # "ClassMethods" namespaces within other namespaces,
+                            # such that any class that includes the latter
+                            # namespace inherits the respective "ClassMethods"'s
+                            # methods.
+                            if child.get("name") == "ClassMethods" \
+                               and child.get("ilk") == "namespace":
+                                for child2 in child:
+                                    members.update(self._members_from_elem(child2, allowed_cplns|_CPLN_METHODS_INST))
             elif symbol_name is not None and self.citadel:
                 if self._visited_blobs.has_key(module_name):
                     return members
