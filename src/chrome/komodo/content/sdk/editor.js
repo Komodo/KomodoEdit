@@ -976,7 +976,7 @@ var sdkEditor = function(_scintilla, _scimoz) {
     this._posToAbsolute = function(pos)
     {
         if ( ! pos.line ) pos.line = this.getLineNumber();
-        return scimoz().positionFromLine(pos.line-1) + (pos.ch || 0);
+        return scimoz().findColumn(pos.line-1, pos.ch || 0);
     }
 
 };
