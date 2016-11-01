@@ -136,6 +136,9 @@
                             <menuitem label="&LCurrentLineNumber.label;"
                                       shortcut="%L"
                                       oncommand="InsertCommandShortcut(this);"/>
+                            <menuitem label="&LCurrentLineText.label;"
+                                      shortcut="%l"
+                                      oncommand="InsertCommandShortcut(this);"/>
                             <menuitem label="&sSelection.label;"
                                       shortcut="%s"
                                       oncommand="InsertCommandShortcut(this);"/>

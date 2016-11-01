@@ -175,7 +175,8 @@ class KoInterpolationService:
         return browser
         
     def _getCodeMap(self, fileName=None, lineNum=None, word=None,
-                    selection=None, projectFile=None, prefSet=None):
+                    selection=None, projectFile=None, prefSet=None,
+                    lineText=None):
         # Define the interpolation mapping.
         #   This is a mapping from interpolation code to the replacement
         #   value in the command. The "replacement" may be one of the
@@ -257,6 +258,8 @@ class KoInterpolationService:
                     selection = selection.encode('utf-8')
             codeMap['S'] = urllib.quote_plus(selection)
             codeMap['W'] = urllib.quote_plus(selection)
+        if lineText:
+            codeMap['l'] = lineText
 
         # Add extensible items:
         for code, handler in self._codemapAdditions.items():
@@ -631,12 +634,9 @@ class KoInterpolationService:
         return eol.join(lines)
 
     def Interpolate1(self, strings, bracketedStrings, fileName, lineNum, word, selection,
-                     projectFile, prefSet):
+                     projectFile, prefSet, lineText):
         try:
-            #print "Interpolate1(strings=%r, fileName=%r, lineNum=%r, word=%r, "\
-            #      "selection=%r, projectFile, prefSet, bracketed=%r)"\
-            #      % (strings, fileName, lineNum, word, selection, bracketed)
-            codeMap = self._getCodeMap(fileName, lineNum, word, selection, projectFile, prefSet)
+            codeMap = self._getCodeMap(fileName, lineNum, word, selection, projectFile, prefSet, lineText)
             codeRes = None
             bracketedCodeRes = None
             if strings:

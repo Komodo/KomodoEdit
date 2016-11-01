@@ -37,6 +37,7 @@
 <!ENTITY DDirectoryPathOfFile.label "[[&#37;D]]: directory path of file">
 <!ENTITY FFilePath.label "[[&#37;F]]: file path">
 <!ENTITY LCurrentLineNumber.label "[[&#37;L]]: current line number">
+<!ENTITY LCurrentLineText.label "[[&#37;l]]: current line text">
 <!ENTITY PPathOfTheActiveProject.label "[[&#37;P]]: path of the active project file">
 <!ENTITY SURLEscapedSelection.label "[[&#37;S]]: URL-escaped selection">
 <!ENTITY WURLEscapedSelectionOrWordUnderCursor.label "[[&#37;W]]: URL-escaped selection or word under cursor">
