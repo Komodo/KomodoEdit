@@ -37,8 +37,10 @@
     "        var cmd_by_version = {", 
     "            2: '%(rubyPath) -I %(rbpath) -r rdbgp.rb script/server webrick',", 
     "            3: '%(rubyPath) -I %(rbpath) -r rdbgp.rb script/rails server webrick'", 
+    "            4: '%(rubyPath) -I %(rbpath) -r rdbgp.rb bin/rails server'", 
+    "            5: '%(rubyPath) -I %(rbpath) -r rdbgp.rb bin/rails server'", 
     "        }", 
-    "        var versionNo = ko.extensions.rails.getRailsVersionInRange(2, 3);", 
+    "        var versionNo = ko.extensions.rails.getRailsVersionInRange(2, 5);", 
     "        var config = {", 
     "            rubyPath: obj.ruby,", 
     "            rbpath: rbpath", 
@@ -80,7 +82,7 @@
     "    }", 
     "})();"
   ], 
-  "version": "1.0.12", 
+  "version": "1.0.13", 
   "async": 0, 
   "type": "macro", 
   "icon": "chrome://famfamfamsilk/skin/icons/bug_go.png"

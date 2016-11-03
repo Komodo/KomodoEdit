@@ -11,8 +11,10 @@
     "        var cmd_by_version = {", 
     "            2: 'script/server',", 
     "            3: 'script/rails server'", 
+    "            4: 'bin/rails server'", 
+    "            5: 'bin/rails server'", 
     "        }", 
-    "        var versionNo = ko.extensions.rails.getRailsVersionInRange(2, 3);", 
+    "        var versionNo = ko.extensions.rails.getRailsVersionInRange(2, 5);", 
     "        var cmd = cmd_by_version[versionNo];", 
     "        ko.extensions.rails.launchRubyAppInConsole(window, cmd);", 
     "    } catch(ex) {", 
@@ -20,7 +22,7 @@
     "    }", 
     "})();"
   ], 
-  "version": "1.0.12", 
+  "version": "1.0.13", 
   "async": 0, 
   "type": "macro", 
   "icon": "chrome://famfamfamsilk/skin/icons/application_go.png"

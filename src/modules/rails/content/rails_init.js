@@ -466,10 +466,12 @@ this.generateRailsObject = function generateRailsObject(editor,
 
     var cmd_by_version = {
         2: '%(rubyPath) script/generate %(railsTypeName) %*(name) --skip',
-        3: '%(rubyPath) script/rails generate %(railsTypeName) %*(name) --skip'
+        3: '%(rubyPath) script/rails generate %(railsTypeName) %*(name) --skip',
+        4: '%(rubyPath) bin/rails generate %(railsTypeName) %*(name) --skip',
+        5: '%(rubyPath) bin/rails generate %(railsTypeName) %*(name) --skip'
     }
     var rubyPath = this.get_path_by_ko_pref('ruby');
-    var versionNo = ko.extensions.rails.getRailsVersionInRange(2, 3);
+    var versionNo = ko.extensions.rails.getRailsVersionInRange(2, 5);
     var config = {
         rubyPath: rubyPath,
         railsTypeName: railsTypeName,

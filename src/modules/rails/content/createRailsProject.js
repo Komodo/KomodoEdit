@@ -257,9 +257,11 @@ this.runRailsCommand = function runRailsCommand() {
 
     var cmd_by_version = {
         2: '%(railsPath) %(railsDirName) --skip --database=%(database)',
-        3: '%(railsPath) new %(projectDirPath) --ruby=%(rubyPath) --skip --database=%(database)'
+        3: '%(railsPath) new %(projectDirPath) --ruby=%(rubyPath) --skip --database=%(database)',
+        4: '%(railsPath) new %(projectDirPath) --ruby=%(rubyPath) --skip --database=%(database)',
+        5: '%(railsPath) new %(projectDirPath) --ruby=%(rubyPath) --skip --database=%(database)'
     }
-    var versionNo = ko.extensions.rails.getRailsVersionInRange(2, 3, railsPath);
+    var versionNo = ko.extensions.rails.getRailsVersionInRange(2, 5, railsPath);
     var config = {
         railsPath: railsPath,
         rubyPath: ko.extensions.rails.get_path_by_ko_pref('ruby'),
