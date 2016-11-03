@@ -1,6 +1,8 @@
 <codeintel version="2.0" name="Rails" description="Rails version 5.0.0.1">
   <file lang="Ruby" path="rails.cix">
     <scope ilk="blob" lang="Ruby" name="rails">
+      <scope ilk="class" name="ApplicationController" classrefs="ActionController::Base" />
+      <scope ilk="class" name="ApplicationRecord" classrefs="ActiveRecord::Base" />
       <scope ilk="namespace" name="AbstractController">
         <scope ilk="namespace" name="AssetPaths">
           <scope ilk="function" name="append_features"/>
