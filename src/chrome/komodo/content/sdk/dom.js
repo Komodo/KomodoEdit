@@ -533,14 +533,26 @@ if (typeof module === 'undefined') module = {}; // debugging helper
         {
             // Todo: support different value types
             var valueKey = 'value';
-
-            if (value === undefined)
-                return this.element()[valueKey];
-
-            return this.each(function()
+            
+            // Using property
+            if (valueKey in this.element())
             {
-                this[valueKey] = value;
-            });
+                if (value === undefined)
+                    return this.element()[valueKey];
+    
+                return this.each(function()
+                {
+                    this[valueKey] = value;
+                });
+            }
+            // Using attribute
+            else
+            {
+                if (value === undefined)
+                    return this.attr(valueKey);
+                
+                return this.attr(valueKey, value);
+            }
         },
 
         /**
