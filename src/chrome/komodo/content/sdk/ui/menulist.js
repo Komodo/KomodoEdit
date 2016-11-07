@@ -28,20 +28,11 @@ module.exports = Module;
         {
             if (value)
             {
-                var element = this.element;
-                this.menupopup.$element.children().each(function ()
-                {
-                    var localValue = this.getAttribute("value") || this.getAttribute("label") || false;
-                    this.removeAttribute("selected");
-                    if (value == localValue)
-                    {
-                        element.selectedItem = this;
-                        this.setAttribute("selected", "true");
-                    }
-                });
+                
+                this.element.setAttribute("value", value);
             }
             
-            return this.element.value || this.element.getAttribute("label");
+            return this.element.getAttribute("value");
         };
         
     }).apply(this.Model); 
