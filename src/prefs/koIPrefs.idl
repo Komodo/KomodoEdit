@@ -163,6 +163,7 @@ interface koIPreferenceSet : koIPreferenceContainer {
   
   // If any of these fail, use the lastErrorSvc to find out why
   void setPref(in AString prefName, in koIPreferenceContainer pref);
+  void createPref(in AString prefName);
   void setString(in AString prefName, in AString pref);
   void setLong(in AString prefName, in long pref);
   void setDouble(in AString prefName, in double pref);
