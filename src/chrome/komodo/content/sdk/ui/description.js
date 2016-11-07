@@ -20,6 +20,12 @@ module.exports = Module;
         
         this.init = function (value, options) { return this.initWithAttribute("value", value, options); }
         
+        this.value = function(value)
+        {
+            if (value)
+                this.$element.text(value);
+            return this.$element.text();
+        };
         
     }).apply(this.Model); 
     
