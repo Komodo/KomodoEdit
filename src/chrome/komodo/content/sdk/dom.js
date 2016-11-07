@@ -685,11 +685,12 @@ if (typeof module === 'undefined') module = {}; // debugging helper
          * 
          * @returns this
          */
-        addClass: function(className)
+        addClass: function()
         {
+            var args = arguments;
             return this.each(function()
             {
-                this.classList.add(className);
+                this.classList.add.apply(this.classList, args);
             });
         },
 
@@ -700,11 +701,12 @@ if (typeof module === 'undefined') module = {}; // debugging helper
          * 
          * @returns this
          */
-        removeClass: function(className)
+        removeClass: function()
         {
+            var args = arguments;
             return this.each(function()
             {
-                this.classList.remove(className);
+                this.classList.remove.apply(this.classList, args);
             });
         },
 
