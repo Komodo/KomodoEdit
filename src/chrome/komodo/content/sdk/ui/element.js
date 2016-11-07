@@ -29,20 +29,25 @@ module.exports = Module;
             this.options = options;
             this.attributes = attributes;
             this.$element = $($.create(this.name, attributes).toString());
+            this.$element.addClass("ui-" + this.name);
             this.element = this.$element.element();
         };
+        
+        this.defaultInit = this.init;
         
         this.initWithAttribute = function(attribute, value, options = {})
         {
             var attributes = Object.assign(options.attributes || {}, this.attributes);
             
-            if (typeof attribute == "object")
+            if (typeof value == "object")
             {
-                options = attribute;
+                options = value;
+                attributes = Object.assign(options.attributes || {}, this.attributes);
             }
             else
             {
-                attributes[attribute] = value;
+                if (value)
+                    attributes[attribute] = value;
             }
             
             this.options = options;
@@ -161,6 +166,15 @@ module.exports = Module;
         this.once = function() { this.$element.once.apply(this.$element, arguments); };
         
         this.focus = function() { this.$element.focus.apply(this.$element, arguments); };
+        
+        this.addClass = function() { this.$element.addClass.apply(this.$element, arguments); };
+        this.removeClass = function() { this.$element.removeClass.apply(this.$element, arguments); };
+        
+        this.attr = function() { this.$element.attr.apply(this.$element, arguments); };
+        this.removeAttr = function() { this.$element.removeAttr.apply(this.$element, arguments); };
+        
+        this.hide = function() { this.$element.hide.apply(this.$element, arguments); };
+        this.show = function() { this.$element.show.apply(this.$element, arguments); };
         
     }).apply(this.Model);
     
