@@ -143,41 +143,77 @@
         var proc = require("sdk/system/child_process");
         var process = proc.spawn(binary, args, _opts);
         
+        var lastLine = null;
         var stdout = "";
         var stderr = "";
         process.stdout.on('data', function (data)
         {
             stdout += data;
+            
+            if (lastLine)
+            {
+                data = lastLine + data;
+                lastLine = null;
+            }
+            
+            if (data.substr(-1) != "\n")
+            {
+                var index = data.lastIndexOf("\n");
+                lastLine = data.substr(index+1);
+                data = data.substr(0, index+1);
+            }
+            
+            callbacks.stdout.forEach(function(callback)
+            {
+                callback(data);
+            });
         });
 
         process.stderr.on('data', function (data)
         {
             stderr += data;
+            
+            callbacks.stderr.forEach(function(callback)
+            {
+                callback(data);
+            });
         });
         
         process.on('close', function (code, signal)
         {
             if (code !== 0)
             {
-                log.error("child process ended with code " + code + ", stdout: " + stdout + ", stderr: " + stderr);
+                log.debug("child process ended with code " + code + ", stdout: " + stdout + ", stderr: " + stderr);
             }
             
-            callbacks.forEach(function(callback)
+            if (lastLine)
+            {
+                callbacks.stdout.forEach(function(callback)
+                {
+                    callback(lastLine);
+                });
+            }
+            
+            callbacks.complete.forEach(function(callback)
             {
                 callback(stdout, stderr, code, signal);
             });
         });
         
-        var callbacks = [];
+        var callbacks = { complete: [], stdout: [], stderr: [] };
         var on = process.on;
         process.on = function(event, callback)
         {
-            if (event != "complete")
+            if (event == "complete")
+                callbacks.complete.push(callback);
+            else if (event == "stdout")
+                callbacks.stdout.push(callback);
+            else if (event == "stderr")
+                callbacks.stderr.push(callback);
+            else
             {
                 on.call(process, event, callback);
             }
-            else
-                callbacks.push(callback);
         };
         
         return process;
