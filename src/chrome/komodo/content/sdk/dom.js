@@ -419,6 +419,19 @@ if (typeof module === 'undefined') module = {}; // debugging helper
             insertIntoElem(this, elem);
             return this;
         },
+        
+        /**
+         * Append elem to another element
+         * 
+         * @param   {element} elem
+         *
+         * @returns this
+         */
+        appendTo: function(elem)
+        {
+            insertIntoElem(elem, this);
+            return this;
+        },
 
         /**
          * Prepend content to elem
