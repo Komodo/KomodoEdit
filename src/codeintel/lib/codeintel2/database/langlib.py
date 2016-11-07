@@ -953,7 +953,9 @@ class LangZone(object):
         symbols_db = join(self.db.base_dir, "symbols.db")
         exists = isfile(symbols_db)
         try:
-            conn = apsw.Connection(symbols_db)
+            # apsw.Connection() requires a utf-8-encoded filename, which is not
+            # always the case -- particularly on Windows.
+            conn = apsw.Connection(symbols_db.decode(sys.getfilesystemencoding()))
         except:
             log.exception("Unable to create/open symbols.db")
             return None
