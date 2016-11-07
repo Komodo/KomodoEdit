@@ -29,7 +29,10 @@ scintilla[anonid="scintilla"] > panel[anonid="autocompletepopup"]
     width: 100px;
     height: 50px;
     border-radius: 1px;
-}description, tab, textbox, menulist, menuitem, menu, treecol, button, toolbarbutton,
+
+}
+
+description, tab, textbox, menulist, menuitem, menu, treecol, button, toolbarbutton,
 checkbox, radio, tabpanels, listitem, richlistitem, listheader
 {
     color: @foreground; 
@@ -892,4 +895,61 @@ window.embedded.widget
             }
         }
     }
+}
+
+.ui-filepath > button
+{
+    padding: 0 4px !important;
+    -moz-box-flex: 0;
+}
+
+panel.modal-ui
+{
+    .ui-title
+    {
+        margin-bottom: 4px;
+    }
+    
+    & > .ui-hbox:not(.ui-title):not(.buttons-ui)
+    {
+        padding-right: 50px;
+    }
+    
+    & > hbox,
+    & groupbox > hbox,
+    {
+        -moz-box-align: center;
+    }
+    
+    & .ui-radiogroup-wrapper
+    {
+        -moz-box-align: center;
+        -moz-box-pack: center;
+    }
+    
+    & .ui-label:not(.fullwidth)
+    {
+        width: 100px;
+        margin-right: 4px;
+        text-align: right;
+    }
+    
+    & .ui-checkbox:not(.fullwidth)
+    {
+        margin-left: 104px;
+    }
+    
+    .ui-textbox,
+    .ui-menulist,
+    .ui-filepath
+    {
+        -moz-box-flex: 1;
+    }
+    
+    .buttons-ui,
+    .ui-error
+    {
+        margin-top: 4px;
+    }
+    
 }
