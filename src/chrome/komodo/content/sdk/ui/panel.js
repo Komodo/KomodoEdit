@@ -95,6 +95,15 @@ module.exports = Module;
             this.element.hidePopup();
         }
         
+        /**
+         * Remove the panel
+         *
+         */
+        this.remove = function panel_remove()
+        {
+            this.element.remove();
+        }
+        
     }).apply(this.Model); 
     
 }).apply(Module);
