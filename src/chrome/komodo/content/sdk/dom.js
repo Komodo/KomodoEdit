@@ -172,6 +172,9 @@ if (typeof module === 'undefined') module = {}; // debugging helper
         var __insert = false
         if (typeof insert == 'string')
             __insert = $.createElement(insert);
+            
+        if ( ! elems.koDom)
+            elems = $(elems);
 
         return elems.each(function()
         {
@@ -410,7 +413,7 @@ if (typeof module === 'undefined') module = {}; // debugging helper
         /**
          * Append content to elem
          * 
-         * @param   {string|object} value String or queryObject
+         * @param   {element} elem
          *
          * @returns this
          */
