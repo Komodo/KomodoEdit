@@ -42,4 +42,5 @@ $cons->InstallInChrome('span.js');
 $cons->InstallInChrome('list.js');
 $cons->InstallInChrome('listbox.js');
 $cons->InstallInChrome('listitem.js');
+$cons->InstallInChrome('filepath.js');
 
