@@ -1,0 +1,50 @@
+Workaround by Todd Whiteman:
+
+I made some investigation, it seems (at least my crashes) are coming 
+from the koFileNotificationService (that thing that watches for file 
+changes using inotify et al), and it crashes when trying to call 
+removeObserver.
+
+I stopped all removeObserver calls made to FNS and Komodo has not 
+crashed on me once (for the past few weeks) - I'm sure my Komodo is now 
+leaking some handles and watching more than it needs to, but that's been 
+a better trade off than crashing.
+
+diff -U16 xpcom/server/policy.py{.orig,}
+--- a/xpcom/server/policy.py.orig
++++ b/xpcom/server/policy.py
+@@ -285,31 +285,34 @@
+                 func(*params)
+             return 0
+
+         try:
+             func = getattr(self._obj_, name)
+         except AttributeError:
+             if callable(self._obj_):
+                 if self._is_function_ is None:
+                     iim = _xpcom.XPTI_GetInterfaceInfoManager()
+                     interface_info = iim.GetInfoForIID(self._iid_)
+                     self._is_function_ = interface_info.GetIsFunction()
+                 if self._is_function_:
+                     return 0, self._obj_(*params)
+             raise # not a callable / not a [function] interface
+         # A regular method.
++        cname = self._obj_.__class__.__name__
++        if name == "removeObserver" and cname == "koFileNotificationService":
++            return 0, None
+         return 0, func(*params)
+
+     def _doHandleException(self, func_name, exc_info):
+         exc_val = exc_info[1]
+         is_server_exception = isinstance(exc_val, ServerException)
+         if is_server_exception:
+             # When a component raised an explicit COM exception, it is
+             # considered 'normal' - however, we still write a debug log
+             # record to help track these otherwise silent exceptions.
+
+             logger.debug("'%s' raised COM Exception %s",
+                          func_name, exc_val, exc_info=exc_info)
+
+             return exc_val.errno
+         # Unhandled exception - always print a warning and the traceback.
+         # As above, trick the logging module to handle Python 2.3
