@@ -365,7 +365,7 @@ var sdkEditor = function(_scintilla, _scimoz) {
         var lineNo = this.getLineNumber(pos);
         var word = "";
         
-        while (this.getLineNumber(pos) == lineNo)
+        while (pos > 0 && this.getLineNumber(pos) == lineNo)
         {
             let letter = this.getRange(--pos, pos+1)
             if ( ! letter.match(match)) break;
