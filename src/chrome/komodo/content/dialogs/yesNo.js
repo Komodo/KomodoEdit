@@ -108,6 +108,11 @@ function OnLoad()
     } else {
         descWidget.setAttribute("collapsed", "true");
     }
+    
+    var value = descWidget.textContent;
+    if (value.indexOf("\n") !== -1) {
+        descWidget.style.whiteSpace = "pre";
+    }
 
     // .response
     var response = window.arguments[0].response;
