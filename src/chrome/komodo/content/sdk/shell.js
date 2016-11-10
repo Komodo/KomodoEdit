@@ -313,12 +313,16 @@
         var left = (bo.x + (bo.width / 2)) - (elem.width / 2);
         elem.openPopup(undefined, undefined, left, 100);
         
+        var colorRx = /\[\d{0,2}m/g;
+        
         // Show stdout and stderr data the same way, leave to user to interpret
         var onData = function(data)
         {
             var textbox = hud.find("textbox");
             var elem = document.getAnonymousNodes(textbox.element())[0].childNodes[0];
             var isAtBottom = elem.scrollTop == elem.scrollTopMax;
+            
+            data = data.replace(colorRx, '');
             
             textbox.value(textbox.value() + data);
             
