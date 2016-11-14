@@ -143,7 +143,17 @@
      *
      * @param {String} path     The file path
      */
-    this.isFile = () => ioFile.isFile.apply(ioFile, arguments);
+    this.isFile = () =>
+    {
+        try
+        {
+            return ioFile.isFile.apply(ioFile, arguments);
+        }
+        catch (e)
+        {
+            return false;
+        }
+    };
     
     /**
      * Create a file at the given location (like `touch`)
