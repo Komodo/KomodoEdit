@@ -1579,7 +1579,7 @@ def _PackageKomodoMSI(cfg):
     if exists(cfg.winCodeSigningCert):
         # signtool sign /v /f c:\ActiveStateSPC.pfx /t http://timestamp.verisign.com/scripts/timestamp.dll %1
         print "---- signing MSI to packages"
-        command = "signtool  sign /v /f \"%s\" /t http://timestamp.verisign.com/scripts/timestamp.dll \"%s\"" %(cfg.winCodeSigningCert, cfg.komodoInstallerPackage)
+        command = "signtool  sign /a /td sha256 /fd sha256 /tr http://timestamp.comodoca.com \"%s\"" %(cfg.komodoInstallerPackage)
         print("---- run command: %s", command)
         _run(command)
     
