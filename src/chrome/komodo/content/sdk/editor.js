@@ -898,6 +898,42 @@ var sdkEditor = function(_scintilla, _scimoz) {
         // using
         return(lineMarkerState & bookmarkMask)
     };
+    
+    /**
+     * Find a string in the current buffer
+     * 
+     * @param   {String} text           String of text to find
+     * @param   {Object|Int} startPos   Start position (optional)
+     * @param   {Int} maxResults        Maximum number of results, -1 for unlimited (optional)
+     * 
+     * @returns {Array} Returns an array of relative positions
+     */
+    this.findString = function(text, startPos = 0, maxResults = -1)
+    {
+        startPos = this._posFormat(startPos, "absolute");
+        var sc = scimoz();
+        
+        if ( ! sc)
+            return [];
+        
+        var results = [];
+        var pos;
+        
+        while (startPos < sc.length && (results.length <= maxResults || maxResults == -1))
+        {
+            sc.setTargetRange(startPos, sc.length);
+            pos = sc.searchInTarget(text.length, text);
+            
+            if ( ! pos)
+                break;
+            
+            results.push(this._posToRelative(pos));
+            
+            startPos += pos + text.length;
+        }
+        
+        return results;
+    };
 
     /** ****** Helpers ****** **/
 
