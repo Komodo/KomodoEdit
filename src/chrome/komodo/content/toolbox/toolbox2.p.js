@@ -262,6 +262,9 @@ this.onload = function() {
                        nsIDOMKeyEvent.DOM_VK_DOWN,
                        nsIDOMKeyEvent.DOM_VK_LEFT,
                        nsIDOMKeyEvent.DOM_VK_RIGHT];
+    
+    var w = require("ko/windows").getMain();
+    xtk.domutils.fireEvent(w, "toolbox-ready");
 };
 
 this.onUnload = function() {
