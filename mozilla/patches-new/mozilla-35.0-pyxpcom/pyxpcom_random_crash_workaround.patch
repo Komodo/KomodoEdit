@@ -11,7 +11,7 @@ leaking some handles and watching more than it needs to, but that's been
 a better trade off than crashing.
 
 diff -U16 xpcom/server/policy.py{.orig,}
---- a/xpcom/server/policy.py.orig
+--- a/xpcom/server/policy.py
 +++ b/xpcom/server/policy.py
 @@ -285,31 +285,34 @@
                  func(*params)
