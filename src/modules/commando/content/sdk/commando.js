@@ -392,9 +392,12 @@
     
     this.onPreview = onPreview;
 
-    var onSearch = function(e)
+    var onSearch = function()
     {
-        var uuid = c.search(null, function() {});
+        if ( ! local.showing)
+            return;
+        
+        c.search(null, function() {});
     }
 
     var onSearchComplete = function(uuid)
@@ -1760,26 +1763,18 @@
     /* Helpers */
 
     // XUL panel focus is buggy as hell, so we have to get crafty
-    this.focus = function(times=0, timer = 10)
+    this.focus = function(times=0)
     {
         if (elem('search').visible())
         {
-            if (times == 0)
+            if (times === 0)
                 window.focus();
                 
-            elem('panel').focus();
-            elem('search').focus();
-    
-            if (document.activeElement.nodeName != "html:input")
+            if (document.activeElement.nodeName != "html:input" && times < 10)
             {
                 log.debug("Can't grab focus, retrying");
-                timer = 100;
+                window.setTimeout(c.focus.bind(this, ++times), 10);
             }
-        }
-
-        if (times < 10)
-        {
-            window.setTimeout(c.focus.bind(this, ++times), timer);
         }
     }
 
