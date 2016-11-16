@@ -32,12 +32,12 @@
     <script type="application/x-javascript;version=1.8">
         <![CDATA[
             var gPane = null;
+            const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
             addEventListener("unload", function() {
                 gPane._onFloatingPanelHidden();
                 gPane = null;
             }, false);
             addEventListener("load", function() {
-                const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
                 const {Services} = Cu.import("resource://gre/modules/Services.jsm", {});
                 try {
                     gPane = document.getElementById("pane");
