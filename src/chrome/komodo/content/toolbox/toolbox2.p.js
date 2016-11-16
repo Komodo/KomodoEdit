@@ -189,6 +189,7 @@ _fixCogPopupmenu: function() {
     popupmenu.appendChild(document.createElementNS(XUL_NS, 'menuseparator'));
     var src_popupmenu  = document.getElementById("tb2ContextMenu_importPopupMenu");
     var childNodes = src_popupmenu.childNodes;
+    var menuItems = [];
     for (i = 0; i < childNodes.length; i++) {
         childNode = childNodes[i];
         if (!childNode || childNode.getAttribute('disableIfInMenu') == 'standardToolbox') {
@@ -204,8 +205,11 @@ _fixCogPopupmenu: function() {
             var fixedCmd = cmd.replace('(event)', '_toStdToolbox(event)');
             mi.setAttribute("oncommand", fixedCmd);
         }
-        popupmenu.appendChild(mi);
+        menuItems.push(mi);
     }
+    var importMenu = require('ko/ui/menu').create(menuItems,
+                                                  {attributes:{label:"Import"}});
+    popupmenu.appendChild(importMenu.element);
 },
 
 updateFilter: function(event) {
