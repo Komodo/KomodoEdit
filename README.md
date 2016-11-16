@@ -17,7 +17,7 @@ the entire project.
 - [Building Komodo](#building-komodo)
     - [Building on Windows](#building-on-windows)
     - [Building on Mac & Linux](#building-on-mac-and-linux)
-    - [Building with Docker](#building-on-docker)
+    - [Building with Docker](#building-with-docker)
     - [Building Complications](#building-complications)
 
 ## Screenshot
