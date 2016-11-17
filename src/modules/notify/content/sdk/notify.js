@@ -248,6 +248,26 @@
             this.queue(notif);
         }
     }
+    
+    this.warn = (message, category) =>
+    {
+        this.send(message, category, { priority: "warning" });
+    }
+    
+    this.error = (message, category) =>
+    {
+        this.send(message, category, { priority: "error" });
+    }
+    
+    this.interactiveWarning = (message, category) =>
+    {
+        this.interact(message, category, { priority: "warning" });
+    }
+    
+    this.interactiveError = (message, category) =>
+    {
+        this.interact(message, category, { priority: "error" });
+    }
 
     this.queue = (notif) =>
     {
