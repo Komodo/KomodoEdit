@@ -394,7 +394,7 @@
 
     var onSearch = function()
     {
-        if (['closed', 'hiding'].indexOf(elem('panel').element().state) != -1)
+        if ( ! c.isOpen())
             return;
         
         c.search(null, function() {});
