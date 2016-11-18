@@ -199,6 +199,13 @@ menupopup
     opacity: 0.5;
 }
 
+textbox[readonly="true"]
+{
+    input
+    {
+        opacity: 0.5;
+    }
+}
 
 /* Toolbars */
 
@@ -897,7 +904,8 @@ window.embedded.widget
     }
 }
 
-.ui-filepath > button
+.ui-filepath > button,
+.ui-interpolation-button
 {
     padding: 0 4px !important;
     -moz-box-flex: 0;
