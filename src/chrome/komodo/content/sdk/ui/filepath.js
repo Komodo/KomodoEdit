@@ -23,7 +23,7 @@ module.exports = Module;
             
             this.defaultInit.apply(this, arguments);
             
-            var button = require("ko/ui/button").create("...", { attributes: { flex: 1 } });
+            var button = require("ko/ui/button").create("...");
             button.onCommand(() =>
             {
                 var ko = require("ko/windows").getMain().ko;
