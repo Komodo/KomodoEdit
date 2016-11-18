@@ -28,8 +28,8 @@ module.exports = Module;
         {
             if (value)
             {
-                
                 this.element.setAttribute("value", value);
+                this.element.setAttribute("label", value);
             }
             
             return this.element.getAttribute("value");
