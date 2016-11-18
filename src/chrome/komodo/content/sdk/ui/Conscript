@@ -29,6 +29,7 @@ $cons->InstallInChrome('groupbox.js');
 $cons->InstallInChrome('label.js');
 $cons->InstallInChrome('menu.js');
 $cons->InstallInChrome('menuitem.js');
+$cons->InstallInChrome('menuseparator.js');
 $cons->InstallInChrome('menulist.js');
 $cons->InstallInChrome('menupopup.js');
 $cons->InstallInChrome('panel.js');
