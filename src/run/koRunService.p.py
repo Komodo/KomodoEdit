@@ -1224,6 +1224,10 @@ class KoRunService:
         t.setDaemon(True)
         t.start()
         return child
+    
+    def argvSplit(self, argvStr):
+        import shlex
+        return shlex.split(argvStr)
 
 
 class KoRunEnvView(TreeView):
