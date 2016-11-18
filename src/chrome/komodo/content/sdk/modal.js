@@ -20,15 +20,37 @@
             { attributes: { align: "center", pack: "center", class: "ui-title" } }
         );
         
+        var parent = panel;
+        var groups = {};
+        var mapping = {};
+        
         for (let key in fields)
         {
-            let row = panel.addRow();
             let field = fields[key];
+            
+            if (field.group)
+            {
+                if ( ! (field.group in groups))
+                {
+                    groups[field.group] = require("ko/ui/groupbox").create({ caption: field.group });
+                    panel.add(groups[field.group]);
+                }
+                
+                parent = groups[field.group];
+            }
+            else
+            {
+                parent = panel;
+                currentGroup = null;
+            }
+            
+            let row = parent.addRow();
             
             if (field.label)
                 row.add(require("ko/ui/label").create(field.label + ":"));
             
             let elem = require("ko/ui/" + (field.type || "textbox")).create(field.options || undefined);
+            mapping[key] = elem;
             row.add(elem);
             
             field.elem = elem;
@@ -68,6 +90,8 @@
         buttonRow.add(cancelButton);
         
         panel.open();
+        
+        return [panel, mapping];
     };
     
     var onFormComplete = (panel, fields, callback) =>
