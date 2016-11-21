@@ -100,8 +100,21 @@ this.moveToNextTabstop = function(view) {
     var tsInfo, spos = startingPos, epos, finalSPos = -1, finalEPos, idx = 0;
     // Look for an entry we can use
     var sawBackref0 = false;
+    var lastStartPos = 0;
+    var tabstopsWithPos = [];
+    
+    for (let i = 0; i < lim; i++) {
+        let ts = tabstopInsertionTable[i];
+        let [_spos, _epos] = this.findByIndicator(scimoz, ts.indicator, lastStartPos);
+        lastStartPos = _epos;
+        tabstopsWithPos.push(Object.assign({}, ts, {_spos, _epos}));
+    }
+    var tabstopsSorted = tabstopsWithPos.sort((t1, t2) => {
+        return t1.backrefNumber - t2.backrefNumber;
+    });
+    
     for (idx = 0; idx < lim; idx++) {
-        tsInfo = tabstopInsertionTable[idx];
+        tsInfo = tabstopsSorted[idx];
         // Backref #0 is visited last.  If it floats to the top, ignore it.
         if (tsInfo.isBackref) {
             if (tsInfo.backrefNumber === 0) {
@@ -109,10 +122,9 @@ this.moveToNextTabstop = function(view) {
                 if (idx === 0) {
                     startingPos = 0; // gotta move to the start
                 }
-                [spos, epos] = this.findByIndicator(scimoz, tsInfo.indicator, startingPos);
+                [spos, epos] = [tsInfo._spos, tsInfo._epos];
                 if (spos == -1) {
-                    log.error("Komodo internal error: In: moveToNextTabstop:: Couldn't find indicator " + tsInfo.indicator  + " after pos "
-                         + startingPos);
+                    log.error("Komodo internal error: In: moveToNextTabstop:: Couldn't find indicator " + tsInfo.indicator  + " after pos " + startingPos);
                     continue;
                 }
                 startingPos = epos;
@@ -120,12 +132,11 @@ this.moveToNextTabstop = function(view) {
             }
             break;
         }
-        this._deleteTabstopItem(view, tabstopInsertionTable, idx);
+        this._deleteTabstopItem(view, tabstopsSorted, idx);
         var indicator = tsInfo.indicator;
-        [spos, epos] = this.findByIndicator(scimoz, indicator, startingPos);
+        [spos, epos] = [tsInfo._spos, tsInfo._epos];
         if (spos == -1) {
-            log.error("Komodo internal error: In: moveToNextTabstop:: Couldn't find indicator " + indicator  + " after pos "
-                 + startingPos);
+            log.error("Komodo internal error: In: moveToNextTabstop:: Couldn't find indicator " + indicator  + " after pos " + startingPos);
             return false;
         }
         this._useIndicator(view, scimoz, indicator, spos, epos);
@@ -137,7 +148,7 @@ this.moveToNextTabstop = function(view) {
     }
     if (idx == lim && sawBackref0) {
         idx = 0;
-        tsInfo = tabstopInsertionTable[idx];
+        tsInfo = tabstopsSorted[idx];
         spos = 0; // gotta move to the start yet again
     }
     if (!tsInfo.isBackref) {
@@ -150,33 +161,26 @@ this.moveToNextTabstop = function(view) {
     }
     var backrefNumber = tsInfo.backrefNumber;
     var searchIndicator;
-    var hasOtherLinks = this._hasOtherLinks(tabstopInsertionTable, backrefNumber, idx + 1);
+    var hasOtherLinks = this._hasOtherLinks(tabstopsSorted, backrefNumber, idx + 1);
     // sparse array - where to resume a search for a particular indicator.
     // Do this because indicated regions can nest.
-    var lastPointByIndicator = [];
     var setupLinkedSet = false;
     epos = startingPos;
     while (idx < lim) {
-        tsInfo = tabstopInsertionTable[idx];
+        tsInfo = tabstopsSorted[idx];
         searchIndicator = tsInfo.indicator;
-        if (!(searchIndicator in lastPointByIndicator)) {
-            lastPointByIndicator[searchIndicator] = spos;
-        }
-        startingPos = lastPointByIndicator[searchIndicator];
-        [spos, epos] = this.findByIndicator(scimoz, searchIndicator, startingPos);
+        [spos, epos] = [tsInfo._spos, tsInfo._epos];
         if (finalSPos == -1) {
             [finalSPos, finalEPos] = [spos, searchIndicator == TSZW ? spos : epos];
         }
         if (spos == -1) {
-            log.error("Komodo internal error: In: moveToNextTabstop:: Couldn't find indicator " + tsInfo.indicator  + " after pos "
-                 + startingPos);
+            log.error("Komodo internal error: In: moveToNextTabstop:: Couldn't find indicator " + tsInfo.indicator  + " after pos " + startingPos);
             // break;
             idx += 1;
         }
-        lastPointByIndicator[searchIndicator] = epos;
         if (tsInfo.backrefNumber == backrefNumber) {
             this._useIndicator(view, scimoz, tsInfo.indicator, spos, epos, hasOtherLinks);
-            this._deleteTabstopItem(view, tabstopInsertionTable, idx);
+            this._deleteTabstopItem(view, tabstopsSorted, idx);
             if (!hasOtherLinks) {
                 break;
             }
