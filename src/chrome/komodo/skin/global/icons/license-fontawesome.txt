@@ -1,0 +1,4 @@
+For license info see:
+
+ * https://github.com/FortAwesome/Font-Awesome#license
+ * https://github.com/FortAwesome/Font-Awesome/issues/5281
