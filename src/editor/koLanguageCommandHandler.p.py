@@ -1959,13 +1959,14 @@ class GenericCommandHandler:
             newline = indent + rest
             sm.replaceTarget(len(newline), newline)
         sm.endUndoAction()
-        endPos = sm.getLineEndPosition(endLineNo + 1)
         if sm.selectionMode == sm.SC_SEL_LINES:
             # Maintain the same cursor position.
             startPos = sm.findColumn(startLineNo, startPosColumn + delta)
             endPos = sm.findColumn(endLineNo, endPosColumn + delta)
         elif ignoreEndLine:
             endPos = sm.positionFromLine(endLineNo + 1)
+        else:
+            endPos = sm.getLineEndPosition(endLineNo)
         if anchorFirst:
             sm.anchor = startPos
             sm.currentPos = endPos
