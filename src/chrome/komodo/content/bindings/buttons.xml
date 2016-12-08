@@ -132,7 +132,7 @@ use moz bindings with CSS to acheive everything we have here.
     </content>
     </binding>
     
-    <binding id="dynamic-toolbarbutton-menu" extends="chrome://global/content/bindings/toolbarbutton.xml#menu-button">
+    <binding id="dynamic-toolbarbutton-menu-button" extends="chrome://global/content/bindings/toolbarbutton.xml#menu-button">
     <content>
       <children includes="observes|template|menupopup|panel|tooltip"/>
       <xul:vbox align="center" pack="center" flex="1">
@@ -170,6 +170,39 @@ use moz bindings with CSS to acheive everything we have here.
     </implementation>
     </binding>
     
+    <binding id="dynamic-toolbarbutton-menu" extends="chrome://global/content/bindings/toolbarbutton.xml#menu">
+    <content>
+        <children includes="observes|template|menupopup|panel|tooltip"/>
+        <xul:label class="toolbarbutton-text" crop="right" flex="1"
+                   xbl:inherits="value=label,accesskey,crop,dragover-top,wrap"/>
+        <xul:image class="toolbarbutton-icon" xbl:inherits="validate,src=image,label,consumeanchor"/>
+        <xul:stack>
+            <xul:box anonid="toolbarbutton-icon-box"/>
+            <xul:label class="toolbarbutton-counter" crop="none" xbl:inherits="value=counter"/>
+        </xul:stack>
+    </content>
+    <implementation>
+        <field name="icon-box">
+            document.getAnonymousElementByAttribute(this, "anonid", "toolbarbutton-icon-box")
+        </field>
+        <constructor>
+          <![CDATA[
+            var classes = this.getAttribute("class").split(/\s+/);
+            for (let cls of classes) {
+                if (cls.indexOf("icon-") === 0)
+                {
+                    setTimeout(function() {
+                        this["icon-box"].classList.add(cls);
+                    }.bind(this), 0);
+
+                    break;
+                }
+            }
+          ]]>
+        </constructor>
+    </implementation>
+    </binding>
+
     <binding id="menu" display="xul:menu"
              extends="chrome://global/content/bindings/toolbarbutton.xml#toolbarbutton">
       <content>
