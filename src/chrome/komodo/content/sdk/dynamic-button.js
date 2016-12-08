@@ -1,9 +1,13 @@
 (function() {
     
+    var {Cc, Ci}  = require("chrome");
     var _ = require("contrib/underscore");
     var buttons = {};
     var $   = require("ko/dom");
     var tb  = $("#side-top-toolbar");
+    var w = require("ko/windows").getMain();
+    var prefs = require("ko/prefs");
+    var obsvc = Cc["@mozilla.org/observer-service;1"].getService(Ci.nsIObserverService);
     
     var ss = require("ko/simple-storage").get("dynamic-button");
     
@@ -11,6 +15,17 @@
     {
         var button;
         var menupopup;
+        var self = this;
+        
+        this.opts = opts;
+        
+        var observer =
+        {
+            observe: function()
+            {
+                self.update();
+            }
+        };
         
         this.init = function()
         {
@@ -29,7 +44,7 @@
                 button.attr("oncommand", "ko.commands.doCommandAsync('"+opts.command+"', event)");
                 button.attr("observes", opts.command);
             }
-            else
+            else if (opts.command)
                 button.on("command", opts.command);
                 
             if (opts.icon)
@@ -47,10 +62,16 @@
                 
             if (opts.menuitems)
             {
-                button.attr("type", "menu-button");
-                
+                button.attr("type", opts.command ? "menu-button" : "menu");
+
                 menupopup = $("<menupopup>");
-                menupopup.on("popupshowing", this.updateMenu.bind(this, null));
+                menupopup.on("popupshowing", (e) =>
+                {
+                    if (e.originalTarget != menupopup.element())
+                        return;
+
+                    this.updateMenu();
+                });
                 button.append(menupopup);
             }
             
@@ -89,10 +110,21 @@
             
             for (let event of opts.events)
             {
-                var w = require("ko/windows").getMain();
-                
-                w.addEventListener(event, this.update.bind(this));
+                if (event.indexOf("observe:") === 0)
+                {
+                    obsvc.addObserver(observer, event.substr(8), false);
+                }
+                else if (event.indexOf("pref:") === 0)
+                {
+                    prefs.prefObserverService.addObserver(observer, event.substr(5), false);
+                }
+                else
+                {
+                    w.addEventListener(event, this.update.bind(this, false));
+                }
             }
+            
+            w.addEventListener("update_dynamic_buttons", this.update.bind(this, false));
             
             this.update();
         }
@@ -118,7 +150,7 @@
                 this.update._timer = w.setTimeout(this.update.bind(this, true), 250);
                 return;
             }
-        
+
             var enabled = opts.isEnabled(this);
             button.attr("disabled", enabled ? "false" : "true");
             
@@ -144,14 +176,19 @@
         };
         this.update._timer = null;
         
-        this.updateMenu = function (menuitems)
+        this.updateMenu = (menuitems, _menupopup) =>
         {
-            menupopup.empty();
+            _menupopup = _menupopup || menupopup;
+
+            _menupopup.empty();
             menuitems = menuitems || opts.menuitems;
             
             if (typeof menuitems == "function")
             {
-                menuitems = menuitems(this.updateMenu.bind(this));
+                menuitems = menuitems((menuitems) =>
+                {
+                    this.updateMenu(menuitems, _menupopup);
+                });
                 if ( ! menuitems)
                 {
                     let elem = $("<menuitem>");
@@ -159,7 +196,7 @@
                         label: "Loading ..",
                         disabled: "true"
                     });
-                    menupopup.append(elem);
+                    _menupopup.append(elem);
                     return; // using callback
                 }
             }
@@ -167,14 +204,14 @@
             if (menuitems instanceof window.XULElement)
             {
                 for (let childNode of Array.slice(menuitems.childNodes)) {
-                    
+
                     // Add stopPropagation to oncommand and command
                     let type = null;
                     if (childNode.getAttribute("oncommand"))
                         type = "oncommand";
                     if (childNode.getAttribute("command"))
                         type = "command";
-                        
+
                     if (type)
                     {
                         let cmd = childNode.getAttribute(type);
@@ -187,7 +224,7 @@
                         childNode.removeAttribute("observes"); // observes overrides oncommand
                     }
                     
-                    menupopup.append(childNode);
+                    _menupopup.append(childNode);
                 }
                 return;
             }
@@ -201,13 +238,14 @@
             {
                 if (menuitem === null)
                 {
-                    menupopup.append($("<menuseparator>"));
+                    _menupopup.append($("<menuseparator>"));
                     continue;
                 }
                 
-                if (menuitem instanceof window.XULElement)
+                if (menuitem instanceof window.XULElement ||
+                    menuitem.koDom)
                 {
-                    menupopup.append(menuitem);
+                    _menupopup.append(menuitem);
                     continue;
                 }
                 
@@ -216,7 +254,7 @@
                     name: "",
                     observes: "",
                     isEnabled: null,
-                    command: function() {},
+                    command: null,
                     classList: "",
                     image: null,
                     acceltext: "",
@@ -247,31 +285,37 @@
                 
                 let elem;
                 if (menuitem.menuitems)
+                {
                     elem = $("<menu>");
+
+                    elem.attr({
+                        label: menuitem.label,
+                        class: menuitem.classList,
+                        acceltext: menuitem.acceltext,
+                        tooltiptext: menuitem.tooltiptext
+                    });
+                }
                 else
+                {
                     elem = $("<menuitem>");
                 
-                elem.attr({
-                    label: menuitem.label,
-                    class: menuitem.classList,
-                    image: menuitem.image,
-                    acceltext: menuitem.acceltext,
-                    tooltiptext: menuitem.tooltiptext,
-                    value: menuitem.value,
-                });
+                    elem.attr({
+                        label: menuitem.label,
+                        class: menuitem.classList,
+                        image: menuitem.image,
+                        acceltext: menuitem.acceltext,
+                        tooltiptext: menuitem.tooltiptext,
+                        value: menuitem.value,
+                    });
+                }
                 
                 if (menuitem.type)
                     elem.attr("type", menuitem.type);
                     
                 if (menuitem.menuitems)
                 {
-                    var popup = $("<menupopup>").append(
-                        $("<menuitem>").attr({
-                            label: "Loading ..",
-                            disabled: "true"
-                        })
-                    );
-                    popup.on("popupshowing", this.updateMenu.bind(this, menuitem.menuitems));
+                    var popup = $("<menupopup>");
+                    this.updateMenu(menuitem.menuitems, popup);
                     elem.append(popup);
                 }
                 
@@ -300,7 +344,7 @@
                 else
                     elem.on("command", function(m, event) { m.command(); event.stopPropagation(); }.bind(null, menuitem));
                 
-                menupopup.append(elem);
+                _menupopup.append(elem);
             }
         }
         
@@ -333,7 +377,8 @@
         this.init();
     }
     
-    this.init = function()
+
+    var init = () =>
     {
         if ( ! ss.storage.buttons)
             ss.storage.buttons = {};
@@ -365,7 +410,7 @@
             label: label,
             tooltip: opts.tooltip || label,
             isEnabled: null,
-            command: function() {},
+            command: null,
             menuitems: null,
             icon: icon,
             image: null,
@@ -390,6 +435,6 @@
         buttons[id].unregister();
     }
     
-    this.init();
+    init();
     
 }).apply(module.exports);
