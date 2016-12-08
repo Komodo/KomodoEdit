@@ -21,12 +21,16 @@
         );
         
         var parent = panel;
+        var currentGroup;
         var groups = {};
         var mapping = {};
         
         for (let key in fields)
         {
             let field = fields[key];
+
+            if (typeof field == "string")
+                field = { label: field };
             
             if (field.group)
             {
