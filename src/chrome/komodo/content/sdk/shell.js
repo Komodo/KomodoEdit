@@ -18,6 +18,8 @@
     const log           = require("ko/logging").getLogger("ko-shell");
     const platform      = require("sdk/system").platform;
     const pathSplitter  = platform == "winnt" ? /;/g : /:/g;
+    const w             = require("ko/windows").getMain();
+    const $             = require("ko/dom");
     //log.setLevel(require("ko/logging").LOG_DEBUG);
     
     /**
@@ -198,6 +200,9 @@
             {
                 callback(stdout, stderr, code, signal);
             });
+
+            if (w)
+                $(w.document).trigger("process_close");
         });
         
         var callbacks = { complete: [], stdout: [], stderr: [] };
@@ -275,6 +280,12 @@
         
         if ("runIn" in opts && opts.runIn == "hud")
             showOutputInHud(process, opts.readable || command);
+            
+        process.on("close", () =>
+        {
+            if (w)
+                $(w.document).trigger("process_close");
+        });
         
         return process;
     }
@@ -292,7 +303,6 @@
         var running = true;
         
         // Create the output panel
-        var $ = require("ko/dom");
         var hud =
         $($.create("panel", {class: "hud shell-output", noautohide: true, width: 500, level: "floating"},
             $.create("textbox", {multiline: true, rows: 15, readonly: true, style: "max-width: 490px"})
