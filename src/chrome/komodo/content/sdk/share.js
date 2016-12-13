@@ -100,7 +100,14 @@
      *
      * @argument {String}   name        module name to share on
      * @argument {string}   content     content to share
-     * @argument {object}   meta        (optional) additional meta information, eg. language
+     * @argument {object}   meta        (optional) additional meta information
+     *    example meta obj:
+     *    {
+     *        title: "myfile.js",
+     *        language: "javascript"
+     *    }
+     *    This is passed to the submodules `share` function to do with what it
+     *    pleases
      */
     this.share = function(name, content, meta = null)
     {
