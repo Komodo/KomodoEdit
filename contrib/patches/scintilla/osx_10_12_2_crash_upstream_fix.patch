@@ -1,0 +1,9 @@
+This patch comes upstream from Scintilla 3.7.x. Whenever we upgrade this can be
+removed.
+--- cocoa/ScintillaView.mm
++++ cocoa/ScintillaView.mm
+@@ -1545,3 +1545,4 @@
+   delete mBackend;
++  [marginView setClientView:nil];
+   [marginView release];
+   [super dealloc];
