@@ -1,0 +1,213 @@
+2016-12-05 09:43:24,424: INFO: mkrc (`10.1.3' branch)
+2016-12-05 09:43:24,424: INFO: Retrieving version from src/version.txt
+2016-12-05 09:43:24,427: INFO: Using version 10.1.3 to construct build search path
+2016-12-05 09:43:24,976: INFO:    IDE bits: komodo@mule:/data/komodo/builds/10.1.3/DevBuilds/assvn-10.1.3-89510
+2016-12-05 09:43:25,355: INFO:   Edit bits: komodo@mule:/data/komodo/builds/10.1.3/DevBuilds/oksvn-10.1.3-17451
+2016-12-05 09:43:25,357: INFO: generate manifest
+2016-12-05 09:44:26,203: INFO: ensure have all expected bits
+2016-12-05 09:44:57,417: INFO: mkdir `komodo@mule:/data/komodo/builds/10.1.3/RC1'
+2016-12-05 09:44:59,927: INFO: create the following RC tree:
+  komodo@mule:/data/komodo/builds/10.1.3/RC1/
+  |- Komodo-10.1-mozilla-patches.zip
+  |- Komodo-Edit-10.1.3-17451-linux-x86.tar.gz
+  |- Komodo-Edit-10.1.3-17451-linux-x86_64.tar.gz
+  |- Komodo-Edit-10.1.3-17451-macosx-x86_64.dmg
+  |- Komodo-Edit-10.1.3-17451.msi
+  |- Komodo-IDE-10.1.3-89510-linux-x86.tar.gz
+  |- Komodo-IDE-10.1.3-89510-linux-x86_64.tar.gz
+  |- Komodo-IDE-10.1.3-89510-macosx-x86_64.dmg
+  |- Komodo-IDE-10.1.3-89510.msi
+  |- internal
+  |  |- crashreportsymbols
+  |  |  |- Komodo-Edit-10.1.3-17451-linux-x86.zip
+  |  |  |- Komodo-Edit-10.1.3-17451-linux-x86_64.zip
+  |  |  |- Komodo-Edit-10.1.3-17451-macosx.zip
+  |  |  |- Komodo-Edit-10.1.3-17451-win32-x86.zip
+  |  |  |- Komodo-IDE-10.1.3-89510-linux-x86.zip
+  |  |  |- Komodo-IDE-10.1.3-89510-linux-x86_64.zip
+  |  |  |- Komodo-IDE-10.1.3-89510-macosx.zip
+  |  |  `- Komodo-IDE-10.1.3-89510-win32-x86.zip
+  |  |- log
+  |  |  |- edit-*.log
+  |  |  `- ide-*.log
+  |  `- pad
+  |     |- komodo_edit
+  |     |  |- komodo_edit_linux.png
+  |     |  |- komodo_edit_linux_x86.xml
+  |     |  |- komodo_edit_linux_x86_64.xml
+  |     |  |- komodo_edit_macosx.png
+  |     |  |- komodo_edit_macosx.xml
+  |     |  |- komodo_edit_win32.png
+  |     |  |- komodo_edit_win32_x86.xml
+  |     |  `- komodoedit_orb_32.png
+  |     `- komodo_ide
+  |        |- komodo_ide_linux.png
+  |        |- komodo_ide_linux_x86.xml
+  |        |- komodo_ide_linux_x86_64.xml
+  |        |- komodo_ide_macosx.png
+  |        |- komodo_ide_macosx.xml
+  |        |- komodo_ide_win32.png
+  |        |- komodo_ide_win32_x86.xml
+  |        `- komodo_orb_32.png
+  |- remotedebugging
+  |  |- Komodo-PHPRemoteDebugging-10.1.3-89510-linux-x86.tar.gz
+  |  |- Komodo-PHPRemoteDebugging-10.1.3-89510-linux-x86_64.tar.gz
+  |  |- Komodo-PHPRemoteDebugging-10.1.3-89510-macosx.tar.gz
+  |  |- Komodo-PHPRemoteDebugging-10.1.3-89510-win32-x86.zip
+  |  |- Komodo-PerlRemoteDebugging-10.1.3-89510-linux-x86.tar.gz
+  |  |- Komodo-PerlRemoteDebugging-10.1.3-89510-linux-x86_64.tar.gz
+  |  |- Komodo-PerlRemoteDebugging-10.1.3-89510-macosx.tar.gz
+  |  |- Komodo-PerlRemoteDebugging-10.1.3-89510-win32-x86.zip
+  |  |- Komodo-PythonRemoteDebugging-10.1.3-89510-linux-x86.tar.gz
+  |  |- Komodo-PythonRemoteDebugging-10.1.3-89510-linux-x86_64.tar.gz
+  |  |- Komodo-PythonRemoteDebugging-10.1.3-89510-macosx.tar.gz
+  |  |- Komodo-PythonRemoteDebugging-10.1.3-89510-win32-x86.zip
+  |  |- Komodo-RubyRemoteDebugging-10.1.3-89510-linux-x86.tar.gz
+  |  |- Komodo-RubyRemoteDebugging-10.1.3-89510-linux-x86_64.tar.gz
+  |  |- Komodo-RubyRemoteDebugging-10.1.3-89510-macosx.tar.gz
+  |  |- Komodo-RubyRemoteDebugging-10.1.3-89510-win32-x86.zip
+  |  |- Komodo-TclRemoteDebugging-10.1.3-89510-linux-x86.tar.gz
+  |  |- Komodo-TclRemoteDebugging-10.1.3-89510-linux-x86_64.tar.gz
+  |  |- Komodo-TclRemoteDebugging-10.1.3-89510-macosx.tar.gz
+  |  `- Komodo-TclRemoteDebugging-10.1.3-89510-win32-x86.zip
+  `- updates
+     |- Komodo-Edit-10.1.3-17451-linux-x86-complete.mar
+     |- Komodo-Edit-10.1.3-17451-linux-x86-partial-10.1.2-17449.mar
+     |- Komodo-Edit-10.1.3-17451-linux-x86_64-complete.mar
+     |- Komodo-Edit-10.1.3-17451-linux-x86_64-partial-10.1.2-17449.mar
+     |- Komodo-Edit-10.1.3-17451-macosx-complete.mar
+     |- Komodo-Edit-10.1.3-17451-macosx-partial-10.1.2-17449.mar
+     |- Komodo-Edit-10.1.3-17451-win32-x86-complete.mar
+     |- Komodo-Edit-10.1.3-17451-win32-x86-partial-10.1.2-17449.mar
+     |- Komodo-IDE-10.1.3-89510-linux-x86-complete.mar
+     |- Komodo-IDE-10.1.3-89510-linux-x86-partial-10.1.2-89508.mar
+     |- Komodo-IDE-10.1.3-89510-linux-x86_64-complete.mar
+     |- Komodo-IDE-10.1.3-89510-linux-x86_64-partial-10.1.2-89508.mar
+     |- Komodo-IDE-10.1.3-89510-macosx-complete.mar
+     |- Komodo-IDE-10.1.3-89510-macosx-partial-10.1.2-89508.mar
+     |- Komodo-IDE-10.1.3-89510-win32-x86-complete.mar
+     `- Komodo-IDE-10.1.3-89510-win32-x86-partial-10.1.2-89508.mar
+
+2016-12-05 09:45:00,305: DEBUG: running 'plink -A -batch komodo@mule "ln -f /data/komodo/builds/10.1.3/DevBuilds/assvn-10.1.3-89510/Komodo-10.1-mozilla-patches.zip /data/komodo/builds/10.1.3/RC1/Komodo-10.1-mozilla-patches.zip"'
+2016-12-05 09:45:01,147: DEBUG: running 'plink -A -batch komodo@mule "ln -f /data/komodo/builds/10.1.3/DevBuilds/oksvn-10.1.3-17451/Komodo-Edit-10.1.3-17451-linux-x86.tar.gz /data/komodo/builds/10.1.3/RC1/Komodo-Edit-10.1.3-17451-linux-x86.tar.gz"'
+2016-12-05 09:45:02,084: DEBUG: running 'plink -A -batch komodo@mule "ln -f /data/komodo/builds/10.1.3/DevBuilds/oksvn-10.1.3-17451/Komodo-Edit-10.1.3-17451-linux-x86_64.tar.gz /data/komodo/builds/10.1.3/RC1/Komodo-Edit-10.1.3-17451-linux-x86_64.tar.gz"'
+2016-12-05 09:45:02,898: DEBUG: running 'plink -A -batch komodo@mule "ln -f /data/komodo/builds/10.1.3/DevBuilds/oksvn-10.1.3-17451/Komodo-Edit-10.1.3-17451-macosx-x86_64.dmg /data/komodo/builds/10.1.3/RC1/Komodo-Edit-10.1.3-17451-macosx-x86_64.dmg"'
+2016-12-05 09:45:03,766: DEBUG: running 'plink -A -batch komodo@mule "ln -f /data/komodo/builds/10.1.3/DevBuilds/oksvn-10.1.3-17451/Komodo-Edit-10.1.3-17451.msi /data/komodo/builds/10.1.3/RC1/Komodo-Edit-10.1.3-17451.msi"'
+2016-12-05 09:45:04,855: DEBUG: running 'plink -A -batch komodo@mule "ln -f /data/komodo/builds/10.1.3/DevBuilds/assvn-10.1.3-89510/Komodo-IDE-10.1.3-89510-linux-x86.tar.gz /data/komodo/builds/10.1.3/RC1/Komodo-IDE-10.1.3-89510-linux-x86.tar.gz"'
+2016-12-05 09:45:05,762: DEBUG: running 'plink -A -batch komodo@mule "ln -f /data/komodo/builds/10.1.3/DevBuilds/assvn-10.1.3-89510/Komodo-IDE-10.1.3-89510-linux-x86_64.tar.gz /data/komodo/builds/10.1.3/RC1/Komodo-IDE-10.1.3-89510-linux-x86_64.tar.gz"'
+2016-12-05 09:45:06,628: DEBUG: running 'plink -A -batch komodo@mule "ln -f /data/komodo/builds/10.1.3/DevBuilds/assvn-10.1.3-89510/Komodo-IDE-10.1.3-89510-macosx-x86_64.dmg /data/komodo/builds/10.1.3/RC1/Komodo-IDE-10.1.3-89510-macosx-x86_64.dmg"'
+2016-12-05 09:45:07,479: DEBUG: running 'plink -A -batch komodo@mule "ln -f /data/komodo/builds/10.1.3/DevBuilds/assvn-10.1.3-89510/Komodo-IDE-10.1.3-89510.msi /data/komodo/builds/10.1.3/RC1/Komodo-IDE-10.1.3-89510.msi"'
+2016-12-05 09:45:08,263: DEBUG: plink -batch komodo@mule ls /data
+2016-12-05 09:45:08,628: DEBUG: plink -batch komodo@mule ls /data/komodo
+2016-12-05 09:45:09,006: DEBUG: plink -batch komodo@mule ls /data/komodo/builds
+2016-12-05 09:45:09,456: DEBUG: plink -batch komodo@mule ls /data/komodo/builds/10.1.3
+2016-12-05 09:45:09,934: DEBUG: plink -batch komodo@mule ls /data/komodo/builds/10.1.3/RC1
+2016-12-05 09:45:10,313: DEBUG: plink -batch komodo@mule ls /data/komodo/builds/10.1.3/RC1/internal
+2016-12-05 09:45:11,140: DEBUG: plink -batch komodo@mule ls /data/komodo/builds/10.1.3/RC1/internal/crashreportsymbols
+2016-12-05 09:45:11,921: DEBUG: running 'plink -A -batch komodo@mule "ln -f /data/komodo/builds/10.1.3/DevBuilds/oksvn-10.1.3-17451/internal/crashreportsymbols/Komodo-Edit-10.1.3-17451-linux-x86.zip /data/komodo/builds/10.1.3/RC1/internal/crashreportsymbols/Komodo-Edit-10.1.3-17451-linux-x86.zip"'
+2016-12-05 09:45:12,739: DEBUG: running 'plink -A -batch komodo@mule "ln -f /data/komodo/builds/10.1.3/DevBuilds/oksvn-10.1.3-17451/internal/crashreportsymbols/Komodo-Edit-10.1.3-17451-linux-x86_64.zip /data/komodo/builds/10.1.3/RC1/internal/crashreportsymbols/Komodo-Edit-10.1.3-17451-linux-x86_64.zip"'
+2016-12-05 09:45:13,549: DEBUG: running 'plink -A -batch komodo@mule "ln -f /data/komodo/builds/10.1.3/DevBuilds/oksvn-10.1.3-17451/internal/crashreportsymbols/Komodo-Edit-10.1.3-17451-macosx.zip /data/komodo/builds/10.1.3/RC1/internal/crashreportsymbols/Komodo-Edit-10.1.3-17451-macosx.zip"'
+2016-12-05 09:45:14,358: DEBUG: running 'plink -A -batch komodo@mule "ln -f /data/komodo/builds/10.1.3/DevBuilds/oksvn-10.1.3-17451/internal/crashreportsymbols/Komodo-Edit-10.1.3-17451-win32-x86.zip /data/komodo/builds/10.1.3/RC1/internal/crashreportsymbols/Komodo-Edit-10.1.3-17451-win32-x86.zip"'
+2016-12-05 09:45:15,151: DEBUG: running 'plink -A -batch komodo@mule "ln -f /data/komodo/builds/10.1.3/DevBuilds/assvn-10.1.3-89510/internal/crashreportsymbols/Komodo-IDE-10.1.3-89510-linux-x86.zip /data/komodo/builds/10.1.3/RC1/internal/crashreportsymbols/Komodo-IDE-10.1.3-89510-linux-x86.zip"'
+2016-12-05 09:45:15,996: DEBUG: running 'plink -A -batch komodo@mule "ln -f /data/komodo/builds/10.1.3/DevBuilds/assvn-10.1.3-89510/internal/crashreportsymbols/Komodo-IDE-10.1.3-89510-linux-x86_64.zip /data/komodo/builds/10.1.3/RC1/internal/crashreportsymbols/Komodo-IDE-10.1.3-89510-linux-x86_64.zip"'
+2016-12-05 09:45:16,789: DEBUG: running 'plink -A -batch komodo@mule "ln -f /data/komodo/builds/10.1.3/DevBuilds/assvn-10.1.3-89510/internal/crashreportsymbols/Komodo-IDE-10.1.3-89510-macosx.zip /data/komodo/builds/10.1.3/RC1/internal/crashreportsymbols/Komodo-IDE-10.1.3-89510-macosx.zip"'
+2016-12-05 09:45:17,576: DEBUG: running 'plink -A -batch komodo@mule "ln -f /data/komodo/builds/10.1.3/DevBuilds/assvn-10.1.3-89510/internal/crashreportsymbols/Komodo-IDE-10.1.3-89510-win32-x86.zip /data/komodo/builds/10.1.3/RC1/internal/crashreportsymbols/Komodo-IDE-10.1.3-89510-win32-x86.zip"'
+2016-12-05 09:45:18,714: DEBUG: plink -batch komodo@mule ls /data
+2016-12-05 09:45:19,180: DEBUG: plink -batch komodo@mule ls /data/komodo
+2016-12-05 09:45:19,549: DEBUG: plink -batch komodo@mule ls /data/komodo/builds
+2016-12-05 09:45:19,926: DEBUG: plink -batch komodo@mule ls /data/komodo/builds/10.1.3
+2016-12-05 09:45:20,335: DEBUG: plink -batch komodo@mule ls /data/komodo/builds/10.1.3/RC1
+2016-12-05 09:45:20,753: DEBUG: plink -batch komodo@mule ls /data/komodo/builds/10.1.3/RC1/internal
+2016-12-05 09:45:21,132: DEBUG: plink -batch komodo@mule ls /data/komodo/builds/10.1.3/RC1/internal/log
+2016-12-05 09:45:22,371: DEBUG: running 'plink -A -batch komodo@mule "ln -f /data/komodo/builds/10.1.3/DevBuilds/oksvn-10.1.3-17451/internal/log/edit-linux-x86_64.log /data/komodo/builds/10.1.3/RC1/internal/log"'
+2016-12-05 09:45:22,786: DEBUG: running 'plink -A -batch komodo@mule "ln -f /data/komodo/builds/10.1.3/DevBuilds/oksvn-10.1.3-17451/internal/log/edit-linux-x86.log /data/komodo/builds/10.1.3/RC1/internal/log"'
+2016-12-05 09:45:23,210: DEBUG: running 'plink -A -batch komodo@mule "ln -f /data/komodo/builds/10.1.3/DevBuilds/oksvn-10.1.3-17451/internal/log/edit-macosx-bigcat.log /data/komodo/builds/10.1.3/RC1/internal/log"'
+2016-12-05 09:45:23,637: DEBUG: running 'plink -A -batch komodo@mule "ln -f /data/komodo/builds/10.1.3/DevBuilds/oksvn-10.1.3-17451/internal/log/edit-win32-x86.log /data/komodo/builds/10.1.3/RC1/internal/log"'
+2016-12-05 09:45:24,858: DEBUG: running 'plink -A -batch komodo@mule "ln -f /data/komodo/builds/10.1.3/DevBuilds/assvn-10.1.3-89510/internal/log/ide-linux-x86_64.log /data/komodo/builds/10.1.3/RC1/internal/log"'
+2016-12-05 09:45:25,283: DEBUG: running 'plink -A -batch komodo@mule "ln -f /data/komodo/builds/10.1.3/DevBuilds/assvn-10.1.3-89510/internal/log/ide-linux-x86.log /data/komodo/builds/10.1.3/RC1/internal/log"'
+2016-12-05 09:45:25,664: DEBUG: running 'plink -A -batch komodo@mule "ln -f /data/komodo/builds/10.1.3/DevBuilds/assvn-10.1.3-89510/internal/log/ide-macosx-bigcat.log /data/komodo/builds/10.1.3/RC1/internal/log"'
+2016-12-05 09:45:26,065: DEBUG: running 'plink -A -batch komodo@mule "ln -f /data/komodo/builds/10.1.3/DevBuilds/assvn-10.1.3-89510/internal/log/ide-win32-x86.log /data/komodo/builds/10.1.3/RC1/internal/log"'
+2016-12-05 09:45:26,871: DEBUG: plink -batch komodo@mule ls /data
+2016-12-05 09:45:27,239: DEBUG: plink -batch komodo@mule ls /data/komodo
+2016-12-05 09:45:27,611: DEBUG: plink -batch komodo@mule ls /data/komodo/builds
+2016-12-05 09:45:27,993: DEBUG: plink -batch komodo@mule ls /data/komodo/builds/10.1.3
+2016-12-05 09:45:28,467: DEBUG: plink -batch komodo@mule ls /data/komodo/builds/10.1.3/RC1
+2016-12-05 09:45:28,839: DEBUG: plink -batch komodo@mule ls /data/komodo/builds/10.1.3/RC1/internal
+2016-12-05 09:45:29,206: DEBUG: plink -batch komodo@mule ls /data/komodo/builds/10.1.3/RC1/internal/pad
+2016-12-05 09:45:30,111: DEBUG: plink -batch komodo@mule ls /data/komodo/builds/10.1.3/RC1/internal/pad/komodo_edit
+2016-12-05 09:45:30,874: DEBUG: running 'plink -A -batch komodo@mule "ln -f /data/komodo/builds/10.1.3/DevBuilds/oksvn-10.1.3-17451/internal/pad/komodo_edit/komodo_edit_linux.png /data/komodo/builds/10.1.3/RC1/internal/pad/komodo_edit/komodo_edit_linux.png"'
+2016-12-05 09:45:31,703: DEBUG: running 'plink -A -batch komodo@mule "ln -f /data/komodo/builds/10.1.3/DevBuilds/oksvn-10.1.3-17451/internal/pad/komodo_edit/komodo_edit_linux_x86.xml /data/komodo/builds/10.1.3/RC1/internal/pad/komodo_edit/komodo_edit_linux_x86.xml"'
+2016-12-05 09:45:32,572: DEBUG: running 'plink -A -batch komodo@mule "ln -f /data/komodo/builds/10.1.3/DevBuilds/oksvn-10.1.3-17451/internal/pad/komodo_edit/komodo_edit_linux_x86_64.xml /data/komodo/builds/10.1.3/RC1/internal/pad/komodo_edit/komodo_edit_linux_x86_64.xml"'
+2016-12-05 09:45:33,482: DEBUG: running 'plink -A -batch komodo@mule "ln -f /data/komodo/builds/10.1.3/DevBuilds/oksvn-10.1.3-17451/internal/pad/komodo_edit/komodo_edit_macosx.png /data/komodo/builds/10.1.3/RC1/internal/pad/komodo_edit/komodo_edit_macosx.png"'
+2016-12-05 09:45:34,286: DEBUG: running 'plink -A -batch komodo@mule "ln -f /data/komodo/builds/10.1.3/DevBuilds/oksvn-10.1.3-17451/internal/pad/komodo_edit/komodo_edit_macosx.xml /data/komodo/builds/10.1.3/RC1/internal/pad/komodo_edit/komodo_edit_macosx.xml"'
+2016-12-05 09:45:35,076: DEBUG: running 'plink -A -batch komodo@mule "ln -f /data/komodo/builds/10.1.3/DevBuilds/oksvn-10.1.3-17451/internal/pad/komodo_edit/komodo_edit_win32.png /data/komodo/builds/10.1.3/RC1/internal/pad/komodo_edit/komodo_edit_win32.png"'
+2016-12-05 09:45:35,948: DEBUG: running 'plink -A -batch komodo@mule "ln -f /data/komodo/builds/10.1.3/DevBuilds/oksvn-10.1.3-17451/internal/pad/komodo_edit/komodo_edit_win32_x86.xml /data/komodo/builds/10.1.3/RC1/internal/pad/komodo_edit/komodo_edit_win32_x86.xml"'
+2016-12-05 09:45:36,786: DEBUG: running 'plink -A -batch komodo@mule "ln -f /data/komodo/builds/10.1.3/DevBuilds/oksvn-10.1.3-17451/internal/pad/komodo_edit/komodoedit_orb_32.png /data/komodo/builds/10.1.3/RC1/internal/pad/komodo_edit/komodoedit_orb_32.png"'
+2016-12-05 09:45:37,598: DEBUG: plink -batch komodo@mule ls /data
+2016-12-05 09:45:37,986: DEBUG: plink -batch komodo@mule ls /data/komodo
+2016-12-05 09:45:38,407: DEBUG: plink -batch komodo@mule ls /data/komodo/builds
+2016-12-05 09:45:38,776: DEBUG: plink -batch komodo@mule ls /data/komodo/builds/10.1.3
+2016-12-05 09:45:39,153: DEBUG: plink -batch komodo@mule ls /data/komodo/builds/10.1.3/RC1
+2016-12-05 09:45:39,562: DEBUG: plink -batch komodo@mule ls /data/komodo/builds/10.1.3/RC1/internal
+2016-12-05 09:45:39,938: DEBUG: plink -batch komodo@mule ls /data/komodo/builds/10.1.3/RC1/internal/pad
+2016-12-05 09:45:40,352: DEBUG: plink -batch komodo@mule ls /data/komodo/builds/10.1.3/RC1/internal/pad/komodo_ide
+2016-12-05 09:45:41,154: DEBUG: running 'plink -A -batch komodo@mule "ln -f /data/komodo/builds/10.1.3/DevBuilds/assvn-10.1.3-89510/internal/pad/komodo_ide/komodo_ide_linux.png /data/komodo/builds/10.1.3/RC1/internal/pad/komodo_ide/komodo_ide_linux.png"'
+2016-12-05 09:45:42,253: DEBUG: running 'plink -A -batch komodo@mule "ln -f /data/komodo/builds/10.1.3/DevBuilds/assvn-10.1.3-89510/internal/pad/komodo_ide/komodo_ide_linux_x86.xml /data/komodo/builds/10.1.3/RC1/internal/pad/komodo_ide/komodo_ide_linux_x86.xml"'
+2016-12-05 09:45:43,098: DEBUG: running 'plink -A -batch komodo@mule "ln -f /data/komodo/builds/10.1.3/DevBuilds/assvn-10.1.3-89510/internal/pad/komodo_ide/komodo_ide_linux_x86_64.xml /data/komodo/builds/10.1.3/RC1/internal/pad/komodo_ide/komodo_ide_linux_x86_64.xml"'
+2016-12-05 09:45:43,911: DEBUG: running 'plink -A -batch komodo@mule "ln -f /data/komodo/builds/10.1.3/DevBuilds/assvn-10.1.3-89510/internal/pad/komodo_ide/komodo_ide_macosx.png /data/komodo/builds/10.1.3/RC1/internal/pad/komodo_ide/komodo_ide_macosx.png"'
+2016-12-05 09:45:44,905: DEBUG: running 'plink -A -batch komodo@mule "ln -f /data/komodo/builds/10.1.3/DevBuilds/assvn-10.1.3-89510/internal/pad/komodo_ide/komodo_ide_macosx.xml /data/komodo/builds/10.1.3/RC1/internal/pad/komodo_ide/komodo_ide_macosx.xml"'
+2016-12-05 09:45:45,697: DEBUG: running 'plink -A -batch komodo@mule "ln -f /data/komodo/builds/10.1.3/DevBuilds/assvn-10.1.3-89510/internal/pad/komodo_ide/komodo_ide_win32.png /data/komodo/builds/10.1.3/RC1/internal/pad/komodo_ide/komodo_ide_win32.png"'
+2016-12-05 09:45:46,579: DEBUG: running 'plink -A -batch komodo@mule "ln -f /data/komodo/builds/10.1.3/DevBuilds/assvn-10.1.3-89510/internal/pad/komodo_ide/komodo_ide_win32_x86.xml /data/komodo/builds/10.1.3/RC1/internal/pad/komodo_ide/komodo_ide_win32_x86.xml"'
+2016-12-05 09:45:47,342: DEBUG: running 'plink -A -batch komodo@mule "ln -f /data/komodo/builds/10.1.3/DevBuilds/assvn-10.1.3-89510/internal/pad/komodo_ide/komodo_orb_32.png /data/komodo/builds/10.1.3/RC1/internal/pad/komodo_ide/komodo_orb_32.png"'
+2016-12-05 09:45:48,160: DEBUG: plink -batch komodo@mule ls /data
+2016-12-05 09:45:48,572: DEBUG: plink -batch komodo@mule ls /data/komodo
+2016-12-05 09:45:48,973: DEBUG: plink -batch komodo@mule ls /data/komodo/builds
+2016-12-05 09:45:49,397: DEBUG: plink -batch komodo@mule ls /data/komodo/builds/10.1.3
+2016-12-05 09:45:49,801: DEBUG: plink -batch komodo@mule ls /data/komodo/builds/10.1.3/RC1
+2016-12-05 09:45:50,187: DEBUG: plink -batch komodo@mule ls /data/komodo/builds/10.1.3/RC1/remotedebugging
+2016-12-05 09:45:51,076: DEBUG: running 'plink -A -batch komodo@mule "ln -f /data/komodo/builds/10.1.3/DevBuilds/assvn-10.1.3-89510/remotedebugging/Komodo-PHPRemoteDebugging-10.1.3-89510-linux-x86.tar.gz /data/komodo/builds/10.1.3/RC1/remotedebugging/Komodo-PHPRemoteDebugging-10.1.3-89510-linux-x86.tar.gz"'
+2016-12-05 09:45:51,851: DEBUG: running 'plink -A -batch komodo@mule "ln -f /data/komodo/builds/10.1.3/DevBuilds/assvn-10.1.3-89510/remotedebugging/Komodo-PHPRemoteDebugging-10.1.3-89510-linux-x86_64.tar.gz /data/komodo/builds/10.1.3/RC1/remotedebugging/Komodo-PHPRemoteDebugging-10.1.3-89510-linux-x86_64.tar.gz"'
+2016-12-05 09:45:52,813: DEBUG: running 'plink -A -batch komodo@mule "ln -f /data/komodo/builds/10.1.3/DevBuilds/assvn-10.1.3-89510/remotedebugging/Komodo-PHPRemoteDebugging-10.1.3-89510-macosx.tar.gz /data/komodo/builds/10.1.3/RC1/remotedebugging/Komodo-PHPRemoteDebugging-10.1.3-89510-macosx.tar.gz"'
+2016-12-05 09:45:53,650: DEBUG: running 'plink -A -batch komodo@mule "ln -f /data/komodo/builds/10.1.3/DevBuilds/assvn-10.1.3-89510/remotedebugging/Komodo-PHPRemoteDebugging-10.1.3-89510-win32-x86.zip /data/komodo/builds/10.1.3/RC1/remotedebugging/Komodo-PHPRemoteDebugging-10.1.3-89510-win32-x86.zip"'
+2016-12-05 09:45:54,404: DEBUG: running 'plink -A -batch komodo@mule "ln -f /data/komodo/builds/10.1.3/DevBuilds/assvn-10.1.3-89510/remotedebugging/Komodo-PerlRemoteDebugging-10.1.3-89510-linux-x86.tar.gz /data/komodo/builds/10.1.3/RC1/remotedebugging/Komodo-PerlRemoteDebugging-10.1.3-89510-linux-x86.tar.gz"'
+2016-12-05 09:45:55,174: DEBUG: running 'plink -A -batch komodo@mule "ln -f /data/komodo/builds/10.1.3/DevBuilds/assvn-10.1.3-89510/remotedebugging/Komodo-PerlRemoteDebugging-10.1.3-89510-linux-x86_64.tar.gz /data/komodo/builds/10.1.3/RC1/remotedebugging/Komodo-PerlRemoteDebugging-10.1.3-89510-linux-x86_64.tar.gz"'
+2016-12-05 09:45:55,951: DEBUG: running 'plink -A -batch komodo@mule "ln -f /data/komodo/builds/10.1.3/DevBuilds/assvn-10.1.3-89510/remotedebugging/Komodo-PerlRemoteDebugging-10.1.3-89510-macosx.tar.gz /data/komodo/builds/10.1.3/RC1/remotedebugging/Komodo-PerlRemoteDebugging-10.1.3-89510-macosx.tar.gz"'
+2016-12-05 09:45:56,865: DEBUG: running 'plink -A -batch komodo@mule "ln -f /data/komodo/builds/10.1.3/DevBuilds/assvn-10.1.3-89510/remotedebugging/Komodo-PerlRemoteDebugging-10.1.3-89510-win32-x86.zip /data/komodo/builds/10.1.3/RC1/remotedebugging/Komodo-PerlRemoteDebugging-10.1.3-89510-win32-x86.zip"'
+2016-12-05 09:45:57,710: DEBUG: running 'plink -A -batch komodo@mule "ln -f /data/komodo/builds/10.1.3/DevBuilds/assvn-10.1.3-89510/remotedebugging/Komodo-PythonRemoteDebugging-10.1.3-89510-linux-x86.tar.gz /data/komodo/builds/10.1.3/RC1/remotedebugging/Komodo-PythonRemoteDebugging-10.1.3-89510-linux-x86.tar.gz"'
+2016-12-05 09:45:58,536: DEBUG: running 'plink -A -batch komodo@mule "ln -f /data/komodo/builds/10.1.3/DevBuilds/assvn-10.1.3-89510/remotedebugging/Komodo-PythonRemoteDebugging-10.1.3-89510-linux-x86_64.tar.gz /data/komodo/builds/10.1.3/RC1/remotedebugging/Komodo-PythonRemoteDebugging-10.1.3-89510-linux-x86_64.tar.gz"'
+2016-12-05 09:45:59,440: DEBUG: running 'plink -A -batch komodo@mule "ln -f /data/komodo/builds/10.1.3/DevBuilds/assvn-10.1.3-89510/remotedebugging/Komodo-PythonRemoteDebugging-10.1.3-89510-macosx.tar.gz /data/komodo/builds/10.1.3/RC1/remotedebugging/Komodo-PythonRemoteDebugging-10.1.3-89510-macosx.tar.gz"'
+2016-12-05 09:46:00,257: DEBUG: running 'plink -A -batch komodo@mule "ln -f /data/komodo/builds/10.1.3/DevBuilds/assvn-10.1.3-89510/remotedebugging/Komodo-PythonRemoteDebugging-10.1.3-89510-win32-x86.zip /data/komodo/builds/10.1.3/RC1/remotedebugging/Komodo-PythonRemoteDebugging-10.1.3-89510-win32-x86.zip"'
+2016-12-05 09:46:01,065: DEBUG: running 'plink -A -batch komodo@mule "ln -f /data/komodo/builds/10.1.3/DevBuilds/assvn-10.1.3-89510/remotedebugging/Komodo-RubyRemoteDebugging-10.1.3-89510-linux-x86.tar.gz /data/komodo/builds/10.1.3/RC1/remotedebugging/Komodo-RubyRemoteDebugging-10.1.3-89510-linux-x86.tar.gz"'
+2016-12-05 09:46:01,898: DEBUG: running 'plink -A -batch komodo@mule "ln -f /data/komodo/builds/10.1.3/DevBuilds/assvn-10.1.3-89510/remotedebugging/Komodo-RubyRemoteDebugging-10.1.3-89510-linux-x86_64.tar.gz /data/komodo/builds/10.1.3/RC1/remotedebugging/Komodo-RubyRemoteDebugging-10.1.3-89510-linux-x86_64.tar.gz"'
+2016-12-05 09:46:02,852: DEBUG: running 'plink -A -batch komodo@mule "ln -f /data/komodo/builds/10.1.3/DevBuilds/assvn-10.1.3-89510/remotedebugging/Komodo-RubyRemoteDebugging-10.1.3-89510-macosx.tar.gz /data/komodo/builds/10.1.3/RC1/remotedebugging/Komodo-RubyRemoteDebugging-10.1.3-89510-macosx.tar.gz"'
+2016-12-05 09:46:03,967: DEBUG: running 'plink -A -batch komodo@mule "ln -f /data/komodo/builds/10.1.3/DevBuilds/assvn-10.1.3-89510/remotedebugging/Komodo-RubyRemoteDebugging-10.1.3-89510-win32-x86.zip /data/komodo/builds/10.1.3/RC1/remotedebugging/Komodo-RubyRemoteDebugging-10.1.3-89510-win32-x86.zip"'
+2016-12-05 09:46:04,736: DEBUG: running 'plink -A -batch komodo@mule "ln -f /data/komodo/builds/10.1.3/DevBuilds/assvn-10.1.3-89510/remotedebugging/Komodo-TclRemoteDebugging-10.1.3-89510-linux-x86.tar.gz /data/komodo/builds/10.1.3/RC1/remotedebugging/Komodo-TclRemoteDebugging-10.1.3-89510-linux-x86.tar.gz"'
+2016-12-05 09:46:05,778: DEBUG: running 'plink -A -batch komodo@mule "ln -f /data/komodo/builds/10.1.3/DevBuilds/assvn-10.1.3-89510/remotedebugging/Komodo-TclRemoteDebugging-10.1.3-89510-linux-x86_64.tar.gz /data/komodo/builds/10.1.3/RC1/remotedebugging/Komodo-TclRemoteDebugging-10.1.3-89510-linux-x86_64.tar.gz"'
+2016-12-05 09:46:06,963: DEBUG: running 'plink -A -batch komodo@mule "ln -f /data/komodo/builds/10.1.3/DevBuilds/assvn-10.1.3-89510/remotedebugging/Komodo-TclRemoteDebugging-10.1.3-89510-macosx.tar.gz /data/komodo/builds/10.1.3/RC1/remotedebugging/Komodo-TclRemoteDebugging-10.1.3-89510-macosx.tar.gz"'
+2016-12-05 09:46:07,782: DEBUG: running 'plink -A -batch komodo@mule "ln -f /data/komodo/builds/10.1.3/DevBuilds/assvn-10.1.3-89510/remotedebugging/Komodo-TclRemoteDebugging-10.1.3-89510-win32-x86.zip /data/komodo/builds/10.1.3/RC1/remotedebugging/Komodo-TclRemoteDebugging-10.1.3-89510-win32-x86.zip"'
+2016-12-05 09:46:09,038: DEBUG: plink -batch komodo@mule ls /data
+2016-12-05 09:46:09,434: DEBUG: plink -batch komodo@mule ls /data/komodo
+2016-12-05 09:46:09,882: DEBUG: plink -batch komodo@mule ls /data/komodo/builds
+2016-12-05 09:46:10,331: DEBUG: plink -batch komodo@mule ls /data/komodo/builds/10.1.3
+2016-12-05 09:46:10,782: DEBUG: plink -batch komodo@mule ls /data/komodo/builds/10.1.3/RC1
+2016-12-05 09:46:11,165: DEBUG: plink -batch komodo@mule ls /data/komodo/builds/10.1.3/RC1/updates
+2016-12-05 09:46:11,999: DEBUG: running 'plink -A -batch komodo@mule "ln -f /data/komodo/builds/10.1.3/DevBuilds/oksvn-10.1.3-17451/updates/Komodo-Edit-10.1.3-17451-linux-x86-complete.mar /data/komodo/builds/10.1.3/RC1/updates/Komodo-Edit-10.1.3-17451-linux-x86-complete.mar"'
+2016-12-05 09:46:12,785: DEBUG: running 'plink -A -batch komodo@mule "ln -f /data/komodo/builds/10.1.3/DevBuilds/oksvn-10.1.3-17451/updates/Komodo-Edit-10.1.3-17451-linux-x86-partial-10.1.2-17449.mar /data/komodo/builds/10.1.3/RC1/updates/Komodo-Edit-10.1.3-17451-linux-x86-partial-10.1.2-17449.mar"'
+2016-12-05 09:46:13,562: DEBUG: running 'plink -A -batch komodo@mule "ln -f /data/komodo/builds/10.1.3/DevBuilds/oksvn-10.1.3-17451/updates/Komodo-Edit-10.1.3-17451-linux-x86_64-complete.mar /data/komodo/builds/10.1.3/RC1/updates/Komodo-Edit-10.1.3-17451-linux-x86_64-complete.mar"'
+2016-12-05 09:46:14,431: DEBUG: running 'plink -A -batch komodo@mule "ln -f /data/komodo/builds/10.1.3/DevBuilds/oksvn-10.1.3-17451/updates/Komodo-Edit-10.1.3-17451-linux-x86_64-partial-10.1.2-17449.mar /data/komodo/builds/10.1.3/RC1/updates/Komodo-Edit-10.1.3-17451-linux-x86_64-partial-10.1.2-17449.mar"'
+2016-12-05 09:46:15,255: DEBUG: running 'plink -A -batch komodo@mule "ln -f /data/komodo/builds/10.1.3/DevBuilds/oksvn-10.1.3-17451/updates/Komodo-Edit-10.1.3-17451-macosx-complete.mar /data/komodo/builds/10.1.3/RC1/updates/Komodo-Edit-10.1.3-17451-macosx-complete.mar"'
+2016-12-05 09:46:16,141: DEBUG: running 'plink -A -batch komodo@mule "ln -f /data/komodo/builds/10.1.3/DevBuilds/oksvn-10.1.3-17451/updates/Komodo-Edit-10.1.3-17451-macosx-partial-10.1.2-17449.mar /data/komodo/builds/10.1.3/RC1/updates/Komodo-Edit-10.1.3-17451-macosx-partial-10.1.2-17449.mar"'
+2016-12-05 09:46:17,055: DEBUG: running 'plink -A -batch komodo@mule "ln -f /data/komodo/builds/10.1.3/DevBuilds/oksvn-10.1.3-17451/updates/Komodo-Edit-10.1.3-17451-win32-x86-complete.mar /data/komodo/builds/10.1.3/RC1/updates/Komodo-Edit-10.1.3-17451-win32-x86-complete.mar"'
+2016-12-05 09:46:17,908: DEBUG: running 'plink -A -batch komodo@mule "ln -f /data/komodo/builds/10.1.3/DevBuilds/oksvn-10.1.3-17451/updates/Komodo-Edit-10.1.3-17451-win32-x86-partial-10.1.2-17449.mar /data/komodo/builds/10.1.3/RC1/updates/Komodo-Edit-10.1.3-17451-win32-x86-partial-10.1.2-17449.mar"'
+2016-12-05 09:46:18,819: DEBUG: running 'plink -A -batch komodo@mule "ln -f /data/komodo/builds/10.1.3/DevBuilds/assvn-10.1.3-89510/updates/Komodo-IDE-10.1.3-89510-linux-x86-complete.mar /data/komodo/builds/10.1.3/RC1/updates/Komodo-IDE-10.1.3-89510-linux-x86-complete.mar"'
+2016-12-05 09:46:19,655: DEBUG: running 'plink -A -batch komodo@mule "ln -f /data/komodo/builds/10.1.3/DevBuilds/assvn-10.1.3-89510/updates/Komodo-IDE-10.1.3-89510-linux-x86-partial-10.1.2-89508.mar /data/komodo/builds/10.1.3/RC1/updates/Komodo-IDE-10.1.3-89510-linux-x86-partial-10.1.2-89508.mar"'
+2016-12-05 09:46:20,525: DEBUG: running 'plink -A -batch komodo@mule "ln -f /data/komodo/builds/10.1.3/DevBuilds/assvn-10.1.3-89510/updates/Komodo-IDE-10.1.3-89510-linux-x86_64-complete.mar /data/komodo/builds/10.1.3/RC1/updates/Komodo-IDE-10.1.3-89510-linux-x86_64-complete.mar"'
+2016-12-05 09:46:21,385: DEBUG: running 'plink -A -batch komodo@mule "ln -f /data/komodo/builds/10.1.3/DevBuilds/assvn-10.1.3-89510/updates/Komodo-IDE-10.1.3-89510-linux-x86_64-partial-10.1.2-89508.mar /data/komodo/builds/10.1.3/RC1/updates/Komodo-IDE-10.1.3-89510-linux-x86_64-partial-10.1.2-89508.mar"'
+2016-12-05 09:46:22,493: DEBUG: running 'plink -A -batch komodo@mule "ln -f /data/komodo/builds/10.1.3/DevBuilds/assvn-10.1.3-89510/updates/Komodo-IDE-10.1.3-89510-macosx-complete.mar /data/komodo/builds/10.1.3/RC1/updates/Komodo-IDE-10.1.3-89510-macosx-complete.mar"'
+2016-12-05 09:46:23,286: DEBUG: running 'plink -A -batch komodo@mule "ln -f /data/komodo/builds/10.1.3/DevBuilds/assvn-10.1.3-89510/updates/Komodo-IDE-10.1.3-89510-macosx-partial-10.1.2-89508.mar /data/komodo/builds/10.1.3/RC1/updates/Komodo-IDE-10.1.3-89510-macosx-partial-10.1.2-89508.mar"'
+2016-12-05 09:46:24,128: DEBUG: running 'plink -A -batch komodo@mule "ln -f /data/komodo/builds/10.1.3/DevBuilds/assvn-10.1.3-89510/updates/Komodo-IDE-10.1.3-89510-win32-x86-complete.mar /data/komodo/builds/10.1.3/RC1/updates/Komodo-IDE-10.1.3-89510-win32-x86-complete.mar"'
+2016-12-05 09:46:24,966: DEBUG: running 'plink -A -batch komodo@mule "ln -f /data/komodo/builds/10.1.3/DevBuilds/assvn-10.1.3-89510/updates/Komodo-IDE-10.1.3-89510-win32-x86-partial-10.1.2-89508.mar /data/komodo/builds/10.1.3/RC1/updates/Komodo-IDE-10.1.3-89510-win32-x86-partial-10.1.2-89508.mar"'
+2016-12-05 09:46:25,368: INFO: Creating MD5SUM files...
+2016-12-05 09:46:25,368: DEBUG: running 'plink -A -batch komodo@mule "cd /data/komodo/builds/10.1.3/RC1/. && md5sum *.* >MD5SUM"'
+2016-12-05 09:46:28,128: DEBUG: running 'plink -A -batch komodo@mule "cd /data/komodo/builds/10.1.3/RC1/remotedebugging && md5sum *.* >MD5SUM"'
+2016-12-05 09:46:28,661: DEBUG: running 'plink -A -batch komodo@mule "cd /data/komodo/builds/10.1.3/RC1/updates && md5sum *.* >MD5SUM"'
