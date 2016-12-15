@@ -15,6 +15,7 @@ cocoa_ScintillaCocoa_mm.patch
 cocoa_ScintillaView_mm.patch
 cocoa_scrollbar_notifications.patch
 cocoa_tab_close_crash.patch
+cocoa_dealloc_crash_fix.patch
 coffeescript_instance_props.patch
 coffeescript_ranges.patch
 coffeescript_regex.patch
@@ -56,4 +57,3 @@ expose_addCharUTF.patch
 gtk_wrap_gtk.patch
 gtk_clipboard_persist.patch
 powershell_escapes.patch
-osx_10_12_2_crash_upstream_fix.patch
