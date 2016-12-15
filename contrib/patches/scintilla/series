@@ -56,3 +56,4 @@ expose_addCharUTF.patch
 gtk_wrap_gtk.patch
 gtk_clipboard_persist.patch
 powershell_escapes.patch
+osx_10_12_2_crash_upstream_fix.patch
