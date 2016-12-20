@@ -50,6 +50,7 @@ const ko = require("ko/windows").getMain().ko;
             try {
                 // This'll throw if the file doesn't exist.
                 file.remove(this.filename);
+                this._root = {}
             } catch (err) {}
         },
 
