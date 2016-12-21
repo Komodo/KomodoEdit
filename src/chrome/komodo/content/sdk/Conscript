@@ -49,6 +49,8 @@ $cons->InstallInChrome('filestatus.js');
 $cons->InstallInChrome('simple-storage.js');
 $cons->InstallInChrome('share.js');
 $cons->InstallInChrome('modal.js');
+$cons->InstallInChrome('socket/tcp.js');
+$cons->InstallInChrome('jsonrpc.js');
 
 if ($buildFlavour eq "dev") {
     $cons->InstallInChrome('benchmark.js');
