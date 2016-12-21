@@ -181,6 +181,11 @@
             });
         });
         
+        process.on('error', function (e)
+        {
+            log.error(e.message);
+        });
+        
         process.on('close', function (code, signal)
         {
             if (code !== 0)
