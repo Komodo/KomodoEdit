@@ -51,7 +51,7 @@
             let row = parent.addRow();
             
             if (field.label)
-                row.add(require("ko/ui/label").create(field.label + ":"));
+                row.add(require("ko/ui/label").create({ attributes: { value: field.label + ":", tooltiptext: field.label, crop: "center" }}));
             
             let elem = require("ko/ui/" + (field.type || "textbox")).create(field.options || undefined);
             mapping[key] = elem;
