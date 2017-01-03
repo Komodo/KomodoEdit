@@ -39,11 +39,12 @@ module.exports = Module;
             if ( ! value)
                 return this.checked();
             
-            var localValue = this.attributes.value || this.attributes.label || false;
-            var checked = value == localValue;
-            this.checked(checked);
-            
-            return checked;
+            if (typeof value != "boolean")
+            {
+                var localValue = this.attributes.value || this.attributes.label || false;
+                value = value == localValue;
+            }
+            return this.checked(value);
         };
         
     }).apply(this.Model); 
