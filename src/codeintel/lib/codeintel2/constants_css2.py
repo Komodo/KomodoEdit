@@ -349,6 +349,7 @@ CSS2_SPECIFIC_ATTRS_DICT = {
     'position'  : [
             'absolute',
             'fixed',
+            'sticky',
             'inherit',
             'relative',
             'static',
