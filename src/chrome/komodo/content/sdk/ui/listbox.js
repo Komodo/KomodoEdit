@@ -17,6 +17,9 @@ module.exports = Module;
     
     this.Model = Object.assign({}, this.Model);
     
+    this.listhead = null;
+    this.listcols = null;
+    
     (function() {
         
         this.name = "listbox";
@@ -46,6 +49,16 @@ module.exports = Module;
             {
                 log.warn("List items must be in an array.  Failed to add list "+
                          "items to listbox.");
+            }
+            
+            if ("listheaders" in options)
+            {
+                this.addListHeaders(options.listheaders);
+            }
+            
+            if ("listcols" in options)
+            {
+                this.addListCols(options.listcols);
             }
         };
         
@@ -100,6 +113,32 @@ module.exports = Module;
             {
                 this.element.selectedItem = element;
             }
+        };
+        
+        this.addListHeaders = function() { return this.addListHeader.apply(this, arguments); };
+        
+        this.addListHeader = function()
+        {
+            if ( ! this.listhead)
+            {
+                this.listhead = require("./listhead").create();
+                this.$element.append(this.listhead.$element);
+            }
+            
+            this.listhead.addListHeader.apply(this.listhead, arguments);
+        };
+        
+        this.addListCols = function() { return this.addListCol.apply(this, arguments); };
+        
+        this.addListCol = function()
+        {
+            if ( ! this.listcols)
+            {
+                this.listcols = require("./listcols").create();
+                this.$element.append(this.listcols.$element);
+            }
+            
+            this.listcols.addListCol.apply(this.listcols, arguments);
         };
         
         this.getSelectedItems = function()
