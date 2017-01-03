@@ -19,6 +19,8 @@ module.exports = Module;
         
         this.name = "listitem";
         
+        this.init = this.initWithElement;
+        
     }).apply(this.Model);
     
 }).apply(Module);
