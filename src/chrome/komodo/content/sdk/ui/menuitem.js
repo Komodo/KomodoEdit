@@ -19,6 +19,27 @@ module.exports = Module;
         
         this.name = "menuitem";
         
+        this.init = function(label, options = {})
+        {
+            if (typeof label == "object")
+            {
+                options = label;
+                label = null;
+            }
+            
+            if (options.label)
+            {
+                label = options.label;
+            }
+            
+            this.initWithLabel(label, options);
+            
+            if ( ! this.attributes.value && label)
+            {
+                this.$element.attr("value", label);
+            }
+        };
+        
     }).apply(this.Model); 
     
 }).apply(Module);
