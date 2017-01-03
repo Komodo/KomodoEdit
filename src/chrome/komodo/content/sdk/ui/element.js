@@ -65,6 +65,11 @@ module.exports = Module;
                 label = null;
             }
             
+            if (options.label)
+            {
+                label = options.label;
+            }
+            
             var attributes = Object.assign(options.attributes || {}, this.attributes);
             
             if (typeof label == "string")
