@@ -43,6 +43,8 @@ $cons->InstallInChrome('span.js');
 $cons->InstallInChrome('list.js');
 $cons->InstallInChrome('listbox.js');
 $cons->InstallInChrome('listitem.js');
+$cons->InstallInChrome('listhead.js');
+$cons->InstallInChrome('listcols.js');
 $cons->InstallInChrome('filepath.js');
 $cons->InstallInChrome('interpolation-button.js');
 
