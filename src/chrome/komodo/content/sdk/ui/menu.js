@@ -52,6 +52,8 @@ module.exports = Module;
             }
         };
         
+        this.entries = function() { this.addMenuItems.apply(this, arguments); };
+        
         this.addMenuItems = function (menuitems)
         {
             for (let menuitem of menuitems) {
