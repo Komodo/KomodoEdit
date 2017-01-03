@@ -111,7 +111,7 @@ module.exports = Module;
             this.addElement(appendElement);
         };
         
-        this.addElement = function(appendElement)
+        this.addElement = function(appendElement, preferredType = null)
         {
             var elements = [];
             
@@ -138,6 +138,10 @@ module.exports = Module;
                 else if ("type" in _element)
                 {
                     elements.push(require('./' + _element.type).create(_element).element);
+                }
+                else if (preferredType)
+                {
+                    elements.push(require('./' + preferredType).create(_element).element);
                 }
             }
             
