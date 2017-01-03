@@ -51,6 +51,7 @@ $cons->InstallInChrome('share.js');
 $cons->InstallInChrome('modal.js');
 $cons->InstallInChrome('socket/tcp.js');
 $cons->InstallInChrome('jsonrpc.js');
+$cons->InstallInChrome('stylesheet.js');
 
 if ($buildFlavour eq "dev") {
     $cons->InstallInChrome('benchmark.js');
