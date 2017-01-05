@@ -18,37 +18,31 @@
             var windowPath = "chrome://komodo/content/tail/tail.xul";
             if( windowPath === e.detail.location.href)
             {
-                e.detail.addEventListener("load", updateButton.bind(null,e.detail));
+                e.detail.addEventListener("load", updateMenu.bind(null,e.detail));
             }
         });
     };
     
-    function updateButton(logWindow)
+    function updateMenu(logWindow)
     {
         // $ is instaniated on the main window so pass in the log window from
         // the event
         var $view = $("#view", logWindow);
+        var $parent = $("#bufferContextMenu", logWindow);
+        
         // Create the button if it doens't exist
-        var shareBtn = require("ko/ui/button").create('Share',
+        var shareMenu = require("ko/ui/menu").create(
             {
                 attributes:
                 {
-                    type: "menu",
+                    label: 'Share',
                     id: $view.element().id+"-share_menu",
                     tooltiptext:"Share Log .."
                 }
             });
-        // Append the share button to the track changes panel
-        var properties =
-        {
-            attributes:
-            {
-                align: "center",
-                pack: "center"
-            }
-        };
-        var row = require("ko/ui/row").create(shareBtn,properties);
-        $view.after(row.element);
+        
+        $parent.append($("<menuseparator>"));
+        $parent.append(shareMenu.element);
         
         for (let id in koShare.modules)
         {
@@ -62,7 +56,7 @@
             menuitem.on("command", share.bind(this, module.name, logWindow));
             
             // Add it to the menu
-            shareBtn.addMenuItem(menuitem);
+            shareMenu.addMenuItem(menuitem);
         }
     }
 
