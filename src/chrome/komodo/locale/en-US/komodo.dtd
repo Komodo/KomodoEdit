@@ -404,7 +404,7 @@
 <!ENTITY helpTroubleshootingViewErrorLog.desc "Help: Open the Komodo Error Log for viewing">
 <!ENTITY helpTroubleshootingAboutMemory.accesskey "M">
 <!ENTITY helpTroubleshootingAboutMemory.label "Memory Usage">
-<!ENTITY importExport.label "Import/Export">
+<!ENTITY import.label "Import">
 <!ENTITY importPackage.label "Import Package...">
 <!ENTITY increaseFont.accesskey "I">
 <!ENTITY increaseFont.label "Increase Font Size">
