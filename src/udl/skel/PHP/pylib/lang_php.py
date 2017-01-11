@@ -3223,7 +3223,7 @@ class PHPParser:
                     # Skip over the if statement and use the rest.
                     p = text.index("(")
                     p = self._skipPastParenArguments(styles, text, p+1)
-                    if "=" in text:
+                    if re.search(r"[^!]=[^=]", "".join(text[:p])):
                         # Variable assignment like "if ($var = ...) {"
                         self.text = text[text.index("(") + 1:p - 1]
                         self.styles = styles[text.index("(") + 1:p - 1]
