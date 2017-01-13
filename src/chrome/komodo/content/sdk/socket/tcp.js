@@ -17,6 +17,11 @@
         {
             socket = tcpSocket.open(server, port);
             
+            log.debug(`Opened socket connection to ${server}:${port}, state: ${socket.readyState}`);
+            
+            socket.onopen = onOpen;
+            socket.onerror = onError;
+            socket.onclose = onClose;
             socket.ondrain = pushData;
             socket.ondata = onData;
         };
@@ -27,6 +32,7 @@
         this.send = (data) =>
         {
             pushData.data += data + delimiter;
+            pushData();
         };
         
         this.close = () =>
@@ -41,10 +47,33 @@
         
         var pushData = () =>
         {
+            if (socket.readyState == "connecting")
+                return setTimeout(pushData, 100);
+            
+            if (socket.readyState == "closed")
+                return log.error("Cannot push data over a closed socket connection");
+            
+            log.debug(`Sending data: ${pushData.data}`);
             socket.send(pushData.data);
             pushData.data = "";
         };
         pushData.data = ""; // Cached data that will be send the next time we push
+        
+        var onOpen = () =>
+        {
+            log.debug("onOpen");
+        };
+        
+        var onClose = () =>
+        {
+            log.debug("onClose");
+        };
+        
+        var onError = (event) =>
+        {
+            log.debug("onError");
+            log.error(`Error occurred: ${event}`);
+        };
         
         var onData = (event) =>
         {
@@ -58,15 +87,25 @@
                 return;
             }
             
+            log.debug(`Received data: ${event.data}`);
+            
             onData.data += event.data;
             
             // Pass data to callbacks
             var index = onData.data.indexOf(delimiter);
-            while (index)
+            while (index != -1)
             {
                 let data = onData.data.substr(0, index);
                 for (let callback of callbacks)
-                    callback(data);
+                {
+                    try
+                    {
+                        callback(data);
+                    } catch (e)
+                    {
+                        log.exception("Exception occurred while performing callback", e);
+                    }
+                }
                     
                 onData.data = onData.data.substr(index+1);
                 index = onData.data.indexOf(delimiter);
