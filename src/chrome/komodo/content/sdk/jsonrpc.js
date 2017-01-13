@@ -13,6 +13,8 @@
         var init = () =>
         {
             socket.onData(onData);
+            
+            log.debug("Created new JSONRPC Instance");
         };
         
         this.request = (method, args) =>
@@ -50,6 +52,8 @@
             
             return new Promise((resolve, reject) =>
             {
+                log.debug(`Sending request: ${data}`);
+                
                 callbacks[reqid] = {};
                 callbacks[reqid].resolve = resolve;
                 callbacks[reqid].reject = reject;
@@ -72,7 +76,7 @@
         {
             try
             {
-                data = JSON.parse(data);
+                data = JSON.parse(data.trim());
             }
             catch (e)
             {
