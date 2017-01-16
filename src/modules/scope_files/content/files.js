@@ -428,7 +428,7 @@
         log.debug("Opening files: " + uris.join(", "));
 
         if (uris.length === 1)
-            ko.open.URI(uris);
+            ko.open.URI(uris[0]);
         else
             ko.open.multipleURIs(uris);
 
