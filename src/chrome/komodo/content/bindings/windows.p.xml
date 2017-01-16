@@ -160,6 +160,9 @@
       <field name="_tophandle">true</field>
       <constructor>
         <![CDATA[
+        var require = this._getRequireMethod();
+        if ( ! require) return;
+            
         var hideChrome = require("ko/prefs").getBoolean("ui.hide.chrome");
         
         this._draggable = hideChrome;
@@ -204,10 +207,25 @@
 <!-- #endif -->
         ]]>
       </constructor>
+      <method name="_getRequireMethod">
+        <body>
+            if (typeof require == "undefined")
+            {
+                var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator);
+                var w = wm.getMostRecentWindow("Komodo");
+                if ( ! w) return;
+                return w.require;
+            }
+            
+            return require;
+        </body>
+      </method>
 <!-- #if PLATFORM == "win" -->
       <method name="onResizeConstraintChecker">
         <body>
         <![CDATA[
+        var require = this._getRequireMethod();
+        
         if (typeof require == "undefined")
           return;
         
@@ -243,6 +261,8 @@
       <method name="maximize">
         <body>
         <![CDATA[
+        var require = this._getRequireMethod();
+        
         if (typeof require == "undefined" || (window.parent != window && ! window.opener)) {
             return window._maximize(); // not ready, or embedded
         }
@@ -274,6 +294,8 @@
       <method name="restore">
         <body>
         <![CDATA[
+        var require = this._getRequireMethod();
+        
         if (typeof require == "undefined" || (window.parent != window && ! window.opener)) {
             return window._restore(); // not ready, or embedded
         }
