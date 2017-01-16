@@ -1294,24 +1294,21 @@
         }
 
         // Sort by weight, if available
-        if (elem.resultData.weight)
+        var cont = true;
+        while (elem.previousSibling && cont)
         {
-            var cont = true;
-            while (elem.previousSibling && cont)
-            {
-                let current = elem.resultData;
-                let previous = elem.previousSibling.resultData;
+            let current = elem.resultData;
+            let previous = elem.previousSibling.resultData;
+            let currentWeight = current.weight || 0;
+            let prevWeight = previous.weight || 0;
 
-                if ( ! current)
-                    continue;
+            if ( ! current)
+                continue;
 
-                if ( ! previous || (current.weight && ! previous.weight) ||
-                    (current.weight && previous.weight && current.weight > previous.weight)
-                )
-                    elem.parentNode.insertBefore(elem, elem.previousSibling);
-                else
-                    cont = false;
-            }
+            if ( ! previous || (currentWeight > prevWeight))
+                elem.parentNode.insertBefore(elem, elem.previousSibling);
+            else
+                cont = false;
         }
 
         if (elem.resultData.favourite)
