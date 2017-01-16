@@ -21,7 +21,7 @@ module.exports = Module;
         
         this.init = function(label, options = {})
         {
-            if (typeof label == "object")
+            if (label && typeof label == "object")
             {
                 options = label;
                 label = null;
