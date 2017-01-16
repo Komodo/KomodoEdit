@@ -312,7 +312,7 @@ this.getViewData = function Interpolate_getViewData(editor,
     
     // lineText
     if ( !("lineText" in viewData) ){
-        if(view)
+        if(scimoz)
         {
             viewData.lineText = editor.require("ko/editor").getLine();
         } else {
