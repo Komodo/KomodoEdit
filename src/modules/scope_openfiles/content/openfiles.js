@@ -40,15 +40,19 @@
             if (path.toLowerCase().indexOf(query.toLowerCase()) == -1 &&
                 editorView.title.toLowerCase().indexOf(query.toLowerCase()) == -1)
                 continue;
-
-            // Todo: Normalize weight?
-            var weight = editorView.koDoc.fileLastAccessed;
-
+            
+            // weight can't be more than this
+            // we want to leave 100 for more relevant scopes
+            var totalWeight = 80;
+            
+            var weight = 0;
             var words = query.split(/\s+/);
+            var weightPerHit = totalWeight / words.length;
+            
             for (let word of words)
             {
                 if (path.indexOf(word))
-                    weight += 1000;
+                    weight += weightPerHit;
             }
 
             commando.renderResult({
