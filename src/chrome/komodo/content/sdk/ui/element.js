@@ -59,7 +59,7 @@ module.exports = Module;
         
         this.initWithLabel = function(label, options = {})
         {
-            if (typeof label == "object")
+            if (label && typeof label == "object")
             {
                 options = label;
                 label = null;
