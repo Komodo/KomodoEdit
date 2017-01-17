@@ -212,8 +212,11 @@
                           label="&maintainIndentationContextAfterInsertion.label;"
                           checked="true"/>
                 <checkbox id="auto_abbreviation"
-                          label="&AutoAbbreviation.label;"
-                          checked="false"/>
+                      label="&AutoAbbreviation.label;"
+                      checked="false"/>
+                <hbox id="abbrevLangMenu"
+                      style="margin-left: 27px;">
+                </hbox>
                 <checkbox id="treat_as_ejs"
                           label="&TreatAsEJS.label;"
                           checked="false"/>
