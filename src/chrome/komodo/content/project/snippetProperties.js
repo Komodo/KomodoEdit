@@ -47,7 +47,13 @@ var log = ko.logging.getLogger("snippetProperties");
 
 var snippetname, snippetvalue, snippetnamelabel;
 var gApplyButton, gOKButton;
-var indentCheckbox, autoAbbreviation, treatAsEJS, keybinding, gItem;
+var indentCheckbox,
+    autoAbbreviation,
+    $autoAbbreviationLangHbox,
+    autoAbbreviationLangMenu,
+    treatAsEJS,
+    keybinding,
+    gItem;
 var gCaretPos;
 var gSetSelectionCheckbox;
 var scin;
@@ -56,6 +62,8 @@ var encodingSvc = Components.classes["@activestate.com/koEncodingServices;1"].
 var ANCHOR_MARKER = '!@#_anchor';
 var CURRENTPOS_MARKER = '!@#_currentPos';
 var gChromeWindowView = null;
+
+var $ = require("ko/dom");
 
 function onLoad(event) {
     try {
@@ -82,6 +90,7 @@ function onLoad(event) {
         snippetvalue = document.getElementById('snippetvalue');
         indentCheckbox = document.getElementById('indent_relative');
         autoAbbreviation = document.getElementById('auto_abbreviation');
+        $autoAbbreviationLangHbox = $('#abbrevLangMenu');
         treatAsEJS = document.getElementById('treat_as_ejs');
         gSetSelectionCheckbox = document.getElementById('set_selection');
 
@@ -138,6 +147,8 @@ function onLoad(event) {
         scin.currentPos = scin.positionAtChar(0,currentPos);
         indentCheckbox.setAttribute('checked', gItem.getStringAttribute('indent_relative'));
         autoAbbreviation.setAttribute('checked', gItem.getStringAttribute('auto_abbreviation'));
+        autoAbbreviationLangMenu = loadLanguagesMenu(gItem.getStringAttribute('language'));
+        $autoAbbreviationLangHbox.append(autoAbbreviationLangMenu.element);
         treatAsEJS.setAttribute('checked', gItem.getStringAttribute('treat_as_ejs'));
         gSetSelectionCheckbox.setAttribute('checked', gItem.getStringAttribute('set_selection'));
         keybinding.init();
@@ -158,6 +169,25 @@ function onLoad(event) {
     }
 }
 
+function loadLanguagesMenu(language /*to be selected*/) {
+    var langRegistry = Components.classes["@activestate.com/koLanguageRegistryService;1"].getService(Components.interfaces.koILanguageRegistryService);
+    var countObj = {};
+    var langsObj = {};
+    langRegistry.getLanguageNames(langsObj, countObj);
+    var opts =
+    {
+        attributes:
+        {
+            label:"Language",
+            id:"languageList"
+        }
+    };
+    var languages = langsObj.value;
+    languages.unshift("Python-common", "HTML-common", "JavaScript-common");
+    var menu = require("ko/ui/menulist").create(languages, opts);
+    menu.value(language);
+    return menu;
+}
 
 function onUnload(event) {
     try {
@@ -291,6 +321,8 @@ function Apply() {
     }
     var isAutoAbbreviation = autoAbbreviation.getAttribute('checked') == 'true';
     gItem.setStringAttribute('auto_abbreviation', isAutoAbbreviation ? 'true' : 'false');
+    gItem.setStringAttribute('language', autoAbbreviationLangMenu.value());
+    
     var updatedTreatAsEJS = treatAsEJS.getAttribute('checked') == 'true';
     gItem.setStringAttribute('treat_as_ejs', updatedTreatAsEJS ? 'true' : 'false');
     var setSelection = gSetSelectionCheckbox.getAttribute('checked') == 'true';

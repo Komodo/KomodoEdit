@@ -105,7 +105,7 @@ class Database(object):
     # (b) add a change log comment here, and
     # (c) add an entry to `_upgrade_info_from_curr_ver`.
     #
-    # db change log:
+    # db change log (for Database and ToolboxLoader):
     # - 1.0.5: initial version (due to copy/paste error)
     # - 1.0.6: convert DirectoryShortcut tools into specialized macros
     # - 1.0.7: signal change in items: items get their own versions
@@ -116,7 +116,8 @@ class Database(object):
     # - 1.0.12: signal change moving from 11 to 12, to update tool item versions,
     #           and add auto_abbreviation fields to snippets
     # - 1.0.13: add treat_as_ejs property to snippets, default is false
-    VERSION = "1.0.13"
+    # - 1.1.5:  add language field to snippets
+    VERSION = "1.1.5"
     FIRST_VERSION = "1.0.5"
     
     def __init__(self, db_path, schemaFile):
@@ -149,7 +150,7 @@ class Database(object):
             'macro':['async', 'trigger_enabled', 'trigger',
                           'language', 'rank'],
             'snippet':['set_selection', 'indent_relative', 'auto_abbreviation',
-                       'treat_as_ejs'],
+                       'treat_as_ejs', 'language'],
             'menu':['accesskey', 'priority'],
             'toolbar':['priority'],
             'folder':[],
@@ -287,7 +288,14 @@ class Database(object):
         """
         with self.connect(commit=True) as cu:
             cu.execute("alter table snippet add column treat_as_ejs bool default false")
-        
+    
+    def _add_lang_field_to_snippets_table(self, curr_ver, result_ver):
+        """
+        Add this field: language text default ""
+        """
+        with self.connect(commit=True) as cu:
+            cu.execute("alter table snippet add column language text")
+
     _upgrade_info_from_curr_ver = {
         # <current version>: (<resultant version>, <upgrader method>, <upgrader args>)
         "1.0.5": ('1.0.6',  _delete_directory_shortcuts, None),
@@ -298,6 +306,7 @@ class Database(object):
         "1.0.10": ('1.0.11', _add_auto_abbreviation_field_to_snippets, None),
         "1.0.11": ('1.0.12',  _signal_item_version_change, None),
         "1.0.12": ('1.0.13', _add_treat_as_ejs_to_snippets, None),
+        "1.0.13": ('1.1.5', _add_lang_field_to_snippets_table, None)
     }
 
     def get_meta(self, key, default=None, cu=None):
@@ -714,12 +723,13 @@ class Database(object):
             ('indent_relative', False),
             ('auto_abbreviation', False),
             ('treat_as_ejs', False),
+            ('language', ''),
             ]
         valueList = self._getValuesFromDataAndDelete(id, data, names_and_defaults)
         stmt = '''insert into snippet(
                   path_id, set_selection, indent_relative, auto_abbreviation,
-                  treat_as_ejs)
-                  values(?, ?, ?, ?, ?)'''
+                  treat_as_ejs, language)
+                  values(?, ?, ?, ?, ?, ?)'''
         cu.execute(stmt, valueList)
         if data:
             return self.addMiscProperties(id, data, cu)
@@ -881,269 +891,82 @@ class Database(object):
             cu.execute(stmt, (toolType, name))
             return [x[0] for x in cu.fetchall()]
 
-    def _completeAbbrevSearchQuery(self, select_part_s, from_parts_a, where_parts_a,
-                                   abbrev, subnames, cu, 
-                                   caller, # for debug stmts only
-                                   outside_language_folder=False):
-        stmt = "select %s from %s where %s;" % (select_part_s,
-                                               ", ".join(from_parts_a),
-                                               " and ".join(where_parts_a))
-        value_tuple = tuple([abbrev] + subnames)
-        #log.debug("%s: stmt: %s\n, value_tuple: %s", caller, stmt, value_tuple)
-        cu.execute(stmt, value_tuple)
-        final_rows = []
-        rows = cu.fetchall()
-        for row in rows:
-            p3_id, cd3_name, cd2_name, p1_path, p2_path, p3_path = row
-            #log.debug("%s: looking for abbrev %s: got path: %s",
-            #           caller, abbrev, p1_path)
-            #log.debug("p2_path:%s, \np3_path:%s, len(p2_path):%d, len(p3_path):%d",
-            #           p2_path, p3_path, len(p2_path), len(p3_path))
-            isSampleAbbrev = self._sampleAbbrevRE.match(p1_path) != None
-            final_rows.append([p3_id, cd3_name, cd2_name,
-                               outside_language_folder, isSampleAbbrev])
-        return final_rows
-
-    def _searchAbbrevFolderSnippet(self, abbrev, subnames, isAutoAbbrev, cu):
-        """
-        Match snippet S in language folder L
-        Abbreviations/.../L/...S
-        
-        In this SQL, p1 points to the Abbreviations folder,
-        p2 points to the language folder, and
-        p3 points to the snippet.
-        Favor case-sensitive over case-insensitive matches.
-        This query uses self-joins so it can be done in one shot
-        to the database.
-        
-        Without the question-marks:
-        
-        Type 1 search:
-        
-        select ... <see below>
-            from paths as p1, paths as p2, paths as p3,
-                 common_details as cd3, common_details as cd2, common_details as cd1
-            where cd1.name = "Abbreviations" and cd1.type = "folder"
-              and cd2.type = "folder" and (cd2.name like "HTML" or cd2.name like "HTML5")
-              and cd1.path_id = p1.id
-              and cd2.path_id = p2.id
-              and substr(p2.path, 0, length(p1.path)) = p1.path
-              and cd3.type = "snippet" and cd3.name like "SNIPPET_NAME"
-              and cd3.path_id = p3.id
-              and substr(p3.path, 0, length(p2.path)) = p2.path ;
-        
-        """
-        q_subnames = ' or '.join(['cd2.name like ?'] * len(subnames))
-        sep = os.path.sep
-        select_part_s = 'p3.id, cd3.name, cd2.name, p1.path, p2.path, p3.path'
-        from_parts_a = ['paths as p1', 'paths as p2', 'paths as p3',
-                        'common_details as cd3', 'common_details as cd2',
-                        'common_details as cd1']
-        if isAutoAbbrev:
-            from_parts_a.append('snippet as s3')
-        where_parts_a = ['cd3.type = "snippet"',
-                         'cd3.name %s ?' % (isAutoAbbrev and "=" or "like"),
-                         ]
-        if isAutoAbbrev:
-            where_parts_a += ['s3.path_id = cd3.path_id',
-                              's3.auto_abbreviation = "true"']
-        where_parts_a += [
-                         'cd1.name = "Abbreviations"',
-                         'cd1.type = "folder"',
-                         'cd2.type = "folder"',
-                         '(%s)' % q_subnames,
-                         'cd1.path_id = p1.id',
-                         'cd2.path_id = p2.id',
-                         'substr(p2.path, 1, length(p1.path) + 1) = p1.path || "%s"' % sep,
-                         'cd3.path_id = p3.id',                         
-                         'substr(p3.path, 1, length(p2.path) + 1) = p2.path || "%s"' % sep,
-                         ]
-        return self._completeAbbrevSearchQuery(select_part_s, from_parts_a, where_parts_a,
-                                               abbrev, subnames, cu,
-                                               "_searchAbbrevFolderSnippet",
-                                               outside_language_folder=False)
-        
-    def _searchAbbrevSnippetFolder(self, abbrev, subnames, isAutoAbbrev, cu):
-        """
-        Match snippet S in a hierarchy that *contains* language L (a bit weird,
-        used for common sub-languages.  The "*" folder is a better idea0.)
-        Abbreviations/.../S/.../L/...
-        
-        In this SQL, p1 points to the Abbreviations folder,
-        p2 points to the language folder, and
-        p3 points to the snippet, and
-        p4 points to the snippet's parent.
-        
-        Again, case-sensitive over case-insensitive matches
-        """
-        q_subnames = ' or '.join(['cd2.name like ?'] * len(subnames))
-        sep = os.path.sep
-        select_part_s = 'p3.id, cd3.name, cd2.name, p1.path, p2.path, p4.path'
-        from_parts_a = ['paths as p1', 'paths as p2', 'paths as p3',
-                        'paths as p4',
-                        'common_details as cd3', 'common_details as cd2',
-                        'common_details as cd1',
-                        'hierarchy as h3', 'hierarchy as h4']
-        if isAutoAbbrev:
-            from_parts_a.append('snippet as s3')
-        where_parts_a = ['cd3.type = "snippet"',
-                         'cd3.name %s ?' % (isAutoAbbrev and "=" or "like"),
-                         ]
-        if isAutoAbbrev:
-            where_parts_a += ['s3.path_id = cd3.path_id',
-                              's3.auto_abbreviation = "true"']
-        where_parts_a += [
-                         'cd1.name = "Abbreviations"',
-                         'cd1.type = "folder"',
-                         'cd1.path_id = p1.id',
-                         'cd3.path_id = p3.id',
-                         'substr(p3.path, 1, length(p1.path) + 1) = p1.path || "%s"' % sep, # snippet is descendant of Abbreviations
-                         'h3.path_id = p3.id',
-                         'h3.parent_path_id = h4.path_id',
-                         'h4.path_id = p4.id', # p4 is the snippet's parent
-                         'cd2.type = "folder"',
-                         '(%s)' % q_subnames,
-                         'p2.id = cd2.path_id',
-                         'p2.path != p4.path', # if snippet's parent is the folder, this is query #1
-                         'substr(p2.path, 1, length(p4.path) + 1) = p4.path || "%s"' % sep,
-                         ]
-        return self._completeAbbrevSearchQuery(select_part_s, from_parts_a, where_parts_a,
-                                               abbrev, subnames, cu,
-                                               "_searchAbbrevSnippetFolder",
-                                               outside_language_folder=True)
-    
-    def _searchAbbrevSnippetInCommonFolder(self, abbrev, subnames, isAutoAbbrev, cu):
-        """
-        Match snippet S in
-        Abbreviations/.../*/...S
-        Abbreviations/.../L/...
-        where "*" is a peer to language folder "L"
-        
-        In this SQL, p1 points to the Abbreviations folder,
-        p2 points to the language folder, and
-        p3 points to the snippet, and
-        p4 points to the snippet's parent, and
-        p5 points to the "common" folder, and
-        p6 points to the common parent of p5 and p2, could be "Abbreviations"
-        """
-        q_subnames = ' or '.join(['cd2.name like ?'] * len(subnames))
-        sep = os.path.sep
-        select_part_s = 'p3.id, cd3.name, cd2.name, p1.path, p2.path, p4.path'
-        from_parts_a = ['paths as p1', 'paths as p2', 'paths as p3',
-                        'paths as p4', 'paths as p5', 'paths as p6',
-                        'common_details as cd3', 'common_details as cd2',
-                        'common_details as cd1',
-                        'common_details as cd5', 'common_details as cd6',
-                        'hierarchy as h2',
-                        'hierarchy as h3',
-                        'hierarchy as h4',
-                        'hierarchy as h5']
-        if isAutoAbbrev:
-            from_parts_a.append('snippet as s3')
-        where_parts_a = ['cd3.type = "snippet"',
-                         'cd3.name %s ?' % (isAutoAbbrev and "=" or "like"),
-                         ]
-        if isAutoAbbrev:
-            where_parts_a += ['s3.path_id = cd3.path_id',
-                              's3.auto_abbreviation = "true"']
-        where_parts_a += [
-                         'cd1.name = "Abbreviations"',
-                         'cd1.type = "folder"',
-                         'cd5.type = "folder"',
-                         'cd5.name = "*"',
-                         'cd1.path_id = p1.id',
-                         'cd5.path_id = p5.id',
-                         'substr(p5.path, 1, length(p1.path) + 1) = p1.path || "%s"' % (sep,),
-                         '(%s)' % q_subnames,
-                         'p3.id = cd3.path_id',
-                         # snippet is descendant of abbrev
-                         'substr(p3.path, 1, length(p5.path) + 1) = p5.path || "%s"' % (sep,),
-                         'cd2.type = "folder"',
-                         'p2.id = cd2.path_id',
-                         'substr(p2.path, 1, length(p1.path) + 1) = p1.path || "%s"' % (sep,),
-                         'cd6.type = "folder"',
-                         'p6.id = cd6.path_id',
-                         # We don't need to test that p6 is in Abbreviations
-                         # because if it's a parent of p5 and p2, it must be.
-                         #'substr(p6.path, 1, length(p1.path) + 1) = p1.path || "%s"' % (sep,),
-                         'h2.path_id == p2.id',
-                         'h2.parent_path_id == p6.id',
-                         'h5.path_id == p5.id',
-                         'h5.parent_path_id == p6.id',
-                         'h3.path_id = p3.id',
-                         'h3.parent_path_id = h4.path_id',
-                         # p4 is the snippet's parent
-                         'h4.path_id = p4.id',]
-        return self._completeAbbrevSearchQuery(select_part_s, from_parts_a, where_parts_a,
-                                               abbrev, subnames, cu,
-                                               "_searchAbbrevSnippetInCommonFolder",
-                                               outside_language_folder=False)
-    
     def getAbbreviationSnippetId(self, abbrev, subnames, isAutoAbbrev):
         """
-        First look for target snippets in the path
-        /.../Abbreviations/.../[s in subnames]/.../<target>
+        Mimic hierarchy of legacy system for snippet location:
+        Project toolbox > Toolbox Root > Abbreviations folder
         
-        If none are found, look for target snippets in all paths
-        /.../Abbreviations/.../P/<target>
-        where
-        /.../Abbreviations/.../P/.../[s in subnames] exists.
-        
-        This allows trees like so:
-        Abbreviations
-        + htmlish
-          + generic html snippets
-          + HTML
-            + html-specific snippets
-          + HTML5
-            + html5-specific snippets
-            
-        In Sqlite, doing a 'like' on a value ignores case.  Since abbrev
-        need to be names, we don't need to worry about wildcard chars.
-        
-        Lookup functions return rows containing:
-        [snippetID, snippetName, associated folder languageName,
-         isInsideFolder, isSampleAbbrev]
+        Account for langs that have version that differ enough to warrant
+        their own snippets per version, eg. `print "blah"` and `print("blah")`
+        for Python and Python3 respectively.
         """
+        query="""
+        SELECT snippet.path_id, paths.path
+        FROM snippet
+        JOIN common_details on snippet.path_id = common_details.path_id
+        JOIN paths ON snippet.path_id = paths.id
+        WHERE snippet.auto_abbreviation='true' AND name=? AND language=?""";
+        abbrevID = None
+        language = subnames[0]
         with self.connect() as cu:
-            rows = self._searchAbbrevFolderSnippet(abbrev, subnames, isAutoAbbrev, cu)
-            # Look for case-sensitive matches to avoid a second search
-            # This should be the most common form anyway
-            for row in rows:
-                if row[2] != "General" and row[1] == abbrev and not row[4]:
-                    return row[0]
-            rows += self._searchAbbrevSnippetFolder(abbrev, subnames, isAutoAbbrev, cu)
-            rows += self._searchAbbrevSnippetInCommonFolder(abbrev, subnames, isAutoAbbrev, cu)
-        if not rows:
-            return None
-        elif len(rows) == 1:
-            return rows[0][0]
-        # Now favor in this order (first not isSampleAbbrev):
-        # 1. inside language folder, matches case (already checked)
-        # 2. inside language folder, any case
-        # 3. above language folder (not general), matches case
-        # 4. above language folder, any case
-        # 5. inside General, matches case
-        # 6. inside General, any case
-        # 7. above General, matches case
-        # 8. rest (above General, any case)
-        # 9..16: as above, but with isSampleAbbrev true
-        for row in rows:
-            score = 0
-            if row[1] != abbrev:
-                score += 1 # Add 1 for a case-insensitive match
-            if row[3]:
-                score += 2 # Add 2 for matching above the language folder
-            if row[2].lower() == "general":
-                score += 4  # Add 4 for a general match
-            if row[4]:
-                score += 8  # Add 8 if it's a sample abbrev'n
-            if score == 1:
-                # This is the second-best score, so don't sort rows & go with it.
-                return row[0]
-            row.insert(0, score)
-        rows.sort()
-        return rows[0][1]
+            cu.execute(query, (abbrev, language))
+            abbrevID = self._rankSnippetResults(cu.fetchall())
+            # Special cases where there is more than one versions of a language
+            # in Komodo and they are different enough to warrant potentially
+            # different snippets
+            if abbrevID is None and ("Python" in language or "Python3" in language):
+                cu.execute(query,(abbrev, "Python-common"))
+                try:
+                    abbrevID = self._rankSnippetResults(cu.fetchall())
+                except:
+                    pass
+                if abbrevID is not None:
+                    return abbrevID
+            if abbrevID is None and ("JavaScript" in language or "Node.js" in language):
+                cu.execute(query, (abbrev, "JavaScript-common"))
+                try:
+                    abbrevID = self._rankSnippetResults(cu.fetchall())
+                except:
+                    pass
+                if abbrevID is not None:
+                    return abbrevID
+            if abbrevID is None and "HTML" in language:
+                cu.execute(query,(abbrev, "HTML-common"))
+                try:
+                    abbrevID = self._rankSnippetResults(cu.fetchall())
+                except:
+                    pass
+                if abbrevID is not None:
+                    return abbrevID
+        return abbrevID
+    
+    def _rankSnippetResults(self, results):
+        """
+        Take an array of results from a snippet query and rank return a winner
+        based on the following hierarchy:
+        Project Tools > Toolbox Root Dir > "samples" in Abbreviations folder
+        """
+        projSnip = None
+        rootSnip = None
+        sampleSnip = None
+         # If you get more than one result back prioritize
+        for i in results:
+            # First take project specific snippets
+            if ".komodotools" in i[1]:
+                projSnip = i[0]
+            # then take root dir snippets
+            elif "Abbreviations" not in i[1]:
+                rootSnip = i[0]
+            else:
+                sampleSnip = i[0]
+        if projSnip:
+            return projSnip
+        if rootSnip:
+            return rootSnip
+        if sampleSnip:
+            return sampleSnip
+        return None
+        
 
     def getChildByName(self, id, name, recurse, typeName=None):
         """ Return the first tool that's a child of id that has the
@@ -1583,7 +1406,7 @@ class ToolboxLoader(object):
     # Pure Python class that manages the new Komodo Toolbox back-end
 
     # When ITEM_VERSION changes update util/upgradeExtensionTools.py
-    ITEM_VERSION = "1.0.12" 
+    ITEM_VERSION = "1.1.5" 
     FIRST_ITEM_VERSION = "1.0.5"
 
     def __init__(self, db_path, db):
@@ -1671,7 +1494,29 @@ class ToolboxLoader(object):
         except KeyError:
             pass
         self._update_version(curr_ver, result_ver, json_data, path)
-            
+    
+    def _add_lang_field_to_snippets(self, curr_ver, result_ver, json_data, path):
+        try:
+            langRegistry = components.classes["@activestate.com/koLanguageRegistryService;1"].getService(components.interfaces.koILanguageRegistryService);
+            UnwrapObject(langRegistry)
+            langNames = langRegistry.getLanguageNames()
+            if json_data['type'] == "snippet" and "language" not in json_data:
+                json_data["language"] = ""
+                if "Abbreviations" in path:
+                    basename = ""
+                    while basename != "Abbreviations":
+                        basename = os.path.basename(path)
+                        path = os.path.dirname(path)
+                        if basename in langNames:
+                            json_data["language"] = basename
+                            break
+                        elif "common" in basename:
+                            json_data["language"] = basename
+                            break
+        except KeyError:
+            pass
+        
+        self._update_version(curr_ver, result_ver, json_data, path)
 
     _upgrade_item_info_from_curr_ver = {
         # <item's version>: (<resultant version>, <upgrader method>)
@@ -1680,6 +1525,7 @@ class ToolboxLoader(object):
         # DB changes 1.0.8, 1.0.9, 1.0.10 don't affect snippets.
         '1.0.7': ('1.0.11', _add_auto_abbrev_field_to_snippets),
         '1.0.11': ('1.0.12', _add_treat_as_ejs_to_snippets),
+        '1.0.12': ('1.1.5', _add_lang_field_to_snippets)
      }
 
     def upgradeItem(self, json_data, path):

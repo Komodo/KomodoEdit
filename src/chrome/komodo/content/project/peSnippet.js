@@ -132,6 +132,8 @@ this.addSnippet = function peSnippet_addSnippet(/*koIPart|koITool*/ parent,
     snippet.setStringAttribute('set_selection', 'false');
     snippet.setStringAttribute('indent_relative', 'false');
     snippet.setStringAttribute('auto_abbreviation', 'false');
+    snippet.setStringAttribute('language', "Text");
+    snippet.setStringAttribute('treat_as_ejs', "false");
     snippet.value = '';
     var obj = new Object();
     obj.item = snippet;
