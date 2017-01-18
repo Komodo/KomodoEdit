@@ -49,8 +49,7 @@ var snippetname, snippetvalue, snippetnamelabel;
 var gApplyButton, gOKButton;
 var indentCheckbox,
     autoAbbreviation,
-    $autoAbbreviationLangHbox,
-    autoAbbreviationLangMenu,
+    $autoAbbreviationLangMenu,
     treatAsEJS,
     keybinding,
     gItem;
@@ -90,7 +89,7 @@ function onLoad(event) {
         snippetvalue = document.getElementById('snippetvalue');
         indentCheckbox = document.getElementById('indent_relative');
         autoAbbreviation = document.getElementById('auto_abbreviation');
-        $autoAbbreviationLangHbox = $('#abbrevLangMenu');
+        $autoAbbreviationLangMenu = $("#languageList");
         treatAsEJS = document.getElementById('treat_as_ejs');
         gSetSelectionCheckbox = document.getElementById('set_selection');
 
@@ -147,8 +146,7 @@ function onLoad(event) {
         scin.currentPos = scin.positionAtChar(0,currentPos);
         indentCheckbox.setAttribute('checked', gItem.getStringAttribute('indent_relative'));
         autoAbbreviation.setAttribute('checked', gItem.getStringAttribute('auto_abbreviation'));
-        autoAbbreviationLangMenu = loadLanguagesMenu(gItem.getStringAttribute('language'));
-        $autoAbbreviationLangHbox.append(autoAbbreviationLangMenu.element);
+        $autoAbbreviationLangMenu.element().selection = gItem.getStringAttribute('language');
         treatAsEJS.setAttribute('checked', gItem.getStringAttribute('treat_as_ejs'));
         gSetSelectionCheckbox.setAttribute('checked', gItem.getStringAttribute('set_selection'));
         keybinding.init();
@@ -167,26 +165,6 @@ function onLoad(event) {
     } catch (e) {
         log.exception(e);
     }
-}
-
-function loadLanguagesMenu(language /*to be selected*/) {
-    var langRegistry = Components.classes["@activestate.com/koLanguageRegistryService;1"].getService(Components.interfaces.koILanguageRegistryService);
-    var countObj = {};
-    var langsObj = {};
-    langRegistry.getLanguageNames(langsObj, countObj);
-    var opts =
-    {
-        attributes:
-        {
-            label:"Language",
-            id:"languageList"
-        }
-    };
-    var languages = langsObj.value;
-    languages.unshift("Python-common", "HTML-common", "JavaScript-common");
-    var menu = require("ko/ui/menulist").create(languages, opts);
-    menu.value(language);
-    return menu;
 }
 
 function onUnload(event) {
@@ -321,7 +299,7 @@ function Apply() {
     }
     var isAutoAbbreviation = autoAbbreviation.getAttribute('checked') == 'true';
     gItem.setStringAttribute('auto_abbreviation', isAutoAbbreviation ? 'true' : 'false');
-    gItem.setStringAttribute('language', autoAbbreviationLangMenu.value());
+    gItem.setStringAttribute('language', $autoAbbreviationLangMenu.element().selection);
     
     var updatedTreatAsEJS = treatAsEJS.getAttribute('checked') == 'true';
     gItem.setStringAttribute('treat_as_ejs', updatedTreatAsEJS ? 'true' : 'false');
