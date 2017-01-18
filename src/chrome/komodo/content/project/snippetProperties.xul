@@ -42,6 +42,7 @@
 
 <?xml-stylesheet href="less://komodo/skin/global/global.less" type="text/css"?>
 <?xml-stylesheet href="chrome://komodo/skin/bindings/views.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/widgets.css" type="text/css"?>
 
 <!--For the rightarrow-button-->
 <?xml-stylesheet href="chrome://komodo/skin/bindings/buttons.css" type="text/css"?>
@@ -216,6 +217,8 @@
                       checked="false"/>
                 <hbox id="abbrevLangMenu"
                       style="margin-left: 27px;">
+                    <label>Trigger language:</label>
+                    <langlist id="languageList" default="Pick a Language,Python-common,JavaScript-common,HTML-common"/>
                 </hbox>
                 <checkbox id="treat_as_ejs"
                           label="&TreatAsEJS.label;"
