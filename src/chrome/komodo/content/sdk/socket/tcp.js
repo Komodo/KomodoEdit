@@ -22,7 +22,7 @@
             socket.onopen = onOpen;
             socket.onerror = onError;
             socket.onclose = onClose;
-            socket.ondrain = pushData;
+            socket.ondrain = onDrain;
             socket.ondata = onData;
         };
         
@@ -58,6 +58,12 @@
             pushData.data = "";
         };
         pushData.data = ""; // Cached data that will be send the next time we push
+        
+        var onDrain = () =>
+        {
+            log.debug("onDrain");
+            pushData();
+        };
         
         var onOpen = () =>
         {
