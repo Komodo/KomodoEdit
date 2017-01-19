@@ -5,6 +5,12 @@
     
     const log       = require("ko/logging").getLogger("jsonrpc");
     
+    this.ERROR_PARSING = -32700;
+    this.ERROR_INVALID_REQUEST = -32600;
+    this.ERROR_METHOD_NOT_FOUND = -32601;
+    this.ERROR_INVALID_PARAMS = -32602;
+    this.ERROR_INTERNAL = -32603;
+    
     var instance = function(socket)
     {
         var reqid = 0;
@@ -34,7 +40,8 @@
             var data = {
                 "jsonrpc": "2.0",
                 "method": method,
-                "id": ++reqid
+                "id": ++reqid,
+                "params": []
             };
             
             if (args)
@@ -74,6 +81,8 @@
         
         var onData = (data) =>
         {
+            log.debug(`Received data: ${data}, length: ${data.length}`);
+            
             try
             {
                 data = JSON.parse(data.trim());
