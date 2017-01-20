@@ -789,6 +789,24 @@ panel.dialog
     {
         border-right: 1px dashed @background;
     }
+
+    tree, listbox, richlistbox
+    {
+        &.bg_transparent
+        {
+            treecol,
+            treecolpicker
+            {
+                background: @background;
+            }
+
+            &:not(tree),
+            .tree-rows
+            {
+                background: @contrast;
+            }
+        }
+    }
     
 }
 
