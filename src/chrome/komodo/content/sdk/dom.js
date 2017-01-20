@@ -1077,6 +1077,16 @@ if (typeof module === 'undefined') module = {}; // debugging helper
         },
 
         /**
+         * Get number of child nodes
+         *
+         * @returns {int}
+         */
+        childCount: function()
+        {
+            return this.element().childNodes.length;
+        },
+
+        /**
          * Remove matched elements
          * 
          * @returns {Void}
