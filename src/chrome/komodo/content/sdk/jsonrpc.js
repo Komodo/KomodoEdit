@@ -95,12 +95,12 @@
             
             for (let callback of callbacks.all)
                 callback(data);
-            
+
             if (data.id in callbacks)
             {
-                if (data.result)
+                if ("result" in data)
                     callbacks[data.id].resolve(data.result);
-                if (data.error)
+                if ("error" in data)
                     callbacks[data.id].reject(data.error);
                     
                 if (data.complete)
