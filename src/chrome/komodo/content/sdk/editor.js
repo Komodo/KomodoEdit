@@ -622,14 +622,14 @@ var sdkEditor = function(_scintilla, _scimoz) {
      * Delete the given range of characters
      *
      * @param   {Object|Int} start Position
-     * @param   {Object|Int} end   Position
+     * @param   {Int} length
      *
      * @returns {Void} 
      */
-    this.deleteRange = function(start, end)
+    this.deleteRange = function(start, length)
     {
-        [start, end] = this._posFormat([start, end], "absolute");
-        scimoz().deleteRange(start, end);
+        start = this._posFormat(start, "absolute");
+        scimoz().deleteRange(start, length);
     };
 
     /** ****** Selections ****** **/
