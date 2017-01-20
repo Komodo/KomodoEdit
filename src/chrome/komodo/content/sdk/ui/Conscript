@@ -47,4 +47,6 @@ $cons->InstallInChrome('listhead.js');
 $cons->InstallInChrome('listcols.js');
 $cons->InstallInChrome('filepath.js');
 $cons->InstallInChrome('interpolation-button.js');
+$cons->InstallInChrome('richlistbox.js');
+$cons->InstallInChrome('richlistitem.js');
 
