@@ -197,13 +197,13 @@ this.URIAtLine = function open_openURIAtLine(uri, lineno, viewType /* ="editor" 
         } else if (uri.match(/\.kpz$/i)) {
             ko.toolboxes.importPackage(uri);
         } else {
+            var buttons = [_viewsBundle.GetStringFromName("OK.customButtonLabel"),
+                           _viewsBundle.GetStringFromName("openAsText.customButtonLabel"),
+                           _viewsBundle.GetStringFromName("Cancel.customButtonLabel")];
+            var responses = removeAmpersands(buttons);
+            var text = null;
             if (uri.match(/\.ksf$/i)) {
                 var prompt = _viewsBundle.formatStringFromName("importFileAsScheme.prompt", [ko.uriparse.baseName(uri)], 1);
-                var buttons = [_viewsBundle.GetStringFromName("OK.customButtonLabel"),
-                               _viewsBundle.GetStringFromName("openAsText.customButtonLabel"),
-                               _viewsBundle.GetStringFromName("Cancel.customButtonLabel")];
-                var responses = removeAmpersands(buttons);
-                var text = null;
                 var title = _viewsBundle.GetStringFromName("openingSchemeFile.label");
                 var answer = ko.dialogs.customButtons(prompt,
                                                       buttons,
@@ -230,6 +230,20 @@ this.URIAtLine = function open_openURIAtLine(uri, lineno, viewType /* ="editor" 
                         // At this point we want to load the original file,
                         // as there's something wrong with its contents.
                     }
+                }
+            } else if (uri.match(/\.komodotool$/i)) {
+                var prompt = _viewsBundle.GetStringFromName("importFileAsKomodoTool.prompt");
+                var title = _viewsBundle.GetStringFromName("openingKomodoToolFile.label");
+                var answer = ko.dialogs.customButtons(prompt,
+                                                  buttons,
+                                                  null,  //response=buttons[0]
+                                                  null, // text
+                                                  title);
+                if (!answer || answer == responses[2]) {
+                    return null;
+                } else if (answer == responses[0]) {
+                    ko.toolbox2.importFilesFromFileSystem_dragDrop(ko.uriparse.URIToPath(uri));
+                    return null;
                 }
             } else if (!viewType && (ko.open.isImageUrl(uri)
                                      || ko.open.isAudioUrl(uri))) {
