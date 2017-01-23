@@ -351,6 +351,19 @@ this.importFilesFromFileSystem_common = function(defaultDirectory, index) {
     }
 };
 
+this.importFilesFromFileSystem_dragDrop = function(path) {
+    try {
+        var pathInArray = [path];
+        this.manager.toolbox2Svc.importFiles(this.manager.toolbox2Svc.getStandardToolbox().path,
+                                             pathInArray.length, pathInArray);
+        this.manager.view.reloadToolsDirectoryView(-1);
+    } catch(ex) {
+        var msg = komodo_bundle.formatStringFromName("importFilesFromFileSystemFailed.template", [ex], 1);
+        this.log.exception(msg);
+        alert(msg);
+    }
+};
+
 this.importFilesFromFileSystem = function(event) {
     ko.toolbox2._determineTargetDirectory_CallMethod(this.importFilesFromFileSystem_common);
 }
