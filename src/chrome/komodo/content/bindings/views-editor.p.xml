@@ -1824,7 +1824,8 @@
                 if ((updated & this.scimoz.SC_UPDATE_SELECTION) > 0
                     && this.prefs.getBooleanPref("editMatchingDelimiter")
                     && this.scimoz.selections == 1
-                    && this.scimoz.selText.length == 1) {
+                    && this.scimoz.selText.length == 1
+                    && this.scimoz.selText != " ") {
                     var scimoz = this.scimoz;
                     var pos = scimoz.selectionStart;
                     var style = scimoz.getStyleAt(pos);
