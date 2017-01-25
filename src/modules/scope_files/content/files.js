@@ -268,7 +268,7 @@
         activeUuid = uuid;
 
         var opts = {
-            "maxresults": ko.prefs.getLong("commando_search_max_results", 50),
+            "maxresults": ko.prefs.getLong("commando_search_max_results"),
             "allowShortcuts": ko.prefs.getBoolean("commando_allow_shortcuts", true),
             "relativeFromCurrentView": ko.prefs.getBoolean("commando_relative_from_currentview", false),
             "recursive": true,

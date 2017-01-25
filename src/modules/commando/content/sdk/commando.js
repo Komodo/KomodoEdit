@@ -1145,14 +1145,6 @@
         if (isNew)
             this.empty(); // Force empty results
         
-        var maxResults = prefs.getLong("commando_search_max_results", 50);
-        maxResults -= local.resultsRendered;
-        results = results.slice(0, maxResults);
-        local.resultsRendered += results.length;
-
-        if (local.resultsReceived == maxResults)
-            log.debug("Reached max results");
-
         for (let result of results)
         {
             if (local.favourites.findString(result.id) != -1)
@@ -1194,6 +1186,12 @@
         {
             this.textContent = counter++;
         });
+
+        // remove results exceeding max
+        var maxResults = prefs.getLong("commando_search_max_results");
+        resultElem.find(`richlistitem:nth-child(n+${maxResults+1})`).remove();
+
+        local.resultsRendered = resultElem.childCount();
 
         tmpResultElem.parentNode.replaceChild(resultElem.element(), tmpResultElem);
         resultElem.element().selectedIndex = 0;
