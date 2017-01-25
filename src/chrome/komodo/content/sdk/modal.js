@@ -1,33 +1,56 @@
 (function()
 {
     
-    this.open = (title, fields, callback, okLabel, cancelLabel) =>
+    this.open = (title, fields, onComplete, okLabel, cancelLabel) =>
     {
-        okLabel = okLabel || "Ok";
-        cancelLabel = cancelLabel || callback ? "Cancel" : "Close";
+        var opts;
+
+        if (typeof title == "object")
+        {
+            opts = title;
+        }
+        else
+        {
+            opts = {
+                title: title,
+                fields: fields,
+                onComplete: onComplete,
+                onReady: function() {},
+                okLabel: okLabel,
+                cancelLabel: cancelLabel,
+            };
+        }
+
+        opts.okLabel = opts.okLabel || "Ok";
+        opts.cancelLabel = opts.cancelLabel || opts.callback ? "Cancel" : "Close";
+
+        var w = require("ko/windows").getMain();
+
+        var dialog = w.openDialog("chrome://komodo/content/empty.xul?name=" + opts.title.replace(/\s+/g, ''), opts.title, "modal=true");
+        dialog.title = opts.title;
+        dialog.addEventListener("load", () => doOpen(opts, dialog));
+
+        return dialog;
+    };
+
+    var doOpen = (opts, parent) =>
+    {
+        var wrapper = require("ko/ui/column").create();
+        parent.document.documentElement.appendChild(wrapper.element);
+        parent.document.documentElement.classList.add("modal-ui");
+        parent.document.documentElement.setAttribute("title", opts.title);
         
-        var panel = require("ko/ui/panel").create({
-            attributes: {
-                backdrag: true,
-                noautohide: true,
-                width: "450px",
-                class: "dialog modal-ui"
-            }
-        });
+        opts.parent = parent;
+        opts.wrapper = wrapper;
         
-        panel.addRow(
-            require("ko/ui/label").create(title),
-            { attributes: { align: "center", pack: "center", class: "ui-title" } }
-        );
-        
-        var parent = panel;
         var currentGroup;
         var groups = {};
         var mapping = {};
+        var groupParent = wrapper;
         
-        for (let key in fields)
+        for (let key in opts.fields)
         {
-            let field = fields[key];
+            let field = opts.fields[key];
 
             if (typeof field == "string")
                 field = { label: field };
@@ -37,22 +60,22 @@
                 if ( ! (field.group in groups))
                 {
                     groups[field.group] = require("ko/ui/groupbox").create({ caption: field.group });
-                    panel.add(groups[field.group]);
+                    wrapper.add(groups[field.group]);
                 }
                 
-                parent = groups[field.group];
+                groupParent = groups[field.group];
             }
             else
             {
-                parent = panel;
+                groupParent = wrapper;
                 currentGroup = null;
             }
-            
-            let row = parent.addRow();
+
+            let row = groupParent.addRow();
             
             if (field.label)
                 row.add(require("ko/ui/label").create({ attributes: { value: field.label + ":", tooltiptext: field.label, crop: "center" }}));
-            
+
             let elem = require("ko/ui/" + (field.type || "textbox")).create(field.options || undefined);
             mapping[key] = elem;
             row.add(elem);
@@ -68,53 +91,52 @@
         
         var errorLabel = require("ko/ui/label").create({ attributes: { class: "fullwidth state-error" } });
         errorLabel.hide();
-        panel.addRow(
+        wrapper.addRow(
             errorLabel,
             { attributes: { align: "center", pack: "center", class: "ui-error" } }
         );
         
-        var buttonRow = panel.addRow({ attributes: { align: "center", pack: "center" } });
+        var buttonRow = wrapper.addRow({ attributes: { align: "center", pack: "center" } });
         buttonRow.addClass("buttons-ui");
         
-        if (callback)
+        if (opts.onComplete)
         {
-            var okButton = require("ko/ui/button").create(okLabel);
-            okButton.onCommand(onFormComplete.bind(this, panel, fields, callback));
+            var okButton = require("ko/ui/button").create(opts.okLabel);
+            okButton.onCommand(onFormComplete.bind(this, opts));
             buttonRow.add(okButton);
         }
         
-        var cancelButton = require("ko/ui/button").create(cancelLabel);
+        var cancelButton = require("ko/ui/button").create(opts.cancelLabel);
         cancelButton.onCommand(function()
         {
-            panel.remove();
+            parent.close();
             
-            if (callback)
-                callback();
+            if (opts.onComplete)
+                opts.onComplete();
         });
         buttonRow.add(cancelButton);
         
-        panel.open();
-        
-        return [panel, mapping];
+        if (opts.onReady)
+            opts.onReady(parent, mapping);
     };
     
-    var onFormComplete = (panel, fields, callback) =>
+    var onFormComplete = (opts) =>
     {
         var result = {};
         var hasResults = false;
         var missing = [];
         
-        for (let key in fields)
+        for (let key in opts.fields)
         {
             hasResults = true;
             
-            if ("value" in fields[key].elem)
-                result[key] = fields[key].elem.value();
+            if ("value" in opts.fields[key].elem)
+                result[key] = opts.fields[key].elem.value();
             else
                 result[key] = null;
             
-            if (fields[key].required && (result[key] === null || result[key] === ""))
-                missing.push(fields[key].label);
+            if (opts.fields[key].required && (result[key] === null || result[key] === ""))
+                missing.push(opts.fields[key].label);
         }
         
         if (missing.length)
@@ -127,11 +149,12 @@
         if ( ! hasResults)
             result = true;
         
-        var validate = callback(result);
+        var validate = opts.onComplete(result);
         if (validate !== true && validate !== undefined)
-            panel.$element.find(".ui-error label").show().attr("value", validate);
+            opts.wrapper.$element.find(".ui-error label").show().attr("value", validate);
         else
-            panel.remove();
+        {
+            opts.parent.close();}
     };
     
 }).apply(module.exports);
