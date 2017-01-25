@@ -101,6 +101,7 @@ $cons->InstallInChrome("printPreview.xul");
 $cons->InstallInChrome("hiddenWindow.xul");
 
 $cons->InstallInChrome("quickstart.xml");
+$cons->InstallInChrome("empty.xul");
 
 # "About" dialog files.
 $cons->Preprocess('about/credits.p.html', 'about/credits.html',
