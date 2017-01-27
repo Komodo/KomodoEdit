@@ -269,6 +269,9 @@ class Database(object):
                        ("version",))
             
     def _signal_item_version_change(self, curr_ver, result_ver):
+        """Forces ToolboxLoader._testAndAddItem to update toolbox files when a
+        new field is added. Assumes you added a function to
+        ToolboxLoader._upgrade_item_info_from_curr_ver to add the field."""
         self.item_version_changed = True
         
     def _signal_check_remove_scc_dir(self, curr_ver, result_ver):
@@ -293,6 +296,7 @@ class Database(object):
         """
         Add this field: language text default ""
         """
+        self._signal_item_version_change(curr_ver, result_ver)
         with self.connect(commit=True) as cu:
             cu.execute("alter table snippet add column language text")
 
@@ -1502,11 +1506,12 @@ class ToolboxLoader(object):
             langNames = langRegistry.getLanguageNames()
             if json_data['type'] == "snippet" and "language" not in json_data:
                 json_data["language"] = ""
-                if "Abbreviations" in path:
+                processedPath = path #so I can munge the path up while searching it
+                if "Abbreviations" in processedPath:
                     basename = ""
                     while basename != "Abbreviations":
-                        basename = os.path.basename(path)
-                        path = os.path.dirname(path)
+                        basename = os.path.basename(processedPath)
+                        processedPath = os.path.dirname(processedPath)
                         if basename in langNames:
                             json_data["language"] = basename
                             break
