@@ -57,6 +57,7 @@ create table common_tool_details (
     path_id INTEGER PRIMARY KEY NOT NULL ,
     tags text,
     value TEXT,
+    is_clean bool DEFAULT false,
     keyboard_shortcut text,
     lastRun DATETIME,
     favoriteRating INTEGER NOT NULL  DEFAULT 0,

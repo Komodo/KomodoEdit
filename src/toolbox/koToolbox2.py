@@ -83,6 +83,7 @@ TOOL_EXTENSION = ".komodotool"
 UI_FOLDER_FILENAME = ".folderdata"
 PROJECT_FILE_EXTENSION = ".komodoproject"
 
+TOOL_META_START = "komodo tool: "
 
 #---- errors
 
@@ -117,7 +118,8 @@ class Database(object):
     #           and add auto_abbreviation fields to snippets
     # - 1.0.13: add treat_as_ejs property to snippets, default is false
     # - 1.1.5:  add language field to snippets
-    VERSION = "1.1.5"
+    # - 1.1.6:  add file template table
+    VERSION = "1.1.6"
     FIRST_VERSION = "1.0.5"
     
     def __init__(self, db_path, schemaFile):
@@ -157,6 +159,10 @@ class Database(object):
             }
         self.observerSvc = components.classes["@mozilla.org/observer-service;1"].\
                            getService(components.interfaces.nsIObserverService)
+
+    def _add_is_clean(self, curr_ver, result_ver):
+        with self.connect(commit=True) as cu:
+            cu.execute("ALTER TABLE common_details ADD COLUMN is_clean bool DEFAULT false")
             
     def __repr__(self):
         return "<Toolbox2 Database %s>" % self.path
@@ -310,7 +316,8 @@ class Database(object):
         "1.0.10": ('1.0.11', _add_auto_abbreviation_field_to_snippets, None),
         "1.0.11": ('1.0.12',  _signal_item_version_change, None),
         "1.0.12": ('1.0.13', _add_treat_as_ejs_to_snippets, None),
-        "1.0.13": ('1.1.5', _add_lang_field_to_snippets_table, None)
+        "1.0.13": ('1.1.5', _add_lang_field_to_snippets_table, None),
+        "1.1.5": ("1.1.6", _add_is_clean, None)
     }
 
     def get_meta(self, key, default=None, cu=None):
@@ -561,13 +568,13 @@ class Database(object):
     
     # Adder functions
 
-    def _addCommonDetails(self, path, name, item_type, parent_path_id, cu):
+    def _addCommonDetails(self, path, name, item_type, is_clean, parent_path_id, cu):
         stmt = 'insert into paths(path) values(?)'
         cu.execute(stmt, (path,))
         id = cu.lastrowid
         stmt = '''insert into common_details
-                (path_id, name, type) values (?, ?, ?)'''
-        cu.execute(stmt, (id, name, item_type))
+                (path_id, name, type, is_clean) values (?, ?, ?, ?)'''
+        cu.execute(stmt, (id, name, item_type, is_clean))
         if parent_path_id is None and item_type == "folder":
             stmt = 'insert into hierarchy(path_id) values(?)'
             cu.execute(stmt, (id,))
@@ -596,12 +603,12 @@ class Database(object):
                     actual_name = data.get('name', None) or name
                     new_id = self._addCompoundItem(path, actual_name, data, parent_path_id, cu)
                     return new_id
-            id = self._addCommonDetails(path, name, 'folder', parent_path_id, cu)
+            id = self._addCommonDetails(path, name, 'folder', parent_path_id, False, cu)
             return id
 
     def addContainerItem(self, data, item_type, path, fname, parent_path_id):
         with self.connect(commit=True) as cu:
-            id = self._addCommonDetails(path, fname, item_type, parent_path_id, cu)
+            id = self._addCommonDetails(path, fname, item_type, False, parent_path_id, cu)
             names = self._specific_names[item_type]
             if names:
                 final_values = [id]
@@ -636,7 +643,7 @@ class Database(object):
     def finishAddingCompoundItem(self, item_type, id, name, path,
                                  attributes, parent_id):
         with self.connect(commit=True) as cu:
-            self._addCommonDetails(path, name, item_type, parent_id, cu)
+            self._addCommonDetails(path, name, item_type, False, parent_id, cu)
             names = self._specific_names[item_type]
     
     def addTool(self, data, item_type, path, fname, parent_path_id):
@@ -654,7 +661,7 @@ class Database(object):
                 #log.debug("key %s not in tool %s(type %s)", name, fname, item_type)
                 pass
         with self.connect(commit=True) as cu:
-            new_id = self._addCommonDetails(path, pretty_name, item_type, parent_path_id, cu)
+            new_id = self._addCommonDetails(path, pretty_name, item_type, data.get("is_clean", False), parent_path_id, cu)
             prefix = '_add_'
             toolMethod = getattr(self, prefix + item_type, None)
             if not toolMethod:
@@ -765,7 +772,7 @@ class Database(object):
         _, content, keyboard_shortcut = values
         if not content:
             content = ""
-        else:
+        elif not isinstance(content, basestring):
             if not content[-1]:
                 del content[-1]
             if content and not content[0]:
@@ -1108,7 +1115,7 @@ class Database(object):
                                                'path_id', path_id, cu)
             if res:
                 tool_type = res[0]
-                if tool_type in ['snippet', 'macro', 'command', 'menu', 'toolbar']:
+                if tool_type in ['snippet', 'macro', 'command', 'menu', 'toolbar', 'tutorial']:
                     tableNames.append(tool_type)
             for t in tableNames:
                 try:
@@ -1389,15 +1396,15 @@ def slugify(s):
 def updateToolName(path, newBaseName):
     try:
         fp = open(path, 'r')
-        data = json.load(fp, encoding="utf-8")
+        data = DataParser.readData(fp)
         fp.close()
         if newBaseName.endswith(TOOL_EXTENSION):
             newToolname = newBaseName[:-len(TOOL_EXTENSION)]
         else:
             newToolname = newBaseName
         data['name'] = newToolname
-        fp = open(path, 'w')
-        json.dump(data, fp, encoding="utf-8", indent=2)
+        fp = open(path, 'r+')
+        DataParser.writeData(fp, data)
         fp.close()
     except:
         try:
@@ -1410,7 +1417,7 @@ class ToolboxLoader(object):
     # Pure Python class that manages the new Komodo Toolbox back-end
 
     # When ITEM_VERSION changes update util/upgradeExtensionTools.py
-    ITEM_VERSION = "1.1.5" 
+    ITEM_VERSION = "1.1.5"
     FIRST_ITEM_VERSION = "1.0.5"
 
     def __init__(self, db_path, db):
@@ -1467,9 +1474,9 @@ class ToolboxLoader(object):
                     result_ver, json_data['name'])
         json_data['version'] = result_ver
         try:
-            fp = open(path, 'w')
+            fp = open(path, 'r+')
             try:
-                json.dump(json_data, fp, encoding="utf-8", indent=2)
+                DataParser.writeData(fp, json_data)
             except:
                 log.exception("Can't write out json_data to %s", path)
             fp.close()
@@ -1557,6 +1564,18 @@ class ToolboxLoader(object):
         path = join(dirname, fname)
         isDir = os.path.isdir(path)
         isTool = os.path.splitext(fname)[1] == TOOL_EXTENSION
+        isCleanFormat = False
+
+        if not isTool and not isDir:
+            with open(path, 'r') as f:
+                first_line = f.readline().lower()
+                second_line = f.readline().lower()
+                f.seek(0)
+
+            if first_line.find(TOOL_META_START) != -1 or second_line.find(TOOL_META_START) != -1:
+                isTool = True
+                isCleanFormat = True
+
         if not isDir and not isTool:
             return
         elif not self.dbTimestamp:
@@ -1593,27 +1612,39 @@ class ToolboxLoader(object):
         if need_update:
             if isTool:
                 try:
-                    try:
-                        fp = open(path, 'r')
-                    except IOError:
-                        log.error("database loader: Couldn't load file %s", path)
-                        return
-                    try:
-                        data = json.load(fp, encoding="utf-8")
-                        if data['type'] == "DirectoryShortcut":
-                            log.info("Deleting DirectoryShortcut tool %s", path)
-                            os.unlink(path)
+                    fp = open(path, 'r')
+
+                    if isCleanFormat:
+                        data = DataParser.readCleanData(fp)
+
+                        if not data:
                             return
+
                         self.upgradeItem(data, path)
-                    except:
-                        log.exception("Couldn't load json data for path %s", path)
-                        return
+                    else:
+                        try:
+                            data = DataParser.readJsonData(fp)
+
+                            if data['type'] == "DirectoryShortcut":
+                                log.info("Deleting DirectoryShortcut tool %s", path)
+                                os.unlink(path)
+                                return
+
+                            self.upgradeItem(data, path)
+                        except:
+                            log.exception("Couldn't load json data for path %s", path)
+                            return
+                except IOError:
+                    log.error("database loader: Couldn't load file %s", path)
+                    return
+                except:
+                    log.exception("Couldn't analyze path: %s", path)
+                    return
                 finally:
                     fp.close()
                 if need_disk_based_update_only:
                     return
-                type = data['type']
-                new_id = self.db.addTool(data, type, path, fname, parent_id)
+                new_id = self.db.addTool(data, data['type'], path, fname, parent_id)
             else:
                 new_id = self.db.addFolder(path, fname, parent_id)
             if notifyNow:
@@ -1816,6 +1847,175 @@ class ToolboxLoader(object):
                 if id is not None:
                     log.debug("We never loaded path %s (id %d)", path, id)
                     self.db.deleteItem(id)
+
+class DataParser:
+
+    @staticmethod
+    def readData(fp):
+        first_line = fp.readline().lower()
+        second_line = fp.readline().lower()
+        fp.seek(0)
+
+        if first_line.find(TOOL_META_START) != -1 or second_line.find(TOOL_META_START) != -1:
+            return DataParser.readCleanData(fp)
+        else:
+            return DataParser.readJsonData(fp)
+
+    @staticmethod
+    def writeData(fp, data):
+        if data.get("is_clean", None) == "true" or data.get("is_clean", None) == True:
+            DataParser.writeCleanData(fp, data)
+        else:
+            DataParser.writeJsonData(fp, data)
+
+    @staticmethod
+    def readJsonData(fp):
+        return json.load(fp, encoding="utf-8")
+
+    @staticmethod
+    def writeJsonData(fp, data):
+        json.dump(data, fp, encoding="utf-8", indent=2)
+
+    @staticmethod
+    def readCleanData(fp):
+        data = { "value": "", "is_clean": "true" }
+        metaRx = re.compile(r"(\w+):\s*(.*)\n")
+        inMeta = True
+        pastMetaStartPending = False
+        pastMetaStart = False
+
+        for num, line in enumerate(fp, 1):
+            if pastMetaStartPending:
+                pastMetaStart = True
+                pastMetaStartPending = False
+                continue
+
+            if not pastMetaStart:
+                if num > 2:
+                    fp.close()
+                    return False
+
+                if line.lower().find(TOOL_META_START) != -1:
+                    data["name"] = line[line.lower().find(TOOL_META_START) + len(TOOL_META_START):]
+                    pastMetaStartPending = True
+
+                continue
+
+            if inMeta:
+                match = metaRx.search(line)
+
+                if match:
+                    data[match.group(1)] = match.group(2)
+                elif line.lower().find("---") != -1:
+                    inMeta = False
+            else:
+                data["value"] += line
+
+        [name, ext] = os.path.splitext(fp.name)
+
+        if not data.get("name", False):
+            data["name"] = name
+
+        data["name"] = data["name"].strip()
+
+        if not data.get("language", False):
+            langRegistry = components.classes["@activestate.com/koLanguageRegistryService;1"]\
+                            .getService(components.interfaces.koILanguageRegistryService)
+            data["language"] = langRegistry.suggestLanguageForFile(fp.name)
+
+        return data
+    
+    @staticmethod
+    def writeCleanData(fp, data):
+        metaRx = re.compile(r"(.*?)\w+:.*\n")
+
+        inMeta = True
+        pastMetaStartPending = False
+        pastMetaStart = False
+
+        namePrefix = None
+        endPrefix = None
+        metaPrefix = None
+
+        # Detect namePrefix and metaPrefix
+        if fp.mode == "r+":
+            for num, line in enumerate(fp, 1):
+                if pastMetaStartPending:
+                    pastMetaStart = True
+                    pastMetaStartPending = False
+                    continue
+                
+                if not pastMetaStart:
+                    if line.lower().find(TOOL_META_START) != -1:
+                        namePrefix = line[0:(line.lower().find(TOOL_META_START) + len(TOOL_META_START))]
+                        pastMetaStartPending = True
+                    else:
+                        if num > 2:
+                            break
+                    continue
+                else:
+                    match = metaRx.search(line)
+
+                    if match:
+                        metaPrefix = match.group(1)
+                    else:
+                        if line.find("---") != -1:
+                            endPrefix = line[0:line.lower().find("---")]
+                            break
+
+        langRegistry = components.classes["@activestate.com/koLanguageRegistryService;1"]\
+                        .getService(components.interfaces.koILanguageRegistryService)
+
+        language = data.get("language", None)
+        if not language:
+            language = langRegistry.suggestLanguageForFile(fp.name)
+
+        if not metaPrefix:
+            langInfo = langRegistry.getLanguage(language)
+            metaPrefix = langInfo.getCommentDelimiter("line", 0)
+
+            if not metaPrefix:
+                metaPrefix = "// "
+
+        if not namePrefix:
+            namePrefix = "%s%s" % (metaPrefix, TOOL_META_START)
+        if not endPrefix:
+            endPrefix = metaPrefix
+
+        concatenated = "%s%s" % (TOOL_META_START, data["name"])
+        separator = metaPrefix
+        separator += "%s\n" % ("-" * len(concatenated))
+
+        writeData = ""
+        writeData += "%s%s\n" % (namePrefix, data["name"])
+        writeData += separator
+
+        keys = data.keys()
+        keys.sort()
+
+        for key in keys:
+            value = data[key]
+
+            if key == "value" or key == "name" or value == "":
+                continue
+
+            if len(value.split("\n")) > 1:
+                log.error("Cannot serialize multiline meta for %s: %s" % (key, value));
+                continue
+            
+            writeData += "%s%s: %s\n" % (metaPrefix, key, value)
+
+        writeData += separator
+
+        if isinstance(data["value"], basestring):
+            writeData += data["value"]
+        else:
+            writeData += eol.join(data["value"])
+
+        fp.seek(0)
+        fp.truncate()
+
+        fp.write(writeData)
             
 # Use this class for testing only.
 class ToolboxAccessor(object):

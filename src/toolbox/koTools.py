@@ -59,6 +59,7 @@ class _KoTool(object):
         self.initialized = False
         self.temporary = False
         self._attributes = {}
+        self.supportsCleanFormat = True
         self._nondb_attributes = {}
         self.flavors = ['text/uri-list',
                         'text/unicode', 'text/plain', 'application/x-komodo-part',
@@ -79,7 +80,7 @@ class _KoTool(object):
         
     def init(self):
         pass
-    
+
     def _getObserverSvc(self):
         if not self._observerSvc:
             self._observerSvc = components.classes["@mozilla.org/observer-service;1"]\
@@ -321,8 +322,11 @@ class _KoTool(object):
             self._nondb_attributes['path'] = _tbdbSvc.getPath(self.id)
         path = self._nondb_attributes['path']
         fp = open(path, 'r')
-        data = json.load(fp, encoding="utf-8")
+
+        data = koToolbox2.DataParser.readData(fp)
+
         fp.close()
+
         if data.get('name', self.name) != self.name:
             refreshParent = True
             # bug 88228: we're renaming a tool by saving its properties, so do the
@@ -333,10 +337,14 @@ class _KoTool(object):
             savePath = path
         data['value'] = self.value.splitlines()
         data['name'] = self.name
+
         self._saveIconCheck(data)
         data.update(self._attributes)
-        fp = open(savePath, 'w')
-        json.dump(data, fp, encoding="utf-8", indent=2)
+
+        fp = open(savePath, 'r+')
+
+        koToolbox2.DataParser.writeData(fp, data)
+
         fp.close()
         if refreshParent:
             self._refreshParent()
@@ -350,7 +358,12 @@ class _KoTool(object):
         self._saveIconCheck(data)
         data.update(self._attributes)
         fp = open(path, 'w')
-        data = json.dump(data, fp, encoding="utf-8", indent=2)
+        
+        if self.supportsCleanFormat:
+            koToolbox2.DataParser.writeCleanData(fp, data)
+        else:
+            koToolbox2.DataParser.writeJsonData(fp, data)
+        
         fp.close()
         
     def saveContentToDisk(self):
@@ -358,7 +371,9 @@ class _KoTool(object):
             self._nondb_attributes['path'] = _tbdbSvc.getPath(self.id)
         path = self._nondb_attributes['path']
         fp = open(path, 'r')
-        data = json.load(fp, encoding="utf-8")
+
+        data = koToolbox2.DataParser.readData(fp)
+
         fp.close()
         if data.get('name', self.name) != self.name:
             refreshParent = True
@@ -375,8 +390,8 @@ class _KoTool(object):
             newVal = self._attributes[attr]
             if attr not in data or newVal != data[attr]:
                 data[attr] = self._attributes[attr]
-        fp = open(savePath, 'w')
-        data = json.dump(data, fp, encoding="utf-8", indent=2)
+        fp = open(savePath, 'r+')
+        koToolbox2.DataParser.writeData(fp, data)
         fp.close()
         if refreshParent:
             self._refreshParent()
@@ -873,7 +888,7 @@ class KoToolbox2ToolManager(object):
                             break
             item.trailblazeForPath(path)
         else:
-            path = self._prepareUniqueFileSystemName(parent_path, item_name)
+            path = self._prepareUniqueFileSystemName(item, parent_path, item_name)
         try:
             itemDetailsDict = {}
             item.fillDetails(itemDetailsDict)
@@ -889,7 +904,7 @@ class KoToolbox2ToolManager(object):
                                                  path,
                                                  item_name,
                                                  parent.id)
-                
+
             old_id = item.id
             item.id = new_id
             # Even if the old and new IDs are the same, we don't want
@@ -907,9 +922,18 @@ class KoToolbox2ToolManager(object):
             log.exception("addNewItemToParent: failed")
             raise
 
-    def _prepareUniqueFileSystemName(self, dirName, baseName, ext=None):
+    def _prepareUniqueFileSystemName(self, tool, dirName, baseName, ext=None):
         if ext is None:
-            ext = koToolbox2.TOOL_EXTENSION
+            language = tool._attributes.get("language", None)
+
+            if tool.supportsCleanFormat and language:
+                langRegistry = components.classes["@activestate.com/koLanguageRegistryService;1"]\
+                                .getService(components.interfaces.koILanguageRegistryService)
+                language = langRegistry.getLanguage(language)
+                ext = language.defaultExtension
+            else:
+                ext = koToolbox2.TOOL_EXTENSION
+
         # "slugify"
         basePart = koToolbox2.truncateAtWordBreak(re.sub(r'[^\w\d\-=\+]+', '_', baseName))
         basePart = join(dirName, basePart)
@@ -1089,24 +1113,24 @@ class KoToolbox2ToolManager(object):
                                   "Can't rename a top-level folder")
         oldPath = tool.path
         if isContainer:
-            newPathOnDisk = self._prepareUniqueFileSystemName(parentTool.path, newName, ext="")
+            newPathOnDisk = self._prepareUniqueFileSystemName(tool, parentTool.path, newName, ext="")
         else:
-            newPathOnDisk = self._prepareUniqueFileSystemName(parentTool.path,
+            newPathOnDisk = self._prepareUniqueFileSystemName(tool, parentTool.path,
                                                               newName)
         os.rename(oldPath, newPathOnDisk)
-        
+
         # Update the name field in the json tool
         try:
             fp = open(newPathOnDisk, 'r')
-            data = json.load(fp, encoding="utf-8")
+            data = koToolbox2.DataParser.readData(fp)
             fp.close()
             if data['name'] != newName:
                 # If these are the same, we're doing a null rename, but
                 # treat that as an anomaly.
                 pass
             data['name'] = newName;
-            fp = open(newPathOnDisk, 'w')
-            json.dump(data, fp, encoding="utf-8", indent=2)
+            fp = open(newPathOnDisk, 'r+')
+            koToolbox2.DataParser.writeData(fp, data)
             fp.close()
         except:
             log.exception("Failed to update json on old path:%s, newName:%s",
