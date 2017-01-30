@@ -106,6 +106,10 @@
                     <spacer width="5"/>
                     <textbox id="snippetname" flex="1" value="&unnamedCommand.label;"
                              onkeyup="UpdateField('name');"/>
+                    <spacer width="5"/>
+                    <langlist id="languageList"
+                              default="Pick a Language,Python-common,JavaScript-common,HTML-common"
+                              default-value="-1,Python-common,JavaScript-common,HTML-common"/>
                 </hbox>
                 <separator class="groovy-thin"/>
                 <hbox flex="1">
@@ -208,8 +212,6 @@
                       checked="false"/>
                 <hbox id="abbrevLangMenu"
                       style="margin-left: 27px;">
-                    <label>Trigger language:</label>
-                    <langlist id="languageList" default="Pick a Language,Python-common,JavaScript-common,HTML-common"/>
                 </hbox>
                 <checkbox id="treat_as_ejs"
                           label="&TreatAsEJS.label;"

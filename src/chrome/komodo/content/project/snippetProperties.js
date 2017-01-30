@@ -299,7 +299,12 @@ function Apply() {
     }
     var isAutoAbbreviation = autoAbbreviation.getAttribute('checked') == 'true';
     gItem.setStringAttribute('auto_abbreviation', isAutoAbbreviation ? 'true' : 'false');
-    gItem.setStringAttribute('language', $autoAbbreviationLangMenu.element().selection);
+
+    language = $autoAbbreviationLangMenu.element().selection;
+    if (language == "-1")
+        language = "Text";
+
+    gItem.setStringAttribute('language', language);
     
     var updatedTreatAsEJS = treatAsEJS.getAttribute('checked') == 'true';
     gItem.setStringAttribute('treat_as_ejs', updatedTreatAsEJS ? 'true' : 'false');
