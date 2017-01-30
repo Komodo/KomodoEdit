@@ -2093,7 +2093,7 @@ def target_src(argv=["src"]):
                 return 
             ip_address = s.getsockname()[0]
             s.close()
-            return ip_address.startswith("192.168.68.") or ip_address.startswith("192.168.69.")
+            return ip_address.startswith("10.19")
 
         if inside_activestate_network():
             try:
