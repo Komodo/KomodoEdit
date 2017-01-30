@@ -1279,6 +1279,15 @@ class KoLanguageBase:
                 self.commentDelimiterInfo)
         return self._commenter
 
+    def getCommentDelimiter(self, key = "line", index = 0):
+        if not self.commentDelimiterInfo or not self.commentDelimiterInfo.get(key, False):
+            return ""
+
+        if index >= len(self.commentDelimiterInfo[key]):
+            return ""
+
+        return self.commentDelimiterInfo[key][index]
+
     def getEncodingWarning(self, encoding):
         if not encoding.encoding_info.ascii_superset:
             return '"%s" is not a recommended encoding for %s. Using ASCII or an ASCII superset is recommended.'\
