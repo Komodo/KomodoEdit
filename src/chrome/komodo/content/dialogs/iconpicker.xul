@@ -51,9 +51,10 @@
         orient="vertical"
         persist="screenX screenY width height"
         style="padding: 10px; width: 450px; height: 350px;"
-        buttons="accept,extra1,cancel"
+        buttons="accept,extra1,extra2,cancel"
         ondialogaccept="return OK();"
         ondialogextra1="return PickCustom();"
+        ondialogextra2="return Reset();"
         ondialogcancel="return Cancel();">
 
     <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>

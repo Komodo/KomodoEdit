@@ -739,13 +739,6 @@ function Env_Delete()
 function update_icon(URI)
 {
     try {
-        if (URI == 'chrome://komodo/skin/images/run_commands.png') {
-            document.getElementById('reseticon').setAttribute('disabled', 'true');
-        } else {
-            if (document.getElementById('reseticon').hasAttribute('disabled')) {
-                document.getElementById('reseticon').removeAttribute('disabled');
-            }
-        }
         document.getElementById('keybindingtab_icon').setAttribute('src', URI);
         document.getElementById('commandtab_icon').setAttribute('src', URI);
         if (URI.indexOf('_missing.png') != -1) {
@@ -766,7 +759,9 @@ function pick_icon(useDefault /* false */)
         if (! useDefault) {
             URI = ko.dialogs.pickIcon();
             if (!URI) return;
-        } else {
+        }
+
+        if (useDefault || URI == 'reset') {
             URI = 'chrome://komodo/skin/images/run_commands.png';
         }
         update_icon(URI);
