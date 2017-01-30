@@ -95,27 +95,18 @@
                     <hbox style="width: 22px;">
                         <vbox>
                             <spring flex="1"/>
-                            <image style="max-width: 22px; max-height:16px"
-                                   id="propertiestab_icon"/>
+                            <button oncommand="pick_icon()">
+                                <image style="max-width: 22px; max-height:16px"
+                                       id="propertiestab_icon"/>
+                            </button>
                             <spring flex="1"/>
                         </vbox>
                     </hbox>
                     <spacer width="5"/>
                     <textbox id="partname" flex="1" value="&unnamedCommand.label;"
                              onkeyup="UpdateField('name');"/>
-                    <spacer width="10"/>
-                    <vbox _style="padding: 5px 5px 0px 5px;">
-                        <spring flex="1"/>
-                        <button accesskey="&changeIcon.accesskey;" label="&changeIcon.label;" oncommand="pick_icon()"/>
-                    </vbox>
-                    <vbox _style="padding: 5px 5px 0px 5px;">
-                        <button id="reseticon" accesskey="&reseticon.accesskey;" label="&reset.label;" oncommand="pick_icon(true)"/>
-                        <spring flex="1"/>
-                    </vbox>
                 </hbox>
-                <spacer height="12"/>
                 <separator class="groovy-thin"/>
-                <spacer height="10"/>
                 <hbox align="center">
                     <label value="&language.label;"/>
                     <radiogroup id="language"
@@ -159,9 +150,7 @@
                     <label id="partnamelabel" style="height:25px; padding-left: 2px; padding-top: 4px;"
                            value="" flex="1"/>
                 </hbox>
-                <spacer height="15"/>
                 <separator class="groovy-thin"/>
-                <spacer height="10"/>
                 <editkeybinding id="keybindings" applycb="makeAppliable()" commandId="cmd_callPart"/>
             </vbox>
             <vbox id="triggers_tabpanel">
@@ -181,7 +170,6 @@
                     <label id="partnamelabel2" style="height:25px; padding-left: 2px; padding-top: 4px;"
                            value="" flex="1"/>
                 </hbox>
-                <spacer height="15"/>
                 <separator class="groovy-thin"/>
                 <groupbox id="trigger_group">
                     <caption>
