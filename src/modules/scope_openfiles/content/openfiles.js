@@ -51,7 +51,7 @@
             
             for (let word of words)
             {
-                if (path.indexOf(word))
+                if (path.indexOf(word) != -1)
                     weight += weightPerHit;
             }
 
