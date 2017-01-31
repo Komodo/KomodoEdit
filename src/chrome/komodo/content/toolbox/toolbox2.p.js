@@ -109,6 +109,20 @@ initialize: function() {
     getService(Components.interfaces.nsIObserverService);
     obsSvc.addObserver(this, 'toolbox-tree-changed', 0);
     obsSvc.addObserver(this, 'toolbox-reload-view', 0);
+
+    var w = require("ko/windows").getMain();
+    w.addEventListener("file_saved", function(e) {
+        var view = e.detail.view;
+
+        if ( ! view.koDoc || ! view.koDoc.file)
+            return;
+
+        if (view.koDoc.file.ext != ".ktf")
+            return;
+
+        this.toolbox2Svc.updateFilePath(view.koDoc.file.path);
+    }.bind(this));
+
     // Give the toolbox observers time to have started up before
     // notifying them that the toolbox has changed.
     setTimeout(function() {

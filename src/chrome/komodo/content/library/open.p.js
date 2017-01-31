@@ -150,6 +150,8 @@ this.recentURI = function open_recentURI(uri,
     this.URI(uri, viewType, skipRecentOpenFeature, callback);
 };
 
+this.skipNextPrompt = false;
+
 /**
  * Asynchronously open the URI in a new Komodo tab, if the file is already
  * open then this existing tab becomes the currently focused tab.
@@ -202,54 +204,58 @@ this.URIAtLine = function open_openURIAtLine(uri, lineno, viewType /* ="editor" 
                            _viewsBundle.GetStringFromName("Cancel.customButtonLabel")];
             var responses = removeAmpersands(buttons);
             var text = null;
-            if (uri.match(/\.ksf$/i)) {
-                var prompt = _viewsBundle.formatStringFromName("importFileAsScheme.prompt", [ko.uriparse.baseName(uri)], 1);
-                var title = _viewsBundle.GetStringFromName("openingSchemeFile.label");
-                var answer = ko.dialogs.customButtons(prompt,
+            if ( ! this.skipNextPrompt) {
+                if (uri.match(/\.ksf$/i)) {
+                    var prompt = _viewsBundle.formatStringFromName("importFileAsScheme.prompt", [ko.uriparse.baseName(uri)], 1);
+                    var title = _viewsBundle.GetStringFromName("openingSchemeFile.label");
+                    var answer = ko.dialogs.customButtons(prompt,
+                                                          buttons,
+                                                          null,  //response=buttons[0]
+                                                          null, // text
+                                                          title);
+                    if (!answer || answer == responses[2]) {
+                        return null;
+                    } else if (answer == responses[0]) {
+                        var schemeService = Components.classes['@activestate.com/koScintillaSchemeService;1'].getService();
+                        var schemeBaseName = _checkKSFBaseName(schemeService, uri);
+                        if (!schemeBaseName) {
+                            // The user cancelled, so don't open anything
+                            return null;
+                        }
+                        try {
+                            var newSchemeName = schemeService.loadSchemeFromURI(uri, schemeBaseName);
+                            var oldScheme = schemeService.activateScheme(newSchemeName);
+                            this._notifyHowtoRestoreOldScheme(schemeService, oldScheme, newSchemeName);
+                            return null;
+                        } catch(ex) {
+                            alert(ex);
+                            log.exception(ex);
+                            // At this point we want to load the original file,
+                            // as there's something wrong with its contents.
+                        }
+                    }
+                } else if (uri.match(/(?:\.komodotool|\.ktf)$/i)) {
+                    var prompt = _viewsBundle.GetStringFromName("importFileAsKomodoTool.prompt");
+                    var title = _viewsBundle.GetStringFromName("openingKomodoToolFile.label");
+                    var answer = ko.dialogs.customButtons(prompt,
                                                       buttons,
                                                       null,  //response=buttons[0]
                                                       null, // text
                                                       title);
-                if (!answer || answer == responses[2]) {
-                    return null;
-                } else if (answer == responses[0]) {
-                    var schemeService = Components.classes['@activestate.com/koScintillaSchemeService;1'].getService();
-                    var schemeBaseName = _checkKSFBaseName(schemeService, uri);
-                    if (!schemeBaseName) {
-                        // The user cancelled, so don't open anything
+                    if (!answer || answer == responses[2]) {
+                        return null;
+                    } else if (answer == responses[0]) {
+                        ko.toolbox2.importFilesFromFileSystem_dragDrop(ko.uriparse.URIToPath(uri));
                         return null;
                     }
-                    try {
-                        var newSchemeName = schemeService.loadSchemeFromURI(uri, schemeBaseName);
-                        var oldScheme = schemeService.activateScheme(newSchemeName);
-                        this._notifyHowtoRestoreOldScheme(schemeService, oldScheme, newSchemeName);
-                        return null;
-                    } catch(ex) {
-                        alert(ex);
-                        log.exception(ex);
-                        // At this point we want to load the original file,
-                        // as there's something wrong with its contents.
-                    }
+                } else if (!viewType && (ko.open.isImageUrl(uri)
+                                         || ko.open.isAudioUrl(uri))) {
+                    // Open the image for previewing, bug 85103.
+                    viewType = "browser";
                 }
-            } else if (uri.match(/\.komodotool$/i)) {
-                var prompt = _viewsBundle.GetStringFromName("importFileAsKomodoTool.prompt");
-                var title = _viewsBundle.GetStringFromName("openingKomodoToolFile.label");
-                var answer = ko.dialogs.customButtons(prompt,
-                                                  buttons,
-                                                  null,  //response=buttons[0]
-                                                  null, // text
-                                                  title);
-                if (!answer || answer == responses[2]) {
-                    return null;
-                } else if (answer == responses[0]) {
-                    ko.toolbox2.importFilesFromFileSystem_dragDrop(ko.uriparse.URIToPath(uri));
-                    return null;
-                }
-            } else if (!viewType && (ko.open.isImageUrl(uri)
-                                     || ko.open.isAudioUrl(uri))) {
-                // Open the image for previewing, bug 85103.
-                viewType = "browser";
             }
+            this.skipNextPrompt = false;
+            
             if (lineno) {
                 ko.views.manager.doFileOpenAtLineAsync(uri, lineno, viewType, null, -1, callback);
             } else {

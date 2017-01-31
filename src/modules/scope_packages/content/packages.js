@@ -855,7 +855,8 @@
                     break;
                 case TOOLBOX:
                 case MACROS:
-                    if (asset.browser_download_url.substr(-11) == '.komodotool')
+                    if (asset.browser_download_url.substr(-11) == '.komodotool' ||
+                        asset.browser_download_url.substr(-4) == '.ktf')
                         return result(release, asset);
                     break;
                 case SCHEMES:

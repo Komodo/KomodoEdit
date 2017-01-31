@@ -204,7 +204,7 @@ function _appendFilters(fp, limitTo /* =null */) {
     names.push(local.bundle.GetStringFromName("komodoColorScheme"));
     filters.push(["*.ksf"]);
     names.push("Komodo Tool");
-    filters.push(["*.komodotool"]);
+    filters.push(["*.komodotool", "*.ktf"]);
     names.push("Zip");
     filters.push(["*.zip"]);
     names.push(local.bundle.GetStringFromName("codeIntelligenceXml"));

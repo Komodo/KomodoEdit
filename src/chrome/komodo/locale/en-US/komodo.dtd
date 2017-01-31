@@ -106,6 +106,7 @@
 <!ENTITY edit.label "Edit">
 <!ENTITY editMacro.label "Edit Userscript">
 <!ENTITY editSnippet.label "Edit Snippet">
+<!ENTITY editRaw.label "Edit Tool (advanced)">
 <!ENTITY editorInvokeHyperlink.desc "Editor: Invoke Hyperlink">
 <!ENTITY editorAddAsSnippetToToolbox.desc "Editor: Add as Snippet into Toolbox">
 <!ENTITY editorBack.desc "Editor: Back">

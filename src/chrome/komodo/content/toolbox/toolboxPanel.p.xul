@@ -231,6 +231,13 @@
                       hideUnless="snippet"
                       testDisableIf="t:multipleSelection"
                       />
+            <menuitem id="toolbox2ContextMenu_editRaw"
+                      label="&editRaw.label;"
+                      class="menuitem-iconic"
+                      oncommand="ko.toolbox2.invoke_editRaw()"
+                      hideIf="standardToolbox"
+                      testDisableIf="t:multipleSelection"
+                      />
             <menuitem id="toolbox2ContextMenu_runCommand"
                       label="&run.label;"
                       class="menuitem-iconic primary_menu_item"

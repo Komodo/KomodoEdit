@@ -96,6 +96,8 @@ interface koIToolbox2Service: nsISupports {
     void migrateVersion5Toolboxes();
     void reloadToolsDirectory(in wstring toolDir);
 
+    long updateFilePath(in wstring path);
+
     // Find and return all tools matching the given query.
     void findTools(in wstring query,
         in unsigned long langCount,

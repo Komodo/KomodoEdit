@@ -554,6 +554,19 @@ class KoToolbox2Service(object):
         except Exception:
             pass
 
+    def updateFilePath(self, path):
+        """
+        If no dir passed just reload the toolbox root
+        """
+        result = self.toolboxLoader.updateFilePath(path)
+
+        if not result:
+            result = 0
+        else:
+            self._notifyToolboxChanged(os.path.dirname(path))
+
+        return result
+
     def reloadToolsDirectory(self, toolDir):
         self.toolboxLoader.reloadToolsDirectory(toolDir)
 

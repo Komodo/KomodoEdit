@@ -179,6 +179,15 @@ this.invoke_editSnippet = function(tool) {
     ko.open.URI(tool.url);
 };
 
+this.invoke_editRaw = function(tool) {
+    if (typeof(tool) == 'undefined') {
+        tool = this._getSelectedTool();
+        if (!tool) return;
+    }
+    ko.open.skipNextPrompt = true;
+    ko.open.URI(ko.uriparse.pathToURI(tool.path));
+};
+
 this.editProperties_snippet = function(tool) {
     if (typeof(tool) == 'undefined') {
         tool = this._getSelectedTool('snippet');
@@ -629,7 +638,7 @@ this._getUniqueFileName = function(targetDirectory, newPath) {
     var newName, selectionStart, selectionEnd;
     [newName, selectionStart, selectionEnd] =
         this._getNewSuggestedName(osPathSvc.basename(newPath), targetDirectory);
-    var suffix = ".komodotool"
+    var suffix = ".ktf"
     if (newName.indexOf(suffix) > -1) {
         newName = newName.substring(0, newName.length - suffix.length);
     }

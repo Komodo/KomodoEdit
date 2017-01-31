@@ -80,6 +80,7 @@ DEFAULT_TARGET_DIRECTORY = "tools"
 PROJECT_TARGET_DIRECTORY = ".komodotools"
 
 TOOL_EXTENSION = ".komodotool"
+TOOL_EXTENSION_CLEAN = ".ktf"
 UI_FOLDER_FILENAME = ".folderdata"
 PROJECT_FILE_EXTENSION = ".komodoproject"
 
@@ -1400,6 +1401,8 @@ def updateToolName(path, newBaseName):
         fp.close()
         if newBaseName.endswith(TOOL_EXTENSION):
             newToolname = newBaseName[:-len(TOOL_EXTENSION)]
+        elif newBaseName.endswith(TOOL_EXTENSION_CLEAN):
+            newToolname = newBaseName[:-len(TOOL_EXTENSION_CLEAN)]
         else:
             newToolname = newBaseName
         data['name'] = newToolname
@@ -1563,18 +1566,9 @@ class ToolboxLoader(object):
                         existing_child_paths=None):
         path = join(dirname, fname)
         isDir = os.path.isdir(path)
-        isTool = os.path.splitext(fname)[1] == TOOL_EXTENSION
-        isCleanFormat = False
-
-        if not isTool and not isDir:
-            with open(path, 'r') as f:
-                first_line = f.readline().lower()
-                second_line = f.readline().lower()
-                f.seek(0)
-
-            if first_line.find(TOOL_META_START) != -1 or second_line.find(TOOL_META_START) != -1:
-                isTool = True
-                isCleanFormat = True
+        isTool = os.path.splitext(fname)[1] == TOOL_EXTENSION or \
+                 os.path.splitext(fname)[1] == TOOL_EXTENSION_CLEAN
+        isCleanFormat = os.path.splitext(fname)[1] == TOOL_EXTENSION_CLEAN
 
         if not isDir and not isTool:
             return
@@ -1650,6 +1644,20 @@ class ToolboxLoader(object):
             if notifyNow:
                 tool = self._toolsSvc.getToolById(new_id)
                 tool.added()
+
+            return new_id
+
+    def updateFilePath(self, path):
+        if not os.path.exists(path) or not os.path.isfile(path):
+            return
+
+        dirname = os.path.dirname(path)
+        fname = os.path.basename(path)
+
+        parent_id = self.db.get_id_from_path(dirname)
+        existing_child_paths = dict([(x, 1) for x in self.db.getChildPaths(parent_id)])
+
+        return self._testAndAddItem(True, dirname, fname, parent_id, existing_child_paths)
 
     def walkFunc(self, notifyNow, dirname, fnames):
         if os.path.basename(dirname) in self._excludedFolders:
@@ -1774,7 +1782,7 @@ class ToolboxLoader(object):
         parent_id = self.db.get_id_from_path(parentPath)
         for srcPath in toolPaths:
             ext = os.path.splitext(srcPath)[1]
-            if ext == TOOL_EXTENSION:
+            if ext == TOOL_EXTENSION or ext == TOOL_EXTENSION_CLEAN:
                 destPath = join(parentPath, os.path.basename(srcPath))
                 shutil.copy(srcPath, destPath)
                 self._testAndAddItem(True, parentPath, destPath, parent_id)
@@ -1787,7 +1795,7 @@ class ToolboxLoader(object):
     def importFileWithNewName(self, parentPath, srcPath, destPath):
         parent_id = self.db.get_id_from_path(parentPath)
         ext = os.path.splitext(srcPath)[1]
-        if ext == TOOL_EXTENSION:
+        if ext == TOOL_EXTENSION or ext == TOOL_EXTENSION_CLEAN:
             shutil.copy(srcPath, destPath)
             updateToolName(destPath, os.path.basename(destPath))
             self._testAndAddItem(True, parentPath, destPath, parent_id)
@@ -1852,11 +1860,7 @@ class DataParser:
 
     @staticmethod
     def readData(fp):
-        first_line = fp.readline().lower()
-        second_line = fp.readline().lower()
-        fp.seek(0)
-
-        if first_line.find(TOOL_META_START) != -1 or second_line.find(TOOL_META_START) != -1:
+        if fp.name.endswith(TOOL_EXTENSION_CLEAN):
             return DataParser.readCleanData(fp)
         else:
             return DataParser.readJsonData(fp)
@@ -1880,36 +1884,77 @@ class DataParser:
     def readCleanData(fp):
         data = { "value": "", "is_clean": "true" }
         metaRx = re.compile(r"(\w+):\s*(.*)\n")
+        subMetaRx = re.compile(r"komodo meta:\s*(.*)\n")
         inMeta = True
         pastMetaStartPending = False
         pastMetaStart = False
+        inSubMeta = False
+        subMetaKey = "value"
+        subMetaQueue = ""
 
         for num, line in enumerate(fp, 1):
+            # Check if we are past the meta start info (TOOL_META_START)
+            # and before the meta info (pastMetaStartPending)
+            # This strips the --- line
             if pastMetaStartPending:
                 pastMetaStart = True
                 pastMetaStartPending = False
                 continue
 
+            # Detect the meta start identifier
             if not pastMetaStart:
+
+                # If after 2 lines we still havent received the meta start info
+                # then this file is not formatted as a komodo tool
                 if num > 2:
                     fp.close()
                     return False
 
+                # Detect the TOOL_META_START and extract the tool name from it
                 if line.lower().find(TOOL_META_START) != -1:
                     data["name"] = line[line.lower().find(TOOL_META_START) + len(TOOL_META_START):]
                     pastMetaStartPending = True
 
                 continue
 
+            # Parse simple key/val meta info
             if inMeta:
                 match = metaRx.search(line)
 
                 if match:
                     data[match.group(1)] = match.group(2)
-                elif line.lower().find("---") != -1:
+
+                # Check for the end indicator for meta info
+                elif line.find("---") != -1:
                     inMeta = False
+
+            # Submeta is for multi-line values, primarily intended for the
+            # tutorial logic portion
+            elif inSubMeta:
+                match = subMetaRx.search(line)
+                
+                if match:
+                    subMetaKey = match.group(1).strip()
+                    data[subMetaKey] = ""
+                else:
+                    # If we didn't find the key then we werent looking at submeta
+                    # after all, and we need to append the previous line to the
+                    # previous entry value
+                    inSubMeta = False
+                    data[subMetaKey] += subMetaQueue
+
+                subMetaQueue = ""
+
+            # Multi-line values
             else:
-                data["value"] += line
+                # Detect submeta
+                if line.find("---") != -1:
+                    inSubMeta = True
+                    subMetaQueue = line
+
+                # Else this is a regular value
+                else:
+                    data[subMetaKey] += line
 
         [name, ext] = os.path.splitext(fp.name)
 
@@ -1940,27 +1985,38 @@ class DataParser:
         # Detect namePrefix and metaPrefix
         if fp.mode == "r+":
             for num, line in enumerate(fp, 1):
+
+                # Check if we are past the meta start info (TOOL_META_START)
+                # and before the meta info (pastMetaStartPending)
+                # This strips the --- line
                 if pastMetaStartPending:
                     pastMetaStart = True
                     pastMetaStartPending = False
                     continue
                 
+                # Detect the meta start identifier
                 if not pastMetaStart:
                     if line.lower().find(TOOL_META_START) != -1:
                         namePrefix = line[0:(line.lower().find(TOOL_META_START) + len(TOOL_META_START))]
                         pastMetaStartPending = True
                     else:
+                        # If after 2 lines we still havent received the meta start info
+                        # then this file is not formatted as a komodo tool
                         if num > 2:
                             break
                     continue
+
+                # Detect regular meta info
                 else:
                     match = metaRx.search(line)
 
                     if match:
                         metaPrefix = match.group(1)
                     else:
+
+                        # End loop when we get to the meta end indicator
                         if line.find("---") != -1:
-                            endPrefix = line[0:line.lower().find("---")]
+                            endPrefix = line[0:line.find("---")]
                             break
 
         langRegistry = components.classes["@activestate.com/koLanguageRegistryService;1"]\
@@ -1976,6 +2032,8 @@ class DataParser:
 
             if not metaPrefix:
                 metaPrefix = "// "
+            else:
+                metaPrefix += json.loads(metaPrefix) + " "
 
         if not namePrefix:
             namePrefix = "%s%s" % (metaPrefix, TOOL_META_START)
@@ -1985,6 +2043,8 @@ class DataParser:
         concatenated = "%s%s" % (TOOL_META_START, data["name"])
         separator = metaPrefix
         separator += "%s\n" % ("-" * len(concatenated))
+        
+        # Now lets start writing
 
         writeData = ""
         writeData += "%s%s\n" % (namePrefix, data["name"])
@@ -1993,10 +2053,16 @@ class DataParser:
         keys = data.keys()
         keys.sort()
 
+        multiLineKeys = ["value"]
+
         for key in keys:
             value = data[key]
 
             if key == "value" or key == "name" or value == "":
+                continue
+
+            if "\n" in value:
+                multiLineKeys.append(key)
                 continue
 
             if len(value.split("\n")) > 1:
@@ -2007,10 +2073,22 @@ class DataParser:
 
         writeData += separator
 
-        if isinstance(data["value"], basestring):
-            writeData += data["value"]
-        else:
-            writeData += eol.join(data["value"])
+        first = True
+        for key in multiLineKeys:
+            value = data[key]
+
+            if not first:
+                writeData += "\n"
+                writeData += separator
+                writeData += "%skomodo meta: %s\n" % (metaPrefix, key)
+                writeData += separator
+
+            if isinstance(data["value"], basestring):
+                writeData += data["value"]
+            else:
+                writeData += eol.join(data["value"])
+                
+            first = False
 
         fp.seek(0)
         fp.truncate()

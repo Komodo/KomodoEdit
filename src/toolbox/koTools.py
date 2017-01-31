@@ -327,7 +327,8 @@ class _KoTool(object):
 
         fp.close()
 
-        if data.get('name', self.name) != self.name:
+        if data.get('name', self.name) != self.name or \
+           data.get('language', self._attributes['language']) != self._attributes['language']:
             refreshParent = True
             # bug 88228: we're renaming a tool by saving its properties, so do the
             # rename separately.  This updates the DB correctly.
@@ -924,13 +925,8 @@ class KoToolbox2ToolManager(object):
 
     def _prepareUniqueFileSystemName(self, tool, dirName, baseName, ext=None):
         if ext is None:
-            language = tool._attributes.get("language", None)
-
-            if tool.supportsCleanFormat and language:
-                langRegistry = components.classes["@activestate.com/koLanguageRegistryService;1"]\
-                                .getService(components.interfaces.koILanguageRegistryService)
-                language = langRegistry.getLanguage(language)
-                ext = language.defaultExtension
+            if tool.supportsCleanFormat:
+                ext = koToolbox2.TOOL_EXTENSION_CLEAN
             else:
                 ext = koToolbox2.TOOL_EXTENSION
 

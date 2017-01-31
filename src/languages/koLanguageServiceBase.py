@@ -40,6 +40,7 @@
 import copy, re, types, eollib
 import Queue
 import logging
+import json
 
 import scimozindent
 from xpcom import components
@@ -1286,7 +1287,9 @@ class KoLanguageBase:
         if index >= len(self.commentDelimiterInfo[key]):
             return ""
 
-        return self.commentDelimiterInfo[key][index]
+        result = self.commentDelimiterInfo[key][index]
+
+        return json.dumps(result)
 
     def getEncodingWarning(self, encoding):
         if not encoding.encoding_info.ascii_superset:
