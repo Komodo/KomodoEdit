@@ -2086,14 +2086,12 @@ def target_src(argv=["src"]):
 
         def inside_activestate_network():
             import socket
-            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            hostname = "nas1.activestate.com"
             try:
-                s.connect(("gmail.com",80))
+                socket.gethostbyname(hostname)
+                return True
             except:
-                return 
-            ip_address = s.getsockname()[0]
-            s.close()
-            return ip_address.startswith("10.19")
+                return False
 
         if inside_activestate_network():
             try:
