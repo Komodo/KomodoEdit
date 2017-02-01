@@ -2033,7 +2033,7 @@ class DataParser:
             if not metaPrefix:
                 metaPrefix = "// "
             else:
-                metaPrefix += json.loads(metaPrefix) + " "
+                metaPrefix = json.loads(metaPrefix) + " "
 
         if not namePrefix:
             namePrefix = "%s%s" % (metaPrefix, TOOL_META_START)
@@ -2061,12 +2061,8 @@ class DataParser:
             if key == "value" or key == "name" or value == "":
                 continue
 
-            if "\n" in value:
+            if isinstance(value, basestring) and "\n" in value:
                 multiLineKeys.append(key)
-                continue
-
-            if len(value.split("\n")) > 1:
-                log.error("Cannot serialize multiline meta for %s: %s" % (key, value));
                 continue
             
             writeData += "%s%s: %s\n" % (metaPrefix, key, value)
