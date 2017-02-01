@@ -556,7 +556,7 @@ class KoToolbox2Service(object):
 
     def updateFilePath(self, path):
         """
-        If no dir passed just reload the toolbox root
+        Update the tool at the given file path
         """
         result = self.toolboxLoader.updateFilePath(path)
 
@@ -566,6 +566,78 @@ class KoToolbox2Service(object):
             self._notifyToolboxChanged(os.path.dirname(path))
 
         return result
+
+    def convertOldFormat(self, path, deleteOld=True):
+        """
+        Convert .komodotools at the given path to .ktf
+        """
+        def convert(path):
+            try:
+                oldFp = open(path, "r+")
+                data = koToolbox2.DataParser.readJsonData(oldFp)
+                oldFp.close()
+
+                newPath = os.path.splitext(path)[0] + ".ktf"
+                newFp = open(newPath, "w")
+                koToolbox2.DataParser.writeCleanData(newFp, data)
+                newFp.close()
+
+                if deleteOld:
+                    os.remove(path)
+            except:
+                log.exception("Could not convert %s" % path)
+
+        if os.path.isfile(path):
+            convert(path)
+        elif os.path.isdir(path):
+            for dirname, dirlist, filelist in os.walk(path):
+                for fname in filelist:
+                    if not fname.endswith(".komodotool"):
+                        continue
+
+                    convert(os.path.join(dirname, fname))
+
+    def convertToTemplate(self, path, targetPath):
+        """
+        Convert files at target path to template tools
+        """
+        langRegistry = components.classes["@activestate.com/koLanguageRegistryService;1"]\
+                        .getService(components.interfaces.koILanguageRegistryService)
+
+        def convert(filepath):
+            try:
+                [name, ext] = os.path.splitext(os.path.basename(filepath))
+
+                if ext == ".ktf" or ext == ".komodotool":
+                    return
+
+                relativePath = filepath[len(path):].strip("/")
+                fileTargetPath = os.path.join(targetPath, relativePath)
+                fileTargetPath = os.path.join(os.path.dirname(fileTargetPath), name + ".ktf")
+                parentPath = os.path.dirname(fileTargetPath)
+
+                if not os.path.exists(parentPath):
+                    os.makedirs(parentPath)
+
+                data = {}
+                data["name"] = name
+                data["type"] = "template"
+                data["language"] = langRegistry.suggestLanguageForFile(filepath)
+
+                fp = open(filepath, "r")
+                data["value"] = fp.read()
+                fp.close()
+
+                koToolbox2.DataParser.writeCleanData(open(fileTargetPath, "w"), data)
+            except:
+                log.exception("Could not convert %s" % path)
+
+        if os.path.isfile(path):
+            convert(path)
+        elif os.path.isdir(path):
+            for dirname, dirlist, filelist in os.walk(path):
+                for fname in filelist:
+                    convert(os.path.join(dirname, fname))
 
     def reloadToolsDirectory(self, toolDir):
         self.toolboxLoader.reloadToolsDirectory(toolDir)

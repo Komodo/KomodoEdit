@@ -97,6 +97,8 @@ interface koIToolbox2Service: nsISupports {
     void reloadToolsDirectory(in wstring toolDir);
 
     long updateFilePath(in wstring path);
+    void convertOldFormat(in wstring path, in boolean deleteOld);
+    void convertToTemplate(in wstring path, in wstring targetPath);
 
     // Find and return all tools matching the given query.
     void findTools(in wstring query,
