@@ -164,6 +164,22 @@ class Database(object):
     def _add_is_clean(self, curr_ver, result_ver):
         with self.connect(commit=True) as cu:
             cu.execute("ALTER TABLE common_details ADD COLUMN is_clean bool DEFAULT false")
+
+    def _transition_file_templates(self, curr_ver, result_ver):
+        self._add_file_template_table(curr_ver, result_ver)
+
+        with self.connect(commit=True) as cu:
+            cu.execute("DELETE FROM common_details WHERE type='template'")
+
+    def _add_file_template_table(self, curr_ver, result_ver):
+        """
+        Add file template table
+        """
+        with self.connect(commit=True) as cu:
+            cu.execute("create table fileTemplate (\
+                        path_id INTEGER PRIMARY KEY NOT NULL,\
+                        treat_as_ejs bool default false,\
+                        language text)")
             
     def __repr__(self):
         return "<Toolbox2 Database %s>" % self.path
@@ -1925,7 +1941,7 @@ class DataParser:
                     data[match.group(1)] = match.group(2)
 
                 # Check for the end indicator for meta info
-                elif line.find("---") != -1:
+                elif line.find("===") != -1:
                     inMeta = False
 
             # Submeta is for multi-line values, primarily intended for the
@@ -1948,7 +1964,7 @@ class DataParser:
             # Multi-line values
             else:
                 # Detect submeta
-                if line.find("---") != -1:
+                if line.find("===") != -1:
                     inSubMeta = True
                     subMetaQueue = line
 
@@ -1979,8 +1995,11 @@ class DataParser:
         pastMetaStart = False
 
         namePrefix = None
-        endPrefix = None
+        startPrefix = None
+        endSuffix = None
         metaPrefix = None
+
+        multiLineCommented = False
 
         # Detect namePrefix and metaPrefix
         if fp.mode == "r+":
@@ -1988,7 +2007,7 @@ class DataParser:
 
                 # Check if we are past the meta start info (TOOL_META_START)
                 # and before the meta info (pastMetaStartPending)
-                # This strips the --- line
+                # This strips the === line
                 if pastMetaStartPending:
                     pastMetaStart = True
                     pastMetaStartPending = False
@@ -1997,11 +2016,17 @@ class DataParser:
                 # Detect the meta start identifier
                 if not pastMetaStart:
                     if line.lower().find(TOOL_META_START) != -1:
-                        namePrefix = line[0:(line.lower().find(TOOL_META_START) + len(TOOL_META_START))]
+                        if not namePrefix:
+                            namePrefix = ""
+                        else:
+                            multiLineCommented = True
+
+                        namePrefix += line[0:(line.lower().find(TOOL_META_START) + len(TOOL_META_START))]
                         pastMetaStartPending = True
                     else:
                         # If after 2 lines we still havent received the meta start info
                         # then this file is not formatted as a komodo tool
+                        namePrefix = line
                         if num > 2:
                             break
                     continue
@@ -2015,8 +2040,8 @@ class DataParser:
                     else:
 
                         # End loop when we get to the meta end indicator
-                        if line.find("---") != -1:
-                            endPrefix = line[0:line.find("---")]
+                        if line.find("===") != -1:
+                            endSuffix = line
                             break
 
         langRegistry = components.classes["@activestate.com/koLanguageRegistryService;1"]\
@@ -2026,24 +2051,41 @@ class DataParser:
         if not language:
             language = langRegistry.suggestLanguageForFile(fp.name)
 
-        if not metaPrefix:
-            langInfo = langRegistry.getLanguage(language)
-            metaPrefix = langInfo.getCommentDelimiter("line", 0)
+        if multiLineCommented and not metaPrefix:
+            metaPrefix = ""
 
-            if not metaPrefix:
-                metaPrefix = "// "
+        langInfo = langRegistry.getLanguage(language)
+        lineComment = langInfo.getCommentDelimiter("line", 0)
+        blockComment = langInfo.getCommentDelimiter("block", 0)
+
+        if metaPrefix == None:
+            if lineComment:
+                metaPrefix = json.loads(lineComment)
+            elif blockComment:
+                metaPrefix = ""
+                blockComment = json.loads(blockComment)
+                namePrefix = blockComment[0] + "\n" + TOOL_META_START
+                startPrefix = blockComment[0]
+                endSuffix = blockComment[1]
             else:
-                metaPrefix = json.loads(metaPrefix) + " "
+                metaPrefix = "// "
+
+        if not endSuffix:
+            endSuffix = ""
+        if not startPrefix:
+            startPrefix = ""
 
         if not namePrefix:
             namePrefix = "%s%s" % (metaPrefix, TOOL_META_START)
-        if not endPrefix:
-            endPrefix = metaPrefix
 
         concatenated = "%s%s" % (TOOL_META_START, data["name"])
         separator = metaPrefix
-        separator += "%s\n" % ("-" * len(concatenated))
+        separator += "%s" % ("=" * len(concatenated))
         
+        startSeparator = startPrefix + separator + "\n"
+        endSeparator = separator + endSuffix + "\n"
+        separator = separator + "\n"
+
         # Now lets start writing
 
         writeData = ""
@@ -2067,7 +2109,7 @@ class DataParser:
             
             writeData += "%s%s: %s\n" % (metaPrefix, key, value)
 
-        writeData += separator
+        writeData += endSeparator
 
         first = True
         for key in multiLineKeys:
@@ -2075,9 +2117,10 @@ class DataParser:
 
             if not first:
                 writeData += "\n"
-                writeData += separator
+                
+                writeData += startSeparator
                 writeData += "%skomodo meta: %s\n" % (metaPrefix, key)
-                writeData += separator
+                writeData += endSeparator
 
             if isinstance(data["value"], basestring):
                 writeData += data["value"]
