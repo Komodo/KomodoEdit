@@ -1,0 +1,19 @@
+<!--
+komodo tool: HTML 5
+===================
+language: HTML
+type: template
+===================-->
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>[[%tabstop:Page Title]]</title>
+</head>
+
+<body>
+
+[[%tabstop]]
+
+</body>
+</html>
