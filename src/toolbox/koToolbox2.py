@@ -1547,7 +1547,8 @@ class ToolboxLoader(object):
         except KeyError:
             pass
         
-        self._update_version(curr_ver, result_ver, json_data, path)
+        if json_data['version'] != result_ver:
+            self._update_version(curr_ver, result_ver, json_data, path)
 
     _upgrade_item_info_from_curr_ver = {
         # <item's version>: (<resultant version>, <upgrader method>)
@@ -1989,6 +1990,7 @@ class DataParser:
     @staticmethod
     def writeCleanData(fp, data):
         metaRx = re.compile(r"(.*?)\w+:.*\n")
+        endRx = re.compile(r"===+(.*)\n")
 
         inMeta = True
         pastMetaStartPending = False
@@ -2041,7 +2043,8 @@ class DataParser:
 
                         # End loop when we get to the meta end indicator
                         if line.find("===") != -1:
-                            endSuffix = line
+                            match = endRx.search(line)
+                            endSuffix = match[1]
                             break
 
         langRegistry = components.classes["@activestate.com/koLanguageRegistryService;1"]\
