@@ -620,7 +620,7 @@ class Database(object):
                     actual_name = data.get('name', None) or name
                     new_id = self._addCompoundItem(path, actual_name, data, parent_path_id, cu)
                     return new_id
-            id = self._addCommonDetails(path, name, 'folder', parent_path_id, False, cu)
+            id = self._addCommonDetails(path, name, 'folder', False, parent_path_id, cu)
             return id
 
     def addContainerItem(self, data, item_type, path, fname, parent_path_id):
@@ -644,7 +644,7 @@ class Database(object):
     def _addCompoundItem(self, path, name, data, parent_path_id, cu):
         node_type = data.get('type', 'folder')
         # Process the children in the directory
-        id = self._addCommonDetails(path, name, node_type, parent_path_id, cu)
+        id = self._addCommonDetails(path, name, node_type, False, parent_path_id, cu)
         if node_type == 'menu':
             stmt = 'insert into menu(path_id, accessKey, priority) values(?, ?, ?)'
             cu.execute(stmt, (id, data.get('accesskey', ""), data.get('priority', 100)))
@@ -2060,7 +2060,7 @@ class DataParser:
 
         if metaPrefix == None:
             if lineComment:
-                metaPrefix = json.loads(lineComment)
+                metaPrefix = json.loads(lineComment).strip() + " "
             elif blockComment:
                 metaPrefix = ""
                 blockComment = json.loads(blockComment)

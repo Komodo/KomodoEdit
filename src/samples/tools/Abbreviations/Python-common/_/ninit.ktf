@@ -1,0 +1,26 @@
+// komodo tool: ninit
+// ==================
+// auto_abbreviation: true
+// indent_relative: true
+// set_selection: false
+// treat_as_ejs: true
+// type: snippet
+// version: 1.0.12
+// ==================
+<%
+var i, numReps = ko.snippets.consumeLeadingNumericFactor(":");
+%>
+def __init__(self<%
+if (numReps === 0) {
+	// Allow for args
+	%>[[%tabstop:]]<%
+} else {
+	for (i = 1; i <= numReps; i++) {
+		%>[[%soft:,]][[%soft: ]][[%tabstop<%= i %>:arg<%= i %>]]<%
+	}
+} %>[[%soft:)]][[%soft::]]
+<% for (i = 1; i <= numReps; i++) { %>
+	self.[[%tabstop<%= i %>:arg<%= i %>]] = [[%tabstop<%= i %>:arg<%= i %>]]
+<% } %>
+	[[%tabstop:]]
+!@#_currentPos!@#_anchor

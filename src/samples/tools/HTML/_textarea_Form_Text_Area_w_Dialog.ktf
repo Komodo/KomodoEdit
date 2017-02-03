@@ -1,0 +1,10 @@
+// komodo tool: <textarea> Form Text Area w/Dialog
+// ===============================================
+// auto_abbreviation: false
+// indent_relative: true
+// set_selection: true
+// treat_as_ejs: false
+// type: snippet
+// version: 1.0.12
+// ===============================================
+<textarea name="[[%ask:Name:]]" cols="[[%ask:Columns:40]]" rows="[[%ask:Rows:10]]" wrap="[[%ask:Wrap:SOFT]]">!@#_currentPos!@#_anchor</textarea>

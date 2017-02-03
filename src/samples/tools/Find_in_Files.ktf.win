@@ -1,0 +1,14 @@
+// komodo tool: Find in Files
+// ==========================
+// cwd: %(ask:Start Directory:%D)
+// doNotOpenOutputWindow: 0
+// insertOutput: 0
+// operateOnSelection: 0
+// parseOutput: 1
+// parseRegex: ^(?P<file>.+?):(?P<line>\d+):(?P<content>.*)$
+// runIn: command-output-window
+// showParsedOutputList: 1
+// type: command
+// version: 1.0.12
+// ==========================
+findstr /s /n /c:"%(w:orask:Search Term)" %(ask:File Pattern:*.*)

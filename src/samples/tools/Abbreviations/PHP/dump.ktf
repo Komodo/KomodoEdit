@@ -1,0 +1,15 @@
+// komodo tool: dump
+// =================
+// auto_abbreviation: false
+// indent_relative: true
+// set_selection: false
+// treat_as_ejs: false
+// type: snippet
+// version: 1.0.12
+// =================
+function _dump($data) {
+	if (func_num_args() > 1) {
+		$data = func_get_args();
+	}
+	return "<pre>".print_r($data, 1)."</pre>";
+}!@#_currentPos!@#_anchor

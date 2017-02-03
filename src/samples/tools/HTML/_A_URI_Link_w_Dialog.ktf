@@ -1,0 +1,10 @@
+// komodo tool: <A> URI Link w/Dialog
+// ==================================
+// auto_abbreviation: false
+// indent_relative: true
+// set_selection: true
+// treat_as_ejs: false
+// type: snippet
+// version: 1.0.12
+// ==================================
+<a href="[[%w:orask:URI]]" name="[[%ask:Name]]" target="[[%ask:Target:_self]]">[[%w:orask:Text]]</a>!@#_currentPos!@#_anchor

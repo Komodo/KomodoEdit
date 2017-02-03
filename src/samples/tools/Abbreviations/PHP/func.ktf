@@ -1,0 +1,17 @@
+// komodo tool: func
+// =================
+// auto_abbreviation: false
+// indent_relative: true
+// set_selection: false
+// treat_as_ejs: false
+// type: snippet
+// version: 1.0.12
+// =================
+/*
+ * function [[%tabstop1:name]]
+ * @param $[[%tabstop2:arg]]
+ */
+
+function [[%tabstop1]]($[[%tabstop2]]) {
+	[[%tabstop:]]
+}!@#_currentPos!@#_anchor

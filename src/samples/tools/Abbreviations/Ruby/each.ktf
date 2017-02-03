@@ -1,0 +1,10 @@
+// komodo tool: each
+// =================
+// auto_abbreviation: true
+// indent_relative: true
+// set_selection: false
+// treat_as_ejs: false
+// type: snippet
+// version: 1.0.12
+// =================
+each {|[[%tabstop:e]]| [[%tabstop]] }[[%tabstop]]!@#_currentPos!@#_anchor

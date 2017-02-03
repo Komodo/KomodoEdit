@@ -1,0 +1,10 @@
+// komodo tool: rnc
+// ================
+// auto_abbreviation: false
+// indent_relative: true
+// set_selection: false
+// treat_as_ejs: false
+// type: snippet
+// version: 1.0.12
+// ================
+rename_column [[%tabstop:table]], [[%tabstop:old_column_name]], [[%tabstop:new_column_name]]!@#_currentPos!@#_anchor

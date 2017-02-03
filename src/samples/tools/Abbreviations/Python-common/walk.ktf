@@ -1,0 +1,11 @@
+// komodo tool: walk
+// =================
+// auto_abbreviation: false
+// indent_relative: true
+// set_selection: false
+// treat_as_ejs: false
+// type: snippet
+// version: 1.0.12
+// =================
+for root, dirs, files in os.walk([[%tabstop:dirname]]):
+	[[%tabstop:pass]]!@#_currentPos!@#_anchor

@@ -1,0 +1,20 @@
+// komodo tool: html4
+// ==================
+// auto_abbreviation: false
+// indent_relative: true
+// set_selection: false
+// treat_as_ejs: false
+// type: snippet
+// version: 1.0.12
+// ==================
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+		"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+	<title>[[%tabstop1:title]]</title>
+</head>
+<body>
+	<[[%tabstop2:h1]]>[[%tabstop1]]</[[%tabstop2]]>
+	[[%tabstop:]]
+</body>
+</html>!@#_currentPos!@#_anchor

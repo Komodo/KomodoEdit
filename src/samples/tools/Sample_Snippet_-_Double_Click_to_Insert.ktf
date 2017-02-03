@@ -1,0 +1,10 @@
+// komodo tool: Sample Snippet - Double Click to Insert
+// ====================================================
+// auto_abbreviation: false
+// indent_relative: false
+// set_selection: false
+// treat_as_ejs: false
+// type: snippet
+// version: 1.0.12
+// ====================================================
+!@#_anchor/* Copyright (c) 2003 [[%ask:Corporation Name:Default]] Corporation. */\n!@#_currentPos

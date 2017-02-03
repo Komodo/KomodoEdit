@@ -1,0 +1,10 @@
+// komodo tool: Count words in selection using "wc"
+// ================================================
+// doNotOpenOutputWindow: 0
+// insertOutput: 0
+// operateOnSelection: 1
+// runIn: command-output-window
+// type: command
+// version: 1.0.12
+// ================================================
+wc -w

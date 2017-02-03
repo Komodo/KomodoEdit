@@ -1,0 +1,12 @@
+// komodo tool: fore
+// =================
+// auto_abbreviation: true
+// indent_relative: true
+// set_selection: false
+// treat_as_ejs: false
+// type: snippet
+// version: 1.0.12
+// =================
+foreach [[%tabstop:VAR]][[%soft: {]]
+	[[%tabstop]]
+}!@#_currentPos!@#_anchor

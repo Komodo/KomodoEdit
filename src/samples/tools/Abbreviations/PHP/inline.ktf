@@ -1,0 +1,10 @@
+// komodo tool: inline
+// ===================
+// auto_abbreviation: false
+// indent_relative: true
+// set_selection: false
+// treat_as_ejs: false
+// type: snippet
+// version: 1.0.12
+// ===================
+<?php echo $[[%tabstop:var]]; ?>!@#_currentPos!@#_anchor

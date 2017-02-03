@@ -1,0 +1,13 @@
+// komodo tool: fore
+// =================
+// auto_abbreviation: true
+// auto_snippet: true
+// indent_relative: true
+// set_selection: false
+// treat_as_ejs: false
+// type: snippet
+// version: 1.0.12
+// =================
+foreach my $[[%tabstop:var]] ([[%tabstop:EXPR]]) {
+	[[%tabstop]]
+}[[%tabstop:]]!@#_currentPos!@#_anchor

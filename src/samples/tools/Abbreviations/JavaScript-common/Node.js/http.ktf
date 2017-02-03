@@ -1,0 +1,16 @@
+// komodo tool: http
+// =================
+// auto_abbreviation: false
+// indent_relative: true
+// set_selection: false
+// treat_as_ejs: false
+// type: snippet
+// version: 1.0.12
+// =================
+var [[%tabstop1:http]] = require("http");
+[[%tabstop1:http]].createServer(function([[%tabstop2:req]], [[%tabstop3:response]]) {
+	[[%tabstop3:response]].writeHead(200, {"Content-Type": "text/plain"});
+	[[%tabstop3:response]].end([[%tabstop:"Hello World\n"]]);
+}).listen([[%tabstop4:1337]], "[[%tabstop5:127.0.0.1]]");
+console.log("Server running at http://[[%tabstop5]]:[[%tabstop4]]/");
+[[%tabstop0:]]!@#_currentPos!@#_anchor

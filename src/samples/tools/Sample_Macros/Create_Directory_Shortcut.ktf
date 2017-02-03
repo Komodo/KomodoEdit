@@ -1,0 +1,36 @@
+// komodo tool: Create Directory Shortcut
+// ======================================
+// async: 0
+// language: JavaScript
+// rank: 100
+// trigger: trigger_postopen
+// trigger_enabled: 0
+// type: macro
+// version: 1.0.12
+// ======================================
+(function() {
+function f() {
+var d = ko.filepicker.getFolder(null, "Pick the directory to point at");
+if (!d) return;
+var newMacro = ko.toolbox2.createPartFromType('macro');
+newMacro.setStringAttribute('name', d);
+var lines = [
+    "var paths = ko.filepicker.browseForFiles('" + d.replace(/\\/g, '\\\\') + "');", 
+    "if (paths == null)",
+    "    return;",
+    "ko.open.multipleURIs(paths);",
+    ""];
+newMacro.value = lines.join("\n");
+newMacro.setStringAttribute('trigger', "");
+newMacro.iconurl  = 'chrome://komodo/skin/images/open.png';
+newMacro.setLongAttribute('rank', 100);
+newMacro.setBooleanAttribute('async', false);
+newMacro.setStringAttribute('language', "JavaScript");
+ko.toolbox2.addItem(newMacro);
+}
+try {
+f();  
+} catch(ex) {
+    alert("Macro failed: " + ex)
+}
+})();

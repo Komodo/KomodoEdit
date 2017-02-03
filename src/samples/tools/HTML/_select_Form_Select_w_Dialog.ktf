@@ -1,0 +1,10 @@
+// komodo tool: <select> Form Select w/Dialog
+// ==========================================
+// auto_abbreviation: false
+// indent_relative: true
+// set_selection: true
+// treat_as_ejs: false
+// type: snippet
+// version: 1.0.12
+// ==========================================
+<select name="[[%ask:Name:]]"><option>!@#_currentPos!@#_anchor</option></select>

@@ -1,0 +1,36 @@
+// komodo tool: nclass
+// ===================
+// auto_abbreviation: true
+// indent_relative: true
+// set_selection: false
+// treat_as_ejs: true
+// type: snippet
+// version: 1.0.12
+// ===================
+<% // JS constructor dynamic snippet
+var i, numReps = ko.snippets.consumeLeadingNumericFactor(":");
+%>[[%tabstop:/*
+ * [[%tabstop1:className]]
+<% for (i = 1; i <= numReps; i++) { %>
+ * @param [[%tabstop<%= i + 1 %>:arg<%= i %>]]
+<% } %>
+ */]]
+function [[%tabstop1:className]](<%
+if (numReps === 0) {
+// Allow for args
+%>[[%tabstop:args]]<%
+} else {
+%>[[%tabstop2:arg1]]<%
+for (i = 2; i <= numReps; i++) {
+%>[[%soft:,]][[%soft: ]][[%tabstop<%= i + 1 %>:arg<%= i %>]]<%
+}
+} %>[[%soft:) {]][[%tabstop:
+	/*
+	 * [[%tabstop:docstring]]
+	 */]]
+<% for (i = 1; i <= numReps; i++) { %>
+	this.[[%tabstop<%= i + 1 %>:arg<%= i %>]] = [[%tabstop<%= i+ 1 %>:arg<%= i %>]][[%soft:;]]
+<% } %>
+	[[%tabstop:]]
+}[[%tabstop:]]
+!@#_currentPos!@#_anchor

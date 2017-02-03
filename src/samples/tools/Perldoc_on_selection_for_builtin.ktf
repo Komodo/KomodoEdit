@@ -1,0 +1,10 @@
+// komodo tool: Perldoc on selection (for builtin functions)
+// =========================================================
+// doNotOpenOutputWindow: 0
+// insertOutput: 0
+// operateOnSelection: 0
+// runIn: command-output-window
+// type: command
+// version: 1.0.12
+// =========================================================
+"%(perl)" -e print && perldoc -u -f %w | pod2html > "c:\temp\pod.html" && %(browser) c:\temp\pod.html

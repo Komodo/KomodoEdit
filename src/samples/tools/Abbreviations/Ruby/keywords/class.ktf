@@ -1,0 +1,17 @@
+// komodo tool: class
+// ==================
+// auto_abbreviation: true
+// auto_snippet: true
+// indent_relative: true
+// set_selection: false
+// treat_as_ejs: true
+// type: snippet
+// version: 1.0.12
+// ==================
+<% if (ko.snippets.rightOfFirstKeyword()) {%>
+class [[%tabstop:name]][[%tabstop: < [[%tabstop:name]]]]
+	[[%tabstop:#code]]
+end<% } else {
+  throw new ko.snippets.RejectedSnippet("not at start of line");
+   } %>
+!@#_currentPos!@#_anchor

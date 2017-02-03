@@ -1,0 +1,11 @@
+// komodo tool: main
+// =================
+// auto_abbreviation: false
+// indent_relative: false
+// set_selection: false
+// treat_as_ejs: false
+// type: snippet
+// version: 1.0.12
+// =================
+#!/bin/env [[%tabstop:bash]]
+# [[%tabstop:scriptname]]!@#_currentPos!@#_anchor

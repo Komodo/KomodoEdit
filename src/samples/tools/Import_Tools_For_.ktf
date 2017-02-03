@@ -1,0 +1,46 @@
+// komodo tool: Import Tools For...
+// ================================
+// async: False
+// language: JavaScript
+// rank: 100
+// trigger: trigger_postopen
+// trigger_enabled: False
+// type: macro
+// version: 1.0.12
+// ================================
+// This tool offers the user the option to installing Framework
+// toolbox folders.
+// It also demonstrates the `ko/modal` SDK at work for users
+// that may wish to customize Komodo and explore the extensive
+// APIs included in the source.
+var toolkits =
+[
+    "Django",
+    "Flask",
+    "Rails"
+];
+var fields = [];
+for(let i in toolkits)
+{
+    fields[toolkits[i]] =
+    {
+            label: toolkits[i],
+            value:toolkits[i],
+            type: "checkbox",
+            group: "Frameworks"
+    };
+}
+var callback = (result) =>
+{
+    for(let key of toolkits)
+    {
+        if(result[key] === true)
+        {
+            ko.toolbox2.importFramework_common(key);
+        }
+    }
+};
+require("ko/modal").open("Which package(s) do you want installed?",
+                         fields,
+                         callback,
+                         "Install");

@@ -1,0 +1,10 @@
+// komodo tool: <form> Form w/Dialog
+// =================================
+// auto_abbreviation: false
+// indent_relative: true
+// set_selection: true
+// treat_as_ejs: false
+// type: snippet
+// version: 1.0.12
+// =================================
+<form name="[[%ask:Name]]" action="[[%ask:Action]]" method="[[%ask:Method:POST]]" enctype="[[%ask:Encoding:application/x-www-form-urlencoded]]">!@#_currentPos!@#_anchor<input type="submit"/><input type="reset"/></form>

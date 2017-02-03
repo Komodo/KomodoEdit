@@ -1,0 +1,17 @@
+// komodo tool: meth
+// =================
+// auto_abbreviation: false
+// indent_relative: true
+// set_selection: false
+// treat_as_ejs: false
+// type: snippet
+// version: 1.0.12
+// =================
+/**
+ * [[%tabstop1:method]]
+ * @param [[%tabstop2:arg1]]
+ */
+ 
+[[%tabstop:Object]].prototype.[[%tabstop1]] = function [[%tabstop1]]([[%tabstop2]]) {
+	[[%tabstop:]]
+};!@#_currentPos!@#_anchor

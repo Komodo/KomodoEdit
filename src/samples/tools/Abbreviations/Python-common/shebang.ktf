@@ -1,0 +1,16 @@
+// komodo tool: shebang
+// ====================
+// auto_abbreviation: false
+// indent_relative: false
+// set_selection: true
+// treat_as_ejs: false
+// type: snippet
+// version: 1.0.12
+// ====================
+#![[%python]]
+import os, re
+from os.path import join, abspath, isfile, isdir, exists, basename
+from shutil import copyfile, copytree, rmtree
+from time import strftime, strptime, localtime
+
+!@#_currentPos!@#_anchor

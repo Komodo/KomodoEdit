@@ -1,0 +1,14 @@
+// komodo tool: script
+// ===================
+// auto_abbreviation: false
+// indent_relative: true
+// set_selection: false
+// treat_as_ejs: true
+// type: snippet
+// version: 1.0.12
+// ===================
+<%= ko.snippets.HTML_emitLessThanIfNeeded()
+%>script type="application/x-javascript"><![CDATA[
+[[%tabstop:]]
+//]]>
+</script>!@#_currentPos!@#_anchor

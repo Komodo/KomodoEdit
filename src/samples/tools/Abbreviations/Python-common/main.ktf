@@ -1,0 +1,11 @@
+// komodo tool: main
+// =================
+// auto_abbreviation: false
+// indent_relative: true
+// set_selection: true
+// treat_as_ejs: false
+// type: snippet
+// version: 1.0.12
+// =================
+if __name__ == '__main__':
+	!@#_anchorpass!@#_currentPos
