@@ -53,7 +53,22 @@ window.app = {};
         
         var rows = elem.input.lines > 5 ? 5 : elem.input.lines;
         if (rows == 1 && elem.input.scrollLeft) rows = 2;
-        elem.input.style.height = (rows * 1.5) + "rem";
+        var maxHeight = 5 * 1.5;
+        var height = rows * 1.5;
+        elem.input.style.height = height + "rem";
+        elem.input.rows = rows;
+
+        var updateHeight = () =>
+        {
+            if (height < maxHeight && elem.input.scrollTopMax)
+            {
+                rows++;
+                height = rows * 1.5;
+                elem.input.style.height = height + "rem";
+                updateHeight();
+            }
+        };
+        updateHeight();
         
         if (scroll) elem.console.scrollTop = elem.console.scrollTopMax;
     }
