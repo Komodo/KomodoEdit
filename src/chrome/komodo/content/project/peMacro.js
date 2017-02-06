@@ -666,13 +666,14 @@ function _macro_error(ex, badLine, part) {
                                                   [errorTypeText], 1));
     var msg = badLine ? badLine.replace(/[\r\n]+$/, "") + "\n\n" : "";
     if (ex.name == "SyntaxError") {
-        msg += ko.logging.strObject(ex, "exception") + "\n\n";
-    } else {
         msg += (ex.name + ": " +
                 ex.message + "\n\n" +
-                ko.logging.strObject(ex, "exception"));
+                "line: " + (badLine || ex.lineNumber) + "\n\n" +
+                ko.logging.strObject(ex, "exception") + "\n\n" +
+                "See Console for exception details");
     }
     ko.dialogs.alert(prompt, msg, title, null, "chrome,modal,titlebar,resizable");
+    console.exception(ex);
 }
 
 this.__defineGetter__("current",
