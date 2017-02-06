@@ -119,8 +119,10 @@ class Database(object):
     #           and add auto_abbreviation fields to snippets
     # - 1.0.13: add treat_as_ejs property to snippets, default is false
     # - 1.1.5:  add language field to snippets
-    # - 1.1.6:  add file template table
-    VERSION = "1.1.6"
+    # - 1.1.6:  add is_clean column
+    # - 1.1.7:  add file template table
+    # - 1.1.8:  convert old tools
+    VERSION = "1.1.8"
     FIRST_VERSION = "1.0.5"
     
     def __init__(self, db_path, schemaFile):
@@ -128,6 +130,10 @@ class Database(object):
         self.cu = self.cx = None
         self.schemaFile = schemaFile
         self.item_version_changed = False
+
+        self.observerSvc = components.classes["@mozilla.org/observer-service;1"].\
+                           getService(components.interfaces.nsIObserverService)
+
         if not exists(db_path):
             self.create()
         elif os.path.getsize(db_path) == 0:
@@ -158,8 +164,6 @@ class Database(object):
             'toolbar':['priority'],
             'folder':[],
             }
-        self.observerSvc = components.classes["@mozilla.org/observer-service;1"].\
-                           getService(components.interfaces.nsIObserverService)
 
     def _add_is_clean(self, curr_ver, result_ver):
         with self.connect(commit=True) as cu:
@@ -171,12 +175,50 @@ class Database(object):
         with self.connect(commit=True) as cu:
             cu.execute("DELETE FROM common_details WHERE type='template'")
 
+        koDirSvc = components.classes["@activestate.com/koDirs;1"].getService()
+        currUserDataDir = koDirSvc.userDataDir
+
+        templatesDir = os.path.join(currUserDataDir, "templates")
+        targetDir = os.path.join(currUserDataDir, "tools", "Templates")
+
+        if os.path.exists(templatesDir):
+            if not os.path.exists(targetDir):
+                os.makedirs(targetDir)
+
+            toolbox2Svc = components.classes["@activestate.com/koToolbox2Service;1"]\
+                            .getService(components.interfaces.koIToolbox2Service)
+
+            try:
+                toolbox2Svc.convertToTemplate(templatesDir, targetDir)
+
+                readme = os.path.join(targetDir, "ReadMe.ktf")
+                sample = os.path.join(targetDir, "My Templates", "Sample Custom Template.ktf")
+
+                if os.path.isfile(readme):
+                    os.remove(readme)
+
+                if os.path.isfile(sample):
+                    os.remove(sample)
+            except:
+                log.exception("Failed converting old templates")
+
+    def _convert_komodotool_to_ktf(self, curr_ver, result_ver):
+        toolbox2Svc = components.classes["@activestate.com/koToolbox2Service;1"]\
+                            .getService(components.interfaces.koIToolbox2Service)
+
+        koDirSvc = components.classes["@activestate.com/koDirs;1"].getService()
+        currUserDataDir = koDirSvc.userDataDir
+
+        toolsDir = os.path.join(currUserDataDir, "tools")
+
+        toolbox2Svc.convertOldFormat(toolsDir, True)
+
     def _add_file_template_table(self, curr_ver, result_ver):
         """
         Add file template table
         """
         with self.connect(commit=True) as cu:
-            cu.execute("create table fileTemplate (\
+            cu.execute("create table filetemplate (\
                         path_id INTEGER PRIMARY KEY NOT NULL,\
                         treat_as_ejs bool default false,\
                         language text)")
@@ -315,6 +357,7 @@ class Database(object):
         with self.connect(commit=True) as cu:
             cu.execute("alter table snippet add column treat_as_ejs bool default false")
     
+
     def _add_lang_field_to_snippets_table(self, curr_ver, result_ver):
         """
         Add this field: language text default ""
@@ -334,7 +377,9 @@ class Database(object):
         "1.0.11": ('1.0.12',  _signal_item_version_change, None),
         "1.0.12": ('1.0.13', _add_treat_as_ejs_to_snippets, None),
         "1.0.13": ('1.1.5', _add_lang_field_to_snippets_table, None),
-        "1.1.5": ("1.1.6", _add_is_clean, None)
+        "1.1.5": ("1.1.6", _add_is_clean, None),
+        "1.1.6": ("1.1.7", _transition_file_templates, None),
+        "1.1.7": ("1.1.8", _convert_komodotool_to_ktf, None),
     }
 
     def get_meta(self, key, default=None, cu=None):
@@ -1891,7 +1936,13 @@ class DataParser:
 
     @staticmethod
     def readJsonData(fp):
-        return json.load(fp, encoding="utf-8")
+        try:
+            return json.load(fp, encoding="utf-8")
+        except ValueError:
+            # For some reason some .komodotool files have an extra closing
+            # bracket at the end, no idea why, not wasting cycles on finding out
+            fp.seek(0)
+            return json.loads(fp.read()[0:-1], encoding="utf-8")
 
     @staticmethod
     def writeJsonData(fp, data):
@@ -2044,7 +2095,7 @@ class DataParser:
                         # End loop when we get to the meta end indicator
                         if line.find("===") != -1:
                             match = endRx.search(line)
-                            endSuffix = match[1]
+                            endSuffix = match.group(1)
                             break
 
         langRegistry = components.classes["@activestate.com/koLanguageRegistryService;1"]\
