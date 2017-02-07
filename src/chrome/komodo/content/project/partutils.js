@@ -354,4 +354,17 @@ this._importPackageViaHttp = function part__ImportPackageViaHttp(viewMgr, part, 
     }
 }
 
+this.toolPathShortName = function(tool) {
+    var pieces = [tool.name];
+    var parent = tool;
+    var name;
+    while (parent.parent) {
+        parent = parent.parent;
+        name = parent.name;
+        pieces.push(name);
+    }
+    pieces.reverse();
+    return pieces.join("/");
+};
+
 }).apply(ko.projects);

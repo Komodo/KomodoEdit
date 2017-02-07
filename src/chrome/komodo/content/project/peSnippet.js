@@ -530,7 +530,7 @@ this._textFromEJSTemplate = function _textFromEJSTemplate(text, eol, eol_str, sn
     try {
         ejs = new ko.snippets.EJS(text);
     } catch(ex) {
-        ex.fileName = ko.snippets.snippetPathShortName(snippet);
+        ex.fileName = this.toolPathShortName(snippet);
         var msg2 = _bundle.formatStringFromName("snippet exception details 2",
                                                 [ex.fileName], 1);
         var msg3 = _bundle.formatStringFromName("snippet exception details 3",

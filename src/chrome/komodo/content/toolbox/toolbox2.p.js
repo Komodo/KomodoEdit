@@ -600,6 +600,10 @@ this.getAbbreviationSnippet = function(abbrev, subnames, isAutoAbbrev/*=false*/)
                                                         isAutoAbbrev);
 };
 
+this.getDefaultTemplateForLanguage = function(language) {
+    return this.manager.toolsMgr.getDefaultTemplateForLanguage(language);
+};
+
 this.getToolsByTypeAndName = function(toolType, toolName) {
     var tools = {};
     this.manager.toolsMgr.getToolsByTypeAndName(toolType, toolName,

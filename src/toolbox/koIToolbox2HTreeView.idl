@@ -195,6 +195,9 @@ interface koIToolbox2ToolManager: nsISupports {
                         [array, size_is(count)] out koITool tools,
                           out unsigned long count);
 
+
+    koITool getDefaultTemplateForLanguage(in wstring language);
+
     koITool getAbbreviationSnippet(in wstring abbrev,
                                 [array, size_is(count)] in wstring subnames,
                                    in unsigned long count,

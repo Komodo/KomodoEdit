@@ -94,6 +94,7 @@
 <!ENTITY snippetTab.accesskey "n">
 <!ENTITY softCharTabStopReplace.label "[[&#37;soft]]: soft characters">
 <!ENTITY tabstopTabStopReplace.label "[[&#37;tabstop]]: Tab Stop/Replace">
+<!ENTITY defaultForLanguage.label "Default template for selected language">
 <!ENTITY TreatAsEJS.label "Treat As EJS">
 <!ENTITY triggerPostopen.accesskey "o">
 <!ENTITY triggerPreclose.accesskey "c">

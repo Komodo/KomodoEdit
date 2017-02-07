@@ -70,6 +70,8 @@ $cons->InstallInChrome('simplePartProperties.xul');
 $cons->InstallInChrome('simplePartProperties.js');
 $cons->InstallInChrome('customMenuProperties.xul');
 $cons->InstallInChrome('customMenuProperties.js');
+$cons->InstallInChrome('templateProperties.js');
+$cons->InstallInChrome('templateProperties.xul');
 
 $cons->Preprocess('peFile.p.js', 'peFile.js');
 $cons->InstallInChrome('peFile.js');
@@ -80,3 +82,4 @@ $cons->InstallInChrome('peCommand.js');
 $cons->InstallInChrome('peURL.js');
 $cons->InstallInChrome('peMacro.js');
 $cons->InstallInChrome('peMenu.js');
+$cons->InstallInChrome('peTemplate.js');

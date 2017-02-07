@@ -165,6 +165,7 @@
     <script src="chrome://komodo/content/project/peURL.js"                type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/project/peMenu.js"               type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/project/peMacro.js"              type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/project/peTemplate.js"              type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/lint/lint.js"                    type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/lint/lintDisplay.js"                    type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/codeintel/codeintel.js"          type="application/x-javascript;version=1.7"/>

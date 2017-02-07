@@ -411,6 +411,8 @@
 <!ENTITY increaseFont.label "Increase Font Size">
 <!ENTITY increaseLineIndent.label "Indent">
 <!ENTITY incrementalSearch.label "Incremental Search">
+<!ENTITY useTemplate.label "Use Template">
+<!ENTITY editTemplate.label "Edit Template">
 <!ENTITY insertSnippet.label "Insert Snippet">
 <!ENTITY joinLines.label "Join Lines">
 <!ENTITY jumpToCorrespondingLine.label "Jump to corresponding line">

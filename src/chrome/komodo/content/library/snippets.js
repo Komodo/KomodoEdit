@@ -101,22 +101,6 @@ if (typeof(ko.snippets)=='undefined') {
         }
         return false;
     };
-
-    this.snippetPathShortName = function(snippet) {
-        var pieces = [snippet.name];
-        var parent = snippet;
-        var name;
-        while (parent.parent) {
-            parent = parent.parent;
-            name = parent.name;
-            pieces.push(name);
-            if (name == "Abbreviations") {
-                break;
-            }
-        }
-        pieces.reverse();
-        return pieces.join("/");
-    };
     
     this.consumeLeadingNumericFactor = function(delimiter) {
         if (typeof(delimiter) == "undefined") delimiter = ":";

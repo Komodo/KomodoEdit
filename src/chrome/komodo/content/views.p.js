@@ -242,253 +242,6 @@ viewManager.prototype._getDefaultDirectory = function() {
 }
 
 /**
- * Create a new file based on a selected template. This will prompt the
- * user to select a template.
- *
- * @private
- * @param {string} defaultDir optional, current directory
- * @return {Components.interfaces.koIView} the buffer view that is opened
- */
-viewManager.prototype._newTemplate = function(defaultDir) {
-    var view = null;
-    if (!defaultDir) {
-       defaultDir = this._getDefaultDirectory();
-    }
-    try {
-        this.log.info("doing newTemplate: ");
-        var uri;
-        var saveto = null;
-
-        // Get template selection from the user.
-        var obj = new Object();
-        obj.type = "file";
-        obj.defaultDir = defaultDir;
-        obj.filename = null;
-        ko.launch.newTemplate(obj);
-        if (obj.template == null) return null;
-
-        uri = ko.uriparse.localPathToURI(obj.template);
-        if (obj.filename)
-            saveto = ko.uriparse.pathToURI(obj.filename);
-        view = this._doFileNewFromTemplate(uri, saveto);
-        if (!view) return null;
-        window.setTimeout(function(view) {
-            view.setFocus();
-            if (view.koDoc && obj.template) {
-                var currentLanguage = view.koDoc.language;
-                // If the detected language is HTML, we may find a better
-                // language name by checking the template filename, bug 88735.
-                if (currentLanguage == "HTML" || currentLanguage == "Text") {
-                    var requestedLanguage = Services.koLangRegistry.suggestLanguageForFile(obj.template);
-                    if (currentLanguage != requestedLanguage) {
-                        view.koDoc.language = requestedLanguage;
-                        window.updateCommands('language_changed');
-                    }
-                }
-            }
-        }, 1, ko.views.manager.currentView);
-    } catch(ex) {
-        this.log.exception(ex, "Error in newTemplate.");
-    }
-    return view;
-}
-
-
-/**
- * Asynchronously create a new file based on a selected template. This
- * will prompt the user to select a template.
- *
- * @public
- * @param {string} defaultDir optional, current directory
- * @param {function} callback optional, to be called when the asynchronous load
- *        is complete. The view will be passed as an argument to the function.
- */
-viewManager.prototype.newTemplateAsync = function(defaultDir /*=null*/,
-                                                  callback /*=null*/)
-{
-    if (typeof(defaultDir) == "undefined") defaultDir = null;
-    if (typeof(callback) == "undefined") callback = null;
-    window.setTimeout(function(mgr, defaultDir_, callback_) {
-        var view = mgr._newTemplate(defaultDir_);
-        if (callback_) {
-            callback_(view);
-        }
-    }, 1, this, defaultDir, callback);
-}
-
-
-/**
- * Create a new file from the given template URI.
- *
- * @private
- * @param {string} uri optional, uri pointing to a template file
- * @param {string} saveto optional, where to save the new file
- * @param {string} viewType optional, type of buffer to open, default "editor"
- * @param viewList {Components.interfaces.koIViewList}
- *        optional, what pane to open the buffer in
- *
- * @return {Components.interfaces.koIView} the buffer view that is opened
- */
-viewManager.prototype._doFileNewFromTemplate = function(uri,
-                                                        saveto  /*=null*/,
-                                                        viewType /*="editor"*/,
-                                                        viewList /*=null*/)
-{
-    this.log.info("_doFileNewFromTemplate: ");
-    if (typeof(viewType) == "undefined" || viewType == null) viewType = "editor";
-    if (typeof(viewList) == "undefined") viewList = null;
-    if (typeof(saveto) == "undefined") saveto = null;
-
-    var localPath = ko.uriparse.URIToLocalPath(uri);
-    var basename = ko.uriparse.baseName(uri);
-    var ext, name;
-    if (basename.indexOf('.')) {
-        var p = basename.split('.');
-        ext = '.'+p.slice(1).join('.');
-        name = p[0];
-    } else {
-        ext = "";
-        name = basename;
-    }
-    var errmsg;
-
-    // Read the template.
-    var doc = null;
-    try {
-        if (saveto) {
-            doc = Services.koDocSvc.createFileFromTemplateURI(uri, saveto, false);
-        } else {
-            doc = Services.koDocSvc.createDocumentFromTemplateURI(uri, name, ext);
-        }
-    } catch (ex) {
-        errmsg = Services.koLastError.getLastErrorMessage();
-        this.log.exception(ex, errmsg);
-        ko.dialogs.internalError(locals.bundle.GetStringFromName("errorOpeningTemplate.message"),
-                                 locals.bundle.formatStringFromName("errorLoadingTemplate.message", [uri], 1),
-                                 ex);
-        // even though there is an error, continue opening the
-        // file so the user gets *something*
-        if (saveto) {
-            doc = Services.koDocSvc.createDocumentFromURI(saveto);
-        } else {
-            var language = Services.koLangRegistry.suggestLanguageForFile(basename) || "Text";
-            doc = Services.koDocSvc.createUntitledDocument(language);
-        }
-    }
-    
-    var docText = doc.buffer;
-    var hasTabStops = ko.tabstops.textHasTabstops(docText);
-    if (basename == "HTML.html"
-        && ko.prefs.getStringPref('defaultHTMLDecl') == "-//W3C//DTD HTML 5//EN")
-    {
-        // Bug 99873: Replace the bogus HTML5 Doctype declaration
-        // with a valid one, and set the language to HTML5
-        var m = /<!DOCTYPE\s+HTML\s+PUBLIC\s+[\"']\[\[%\(pref:defaultHTMLDecl\)\]\][\"']\s*\[\[%\(pref:defaultHTMLDeclSystemIdentifier\)\]\]\s*>/i.exec(docText);
-        if (m) {
-            var m1 = /(\n|\r\n?)/.exec(docText) || ['', '\n'];
-            docText = "<!doctype html>" + m1[1] + docText.substring(m[0].length);
-            hasTabStops = ko.tabstops.textHasTabstops(docText);
-            doc.language = "HTML5";
-        }
-    }
-    try {
-        // Interpolate any codes.
-        var origViewData = { fileName :
-                             saveto ? ko.uriparse.displayPath(saveto) : "" };
-        var viewData = ko.interpolate.getViewData(window, origViewData);
-        var istrings = ko.interpolate.interpolate(
-                            window,
-                            [], // codes are not bracketed
-                            [docText], // codes are bracketed
-                            locals.bundle.formatStringFromName("templateQuery.message", [name], 1),
-                            viewData);
-        var liveTextInfo = null;
-        if (!hasTabStops) {
-            doc.buffer = istrings[0];
-        } else {
-            try {
-                liveTextInfo = ko.tabstops.parseLiveText(istrings[0]);
-            } catch(ex) {
-                ko.dialogs.alert(ex.message, ex.snippet);
-                doc.buffer = docText;
-                liveTextInfo = null;
-            }
-        }
-    } catch (ex) {
-        var errno = Services.koLastError.getLastErrorCode();
-        if (errno == Components.results.NS_ERROR_ABORT) {
-            // Command was cancelled.
-        } else if (errno == Components.results.NS_ERROR_INVALID_ARG) {
-            errmsg = Services.koLastError.getLastErrorMessage();
-            ko.dialogs.alert(locals.bundle.formatStringFromName("couldNotInterpolate.message", [errmsg], 1));
-        } else {
-            this.log.exception(ex, locals.bundle.GetStringFromName("errorInterpolatingTemplate.message"));
-            ko.dialogs.internalError(locals.bundle.formatStringFromName("couldNotProcessInterpolatingCodes.message", [basename], 1),
-                                     locals.bundle.formatStringFromName("errorInterpolatingTemplateUri.message", [uri], 1),
-                                     ex);
-        }
-    }
-
-    // Load the template.
-    if (/^(?:\/|\w:\\)/.test(uri)) {
-        // Bug 81096: store templates as URIs
-        try {
-            uri = ko.uriparse.localPathToURI(uri);
-        } catch(ex) {}
-    }
-    ko.mru.addURL("mruTemplateList", uri);
-    if (saveto && !liveTextInfo) {
-        doc.save(1);
-    }
-    doc.isDirty = false;
-    var view;
-    if (viewList) {
-        view = viewList.createViewFromDocument(doc, viewType, -1);
-    } else {
-        view = this.topView.createViewFromDocument(doc, viewType, -1);
-    }
-    
-    if (liveTextInfo) {
-        doc.buffer = '';
-        ko.tabstops.insertLiveText(view.scimoz, 0, liveTextInfo);
-        view.scimoz.emptyUndoBuffer();
-        if (saveto) {
-            doc.save(1);
-        }
-        view.koDoc.setTabstopInsertionTable(liveTextInfo.tabstopInsertionTable.length,
-                                               liveTextInfo.tabstopInsertionTable);
-        view.moveToNextTabstop();
-    }
-
-    return view;
-}
-
-/**
- * Asynchronously create a new file based on the given template URI.
- *
- * @param {string} uri optional, uri pointing to a template file
- * @param {string} saveto optional, where to save the new file
- * @param {string} viewType optional, type of buffer to open, default "editor"
- * @param viewList {Components.interfaces.koIViewList}
- *        optional, what pane to open the buffer in
- * @param {function} callback optional, to be called when the asynchronous load
- *        is complete. The view will be passed as an argument to the function.
- */
-viewManager.prototype.doFileNewFromTemplateAsync = function(uri,
-                                                       saveto  /*=null*/,
-                                                       viewType /*="editor"*/,
-                                                       viewList /*=null*/,
-                                                       callback /*=null*/)
-{
-    window.setTimeout(function(mgr, uri_, saveto_, viewType_, viewList_, callback_) {
-        var view = mgr._doFileNewFromTemplate(uri_, saveto_, viewType_, viewList_, callback_);
-        if (callback_) {
-            callback_(view);
-        }
-    }, 1, this, uri, saveto, viewType, viewList, callback);
-}
-
-/**
  * Create a new empty, unsaved buffer.
  *
  * @private
@@ -2266,6 +2019,7 @@ viewManager.prototype.do_ViewAs = function(language) {
             scimoz.lineScroll(0, firstVisibleLine - newFirstVisibleLine);
         }
     }
+
     // koDocumentBase.set_language sends a language_changed notification,
     // but it doesn't update the commands.
     window.setTimeout(window.updateCommands, 1, 'language_changed');
@@ -2294,20 +2048,17 @@ viewManager.prototype.is_cmd_saveAsTemplate_enabled = function () {
     return this.currentView && this.currentView.getAttribute('type') == 'editor';
 }
 viewManager.prototype.do_cmd_saveAsTemplate = function () {
-    try {
-        var templateSvc = Components.classes["@activestate.com/koTemplateService?type=file;1"].getService();
-        //TODO: The directory name "My Templates" should be localized
-        var dname = Services.koOs.path.join(templateSvc.getUserTemplatesDir(), "My Templates");
-        var templatename = ko.filepicker.saveFile(dname,
-                                this.currentView.koDoc.baseName);
-        if (!templatename) return;
-        var doc = Services.koDocSvc.createDocumentFromURI(ko.uriparse.localPathToURI(templatename));
-        doc.buffer = this.currentView.koDoc.buffer;
-        doc.encoding = this.currentView.koDoc.encoding;
-        doc.save(0);
-    } catch(ex) {
-        this.log.exception(ex, "Error saving the current view as a template.");
-    }
+    var name = ko.dialogs.prompt(locals.bundle.GetStringFromName("savingTemplate"),
+                                 locals.bundle.GetStringFromName("enterNameForNewTemplate"));
+    if (!name) return;
+    var part = ko.toolbox2.createPartFromType('template');
+    part.setStringAttribute('name', name);
+    part.setStringAttribute('language', this.currentView.language);
+    part.setStringAttribute('treat_as_ejs', 'false');
+    part.setStringAttribute('lang_default', 'false');
+    part.value = this.currentView.scimoz.text;
+    ko.toolbox2.addItem(part);
+    ko.uilayout.ensureTabShown('toolbox2viewbox');
 }
 
 // cmd_fontZoomReset

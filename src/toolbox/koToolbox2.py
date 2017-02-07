@@ -160,6 +160,7 @@ class Database(object):
                           'language', 'rank'],
             'snippet':['set_selection', 'indent_relative', 'auto_abbreviation',
                        'treat_as_ejs', 'language'],
+            'template':['treat_as_ejs', 'language', 'lang_default'],
             'menu':['accesskey', 'priority'],
             'toolbar':['priority'],
             'folder':[],
@@ -218,9 +219,10 @@ class Database(object):
         Add file template table
         """
         with self.connect(commit=True) as cu:
-            cu.execute("create table filetemplate (\
+            cu.execute("create table template (\
                         path_id INTEGER PRIMARY KEY NOT NULL,\
                         treat_as_ejs bool default false,\
+                        lang_default bool default false,\
                         language text)")
             
     def __repr__(self):
@@ -245,7 +247,7 @@ class Database(object):
             yield cu
         else:
             cx = sqlite3.connect(self.path)
-            # This is required 
+            # This is required
             cx.text_factory = lambda x:unicode(x, "utf-8", "ignore")
             cu = cx.cursor()
             try:
@@ -807,12 +809,33 @@ class Database(object):
         if data:
             return self.addMiscProperties(id, data, cu)
 
+    def _unsetTemplateDefault(self, language):
+        stmt = '''UPDATE template SET lang_default='false' WHERE language=?'''
+        cu.execute(stmt, [language])
+
+    def _add_template(self, id, data, item_type, cu):
+        if (data["lang_default"] is "true" or data["lang_default"] is True):
+            self._unsetTemplateDefault(self, data["language"])
+
+        self.addCommonToolDetails(id, data, cu)
+        names_and_defaults = [
+            ('treat_as_ejs', False),
+            ('lang_default', False),
+            ('language', ''),
+            ]
+        valueList = self._getValuesFromDataAndDelete(id, data, names_and_defaults)
+        stmt = '''insert into template(
+                  path_id, treat_as_ejs, lang_default, language)
+                  values(?, ?, ?, ?)'''
+        cu.execute(stmt, valueList)
+        if data:
+            return self.addMiscProperties(id, data, cu)
+
     def _addSimpleItem(self, id, data, item_type, cu):
         self.addCommonToolDetails(id, data, cu)
         if data:
             return self.addMiscProperties(id, data, cu)
 
-    _add_template = _addSimpleItem
     _add_URL = _addSimpleItem
             
     def addMiscProperties(self, id, data, cu):
@@ -963,6 +986,16 @@ class Database(object):
         with self.connect() as cu:
             cu.execute(stmt, (toolType, name))
             return [x[0] for x in cu.fetchall()]
+
+    def getDefaultTemplateForLanguage(self, language):
+        stmt = "SELECT path_id FROM template WHERE language=? AND lang_default='true'"
+        with self.connect() as cu:
+            cu.execute(stmt, [language])
+            row = cu.fetchone()
+
+            if row:
+                return row[0]
+            return None
 
     def getAbbreviationSnippetId(self, abbrev, subnames, isAutoAbbrev):
         """
@@ -1320,6 +1353,13 @@ class Database(object):
         self.saveToolInfo(path_id, 'snippet', name, value, attributes,
                           self.getSnippetInfo)
     
+    def saveTemplateInfo(self, path_id, name, value, attributes):
+        if (attributes["lang_default"] is "true" or attributes["lang_default"] is True):
+            self._unsetTemplateDefault(self, attributes["language"])
+
+        self.saveToolInfo(path_id, 'template', name, value, attributes,
+                          self.getTemplateInfo)
+
     def saveMenuInfo(self, path_id, tool_name, attributes):
         self.saveContainerInfo(path_id, 'menu', tool_name, attributes,
                                self.getMenuInfo)
@@ -1327,7 +1367,7 @@ class Database(object):
     def saveToolbarInfo(self, path_id, tool_name, attributes):
         self.saveContainerInfo(path_id, 'toolbar', tool_name, attributes,
                                self.getToolbarInfo)
-            
+
     def saveMiscInfo(self, path_id, oldAttrList, newAttrList, cu=None):
         names_to_update = []
         vals_to_update = []
@@ -1375,6 +1415,18 @@ class Database(object):
         with self.connect() as cu:
             self.getCommonToolDetails(path_id, obj, cu)
             cu.execute(("select %s from snippet where path_id = ?" %
+                        ", ".join(names)), (path_id,))
+            row = cu.fetchone()
+        for i, name in enumerate(names):
+            obj[name] = row[i]
+        return obj
+    
+    def getTemplateInfo(self, path_id, cu=None):
+        obj = {}
+        names = self._specific_names.get('template')
+        with self.connect() as cu:
+            self.getCommonToolDetails(path_id, obj, cu)
+            cu.execute(("select %s from template where path_id = ?" %
                         ", ".join(names)), (path_id,))
             row = cu.fetchone()
         for i, name in enumerate(names):

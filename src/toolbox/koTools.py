@@ -42,7 +42,7 @@ _icons = {
     'macro'     :   'chrome://komodo/skin/images/toolbox/macro.svg',
     'cut'       :   'chrome://komodo/skin/images/toolbox/snippet.svg',
     'template'  :   'chrome://komodo/skin/images/toolbox/template.svg',
-    'url'       :   'chrome://komodo/skin/images/toolbox/browser.svg'
+    'url'       :   'chrome://komodo/skin/images/toolbox/url.svg',
 }
 
 #---- `koITool` class hierarchy
@@ -785,6 +785,32 @@ class _KoTemplateTool(_KoURLToolBase):
     prettytype = 'Template'
     _iconurl = _icons.get('template')
 
+    def __init__(self, *args):
+        _KoTool.__init__(self, *args)
+        self.name = "New Template"
+        self.flavors.insert(0, 'application/x-komodo-template')
+
+
+    def get_url(self):
+        """
+        See _KoMacroTool.get_url for docs
+        """
+        return "template://%s/%s.template" % (self.id, koToolbox2.slugify(self.name))
+
+    def save(self):
+        # Write the changed data to the file system
+        self.save_handle_attributes()
+        self.saveToolToDisk()
+        _tbdbSvc.saveTemplateInfo(self.id, self.name, self.value, self._attributes)
+        self._postSave()
+        _toolsManager.removeChangedCachedTool(self.id)
+
+    def updateSelf(self):
+        if self.initialized:
+            return
+        info = _tbdbSvc.getTemplateInfo(self.id)
+        self._finishUpdatingSelf(info)
+
 class _KoURLTool(_KoURLToolBase):
     typeName = 'URL'
     prettytype = 'URL'
@@ -893,6 +919,7 @@ class KoToolbox2ToolManager(object):
         try:
             itemDetailsDict = {}
             item.fillDetails(itemDetailsDict)
+
             if itemIsContainer:
                 new_id = self.toolbox_db.addContainerItem(itemDetailsDict,
                                                           item.typeName,
@@ -1010,6 +1037,12 @@ class KoToolbox2ToolManager(object):
     def getToolsByTypeAndName(self, toolType, name):
         ids = self.toolbox_db.getToolsByTypeAndName(toolType, name)
         return [self.getToolById(id) for id in ids]
+
+    def getDefaultTemplateForLanguage(self, language):
+        id = self.toolbox_db.getDefaultTemplateForLanguage(language)
+        if not id:
+            return None
+        return self.getToolById(id)
 
     def getAbbreviationSnippet(self, abbrev, subnames, isAutoAbbrev):
         id = self.toolbox_db.getAbbreviationSnippetId(abbrev, subnames, isAutoAbbrev)

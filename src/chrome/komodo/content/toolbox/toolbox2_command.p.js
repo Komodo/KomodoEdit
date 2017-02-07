@@ -176,7 +176,38 @@ this.invoke_editSnippet = function(tool) {
         tool = this._getSelectedTool('snippet');
         if (!tool) return;
     }
-    ko.open.URI(tool.url);
+    ko.open.URI(tool.url, "editor", false, function () {
+        var language = tool.getStringAttribute("language");
+        ko.views.manager.currentView.koDoc.language = language;
+    });
+};
+
+this.invoke_useTemplate = function(tool) {
+    if (typeof(tool) == 'undefined') {
+        tool = this._getSelectedTool('template');
+        if (!tool) return;
+    }
+    if (!tool.value) {
+        // Bug 98835: initially, we don't always have the item's text
+        // Don't know why, but getting its value will make an initial
+        // call to the database to init the tool
+        var koFileEx = tool.getFile();
+        koFileEx.open("r");
+        tool.value = koFileEx.readfile();
+        koFileEx.close();
+    }
+    ko.projects.useTemplate(tool);
+};
+
+this.invoke_editTemplate = function(tool) {
+    if (typeof(tool) == 'undefined') {
+        tool = this._getSelectedTool('template');
+        if (!tool) return;
+    }
+    ko.open.URI(tool.url, "editor", false, function () {
+        var language = tool.getStringAttribute("language");
+        ko.views.manager.currentView.koDoc.language = language;
+    });
 };
 
 this.invoke_editRaw = function(tool) {
@@ -196,31 +227,16 @@ this.editProperties_snippet = function(tool) {
     ko.projects.snippetProperties(tool);
 };
 
-this.add_snippet = function(parent, item) {
-    ko.projects.addSnippet(parent, item);
-};
-
-// Templates
-this.invoke_openTemplate = function(tool) {
+this.editProperties_template = function(tool) {
     if (typeof(tool) == 'undefined') {
         tool = this._getSelectedTool('template');
         if (!tool) return;
     }
-    ko.views.manager.doFileNewFromTemplateAsync(tool.url);
+    ko.projects.templateProperties(tool);
 };
 
-this.add_template = function(parent, item) {
-    // ref code peTemplate.js::addTemplate
-    var obj = { type:'file',
-                templateOnly:true
-    };
-    ko.launch.newTemplate(obj);
-    if (obj.template == null) return;
-    // Avoid multiple calls to uriparse.*
-    var templateName = ko.uriparse.baseName(obj.template);
-    item.setStringAttribute('name', templateName);
-    item.value = ko.uriparse.localPathToURI(obj.template);
-    this.addNewItemToParent(item, parent);
+this.add_snippet = function(parent, item) {
+    ko.projects.addSnippet(parent, item);
 };
 
 // Toolbars
@@ -987,7 +1003,7 @@ this.invokeTool = function(tool) {
         'command': this.invoke_runCommand,
         'macro': this.invoke_executeMacro,
         'snippet': this.invoke_insertSnippet,
-        'template': this.invoke_openTemplate,
+        'template': this.invoke_useTemplate,
         'URL': this.invoke_openURLInBrowser
     }[tool.type];
     _invoker(tool);

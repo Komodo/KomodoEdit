@@ -119,7 +119,7 @@
                               label="&newURL.label;"
                               class="menuitem-iconic"
                               accesskey="&folderContextNewURL.accesskey;"
-                              image="chrome://komodo/skin/images/toolbox/browser.svg"
+                              image="chrome://komodo/skin/images/toolbox/url.svg"
                               oncommand="ko.toolbox2.addToolboxItem('URL')"
                               />
                     <menuitem id="tb2_addContext_newTemplate"
@@ -169,6 +169,7 @@
                       keep_background="true"
                       class="menuitem-iconic"
                       label="&exportAsZipFile.label;"
+                      hideUnless="folder menu toolbar" 
                       disableIfInMenu="standardToolbox"
                       oncommand="ko.toolbox2.exportAsZipFile(event)"
                       />
@@ -214,6 +215,21 @@
                       class="menuitem-iconic"
                       oncommand="ko.toolbox2.invoke_editMacro()"
                       hideUnless="macro"
+                      testDisableIf="t:multipleSelection"
+                      />
+            <menuitem id="toolbox2ContextMenu_useTemplate"
+                      label="&useTemplate.label;"
+                      class="menuitem-iconic primary_menu_item"
+                      oncommand="ko.toolbox2.invoke_useTemplate()"
+                      hideUnless="template"
+                      testDisableIf="t:multipleSelection"
+                      testDisableUnless="cmd:cmd_insertSnippet"
+                      />
+            <menuitem id="toolbox2ContextMenu_editTemplate"
+                      label="&editTemplate.label;"
+                      class="menuitem-iconic"
+                      oncommand="ko.toolbox2.invoke_editTemplate()"
+                      hideUnless="template"
                       testDisableIf="t:multipleSelection"
                       />
             <menuitem id="toolbox2ContextMenu_insertSnippet"
@@ -329,12 +345,12 @@
                       oncommand="ko.toolbox2.deleteItem(event)"
                       />
             <menuseparator anonid="secondaryseparator_4"
-                      hideIf="folder template standardToolbox"
+                      hideIf="folder standardToolbox"
                            />
             <menuitem id="toolbox2ContextMenu_editProperties"
                       label="&properties.label;"
                       oncommand="ko.toolbox2.editPropertiesItem(event)"
-                      hideIf="folder template standardToolbox"
+                      hideIf="folder standardToolbox"
                       testDisableIf="t:multipleSelection"
                       />
         </menupopup>

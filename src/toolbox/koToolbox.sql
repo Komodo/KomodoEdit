@@ -70,6 +70,13 @@ create table hierarchy (
 );
 create index hierarchy_parent_path_id_index on hierarchy(parent_path_id);
 
+create table template (
+    path_id INTEGER PRIMARY KEY NOT NULL,
+    treat_as_ejs bool default false,
+    lang_default bool default false,
+    language text ""
+);
+
 create table snippet (
     path_id INTEGER PRIMARY KEY NOT NULL,
     set_selection bool default false,
