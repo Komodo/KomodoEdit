@@ -650,13 +650,14 @@ class KoToolbox2Service(object):
                            koToolbox2.PROJECT_TARGET_DIRECTORY,
                            kpfName=kpfName)
 
-    def findTools(self, query, langs):
+    def findTools(self, query, langs, type = None):
         """Find a list of tools matching the given query.
         
         @param query {str} A query string. A space-separated list
             of search terms to match against tool names.
         @param langs {list} An ordering list of language scope names
             to be used for results ordering.
+        @param type {string} The type of tools to search for
         @returns {list of KoToolInfo}
         
         Dev Notes:
@@ -678,6 +679,9 @@ class KoToolbox2Service(object):
                 "WHERE type != 'folder'",
             ]
             args = []
+            if type:
+                sql.append("AND type = ?")
+                args.append(type)
             for word in query.split():
                 sql.append("AND name LIKE ? ESCAPE '\\'")
                 args.append(markup(word))
@@ -707,6 +711,8 @@ class KoToolbox2Service(object):
                     subDirHitIds.append(id)
             if subDirHitIds:
                 sql = "SELECT path_id, type, name FROM common_details WHERE type != 'folder'"
+                if type:
+                    sql += " AND type = '%s'" % type
                 if len(subDirHitIds) == 1:
                     sql += " AND path_id = %s" % subDirHitIds[0]
                 else:
@@ -731,13 +737,13 @@ class KoToolbox2Service(object):
         hits.sort(key=sortkey)
 
         return [KoToolInfo(self._toolsMgrSvc, *hit[:-1]) for hit in hits]
-    
-    def findToolsAsync(self, query, langs, callback):
-        t = threading.Thread(target=self._findToolsAsync, args=(query, langs, callback))
+
+    def findToolsAsync(self, query, langs, type, callback):
+        t = threading.Thread(target=self._findToolsAsync, args=(query, langs, type, callback))
         t.start()
 
-    def _findToolsAsync(self, query, langs, callback):
-        result = self.findTools(query, langs)
+    def _findToolsAsync(self, query, langs, type, callback):
+        result = self.findTools(query, langs, type)
         self._findToolsAsyncCallback(callback, result)
 
     @components.ProxyToMainThreadAsync

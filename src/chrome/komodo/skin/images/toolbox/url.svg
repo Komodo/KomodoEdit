@@ -14,8 +14,8 @@
    height="14"
    viewBox="0 0 12 14"
    id="svg2"
-   inkscape:version="0.91 r13725"
-   sodipodi:docname="browser.svg">
+   inkscape:version="0.92.0 r"
+   sodipodi:docname="url.svg">
   <metadata
      id="metadata10">
     <rdf:RDF>
@@ -38,13 +38,13 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="770"
+     inkscape:window-width="780"
      inkscape:window-height="480"
      id="namedview6"
      showgrid="false"
      inkscape:zoom="16.857143"
-     inkscape:cx="6"
-     inkscape:cy="7"
+     inkscape:cx="6.0000001"
+     inkscape:cy="7.0000001"
      inkscape:window-x="618"
      inkscape:window-y="218"
      inkscape:window-maximized="0"

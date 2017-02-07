@@ -109,6 +109,7 @@ interface koIToolbox2Service: nsISupports {
     void findToolsAsync(in wstring query,
         in unsigned long langCount,
         [array, size_is(langCount)] in wstring langs,
+        in wstring type,
         in koIAsyncCallback callback);
     // Method that runs the query as is, and returns a list of koIToolInfo hits
     void getAutoAbbreviationNames(
