@@ -273,7 +273,7 @@ if (typeof module === 'undefined') module = {}; // debugging helper
         {
             var elems = this;
             
-            var listener = function()
+            var listener = () =>
             {
                 action.apply(this, arguments);
                 this.off(event, listener);

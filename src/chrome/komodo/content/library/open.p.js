@@ -509,26 +509,6 @@ this.filePicker = function view_openFilesWithPicker(viewType/*='editor'*/) {
         window.setTimeout('ko.views.manager.currentView.setFocus();',1);
 }
 
-/**
- * open a file picker, and open the templates that the user selects.  This
- * allows editing the templates, it is not for creating new files from
- * templates.
- */
-this.templatePicker = function view_openTemplatesWithPicker(viewType/*='editor'*/) {
-    try {
-        var os = Components.classes["@activestate.com/koOs;1"].getService();
-        var templateSvc = Components.classes["@activestate.com/koTemplateService?type=file;1"].getService();
-        var defaultDir = templateSvc.getUserTemplatesDir();
-        var paths = ko.filepicker.browseForFiles(defaultDir);
-        if (paths == null)
-            return;
-        ko.open.multipleURIs(paths, viewType);
-    } catch (e) {
-        log.exception(e);
-    }
-}
-
-
 /* ---- internal support stuff ---- */
 
 // Return true iff the two file paths are equal.

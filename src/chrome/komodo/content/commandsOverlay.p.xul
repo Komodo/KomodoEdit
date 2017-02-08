@@ -310,10 +310,6 @@
             oncommand="ko.commands.doCommandAsync('cmd_open_remote', event)"
             desc="&generalOpenRemoteFileDialog.desc;"/>
         <command
-            id="cmd_openTemplate" key="key_cmd_openTemplate"
-            oncommand="ko.commands.doCommandAsync('cmd_openTemplate', event)"
-            desc="&generalOpenTemplate.desc;"/>
-        <command
             id="cmd_printSetup" key="key_cmd_printSetup"
             oncommand="ko.commands.doCommandAsync('cmd_printSetup', event)"
             desc="&generalPrintSetup.desc;"/>

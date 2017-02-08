@@ -801,11 +801,6 @@
   <boolean id="donotask_ensure_filename_has_ext">0</boolean>
   <string id="donotask_action_ensure_filename_has_ext"></string>
 
-  <!-- Whether to ask and, if not, whether to append an appropriate extension
-       to filenames entered in the "New File" dialog. -->
-  <boolean id="donotask_ensure_new_filename_has_ext">0</boolean>
-  <string id="donotask_action_ensure_new_filename_has_ext"></string>
-
   <!-- Whether to add new files (created via File -> New -> File) to the
        current project, if any. -->
   <boolean id="new_file_add_to_project">1</boolean>

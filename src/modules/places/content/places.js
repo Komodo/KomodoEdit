@@ -352,7 +352,7 @@ viewMgrClass.prototype = {
             require("ko/dom")(window.parent).trigger("folder_touched", {path: dir});
 
         }.bind(this);
-        ko.views.manager.newTemplateAsync(dir, callback);
+        ko.projects.chooseTemplate(dir, callback);
     },
 
     addNewFile: function() {

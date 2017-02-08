@@ -49,6 +49,44 @@ if (typeof(ko.projects)=='undefined') {
             obj);
     };
 
+    this.chooseTemplate = (path, callback) =>
+    {
+        var $ = require("ko/dom");
+        var commando = require("commando");
+
+        commando.showSubscope("scope-tools", "tool-category-template");
+
+        var handleViewOpened = (e) =>
+        {
+            window.removeEventListener("editor_view_opened_from_template", handleViewOpened);
+
+            var view = e.detail.view;
+            if ( ! view.koDoc.isUntitled)
+                return;
+
+            if (path)
+            {
+                if ( ! path.match(/\w\.\w+$/))
+                {
+                    var filename = require("ko/dialogs").prompt("Saving to " + path, { label: "Filename:" });
+                    path = require("ko/file").join(path, filename);
+                }
+                view.saveAsURI(ko.uriparse.localPathToURI(path));
+            }
+
+            callback(e.detail);
+        };
+
+        window.addEventListener("editor_view_opened_from_template", handleViewOpened);
+        $("#commando-panel").once("popuphidden", () =>
+        {
+            setTimeout(() =>
+            {
+                window.removeEventListener("editor_view_opened_from_template", handleViewOpened);
+            }, 1000);
+        });
+    };
+
     this.useTemplate = (template) =>
     {
         var view = ko.views.manager.currentView;
@@ -57,11 +95,17 @@ if (typeof(ko.projects)=='undefined') {
             ko.views.manager.doNewViewAsync(template.getStringAttribute("language"), "editor", (view) =>
             {
                 _doUseTemplate(view, template);
+
+                var evt = new CustomEvent("editor_view_opened_from_template", { detail: { view: view } });
+                window.dispatchEvent(evt);
             });
             return;
         }
 
         _doUseTemplate(view, template);
+
+        var evt = new CustomEvent("editor_view_used_from_template", { detail: { view: view } });
+        window.dispatchEvent(evt);
     };
 
     var _autoInsertTemplate = () =>
