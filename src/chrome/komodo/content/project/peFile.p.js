@@ -330,6 +330,8 @@ this.refreshStatus = function doRefreshStatus(/*koIPart []*/ items) {
     } catch(e) {
         ko.projects.manager.log.error(e);
     }
+
+    ko.places.manager.refreshView();
 }
 
 this.fileProperties = function peFile_Properties(item, view, folder)

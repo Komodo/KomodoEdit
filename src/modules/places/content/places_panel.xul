@@ -273,17 +273,25 @@
       <!-- "project" refers to the currentPlace icon, which isn't
            necessarily a project.
            -->
-      <menuitem id="placesContextMenu_folder_rebase"
-                oncommand="ko.places.manager.rebaseFolder(event)"
-                label="&rebaseFolder.label;"
-                class="menuitem-iconic"
-                hideIf="file project"
+      <menuitem id="placesContextMenu_newFile"
+                label="&newFilesPlace.label;"
+                class="menuitem-iconic native-new-file-icon"
+                oncommand="ko.places.viewMgr.addNewFile()"
                 testDisableIf="t:multipleSelection"
+                hideIf="file"
                 />
-      <menuitem id="placesContextMenu_folder_refresh_view"
-                oncommand="ko.places.manager.refreshView(event)"
-                label="&refreshView.label;"
-                class="menuitem-iconic"
+      <menuitem id="placesContextMenu_newFileFromTemplate"
+                label="&placesNewFileFromTemplate.label;"
+                class="menuitem-iconic native-new-file-icon"
+                oncommand="ko.places.viewMgr.addNewFileFromTemplate()"
+                testDisableIf="t:multipleSelection t:isRemote"
+                hideIf="file"
+                />
+      <menuitem id="placesContextMenu_newFolder"
+                label="&newFolder.label;"
+                class="menuitem-iconic new-folder-icon"
+                oncommand="ko.places.viewMgr.addNewFolder()"
+                testDisableIf="t:multipleSelection"
                 hideIf="file"
                 />
       <menuitem id="placesContextMenu_file_open"
@@ -349,23 +357,12 @@
                 />
 
       <!-- Init code puts in the platform-specific label. -->
-      <menuitem id="placesContextMenu_showInFinder"
-                observes="cmd_places_showInFinder"
-                label="&ShowInExplorer.label;"
-                class="menuitem-iconic"
-                testDisableIf="t:multipleSelection t:isRemote" />
       <menuitem id="placesContextMenu_rename"
                 observes="cmd_renamePlace_File"
                 label="&renamePlaceItem.label;"
                 class="menuitem-iconic"
                 disableIf="project"
                 testDisableIf="t:multipleSelection" />
-      <menuitem id="placesContextMenu_refresh_status"
-                observes="cmd_refreshStatus"
-                label="&refreshStatus.label;"
-                class="menuitem-iconic"
-                disableIf="project"
-                testDisableIf="t:isRemote" />
       <menuseparator id="placesContextMenu_separatorDelete" />
       <menuitem id="placesContextMenu_delete"
                 observes="cmd_deletePlaceItem"
@@ -373,29 +370,32 @@
                 class="menuitem-iconic list-item-remove-icon"
                 disableIf="project"
                 />
-      <menuitem id="placesContextMenu_newFileFromTemplate"
-                label="&placesNewFileFromTemplate.label;"
-                class="menuitem-iconic native-new-file-icon"
-                oncommand="ko.places.viewMgr.addNewFileFromTemplate()"
-                testDisableIf="t:multipleSelection t:isRemote"
-                hideIf="file"
-                />
-      <menuitem id="placesContextMenu_newFile"
-                label="&newFilesPlace.label;"
-                class="menuitem-iconic native-new-file-icon"
-                oncommand="ko.places.viewMgr.addNewFile()"
-                testDisableIf="t:multipleSelection"
-                hideIf="file"
-                />
-      <menuitem id="placesContextMenu_newFolder"
-                label="&newFolder.label;"
-                class="menuitem-iconic new-folder-icon"
-                oncommand="ko.places.viewMgr.addNewFolder()"
-                testDisableIf="t:multipleSelection"
-                hideIf="file"
-                />
       <menuseparator id="placesContextMenu_separatorProperties"
                      intoplevel="true"/>
+      <menuitem id="placesContextMenu_refresh_status"
+                observes="cmd_refreshStatus"
+                label="&refreshStatus.label;"
+                class="menuitem-iconic"
+                disableIf="project"
+                testDisableIf="t:isRemote" />
+      <!--<menuitem id="placesContextMenu_folder_refresh_view"
+                oncommand="ko.places.manager.refreshView(event)"
+                label="&refreshView.label;"
+                class="menuitem-iconic"
+                hideIf="file"
+                />-->
+      <menuitem id="placesContextMenu_showInFinder"
+                observes="cmd_places_showInFinder"
+                label="&ShowInExplorer.label;"
+                class="menuitem-iconic"
+                testDisableIf="t:multipleSelection t:isRemote" />
+      <menuitem id="placesContextMenu_folder_rebase"
+                oncommand="ko.places.manager.rebaseFolder(event)"
+                label="&rebaseFolder.label;"
+                class="menuitem-iconic"
+                hideIf="file project"
+                testDisableIf="t:multipleSelection"
+                />
       <menuitem id="placesContextMenu_editProperties"
                 observes="cmd_editProperties"
                 label="&filePreferences.label;"
