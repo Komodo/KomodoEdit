@@ -18,6 +18,26 @@ module.exports = Module;
     (function() {
         
         this.name = "listitem";
+        this.init = function(label, options = {})
+        {
+            if (label && typeof label == "object")
+            {
+                options = label;
+                label = null;
+            }
+            
+            if (options.label)
+            {
+                label = options.label;
+            }
+            
+            this.initWithLabel(label, options);
+            
+            if ( ! this.attributes.value && label)
+            {
+                this.$element.attr("value", label);
+            }
+        };
         
         this.init = this.initWithElement;
         

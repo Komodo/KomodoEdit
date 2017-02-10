@@ -89,7 +89,10 @@ module.exports = Module;
         this.addListItem = function (item)
         {
             var element;
-            if ("isSdkElement" in item)
+            if (typeof item == "string") {
+                element = require("ko/ui/listitem").create(item).element;
+            }
+            else if ("isSdkElement" in item)
             {
                 element = item.element;
             }
