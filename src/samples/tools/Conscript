@@ -16,7 +16,7 @@ Import(
 
 my $supportSampleDir = "$supportDir/samples/tools";
 
-for my $dir ('Abbreviations', 'HTML', 'Sample_Macros') {
+for my $dir ('Abbreviations', 'HTML', 'Sample_Macros', 'File Templates') {
     $cons->InstallRecursive("$supportSampleDir/$dir", 
                         #XXX must be absolute path (bug in InstallRecursive)
 			    cwd() . "/src/samples/tools/$dir",

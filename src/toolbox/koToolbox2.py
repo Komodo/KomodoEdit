@@ -122,7 +122,8 @@ class Database(object):
     # - 1.1.6:  add is_clean column
     # - 1.1.7:  add file template table
     # - 1.1.8:  convert old tools
-    VERSION = "1.1.8"
+    # - 1.1.9:  import sample file templates
+    VERSION = "1.1.9"
     FIRST_VERSION = "1.0.5"
     
     def __init__(self, db_path, schemaFile):
@@ -202,6 +203,28 @@ class Database(object):
                     os.remove(sample)
             except:
                 log.exception("Failed converting old templates")
+
+    def _import_files_templates(self, curr_ver, result_ver):
+        koDirs = components.classes["@activestate.com/koDirs;1"].\
+                 getService(components.interfaces.koIDirs)
+        destDir = os.path.join(koDirs.userDataDir, 'tools')
+        srcDir = os.path.join(koDirs.supportDir, 'samples', 'tools', 'File Templates')
+
+        if not os.path.isdir(os.path.join(destDir, 'File Templates')):
+            import fileutils
+            try:
+                fileutils.copyLocalFolder(srcDir, destDir)
+            except:
+                log.exception("Failed to copy srcChild:%s to dest destDir:%s", srcDir, destDir)
+        else:
+            import shutil
+            destDir = os.path.join(destDir, 'File Templates')
+            for name in os.listdir(srcDir):
+                srcChild = os.path.join(srcDir, name)
+                try:
+                    shutil.copy(srcChild, destDir)
+                except:
+                    log.exception("Failed to copy srcChild:%s to dest destDir:%s", srcChild, destDir)
 
     def _convert_komodotool_to_ktf(self, curr_ver, result_ver):
         toolbox2Svc = components.classes["@activestate.com/koToolbox2Service;1"]\
@@ -382,6 +405,7 @@ class Database(object):
         "1.1.5": ("1.1.6", _add_is_clean, None),
         "1.1.6": ("1.1.7", _transition_file_templates, None),
         "1.1.7": ("1.1.8", _convert_komodotool_to_ktf, None),
+        "1.1.8": ("1.1.9", _import_files_templates, None),
     }
 
     def get_meta(self, key, default=None, cu=None):
@@ -814,7 +838,7 @@ class Database(object):
         cu.execute(stmt, [language])
 
     def _add_template(self, id, data, item_type, cu):
-        if (data["lang_default"] is "true" or data["lang_default"] is True):
+        if (data.get("lang_default", "false") is "true" or data.get("lang_default", "false") is True):
             self._unsetTemplateDefault(self, data["language"])
 
         self.addCommonToolDetails(id, data, cu)
