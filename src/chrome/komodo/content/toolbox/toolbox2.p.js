@@ -349,12 +349,12 @@ this.updateContextMenu = function(event, menupopup) {
 this.processMenu = function(menuNode, toolType) {
     //todo: testHideIf
     var hideUnless = menuNode.getAttribute('hideUnless');
-    if (hideUnless && hideUnless.indexOf(toolType) == -1) {
+    if (hideUnless && hideUnless.split(/\s+/).indexOf(toolType) == -1) {
         menuNode.setAttribute('collapsed', true);
         return; // No need to do anything else
     }
     var hideIf = menuNode.getAttribute('hideIf');
-    if (hideIf && hideIf.indexOf(toolType) != -1) {
+    if (hideIf && hideIf.split(/\s+/).indexOf(toolType) != -1) {
         menuNode.setAttribute('collapsed', true);
         return; // No need to do anything else
     }
