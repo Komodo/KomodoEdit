@@ -1033,7 +1033,7 @@ this.invokeTool = function(tool) {
         'macro': this.invoke_executeMacro,
         'snippet': this.invoke_insertSnippet,
         'template': this.invoke_useTemplate,
-        'URL': this.invoke_openURLInBrowser
+        'URL': this.invoke_openURLInBrowser,
         'folder_template': this.invoke_useFolderTemplate,
     }[tool.type];
     _invoker(tool);
