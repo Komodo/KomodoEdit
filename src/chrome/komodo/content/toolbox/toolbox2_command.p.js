@@ -310,6 +310,10 @@ this.editProperties_folder_template = function(tool) {
     ko.projects.folderTemplateProperties(tool);
 };
 
+this.add_template = function(parent, item) {
+    ko.projects.addTemplate(parent, item);
+};
+
 this.add_folder_template = function(parent, item) {
     ko.projects.addFolderTemplate(parent, item);
 };
