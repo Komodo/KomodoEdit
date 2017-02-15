@@ -83,3 +83,4 @@ $cons->InstallInChrome('peURL.js');
 $cons->InstallInChrome('peMacro.js');
 $cons->InstallInChrome('peMenu.js');
 $cons->InstallInChrome('peTemplate.js');
+$cons->InstallInChrome('peFolderTemplate.js');

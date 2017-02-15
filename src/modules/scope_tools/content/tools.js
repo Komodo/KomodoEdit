@@ -93,7 +93,11 @@
             },
             {
                 id: "template",
-                name: "Template",
+                name: "Templates",
+            },
+            {
+                id: "folder_template",
+                name: "Folder Templates",
             },
             {
                 id: "tutorial",

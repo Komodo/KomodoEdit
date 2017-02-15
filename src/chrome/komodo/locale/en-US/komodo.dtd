@@ -292,6 +292,7 @@
 <!ENTITY folderContextNewMenu.accesskey "n">
 <!ENTITY folderContextNewSnippet.accesskey "s">
 <!ENTITY folderContextNewTemplate.accesskey "t">
+<!ENTITY folderContextNewFolderTemplate.accesskey "f">
 <!ENTITY folderContextNewToolbar.accesskey "b">
 <!ENTITY folderContextNewURL.accesskey "l">
 <!ENTITY folderContextRemoteFile.accesskey "r">
@@ -412,6 +413,7 @@
 <!ENTITY increaseLineIndent.label "Indent">
 <!ENTITY incrementalSearch.label "Incremental Search">
 <!ENTITY useTemplate.label "Use Template">
+<!ENTITY useFolderTemplate.label "Use Folder Template">
 <!ENTITY editTemplate.label "Edit Template">
 <!ENTITY insertSnippet.label "Insert Snippet">
 <!ENTITY joinLines.label "Join Lines">
@@ -555,6 +557,7 @@
 <!ENTITY newProjectFromTemplate.label "New Project From Template...">
 <!ENTITY newSnippet.label "New Snippet...">
 <!ENTITY newTemplate.label "New Template...">
+<!ENTITY newFolderTemplate.label "New Folder Template...">
 <!ENTITY newWindow.accesskey "N">
 <!ENTITY newWindow.label "New Window">
 <!ENTITY newURL.label "New URL...">

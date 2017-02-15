@@ -837,6 +837,7 @@ class Database(object):
             return self.addMiscProperties(id, data, cu)
 
     _add_URL = _addSimpleItem
+    _add_folder_template = _addSimpleItem
             
     def addMiscProperties(self, id, data, cu):
         notifications = []

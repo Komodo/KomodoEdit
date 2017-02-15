@@ -355,6 +355,42 @@ viewMgrClass.prototype = {
         ko.projects.chooseTemplate(dir, callback);
     },
 
+    addNewFolderFromTemplate: function() {
+        var isLocal = ko.places.manager.currentPlaceIsLocal;
+        if (!isLocal) {
+            ko.dialogs.alert(_bundle.GetStringFromName("remoteTemplateNewFileNotAvailable"));
+            return;
+        }
+        var index, uri;
+        if (ko.places.manager._clickedOnRoot()) {
+            index = -1;
+            uri = ko.places.manager.currentPlace;
+        } else {
+            index = this.view.selection.currentIndex;
+            uri = this.view.getURIForRow(index);
+        }
+        var dir = ko.uriparse.URIToLocalPath(uri);
+        ko.projects.chooseFolderTemplate(dir);
+    },
+
+    addNewTemplateFromFolder: function() {
+        var isLocal = ko.places.manager.currentPlaceIsLocal;
+        if (!isLocal) {
+            ko.dialogs.alert(_bundle.GetStringFromName("remoteTemplateNewFileNotAvailable"));
+            return;
+        }
+        var index, uri;
+        if (ko.places.manager._clickedOnRoot()) {
+            index = -1;
+            uri = ko.places.manager.currentPlace;
+        } else {
+            index = this.view.selection.currentIndex;
+            uri = this.view.getURIForRow(index);
+        }
+        var dir = ko.uriparse.URIToLocalPath(uri);
+        ko.projects.createFolderTemplateFromDir(dir);
+    },
+
     addNewFile: function() {
         var index = ko.places.manager._clickedOnRoot() ? -1 : this.view.selection.currentIndex;
         var name = ko.dialogs.prompt(_bundle.GetStringFromName("enterFileName"));

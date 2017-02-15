@@ -104,8 +104,13 @@
                 </hbox>
                 <separator class="groovy-thin"/>
                 <hbox align="center">
-                    <label value="&value.label;"/>
+                    <label id="partkey" value="&value.label;"/>
                     <textbox flex="1" id="partvalue" accesskey="&partvalue.accesskey;" onkeyup="updateOK()" value=""/>
+                    <button id="filepicker" label="Folder.." collapsed="true"/>
+                    <button id="filepicker_zip" label="ZIP.." collapsed="true"/>
+                </hbox>
+                <hbox align="center" pack="center">
+                    <description id="description"/>
                 </hbox>
             </vbox>
             <vbox id="shortcut_tabpanel">

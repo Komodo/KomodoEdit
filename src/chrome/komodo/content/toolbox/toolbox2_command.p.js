@@ -199,6 +199,23 @@ this.invoke_useTemplate = function(tool) {
     ko.projects.useTemplate(tool);
 };
 
+this.invoke_useFolderTemplate = function(tool) {
+    if (typeof(tool) == 'undefined') {
+        tool = this._getSelectedTool('folder_template');
+        if (!tool) return;
+    }
+    if (!tool.value) {
+        // Bug 98835: initially, we don't always have the item's text
+        // Don't know why, but getting its value will make an initial
+        // call to the database to init the tool
+        var koFileEx = tool.getFile();
+        koFileEx.open("r");
+        tool.value = koFileEx.readfile();
+        koFileEx.close();
+    }
+    ko.projects.useFolderTemplate(tool);
+};
+
 this.invoke_editTemplate = function(tool) {
     if (typeof(tool) == 'undefined') {
         tool = this._getSelectedTool('template');
@@ -283,6 +300,18 @@ this.editProperties_URL = function(tool) {
 
 this.add_URL = function(parent, item) {
     ko.projects.addURL(parent, item);
+};
+
+this.editProperties_folder_template = function(tool) {
+    if (typeof(tool) == 'undefined') {
+        tool = this._getSelectedTool('folder_template');
+        if (!tool) return;
+    }
+    ko.projects.folderTemplateProperties(tool);
+};
+
+this.add_folder_template = function(parent, item) {
+    ko.projects.addFolderTemplate(parent, item);
 };
 
 // folders
@@ -1005,6 +1034,7 @@ this.invokeTool = function(tool) {
         'snippet': this.invoke_insertSnippet,
         'template': this.invoke_useTemplate,
         'URL': this.invoke_openURLInBrowser
+        'folder_template': this.invoke_useFolderTemplate,
     }[tool.type];
     _invoker(tool);
 }

@@ -129,6 +129,13 @@
                               image="chrome://komodo/skin/images/toolbox/template.svg"
                               oncommand="ko.toolbox2.addToolboxItem('template')"
                               />
+                    <menuitem id="tb2_addContext_newFolderTemplate"
+                              label="&newFolderTemplate.label;"
+                              class="menuitem-iconic"
+                              accesskey="&folderContextNewFolderTemplate.accesskey;"
+                              image="chrome://komodo/skin/images/toolbox/foldertemplate.svg"
+                              oncommand="ko.toolbox2.addToolboxItem('folder_template')"
+                              />
                     <menuseparator anonid="addItemSeparator" />
                     <menuitem id="tb2_addContext_newFolder"
                               label="&newFolder.label;"
@@ -224,6 +231,13 @@
                       hideUnless="template"
                       testDisableIf="t:multipleSelection"
                       testDisableUnless="cmd:cmd_insertSnippet"
+                      />
+            <menuitem id="toolbox2ContextMenu_useFolderTemplate"
+                      label="&useFolderTemplate.label;"
+                      class="menuitem-iconic primary_menu_item"
+                      oncommand="ko.toolbox2.invoke_useFolderTemplate()"
+                      hideUnless="folder_template"
+                      testDisableIf="t:multipleSelection"
                       />
             <menuitem id="toolbox2ContextMenu_editTemplate"
                       label="&editTemplate.label;"

@@ -280,13 +280,6 @@
                 testDisableIf="t:multipleSelection"
                 hideIf="file"
                 />
-      <menuitem id="placesContextMenu_newFileFromTemplate"
-                label="&placesNewFileFromTemplate.label;"
-                class="menuitem-iconic native-new-file-icon"
-                oncommand="ko.places.viewMgr.addNewFileFromTemplate()"
-                testDisableIf="t:multipleSelection t:isRemote"
-                hideIf="file"
-                />
       <menuitem id="placesContextMenu_newFolder"
                 label="&newFolder.label;"
                 class="menuitem-iconic new-folder-icon"
@@ -313,6 +306,28 @@
                 class="menuitem-iconic"
                 hideIf="folder project"
                 testHideIf="t:selectedTwoItems"
+                />
+      <menuseparator id="placesContextMenu_separatorTemplates" hideIf="file"/>
+      <menuitem id="placesContextMenu_newFileFromTemplate"
+                label="&placesNewFileFromTemplate.label;"
+                class="menuitem-iconic native-new-file-icon"
+                oncommand="ko.places.viewMgr.addNewFileFromTemplate()"
+                testDisableIf="t:multipleSelection t:isRemote"
+                hideIf="file"
+                />
+      <menuitem id="placesContextMenu_newFolderFromTemplate"
+                label="&placesNewFolderFromTemplate.label;"
+                class="menuitem-iconic"
+                oncommand="ko.places.viewMgr.addNewFolderFromTemplate()"
+                testDisableIf="t:multipleSelection t:isRemote"
+                hideIf="file"
+                />
+      <menuitem id="placesContextMenu_newTemplateFromFolder"
+                label="&placesNewTemplateFromFolder.label;"
+                class="menuitem-iconic"
+                oncommand="ko.places.viewMgr.addNewTemplateFromFolder()"
+                testDisableIf="t:multipleSelection t:isRemote"
+                hideIf="file"
                 />
       <menuseparator id="placesContextMenu_separatorCut" />
       <menuitem id="placesContextMenu_cut"

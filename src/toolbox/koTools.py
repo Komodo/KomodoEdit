@@ -42,6 +42,7 @@ _icons = {
     'macro'     :   'chrome://komodo/skin/images/toolbox/macro.svg',
     'cut'       :   'chrome://komodo/skin/images/toolbox/snippet.svg',
     'template'  :   'chrome://komodo/skin/images/toolbox/template.svg',
+    'foldertemplate'  :   'chrome://komodo/skin/images/toolbox/folder_template.svg',
     'url'       :   'chrome://komodo/skin/images/toolbox/url.svg',
 }
 
@@ -759,7 +760,7 @@ class _KoSnippetTool(_KoTool):
         return self.value.replace(self._ANCHOR_MARKER, "", 1).replace(self._CURRENTPOS_MARKER, "", 1)
 
 
-class _KoURLToolBase(_KoTool):
+class _KoGenericToolBase(_KoTool):
     def setStringAttribute(self, name, value):
         _KoTool.setStringAttribute(self, name, value)
         if name == 'value':
@@ -780,7 +781,7 @@ class _KoURLToolBase(_KoTool):
         info = _tbdbSvc.getSimpleToolInfo(self.id)
         self._finishUpdatingSelf(info)
         
-class _KoTemplateTool(_KoURLToolBase):
+class _KoTemplateTool(_KoTool):
     typeName = 'template'
     prettytype = 'Template'
     _iconurl = _icons.get('template')
@@ -790,6 +791,11 @@ class _KoTemplateTool(_KoURLToolBase):
         self.name = "New Template"
         self.flavors.insert(0, 'application/x-komodo-template')
 
+    def setStringAttribute(self, name, value):
+        _KoTool.setStringAttribute(self, name, value)
+        if name == 'value':
+            # Komodo treats the value as a URI to get a koFileEx object.
+            _KoTool.setStringAttribute(self, 'url', value)
 
     def get_url(self):
         """
@@ -811,10 +817,15 @@ class _KoTemplateTool(_KoURLToolBase):
         info = _tbdbSvc.getTemplateInfo(self.id)
         self._finishUpdatingSelf(info)
 
-class _KoURLTool(_KoURLToolBase):
+class _KoURLTool(_KoGenericToolBase):
     typeName = 'URL'
     prettytype = 'URL'
     _iconurl = _icons.get('url')
+    
+class _KoFolderTemplateTool(_KoGenericToolBase):
+    typeName = 'folder_template'
+    prettytype = 'FolderTemplate'
+    _iconurl = _icons.get('foldertemplate')
 
 
 _koToolClassFromTypeName = {}
