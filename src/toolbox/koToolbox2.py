@@ -180,7 +180,7 @@ class Database(object):
         currUserDataDir = koDirSvc.userDataDir
 
         templatesDir = os.path.join(currUserDataDir, "templates")
-        targetDir = os.path.join(currUserDataDir, "tools", "Templates")
+        targetDir = os.path.join(currUserDataDir, "tools", "File Templates")
 
         if os.path.exists(templatesDir):
             if not os.path.exists(targetDir):
