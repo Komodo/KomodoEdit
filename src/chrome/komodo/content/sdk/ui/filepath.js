@@ -31,11 +31,14 @@ module.exports = Module;
                 var type = this.options.type || "file";
                 var value = this.textbox.value();
                 
+                var filter = this.option.filter || null;
+                var filters = this.options.filters || null;
+
                 switch (type)
                 {
                     default:
                     case "file":
-                        this.textbox.value(ko.filepicker.browseForFile(value));
+                        this.textbox.value(ko.filepicker.browseForFile(value, null, null, filter, filters));
                         break;
                     case "dir":
                         this.textbox.value(ko.filepicker.browseForDir(value));
