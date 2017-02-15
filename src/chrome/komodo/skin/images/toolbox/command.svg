@@ -14,7 +14,7 @@
    height="14"
    viewBox="0 0 14 14"
    id="svg2"
-   inkscape:version="0.91 r13725"
+   inkscape:version="0.92.0 r"
    sodipodi:docname="command.svg">
   <sodipodi:namedview
      pagecolor="#ffffff"
@@ -30,7 +30,7 @@
      id="namedview10"
      showgrid="true"
      inkscape:zoom="14.75"
-     inkscape:cx="-15.728814"
+     inkscape:cx="-10.01096"
      inkscape:cy="6.3728813"
      inkscape:window-x="525"
      inkscape:window-y="294"
@@ -38,7 +38,11 @@
      inkscape:current-layer="svg2">
     <inkscape:grid
        id="grid4135"
-       type="xygrid" />
+       type="xygrid"
+       originx="0"
+       originy="0"
+       spacingx="1"
+       spacingy="1" />
   </sodipodi:namedview>
   <metadata
      id="metadata14">
@@ -65,9 +69,8 @@
        x1="0" />
   </g>
   <path
-     transform="matrix(1.000000,0.000000,0.000000,1.000000,0.000000,0.000000)"
      inkscape:connector-curvature="0"
-     style="fill:#9e9e9e;fill-opacity:1"
+     style="fill:#9e9e9e;fill-opacity:1;stroke-width:0.82907736"
      id="path8"
-     d="M0.0 1.0L0.0 13.0L14.0 13.0L14.0 1.0L0.0 1.0ZM13.1250000875 12.0L1.0 12.0L1.0 2.0L13.0 2.0L13.0 12.1428574805ZM12.250000175 3.0L2.0 3.0L2.0 11.0L12.0 11.0L12.0 2.71428502919ZM6.12499988101 7.0L5.0 7.0L5.0 8.0L4.0 8.0L4.0 9.0L3.0 9.0L3.0 8.0L4.0 8.0L4.0 7.0L5.0 7.0L5.0 6.0L4.0 6.0L4.0 5.0L3.0 5.0L3.0 4.0L4.0 4.0L4.0 5.0L5.0 5.0L5.0 6.0L6.0 6.0L6.0 6.99999802155ZM9.62500013536 9.0L7.0 9.0L7.0 8.0L10.0 8.0L10.0 8.71428306061Z" />
+     d="M 1,2.2589433 V 11.882112 H 13 V 2.2589433 Z M 12.249999,11.080181 H 1.8571428 V 3.0608741 H 12.142856 V 11.194742 Z M 11.5,3.862805 H 2.7142858 V 10.27825 H 11.285715 V 3.6336813 Z M 6.2500002,7.0705282 H 5.2857145 v 0.801931 H 4.4285717 V 8.6743899 H 3.5714288 V 7.8724592 H 4.4285717 V 7.0705282 H 5.2857145 V 6.2685974 H 4.4285717 V 5.4666666 H 3.5714288 V 4.6647357 H 4.4285717 V 5.4666666 H 5.2857145 V 6.2685974 H 6.1428574 V 7.0705267 Z M 9.2500005,8.6743899 H 7.0000003 V 7.8724592 h 2.5714286 v 0.5728055 z" />
 </svg>
