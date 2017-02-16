@@ -118,6 +118,8 @@
         
         if (opts.onReady)
             opts.onReady(parent, mapping);
+
+        parent.sizeToContent();
     };
     
     var onFormComplete = (opts) =>
