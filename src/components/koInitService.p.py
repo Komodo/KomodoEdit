@@ -1113,9 +1113,6 @@ class KoInitService(object):
                 prefs.setLongPref("documentLineCountThreshold", 40000)
                 prefs.setLongPref("documentLineLengthThreshold", 100000)
 
-        if version < 10: # Komodo 9.0.0a1
-            prefs.setStringPref("analyticsLastVersion", "pre-9.0a1")
-
         if version < 11: # Komodo 9.0.0a1
             self._flattenLanguagePrefs(prefs)
 
