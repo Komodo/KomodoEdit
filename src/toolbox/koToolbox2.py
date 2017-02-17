@@ -121,6 +121,9 @@ class Database(object):
     FIRST_VERSION = "1.0.5"
     
     def __init__(self, db_path, schemaFile):
+        self.observerSvc = components.classes["@mozilla.org/observer-service;1"].\
+                           getService(components.interfaces.nsIObserverService)
+        
         self.path = db_path
         self.cu = self.cx = None
         self.schemaFile = schemaFile
@@ -155,9 +158,7 @@ class Database(object):
             'toolbar':['priority'],
             'folder':[],
             }
-        self.observerSvc = components.classes["@mozilla.org/observer-service;1"].\
-                           getService(components.interfaces.nsIObserverService)
-            
+                    
     def __repr__(self):
         return "<Toolbox2 Database %s>" % self.path
     
