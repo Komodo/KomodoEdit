@@ -19,9 +19,15 @@
     const log           = require("ko/logging").getLogger("sdk/windows");
 
     var onLoadCallbacks = { all: [] };
+    var initialized = false;
 
-    var init = () =>
+    this.init = () =>
     {
+        if (initialized)
+            return;
+
+        initialized = true;
+
         var w = this.getMain();
         w.addEventListener("window_opened", onWindowOpened);
     };
@@ -213,7 +219,5 @@
           .getService(Ci.koIWindowManagerUtils)
           .setOnTop(rootWin, parentWin, true);
     };
-    
-    init();
     
 }).apply(module.exports);

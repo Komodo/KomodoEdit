@@ -31,9 +31,11 @@
             w = w.require("ko/windows").getMain();
             if ( ! w) return;
             
+            w.require("ko/windows").init();
+
             var evt = new CustomEvent("window_opened", { detail: window });
             w.dispatchEvent(evt);
-            
+
             this.loadVirtualStylesheets();
           }
           catch(e)
