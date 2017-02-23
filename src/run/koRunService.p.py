@@ -195,6 +195,7 @@ class KoInterpolationService:
             'd': ValueError("The command string includes %d, but there is no current file"),
             'D': ValueError("The command string includes %D, but there is no current file"),
             'L': ValueError("The command string includes %L, but there is no current file"),
+            'l': ValueError("The command string includes %l, but there is no current file, or content in the line."),
             'w': ValueError("The command string includes %w, but there is no selection or word under cursor"),
             'W': ValueError("The command string includes %W, but there is no selection or word under cursor"),
             's': ValueError("The command string includes %s, but there is no selection"),
