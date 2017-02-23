@@ -1,4 +1,4 @@
-FROM     ubuntu:12.04
+FROM     ubuntu:14.04
 
 # make sure the package repository is up to date
 RUN apt-get update --fix-missing
