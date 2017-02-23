@@ -80,8 +80,7 @@ function start {
                         chown ${_UID}:100 /komodo && chown -R ${_UID}:100 /komodo/.ssh && \
                         echo \"PATH=/komodo/dev/util/black:\$PATH\" >> /komodo/.profile && \
                         echo \"include \\\"/usr/share/themes/Radiance/gtk-2.0/gtkrc\\\"\" > /komodo/.gtkrc-2.0 && \
-                        chown ${_UID}:100 /komodo/.profile && chown ${_UID}:100 /komodo/.gtkrc-2.0
-                        su - komodo -c \"gconftool-2 --type=string --set /desktop/gnome/interface/gtk_theme Radiance\""
+                        chown ${_UID}:100 /komodo/.profile && chown ${_UID}:100 /komodo/.gtkrc-2.0"
 
     fi
 
@@ -179,6 +178,7 @@ function help {
     echo "options:"
     echo "image [--flavour DIR]     build the image; flavour defaults to the current dir"
     echo "reimage                   rebuild the image (deletes image and containers)"
+    echo "destroy                   destroy image"
     echo "start                     start container"    
     echo "stop                      stop container"
     echo "clean                     bk distclean"
@@ -236,6 +236,10 @@ while true; do
                 shift 2
             fi
             image $flavour
+            shift
+            ;;
+        destroy)
+            deleteBuild
             shift
             ;;
         reimage)
