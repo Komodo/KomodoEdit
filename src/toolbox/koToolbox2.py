@@ -1036,17 +1036,21 @@ class Database(object):
         FROM snippet
         JOIN common_details on snippet.path_id = common_details.path_id
         JOIN paths ON snippet.path_id = paths.id
-        WHERE snippet.auto_abbreviation='true' AND name=? AND language=?""";
+        WHERE common_details.name=? AND snippet.language=? AND snippet.auto_abbreviation=?""";
         abbrevID = None
         language = subnames[0]
+        if isAutoAbbrev:
+            isAutoAbbrev = "true"
+        else:
+            isAutoAbbrev = "false"
         with self.connect() as cu:
-            cu.execute(query, (abbrev, language))
+            cu.execute(query, (abbrev, language, isAutoAbbrev))
             abbrevID = self._rankSnippetResults(cu.fetchall())
             # Special cases where there is more than one versions of a language
             # in Komodo and they are different enough to warrant potentially
             # different snippets
             if abbrevID is None and ("Python" in language or "Python3" in language):
-                cu.execute(query,(abbrev, "Python-common"))
+                cu.execute(query,(abbrev, "Python-common", isAutoAbbrev))
                 try:
                     abbrevID = self._rankSnippetResults(cu.fetchall())
                 except:
@@ -1054,7 +1058,7 @@ class Database(object):
                 if abbrevID is not None:
                     return abbrevID
             if abbrevID is None and ("JavaScript" in language or "Node.js" in language):
-                cu.execute(query, (abbrev, "JavaScript-common"))
+                cu.execute(query, (abbrev, "JavaScript-common", isAutoAbbrev))
                 try:
                     abbrevID = self._rankSnippetResults(cu.fetchall())
                 except:
@@ -1062,7 +1066,7 @@ class Database(object):
                 if abbrevID is not None:
                     return abbrevID
             if abbrevID is None and "HTML" in language:
-                cu.execute(query,(abbrev, "HTML-common"))
+                cu.execute(query,(abbrev, "HTML-common", isAutoAbbrev))
                 try:
                     abbrevID = self._rankSnippetResults(cu.fetchall())
                 except:
