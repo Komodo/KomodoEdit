@@ -209,6 +209,20 @@ const [JetPack, require] = (function() {
         }
     };
 
+    require.resolve = function (id) {
+        if (id.indexOf("/") == -1) {
+            // Automatically resolve module namespaces
+            id = id + "/" + id;
+        }
+
+        try {
+            let uri = resolveURI(id, loader.mapping);
+            return uri;
+        } catch (ex) {
+            return false;
+        }
+    };
+
     /**
      * Adds the namespace and path to the loader's list of require paths.
      * 
