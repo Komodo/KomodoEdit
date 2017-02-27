@@ -770,6 +770,7 @@ class InvalidPrivateKeyException(Exception):
     """
     pass
 
+@components.ProxyToMainThread
 def load_private_key(privatekey, password=None):
     for key_class in (paramiko.DSSKey, paramiko.RSAKey):
         try:
