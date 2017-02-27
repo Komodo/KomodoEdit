@@ -52,6 +52,7 @@ var indentCheckbox,
     $autoAbbreviationLangMenu,
     treatAsEJS,
     keybinding,
+    language,
     gItem;
 var gCaretPos;
 var gSetSelectionCheckbox;
