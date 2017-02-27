@@ -608,6 +608,7 @@ xtk.dataTreeView.prototype = {
         // Call the private "_setTreeRows" method, as it does not update the
         // special "_unfilteredRows" property.
         this._setTreeRows(filtered_rows, true);
+        this.reSort();
     }
 
 };
