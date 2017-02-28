@@ -992,7 +992,7 @@ class KoInitService(object):
             prefs.deletePref("autoSaveMinutes")
 
     # This value must be kept in sync with the value in "../prefs/prefs.p.xml"
-    _current_pref_version = 21
+    _current_pref_version = 23
     
     def _deleteNonVitalUserPrefs(self, prefs):
         log.info("_deleteNonVitalUserPrefs")
@@ -1167,6 +1167,9 @@ class KoInitService(object):
             prefs.setBoolean("koSkin_use_custom_scrollbars", True)
             prefs.deletePref("lintJavaScript_SpiderMonkey") # deprecated
             prefs.setBoolean("lintWithJSHint", True)
+            
+        if version < 23: # Komodo 11 - square tree collapser
+            prefs.setString("editFoldStyle", "squaretree")
             
         # Set the version so we don't have to upgrade again.
         prefs.setLongPref("version", self._current_pref_version)
