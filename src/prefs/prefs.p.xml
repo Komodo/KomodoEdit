@@ -1126,4 +1126,7 @@
   
   <string id="virtualStyles" nonvital="true">less://resource/profile/interfaceChrome.less,less://resource/profile/userChrome.less</string>
   
+  <long id="unittest_throttle_volume">100</long>
+  <long id="unittest_throttle_time">250</long>
+
 </preference-set>
