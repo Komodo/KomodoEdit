@@ -146,6 +146,9 @@
                 <menuitem label="&SURLEscapedSelection.label;"
                           shortcut="[[%S]]"
                           oncommand="InsertShortcut(this);"/>
+                <menuitem label="&currentLineOrSelEscaped.label;"
+                          shortcut="%t"
+                          oncommand="InsertCommandShortcut(this);"/>
                 <menuitem label="&wSelectionOrWordUnderCursor.label;"
                           shortcut="[[%w]]"
                           oncommand="InsertShortcut(this);"/>

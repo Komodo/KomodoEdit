@@ -196,6 +196,7 @@ class KoInterpolationService:
             'D': ValueError("The command string includes %D, but there is no current file"),
             'L': ValueError("The command string includes %L, but there is no current file"),
             'l': ValueError("The command string includes %l, but there is no current file, or content in the line."),
+            't': ValueError("The command string includes %t, but there is no current file, or content in the line."),
             'w': ValueError("The command string includes %w, but there is no selection or word under cursor"),
             'W': ValueError("The command string includes %W, but there is no selection or word under cursor"),
             's': ValueError("The command string includes %s, but there is no selection"),
@@ -259,8 +260,23 @@ class KoInterpolationService:
                     selection = selection.encode('utf-8')
             codeMap['S'] = urllib.quote_plus(selection)
             codeMap['W'] = urllib.quote_plus(selection)
+            codeMap['t'] = selection
         if lineText:
             codeMap['l'] = lineText
+
+            if not selection:
+                codeMap['t'] = lineText
+
+        # Sanitize line/sel
+        if type(codeMap['t']) != ValueError:
+            codeMap['t'] = codeMap['t'].strip()
+
+            if len(codeMap['t']) > 50:
+                codeMap['t'] = codeMap['t'][0:50] + " [..]"
+
+            codeMap['t'] = codeMap['t'].replace('"', '\\"')
+            codeMap['t'] = codeMap['t'].replace("'", "\\'")
+            codeMap['t'] = codeMap['t'].replace("\n", '\\n')
 
         # Add extensible items:
         for code, handler in self._codemapAdditions.items():
