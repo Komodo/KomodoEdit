@@ -290,14 +290,14 @@ this._stripLeadingWS  = function(text, tabWidth, baseIndentation) {
     return fixedLines.join("");
 }
 
-this.snippetInsertImpl = function snippetInsertImpl(snippet, view /* =<curr view> */) {
+this.snippetInsertImpl = function snippetInsertImpl(snippet, view /* =<curr view> */, newLine = false) {
     
     if(typeof(view) == 'undefined') {
         view = ko.views.manager.currentView;
     }
     
     var scimoz = view.scimoz;
-    
+
     view.scintilla.focus(); // we want focus right now, not later
     var setSelection = snippet.hasAttribute('set_selection')
             && snippet.getStringAttribute('set_selection') == 'true';
@@ -393,6 +393,13 @@ this.snippetInsertImpl = function snippetInsertImpl(snippet, view /* =<curr view
                         viewData);
     text = istrings[0];
 
+    if (newLine) {
+        scimoz.lineEnd();
+        //scimoz.newLine();
+        // cmd_newline auto calculates the indentation
+        ko.commands.doCommand("cmd_newline");
+    }
+
     var oldInsertionPoint;
     // Do the indentation, if necessary.
     var remainingText = null;
@@ -454,7 +461,6 @@ this.snippetInsertImpl = function snippetInsertImpl(snippet, view /* =<curr view
         scimoz.replaceSel("");
         oldInsertionPoint = scimoz.currentPos;
     }
-
 
     // Determine and set the selection and cursor position.
     var anchor = text.indexOf(ANCHOR_MARKER);
