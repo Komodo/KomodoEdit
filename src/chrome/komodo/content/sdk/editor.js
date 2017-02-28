@@ -467,6 +467,53 @@ var sdkEditor = function(_scintilla, _scimoz) {
     };
 
     /**
+     * Get the line number from the given x/y position
+     *
+     * @param   {int} x relative to scimoz view
+     * @param   {int} y relative to scimoz view
+     *
+     * @returns {int} Line number
+     */
+    this.getLineFromMousePosition = function(x, y)
+    {
+        var _scimoz = scimoz();
+
+        var pos = scimoz.positionFromPoint(x, y);
+        var line = scimoz.lineFromPosition(pos);
+
+        return line+1;
+    };
+
+    /**
+     * Get margin number relative to x/y position
+     *
+     * @param   {int} x relative to scimoz view
+     * @param   {int} y relative to scimoz view
+     * 
+     * @returns {int} Margin number, see ISciMoz.template.idl
+     */
+    this.getMarginFromMousePosition = function(x,y)
+    {
+        if (x <= 0)
+            return -1;
+
+        var totalWidth = 0;
+        var _scimoz = scimoz();
+        for (var i=0; i <= _scimoz.SC_MAX_MARGIN; i++)
+        {
+            let marginWidth = _scimoz.getMarginWidthN(i);
+            if (marginWidth)
+            {
+                totalWidth += marginWidth;
+                if (x < totalWidth)
+                    return i;
+            }
+        }
+
+        return -1;
+    };
+
+    /**
      * Get the default line height (all lines are currently the same height)
      *
      * @returns {Int} Height in pixels
@@ -593,6 +640,23 @@ var sdkEditor = function(_scintilla, _scimoz) {
         }
 
         scimoz().addText(text);
+    };
+
+    this.insertLine = function(line, position = "after")
+    {
+        this.setCursor({line: line});
+
+        if (position == "before")
+            this.goLineStart();
+        else
+            this.goLineEnd();
+
+        this.insertLineBreak();
+    };
+
+    this.insertLineBreak = function()
+    {
+        this.scimoz().newLine();
     };
 
     /**
