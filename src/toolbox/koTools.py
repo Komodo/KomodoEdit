@@ -223,6 +223,10 @@ class _KoTool(object):
         self.setAttribute(name, int(value))
 
     def getBooleanAttribute(self, name):
+        value = self.getAttribute(name)
+        if type(value) is unicode:
+            return value == "True"
+
         return self.getLongAttribute(name) and 1 or 0
 
     def setBooleanAttribute(self, name, value):
