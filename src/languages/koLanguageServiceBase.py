@@ -1291,6 +1291,12 @@ class KoLanguageBase:
 
         return json.dumps(result)
 
+    def getCommentDelimiters(self, key = "line"):
+        if not self.commentDelimiterInfo or not self.commentDelimiterInfo.get(key, False):
+            return ""
+
+        return json.dumps(self.commentDelimiterInfo[key])
+
     def getEncodingWarning(self, encoding):
         if not encoding.encoding_info.ascii_superset:
             return '"%s" is not a recommended encoding for %s. Using ASCII or an ASCII superset is recommended.'\
