@@ -995,11 +995,14 @@ var sdkEditor = function(_scintilla, _scimoz) {
      */
     this._posToRelative = function(abs)
     {
+        var lineNo = scimoz().lineFromPosition(abs);
+        linePos = scimoz().positionFromLine(lineNo);
+
         return {
-            line: scimoz().lineFromPosition(abs)+1,
-            ch: scimoz().getColumn(abs),
+            line: lineNo+1,
+            ch: abs - linePos,
             absolute: abs
-        }
+        };
     };
 
     /**
@@ -1012,8 +1015,8 @@ var sdkEditor = function(_scintilla, _scimoz) {
     this._posToAbsolute = function(pos)
     {
         if ( ! pos.line ) pos.line = this.getLineNumber();
-        return scimoz().findColumn(pos.line-1, pos.ch || 0);
-    }
+        return scimoz().positionFromLine(pos.line-1) + (pos.ch || 0);
+    };
 
 };
 
