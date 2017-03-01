@@ -1023,7 +1023,7 @@ var sdkEditor = function(_scintilla, _scimoz) {
      * @returns {Array|Object|Int} Returns a single position or an array of positions
      *                              if the input was an array
      */
-    this._posFormat = function(positions, format)
+    this._posFormat = function(positions, format = "relative")
     {
         var result = [];
 
@@ -1037,17 +1037,33 @@ var sdkEditor = function(_scintilla, _scimoz) {
             if (format == "absolute")
             {
                 if ((typeof pos) != "number")
-                    pos = this._posToAbsolute(pos)
+                    pos = this._posToAbsolute(pos);
             }
             else if ((typeof pos) == "number")
             {
-                pos = this._posToRelative(pos)
+                pos = this._posToRelative(pos);
+            }
+            // Don't assume that already defined relative pos gives proper values
+            else if (format == "relative")
+            {
+                pos = this._sanitizeRelativePos(pos);
             }
 
             result.push(pos);
         }
 
         return result.length == 1 ? result[0] : result;
+    };
+
+    this._sanitizeRelativePos = function(pos)
+    {
+        var _scimoz = scimoz();
+        var linePos = _scimoz.positionFromLine(pos.line-1);
+        var maxCh = _scimoz.getLineEndPosition(pos.line-1) - linePos;
+
+        pos.ch = Math.min(pos.ch, maxCh) || 0;
+
+        return pos;
     };
 
     /**
@@ -1078,8 +1094,11 @@ var sdkEditor = function(_scintilla, _scimoz) {
      */
     this._posToAbsolute = function(pos)
     {
-        if ( ! pos.line ) pos.line = this.getLineNumber();
-        return scimoz().positionFromLine(pos.line-1) + (pos.ch || 0);
+        pos.line = pos.line || this.getLineNumber();
+        pos.ch = pos.ch || 0;
+        pos = this._sanitizeRelativePos(pos);
+
+        return scimoz().positionFromLine(pos.line-1) + pos.ch;
     };
 
 };
