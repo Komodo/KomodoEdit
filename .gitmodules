@@ -13,6 +13,8 @@
 [submodule "src/modules/editorconfig"]
 	path = src/modules/editorconfig
 	url = https://github.com/Komodo/komodo-editorconfig.git
+    branch = master
 [submodule "src/modules/focusmode"]
 	path = src/modules/focusmode
 	url = https://github.com/Komodo/Focus-Mode.git
+    branch = master
