@@ -164,6 +164,7 @@ oranges 3
             self._lexer.setLexer(sci_constants.SCLEX_PERL)
             self._lexer.setKeywords(0, self._keywords)
             self._lexer.supportsFolding = 1
+            self._lexer.setProperty('fold.perl.comment.explicit', '0') # explicit folding bugged as of Scintilla 3.7.3
         return self._lexer
 
     def get_interpreter(self):
