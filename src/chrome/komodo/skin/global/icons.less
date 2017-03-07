@@ -404,6 +404,17 @@ checkbox:not(.label-only)
     &[checked="true"] .checkbox-spacer-box { .icon-check-square(); }
 }
 
+listitem[type="checkbox"]
+{
+    listcell
+    {
+        .icon();
+    }
+
+    &:not([checked="true"]) listcell { .icon-square(); }
+    &[checked="true"] listcell { .icon-check-square(); }
+}
+
 menuitem[type="checkbox"]
 {
     & > .menu-iconic-checker
