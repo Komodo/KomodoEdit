@@ -344,11 +344,13 @@ var gKlint = {
     },
 
     checkLintStatusForView : function(view) {
-        if (view.koDoc && view.koDoc.file) {
-            if (this.matchesLintFilter(view.koDoc.file.path)) {
-                view.prefs.setBooleanPref("editUseLinting", false);
-            }
-        }
+        // Disabled for now as this effectively disabled linting on the file and
+        // does not turn it back on
+        //if (view.koDoc && view.koDoc.file) {
+        //    if (this.matchesLintFilter(view.koDoc.file.path)) {
+        //        view.prefs.setBooleanPref("editUseLinting", false);
+        //    }
+        //}
     },
 
     GlobContains : function(globString, matchCase) {
