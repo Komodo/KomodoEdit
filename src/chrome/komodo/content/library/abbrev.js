@@ -231,6 +231,12 @@ this.expandAbbrev = function expandAbbrev(abbrev /* =null */,
     }
     var snippet = this._getCachedSnippet(abbrev, lang, sublang,
                                          /*isAutoAbbrev=*/false);
+    // XXX #2384 apparently the above used to still return AAs even though it
+    // asked for non-AAs.  Fake it since people now expect that.
+    if (snippet == null) {
+        var snippet = this._getCachedSnippet(abbrev, lang, sublang,
+                                             /*isAutoAbbrev=*/true);
+    }
     var msg;
     var origPos = null;
     var origAnchor = null;
