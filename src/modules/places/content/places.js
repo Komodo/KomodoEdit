@@ -3510,8 +3510,11 @@ this.matchAllTypes = function(typeListAttr, typesSelectedArray) {
  * @returns {String} The URI of the current places directory.
  */
 this.getDirectory = function() {
-    return ko.places.manager.currentPlace;
+    if (ko.places.manager)
+        this.getDirectory.__cached = ko.places.manager.currentPlace;
+    return this.getDirectory.__cached;
 };
+this.getDirectory.__cached = "file://";
 
 /**
  * Set places to the given directory.
