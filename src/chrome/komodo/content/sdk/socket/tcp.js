@@ -78,7 +78,7 @@
         var onError = (event) =>
         {
             log.debug("onError");
-            log.error(`Error occurred: ${event}`);
+            log.error(`Error occurred: ${event.type} : ${event.data}`);
         };
         
         var onData = (event) =>
