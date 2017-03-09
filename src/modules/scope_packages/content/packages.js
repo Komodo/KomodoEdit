@@ -70,7 +70,7 @@
         });
     }
     
-    var _cache = {installed: {length: 0}, upgradeable: {length: 0}, outdated: {length: 0}, age: 0};
+    var _cache = {installed: {length: 0}, addons: {length: 0}, disabled: {length: 0}, upgradeable: {length: 0}, outdated: {length: 0}, age: 0};
     this._cache = _cache;
     this._buildCache = function(onComplete)
     {
@@ -93,6 +93,12 @@
             {
                 _cache.installed[packages[k].id] = true;
                 _cache.installed.length++;
+
+                if (packages[k].data.userDisabled)
+                {
+                    _cache.disabled[packages[k].id] = true;
+                    _cache.disabled.length++;
+                }
                 
                 if ( ! packages[k].data.isCompatible || ! packages[k].data.isPlatformCompatible)
                 {
@@ -102,7 +108,7 @@
             }
             if ( ! packages && ++done == 2) _onComplete();
         }.bind(this));
-        
+
         this._getUpgradablePackages(function(packages)
         {
             for (let k in packages)
@@ -221,26 +227,46 @@
     this._renderPackage = function(pkg, uuid, override)
     {
         var kinds = this.getPackageKinds();
-        
+        var descriptionPrefix = kinds[pkg.kind].locale + " /";
+
         var icon = "koicon://ko-svg/chrome/icomoon/skin/arrow-down13.svg?size=16";
         if (pkg.id in _cache.installed)
             icon = "koicon://ko-svg/chrome/icomoon/skin/checkmark-circle2.svg?size=16";
         if (pkg.id in _cache.upgradeable)
+        {
             icon = "koicon://ko-svg/chrome/icomoon/skin/arrow-up13.svg?size=16";
+            descriptionPrefix = "Update Available / " + descriptionPrefix;
+        }
         if (pkg.id in _cache.outdated)
-            icon = "koicon://ko-svg/chrome/icomoon/skin/cancel-circle2.svg?size=16";
-        
+        {
+            icon = "koicon://ko-svg/chrome/icomoon/skin/clock4.svg?size=16";
+            descriptionPrefix = "Outdated, may not work / " + descriptionPrefix;
+        }
+        if (pkg.id in _cache.addons &&
+            [AddonManager.SCOPE_APPLICATION, AddonManager.SCOPE_SYSTEM].indexOf(_cache.addons[pkg.id].scope) != -1)
+        {
+            icon = "koicon://ko-svg/chrome/icomoon/skin/cog2.svg?size=16";
+            descriptionPrefix = "System Addon / " +  descriptionPrefix;
+        }
+        if (pkg.id in _cache.disabled)
+        {
+            icon = "koicon://ko-svg/chrome/icomoon/skin/minus-circle2.svg?size=16";
+            descriptionPrefix = "Disabled / " +  descriptionPrefix;
+        }
+
         var result = {
             id: pkg.id,
             name: pkg.name,
             description: pkg.description,
-            descriptionPrefix: kinds[pkg.kind].locale + " /",
+            descriptionPrefix: descriptionPrefix,
             icon: icon,
             scope: "scope-packages",
+            expand: pkg.id in _cache.installed,
             data: {
                 package: pkg,
                 installed: pkg.id in _cache.installed,
-                upgradeable: pkg.id in _cache.upgradeable
+                upgradeable: pkg.id in _cache.upgradeable,
+                disabled: pkg.id in _cache.disabled
             },
             allowMultiSelect: false
         };
@@ -296,6 +322,8 @@
     this.clearCaches = function()
     {
         _cache.installed = {length: 0};
+        _cache.disabled = {length: 0};
+        _cache.addons = {length: 0};
         _cache.upgradeable = {length: 0};
         _cache.outdated = {length: 0};
         _cache.age = 0;
@@ -476,8 +504,7 @@
                     var packages = {};
                     for (let addon of aAddons)
                     {
-                        if (addon.scope == AddonManager.SCOPE_APPLICATION || addon.scope == AddonManager.SCOPE_SYSTEM)
-                            continue;
+                        _cache.addons[addon.id] = addon;
                         
                         let pkg = {};
                         pkg.id = addon.id; // needed for checking for updates
@@ -557,6 +584,19 @@
         }
     }
     
+    this.isSystemAddon = function(id)
+    {
+        var addon = _cache.addons[id] || null;
+        if (addon && addon.scope == AddonManager.SCOPE_APPLICATION || addon.scope == AddonManager.SCOPE_SYSTEM)
+            return true;
+        return false;
+    }
+
+    this.isDisabled = function(id)
+    {
+        return id in _cache.disabled;
+    }
+
     /**
      * Get all upgradeable packages from all kinds, this calls the callback
      * multiple times and will call it once with no arguments to indicate
@@ -598,6 +638,9 @@
                 // any updates are available.
                 for (let id in installed)
                 {
+                    if (this.isSystemAddon(id))
+                        continue;
+
                     let installedPkg = installed[id];
                     let upstreamPkg = available[id];
                     if (!upstreamPkg)
@@ -654,7 +697,7 @@
                 cache[kind] = {result: upgradable, time: time};
                 
                 callback(upgradable);
-            });
+            }.bind(this));
         }.bind(this));
     }
     
@@ -889,7 +932,11 @@
             // This pkg data is not mocked, we need to retrieve the mocked data
             this._getInstalledPackagesByKind(pkg.kind, function(installed)
             {
-                if ( ! (pkg.id in installed))
+                var refuse = false;
+                var addon = _cache.addons[pkg.id] || null;
+                if (addon && addon.scope == AddonManager.SCOPE_APPLICATION || addon.scope == AddonManager.SCOPE_SYSTEM)
+                    refuse = true;
+                if ( ! (pkg.id in installed) || refuse)
                 {
                     log.info("No uninstallable version for package " + pkg.id + "; aborting.");
                     errorCallback("No uninstallable version for package " + pkg.id);
@@ -982,6 +1029,34 @@
         }
     }
     
+    this._toggleAddon = function(addon)
+    {
+        AddonManager.getAddonByID(addon.id, (addon) =>
+        {
+            //XPIProvider.updateAddonDisabledState(addon, ! addon.userDisabled, ! addon.userDisabled);
+            addon.userDisabled = ! addon.userDisabled;
+            this.clearCaches();
+
+            require("sdk/timers").setTimeout(() => {
+                if ((addon.pendingOperations & AddonManager.PENDING_DISABLE) ||
+                    (addon.pendingOperations & AddonManager.PENDING_ENABLE))
+                {
+                    log.debug("Toggle requires Komodo restart.");
+                    var locale = l.get("restartKomodoAfterToggle.prompt");
+                    if (dialog.confirm(locale,
+                        {
+                            yes: l.get("restartNow.label"),
+                            no: l.get("restartLater.label"),
+                            response: l.get("restartLater.label")
+                        }))
+                    {
+                        utils.restart(true);
+                    }
+                }
+            }, 500);
+        });
+    }
+
     /** Listener for addon (XPI) installation events. */
     this._addonInstallListener = {
         callback: null, // will be specified prior to each install

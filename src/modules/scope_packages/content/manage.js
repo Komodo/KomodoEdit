@@ -29,9 +29,10 @@
     
     var structure = {
         "manage": [
-            scope("update", "Update Packages"),
-            scope("uninstall", "Uninstall Packages"),
+            scope("update", "List Update Available"),
             scope("installed", "List Installed"),
+            scope("system", "List System Addons", "These addons come with Komodo and can be disabled but not uninstalled"),
+            scope("disabled", "List Disabled"),
             scope("outdated", "List Outdated", "Packages that could potentially cause problems")
         ]
     }
@@ -55,26 +56,48 @@
         
         onComplete();
     }
+
+    this.onSearchSystem = function(query, uuid, onComplete)
+    {
+        return _onSearchInstalled(query, uuid, onComplete, true, false);
+    }
     
     this.onSearchInstalled = function(query, uuid, onComplete)
     {
+        return _onSearchInstalled(query, uuid, onComplete, false, false);
+    }
+
+    this.onSearchDisabled = function(query, uuid, onComplete)
+    {
+        return _onSearchInstalled(query, uuid, onComplete, -1, true);
+    }
+
+    var _onSearchInstalled = function(query, uuid, onComplete, system = false, disabledOnly = false)
+    {
         packages._getInstalledPackages(function(pkgs) {
             if ( ! pkgs) return onComplete();
-            
+
             if (query.length)
                 pkgs = commando.filter(pkgs, query);
-            
+
             var kinds = packages.getPackageKinds();
-                
+
             for (let name in pkgs)
             {
-                if ( ! pkgs.hasOwnProperty(name)) continue;
+                if ( ! pkgs.hasOwnProperty(name))
+                    continue;
+
                 let pkg = pkgs[name];
                 
+                if (system != -1 && packages.isSystemAddon(pkg.id) != system)
+                    continue;
+                
+                if (disabledOnly && ! packages.isDisabled(pkg.id))
+                    continue;
+
                 try
                 {
                     packages._renderPackage(pkg, uuid, {
-                        descriptionPrefix: undefined,
                         command: commando.expandResult.bind(commando)
                     });
                 }
@@ -104,38 +127,7 @@
                 try
                 {
                     packages._renderPackage(pkg, uuid, {
-                        descriptionPrefix: undefined,
                         command: commando.expandResult.bind(commando)
-                    });
-                }
-                catch (e)
-                {
-                    log.exception(e, "Failed parsing package info");
-                }
-            }
-        }.bind(this))
-    }
-    
-    this.onSearchUninstall = function(query, uuid, onComplete)
-    {
-        packages._getInstalledPackages(function(pkgs) {
-            if ( ! pkgs) return onComplete();
-            
-            if (query.length)
-                pkgs = commando.filter(pkgs, query);
-            
-            var kinds = packages.getPackageKinds();
-                
-            for (let name in pkgs)
-            {
-                if ( ! pkgs.hasOwnProperty(name)) continue;
-                let pkg = pkgs[name];
-                
-                try
-                {
-                    packages._renderPackage(pkg, uuid, {
-                        descriptionPrefix: undefined,
-                        command: this.uninstallPackage.bind(this, pkg),
                     });
                 }
                 catch (e)
@@ -163,7 +155,6 @@
                 {
                     packages._renderPackage(pkg, uuid, {
                         description: pkg.currentVersion + " > " + pkg.availableVersion,
-                        descriptionPrefix: undefined,
                         command: this.installPackage.bind(this, pkg),
                     });
                 }
@@ -262,4 +253,13 @@
         });
     }
     
+    this.toggleAddon = function(pkg)
+    {
+        commando.block();
+        packages._toggleAddon(pkg.data);
+        commando.refresh();
+
+        require("sdk/timers").setTimeout(() => commando.unblock(), 500);
+    }
+
 }).apply(module.exports);
