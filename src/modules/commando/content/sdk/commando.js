@@ -885,6 +885,12 @@
             return;
         }
 
+        if (selected.length == 1 && resultData.expand)
+        {
+            c.expandResult(resultData);
+            return;
+        }
+
         selected = selected.filter(function(el)
         {
             if (selected.length > 1 && ! el.resultData.allowMultiSelect)
