@@ -220,7 +220,16 @@ if (typeof module === 'undefined') module = {}; // debugging helper
         else if (query && query.nodeType)
             this._elements.push.apply(this._elements, [query]);
         else if ('' + query === query)
-            this._elements.push.apply(this._elements,  (customParent || parent).querySelectorAll(query));
+        {
+            try
+            {
+                this._elements.push.apply(this._elements,  (customParent || parent).querySelectorAll(query));
+            }
+            catch (e)
+            {
+                log.exception(e, `Invalid selector: ${query}`);
+            }
+        }
         else if ((query != null && query === query.window) ||
                  (query != null && query.window && query == query.window.document))
             this._elements.push(query);
