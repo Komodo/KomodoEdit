@@ -35,6 +35,7 @@
         resultCache: [],
         resultsReceived: 0,
         resultsRendered: 0,
+        resultsByScope: {},
         searchingUuid: null,
         prevSearchValue: null,
         transitKeyBinds: false,
@@ -55,7 +56,8 @@
         state: {},
         resultHeightTimer: null,
         lastSearch: 0,
-        showing: false
+        showing: false,
+        accesskeys: {}
     };
 
     var elems = {
@@ -73,11 +75,13 @@
         preview: function() { return $("#commando-preview"); },
         notifyWidget: function() { return $("#notification-widget-textbox"); },
         spinner: function () { return $("#commando-spinner"); },
+        scopeFilter: function () { return $("#commando-scope-filter-wrapper"); },
         template: {
             scopeMenuItem: function() { return $("#tpl-co-scope-menuitem"); },
             scopeNavMenuItem: function() { return $("#tpl-co-scope-nav-menuitem"); },
             resultItem: function() { return $("#tpl-co-result"); },
-            subscope: function() { return $("#tpl-co-subscope"); }
+            subscope: function() { return $("#tpl-co-subscope"); },
+            scopeFilter: function() { return $("#tpl-co-scopefilter"); }
         }
     };
 
@@ -86,7 +90,9 @@
     var init = function()
     {
         log.debug('Starting Commando');
-        
+
+        templateBuildCache();
+
         // If this is a secondary commando instance, load up the UI
         // from the main window and register its scopes
         if ( ! elem('panel').length)
@@ -118,6 +124,9 @@
         elem('scope').on("command", onChangeScope.bind(this));
         elem('results').on("keydown", onKeyNav.bind(this));
         elem('results').on("dblclick", onSelectResult.bind(this));
+        elem('results').on("command", onSelectResult.bind(this));
+        elem('subscopeWrap').on("command", onCommandSubscope.bind(this));
+        elem('scopeFilter').on("command", onCommandFilter.bind(this));
         
         /* Notification widget & quick search */
         $("#notification-widget-default-text").value("Go to Anything");
@@ -161,8 +170,8 @@
 
         window.addEventListener("click", onWindowClick);
         window.addEventListener("blur", function (e) {
-            if ( ! local.showing)
-                c.hideCommando();
+            //if ( ! local.showing)
+                //c.hideCommando();
         });
     }
 
@@ -182,6 +191,29 @@
 
         return local.templateCache[name](params);
     }
+    
+    var templateBuildCache = function()
+    {
+        for (let name in elems.template)
+        {
+            local.templateCache[name] = doT.template(elems.template[name]().html());
+        }
+    }
+
+    var templateEncode = function(b)
+    {
+        var a = {
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': '\\"',
+            "'": "'",
+            "/": "/"
+        }, d = b ? /[&<>"'\/]/g : /&(?!#?\w+;)|<|>|"|'|\//g;
+        return b ? b.toString().replace(d, function(b) {
+            return a[b] || b;
+        }) : "";
+    };
 
     /** Controllers **/
 
@@ -229,7 +261,7 @@
                 onSelectResult();
                 prevDefault = true;
                 break;
-            case KeyEvent.DOM_VK_TAB:  
+            case KeyEvent.DOM_VK_TAB:
                 onTab(e);
                 prevDefault = true;
                 break;
@@ -237,7 +269,7 @@
                 onNavDown(e);
                 prevDefault = true;
                 break;
-            case KeyEvent.DOM_VK_UP: 
+            case KeyEvent.DOM_VK_UP:
                 onNavUp(e);
                 prevDefault = true;
                 break;
@@ -283,8 +315,12 @@
             if ( ! numberPressed)
             {
                 local.altNumber = null;
-                local.altPressed = false;
             }
+        }
+
+        if (local.altPressed)
+        {
+            prevDefault = true;
         }
 
         local.prevKeyCode = e.keyCode;
@@ -302,12 +338,24 @@
     
     var onKeyUp = function(e)
     {
-        if ( e.keyCode != KeyEvent.DOM_VK_ALT)
+        if ( ! local.altPressed)
             return;
         
+        var prevDefault = false;
         log.debug("Event: onKeyUp");
         
-        onNumberSelect();
+        if (e.keyCode == KeyEvent.DOM_VK_ALT)
+        {
+            onNumberSelect();
+            local.altPressed = false;
+        }
+
+        var keyPressed = String.fromCharCode(e.keyCode);
+        if (keyPressed && keyPressed.match(/[^\u0000-\u007F]|\w/)) // ensure matched key is unicode
+            onAccessKeySelect(keyPressed);
+
+        e.preventDefault();
+        e.stopPropagation();
     }
     
     var onNumberSelect = function()
@@ -323,8 +371,21 @@
             onSelectResult();
         }
         
-        local.altPressed = false;
         local.altNumber = null;
+    }
+
+    var onAccessKeySelect = function(key)
+    {
+        var elems = elem('panel').find('[accesskey="'+key+'"]');
+        elems.each(function ()
+        {
+            let el = $(this);
+            if (el.visible())
+            {
+                el.trigger("command");
+                return;
+            }
+        });
     }
 
     var onNavBack = function()
@@ -416,22 +477,57 @@
         elem("panel").removeClass("loading");
     }
 
-    var onSelectResult = function()
+    var onSelectResult = function(e)
     {
         log.debug("Selected Result(s)");
+
+        if (e)
+        {
+            var target = e.target;
+            while (target && target.nodeName != "richlistitem")
+            {
+                target = target.parentNode;
+            }
+
+            if (target && target.nodeName == "richlistitem")
+            {
+                var resultElem = elem('results').element();
+                resultElem.selectedItem = target;
+            }
+        }
 
         var selected = c.getSelected();
         c.selectResults(selected);
     }
 
-    var onExpandResult = function()
+    var onExpandResult = function(e)
     {
-        var textbox = elem("search").element();
-
-        if (textbox.selectionEnd != textbox.selectionStart ||
-            textbox.selectionStart < textbox.value.length)
+        if (e)
         {
-            return;
+            var target = e.target;
+            while (target && target.nodeName != "richlistitem")
+            {
+                target = target.parentNode;
+            }
+
+            if (target && target.nodeName == "richlistitem")
+            {
+                var resultElem = elem('results').element();
+                resultElem.selectedItem = target;
+            }
+
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        else
+        {
+            var textbox = elem("search").element();
+
+            if (textbox.selectionEnd != textbox.selectionStart ||
+                textbox.selectionStart < textbox.value.length)
+            {
+                return;
+            }
         }
 
         log.debug("Expanding Result");
@@ -487,6 +583,83 @@
         }, 100);
     }
     
+    var onCommandSubscope = function(e)
+    {
+        var target = e.target;
+        if (target.nodeName != "button")
+        {
+            while (target && target.nodeName != "button")
+                target = target.parentNode;
+
+            if ( ! target || target.nodeName != 'button')
+                return;
+        }
+
+        var button = $(target);
+        var index = button.attr("index");
+
+        var scope = c.getScope();
+        var subscope = local.subscope;
+        var offset = 1;
+
+        var scopes = local.history.slice(0); // clone
+        if ( ! scope.quickscope)
+        {
+            scopes.unshift({ subscope: scope, isHistory: false });
+            offset++;
+        }
+        scopes.unshift({ subscope: null, isHistory: false });
+
+        if (index >= scopes.length) // clicking the tail does nothing
+            return;
+
+        var newScope = scopes[index];
+        if (newScope.isHistory === false)
+        {
+            if (newScope.subscope)
+            {
+                c.selectScope(newScope.subscope.id);
+            }
+            else if (local.quickScope)
+            {
+                c.selectScope(local.quickScope);
+            }
+        }
+        else
+        {
+            index = index - offset;
+            local.history = local.history.slice(0, index);
+
+            c.setSubscope(newScope.subscope, false);
+            c.search();
+        }
+
+        c.focus();
+    }
+
+    var onCommandFilter = function(e)
+    {
+        var target = e.target;
+        if (target.nodeName != "button")
+        {
+            while (target && target.nodeName != "button")
+                target = target.parentNode;
+
+            if ( ! target || target.nodeName != 'button')
+                return;
+        }
+
+        var button = $(target);
+        var searchValue = c.getSearchValue();
+
+        elem('scopeFilter').hide();
+        c.selectScope(button.attr("scope"), () =>
+        {
+            c.search(searchValue, function() {}, true);
+            c.focus();
+        });
+    }
+
     /* Public Methods */
     this.toggle = function(scope)
     {
@@ -864,7 +1037,7 @@
     
     this.getSearchValue = function()
     {
-        return elem('search').value();
+        return elem('search').value() + ""; // force string - not object ref
     }
     
     this.getActiveSearchUuid = function()
@@ -951,13 +1124,30 @@
         opts.id = id;
         local.scopes[id] = opts;
         
-        var _opts = Object.assign({}, opts);
-
-        var concatonator = _opts.icon.indexOf('?') == -1 ? '?' : '&';
-        _opts.icon += concatonator + "scheme-color=textbox-foreground-special";
-        
         if (opts.quickscope)
             local.quickScope = id;
+            
+        var getAccessKey = function(str)
+        {
+            for (let x=0;x<str.length;x++)
+            {
+                let key = str.substr(x, 1).toUpperCase();
+                if ( ! (key in local.accesskeys))
+                {
+                    local.accesskeys[key] = id;
+                    return key;
+                }
+            }
+
+            return null;
+        };
+
+        if ( ! opts.accesskey)
+            opts.accesskey = getAccessKey(opts.name);
+            
+        var _opts = Object.assign({}, opts);
+        var concatonator = _opts.icon.indexOf('?') == -1 ? '?' : '&';
+        _opts.icon += concatonator + "scheme-color=textbox-foreground";
 
         var scopeElem = $(template('scopeMenuItem', _opts)).element();
         scopeElem._scope = local.scopes[id];
@@ -1090,17 +1280,43 @@
     {
         if ( ! results.length) return;
         
+        // Prepare wordRx for highlighting matched words
+        var searchValue = elem('search').value().trim();
+        var wordRx;
+
+        if (searchValue)
+        {
+            var words = searchValue.split(/\s+/);
+            words = words.map((word) => word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+            wordRx = new RegExp(`(${words.join('|')})`, 'gi');
+
+            // We need an intermediate replacement strategy because templateEncode
+            // would otherwise encode our html tags
+            var wordReplacement = ':html:strong:$1:/html:strong:';
+            var wordReplacedRx = /:html:strong:(.*?):\/html:strong:/g;
+            var wordReplacedReplacement = '<html:strong>$1</html:strong>';
+        }
+
+        var wordHighlight = (str) =>
+        {
+            str = str.replace(wordRx, wordReplacement);
+            str = templateEncode(str);
+            str = str.replace(wordReplacedRx, wordReplacedReplacement);
+            return str;
+        };
+
         if (local.searchingUuid != searchUuid && local.resultUuid == searchUuid)
         {
             log.debug(searchUuid + " - Skipping "+results.length+" results for old search uuid: " + searchUuid);
             return;
         }
-        
+
         if (local.searchingUuid == searchUuid && local.resultUuid != searchUuid)
         {
             local.resultCache = [];
             local.resultsReceived = 0;
             local.resultsRendered = 0;
+            local.resultsByScope = {};
             local.resultUuid = searchUuid;
         }
         
@@ -1143,13 +1359,18 @@
             }, prefs.getLong("commando_result_render_delay") + prefs.getLong("commando_search_delay") + 50);
         }
         
-        var tmpResultElem = resultElem.element().cloneNode();
-        resultElem.element().clearSelection();
-        resultElem = $(resultElem.replaceWith(tmpResultElem));
-        
+        var fragment = $(document.createDocumentFragment());
         var isNew = local.resultsRendered === 0;
+
         if (isNew)
-            this.empty(); // Force empty results
+        {
+            local.resultsByScope = {};
+        }
+
+        if ( ! isNew)
+        {
+            fragment.append(resultElem.children());
+        }
         
         for (let result of results)
         {
@@ -1158,20 +1379,39 @@
                 result.favourite = true;
             }
             
+            if (result.description && result.description.length > 300)
+                result.description = result.description.substr(0, 300) + " [..]";
+
             if (result.icon && result.icon.substr(0,6) == 'koicon' &&
                                result.icon.substr(-3) == 'svg')
             {
-                result.icon += "?scheme-color=icons-special"
+                result.icon += "?scheme-color=textbox-foreground";
             }
 
             result.subscope = local.subscope;
+
+            // Highlight matched words
+            result.nameHighlighted = templateEncode(result.name);
+            if (wordRx)
+                result.nameHighlighted = wordHighlight(result.nameHighlighted);
+
+            result.descriptionHighlighted = templateEncode(result.description || "");
+            if (wordRx && result.description)
+                result.descriptionHighlighted = wordHighlight(result.descriptionHighlighted);
+
+            result.descriptionPrefixHighlighted = templateEncode(result.descriptionPrefix || "");
+            if (wordRx && result.descriptionPrefix)
+                result.descriptionPrefixHighlighted = wordHighlight(result.descriptionPrefixHighlighted);
             
             let resultEntry, appended = false;
             try
             {
+                result.multiline = true;
+                result.searchQuery = searchValue ? searchValue : false;
+                result.accesskey = result.accesskey || "";
                 resultEntry = $.createElement(template('resultItem', result));
                 resultEntry.resultData = result;
-                resultElem.element().appendChild(resultEntry);
+                fragment.append(resultEntry);
                 appended = true;
             }
             catch (e)
@@ -1180,26 +1420,41 @@
             }
             
             if (appended) this.sortResult(resultEntry);
+
+            if (result.scope)
+            {
+                if ( ! (result.scope in local.resultsByScope))
+                    local.resultsByScope[result.scope] = 0;
+                local.resultsByScope[result.scope]++;
+            }
         }
+
+        var counter = 1;
+        fragment.find("label.number").each(function()
+        {
+            this.textContent = counter++;
+        });
+
+        fragment.find('button[anonid="expand"]').on("command", onExpandResult);
+
+        // remove results exceeding max
+        var maxResults = prefs.getLong("commando_search_max_results");
+        fragment.find(`richlistitem:nth-child(n+${maxResults+1})`).remove();
+        
+        var resultsByScope = local.resultsByScope;
+        if (isNew)
+            this.empty();
+        local.resultsByScope = resultsByScope;
+
+        resultElem.empty().append(fragment);
 
         resultElem.addClass("has-results");
         resultElem.removeAttr("dirty");
         elem('spinner').removeClass("enabled");
         resultElem.css("maxHeight", (window.screen.availHeight / 2) + "px");
-        
-        var counter = 1;
-        resultElem.find("label.number").each(function()
-        {
-            this.textContent = counter++;
-        });
-
-        // remove results exceeding max
-        var maxResults = prefs.getLong("commando_search_max_results");
-        resultElem.find(`richlistitem:nth-child(n+${maxResults+1})`).remove();
 
         local.resultsRendered = resultElem.childCount();
 
-        tmpResultElem.parentNode.replaceChild(resultElem.element(), tmpResultElem);
         resultElem.element().selectedIndex = 0;
         resultElem.element().scrollTop = 0;
         resultElem.element().ensureIndexIsVisible(0);
@@ -1230,11 +1485,55 @@
             resultElem.removeClass("scrollable");
         }
         
+        c.renderScopeFilters();
+
         c.tip();
         onPreview();
         c.center();
     }
+    
+    this.renderScopeFilters = function()
+    {
+        var scopeFilter = elem('scopeFilter');
+        scopeFilter.empty();
+        var scopes = [];
 
+        var maxResults = prefs.getLong("commando_search_max_results");
+
+        for (let scope in local.resultsByScope)
+        {
+            if ( ! (scope in local.scopes))
+                continue;
+            if (local.scopes[scope].quickscope)
+                break;
+
+            scopes.push({
+                scope: local.scopes[scope],
+                count: local.resultsByScope[scope] == maxResults ? `${maxResults}+` : local.resultsByScope[scope]
+            });
+        }
+
+        if ( ! scopes.length || ! c.getScope().quickscope)
+        {
+            scopeFilter.hide();
+            return;
+        }
+
+        var val = template('scopeFilter', { scopes: scopes });
+        scopeFilter.show().append($(val));
+        
+        var checkOverflow = () =>
+        {
+            scopeFilter.removeClass("overflown");
+            if (scopeFilter.element().scrollWidth > scopeFilter.element().clientWidth)
+                scopeFilter.addClass("overflown");
+        };
+
+        clearTimeout(c.renderScopeFilters._overflowTimer);
+        c.renderScopeFilters._overflowTimer = setTimeout(checkOverflow, prefs.getLong("commando_result_render_delay") + 10);
+    }
+    this.renderScopeFilters._overflowTimer = null;
+    
     this.filter = function(results, query, field = "name")
     {
         var words = query.toLowerCase().split(/\s+/);
@@ -1330,6 +1629,12 @@
 
     this.navBack = function()
     {
+        if ( ! c.getSubscope() && local.quickScope && local.useQuickScope && local.quickScope != c.getScope().id)
+        {
+            c.selectScope(local.quickScope);
+            return;
+        }
+        
         if ( ! c.getSubscope())
         {
             return false;
@@ -1513,28 +1818,63 @@
                     query: local.prevSearchValue
                 });
             }
-
-            var el = $(template('subscope', {scope: subscope, scopes: local.history}));
-            elem('subscopeWrap').empty();
-            elem('subscopeWrap').append(el).show();
-            elem('panel').addClass("subscoped");
             
             elem('search').attr("placeholder", subscope.placeholder || "");
-        }
-        else
-        {
-            log.debug("Removing Subscope");
-
-            elem('subscopeWrap').empty().hide();
-            elem('panel').removeClass("subscoped");
         }
 
         local.subscope = subscope;
 
         this.clear(callback);
+        this.renderSubscopes();
 
         return true;
     }
+
+    this.renderSubscopes = function()
+    {
+        var scope = c.getScope();
+        var subscope = local.subscope;
+        var subscopeWrap = elem('subscopeWrap');
+
+        if (scope.quickscope && ! subscope)
+        {
+            subscopeWrap.empty().hide();
+            elem('panel').removeClass("subscoped");
+            return;
+        }
+
+        var scopes = local.history.slice(0); // clone
+        if ( ! scope.quickscope)
+            scopes.unshift({ subscope: scope });
+        scopes.unshift({ subscope: {
+            name: "Go",
+            accesskey: "",
+            icon: "koicon://ko-svg/chrome/fontawesome/skin/search.svg?size=16"
+        }});
+        if (subscope && scope.id != subscope.id)
+            scopes.push({ subscope: subscope });
+
+        var el = $(template('subscope', {scopes: scopes}));
+        subscopeWrap.empty();
+        subscopeWrap.append(el).show();
+        elem('panel').addClass("subscoped");
+
+        var checkOverflow = () =>
+        {
+            var buttons = subscopeWrap.find("button");
+            var index = 0;
+            var count = buttons.length;
+            while (index < count && subscopeWrap.element().scrollWidth > subscopeWrap.element().clientWidth)
+            {
+                let button = buttons.element(index++);
+                button.classList.add("short");
+            }
+        };
+
+        clearTimeout(c.renderSubscopes._overflowTimer);
+        c.renderSubscopes._overflowTimer = setTimeout(checkOverflow, prefs.getLong("commando_result_render_delay") + 10);
+    }
+    this.renderSubscopes._overflowTimer = null;
 
     this.getScope = function()
     {
@@ -1688,6 +2028,7 @@
         resultElem.empty();
         resultElem.removeClass("has-results");
         local.resultsRendered = 0;
+        local.resultsByScope = {};
         
         resultElem.removeAttr("dirty");
         elem('spinner').removeClass("enabled");
@@ -1771,6 +2112,8 @@
             if (times === 0)
                 window.focus();
                 
+            elem('search').focus();
+
             if (document.activeElement.nodeName != "html:input" && times < 10)
             {
                 log.debug("Can't grab focus, retrying");

@@ -5,15 +5,21 @@
 #commando-panel
 {
     border: 0;
-    background: @special;
-    color: @foreground-special;
+    background: @contrast;
+    color: @foreground;
+    border: 5px solid @contrast;
     -moz-box-orient: horizontal;
-    border-radius: 5px;
     
     label,
     description
     {
         font-size: 1rem !important;
+    }
+
+    button
+    {
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
     }
 
     &.blocked
@@ -23,19 +29,19 @@
             opacity: 0.4;
         }
     }
-    
+
     &.previewing:not(.maximized) #commando-preview
     {
-        background: @special;
+        background: @background;
         width: 600px;
-        border-left: 1px solid @contrast-special;
+        border-left: 1px solid @contrast;
     }
-    
+
     &.previewing.maximized #commando-preview
     {
         width: 600px;
     }
-    
+
     #commando-panel-wrapper
     {
         width: 500px;
@@ -46,7 +52,7 @@
     {
         width: 850px;
     }
-    
+
     &.previewing:not(.maximized) #commando-results-outer
     {
         width: 250px;
@@ -59,10 +65,9 @@
     
     #commando-search-wrapper
     {
-        background: @textbox-special;
-        color: @textbox-foreground-special;
-        border-top-right-radius: 2px;
-        border-top-left-radius: 2px;
+        background: @textbox;
+        color: @textbox-foreground;
+        border-bottom: 5px solid @contrast;
         height: 32px;
         
         textbox
@@ -74,7 +79,7 @@
             
             .textbox-input
             {
-                color: @textbox-foreground-special;
+                color: @textbox-foreground;
                 font-size: 1.4rem;
             }
         }
@@ -85,13 +90,12 @@
         box-shadow: none !important;
     }
 
-    #commando-subscope-wrap
+    #commando-subscope-wrap,
+    #commando-scope-filter-wrapper
     {
         visibility: collapse;
-        font-weight: bold;
-        padding: 4px;
-        font-size: 1.1rem;
-        background: @contrast-special;
+        padding: 0 0 5px 0;
+        overflow: hidden;
 
         .icon
         {
@@ -100,28 +104,53 @@
             height: 16px;
             background-size: 16px;
             max-height: 16px;
-            padding-top: 3px;
-            margin-right: 4px;
         }
 
-        description
+        .title
         {
-            margin: 0;
-            padding: 0;
-            padding-top: 2px;
+            margin-left: 5px;
+        }
+
+        button
+        {
+            margin: 0 5px 0 0;
+        }
+    }
+
+    #commando-subscope-wrap button.short .title
+    {
+        visibility: collapse;
+    }
+    
+    #commando-scope-filter-wrapper
+    {
+        .count
+        {
+            margin-left: 5px;
+            opacity: 0.6;
+        }
+
+        &.overflown .title:not(.short)
+        {
+            visibility: collapse;
+        }
+
+        &:not(.overflown) .title.short
+        {
+            visibility: collapse;
         }
     }
     
     #commando-tip 
     {
         max-width: 500px;
-        margin: 0;
-        padding: 4px;
-        background: @contrast-special;
+        margin: 4px 0 0;
+        padding: 0;
+        background: @contrast;
         
         &[tip-type="error"]
         {
-            color: #894343 !important;
+            color: @state-error !important;
         }
     }
     
@@ -135,7 +164,7 @@
         visibility: collapse;
         opacity: 0;
         transition: 0.2s ease-in-out opacity;
-        .spinner(@textbox-foreground-special);
+        .spinner(@textbox-foreground);
         width: 24px;
     }
 
@@ -182,7 +211,8 @@
     richlistbox#commando-results
     {
         -moz-appearance: none;
-        background: @special;
+        background: @textbox;
+        color: @textbox-foreground;
         border: 0;
         margin: 0;
         min-height: 100px;
@@ -199,30 +229,37 @@
 
         richlistitem
         {
-            padding: 3px 4px 3px 10px;
+            padding: 4px;
+            color: @textbox-foreground;
             
-            &[selected="true"]
+            &:not(:last-child)
             {
-                color: @foreground-special;
-                background: @contrast-special;
-                
-                label, description
-                {
-                    color: @foreground-special;
-                }
+                border-bottom: 1px solid @contrast;
             }
             
             label, description
             {
-                font-size: 1.1rem;
-                line-height: 1.1rem;
+                font-size: 1rem;
+                line-height: 1rem;
+                color: @textbox-foreground;
             }
-            
+
             .icon-wrapper
             {
                 min-height: 1.5rem;
+                margin: 0 6px;
             }
-            
+
+            .action-wrapper
+            {
+                margin: 0 22px 0 6px;
+            }
+
+            &:not([selected="true"]):not(:hover) .action-wrapper
+            {
+                visibility: hidden;
+            }
+
             &:not(.small-icon)
             {
                 .icon
@@ -234,7 +271,7 @@
                     background-size: 16px 16px;
                 }
             }
-            
+
             &.small-icon
             {
                 .icon
@@ -251,17 +288,30 @@
             {
                 .number
                 {
-                    margin: 0 0 0 6px;
-                    opacity: 0.6;
+                    font-size: 1.5rem !important;
+                    margin: 0;
+                    opacity: 0.4;
                 }
             }
 
             .entry-wrapper
             {
-                .title
+                .title-inner
                 {
-                    margin: 0 0 0 6px;
+                    max-width: 375px;
+                    overflow: hidden;
+                }
+
+                spacer
+                {
+                    min-height: 1rem;
+                }
+
+                .title-wrapper description
+                {
+                    font-size: 1.1rem !important;
                     vertical-align: middle;
+                    padding: 0;
                 }
 
                 .descriptionPrefix
@@ -272,53 +322,57 @@
                     white-space: nowrap;
                     overflow: hidden;
                     text-overflow: ellipsis;
-                    margin: 0 0 0 6px;
+                    padding: 0;
+                    margin-left: 6px;
                 }
-
+                
                 .description
                 {
                     opacity: 0.7;
-                    margin: 0 0 0 6px;
+                    padding: 0;
+                    margin-top: 2px !important;
                 }
-            }
-            
-            .entry-wrapper
-            {
+
                 &, .title, .descriptionPrefix, .description
                 {
                     margin-top: 0;
                     margin-bottom: 0;
                     padding-top: 0;
                     padding-bottom: 0;
-                    line-height: 1.1rem;
-                    height: 1.1rem;
+                    line-height: 1rem;
+                    height: 1rem;
+
+                    strong
+                    {
+                        font-size: 1.1rem !important;
+                        color: @secondary-special !important;
+                        font-weight: bold;
+                    }
                 }
             }
             
-            &:not(.multiline) .entry-wrapper .descriptionPrefix .description
+            &[selected="true"]
             {
-                margin: 0 0 0 6px;
-            }
-            
-            &.multiline .entry-wrapper .descriptionPrefix .description
-            {
-                margin: 0 6px 0 0;
-            }
-            
-            &.multiline .entry-wrapper.multiline > .description
-            {
-                margin: 0;
-                padding: 0;
-            }
+                color: @selected-foreground;
+                background: @selected;
+                
+                .entry-wrapper
+                {
+                    label, description
+                    {
+                        color: @selected-foreground;
+                    }
     
-            &:not(.multiline) .entry-wrapper-outer
-            {
-                -moz-box-orient: horizontal;
+                    .title strong, .descriptionPrefix strong, .description strong
+                    {
+                        color: @selected-foreground !important;
+                    }
+                }
             }
-            
-            &.multiline .entry-wrapper-outer
+
+            button:hover
             {
-                -moz-box-orient: vertical;
+                background: @contrast-special !important;
             }
         }
 

@@ -227,7 +227,7 @@
     this._renderPackage = function(pkg, uuid, override)
     {
         var kinds = this.getPackageKinds();
-        var descriptionPrefix = kinds[pkg.kind].locale + " /";
+        var descriptionPrefix = kinds[pkg.kind].locale;
 
         var icon = "koicon://ko-svg/chrome/icomoon/skin/arrow-down13.svg?size=16";
         if (pkg.id in _cache.installed)
