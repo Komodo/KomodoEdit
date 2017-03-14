@@ -1076,7 +1076,7 @@ var sdkEditor = function(_scintilla, _scimoz) {
     this._posToRelative = function(abs)
     {
         var lineNo = scimoz().lineFromPosition(abs);
-        linePos = scimoz().positionFromLine(lineNo);
+        var linePos = scimoz().positionFromLine(lineNo);
 
         return {
             line: lineNo+1,
