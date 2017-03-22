@@ -150,7 +150,7 @@
         return process;
     };
 
-    this.mediator = (process, opts) =>
+    this.mediator = (process, opts = {}, command = "") =>
     {
         var lastLine = null;
         var stdout = "";
