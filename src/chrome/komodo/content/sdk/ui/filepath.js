@@ -19,9 +19,8 @@ module.exports = Module;
         
         this.init = function()
         {
-            this.textbox = require("ko/ui/textbox").create();
-            
             this.defaultInit.apply(this, arguments);
+            this.textbox = require("ko/ui/textbox").create({ attributes: this.attributes });
             
             var button = require("ko/ui/button").create("...");
             button.onCommand(() =>
