@@ -14,44 +14,96 @@
 (function()
 {
 
-    var Progress = function ()
+    var Progress = function (opts = {})
     {
-        var panel, message;
+        var parent, message;
+
+        var callbacks = { message: [], close: [] };
+
+        opts.panel = opts.panel || false;
 
         var init = () =>
         {
-            panel = require("ko/ui/panel").create({ attributes: {
-                class: "dialog",
-                style: "min-width: 250px",
-                noautohide: true
-            } });
+            if (opts.panel)
+            {
+                parent = require("ko/ui/panel").create({ attributes: {
+                    class: "dialog ui-progress-parent",
+                    style: "min-width: 250px",
+                    noautohide: true
+                } });
+            }
+            else
+            {
+                parent = require("ko/ui/column").create({ attributes: {
+                    class: "ui-progress-parent",
+                    style: "min-width: 250px"
+                } });
+            }
 
-            panel.addRow(
+            this.$element = parent.$element;
+            this.element = parent.element;
+
+            parent.addRow(
                 require("ko/ui/row").create({ attributes: { class: "loader enabled", flex: 1 } }),
                 { attributes: { align: "center", pack: "center" } }
             );
 
-            panel.add(
-                require("ko/ui/separator").create({ attributes: { class: "slim" } })
+            parent.add(
+                require("ko/ui/spacer").create({ attributes: { class: "slim" } })
             );
             
             message = require("ko/ui/label").create("Loading ..");
-            panel.addRow(
+            parent.addRow(
                 message,
                 { attributes: { align: "center", pack: "center" } }
             );
 
-            panel.open();
+            if (opts.panel)
+            {
+                parent.open();
+            }
+        };
+
+        this.on = (type, callback) =>
+        {
+            if ( ! (type in callbacks))
+                return;
+            
+            callbacks[type].push(callback);
+        };
+
+        this.off = (type, callback) =>
+        {
+            if ( ! (type in callbacks))
+                return;
+
+            callbacks[type] = callbacks[type].filter((v) => v != callback);
         };
 
         this.message = (value) =>
         {
             message.value(value);
+
+            for (let callback of callbacks.message)
+            {
+                callback(value);
+            }
         };
 
-        this.close = () =>
+        this.close = (force = false) =>
         {
-            panel.remove();
+            var stop = false;
+
+            for (let callback of callbacks.close)
+            {
+                if (callback() === false)
+                {
+                    stop = true;
+                }
+            }
+
+            if ( ! stop || force)
+                parent.$element.remove();
         };
 
         init();
@@ -65,7 +117,17 @@
      */
     this.open = () =>
     {
-        return new Progress();
+        return new Progress({panel: true});
+    };
+    
+    /**
+     * Get a progress element, which can be inserted into the DOM however wanted
+     *
+     * @returns {Progress} Returns instance of progress, which holds the .message(value) and .close() methods
+     */
+    this.get = (callback) =>
+    {
+        return new Progress({panel: false});
     };
 
 }).apply(module.exports);
