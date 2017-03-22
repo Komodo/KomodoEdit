@@ -27,6 +27,11 @@ wizard[deferred]
 :root wizard
 {
   -moz-binding: url("chrome://komodo/content/bindings/wizard.xml#wizard");
+
+  .wizard-buttons
+  {
+    -moz-binding: url("chrome://komodo/content/bindings/wizard.xml#wizard-buttons");
+  }
 }
 
 wizard:root
@@ -94,4 +99,35 @@ menuitem[type="radio"] {
 }
 prefwindow:root {
   -moz-binding: url("chrome://global/content/bindings/preferences.xml#prefwindow");
+}
+
+/* These are mostly redundant from widgets.css, we need to remove them from widgets.css */
+
+/* override the default text-link binding to always open in a different app */
+label.text-link, label[onclick] {
+  -moz-binding: url(chrome://komodo/content/bindings/text-link.xml#text-link);
+}
+
+/* a menupopup that can be used in a menu or menulist */
+langlist  {
+  -moz-binding: url('chrome://komodo/content/bindings/widgets.xml#lang-list');
+}
+
+/* a listbox that manages a list of paths */
+pathlist  {
+  -moz-binding: url('chrome://komodo/content/bindings/widgets.xml#listbox-patheditor');
+}
+
+/* a listbox that manages path/uri mappings */
+mappededitor {
+  -moz-binding: url("chrome://komodo/content/bindings/widgets.xml#tree-mappededitor");
+}
+
+/* a listbox that manages a list of checkbox elements */
+checklistbox  {
+  -moz-binding: url('chrome://komodo/content/bindings/widgets.xml#listbox-checklist');
+}
+
+menuitem.menuitem-file-status {
+  -moz-binding: url("chrome://komodo/content/bindings/widgets.xml#menuitem-file-status");
 }
