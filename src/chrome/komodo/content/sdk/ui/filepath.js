@@ -30,7 +30,7 @@ module.exports = Module;
                 var type = this.options.type || "file";
                 var value = this.textbox.value();
                 
-                var filter = this.option.filter || null;
+                var filter = this.options.filter || null;
                 var filters = this.options.filters || null;
 
                 switch (type)
