@@ -39,6 +39,7 @@ module.exports = Module;
             
             this.options = options;
             this.$element = $($.create(this.name, options.attributes || {}).toString());
+            this.$element.addClass("ui-" + this.name);
             this.element = this.$element.element();
             
             if (listitems && Array.isArray(listitems))
@@ -118,9 +119,15 @@ module.exports = Module;
             }
         };
         
-        this.addListHeaders = function() { return this.addListHeader.apply(this, arguments); };
+        this.addListHeaders = function(listheaders)
+        {
+            for (let listhead of listheaders)
+            {
+                this.addListHeader(listhead);
+            }
+        };
         
-        this.addListHeader = function()
+        this.addListHeader = function(header)
         {
             if ( ! this.listhead)
             {
@@ -131,7 +138,13 @@ module.exports = Module;
             this.listhead.addListHeader.apply(this.listhead, arguments);
         };
         
-        this.addListCols = function() { return this.addListCol.apply(this, arguments); };
+        this.addListCols = function(listcols)
+        {
+            for (let listcol of listcols)
+            {
+                this.addListCol(listcol);
+            }
+        };
         
         this.addListCol = function()
         {
@@ -144,6 +157,11 @@ module.exports = Module;
             this.listcols.addListCol.apply(this.listcols, arguments);
         };
         
+        this.setSelectedIndex = function(index)
+        {
+            this.element.selectedIndex = index;
+        };
+
         this.getSelectedItems = function()
         {
             return this.element.selectedItems;
@@ -156,6 +174,12 @@ module.exports = Module;
         
         this.removeAllItems = function()
         {
+            if ( ! this.element.removeItemAt)
+            {
+                this.$element.empty();
+                return;
+            }
+
             var rows = this.element.getRowCount();
             for ( let i = 0; i < rows; i++ )
             {
@@ -163,6 +187,15 @@ module.exports = Module;
             }
         };
         
+        this.value = function()
+        {
+            var item = this.getSelectedItem();
+            if ( ! item)
+                return "";
+
+            return item.hasAttribute("value") ? item.getAttribute("value") : item.getAttribute("label");
+        };
+
     }).apply(this.Model); 
     
 }).apply(Module);

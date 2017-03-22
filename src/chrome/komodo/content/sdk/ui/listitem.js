@@ -41,6 +41,11 @@ module.exports = Module;
         
         this.init = this.initWithElement;
         
+        this.addListCell = function(listcell)
+        {
+            return this.addElement(listcell, "listcell");
+        };
+
     }).apply(this.Model);
     
 }).apply(Module);
