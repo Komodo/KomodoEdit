@@ -145,13 +145,20 @@
         var proc = require("sdk/system/child_process");
         var process = proc.spawn(binary, args, _opts);
         
+        this.mediator(process, opts, binary);
+
+        return process;
+    };
+
+    this.mediator = (process, opts) =>
+    {
         var lastLine = null;
         var stdout = "";
         var stderr = "";
         process.stdout.on('data', function (data)
         {
             stdout += data;
-            
+
             if (lastLine)
             {
                 data = lastLine + data;
@@ -224,10 +231,21 @@
             {
                 on.call(process, event, callback);
             }
+
+            return process;
         };
+
+        if ("runIn" in opts && opts.runIn == "hud")
+            showOutputInHud(process, opts.readable || command);
+
+        process.on("close", () =>
+        {
+            if (w)
+                $(w.document).trigger("process_close");
+        });
         
         return process;
-    }
+    };
     
     /**
      * Alias for run
@@ -254,7 +272,7 @@
         _opts = _.extend(_opts, opts);
         
         // Prepare platform command
-        var platform = require("sdk/system").platform
+        var platform = require("sdk/system").platform;
         var file, cmdArgs;
         
         if (opts.argv)
@@ -283,14 +301,7 @@
         var proc = require("sdk/system/child_process");
         var process = proc.execFile(file, cmdArgs, _opts, callback);
         
-        if ("runIn" in opts && opts.runIn == "hud")
-            showOutputInHud(process, opts.readable || command);
-            
-        process.on("close", () =>
-        {
-            if (w)
-                $(w.document).trigger("process_close");
-        });
+        this.mediator(process, opts, command);
         
         return process;
     }
