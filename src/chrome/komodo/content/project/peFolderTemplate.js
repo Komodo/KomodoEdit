@@ -129,7 +129,7 @@ if (typeof(ko.projects)=='undefined') {
         });
     };
 
-    this.useFolderTemplate = (url, target, prompt = true) =>
+    this.useFolderTemplate = (url, target, prompt = true, progress = null) =>
     {
         // url could also be a tool object
         if (typeof url == "object")
@@ -162,7 +162,9 @@ if (typeof(ko.projects)=='undefined') {
             return;
         }
 
-        var progress = require("ko/progress").open();
+        if ( ! progress)
+            progress = require("ko/progress").open();
+        
         progress.message("Analyzing URL ..");
 
         url = require("sdk/url").URL(url);
@@ -173,7 +175,6 @@ if (typeof(ko.projects)=='undefined') {
             // No point importing a file that doesnt exist
             if ( ! koFile.exists(url.path))
             {
-                progress.close();
                 require("ko/dialogs").alert("Local path does not exist: " + url.path);
                 return;
             }
