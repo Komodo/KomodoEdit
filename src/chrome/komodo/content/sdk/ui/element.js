@@ -123,7 +123,14 @@ module.exports = Module;
             
             for (let _element of appendElement)
             {
-                if ("isSdkElement" in _element)
+                if ( ! _element && ! preferredType)
+                    continue;
+
+                if (( ! _element || typeof _element == "string") && preferredType)
+                {
+                    elements.push(require('./' + preferredType).create(_element).element);
+                }
+                else if ("isSdkElement" in _element)
                 {
                     elements.push(_element.element);
                 }
