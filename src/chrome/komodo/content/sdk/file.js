@@ -68,6 +68,14 @@
         }
     };
     
+    this.isEmpty = function(path)
+    {
+        if ( ! this.exists(path) || this.isFile(path))
+            return false;
+
+        return this.list(path).length === 0;
+    };
+
     /**
      * Takes a variable number of strings, joins them on the file system's path separator, and returns the result.
      *
@@ -155,6 +163,16 @@
         }
     };
     
+    /**
+     * Returns true only if this path specifies a directory.
+     *
+     * @param {String} path     The directory path
+     */
+    this.isDir = (path) =>
+    {
+        return this.exists(path) && ! this.isFile(path);
+    };
+
     /**
      * Create a file at the given location (like `touch`)
      * 
