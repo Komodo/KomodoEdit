@@ -508,18 +508,18 @@ projectManager.prototype.saveProject = function(project, skip_scc_check) {
     return true;
 }
 
-projectManager.prototype.newProject = function(url) {
-    if (this.single_project_view && !this.closeProject()) {
+projectManager.prototype.newProject = function(url, open = true) {
+    if (open && this.single_project_view && !this.closeProject()) {
         return false;
     }
     var project = Components.classes["@activestate.com/koProject;1"]
                                         .createInstance(Components.interfaces.koIProject);
     project.create();
     project.url = url;
-    return this._saveNewProject(project) ? project : null;
+    return this._saveNewProject(project, open) ? project : null;
 }
     
-projectManager.prototype._saveNewProject = function(project) {
+projectManager.prototype._saveNewProject = function(project, open = true) {
     try {
         project.save();
     } catch(ex) {
@@ -529,11 +529,15 @@ projectManager.prototype._saveNewProject = function(project) {
             [project.name, lastErrorSvc.getLastErrorMessage()], 2));
         return false;
     }
-    this._addProject(project, false);
-    xtk.domutils.fireEvent(window, 'project_opened');
-    try {
-        _obSvc.notifyObservers(this, 'file_project', project.url);
-    } catch(e) { /* exception if no listeners */ }
+
+    if (open)
+    {
+        this._addProject(project, false);
+        xtk.domutils.fireEvent(window, 'project_opened');
+        try {
+            _obSvc.notifyObservers(this, 'file_project', project.url);
+        } catch(e) { /* exception if no listeners */ }
+    }
     return true;
 }
 
