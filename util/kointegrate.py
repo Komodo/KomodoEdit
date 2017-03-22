@@ -873,7 +873,7 @@ class Revision(object):
         log.info("")
 
         auto_commit = True
-        if not branch.scc_is_distributed and options.interactive:
+        if not branch.scc_is_distributed and options.interactive and not options.assumeyes:
             message = ("Would you like this script to automatically commit "
                        "this integration to '%s'?") % branch
             answer = _query_yes_no(textwrap.fill(message), default=None)
@@ -1191,6 +1191,8 @@ def main(argv=None):
                              "(default)")
     parser.add_argument("-n", "--non-interactive", action="store_false",
                         dest="interactive", help="no interaction")
+    parser.add_argument("-y", "--assume-yes", action="store_true",
+                        dest="assumeyes", help="Assume yes to prompts, except important ones")
     parser.add_argument("-r", "--reject-patches", action="store_true", dest="rejectpatches",
                         help="generate reject patches using wiggle (must be on PATH)")
     parser.add_argument("-f", "--force", action="store_true",
@@ -1217,7 +1219,7 @@ def main(argv=None):
     parser.add_argument("branches", help="branches to merge into",
                         nargs="+")
     parser.set_defaults(log_level=logging.INFO, exclude_outside_paths=False,
-                        interactive=True, excludes=[], force=False,
+                        interactive=True, excludes=[], force=False, assumeyes=False,
                         rejectpatches=False, dry_run=False, skip_check=False)
     args = parser.parse_args(argv)
     log.setLevel(args.log_level)
@@ -1257,7 +1259,7 @@ def main(argv=None):
         path_names = path_names[:7] + ['...and %d other files' % (len(paths) - 7)]
     log.info("   files: %s", ("\n" + " " * 10).join(path_names))
 
-    if args.interactive:
+    if args.interactive and not args.assumeyes:
         log.info("")
         answer = _query_yes_no("Continue integrating this change?")
         if answer != "yes":
