@@ -32,7 +32,13 @@ module.exports = Module;
                 this.element.setAttribute("label", value);
             }
             
-            return this.element.value || this.element.getAttribute("value") || this.element.getAttribute("label");
+            if (value in this.element)
+                return this.element.value;
+            if (this.element.hasAttribute("value"))
+                return this.element.getAttribute("value");
+            if (this.element.hasAttribute("label"))
+                return this.element.getAttribute("label");
+            return "";
         };
         
     }).apply(this.Model); 
