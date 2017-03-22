@@ -207,6 +207,19 @@ if (typeof(ko.projects)=='undefined') {
         Cu.import("resource://gre/modules/Downloads.jsm");
         Cu.import("resource://gre/modules/Task.jsm");
 
+        // If this is a github zip then we need to automatically recurse into the
+        // relevant subfolder, as github zips contain a folder with the repository
+        // and branch name
+        var subfolder = "";
+        if (url.host == "github.com")
+        {
+            var match = url.path.match(/([\w\.\-]+)\/archive\/([\w\.\-]+).zip/);
+            if (match)
+            {
+                subfolder = match[1] + "-" + match[2];
+            }
+        }
+
         // Download to a temp location
         var tmp = FileUtils.getFile("TmpD", [basename]).path;
 
@@ -244,7 +257,7 @@ if (typeof(ko.projects)=='undefined') {
 
         // Have Python take care of unzipping
         var koUtils = Cc["@activestate.com/koUtils;1"].getService(Ci.koIUtils);
-        koUtils.unzip(zip, target, function(status, message)
+        koUtils.unzip(zip, subfolder, target, function(status, message)
         {
             if (status !== 0)
             {

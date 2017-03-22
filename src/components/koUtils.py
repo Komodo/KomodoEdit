@@ -35,9 +35,11 @@ class koUtils:
         t.setDaemon(True)
         t.start()
 
-    def _unzip(self, path, target, cb):
-        filename = os.path.basename(path)
-        subfolder = os.path.splitext(filename)[0]
+    def _unzip(self, path, subfolder, target, cb):
+        if not subfolder:
+            filename = os.path.basename(path)
+            subfolder = os.path.splitext(filename)[0]
+
         subfolder = "%s/" % subfolder
 
         extracted = False
