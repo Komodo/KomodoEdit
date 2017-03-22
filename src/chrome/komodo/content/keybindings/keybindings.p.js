@@ -474,7 +474,7 @@ this.Manager.prototype._add_keybinding_sequences = function (command_to_key_sequ
 this.Manager.prototype._upgradeKeybingings = function (from_version,
                                                        vi_enabled) {
     // Loop around until it's fully upgraded
-    while (from_version < currentKeybindingVersionNumber) {
+    while (from_version <= currentKeybindingVersionNumber) {
         switch (from_version) {
         case 1: // Handles upgrades to Komodo 4.2
             // For Komodo 4.1 and earlier (lots of versions, lots of change)
