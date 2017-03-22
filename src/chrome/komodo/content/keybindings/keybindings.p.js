@@ -414,6 +414,33 @@ this.Manager.prototype._remove_keybinding_sequences = function (command_to_key_s
 }
 
 /**
+ * transition the binding for one keybind to another
+ * @private
+ */
+this.Manager.prototype._transition_keybinding_sequences = function (oldCmd, newCmd) {
+    var currentSequences = this.command2keysequences(oldCmd);
+    if ( ! currentSequences)
+        return;
+
+    var oldSequences = { };
+    oldSequences[oldCmd] = [];
+
+    var newSequences = { };
+    newSequences[newCmd] = [];
+
+    for (let sequence of currentSequences) {
+        oldSequences[oldCmd].push(sequence);
+        newSequences[newCmd].push(sequence);
+    }
+
+    if ( ! oldSequences[oldCmd].length)
+        return;
+
+    this._remove_keybinding_sequences(oldSequences);
+    this._add_keybinding_sequences(newSequences);
+}
+
+/**
  * Add this dictionary of keybinds.
  *
  * Example map containing three commands:
