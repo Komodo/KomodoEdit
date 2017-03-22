@@ -26,7 +26,7 @@
     
     <implementation>
       <property name="canAdvance" onget="return this._canAdvance;"
-                                  onset="this._nextButton.disabled = !val; return this._canAdvance = val;"/>
+                                  onset="this._nextButton.disabled = !val; this._finishButton.disabled = !val; return this._canAdvance = val;"/>
       <property name="canRewind" onget="return this._canRewind;"
                                  onset="this._backButton.disabled = !val; return this._canRewind = val;"/>
 
@@ -135,6 +135,7 @@
       <field name="_deck"/>
       <field name="_backButton"/>
       <field name="_nextButton"/>
+      <field name="_finishButton"/>
       <field name="_cancelButton"/>
 
       <!-- functions to be added as oncommand listeners to the wizard buttons -->
@@ -422,5 +423,64 @@
     </handlers>
   </binding>
 
+  <binding id="wizard-buttons" extends="chrome://global/content/bindings/wizard.xml#wizard-base">
+    <content>
+      <xul:vbox class="wizard-buttons-box-1" flex="1">
+        <xul:separator class="wizard-buttons-separator groove"/>
+        <xul:hbox class="wizard-buttons-box-2">
+          <xul:button class="wizard-button" dlgtype="extra1" hidden="true"/>
+          <xul:button class="wizard-button" dlgtype="extra2" hidden="true"/>
+          <xul:spacer flex="1" anonid="spacer"/>
+          <xul:button label="&button-cancel-unix.label;" class="wizard-button"
+                      dlgtype="cancel" icon="cancel"/>
+          <xul:spacer style="width: 24px"/>
+          <xul:button label="&button-back-unix.label;" accesskey="&button-back-unix.accesskey;"
+                      class="wizard-button" dlgtype="back" icon="go-back"/>
+          <xul:deck class="wizard-next-deck" anonid="WizardButtonDeck">
+            <xul:hbox>
+              <xul:button label="&button-finish-unix.label;" class="wizard-button"
+                          dlgtype="finish" default="true" flex="1"/>
+            </xul:hbox>
+            <xul:hbox>
+              <xul:button label="&button-next-unix.label;" accesskey="&button-next-unix.accesskey;"
+                          class="wizard-button" dlgtype="next" icon="go-forward"
+                          default="true" flex="1"/>
+            </xul:hbox>
+          </xul:deck>
+        </xul:hbox>
+      </xul:vbox>
+    </content>
+
+    <implementation>
+      <field name="_wizardButtonDeck" readonly="true">
+        document.getAnonymousElementByAttribute(this, "anonid", "WizardButtonDeck");
+      </field>
+
+      <method name="onPageChange">
+        <body><![CDATA[
+          if (this.getAttribute("lastpage") == "true") {
+            this._wizardButtonDeck.setAttribute("selectedIndex", 0);
+          } else {
+            this._wizardButtonDeck.setAttribute("selectedIndex", 1);
+          }
+        ]]></body>
+      </method>
+
+      <property name="defaultButton" readonly="true">
+        <getter><![CDATA[
+          const kXULNS =
+            "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
+          var buttons = this._wizardButtonDeck.selectedPanel
+                            .getElementsByTagNameNS(kXULNS, "button");
+          for (var i = 0; i < buttons.length; i++) {
+            if (buttons[i].getAttribute("default") == "true" &&
+                !buttons[i].hidden && !buttons[i].disabled)
+              return buttons[i];
+          }
+          return null;
+        ]]></getter>
+      </property>
+    </implementation>
+  </binding>
 
 </bindings>
