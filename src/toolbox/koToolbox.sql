@@ -77,6 +77,14 @@ create table template (
     language text ""
 );
 
+create table folder_template (
+    path_id INTEGER PRIMARY KEY NOT NULL,
+    language text,
+    author text,
+    license text,
+    website text
+);
+
 create table snippet (
     path_id INTEGER PRIMARY KEY NOT NULL,
     set_selection bool default false,

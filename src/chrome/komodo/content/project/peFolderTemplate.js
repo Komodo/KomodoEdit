@@ -23,7 +23,7 @@ if (typeof(ko.projects)=='undefined') {
         obj.type = 'folder_template';
         obj.prettytype = 'FolderTemplate';
         window.openDialog(
-            "chrome://komodo/content/project/simplePartProperties.xul",
+            "chrome://komodo/content/project/folderTemplateProperties.xul",
             "Komodo:URLProperties",
             "chrome,centerscreen,close=yes,dependent=yes,modal=yes,resizable=yes", obj);
     };
@@ -35,6 +35,10 @@ if (typeof(ko.projects)=='undefined') {
             part = parent.project.createPartFromType('folder_template');
         }
         part.setStringAttribute('name', 'New Folder Template');
+        part.setStringAttribute('language', "Text");
+        part.setStringAttribute('author', "");
+        part.setStringAttribute('license', "");
+        part.setStringAttribute('website', "");
         part.value = '';
         var obj = {};
         obj.item = part;
@@ -44,7 +48,7 @@ if (typeof(ko.projects)=='undefined') {
         obj.prettytype = 'FolderTemplate';
         obj.parent = parent;
         window.openDialog(
-            "chrome://komodo/content/project/simplePartProperties.xul",
+            "chrome://komodo/content/project/folderTemplateProperties.xul",
             "Komodo:URLProperties",
             "chrome,centerscreen,close=yes,modal=yes,resizable=yes", obj);
     };
@@ -89,6 +93,10 @@ if (typeof(ko.projects)=='undefined') {
             // Create the tool and show the toolbox
             var part = ko.toolbox2.createPartFromType('folder_template');
             part.setStringAttribute('name', name);
+            part.setStringAttribute('language', "Text");
+            part.setStringAttribute('author', "");
+            part.setStringAttribute('license', "");
+            part.setStringAttribute('website', "");
             part.value = ko.uriparse.pathToURI(target);
             ko.toolbox2.addItem(part);
             ko.uilayout.ensureTabShown('toolbox2viewbox');

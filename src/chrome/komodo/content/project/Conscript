@@ -72,6 +72,8 @@ $cons->InstallInChrome('customMenuProperties.xul');
 $cons->InstallInChrome('customMenuProperties.js');
 $cons->InstallInChrome('templateProperties.js');
 $cons->InstallInChrome('templateProperties.xul');
+$cons->InstallInChrome('folderTemplateProperties.js');
+$cons->InstallInChrome('folderTemplateProperties.xul');
 
 $cons->Preprocess('peFile.p.js', 'peFile.js');
 $cons->InstallInChrome('peFile.js');

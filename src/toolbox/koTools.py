@@ -42,7 +42,7 @@ _icons = {
     'macro'     :   'chrome://komodo/skin/images/toolbox/macro.svg',
     'cut'       :   'chrome://komodo/skin/images/toolbox/snippet.svg',
     'template'  :   'chrome://komodo/skin/images/toolbox/template.svg',
-    'foldertemplate'  :   'chrome://komodo/skin/images/toolbox/folder_template.svg',
+    'folder_template'  :   'chrome://komodo/skin/images/toolbox/folder_template.svg',
     'url'       :   'chrome://komodo/skin/images/toolbox/url.svg',
 }
 
@@ -829,7 +829,21 @@ class _KoURLTool(_KoGenericToolBase):
 class _KoFolderTemplateTool(_KoGenericToolBase):
     typeName = 'folder_template'
     prettytype = 'FolderTemplate'
-    _iconurl = _icons.get('foldertemplate')
+    _iconurl = _icons.get('folder_template')
+
+    def save(self):
+        # Write the changed data to the file system
+        self.save_handle_attributes()
+        self.saveToolToDisk()
+        _tbdbSvc.saveFolderTemplateInfo(self.id, self.name, self.value, self._attributes)
+        self._postSave()
+        _toolsManager.removeChangedCachedTool(self.id)
+
+    def updateSelf(self):
+        if self.initialized:
+            return
+        info = _tbdbSvc.getFolderTemplateInfo(self.id)
+        self._finishUpdatingSelf(info)
 
 
 _koToolClassFromTypeName = {}

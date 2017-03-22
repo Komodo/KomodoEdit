@@ -123,7 +123,8 @@ class Database(object):
     # - 1.1.7:  add file template table
     # - 1.1.8:  convert old tools
     # - 1.1.9:  import sample file templates
-    VERSION = "1.1.9"
+    # - 1.1.10: add folder template table
+    VERSION = "1.1.10"
     FIRST_VERSION = "1.0.5"
     
     def __init__(self, db_path, schemaFile):
@@ -162,6 +163,7 @@ class Database(object):
             'snippet':['set_selection', 'indent_relative', 'auto_abbreviation',
                        'treat_as_ejs', 'language'],
             'template':['treat_as_ejs', 'language', 'lang_default'],
+            'folder_template':['language', 'author', 'website', 'license'],
             'menu':['accesskey', 'priority'],
             'toolbar':['priority'],
             'folder':[],
@@ -226,6 +228,19 @@ class Database(object):
                 except:
                     log.exception("Failed to copy srcChild:%s to dest destDir:%s", srcChild, destDir)
 
+    def _add_folder_template_table(self, curr_ver, result_ver):
+        """
+        Add file template table
+        """
+        with self.connect(commit=True) as cu:
+            cu.execute("create table folder_template (\
+                        path_id INTEGER PRIMARY KEY NOT NULL,\
+                        language text,\
+                        author text,\
+                        license text,\
+                        website text,\
+            )")
+
     def _convert_komodotool_to_ktf(self, curr_ver, result_ver):
         toolbox2Svc = components.classes["@activestate.com/koToolbox2Service;1"]\
                             .getService(components.interfaces.koIToolbox2Service)
@@ -250,7 +265,7 @@ class Database(object):
             
     def __repr__(self):
         return "<Toolbox2 Database %s>" % self.path
-    
+
     # Do this to wrap large numbers of transactions
     def establishConnection(self):
         self.cx = sqlite3.connect(self.path)
@@ -406,6 +421,7 @@ class Database(object):
         "1.1.6": ("1.1.7", _transition_file_templates, None),
         "1.1.7": ("1.1.8", _convert_komodotool_to_ktf, None),
         "1.1.8": ("1.1.9", _import_files_templates, None),
+        "1.1.9": ("1.1.10", _add_folder_template_table, None),
     }
 
     def get_meta(self, key, default=None, cu=None):
@@ -855,13 +871,28 @@ class Database(object):
         if data:
             return self.addMiscProperties(id, data, cu)
 
+    def _add_folder_template(self, id, data, item_type, cu):
+        self.addCommonToolDetails(id, data, cu)
+        names_and_defaults = [
+            ('language', ''),
+            ('author', ''),
+            ('license', ''),
+            ('website', ''),
+            ]
+        valueList = self._getValuesFromDataAndDelete(id, data, names_and_defaults)
+        stmt = '''insert into folder_template(
+                  path_id, language, author, license, website)
+                  values(?, ?, ?, ?, ?)'''
+        cu.execute(stmt, valueList)
+        if data:
+            return self.addMiscProperties(id, data, cu)
+
     def _addSimpleItem(self, id, data, item_type, cu):
         self.addCommonToolDetails(id, data, cu)
         if data:
             return self.addMiscProperties(id, data, cu)
 
     _add_URL = _addSimpleItem
-    _add_folder_template = _addSimpleItem
             
     def addMiscProperties(self, id, data, cu):
         notifications = []
@@ -1389,6 +1420,10 @@ class Database(object):
         self.saveToolInfo(path_id, 'template', name, value, attributes,
                           self.getTemplateInfo)
 
+    def saveFolderTemplateInfo(self, path_id, name, value, attributes):
+        self.saveToolInfo(path_id, 'folder_template', name, value, attributes,
+                          self.getFolderTemplateInfo)
+
     def saveMenuInfo(self, path_id, tool_name, attributes):
         self.saveContainerInfo(path_id, 'menu', tool_name, attributes,
                                self.getMenuInfo)
@@ -1456,6 +1491,18 @@ class Database(object):
         with self.connect() as cu:
             self.getCommonToolDetails(path_id, obj, cu)
             cu.execute(("select %s from template where path_id = ?" %
+                        ", ".join(names)), (path_id,))
+            row = cu.fetchone()
+        for i, name in enumerate(names):
+            obj[name] = row[i]
+        return obj
+
+    def getFolderTemplateInfo(self, path_id, cu=None):
+        obj = {}
+        names = self._specific_names.get('folder_template')
+        with self.connect() as cu:
+            self.getCommonToolDetails(path_id, obj, cu)
+            cu.execute(("select %s from folder_template where path_id = ?" %
                         ", ".join(names)), (path_id,))
             row = cu.fetchone()
         for i, name in enumerate(names):
