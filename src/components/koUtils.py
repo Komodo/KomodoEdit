@@ -35,9 +35,12 @@ class koUtils:
         t.setDaemon(True)
         t.start()
 
-    def _unzip(self, path, subfolder, target, cb):
-        if subfolder:
-            subfolder = "%s/" % subfolder
+    def _unzip(self, path, target, cb):
+        filename = os.path.basename(path)
+        subfolder = os.path.splitext(filename)[0]
+        subfolder = "%s/" % subfolder
+
+        extracted = False
 
         try:
             archive = zipfile.ZipFile(path)
@@ -53,6 +56,8 @@ class koUtils:
                     if not filename:
                         continue
 
+                    extracted = True
+
                     _targetPath = os.path.join(target, filename)
                     if item.filename.endswith(os.path.sep):
                         # Directories end with a path separator
@@ -65,7 +70,8 @@ class koUtils:
 
                         _source.close()
                         _target.close()
-            else:
+
+            if not extracted:
                 archive.extractall(target)
 
         except Exception, e:

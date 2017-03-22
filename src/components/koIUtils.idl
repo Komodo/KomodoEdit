@@ -7,7 +7,6 @@ interface koIAsyncCallback;
 interface koIUtils: nsISupports {
 
     void unzip(in AString path,
-               in AString subfolder,
                in AString target,
                in koIAsyncCallback callback);
 
