@@ -51,7 +51,7 @@ label, description, span
     }
 }
 
-description, listitem, richlistitem, label[id], treecol label, listheader,
+description, listitem, richlistitem, label[id], treecol label, listheader, listcell,
 checkbox, radio
 {
     padding: 0.2rem 4px;
@@ -197,6 +197,11 @@ menupopup
 .disabled, [disabled="true"]
 {
     opacity: 0.5;
+
+    .disabled, [disabled="true"]
+    {
+        opacity: 1.0; /* Don't double up */
+    }
 }
 
 textbox[readonly="true"]
@@ -378,6 +383,11 @@ textbox, menulist
     }
 }
 
+textbox[multiline] .textbox-textarea
+{
+    line-height: 1.4rem;
+}
+
 toolbarbutton, button, checkbox, radio
 {
     &:focus
@@ -408,7 +418,8 @@ tree, listbox, richlistbox
         color: @foreground;
         
         treecol,
-        treecolpicker
+        treecolpicker,
+        listheader
         {
             background: @contrast;
         }
@@ -432,7 +443,8 @@ tree, listbox, richlistbox
         treecol,
         treecolpicker,
         &:not(tree),
-        .tree-rows
+        .tree-rows,
+        listheader
         {
             background: @textbox;
         }
@@ -450,7 +462,8 @@ tree, listbox, richlistbox
 }
 
 treecol,
-treecolpicker
+treecolpicker,
+listheader
 {
     color: @caption;
     
@@ -597,11 +610,35 @@ splitter.column-splitter
 
 separator
 {
-    height: 1rem;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
     
     &.slim
     {
-        height: 0.5rem;
+        margin-top: 0.25rem;
+        margin-bottom: 0.25rem;
+    }
+}
+
+vbox > spacer,
+:not(hbox) > spacer
+{
+    height: 0.5rem;
+
+    &.slim
+    {
+        height: 0.25rem;
+    }
+}
+
+hbox > spacer,
+:not(vbox) > spacer
+{
+    width: 0.5rem;
+
+    &.slim
+    {
+        width: 0.25rem;
     }
 }
 
@@ -796,7 +833,8 @@ panel.dialog
         &.bg_transparent
         {
             treecol,
-            treecolpicker
+            treecolpicker,
+            listheader
             {
                 background: @background;
             }
@@ -930,7 +968,8 @@ window.embedded.widget
     -moz-box-flex: 0;
 }
 
-.modal-ui
+.modal-ui,
+.modal-ui wizardpage
 {
     .ui-title
     {
@@ -943,7 +982,7 @@ window.embedded.widget
     }
     
     & > hbox,
-    & groupbox > hbox,
+    & groupbox > hbox
     {
         -moz-box-align: center;
     }
@@ -961,18 +1000,37 @@ window.embedded.widget
         text-align: right;
     }
     
-    & .ui-checkbox:not(.fullwidth)
+    & .ui-checkbox:not(.fullwidth),
+    & .ui-description:not(.fullwidth)
     {
         margin-left: 104px;
     }
     
     .ui-textbox,
     .ui-menulist,
-    .ui-filepath
+    .ui-filepath,
+    .ui-listbox,
+    langlist menulist
+    {
+        -moz-box-flex: 1;
+        margin: 2px !important;
+    }
+    
+    langlist
     {
         -moz-box-flex: 1;
     }
-    
+
+    .ui-separator
+    {
+        border-bottom: 1px solid @background;
+    }
+
+    groupbox .ui-separator
+    {
+        border-bottom: 1px solid @contrast;
+    }
+
     .buttons-ui,
     .ui-error
     {
