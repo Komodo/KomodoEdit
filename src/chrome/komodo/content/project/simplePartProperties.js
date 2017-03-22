@@ -287,7 +287,7 @@ function pick_icon(useDefault /* false */)
             if (!URI) return;
         }
 
-        if (useDefault || URI == "default") {
+        if (useDefault || URI == "default" || URI == "reset") {
             URI = gDefaultPartIconURL;
         }
         update_icon(URI);
