@@ -204,6 +204,7 @@
                         var prefix = this.getAttribute("prefix") || "";
                         var list = document.getAnonymousNodes(this)[0];
                         list.parentNode.setAttribute('data', this.selection);
+                        list.parentNode.setAttribute('value', this.selection);
                         list.setAttribute('label', prefix + event.originalTarget.getAttribute('label'));
                         list.setAttribute('value', event.originalTarget.getAttribute('value'));
                     ]]>
