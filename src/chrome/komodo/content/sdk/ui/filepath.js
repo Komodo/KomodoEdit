@@ -52,6 +52,8 @@ module.exports = Module;
                         this.textbox.value(ko.filepicker.browseForRemoteDir(value));
                         break;
                 }
+
+                this.textbox.$element.trigger("input");
             });
             
             this.addElement(this.textbox);
