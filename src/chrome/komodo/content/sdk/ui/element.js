@@ -166,6 +166,12 @@ module.exports = Module;
         {
             this.$element.attr("disabled", "true");
         };
+
+        this.disabled = function()
+        {
+            var disabled = this.$element.attr("disabled");
+            return disabled && disabled != "false" && disabled != "0";
+        };
         
         this.hide = function()
         {
