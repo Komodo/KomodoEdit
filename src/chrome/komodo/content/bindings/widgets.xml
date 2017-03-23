@@ -239,7 +239,7 @@
         </content>
     </binding>
 
-    <binding id="kotooltip" extends="chrome://global/content/bindings/popup.xml#popup">
+    <binding id="kopaneltooltip" extends="chrome://global/content/bindings/popup.xml#popup">
         <content>
         <children>
             <xul:description multiline="true" class="tooltip-label" xbl:inherits="value=label,crop" crop="right" flex="1"/>
@@ -248,8 +248,33 @@
     </binding>
 
 
-    <!-- TODO: add a "check path validity" icon -->
+    <binding id="kotooltip" extends="chrome://global/content/bindings/popup.xml#tooltip">
+        <implementation>
+            <constructor>
+                <![CDATA[
+                this.addEventListener("popupshowing", function ()
+                {
+                    if ( ! window.isActive && "hidePopup" in this)
+                        this.hidePopup();
+                }.bind(this));
 
+                this.addEventListener("popupshown", function ()
+                {
+                    if ( ! window.isActive && "hidePopup" in this)
+                        this.hidePopup();
+                }.bind(this));
+
+                window.addEventListener("deactivate", function ()
+                {
+                    if ("hidePopup" in this)
+                        this.hidePopup();
+                }.bind(this));
+                ]]>
+            </constructor>
+        </implementation>
+    </binding>
+
+    <!-- TODO: add a "check path validity" icon -->
     <binding id="listbox-patheditor">
         <content type="directory" orient="vertical">
             <xul:hbox style="margin-right: 5px">

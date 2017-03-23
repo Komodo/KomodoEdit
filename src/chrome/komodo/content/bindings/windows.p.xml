@@ -24,6 +24,10 @@
             // Set os-name attribute for use in CSS
             var sysInfo = Components.classes["@mozilla.org/system-info;1"].getService(Components.interfaces.nsIPropertyBag2);
             document.documentElement.setAttribute("os-name", sysInfo.get("name"));
+
+            window.isActive = true;
+            window.addEventListener("activate", () => window.isActive = true);
+            window.addEventListener("deactivate", () => window.isActive = false);
             
             var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator);
             var w = wm.getMostRecentWindow("Komodo");
