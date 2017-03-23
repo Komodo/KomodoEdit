@@ -1806,64 +1806,7 @@
                 }
                 
                 this.onEditMatchingTags(updated);
-                
-                // When the delimiter of a styled text range is selected (e.g. a 
-                // string, regex, etc.), select its complement as a multiple
-                // selection to allow paired editing. When continuing the
-                // selection beyond the delimiter, revert to single-selection.
-                // This only works with identical delimiter characters over
-                // unbroken style ranges.
-                if ((updated & this.scimoz.SC_UPDATE_SELECTION) > 0
-                    && this.prefs.getBooleanPref("editMatchingDelimiter")
-                    && ((this.scimoz.selections == 1
-                          && this.scimoz.selText.length == 1
-                          && this.scimoz.selText != " ")
-                        || (this.scimoz.selections == 2
-                            && this.scimoz.selText.length == 2))) {
-                    var scimoz = this.scimoz;
-                    var pos = scimoz.selectionStart;
-                    var select_complement = scimoz.selections == 1;
-                    if (!select_complement
-                        && scimoz.currentPos < scimoz.anchor) {
-                        // At a boundary like "fo[o"] selecting backwards
-                        pos++;
-                    }
-                    var style = scimoz.getStyleAt(pos);
-                    if (pos > 0 && scimoz.getStyleAt(pos - 1) != style) {
-                        // At a boundary like ["]foo"
-                        var end_pos = pos + 1;
-                        while (end_pos < scimoz.length - 1
-                               && scimoz.getStyleAt(end_pos + 1) == style) {
-                            end_pos++;
-                        }
-                        if (scimoz.getCharAt(end_pos) == scimoz.getCharAt(pos)
-                            && end_pos - pos > 1) {
-                            if (select_complement) {
-                                scimoz.addSelection(end_pos, end_pos + 1);
-                                scimoz.mainSelection = 0;
-                            } else {
-                                scimoz.cancel(); // return to 1 selection
-                            }
-                        }
-                    } else if (pos < scimoz.length - 1
-                               && scimoz.getStyleAt(pos + 1) != style) {
-                        // At a boundary like 'foo[']
-                        var end_pos = pos - 1;
-                        while (end_pos > 0
-                               && scimoz.getStyleAt(end_pos - 1) == style) {
-                            end_pos--;
-                        }
-                        if (scimoz.getCharAt(end_pos) == scimoz.getCharAt(pos)
-                            && pos - end_pos > 1) {
-                            if (select_complement) {
-                                scimoz.addSelection(end_pos, end_pos + 1);
-                                scimoz.mainSelection = 0;
-                            } else {
-                                scimoz.cancel(); // return to 1 selection
-                            }
-                        }
-                    }
-                }
+                this.onEditMatchingDelim(updated);
                 
                 return this.__proto__.__proto__.onUpdateUI.call(this, updated);
             } finally {
@@ -1932,6 +1875,75 @@
         </body>
         </method>
         
+        <method name="onEditMatchingDelim">
+        <parameter name="updated"/>
+        <body>
+        <![CDATA[
+            // When the delimiter of a styled text range is selected (e.g. a
+            // string, regex, etc.), select its complement as a multiple
+            // selection to allow paired editing. When continuing the
+            // selection beyond the delimiter, revert to single-selection.
+            // This only works with identical delimiter characters over
+            // unbroken style ranges.
+
+            if ((updated & this.scimoz.SC_UPDATE_SELECTION) <= 0
+                || ! this.prefs.getBooleanPref("editMatchingDelimiter")
+                || this.scimoz.selections != 1
+                || this.scimoz.selText.length != 1
+                || this.scimoz.selText == " "
+                || this.scimoz.selections == 2)
+            {
+                return;
+            }
+
+            var scimoz = this.scimoz;
+            var pos = scimoz.selectionStart;
+            var select_complement = scimoz.selections == 1;
+            if (!select_complement
+                && scimoz.currentPos < scimoz.anchor) {
+                // At a boundary like "fo[o"] selecting backwards
+                pos++;
+            }
+
+            var style = scimoz.getStyleAt(pos);
+            if (pos > 0 && scimoz.getStyleAt(pos - 1) != style) {
+                // At a boundary like ["]foo"
+                var end_pos = pos + 1;
+                while (end_pos < scimoz.length - 1
+                       && scimoz.getStyleAt(end_pos + 1) == style) {
+                    end_pos++;
+                }
+                if (scimoz.getCharAt(end_pos) == scimoz.getCharAt(pos)
+                    && end_pos - pos > 1) {
+                    if (select_complement) {
+                        scimoz.addSelection(end_pos, end_pos + 1);
+                        scimoz.mainSelection = 0;
+                    } else {
+                        scimoz.cancel(); // return to 1 selection
+                    }
+                }
+            } else if (pos < scimoz.length - 1
+                       && scimoz.getStyleAt(pos + 1) != style) {
+                // At a boundary like 'foo[']
+                var end_pos = pos - 1;
+                while (end_pos > 0
+                       && scimoz.getStyleAt(end_pos - 1) == style) {
+                    end_pos--;
+                }
+                if (scimoz.getCharAt(end_pos) == scimoz.getCharAt(pos)
+                    && pos - end_pos > 1) {
+                    if (select_complement) {
+                        scimoz.addSelection(end_pos, end_pos + 1);
+                        scimoz.mainSelection = 0;
+                    } else {
+                        scimoz.cancel(); // return to 1 selection
+                    }
+                }
+            }
+        ]]>
+        </body>
+        </method>
+
         <!-- This method is called OFTEN (every time text is inserted). -->
         <method name="onTextInserted">
         <parameter name="position"/>
