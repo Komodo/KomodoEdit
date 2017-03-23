@@ -2460,6 +2460,7 @@
 
             const DOM_VK_RETURN = event.DOM_VK_RETURN;
             const DOM_VK_TAB = event.DOM_VK_TAB;
+            const DOM_VK_ESCAPE = event.DOM_VK_ESCAPE;
             var charCode = event.charCode;
             var charCodeChar = null;
             var keyCode = event.keyCode;
@@ -2541,6 +2542,12 @@
                    }
                 }
                return true;
+            } else if (event.keyCode == DOM_VK_ESCAPE && this.in_lite_multicaret) {
+                for (let x=1;x<this.scimoz.selections;x++)
+                {
+                    this.scimoz.dropSelectionN(x);
+                }
+                this.in_lite_multicaret = false;
             }
             return undefined;
             ]]>
