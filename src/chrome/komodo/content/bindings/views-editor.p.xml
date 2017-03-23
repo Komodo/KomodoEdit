@@ -1750,11 +1750,18 @@
         <field name="in_updateui">false</field>
         <field name="last_line">0</field>
 
+        <field name="ignore_next_select">false</field>
+        <field name="in_lite_multicaret">false</field>
+
         <method name="onUpdateUI">
         <parameter name="updated"/>
         <body>
         <![CDATA[
-        
+            if (this.ignore_next_select && (updated & this.scimoz.SC_UPDATE_SELECTION) > 0) {
+                this.ignore_next_select = false;
+                return;
+            }
+
             var lineNo = this.scimoz.lineFromPosition(this.scimoz.currentPos);
             if ( ! ko.history._marking && ! this.in_updateui &&
                 (updated & this.scimoz.SC_UPDATE_SELECTION) &&
@@ -1762,10 +1769,25 @@
             {
                 clearTimeout(this._noteLocTimer);
                 this._noteLocTimer = setTimeout(function() {
-                    ko.history.note_loc_unless_history_move(this, true);		
+                    ko.history.note_loc_unless_history_move(this, true);
                 }.bind(this), 200);
             }
-            
+
+            if ((updated & this.scimoz.SC_UPDATE_SELECTION) > 0 &&
+                this.in_lite_multicaret)
+            {
+                for (let x=1;x<this.scimoz.selections;x++)
+                {
+                    this.scimoz.dropSelectionN(x);
+                }
+                this.in_lite_multicaret = false;
+            }
+            else if (this.in_lite_multicaret &&
+                     this.scimoz.selections <= 1)
+            {
+                this.in_lite_multicaret = false;
+            }
+
             this.in_updateui = true;
             this.last_line = lineNo;
             
@@ -1882,6 +1904,7 @@
                 return;
             }
 
+            // Stop if we aren't in an XML element
             var actualLanguageObj = this.languageObj.supportsXMLIndentHere(scimoz, startPos);
             if ( ! actualLanguageObj) {
                 return;
@@ -1893,11 +1916,15 @@
                 if (result.value[0]
                     && result.value[1] <= startPos && result.value[2] >= endPos) {
                     // Selected start tag.
+                    this.ignore_next_select = true; // select is fired async
                     scimoz.addSelection(result.value[4], result.value[3] + 2);
+                    this.in_lite_multicaret = true;
                 } else if (!result.value[0]
                            && result.value[3] <= startPos && result.value[4] >= endPos) {
                     // Selected end tag.
+                    this.ignore_next_select = true;
                     scimoz.addSelection(result.value[2], result.value[1] + 1);
+                    this.in_lite_multicaret = true;
                 }
                 scimoz.mainSelection = 0;
             }
