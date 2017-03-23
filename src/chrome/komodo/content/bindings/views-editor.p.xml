@@ -1783,38 +1783,7 @@
                     }
                 }
                 
-                // When an HTML/XML tag is selected, select its complement as
-                // a multiple selection to allow paired editing.
-                if ((updated & this.scimoz.SC_UPDATE_SELECTION) > 0
-                    && this.prefs.getBooleanPref("editMatchingTags")
-                    && this.scimoz.selections == 1) {
-                    var scimoz = this.scimoz;
-                    var startPos = scimoz.selectionStart;
-                    var endPos = scimoz.selectionEnd;
-                    if (startPos != endPos
-                        && scimoz.getStyleAt(startPos) == scimoz.SCE_UDL_M_TAGNAME
-                        && scimoz.getStyleAt(endPos - 1) == scimoz.SCE_UDL_M_TAGNAME
-                        && scimoz.wordStartPosition(startPos, true) == startPos
-                        && scimoz.wordEndPosition(endPos, true) == endPos) {
-                        var actualLanguageObj = this.languageObj.supportsXMLIndentHere(scimoz, startPos);
-                        if (actualLanguageObj) {
-                            var result = {};
-                            actualLanguageObj.getMatchingTagInfo(scimoz, startPos, false, result, {});
-                            if (result.value && result.value.length == 5) {
-                                if (result.value[0]
-                                    && result.value[1] <= startPos && result.value[2] >= endPos) {
-                                    // Selected start tag.
-                                    scimoz.addSelection(result.value[4], result.value[3] + 2);
-                                } else if (!result.value[0]
-                                           && result.value[3] <= startPos && result.value[4] >= endPos) {
-                                    // Selected end tag.
-                                    scimoz.addSelection(result.value[2], result.value[1] + 1);
-                                }
-                                scimoz.mainSelection = 0;
-                            }
-                        }
-                    }
-                }
+                this.onEditMatchingTags(updated);
                 
                 // When the delimiter of a styled text range is selected (e.g. a 
                 // string, regex, etc.), select its complement as a multiple
@@ -1877,6 +1846,59 @@
                 return this.__proto__.__proto__.onUpdateUI.call(this, updated);
             } finally {
                 this.in_updateui = false;
+            }
+        ]]>
+        </body>
+        </method>
+        
+        <method name="onEditMatchingTags">
+        <parameter name="updated"/>
+        <body>
+        <![CDATA[
+            // When an HTML/XML tag is selected, select its complement as
+            // a multiple selection to allow paired editing.
+
+            // Stop if this isnt a selection event, pref is disabled or if there
+            // already is a multi-caret session
+            if ((updated & this.scimoz.SC_UPDATE_SELECTION) <= 0
+                || ! this.prefs.getBooleanPref("editMatchingTags")
+                || this.scimoz.selections != 1)
+            {
+                return;
+            }
+
+            var scimoz = this.scimoz;
+            var startPos = scimoz.selectionStart;
+            var endPos = scimoz.selectionEnd;
+            
+            // Stop if we're not currently selecting the entirety of a tag
+            if (startPos == endPos
+                || scimoz.getStyleAt(startPos) != scimoz.SCE_UDL_M_TAGNAME
+                || scimoz.getStyleAt(endPos - 1) != scimoz.SCE_UDL_M_TAGNAME
+                || scimoz.wordStartPosition(startPos, true) != startPos
+                || scimoz.wordEndPosition(endPos, true) != endPos)
+            {
+                return;
+            }
+
+            var actualLanguageObj = this.languageObj.supportsXMLIndentHere(scimoz, startPos);
+            if ( ! actualLanguageObj) {
+                return;
+            }
+
+            var result = {};
+            actualLanguageObj.getMatchingTagInfo(scimoz, startPos, false, result, {});
+            if (result.value && result.value.length == 5) {
+                if (result.value[0]
+                    && result.value[1] <= startPos && result.value[2] >= endPos) {
+                    // Selected start tag.
+                    scimoz.addSelection(result.value[4], result.value[3] + 2);
+                } else if (!result.value[0]
+                           && result.value[3] <= startPos && result.value[4] >= endPos) {
+                    // Selected end tag.
+                    scimoz.addSelection(result.value[2], result.value[1] + 1);
+                }
+                scimoz.mainSelection = 0;
             }
         ]]>
         </body>
