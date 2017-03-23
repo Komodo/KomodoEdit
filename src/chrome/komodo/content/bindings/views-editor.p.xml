@@ -1873,8 +1873,9 @@
             
             // Stop if we're not currently selecting the entirety of a tag
             if (startPos == endPos
+                || scimoz.getStyleAt(startPos -1 ) == scimoz.SCE_UDL_M_TAGNAME
                 || scimoz.getStyleAt(startPos) != scimoz.SCE_UDL_M_TAGNAME
-                || scimoz.getStyleAt(endPos - 1) != scimoz.SCE_UDL_M_TAGNAME
+                || scimoz.getStyleAt(endPos + 1) == scimoz.SCE_UDL_M_TAGNAME
                 || scimoz.wordStartPosition(startPos, true) != startPos
                 || scimoz.wordEndPosition(endPos, true) != endPos)
             {
