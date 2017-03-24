@@ -1752,6 +1752,7 @@
 
         <field name="ignore_next_select">false</field>
         <field name="in_lite_multicaret">false</field>
+        <field name="cancel_lite_multicaret_on_modify">false</field>
 
         <method name="onUpdateUI">
         <parameter name="updated"/>
@@ -1773,7 +1774,10 @@
                 }.bind(this), 200);
             }
 
-            if ((updated & this.scimoz.SC_UPDATE_SELECTION) > 0 &&
+            if (((updated & this.scimoz.SC_UPDATE_SELECTION) > 0 ||
+                  this.cancel_lite_multicaret_on_modify &&
+                  (updated & this.scimoz.SC_UPDATE_CONTENT) > 0
+                ) &&
                 this.in_lite_multicaret)
             {
                 for (let x=1;x<this.scimoz.selections;x++)
@@ -1781,11 +1785,13 @@
                     this.scimoz.dropSelectionN(x);
                 }
                 this.in_lite_multicaret = false;
+                this.cancel_lite_multicaret_on_modify = false;
             }
             else if (this.in_lite_multicaret &&
                      this.scimoz.selections <= 1)
             {
                 this.in_lite_multicaret = false;
+                this.cancel_lite_multicaret_on_modify = false;
             }
 
             this.in_updateui = true;
@@ -1918,6 +1924,8 @@
                     if (select_complement) {
                         scimoz.addSelection(end_pos, end_pos + 1);
                         scimoz.mainSelection = 0;
+                        this.in_lite_multicaret = true;
+                        this.cancel_lite_multicaret_on_modify = true;
                     } else {
                         scimoz.cancel(); // return to 1 selection
                     }
@@ -1935,6 +1943,8 @@
                     if (select_complement) {
                         scimoz.addSelection(end_pos, end_pos + 1);
                         scimoz.mainSelection = 0;
+                        this.in_lite_multicaret = true;
+                        this.cancel_lite_multicaret_on_modify = true;
                     } else {
                         scimoz.cancel(); // return to 1 selection
                     }
@@ -2560,6 +2570,7 @@
                     this.scimoz.dropSelectionN(x);
                 }
                 this.in_lite_multicaret = false;
+                this.cancel_lite_multicaret_on_modify = false;
             }
             return undefined;
             ]]>
