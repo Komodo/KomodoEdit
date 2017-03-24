@@ -195,6 +195,14 @@
   <string id="perlExtraPaths"></string>
   <string id="perlExcludePaths"></string>
 
+  <!-- Go prefs -->
+  <string id="gocodeDefaultLocation"></string>
+  <string id="godefDefaultLocation"></string>
+  <string id="golangDefaultLocation"></string>
+  <string id="Go/newEncoding">utf-8</string>
+  <long id="Go/indentWidth">8</long>
+  <boolean id="Go/useTabs">1</boolean>
+  
   <!-- Namespace mappings for Codeintel. These are stored as-->
   <!-- '::'-separated local paths. Keys and values are-->
   <!-- stored as '##'-separated.-->
