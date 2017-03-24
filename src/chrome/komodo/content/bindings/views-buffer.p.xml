@@ -99,7 +99,18 @@
         ]]>
         </constructor>
 
-        <property name="scintilla" onget="return document.getAnonymousElementByAttribute(this, 'anonid', 'scintilla');"/>
+        <field name="_scintilla">null</field>
+
+        <property name="scintilla">
+            <getter><![CDATA[
+            if (typeof require == "undefined")
+                return document.getAnonymousElementByAttribute(this, 'anonid', 'scintilla');
+
+            if ( ! this._scintilla)
+                this._scintilla = require("ko/dom")(this).findAnonymous('anonid', "scintilla").element();
+            return this._scintilla;
+            ]]></getter>
+        </property>
 
         <!-- Whether the buffer/editor sends DOM events. -->
         <field name="_dispatch_events">false</field>
@@ -137,9 +148,25 @@
 
         <field name="textChangeUndoPending">false</field>
 
-        <field name="findbar">
-            document.getAnonymousElementByAttribute(this, 'anonid', 'findbar')
-        </field>
+        <field name="_findbar">null</field>
+
+        <property name="findbar">
+            <getter>
+                <![CDATA[
+                if (typeof require == "undefined")
+                    return document.getAnonymousElementByAttribute(this, 'anonid', 'findbar');
+
+                if ( ! this._findbar)
+                    this._findbar = require("ko/dom")(this).findAnonymous('anonid', "findbar").element();
+                return this._findbar;
+                ]]>
+            </getter>
+            <setter>
+                <![CDATA[
+                    this._findbar = val;
+                ]]>
+            </setter>
+        </property>
 
         <!-- Properties related to CodeIntel functionality for this view. -->
 
