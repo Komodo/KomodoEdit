@@ -1823,15 +1823,19 @@
         </method>
         
         <method name="onEditMatchingTags">
-        <parameter name="updated"/>
+        <parameter name="updated"/> <!-- Can be -1 to skip certain checks -->
         <body>
         <![CDATA[
             // When an HTML/XML tag is selected, select its complement as
             // a multiple selection to allow paired editing.
 
+            if (updated != -1 && this._mouseButton != -1) {
+                return;
+            }
+
             // Stop if this isnt a selection event, pref is disabled or if there
             // already is a multi-caret session
-            if ((updated & this.scimoz.SC_UPDATE_SELECTION) <= 0
+            if ((updated != -1 && (updated & this.scimoz.SC_UPDATE_SELECTION) <= 0)
                 || ! this.prefs.getBooleanPref("editMatchingTags")
                 || this.scimoz.selections != 1)
             {
@@ -1882,7 +1886,7 @@
         </method>
         
         <method name="onEditMatchingDelim">
-        <parameter name="updated"/>
+        <parameter name="updated"/> <!-- Can be -1 to skip certain checks -->
         <body>
         <![CDATA[
             // When the delimiter of a styled text range is selected (e.g. a
@@ -1891,8 +1895,12 @@
             // selection beyond the delimiter, revert to single-selection.
             // This only works with identical delimiter characters over
             // unbroken style ranges.
+            
+            if (updated != -1 && this._mouseButton != -1) {
+                return;
+            }
 
-            if ((updated & this.scimoz.SC_UPDATE_SELECTION) <= 0
+            if ((updated != -1 && (updated & this.scimoz.SC_UPDATE_SELECTION) <= 0)
                 || ! this.prefs.getBooleanPref("editMatchingDelimiter")
                 || this.scimoz.selections != 1
                 || this.scimoz.selText.length != 1
@@ -2576,24 +2584,10 @@
             ]]>
         </handler>
         
-        <handler event="mouseup" phase="bubbling" 
-<!-- #if PLATFORM != "darwin" -->
-                modifiers="control"
-<!-- #else -->
-                modifiers="meta"
-<!-- #endif -->
->
+        <handler event="mouseup" phase="bubbling">
         <![CDATA[
-            var ignoreKey = (event.shiftKey || event.altKey || 
-// #if PLATFORM != "darwin"
-                event.metaKey
-// #else
-                event.ctrlKey
-// #endif
-                            );
-            if (ignoreKey) {
-                return;
-            }
+            this.onEditMatchingTags(-1);
+            this.onEditMatchingDelim(-1);
         ]]>
         </handler>
 
