@@ -1920,6 +1920,13 @@
             this._mouseButton = event.button;
             ]]>
         </handler>
+        <handler event="mouseup" phase="capturing">
+            <![CDATA[
+            setTimeout(function() {
+                this._mouseButton = -1;
+            }.bind(this), 0);
+            ]]>
+        </handler>
         <handler event="mousemove" phase="capturing">
             <![CDATA[
             var x = event.clientX < 0 ? 0 : event.clientX - this.scintilla.boxObject.x;
