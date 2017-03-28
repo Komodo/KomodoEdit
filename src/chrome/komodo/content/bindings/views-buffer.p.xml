@@ -130,6 +130,8 @@
         <property name="scimoz"
             onget="return this.scintilla.scimoz;"/>
 
+        <field name="_uiTimer">null</field>
+
         <property name="dragHandler"
             onget="return this.scintilla;"/>
 
@@ -599,6 +601,10 @@
         <body>
         <![CDATA[
             //this.log.info('view-buffer is closing')
+            
+            if (this._uiTimer)
+                clearTimeout(this._uiTimer);
+            
             // Note that we have to deal with being called after scintilla has
             // already been unloaded.
             try {
@@ -1038,7 +1044,6 @@
         ]]>
         </body>
         </method>
-
         
         <method name="onUpdateUI">
         <parameter name="updated"/>
@@ -1047,9 +1052,7 @@
             if (!this.log) return; // closed
             this.log.debug('doUpdateUI called');
             var scimoz = this.scimoz;
-            // None of the registered callbacks should need to do
-            // a timeout, because they're already run after a delay.
-            // other update-events, they will be run at a later time.
+
             var callbacks = this._updateUICallbacks;
             // Note: We check linesOnScreen to ensure Scintilla is ready.
             if (callbacks.length && scimoz.linesOnScreen > 0) {
@@ -1067,13 +1070,16 @@
             // Since onUpdateUI is called for a lot of different cases, we
             // check to see if the position has really changed.
             var currentPos = scimoz.currentPos;
+            var selectionStart = scimoz.selectionStart;
+            var selectionEnd = scimoz.selectionEnd;
             var currentLineNo = scimoz.lineFromPosition(currentPos);
             var columnNo = scimoz.getColumn(currentPos);
             var firstVisibleLine = scimoz.firstVisibleLine;
-            var newPosLineAndCol = [currentPos, currentLineNo, columnNo, firstVisibleLine];
+            var newPosLineAndCol = [selectionStart, currentLineNo, columnNo, firstVisibleLine, selectionEnd];
             if ((this._lastPosLineAndCol[0] != newPosLineAndCol[0]) ||
                 (this._lastPosLineAndCol[1] != newPosLineAndCol[1]) ||
-                (this._lastPosLineAndCol[2] != newPosLineAndCol[2])) {
+                (this._lastPosLineAndCol[2] != newPosLineAndCol[2]) ||
+                (this._lastPosLineAndCol[4] != newPosLineAndCol[4])) {
                 this._lastPosLineAndCol = newPosLineAndCol;
                 // The position has changed since the last time we updated.
                 var data = {
@@ -1097,15 +1103,8 @@
                 if (!this.textChangeUndoPending && !this.lastCharAdded) {
                     // Position hasn't changed, no chars were added and no text
                     // was modified - we've got nothing to do.
-                    return;
+                    return false;
                 }
-            }
-
-            scimoz.doBraceMatch();
-
-            if (updated & (scimoz.SC_UPDATE_CONTENT | scimoz.SC_UPDATE_SELECTION)) {
-                // Highlight indentation guide for matching XML tags, as necessary.
-                this._xmlTagsHighlightGuide();
             }
 
             // If there is an active calltip, then update it as necessary.
@@ -1131,6 +1130,51 @@
                 }
             }
 
+            if (this.textChangeUndoPending) {
+                // Fix bug 89414 -- undo/redo buttons not getting updated on doc changes
+                window.updateCommands('undo');
+                this.textChangeUndoPending = false;
+            }
+
+            var obsvc;
+            if (this.charModified) {
+                obsvc = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
+                obsvc.notifyObservers(this, 'buffer_char_modified', this.lastCharAdded);
+            }
+
+            if (this.lastPosition !== null && currentPos != this.lastPosition) {
+                obsvc = obsvc || Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
+                obsvc.notifyObservers(this, 'buffer_pos_changed', currentPos - this.lastPosition);
+            }
+
+            this.lastCharAdded = null;
+            this.charModified = false;
+            this.lastPosition = currentPos;
+            
+            if (this._uiTimer) {
+                clearTimeout(this._uiTimer);
+            }
+            
+            this._uiTimer = setTimeout(this._onUpdateUI_debounced.bind(this, updated), 200);
+        ]]>
+        </body>
+        </method>
+        
+        <method name="_onUpdateUI_debounced">
+        <parameter name="updated"/>
+        <body>
+        <![CDATA[
+            this._uiTimer = null;
+            
+            var scimoz = this.scimoz;
+            
+            scimoz.doBraceMatch();
+
+            if (updated & (scimoz.SC_UPDATE_CONTENT | scimoz.SC_UPDATE_SELECTION)) {
+                // Highlight indentation guide for matching XML tags, as necessary.
+                this._xmlTagsHighlightGuide();
+            }
+            
             // Hmm, we might be able to now catch tabs, etc. right here.
             if (this.lastCharAdded) {
                 if (this.isCICplnEnabled && this._isCITriggeringEnabled) {
@@ -1148,11 +1192,6 @@
                 this.lastCharAdded = null;
             }
 
-            if (this.textChangeUndoPending) {
-                // Fix bug 89414 -- undo/redo buttons not getting updated on doc changes
-                window.updateCommands('undo');
-                this.textChangeUndoPending = false;
-            }
         ]]>
         </body>
         </method>
