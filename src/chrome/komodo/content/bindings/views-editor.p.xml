@@ -151,7 +151,6 @@
         <field name="lintingEnabled">false</field>
         <field name="_everLinted">false</field>
         <field name="_lintBuffer">null</field>
-        <field name="_noteLocTimer">null</field>
 
         <property name="lintBuffer">
             <setter><![CDATA[
@@ -1740,7 +1739,6 @@
         <field name="in_updateui">false</field>
         <field name="last_line">0</field>
 
-        <field name="ignore_next_select">false</field>
         <field name="in_lite_multicaret">false</field>
         <field name="cancel_lite_multicaret_on_modify">false</field>
 
@@ -1748,20 +1746,13 @@
         <parameter name="updated"/>
         <body>
         <![CDATA[
-            if (this.ignore_next_select && (updated & this.scimoz.SC_UPDATE_SELECTION) > 0) {
-                this.ignore_next_select = false;
+            if (this.in_updateui)
                 return;
-            }
 
-            var lineNo = this.scimoz.lineFromPosition(this.scimoz.currentPos);
-            if ( ! ko.history._marking && ! this.in_updateui &&
-                (updated & this.scimoz.SC_UPDATE_SELECTION) &&
-                Math.abs(lineNo - this.last_line) > 5)
+            var keepGoing = this.__proto__.__proto__.onUpdateUI.call(this, updated);
+            if (keepGoing === false)
             {
-                clearTimeout(this._noteLocTimer);
-                this._noteLocTimer = setTimeout(function() {
-                    ko.history.note_loc_unless_history_move(this, true);
-                }.bind(this), 200);
+                return;
             }
 
             if (((updated & this.scimoz.SC_UPDATE_SELECTION) > 0 ||
@@ -1785,8 +1776,10 @@
             }
 
             this.in_updateui = true;
-            this.last_line = lineNo;
             
+            this.onEditMatchingTags(updated);
+            this.onEditMatchingDelim(updated);
+
             try {
                 //TODO: Minimap pref
                 //dump(">> views-editor.p.xml: onUpdateUI\n");
@@ -1800,11 +1793,6 @@
                         this.minimap.updateEditorViewBoundaries();
                     }
                 }
-                
-                this.onEditMatchingTags(updated);
-                this.onEditMatchingDelim(updated);
-                
-                return this.__proto__.__proto__.onUpdateUI.call(this, updated);
             } finally {
                 this.in_updateui = false;
             }
@@ -1812,13 +1800,37 @@
         </body>
         </method>
         
+        <method name="_onUpdateUI_debounced">
+        <parameter name="updated"/>
+        <body>
+        <![CDATA[
+            this._uiTimer = null;
+
+            var lineNo = this.scimoz.lineFromPosition(this.scimoz.currentPos);
+            if ( ! ko.history._marking && ! this.in_updateui &&
+                (updated & this.scimoz.SC_UPDATE_SELECTION) &&
+                Math.abs(lineNo - this.last_line) > 5)
+            {
+                ko.history.note_loc_unless_history_move(this, true);
+            }
+            
+            this.in_updateui = true;
+            this.last_line = lineNo;
+        
+            this.__proto__.__proto__._onUpdateUI_debounced.call(this, updated);
+            
+            this.in_updateui = false;
+
+        ]]>
+        </body>
+        </method>
+
         <method name="onEditMatchingTags">
         <parameter name="updated"/> <!-- Can be -1 to skip certain checks -->
         <body>
         <![CDATA[
             // When an HTML/XML tag is selected, select its complement as
             // a multiple selection to allow paired editing.
-
             if (updated != -1 && this._mouseButton != -1) {
                 return;
             }
@@ -1859,13 +1871,11 @@
                 if (result.value[0]
                     && result.value[1] <= startPos && result.value[2] >= endPos) {
                     // Selected start tag.
-                    this.ignore_next_select = true; // select is fired async
                     scimoz.addSelection(result.value[4], result.value[3] + 2);
                     this.in_lite_multicaret = true;
                 } else if (!result.value[0]
                            && result.value[3] <= startPos && result.value[4] >= endPos) {
                     // Selected end tag.
-                    this.ignore_next_select = true;
                     scimoz.addSelection(result.value[2], result.value[1] + 1);
                     this.in_lite_multicaret = true;
                 }
@@ -1899,7 +1909,7 @@
             {
                 return;
             }
-
+            
             var scimoz = this.scimoz;
             var pos = scimoz.selectionStart;
             var select_complement = scimoz.selections == 1;
