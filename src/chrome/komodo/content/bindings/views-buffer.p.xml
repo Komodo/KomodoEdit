@@ -1166,14 +1166,21 @@
             // Forward the call to the languageObj so it can provide language
             // specific features (smart indent, electric bracers, .. )
             if (this.lastCharAdded) {
-                this.doCommandCompletion();
                 if (this.languageObj &&
                     this.prefs.getBooleanPref("editElectricBrace")) {
                     // "keyPressed" is the poorly named mechanism to initiate
                     // auto-indenting functionality.
                     this.languageObj.keyPressed(this.lastCharAdded, this.scimoz);
                 }
-                this.lastCharAdded = null;
+            }
+
+            // Trigger CodeIntel completions
+            if (this.lastCharAdded) {
+                this.doCommandCompletion();
+                if (this.isCICplnEnabled && this._isCITriggeringEnabled) {
+                    // Trigger completions or calltip.
+                    ko.codeintel.trigger(this, true);
+                }
             }
 
             var obsvc;
