@@ -1163,6 +1163,19 @@
                 this.textChangeUndoPending = false;
             }
 
+            // Forward the call to the languageObj so it can provide language
+            // specific features (smart indent, electric bracers, .. )
+            if (this.lastCharAdded) {
+                this.doCommandCompletion();
+                if (this.languageObj &&
+                    this.prefs.getBooleanPref("editElectricBrace")) {
+                    // "keyPressed" is the poorly named mechanism to initiate
+                    // auto-indenting functionality.
+                    this.languageObj.keyPressed(this.lastCharAdded, this.scimoz);
+                }
+                this.lastCharAdded = null;
+            }
+
             var obsvc;
             if (this.charModified) {
                 obsvc = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
@@ -1201,24 +1214,6 @@
                 // Highlight indentation guide for matching XML tags, as necessary.
                 this._xmlTagsHighlightGuide();
             }
-            
-            // Hmm, we might be able to now catch tabs, etc. right here.
-            if (this.lastCharAdded) {
-                if (this.isCICplnEnabled && this._isCITriggeringEnabled) {
-                    // Trigger completions or calltip.
-                    ko.codeintel.trigger(this, true);
-                }
-
-                this.doCommandCompletion();
-                if (this.languageObj &&
-                    this.prefs.getBooleanPref("editElectricBrace")) {
-                    // "keyPressed" is the poorly named mechanism to initiate
-                    // auto-indenting functionality.
-                    this.languageObj.keyPressed(this.lastCharAdded, this.scimoz);
-                }
-                this.lastCharAdded = null;
-            }
-
         ]]>
         </body>
         </method>
