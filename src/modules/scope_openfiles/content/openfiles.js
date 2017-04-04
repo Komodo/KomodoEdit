@@ -81,7 +81,7 @@
             data.editorView.parentNode._tab,
             'click'
         );
-        commando.hideCommando();
+        commando.hide();
     }
     
     var _basename = function(str)

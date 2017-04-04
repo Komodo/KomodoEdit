@@ -432,7 +432,7 @@
         else
             ko.open.multipleURIs(uris);
 
-        commando.hideCommando();
+        commando.hide();
     }
 
     this.onExpandSearch = function(query, uuid, callback)
