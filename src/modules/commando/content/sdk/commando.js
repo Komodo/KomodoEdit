@@ -169,9 +169,8 @@
         });
 
         window.addEventListener("click", onWindowClick);
-        window.addEventListener("blur", function (e) {
-            //if ( ! local.showing)
-                //c.hideCommando();
+        window.addEventListener("deactivate", function (e) {
+            c.hide();
         });
     }
 
@@ -895,9 +894,11 @@
 
     this.hide = function()
     {
+        c.stop();
+        log.debug("Hiding Commando");
         elem('panel').element().hidePopup();
         
-        if (window == _window)
+        if (window == _window && window.isActive)
         {
             var view = _window.ko.views.manager.currentView;
             if (view && view.getAttribute("type") == "editor")
@@ -1103,13 +1104,6 @@
         c.execScopeHandler("onExpand");
 
         c.clear();
-    }
-
-    this.hideCommando = function()
-    {
-        c.stop();
-        log.debug("Hiding Commando");
-        elem('panel').element().hidePopup();
     }
 
     this.getRegisteredScopes = function()

@@ -154,7 +154,7 @@
             }
         }
 
-        commando.hideCommando();
+        commando.hide();
     }
 
 }).apply(module.exports);

@@ -57,7 +57,7 @@
 
         e.setCursor(e.getLineEndPos(line));
 
-        commando.hideCommando();
+        commando.hide();
         ko.commands.doCommandAsync('cmd_focusEditor');
     }
 
