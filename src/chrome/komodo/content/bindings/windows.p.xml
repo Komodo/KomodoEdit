@@ -474,6 +474,8 @@
             this.setAttribute("_hidechrome", true);
 // #if PLATFORM == "darwin"
             this.setAttribute("drawintitlebar", true);
+// #elif PLATFORM == "win"
+            this.setAttribute("chromemargin", "0,0,0,0");
 // #else
             this.setAttribute("hidechrome", true);
 // #endif
@@ -489,24 +491,18 @@
           });
         }
 
-        window._sizeToContent = window.sizeToContent;
-        window.sizeToContent = this.sizeToContent;
+        var _sizeToContent = window.sizeToContent;
+        window.sizeToContent = function() {};
+        
+        _sizeToContent();
+        setTimeout(() =>
+        {
+          _sizeToContent();
+          window.sizeToContent = _sizeToContent;
+        }, 0);
         
         ]]>
       </constructor>
-      <method name="sizeToContent">
-        <body>
-        <![CDATA[
-          var hideChrome = require("ko/prefs").getBoolean("ui.hide.chrome");
-          if ( ! hideChrome) {
-            return window._sizeToContent();
-          }
-          
-          // Defer call, hidechrome doesnt like if this is called during the load event
-          setTimeout(window._sizeToContent, 0);
-        ]]>
-        </body>
-      </method>
     </implementation>
     </binding>
     
