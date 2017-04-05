@@ -2084,7 +2084,7 @@ def target_src(argv=["src"]):
         hgRepo = os.path.join(buildDir, "mozilla")
         bundleFile = os.path.abspath("%s.hg" % (treeName,))
         log.info("retrieving available bundles from hg.cdn.mozilla.net")
-        hg_data = json.load(urllib2.urlopen('https://hg.cdn.mozilla.net/bundles.json'))['releases/%s' % (treeName,)]['bzip2']
+        hg_data = json.load(urllib2.urlopen('https://hg.cdn.mozilla.net/bundles.json'))['releases/%s' % (treeName,)]["gzip-v2"]
         relativebundleURL = hg_data['path']
         bundleURL = "https://hg.cdn.mozilla.net/%s" % (relativebundleURL,)
         def inside_activestate_network():
