@@ -60,6 +60,18 @@
             return ! ("type" in entry) || entry.type == item.data.type;
         });
 
+        if (item.data.type == "dir") {
+            resultCache.push({
+                id: "open-places",
+                name: "Open in Places",
+                scope: "scope-files",
+                tip: "Open this folder as root folder of Places",
+                command: doOpenPlaces,
+                weight: 45,
+                allowExpand: false
+            });
+        }
+
         if (item.data.type == "dir" && (local.cut || local.copy))
         {
             var tip;
@@ -138,6 +150,14 @@
         }
         
         commando.tip("File \""+filename+"\" has been created");
+    }
+    
+    function doOpenPlaces() {
+        var item = commando.getSubscope();
+        var path = item.data.path;
+        ko.places.setDirectory(path);
+        commando.navBack();
+        commando.hide();
     }
 
     function doPaste()
