@@ -60,6 +60,28 @@
             return ! ("type" in entry) || entry.type == item.data.type;
         });
 
+        if (item.data.type == "dir") {
+            resultCache.push({
+                id: "open-places",
+                name: "Open in Places",
+                scope: "scope-files",
+                tip: "Open this folder as root folder of Places",
+                command: doOpenPlaces,
+                weight: 45,
+                allowExpand: false
+            });
+        }
+
+        resultCache.push({
+            id: "show-places",
+            name: "Show in Places",
+            scope: "scope-files",
+            tip: "Show this item in Places",
+            command: doShowInPlaces,
+            weight: 42,
+            allowExpand: false
+        });
+
         if (item.data.type == "dir" && (local.cut || local.copy))
         {
             var tip;
@@ -138,6 +160,20 @@
         }
         
         commando.tip("File \""+filename+"\" has been created");
+    }
+    
+    function doOpenPlaces() {
+        var item = commando.getSubscope();
+        var path = ko.uriparse.pathToURI(item.data.path);
+        ko.places.setDirectory(path);
+        commando.hide();
+    }
+    
+    function doShowInPlaces() {
+        var item = commando.getSubscope();
+        var path = ko.uriparse.pathToURI(item.data.path);
+        ko.places.manager.showTreeItemByFile(path);
+        commando.hide();
     }
 
     function doPaste()
