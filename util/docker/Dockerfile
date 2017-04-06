@@ -13,6 +13,8 @@ RUN update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.9 100
 RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.9 100
 RUN update-alternatives --install /usr/bin/cpp cpp /usr/bin/cpp-4.9 100
 
+RUN ln -s /usr/bin/gcc /usr/bin/x86_64-linux-gnu-gcc
+
 RUN easy_install pyOpenSSL ndg-httpsclient pyasn1
 
 RUN mkdir /var/run/sshd
