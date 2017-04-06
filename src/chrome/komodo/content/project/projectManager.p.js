@@ -555,7 +555,7 @@ projectManager.prototype._getNewProjectPath = function(directory, name) {
     } else {
         defaultDir = (this.currentProject
                       ? this.currentProject.getFile().dirName
-                      : ko.window.getHomeDirectory());
+                      : ko.uriparse.URIToLocalPath(ko.places.getDirectory()));
     }
     if (!name) {
         name = _bundle.GetStringFromName("newProject.defaultFileName");
