@@ -169,8 +169,10 @@
         });
 
         window.addEventListener("click", onWindowClick);
-        window.addEventListener("deactivate", function (e) {
-            c.hide();
+        window.addEventListener("deactivate", function (e)
+        {
+            if (!local.showing)
+                c.hide();
         });
     }
 
