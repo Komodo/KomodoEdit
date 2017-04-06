@@ -166,7 +166,6 @@
         var item = commando.getSubscope();
         var path = ko.uriparse.pathToURI(item.data.path);
         ko.places.setDirectory(path);
-        commando.navBack();
         commando.hide();
     }
     
@@ -174,7 +173,6 @@
         var item = commando.getSubscope();
         var path = ko.uriparse.pathToURI(item.data.path);
         ko.places.manager.showTreeItemByFile(path);
-        commando.navBack();
         commando.hide();
     }
 
