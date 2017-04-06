@@ -72,6 +72,16 @@
             });
         }
 
+        resultCache.push({
+            id: "show-places",
+            name: "Show in Places",
+            scope: "scope-files",
+            tip: "Show this item in Places",
+            command: doShowInPlaces,
+            weight: 42,
+            allowExpand: false
+        });
+
         if (item.data.type == "dir" && (local.cut || local.copy))
         {
             var tip;
@@ -154,8 +164,16 @@
     
     function doOpenPlaces() {
         var item = commando.getSubscope();
-        var path = item.data.path;
+        var path = ko.uriparse.pathToURI(item.data.path);
         ko.places.setDirectory(path);
+        commando.navBack();
+        commando.hide();
+    }
+    
+    function doShowInPlaces() {
+        var item = commando.getSubscope();
+        var path = ko.uriparse.pathToURI(item.data.path);
+        ko.places.manager.showTreeItemByFile(path);
         commando.navBack();
         commando.hide();
     }
