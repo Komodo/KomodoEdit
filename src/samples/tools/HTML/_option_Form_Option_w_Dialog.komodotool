@@ -1,6 +1,6 @@
 {
   "keyboard_shortcut": "", 
-  "name": "<option> Form Option w/Dialog", 
+  "name": "<option> Form Option w/ Dialog", 
   "value": [
     "<option name=\"[[%ask:Name:]]\" value=\"[[%ask:Value:]]\">!@#_currentPos!@#_anchor</option>"
   ], 

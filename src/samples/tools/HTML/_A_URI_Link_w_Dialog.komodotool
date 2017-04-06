@@ -1,6 +1,6 @@
 {
   "keyboard_shortcut": "", 
-  "name": "<A> URI Link w/Dialog", 
+  "name": "<a> URI Link w/ Dialog", 
   "value": [
     "<a href=\"[[%w:orask:URI]]\" name=\"[[%ask:Name]]\" target=\"[[%ask:Target:_self]]\">[[%w:orask:Text]]</a>!@#_currentPos!@#_anchor"
   ], 
