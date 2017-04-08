@@ -375,7 +375,7 @@ this.AddMessage = function(msg, category, timeout, highlight, interactive, log /
  */
 this.Clear = function() { _clear(); }
 
-var _encodingMenuInitialized = false;
+var _encodingMenuInitializedInViews = {};
 
 /**
  * Set the encoding menu for the current view.
@@ -387,9 +387,15 @@ this.setupEncodingMenu = function(menupopup)
     if (typeof(view)=='undefined' || !view || !view.koDoc) {
         return;
     }
+    
+    let uid = view.uid.number;
+    
+    if (_encodingMenuInitializedInViews[uid] === undefined) {
+        _encodingMenuInitializedInViews[uid] = false;
+    }
     var xv = getXulView(view);
     
-    if (!_encodingMenuInitialized) {
+    if (!_encodingMenuInitializedInViews[uid]) {
         var encodingSvc = Components.classes["@activestate.com/koEncodingServices;1"].
                            getService(Components.interfaces.koIEncodingServices);
     
@@ -402,7 +408,7 @@ this.setupEncodingMenu = function(menupopup)
         while (tempMenupopup.childNodes.length > 0) {
             encodingMenupopup.appendChild(tempMenupopup.removeChild(tempMenupopup.firstChild));
         }
-        _encodingMenuInitialized = true;
+        _encodingMenuInitializedInViews[uid] = true;
     }
 }
 
