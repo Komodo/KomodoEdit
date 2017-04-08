@@ -388,7 +388,7 @@ this.setupEncodingMenu = function(menupopup)
     
     var xv = getXulView(view);
     
-    if (!view._encodingWidget) {
+    if (!('_encodingWidget' in view)) {
         var encodingSvc = Components.classes["@activestate.com/koEncodingServices;1"].
                            getService(Components.interfaces.koIEncodingServices);
     
