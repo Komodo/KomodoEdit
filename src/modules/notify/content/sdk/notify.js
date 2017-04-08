@@ -619,6 +619,16 @@
     
     this.hideNotification = (notif, animate) =>
     {
+        if (typeof notif === "undefined") {
+            try {
+                throw new Typeerror(); // save tracelog
+            } catch (e) {
+                log.debug("nofif is undefined");
+                log.debug(e.stack);
+                return;
+            }
+        }
+        
         log.debug("Hiding Notification: " + notif.opts.id);
         
         if ( ! notif)
