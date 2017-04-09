@@ -1,0 +1,33 @@
+@import url("chrome://komodo/skin/plat/current/tabs.less");
+
+view tabs:not(.tabs-bottom)
+{
+    .tabstrip-box
+    {
+        border-bottom: 0 !important;
+    }
+
+    tab
+    {
+        border-width: 3px 0px 3px 0px !important;
+        border-top: 3px solid transparent;
+        border-bottom: 3px solid transparent;
+        padding: 4px;
+        transition: all .4s ease;
+        
+        &:hover {
+            border-bottom: @tab-selected-border;
+        }
+
+        &[selected]
+        {
+            border-bottom: @tab-selected-border;
+        }
+    }
+}
+
+#editorviewbox .tabstrip-box,
+ko-pane[type="horizontal"] .tabstrip-box
+{
+  padding-top: 0 !important;
+}
