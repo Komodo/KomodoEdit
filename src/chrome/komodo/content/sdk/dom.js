@@ -211,7 +211,7 @@ if (typeof module === 'undefined') module = {}; // debugging helper
 
         this._elements = [];
         
-        if (typeof query == "object" && query.length)
+        if (query && typeof query == "object" && query.length)
             query = Array.prototype.slice.call(query);
         
         // Use push.apply to force array type
@@ -491,7 +491,8 @@ if (typeof module === 'undefined') module = {}; // debugging helper
          */
         prev: function()
         {
-            return new queryObject(this.element().previousSibling);
+            var elem = this.element();
+            return new queryObject(elem ? elem.previousSibling : null);
         },
         
         /**
@@ -501,7 +502,8 @@ if (typeof module === 'undefined') module = {}; // debugging helper
          */
         next: function()
         {
-            return new queryObject(this.element().nextSibling);
+            var elem = this.element();
+            return new queryObject(elem ? this.element().nextSibling : null);
         },
 
         /**
