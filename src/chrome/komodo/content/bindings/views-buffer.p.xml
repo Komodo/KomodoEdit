@@ -1185,13 +1185,11 @@
 
             var obsvc;
             if (this.charModified) {
-                obsvc = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
-                obsvc.notifyObservers(this, 'buffer_char_modified', this.lastCharAdded);
+                this.dispatchEvent(new CustomEvent('buffer_char_modified', { bubbles: true, detail: this.lastCharAdded }));
             }
 
             if (this.lastPosition !== null && currentPos != this.lastPosition) {
-                obsvc = obsvc || Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
-                obsvc.notifyObservers(this, 'buffer_pos_changed', currentPos - this.lastPosition);
+                this.dispatchEvent(new CustomEvent('buffer_pos_changed', { bubbles: true, detail: currentPos - this.lastPosition }));
             }
 
             this.lastCharAdded = null;
