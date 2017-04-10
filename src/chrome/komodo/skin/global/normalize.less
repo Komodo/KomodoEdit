@@ -623,11 +623,15 @@ separator
 vbox > spacer,
 :not(hbox) > spacer
 {
-    height: 0.5rem;
-
-    &.slim
+    &:not(.arrowscrollbox-overflow-end-indicator)
+     :not(.arrowscrollbox-overflow-start-indicator)
     {
-        height: 0.25rem;
+        height: 0.5rem;
+
+        &.slim
+        {
+            height: 0.25rem;
+        }
     }
 }
 
