@@ -186,6 +186,7 @@ module.exports = Module;
         this.on = function() { this.$element.on.apply(this.$element, arguments); };
         this.off = function() { this.$element.off.apply(this.$element, arguments); };
         this.once = function() { this.$element.once.apply(this.$element, arguments); };
+        this.trigger = function() { this.$element.trigger.apply(this.$element, arguments); };
         
         this.focus = function() { this.$element.focus.apply(this.$element, arguments); };
         
@@ -197,6 +198,9 @@ module.exports = Module;
         
         this.hide = function() { this.$element.hide.apply(this.$element, arguments); };
         this.show = function() { this.$element.show.apply(this.$element, arguments); };
+
+        this.empty = function() { this.$element.empty.apply(this.$element, arguments); };
+        this.remove = function() { this.$element.remove.apply(this.$element, arguments); };
         
     }).apply(this.Model);
     
