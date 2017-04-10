@@ -102,6 +102,9 @@ module.exports = Module;
             }
         };
         
+        this.open = function() { this.element.openPopup.apply(this.element, arguments); };
+        this.hide = function() { this.element.hidePopup.apply(this.element, arguments); };
+
     }).apply(this.Model); 
     
 }).apply(Module);
