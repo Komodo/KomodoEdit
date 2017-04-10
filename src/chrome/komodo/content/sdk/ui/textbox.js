@@ -20,7 +20,7 @@ module.exports = Module;
         
         this.onChange = function (callback)
         {
-            this.$element.on("command", callback);
+            this.$element.on("input", callback);
         };
         
         this.value = function(value)
