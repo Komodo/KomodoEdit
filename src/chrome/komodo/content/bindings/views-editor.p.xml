@@ -467,6 +467,8 @@
         ]]>
         </body>
         </method>
+
+        <field name="minimap">null</field>
         
         <method name="createMinimap">
         <body><![CDATA[
@@ -1759,9 +1761,23 @@
             if (this.in_updateui)
                 return;
 
+            this.in_updateui = true;
+
+            if (this.minimap && this.showMinimap && !this.minimap.in_updateui) {
+                var firstDocLine, lastDocLineOnScreen;
+                [firstDocLine, lastDocLineOnScreen] = this.getEditorViewBoundaries();
+                var updateMinimap = this._needsUpdate(firstDocLine, lastDocLineOnScreen);
+                if (updateMinimap) {
+                    this.minimap.syncMinimapFromBuffer();
+                    this.updateEditorViewBoundaries(firstDocLine, lastDocLineOnScreen);
+                    this.minimap.updateEditorViewBoundaries();
+                }
+            }
+
             var keepGoing = this.__proto__.__proto__.onUpdateUI.call(this, updated);
             if (keepGoing === false)
             {
+                this.in_updateui = false;
                 return;
             }
 
@@ -1784,28 +1800,11 @@
                 this.in_lite_multicaret = false;
                 this.cancel_lite_multicaret_on_modify = false;
             }
-
-            this.in_updateui = true;
             
             this.onEditMatchingTags(updated);
             this.onEditMatchingDelim(updated);
-
-            try {
-                //TODO: Minimap pref
-                //dump(">> views-editor.p.xml: onUpdateUI\n");
-                if (this.minimap && this.showMinimap && !this.minimap.in_updateui) {
-                    var firstDocLine, lastDocLineOnScreen;
-                    [firstDocLine, lastDocLineOnScreen] = this.getEditorViewBoundaries();
-                    var updateMinimap = this._needsUpdate(firstDocLine, lastDocLineOnScreen);
-                    if (updateMinimap) {
-                        this.minimap.syncMinimapFromBuffer();
-                        this.updateEditorViewBoundaries(firstDocLine, lastDocLineOnScreen);
-                        this.minimap.updateEditorViewBoundaries();
-                    }
-                }
-            } finally {
-                this.in_updateui = false;
-            }
+            
+            this.in_updateui = false;
         ]]>
         </body>
         </method>
