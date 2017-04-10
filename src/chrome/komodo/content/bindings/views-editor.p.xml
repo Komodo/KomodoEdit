@@ -2586,8 +2586,11 @@
         
         <handler event="mouseup" phase="bubbling">
         <![CDATA[
-            this.onEditMatchingTags(-1);
-            this.onEditMatchingDelim(-1);
+            // run on timeout so as not to conflict with scintilla mouseup events
+            setTimeout(function() {
+                this.onEditMatchingTags(-1);
+                this.onEditMatchingDelim(-1);
+            }.bind(this), 50);
         ]]>
         </handler>
 
