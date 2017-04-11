@@ -243,14 +243,14 @@ function getKomodoBugzillaQueryParams() {
 //   -home
 //   -aspn
 var tag2uri = {
-    'mailLists': "http://code.activestate.com/lists/komodo-discuss/",
-    'home': "http://komodoide.com/",  // this one
-    'aspn': "http://code.activestate.com/", // This one
-    'community': "http://forum.komodoide.com/",
-    'contactus': "http://www.activestate.com/company/contact-us",
+    'mailLists': "https://code.activestate.com/lists/komodo-discuss/",
+    'home': "https://www.activestate.com/komodo-ide",  // this one
+    'aspn': "https://code.activestate.com/", // This one
+    'community': "http://community.komodoide.com/",
+    'contactus': "https://www.activestate.com/company/contact-us",
     'bugs': "https://github.com/Komodo/KomodoEdit/issues",
-    'packages': "http://komodoide.com/resources/",
-    'contribute': "http://komodoide.com/resources/submit-instructions/#pane-resources"
+    'packages': "http://community.komodoide.com/packages/",
+    'contribute': "http://community.komodoide.com/packages/submit-instructions/#pane-packages"
 };
 
 /**
