@@ -619,7 +619,6 @@
     
     this.hideNotification = (notif, animate) =>
     {
-        log.debug("Hiding Notification: " + notif.opts.id);
         
         if ( ! notif)
         {
@@ -632,6 +631,8 @@
             }
             return;
         }
+        
+        log.debug("Hiding Notification: " + notif.opts.id);
         
         var panel = queue[notif.opts.from].activePanel;
         if (panel && queue[notif.opts.from].timeout) timers.clearTimeout(queue[notif.opts.from].timeout);
