@@ -375,8 +375,6 @@ this.AddMessage = function(msg, category, timeout, highlight, interactive, log /
  */
 this.Clear = function() { _clear(); }
 
-var _encodingMenuInitialized = false;
-
 /**
  * Set the encoding menu for the current view.
  * @param {DOMElement} menupopup
@@ -387,9 +385,10 @@ this.setupEncodingMenu = function(menupopup)
     if (typeof(view)=='undefined' || !view || !view.koDoc) {
         return;
     }
+    
     var xv = getXulView(view);
     
-    if (!_encodingMenuInitialized) {
+    if (!('_encodingWidget' in view)) {
         var encodingSvc = Components.classes["@activestate.com/koEncodingServices;1"].
                            getService(Components.interfaces.koIEncodingServices);
     
@@ -402,7 +401,7 @@ this.setupEncodingMenu = function(menupopup)
         while (tempMenupopup.childNodes.length > 0) {
             encodingMenupopup.appendChild(tempMenupopup.removeChild(tempMenupopup.firstChild));
         }
-        _encodingMenuInitialized = true;
+        view._encodingWidget = true;
     }
 }
 
