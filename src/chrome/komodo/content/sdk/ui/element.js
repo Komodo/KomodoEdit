@@ -188,7 +188,7 @@ module.exports = Module;
         this.addClass = function() { this.$element.addClass.apply(this.$element, arguments); };
         this.removeClass = function() { this.$element.removeClass.apply(this.$element, arguments); };
         
-        this.attr = function() { this.$element.attr.apply(this.$element, arguments); };
+        this.attr = function() { return this.$element.attr.apply(this.$element, arguments); };
         this.removeAttr = function() { this.$element.removeAttr.apply(this.$element, arguments); };
         
         this.hide = function() { this.$element.hide.apply(this.$element, arguments); };
