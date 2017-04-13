@@ -72,6 +72,11 @@ module.exports = Module;
             return element;
         };
         
+        this.addSeparator = function()
+        {
+            this.$element.append(require("ko/ui/menuseparator").create().element);
+        };
+
         /**
          * Remove all elements in the menupopup
          */
