@@ -32,13 +32,15 @@ module.exports = Module;
                 listitems = null;
             }
             
+            this.parseOptions(options);
+            options = this.options;
+
             if ("listitems" in options)
             {
                 listitems = options.listitems;
             }
             
-            this.options = options;
-            this.$element = $($.create(this.name, options.attributes || {}).toString());
+            this.$element = $($.create(this.name, this.attributes).toString());
             this.$element.addClass("ui-" + this.name);
             this.element = this.$element.element();
             

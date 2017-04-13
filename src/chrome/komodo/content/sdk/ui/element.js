@@ -24,35 +24,34 @@ module.exports = Module;
         
         this.init = function(options = {})
         {
-            var attributes = Object.assign(options.attributes || {}, this.attributes);
-            
-            this.options = options;
-            this.attributes = attributes;
-            this.$element = $($.create(this.name, attributes).toString());
+            this.parseOptions(options);
+
+            this.$element = $($.create(this.name, this.attributes).toString());
             this.$element.addClass("ui-" + this.name);
             this.element = this.$element.element();
         };
+
+        this.parseOptions = function(options)
+        {
+            this.attributes = options.attributes || options;
+            this.options = options.options || {};
+        };
         
         this.defaultInit = this.init;
-        
+
         this.initWithAttribute = function(attribute, value, options = {})
         {
-            var attributes = Object.assign(options.attributes || {}, this.attributes);
-            
-            if (typeof value == "object")
-            {
+            if (typeof attribute == "object")
+                options = attribute;
+            else if (typeof value == "object")
                 options = value;
-                attributes = Object.assign(options.attributes || {}, this.attributes);
-            }
-            else
-            {
-                if (value)
-                    attributes[attribute] = value;
-            }
+                
+            this.parseOptions(options);
+
+            if (typeof attribute != "object" && typeof value != "object")
+                this.attributes[attribute] = value;
             
-            this.options = options;
-            this.attributes = attributes;
-            this.$element = $($.create(this.name, attributes).toString());
+            this.$element = $($.create(this.name, this.attributes).toString());
             this.$element.addClass("ui-" + this.name);
             this.element = this.$element.element();
         };
@@ -64,22 +63,21 @@ module.exports = Module;
                 options = label;
                 label = null;
             }
+
+            this.parseOptions(options);
+            options = this.options;
             
             if (options.label)
             {
                 label = options.label;
             }
             
-            var attributes = Object.assign(options.attributes || {}, this.attributes);
-            
             if (typeof label == "string")
             {
-                attributes.label = label;
+                this.attributes.label = label;
             }
-            
-            this.options = options;
-            this.attributes = attributes;
-            this.$element = $($.create(this.name, attributes).toString());
+
+            this.$element = $($.create(this.name, this.attributes).toString());
             this.$element.addClass("ui-" + this.name);
             this.element = this.$element.element();
         };
@@ -100,11 +98,8 @@ module.exports = Module;
                 }
             }
             
-            var attributes = Object.assign(options.attributes || {}, this.attributes);
-            
-            this.options = options;
-            this.attributes = attributes;
-            this.$element = $($.create(this.name, attributes).toString());
+            this.parseOptions(options);
+            this.$element = $($.create(this.name, this.attributes).toString());
             this.$element.addClass("ui-" + this.name);
             this.element = this.$element.element();
             

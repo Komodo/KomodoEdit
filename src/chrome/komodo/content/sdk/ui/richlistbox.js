@@ -32,13 +32,15 @@ module.exports = Module;
                 richlistitems = null;
             }
 
+            this.parseOptions(options);
+            options = this.options;
+
             if ("richlistitems" in options)
             {
                 richlistitems = options.richlistitems;
             }
 
-            this.options = options;
-            this.$element = $($.create(this.name, options.attributes || {}).toString());
+            this.$element = $($.create(this.name, this.attributes).toString());
             this.element = this.$element.element();
 
             if (richlistitems && Array.isArray(richlistitems))

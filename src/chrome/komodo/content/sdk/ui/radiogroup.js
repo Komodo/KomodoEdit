@@ -26,8 +26,6 @@ module.exports = Module;
         
         this.init = function(label, options = {})
         {
-            var attributes = Object.assign(options.attributes || {}, this.attributes);
-            
             if (Array.isArray(options))
             {
                 options = { options: options };
@@ -43,13 +41,14 @@ module.exports = Module;
                 options.label = label;
             }
             
-            this.options = options;
-            this.attributes = attributes;
+            this.parseOptions(options);
+            options = this.options;
+            
             this.$element = $($.create(this.name).toString());
             this.$element.addClass("ui-radiogroup-wrapper");
             this.element = this.$element.element();
             
-            this.$formElement = $($.create("radiogroup", attributes).toString());
+            this.$formElement = $($.create("radiogroup", this.attributes).toString());
             this.$formElement.addClass("ui-radiogroup");
             this.formElement = this.$formElement.element();
             this.$element.append(this.formElement);
@@ -61,7 +60,7 @@ module.exports = Module;
             var radioBtns = options.options;
             if (radioBtns && Array.isArray(radioBtns))
             {
-                this.addRadioItems(radioBtns)
+                this.addRadioItems(radioBtns);
             }
             else if (radioBtns && ! Array.isArray(radioBtns))
             {

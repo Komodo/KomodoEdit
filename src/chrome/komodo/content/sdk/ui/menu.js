@@ -31,13 +31,15 @@ module.exports = Module;
                 menuitems = null;
             }
             
+            this.parseOptions(options);
+            options = this.options;
+
             if ("menuitems" in options)
             {
                 menuitems = options.menuitems;
             }
             
-            this.options = options;
-            this.$element = $($.create(this.name, options.attributes || {}).toString());
+            this.$element = $($.create(this.name, this.attributes).toString());
             this.element = this.$element.element();
             this.$element.addClass("ui-" + this.name);
             

@@ -27,11 +27,11 @@ module.exports = Module;
             {
                 var ko = require("ko/windows").getMain().ko;
                 
-                var type = this.options.type || "file";
+                var type = this.attributes.filetype || "file";
                 var value = this.textbox.value();
                 
-                var filter = this.options.filter || null;
-                var filters = this.options.filters || null;
+                var filter = this.attributes.filter || null;
+                var filters = this.attributes.filters || null;
 
                 switch (type)
                 {
