@@ -9,18 +9,21 @@
     var loadedSheets = [];
     var globalSheets = [];
     
-    var observer = {};
-    observerSvc.addObserver(observer, "interface-scheme-changed", 0);
-    
-    observer.observe = () =>
+    var init = () =>
     {
-        for (let s of loadedSheets)
-        {
-            s.load(s.uri, s.window, s.type);
-        }
-    };
+        var observer = {};
+        observerSvc.addObserver(observer, "interface-scheme-changed", 0);
 
-    windows.onLoad(onLoadWindow);
+        observer.observe = () =>
+        {
+            for (let s of loadedSheets)
+            {
+                s.load(s.uri, s.window, s.type);
+            }
+        };
+        
+        windows.onLoad(onLoadWindow);
+    };
 
     var onLoadWindow = (window) =>
     {
@@ -53,7 +56,7 @@
             let s = loadedSheets[x];
             if (s.uri == uri && s.window == window && s.type == type)
             {
-                delete loadedSheets[x];
+                loadedSheets.splice(x, 1);
                 break;
             }
         }
@@ -81,10 +84,12 @@
             let s = loadedSheets[x];
             if (s.uri == uri && s.type == type)
             {
-                delete globalSheets[x];
+                globalSheets.splice(x, 1);
                 break;
             }
         }
     };
+    
+    init();
     
 }).apply(module.exports);
