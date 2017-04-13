@@ -6,7 +6,7 @@
  */
 
 var $ = require("ko/dom");
-var parent = require("./element");
+var parent = require("./listbox");
 var Module = Object.assign({}, parent);
 var log = require("ko/logging").getLogger("sdk/ui/richlistbox");
 //log.setLevel(require("ko/logging").LOG_DEBUG);
@@ -43,7 +43,7 @@ module.exports = Module;
 
             if (richlistitems && Array.isArray(richlistitems))
             {
-                this.addRichListItems(richlistitems);
+                this.addListItems(richlistitems);
             }
             else if (richlistitems && ! Array.isArray(richlistitems))
             {
@@ -52,10 +52,10 @@ module.exports = Module;
             }
         };
 
-        this.addRichListItems = function (entries)
+        this.addListItems = function (entries)
         {
             for (let entry of entries) {
-                this.addRichListItem(entry);
+                this.addListItem(entry);
             }
         };
 
@@ -76,7 +76,7 @@ module.exports = Module;
          *      }
          *  }
          */
-        this.addRichListItem = function (item)
+        this.addListItem = function (item)
         {
             var element;
             if ("isSdkElement" in item)

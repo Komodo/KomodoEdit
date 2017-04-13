@@ -6,7 +6,7 @@
  *
  */
 
-var parent = require("./element");
+var parent = require("./listitem");
 var Module = Object.assign({}, parent);
 module.exports = Module;
 
