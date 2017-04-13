@@ -118,6 +118,12 @@ module.exports = Module;
             }
             
             this.menupopup.addMenuItem(element);
+            var $element = $(element);
+            // Don't set if it's already set.
+            if ( $element.attr("tooltiptext") === "" )
+            {
+                $element.attr("tooltiptext", $(element).attr("label") );
+            }
             
             if (element.getAttribute("selected") == "true" && "selectedItem" in this.element)
             {
