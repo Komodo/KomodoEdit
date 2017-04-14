@@ -33,8 +33,8 @@ module.exports = Module;
 
         this.parseOptions = function(options)
         {
-            this.attributes = options.attributes || options;
-            this.options = options.options || {};
+            this.attributes = Object.assign(options.attributes || options, this.attributes);
+            this.options = Object.assign(options.options || {}, this.options);
         };
         
         this.defaultInit = this.init;
