@@ -35,8 +35,7 @@
             else
             {
                 parent = require("ko/ui/column").create({ attributes: {
-                    class: "ui-progress-parent",
-                    style: "min-width: 250px"
+                    class: "ui-progress-parent"
                 } });
             }
 
