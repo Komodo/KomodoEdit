@@ -494,7 +494,7 @@
               var x = window.screen.left + Math.round((window.screen.availWidth - window.outerWidth) / 2);
               var y = window.screen.top + Math.round((window.screen.availHeight - window.outerHeight) / 2);
               window.moveTo(x,y);
-            }, 0);
+            }, 100);
           });
         }
 
