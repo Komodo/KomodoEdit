@@ -67,7 +67,7 @@
             scheme: prefs.getStringPref("editor-scheme").replace(/\-(dark|light)$/, '.$1')
         });
 
-        var baseUrl = ko.prefs.getString("kopy_baseurl", "http://kopy.io");
+        var baseUrl = ko.prefs.getString("kopy_baseurl", "https://kopy.io");
         var httpReq = new window.XMLHttpRequest({mozSystem: true});
         httpReq.open("post", baseUrl + '/documents', true);
         httpReq.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
