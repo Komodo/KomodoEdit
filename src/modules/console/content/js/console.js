@@ -53,7 +53,22 @@ window.app = {};
         
         var rows = elem.input.lines > 5 ? 5 : elem.input.lines;
         if (rows == 1 && elem.input.scrollLeft) rows = 2;
-        elem.input.style.height = (rows * 1.5) + "rem";
+        var maxHeight = 5 * 1.5;
+        var height = rows * 1.5;
+        elem.input.style.height = height + "rem";
+        elem.input.rows = rows;
+
+        var updateHeight = () =>
+        {
+            if (height < maxHeight && elem.input.scrollTopMax)
+            {
+                rows++;
+                height = rows * 1.5;
+                elem.input.style.height = height + "rem";
+                updateHeight();
+            }
+        };
+        updateHeight();
         
         if (scroll) elem.console.scrollTop = elem.console.scrollTopMax;
     }
@@ -234,7 +249,6 @@ window.app = {};
     
     this.formatException = function(ex)
     {
-        var stack = ex.stack.split(/\n/g);
         var data = document.createElement("label");
         var checkbox = document.createElement("input");
         checkbox.setAttribute("type", "checkbox");
@@ -244,20 +258,24 @@ window.app = {};
         message.classList.add("ex-message");
         message.textContent = ex.message;
         data.appendChild(message);
-        
+
         var traceStart = document.createElement("div");
         message.classList.add("ex-trace-start");
         traceStart.textContent = "  Stack Trace:";
         data.appendChild(traceStart);
-        
-        var trace = document.createElement("ul");
-        stack.forEach(function(frame) {
-            if (frame.indexOf(ex.message) !== -1) return;
-            var li = document.createElement("li");
-            li.textContent = "    " + frame.trim();
-            trace.appendChild(li);
-        });
-        data.appendChild(trace);
+
+        if (ex.stack)
+        {
+            var trace = document.createElement("ul");
+            var stack = ex.stack.split(/\n/g);
+            stack.forEach(function(frame) {
+                if (frame.indexOf(ex.message) !== -1) return;
+                var li = document.createElement("li");
+                li.textContent = "    " + frame.trim();
+                trace.appendChild(li);
+            });
+            data.appendChild(trace);
+        }
         
         return data;
     }

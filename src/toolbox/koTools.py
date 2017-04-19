@@ -42,7 +42,8 @@ _icons = {
     'macro'     :   'chrome://komodo/skin/images/toolbox/macro.svg',
     'cut'       :   'chrome://komodo/skin/images/toolbox/snippet.svg',
     'template'  :   'chrome://komodo/skin/images/toolbox/template.svg',
-    'url'       :   'chrome://komodo/skin/images/toolbox/browser.svg'
+    'folder_template'  :   'chrome://komodo/skin/images/toolbox/folder_template.svg',
+    'url'       :   'chrome://komodo/skin/images/toolbox/url.svg',
 }
 
 #---- `koITool` class hierarchy
@@ -59,6 +60,7 @@ class _KoTool(object):
         self.initialized = False
         self.temporary = False
         self._attributes = {}
+        self.supportsCleanFormat = True
         self._nondb_attributes = {}
         self.flavors = ['text/uri-list',
                         'text/unicode', 'text/plain', 'application/x-komodo-part',
@@ -79,7 +81,7 @@ class _KoTool(object):
         
     def init(self):
         pass
-    
+
     def _getObserverSvc(self):
         if not self._observerSvc:
             self._observerSvc = components.classes["@mozilla.org/observer-service;1"]\
@@ -221,6 +223,10 @@ class _KoTool(object):
         self.setAttribute(name, int(value))
 
     def getBooleanAttribute(self, name):
+        value = self.getAttribute(name)
+        if type(value) is unicode:
+            return value == "True"
+
         return self.getLongAttribute(name) and 1 or 0
 
     def setBooleanAttribute(self, name, value):
@@ -321,9 +327,13 @@ class _KoTool(object):
             self._nondb_attributes['path'] = _tbdbSvc.getPath(self.id)
         path = self._nondb_attributes['path']
         fp = open(path, 'r')
-        data = json.load(fp, encoding="utf-8")
+
+        data = koToolbox2.DataParser.readData(fp)
+
         fp.close()
-        if data.get('name', self.name) != self.name:
+
+        if data.get('name', self.name) != self.name or \
+           data.get('language', self._attributes['language']) != self._attributes['language']:
             refreshParent = True
             # bug 88228: we're renaming a tool by saving its properties, so do the
             # rename separately.  This updates the DB correctly.
@@ -333,10 +343,14 @@ class _KoTool(object):
             savePath = path
         data['value'] = self.value.splitlines()
         data['name'] = self.name
+
         self._saveIconCheck(data)
         data.update(self._attributes)
-        fp = open(savePath, 'w')
-        json.dump(data, fp, encoding="utf-8", indent=2)
+
+        fp = open(savePath, 'r+')
+
+        koToolbox2.DataParser.writeData(fp, data)
+
         fp.close()
         if refreshParent:
             self._refreshParent()
@@ -350,7 +364,12 @@ class _KoTool(object):
         self._saveIconCheck(data)
         data.update(self._attributes)
         fp = open(path, 'w')
-        data = json.dump(data, fp, encoding="utf-8", indent=2)
+        
+        if self.supportsCleanFormat:
+            koToolbox2.DataParser.writeCleanData(fp, data)
+        else:
+            koToolbox2.DataParser.writeJsonData(fp, data)
+        
         fp.close()
         
     def saveContentToDisk(self):
@@ -358,7 +377,9 @@ class _KoTool(object):
             self._nondb_attributes['path'] = _tbdbSvc.getPath(self.id)
         path = self._nondb_attributes['path']
         fp = open(path, 'r')
-        data = json.load(fp, encoding="utf-8")
+
+        data = koToolbox2.DataParser.readData(fp)
+
         fp.close()
         if data.get('name', self.name) != self.name:
             refreshParent = True
@@ -375,8 +396,8 @@ class _KoTool(object):
             newVal = self._attributes[attr]
             if attr not in data or newVal != data[attr]:
                 data[attr] = self._attributes[attr]
-        fp = open(savePath, 'w')
-        data = json.dump(data, fp, encoding="utf-8", indent=2)
+        fp = open(savePath, 'r+')
+        koToolbox2.DataParser.writeData(fp, data)
         fp.close()
         if refreshParent:
             self._refreshParent()
@@ -743,7 +764,7 @@ class _KoSnippetTool(_KoTool):
         return self.value.replace(self._ANCHOR_MARKER, "", 1).replace(self._CURRENTPOS_MARKER, "", 1)
 
 
-class _KoURLToolBase(_KoTool):
+class _KoGenericToolBase(_KoTool):
     def setStringAttribute(self, name, value):
         _KoTool.setStringAttribute(self, name, value)
         if name == 'value':
@@ -764,15 +785,65 @@ class _KoURLToolBase(_KoTool):
         info = _tbdbSvc.getSimpleToolInfo(self.id)
         self._finishUpdatingSelf(info)
         
-class _KoTemplateTool(_KoURLToolBase):
+class _KoTemplateTool(_KoTool):
     typeName = 'template'
     prettytype = 'Template'
     _iconurl = _icons.get('template')
 
-class _KoURLTool(_KoURLToolBase):
+    def __init__(self, *args):
+        _KoTool.__init__(self, *args)
+        self.name = "New Template"
+        self.flavors.insert(0, 'application/x-komodo-template')
+
+    def setStringAttribute(self, name, value):
+        _KoTool.setStringAttribute(self, name, value)
+        if name == 'value':
+            # Komodo treats the value as a URI to get a koFileEx object.
+            _KoTool.setStringAttribute(self, 'url', value)
+
+    def get_url(self):
+        """
+        See _KoMacroTool.get_url for docs
+        """
+        return "template://%s/%s.template" % (self.id, koToolbox2.slugify(self.name))
+
+    def save(self):
+        # Write the changed data to the file system
+        self.save_handle_attributes()
+        self.saveToolToDisk()
+        _tbdbSvc.saveTemplateInfo(self.id, self.name, self.value, self._attributes)
+        self._postSave()
+        _toolsManager.removeChangedCachedTool(self.id)
+
+    def updateSelf(self):
+        if self.initialized:
+            return
+        info = _tbdbSvc.getTemplateInfo(self.id)
+        self._finishUpdatingSelf(info)
+
+class _KoURLTool(_KoGenericToolBase):
     typeName = 'URL'
     prettytype = 'URL'
     _iconurl = _icons.get('url')
+    
+class _KoFolderTemplateTool(_KoGenericToolBase):
+    typeName = 'folder_template'
+    prettytype = 'FolderTemplate'
+    _iconurl = _icons.get('folder_template')
+
+    def save(self):
+        # Write the changed data to the file system
+        self.save_handle_attributes()
+        self.saveToolToDisk()
+        _tbdbSvc.saveFolderTemplateInfo(self.id, self.name, self.value, self._attributes)
+        self._postSave()
+        _toolsManager.removeChangedCachedTool(self.id)
+
+    def updateSelf(self):
+        if self.initialized:
+            return
+        info = _tbdbSvc.getFolderTemplateInfo(self.id)
+        self._finishUpdatingSelf(info)
 
 
 _koToolClassFromTypeName = {}
@@ -873,10 +944,11 @@ class KoToolbox2ToolManager(object):
                             break
             item.trailblazeForPath(path)
         else:
-            path = self._prepareUniqueFileSystemName(parent_path, item_name)
+            path = self._prepareUniqueFileSystemName(item, parent_path, item_name)
         try:
             itemDetailsDict = {}
             item.fillDetails(itemDetailsDict)
+
             if itemIsContainer:
                 new_id = self.toolbox_db.addContainerItem(itemDetailsDict,
                                                           item.typeName,
@@ -889,7 +961,7 @@ class KoToolbox2ToolManager(object):
                                                  path,
                                                  item_name,
                                                  parent.id)
-                
+
             old_id = item.id
             item.id = new_id
             # Even if the old and new IDs are the same, we don't want
@@ -907,9 +979,13 @@ class KoToolbox2ToolManager(object):
             log.exception("addNewItemToParent: failed")
             raise
 
-    def _prepareUniqueFileSystemName(self, dirName, baseName, ext=None):
+    def _prepareUniqueFileSystemName(self, tool, dirName, baseName, ext=None):
         if ext is None:
-            ext = koToolbox2.TOOL_EXTENSION
+            if tool.supportsCleanFormat:
+                ext = koToolbox2.TOOL_EXTENSION_CLEAN
+            else:
+                ext = koToolbox2.TOOL_EXTENSION
+
         # "slugify"
         basePart = koToolbox2.truncateAtWordBreak(re.sub(r'[^\w\d\-=\+]+', '_', baseName))
         basePart = join(dirName, basePart)
@@ -990,6 +1066,12 @@ class KoToolbox2ToolManager(object):
     def getToolsByTypeAndName(self, toolType, name):
         ids = self.toolbox_db.getToolsByTypeAndName(toolType, name)
         return [self.getToolById(id) for id in ids]
+
+    def getDefaultTemplateForLanguage(self, language):
+        id = self.toolbox_db.getDefaultTemplateForLanguage(language)
+        if not id:
+            return None
+        return self.getToolById(id)
 
     def getAbbreviationSnippet(self, abbrev, subnames, isAutoAbbrev):
         id = self.toolbox_db.getAbbreviationSnippetId(abbrev, subnames, isAutoAbbrev)
@@ -1089,24 +1171,24 @@ class KoToolbox2ToolManager(object):
                                   "Can't rename a top-level folder")
         oldPath = tool.path
         if isContainer:
-            newPathOnDisk = self._prepareUniqueFileSystemName(parentTool.path, newName, ext="")
+            newPathOnDisk = self._prepareUniqueFileSystemName(tool, parentTool.path, newName, ext="")
         else:
-            newPathOnDisk = self._prepareUniqueFileSystemName(parentTool.path,
+            newPathOnDisk = self._prepareUniqueFileSystemName(tool, parentTool.path,
                                                               newName)
         os.rename(oldPath, newPathOnDisk)
-        
+
         # Update the name field in the json tool
         try:
             fp = open(newPathOnDisk, 'r')
-            data = json.load(fp, encoding="utf-8")
+            data = koToolbox2.DataParser.readData(fp)
             fp.close()
             if data['name'] != newName:
                 # If these are the same, we're doing a null rename, but
                 # treat that as an anomaly.
                 pass
             data['name'] = newName;
-            fp = open(newPathOnDisk, 'w')
-            json.dump(data, fp, encoding="utf-8", indent=2)
+            fp = open(newPathOnDisk, 'r+')
+            koToolbox2.DataParser.writeData(fp, data)
             fp.close()
         except:
             log.exception("Failed to update json on old path:%s, newName:%s",

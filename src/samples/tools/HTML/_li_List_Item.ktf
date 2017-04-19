@@ -1,0 +1,10 @@
+// komodo tool: <li> List Item
+// ===========================
+// auto_abbreviation: false
+// indent_relative: true
+// set_selection: true
+// treat_as_ejs: false
+// type: snippet
+// version: 1.0.12
+// ===========================
+<li>[[%(w:else:)]]!@#_currentPos!@#_anchor</li>

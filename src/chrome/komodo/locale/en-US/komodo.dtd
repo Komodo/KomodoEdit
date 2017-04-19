@@ -100,12 +100,13 @@
 <!ENTITY cutButton.accesskey "T">
 <!ENTITY decreaseFont.accesskey "D">
 <!ENTITY decreaseFont.label "Decrease Font Size">
-<!ENTITY decreaseLineIndent.label "Dedent">
+<!ENTITY decreaseLineIndent.label "Unindent">
 <!ENTITY delete.label "Delete">
 <!ENTITY deleteBlankLines.desc "Editor: Delete Blank Lines">
 <!ENTITY edit.label "Edit">
 <!ENTITY editMacro.label "Edit Userscript">
 <!ENTITY editSnippet.label "Edit Snippet">
+<!ENTITY editRaw.label "Edit Tool (advanced)">
 <!ENTITY editorInvokeHyperlink.desc "Editor: Invoke Hyperlink">
 <!ENTITY editorAddAsSnippetToToolbox.desc "Editor: Add as Snippet into Toolbox">
 <!ENTITY editorBack.desc "Editor: Back">
@@ -129,6 +130,7 @@
 <!ENTITY editorDeleteLine.desc "Editor: Delete Line">
 <!ENTITY editorDeleteWordLeft.desc "Editor: Delete Word Left">
 <!ENTITY editorDeleteWordRight.desc "Editor: Delete Word Right">
+<!ENTITY editorDelimitedBlockSelect.desc "Editor: Delimited Block Select">
 <!ENTITY editorDuplicateLineUp.desc "Editor: Duplicate Line/Selection Up">
 <!ENTITY editorDuplicateLineDown.desc "Editor: Duplicate Line/Selection Down">
 <!ENTITY editorDuplicateSelectionLeft.desc "Editor: Duplicate In-line Selection Left">
@@ -290,6 +292,7 @@
 <!ENTITY folderContextNewMenu.accesskey "n">
 <!ENTITY folderContextNewSnippet.accesskey "s">
 <!ENTITY folderContextNewTemplate.accesskey "t">
+<!ENTITY folderContextNewFolderTemplate.accesskey "f">
 <!ENTITY folderContextNewToolbar.accesskey "b">
 <!ENTITY folderContextNewURL.accesskey "l">
 <!ENTITY folderContextRemoteFile.accesskey "r">
@@ -403,12 +406,15 @@
 <!ENTITY helpTroubleshootingViewErrorLog.desc "Help: Open the Komodo Error Log for viewing">
 <!ENTITY helpTroubleshootingAboutMemory.accesskey "M">
 <!ENTITY helpTroubleshootingAboutMemory.label "Memory Usage">
-<!ENTITY importExport.label "Import/Export">
+<!ENTITY import.label "Import">
 <!ENTITY importPackage.label "Import Package...">
 <!ENTITY increaseFont.accesskey "I">
 <!ENTITY increaseFont.label "Increase Font Size">
 <!ENTITY increaseLineIndent.label "Indent">
 <!ENTITY incrementalSearch.label "Incremental Search">
+<!ENTITY useTemplate.label "Use Template">
+<!ENTITY useFolderTemplate.label "Use Folder Template">
+<!ENTITY editTemplate.label "Edit Template">
 <!ENTITY insertSnippet.label "Insert Snippet">
 <!ENTITY joinLines.label "Join Lines">
 <!ENTITY jumpToCorrespondingLine.label "Jump to corresponding line">
@@ -456,6 +462,7 @@
 <!ENTITY makeUppercase.label "Make Uppercase">
 <!ENTITY menu.tooltiptext "Menu">
 <!ENTITY menuBlockSelect.accesskey "B">
+<!ENTITY menuDelimitedBlockSelect.accesskey "D">
 <!ENTITY menuBookmarkGotoNext.accesskey "N">
 <!ENTITY menuBookmarkGotoPrevious.accesskey "P">
 <!ENTITY menuBookmarkRemoveAll.accesskey "R">
@@ -550,6 +557,7 @@
 <!ENTITY newProjectFromTemplate.label "New Project From Template...">
 <!ENTITY newSnippet.label "New Snippet...">
 <!ENTITY newTemplate.label "New Template...">
+<!ENTITY newFolderTemplate.label "New Folder Template...">
 <!ENTITY newWindow.accesskey "N">
 <!ENTITY newWindow.label "New Window">
 <!ENTITY newURL.label "New URL...">
@@ -678,6 +686,7 @@
 <!ENTITY selectAll.label "Select All">
 <!ENTITY selectAll.menu.accesskey "A">
 <!ENTITY selectBlock.label "Select Block">
+<!ENTITY selectDelimitedBlock.label "Select Delimited Block">
 <!ENTITY selectToMatchingBrace.label "Select to Matching Brace">
 <!ENTITY selectToMatchingBrace.menu.accesskey "C">
 <!ENTITY selection.label "selection">

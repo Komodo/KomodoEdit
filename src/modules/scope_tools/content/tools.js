@@ -16,6 +16,13 @@
     {
         log.debug(uuid + " - Starting Scoped Search");
 
+        var subscope = commando.getSubscope();
+        if ( ! subscope && query == '')
+        {
+            this.showToolCategories(uuid, onComplete);
+            return;
+        }
+
         // Get ordered list of best language scope (a *list* for
         // multi-language files).
         var currView = ko.views.manager.currentView;
@@ -35,18 +42,26 @@
             });
         }
 
+        var type = "";
+        if (subscope)
+            type = subscope.data.type;
+
         var tools = [];
-        tbSvc.findToolsAsync(query, langs.length, langs, function(code, results)
+        tbSvc.findToolsAsync(query, langs.length, langs, type, function(code, results)
         {
             for (let k in results)
             {
                 let result = results[k];
+                let description = result.type;
+
+                if (result.subDir)
+                    description += " - " + result.subDir;
 
                 tools.push({
                     classList: "compact",
                     id: result.path_id,
                     name: result.name,
-                    description: result.type + " - " + result.subDir,
+                    description: description,
                     icon: result.iconUrl,
 
                     scope: "scope-tools",
@@ -63,6 +78,57 @@
 
             onComplete();
         });
+    }
+
+    this.showToolCategories = function(uuid, onComplete)
+    {
+        var categories = [
+            {
+                id: "command",
+                name: "Commands",
+            },
+            {
+                id: "snippet",
+                name: "Snippets",
+            },
+            {
+                id: "template",
+                name: "Templates",
+            },
+            {
+                id: "folder_template",
+                name: "Folder Templates",
+            },
+            {
+                id: "tutorial",
+                name: "Tutorials",
+            },
+            {
+                id: "macro",
+                name: "Userscripts",
+            },
+            {
+                id: "url",
+                name: "URL",
+            },
+        ];
+
+        var results = [];
+        for (let category of categories)
+        {
+            results.push({
+                id: "tool-category-" + category.id,
+                name: category.name,
+                icon: "chrome://komodo/skin/images/toolbox/"+category.id+".svg?size=14",
+                scope: "scope-tools",
+                isScope: true,
+                data: { type: category.id },
+                allowMultiSelect: false
+            });
+        }
+
+        commando.renderResults(results, uuid);
+        onComplete();
     }
 
     this.onSelectResult = function(selectedItems)
@@ -88,7 +154,7 @@
             }
         }
 
-        commando.hideCommando();
+        commando.hide();
     }
 
 }).apply(module.exports);

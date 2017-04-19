@@ -53,6 +53,8 @@ from zope.cachedescriptors.property import Lazy as LazyProperty
 from zope.cachedescriptors.property import LazyClassAttribute
 from koUDLLanguageBase import udl_family_from_style
 import koUnicodeEncoding, codecs, types
+import threading
+import json
 
 log = logging.getLogger('koDocument')
 #log.setLevel(logging.DEBUG)
@@ -2237,3 +2239,34 @@ class koDocumentBase(object):
     def md5Hash(self):
         return md5(self.buffer.encode("utf-8")).hexdigest()
 
+    def getLinesMatching(self, search, cb):
+        t = threading.Thread(target=self._getLinesMatching, args=(search, cb),
+                             name="getLinesMatching")
+        t.start()
+
+    def _getLinesMatching(self, search, cb):
+
+        lines = []
+        buf = self.buffer
+
+        @components.ProxyToMainThread
+        def callback(cb):
+            cb.callback(0, lines)
+
+        search = json.loads(search)
+        if not type(search) is list:
+            return callback(cb)
+
+        rxs = []
+        for s in search:
+            s = re.escape(s)
+            s = re.sub(r'(\\\s)+', r"\s*", s) # match whitespace at all lengths
+            rxs.append(re.compile("^%s%s" % ("\s*", s)))
+
+        for lineNo, lineValue in enumerate(buf.splitlines()):
+            for rx in rxs:
+                if rx.search(lineValue):
+                    lines.append(lineNo)
+                    break
+
+        callback(cb)

@@ -125,6 +125,17 @@ class ObjWalker
           # print "Class(#{c}) = #{obj.class}\n" if @verbose
           if [Class, Module].member?(obj.class)
             obj_id = obj.object_id
+            if fq_child_name.gsub(/\./, '::') != obj.to_s
+              # Rails likes to include lots of modules within classes. Often
+              # this results in something like ActionView::Base thinking
+              # ActionView::Helpers::FormHelper is really
+              # ActionView::Base::FormHelper (since Base includes Helpers).
+              # Do a check here. If the fully-qualified names do not match, do
+              # not create a nested module. The proper module will be created
+              # later.
+              $stderr.write("#{fq_child_name} and #{obj} do not match; ignoring\n") if @verbose
+              next
+            end
             if !@is_binary_module && !@visited.has_key?(obj_id) && !@builtin1_names.member?(c)
               $stderr.write("visit #{obj_type} #{c}, fq_child_name=#{fq_child_name}\n") if @verbose
               @visited[obj_id] = nil

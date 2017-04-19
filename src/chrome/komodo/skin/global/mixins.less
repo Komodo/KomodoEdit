@@ -34,3 +34,17 @@
     transform: scaleY(0.6);
   }
 }
+
+.loader(@color)
+{
+    min-width: 10rem;
+    min-height: 1rem;
+    background: linear-gradient(to right, transparent 50%, @color 50%);
+    background-size: 200% 200%;
+    animation: progress-undetermined 1s ease infinite;
+}
+
+@keyframes progress-undetermined {
+    0%{background-position:100% 50%}
+    100%{background-position:-100% 50%}
+}

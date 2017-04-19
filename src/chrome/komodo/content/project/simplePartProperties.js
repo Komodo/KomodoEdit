@@ -96,6 +96,26 @@ function onLoad() {
         partnamelabel = document.getElementById('partnamelabel');
         tabs.selectedTab = part_tab; // we may want to change this sometimes.
 
+        partkey = document.getElementById('partkey');
+        description = document.getElementById('description');
+        filepicker = document.getElementById('filepicker');
+        filepickerZip = document.getElementById('filepicker_zip');
+
+        if (gItemType == "folder_template") {
+            filepicker.removeAttribute("collapsed");
+            filepicker.addEventListener("command", function() {
+                ko.filepicker.browseForDir(partvalue);
+                partvalue.value = ko.uriparse.pathToURI(partvalue.value);
+            });
+            filepickerZip.removeAttribute("collapsed");
+            filepickerZip.addEventListener("command", function() {
+                ko.filepicker.browseForFile(partvalue, null, null, "Zip", ["Zip"]);
+                partvalue.value = ko.uriparse.pathToURI(partvalue.value);
+            });
+            partkey.setAttribute("value", "URI:");
+            description.textContent = "Enter the URI of a zip file, or a local folder.";
+        }
+
         keybinding = document.getElementById('keybindings');
         keybinding.gKeybindingMgr = opener.ko.keybindings.manager;
         keybinding.part = gItem;
@@ -246,13 +266,6 @@ function Help() {
 function update_icon(URI)
 {
     try {
-        if (URI == gDefaultPartIconURL) {
-            document.getElementById('reseticon').setAttribute('disabled', 'true');
-        } else {
-            if (document.getElementById('reseticon').hasAttribute('disabled')) {
-                document.getElementById('reseticon').removeAttribute('disabled');
-            }
-        }
         document.getElementById('keybindingtab_icon').setAttribute('src', URI);
         document.getElementById('propertiestab_icon').setAttribute('src', URI);
         if (URI.indexOf('_missing.png') != -1) {
@@ -272,7 +285,9 @@ function pick_icon(useDefault /* false */)
         if (! useDefault) {
             URI = ko.dialogs.pickIcon();
             if (!URI) return;
-        } else {
+        }
+
+        if (useDefault || URI == "default" || URI == "reset") {
             URI = gDefaultPartIconURL;
         }
         update_icon(URI);

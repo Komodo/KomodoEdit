@@ -96,6 +96,10 @@ interface koIToolbox2Service: nsISupports {
     void migrateVersion5Toolboxes();
     void reloadToolsDirectory(in wstring toolDir);
 
+    long updateFilePath(in wstring path);
+    void convertOldFormat(in wstring path, in boolean deleteOld);
+    void convertToTemplate(in wstring path, in wstring targetPath);
+
     // Find and return all tools matching the given query.
     void findTools(in wstring query,
         in unsigned long langCount,
@@ -105,6 +109,7 @@ interface koIToolbox2Service: nsISupports {
     void findToolsAsync(in wstring query,
         in unsigned long langCount,
         [array, size_is(langCount)] in wstring langs,
+        in wstring type,
         in koIAsyncCallback callback);
     // Method that runs the query as is, and returns a list of koIToolInfo hits
     void getAutoAbbreviationNames(

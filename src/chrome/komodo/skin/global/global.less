@@ -104,12 +104,17 @@
     .spinner(@special);
 }
 
+.loader.enabled
+{
+    .loader(@special);
+}
+
 
 // All text fields
 ::-moz-selection
 {
-    color: @foreground-special;
-    background: @secondary-special;
+    color: @selected-foreground;
+    background: @selected;
 }
 
 /* Tooltips */
@@ -117,4 +122,11 @@
 #editorTooltip
 {
     margin-left: 10px;
+}
+
+/* Spacers that shouldnt even really exist */
+notificationbox spacer,
+scintilla spacer
+{
+    visibility: collapse;
 }

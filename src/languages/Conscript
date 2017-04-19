@@ -120,6 +120,7 @@ $cons->InstallXpcomComponent('koPowerBasicLanguage.py');
 $cons->InstallXpcomComponent('koPowerProLanguage.py');
 $cons->InstallXpcomComponent('koPowerShellLanguage.py');
 $cons->InstallXpcomComponent('koPerlLanguage.py');
+$cons->InstallXpcomComponent('koPOGetTextLanguage.py');
 $cons->InstallXpcomComponent('koPOVLanguage.py');
 $cons->InstallXpcomComponent('koPostScriptLanguage.py');
 $cons->InstallXpcomComponent('koREBOLLanguage.py');

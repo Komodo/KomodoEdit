@@ -29,7 +29,10 @@ scintilla[anonid="scintilla"] > panel[anonid="autocompletepopup"]
     width: 100px;
     height: 50px;
     border-radius: 1px;
-}description, tab, textbox, menulist, menuitem, menu, treecol, button, toolbarbutton,
+
+}
+
+description, tab, textbox, menulist, menuitem, menu, treecol, button, toolbarbutton,
 checkbox, radio, tabpanels, listitem, richlistitem, listheader
 {
     color: @foreground; 
@@ -48,7 +51,7 @@ label, description, span
     }
 }
 
-description, listitem, richlistitem, label[id], treecol label, listheader,
+description, listitem, richlistitem, label[id], treecol label, listheader, listcell,
 checkbox, radio
 {
     padding: 0.2rem 4px;
@@ -194,8 +197,20 @@ menupopup
 .disabled, [disabled="true"]
 {
     opacity: 0.5;
+
+    .disabled, [disabled="true"]
+    {
+        opacity: 1.0; /* Don't double up */
+    }
 }
 
+textbox[readonly="true"]
+{
+    input
+    {
+        opacity: 0.5;
+    }
+}
 
 /* Toolbars */
 
@@ -368,6 +383,11 @@ textbox, menulist
     }
 }
 
+textbox[multiline] .textbox-textarea
+{
+    line-height: 1.4rem;
+}
+
 toolbarbutton, button, checkbox, radio
 {
     &:focus
@@ -398,7 +418,8 @@ tree, listbox, richlistbox
         color: @foreground;
         
         treecol,
-        treecolpicker
+        treecolpicker,
+        listheader
         {
             background: @contrast;
         }
@@ -422,7 +443,8 @@ tree, listbox, richlistbox
         treecol,
         treecolpicker,
         &:not(tree),
-        .tree-rows
+        .tree-rows,
+        listheader
         {
             background: @textbox;
         }
@@ -440,7 +462,8 @@ tree, listbox, richlistbox
 }
 
 treecol,
-treecolpicker
+treecolpicker,
+listheader
 {
     color: @caption;
     
@@ -587,11 +610,39 @@ splitter.column-splitter
 
 separator
 {
-    height: 1rem;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
     
     &.slim
     {
+        margin-top: 0.25rem;
+        margin-bottom: 0.25rem;
+    }
+}
+
+vbox > spacer,
+:not(hbox) > spacer
+{
+    &:not(.arrowscrollbox-overflow-end-indicator)
+     :not(.arrowscrollbox-overflow-start-indicator)
+    {
         height: 0.5rem;
+
+        &.slim
+        {
+            height: 0.25rem;
+        }
+    }
+}
+
+hbox > spacer,
+:not(vbox) > spacer
+{
+    width: 0.5rem;
+
+    &.slim
+    {
+        width: 0.25rem;
     }
 }
 
@@ -677,6 +728,17 @@ spinbuttons
     }
 }
 
+buttongroup 
+{
+    margin: 4px;
+    
+    & > button
+    {
+        padding: 4px !important;
+        margin: 0 !important;
+    }
+}
+
 button[type="checkbox"][checked="true"]
 {
     box-shadow: inset 0px 0px 0px 1px @secondary-special;
@@ -699,7 +761,8 @@ button[type="checkbox"][checked="true"]
 
 .dialog:root,
 dialog:root,
-.pref-window
+.pref-window,
+panel.dialog
 {
     &:not(.embedded)
     {
@@ -720,7 +783,8 @@ dialog:root,
     }
 
     tabbox tabpanels,
-    .groupbox-body
+    .groupbox-body,
+    .body
     {
         background: @background;
         color: @foreground;
@@ -767,6 +831,25 @@ dialog:root,
     {
         border-right: 1px dashed @background;
     }
+
+    tree, listbox, richlistbox
+    {
+        &.bg_transparent
+        {
+            treecol,
+            treecolpicker,
+            listheader
+            {
+                background: @background;
+            }
+
+            &:not(tree),
+            .tree-rows
+            {
+                background: @contrast;
+            }
+        }
+    }
     
 }
 
@@ -807,7 +890,8 @@ page.widget richlistitem
     padding-right: 4px;
 }
 
-page.widget
+page.widget,
+window.embedded.widget
 {
     background: @widget !important;
     color: @foreground-widget !important;
@@ -879,4 +963,82 @@ page.widget
             }
         }
     }
+}
+
+.ui-filepath > button,
+.ui-interpolation-button
+{
+    padding: 0 4px !important;
+    -moz-box-flex: 0;
+}
+
+.modal-ui,
+.modal-ui wizardpage
+{
+    .ui-title
+    {
+        margin-bottom: 4px;
+    }
+    
+    & > .ui-hbox:not(.ui-title):not(.buttons-ui)
+    {
+        padding-right: 50px;
+    }
+    
+    & > hbox,
+    & groupbox > hbox
+    {
+        -moz-box-align: center;
+    }
+    
+    & .ui-radiogroup-wrapper
+    {
+        -moz-box-align: center;
+        -moz-box-pack: center;
+    }
+    
+    & .ui-label:not(.fullwidth)
+    {
+        width: 100px;
+        margin-right: 4px;
+        text-align: right;
+    }
+    
+    & .ui-checkbox:not(.fullwidth),
+    & .ui-description:not(.fullwidth)
+    {
+        margin-left: 104px;
+    }
+    
+    .ui-textbox,
+    .ui-menulist,
+    .ui-filepath,
+    .ui-listbox,
+    langlist menulist
+    {
+        -moz-box-flex: 1;
+        margin: 2px !important;
+    }
+    
+    langlist
+    {
+        -moz-box-flex: 1;
+    }
+
+    .ui-separator
+    {
+        border-bottom: 1px solid @background;
+    }
+
+    groupbox .ui-separator
+    {
+        border-bottom: 1px solid @contrast;
+    }
+
+    .buttons-ui,
+    .ui-error
+    {
+        margin-top: 4px;
+    }
+    
 }

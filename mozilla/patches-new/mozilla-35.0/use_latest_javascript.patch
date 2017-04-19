@@ -1,0 +1,13 @@
+Use the latest JavaScript version for all our scripts
+--- a/dom/workers/ScriptLoader.cpp
++++ b/dom/workers/ScriptLoader.cpp (unsaved)
+@@ -771,7 +771,8 @@
+ 
+     JS::CompileOptions options(aCx);
+     options.setFileAndLine(filename.get(), 1)
+-           .setNoScriptRval(true);
++           .setNoScriptRval(true)
++           .setVersion(JSVERSION_LATEST);
+ 
+     JS::SourceBufferHolder srcBuf(loadInfo.mScriptTextBuf,
+                                   loadInfo.mScriptTextLength,

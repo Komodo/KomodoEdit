@@ -175,7 +175,8 @@ class KoInterpolationService:
         return browser
         
     def _getCodeMap(self, fileName=None, lineNum=None, word=None,
-                    selection=None, projectFile=None, prefSet=None):
+                    selection=None, projectFile=None, prefSet=None,
+                    lineText=None):
         # Define the interpolation mapping.
         #   This is a mapping from interpolation code to the replacement
         #   value in the command. The "replacement" may be one of the
@@ -194,6 +195,8 @@ class KoInterpolationService:
             'd': ValueError("The command string includes %d, but there is no current file"),
             'D': ValueError("The command string includes %D, but there is no current file"),
             'L': ValueError("The command string includes %L, but there is no current file"),
+            'l': ValueError("The command string includes %l, but there is no current file, or content in the line."),
+            't': ValueError("The command string includes %t, but there is no current file, or content in the line."),
             'w': ValueError("The command string includes %w, but there is no selection or word under cursor"),
             'W': ValueError("The command string includes %W, but there is no selection or word under cursor"),
             's': ValueError("The command string includes %s, but there is no selection"),
@@ -257,6 +260,23 @@ class KoInterpolationService:
                     selection = selection.encode('utf-8')
             codeMap['S'] = urllib.quote_plus(selection)
             codeMap['W'] = urllib.quote_plus(selection)
+            codeMap['t'] = selection
+        if lineText:
+            codeMap['l'] = lineText
+
+            if not selection:
+                codeMap['t'] = lineText
+
+        # Sanitize line/sel
+        if type(codeMap['t']) != ValueError:
+            codeMap['t'] = codeMap['t'].strip()
+
+            if len(codeMap['t']) > 50:
+                codeMap['t'] = codeMap['t'][0:50] + " [..]"
+
+            codeMap['t'] = codeMap['t'].replace('"', '\\"')
+            codeMap['t'] = codeMap['t'].replace("'", "\\'")
+            codeMap['t'] = codeMap['t'].replace("\n", '\\n')
 
         # Add extensible items:
         for code, handler in self._codemapAdditions.items():
@@ -631,12 +651,9 @@ class KoInterpolationService:
         return eol.join(lines)
 
     def Interpolate1(self, strings, bracketedStrings, fileName, lineNum, word, selection,
-                     projectFile, prefSet):
+                     projectFile, prefSet, lineText):
         try:
-            #print "Interpolate1(strings=%r, fileName=%r, lineNum=%r, word=%r, "\
-            #      "selection=%r, projectFile, prefSet, bracketed=%r)"\
-            #      % (strings, fileName, lineNum, word, selection, bracketed)
-            codeMap = self._getCodeMap(fileName, lineNum, word, selection, projectFile, prefSet)
+            codeMap = self._getCodeMap(fileName, lineNum, word, selection, projectFile, prefSet, lineText)
             codeRes = None
             bracketedCodeRes = None
             if strings:
@@ -1224,6 +1241,10 @@ class KoRunService:
         t.setDaemon(True)
         t.start()
         return child
+    
+    def argvSplit(self, argvStr):
+        import shlex
+        return shlex.split(argvStr)
 
 
 class KoRunEnvView(TreeView):

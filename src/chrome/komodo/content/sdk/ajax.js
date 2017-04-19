@@ -68,15 +68,19 @@
 
         var defaultHeaders = {
             'X-Requested-With': 'XMLHttpRequest',
-            'Content-Type': 'application/x-www-form-urlencoded'
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Content-Length': body ? body.length : 0,
+            'Connection': 'close'
         }
+        
+        var _headers = {};
         for (let k in defaultHeaders)
-            headers = headers[k] || defaultHeaders[k];
+            _headers = headers[k] || defaultHeaders[k];
 
         req.open(params.method || (body ? 'POST' : 'GET'), params.url, true);
 
-        for (var field in headers)
-            req.setRequestHeader(field, headers[field]);
+        for (var field in _headers)
+            req.setRequestHeader(field, _headers[field]);
 
         req.send(body);
     }

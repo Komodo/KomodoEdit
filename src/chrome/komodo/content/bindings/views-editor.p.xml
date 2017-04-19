@@ -49,87 +49,77 @@
 <binding id="view-editor"
     extends="chrome://komodo/content/bindings/views-buffer.xml#view-buffer-base">
     <content orient="vertical" flex="6">
-    <!--<xul:vbox anonid="scintilla-vbox" flex="6">-->
-        <xul:statusbar orient="horizontal">
-            
-            <xul:statusbarpanel anonid="statusbar-message-panel" flex="1">
-                <xul:deck anonid="statusbar-message-deck" class="for-vi-mode" selectedIndex="0" flex="1">
-                    <xul:hbox anonid="statusbar-message-deck-default">
-                        <xul:sectionlist anonid="statusbar-sectionlist" flex="1" />
-                    </xul:hbox>
-                </xul:deck>
-            </xul:statusbarpanel>
-            
-            <xul:statusbarpanel anonid="statusbar-pos-info"
-                            tooltiptext="&filePosition.tooltiptext;"
-                            align="center"
-                            pack="end">
+        <xul:vbox anonid="wrapper" flex="1">
+            <xul:statusbar orient="horizontal">
                 
-                <xul:label anonid="statusbar-selection"/>
-                <xul:label anonid="statusbar-line-col"/>
+                <xul:statusbarpanel anonid="statusbar-message-panel" flex="1">
+                    <xul:deck anonid="statusbar-message-deck" class="for-vi-mode" selectedIndex="0" flex="1">
+                        <xul:hbox anonid="statusbar-message-deck-default">
+                        </xul:hbox>
+                    </xul:deck>
+                </xul:statusbarpanel>
                 
-            </xul:statusbarpanel>
-            
-            <xul:statusbarpanel anonid="statusbar-encoding"
-                                style="min-width: 5rem"
-                            tooltiptext="&fileEncoding.tooltiptext;"
-                            >
-                <xul:toolbarbutton class="statusbar-label"
-                      anonid="statusbar-encoding-label"
-                      flex="1"
-                      orient="horizontal"
-                      type="menu"
-                      persist="buttonstyle"
-                      label="--"
-                      buttonstyle="text">
-                    <xul:menupopup anonid="statusbar-encoding-menupopup"
-                               onpopupshowing="ko.statusBar.setupEncodingMenu(this);" />
-                </xul:toolbarbutton>
-            </xul:statusbarpanel>
-            
-            <xul:statusbarpanel anonid="statusbar-language"
-                                style="min-width: 5rem"
-                            pack="end"
-                            >
-                <xul:toolbarbutton class="statusbar-label languageicon"
-                      anonid="statusbar-language-menu"
-                      tooltiptext="&fileType.tooltiptext;"
-                      flex="1"
-                      orient="horizontal"
-                      type="menu"
-                      persist="buttonstyle"
-                      label="--"
-                      buttonstyle="text">
-                    <xul:menupopup anonid="statusbar-filetype-menu"
-                               position="before_end"
-                               onpopupshowing="ko.uilayout.updateViewAsLanguageMenu(this);" />
-                </xul:toolbarbutton>
-            </xul:statusbarpanel>
+                <xul:statusbarpanel anonid="statusbar-pos-info"
+                                tooltiptext="&filePosition.tooltiptext;"
+                                align="center"
+                                pack="end">
 
-        </xul:statusbar>
-        <xul:scintilla xbl:inherits="flex,focused,context,mozcontext" flex="1"
-                       anonid="scintilla"
-                       allowIME="true"
-                       mozcontext="editorContextMenu"/>
-        <xul:ko-findbar class="hud" anonid="findbar"/>
-    <!--</xul:vbox>-->
-        <!--
-    <content orient="vertical" style="border: green solid 1px;" flex="6">
-        <xul:vbox anonid="scintilla-vbox" flex="1">
+                    <xul:label anonid="statusbar-selection"/>
+                    <xul:label anonid="statusbar-line-col"/>
+
+                </xul:statusbarpanel>
+
+                <xul:statusbarpanel anonid="statusbar-encoding"
+                                    style="min-width: 5rem"
+                                tooltiptext="&fileEncoding.tooltiptext;"
+                                >
+                    <xul:toolbarbutton class="statusbar-label"
+                          anonid="statusbar-encoding-label"
+                          flex="1"
+                          orient="horizontal"
+                          type="menu"
+                          persist="buttonstyle"
+                          label="--"
+                          buttonstyle="text">
+                        <xul:menupopup anonid="statusbar-encoding-menupopup"
+                                   onpopupshowing="ko.statusBar.setupEncodingMenu(this);" />
+                    </xul:toolbarbutton>
+                </xul:statusbarpanel>
+
+                <xul:statusbarpanel anonid="statusbar-language"
+                                    style="min-width: 5rem"
+                                pack="end"
+                                >
+                    <xul:toolbarbutton class="statusbar-label languageicon"
+                          anonid="statusbar-language-menu"
+                          tooltiptext="&fileType.tooltiptext;"
+                          flex="1"
+                          orient="horizontal"
+                          type="menu"
+                          persist="buttonstyle"
+                          label="--"
+                          buttonstyle="text">
+                        <xul:menupopup anonid="statusbar-filetype-menu"
+                                   position="before_end"
+                                   onpopupshowing="ko.uilayout.updateViewAsLanguageMenu(this);" />
+                    </xul:toolbarbutton>
+                </xul:statusbarpanel>
+
+            </xul:statusbar>
             <xul:scintilla xbl:inherits="flex,focused,context,mozcontext" flex="1"
                            anonid="scintilla"
                            allowIME="true"
                            mozcontext="editorContextMenu"/>
-            <xul:ko-findbar anonid="findbar"/>
+            <xul:ko-findbar class="hud" anonid="findbar"/>
         </xul:vbox>
-        -->
+        <children/>
     </content>
 
     <implementation name="vieweditor" implements="koIScintillaView, koIBookmarkableView, ISciMozEvents, nsIObserver">
 
         <!-- We want Komodo editor views to send DOM events. -->
         <field name="_dispatch_events">true</field>
-
+        
         <property name="cwd">
              <getter><![CDATA[
                 if (this.koDoc && ! this.koDoc.isUntitled) {
@@ -161,7 +151,6 @@
         <field name="lintingEnabled">false</field>
         <field name="_everLinted">false</field>
         <field name="_lintBuffer">null</field>
-        <field name="_noteLocTimer">null</field>
 
         <property name="lintBuffer">
             <setter><![CDATA[
@@ -468,6 +457,8 @@
         ]]>
         </body>
         </method>
+
+        <field name="minimap">null</field>
         
         <method name="createMinimap">
         <body><![CDATA[
@@ -1750,80 +1741,226 @@
         <field name="in_updateui">false</field>
         <field name="last_line">0</field>
 
+        <field name="in_lite_multicaret">false</field>
+        <field name="cancel_lite_multicaret_on_modify">false</field>
+
         <method name="onUpdateUI">
         <parameter name="updated"/>
         <body>
         <![CDATA[
+            if (this.in_updateui)
+                return;
+
+            this.in_updateui = true;
+
+            if (this.minimap && this.showMinimap && !this.minimap.in_updateui) {
+                var firstDocLine, lastDocLineOnScreen;
+                [firstDocLine, lastDocLineOnScreen] = this.getEditorViewBoundaries();
+                var updateMinimap = this._needsUpdate(firstDocLine, lastDocLineOnScreen);
+                if (updateMinimap) {
+                    this.minimap.syncMinimapFromBuffer();
+                    this.updateEditorViewBoundaries(firstDocLine, lastDocLineOnScreen);
+                    this.minimap.updateEditorViewBoundaries();
+                }
+            }
+
+            var keepGoing = this.__proto__.__proto__.onUpdateUI.call(this, updated);
+            if (keepGoing === false)
+            {
+                this.in_updateui = false;
+                return;
+            }
+
+            if (((updated & this.scimoz.SC_UPDATE_SELECTION) > 0 ||
+                  this.cancel_lite_multicaret_on_modify &&
+                  (updated & this.scimoz.SC_UPDATE_CONTENT) > 0
+                ) &&
+                this.in_lite_multicaret)
+            {
+                for (let x=1;x<this.scimoz.selections;x++)
+                {
+                    this.scimoz.dropSelectionN(x);
+                }
+                this.in_lite_multicaret = false;
+                this.cancel_lite_multicaret_on_modify = false;
+            }
+            else if (this.in_lite_multicaret &&
+                     this.scimoz.selections <= 1)
+            {
+                this.in_lite_multicaret = false;
+                this.cancel_lite_multicaret_on_modify = false;
+            }
+            
+            this.onEditMatchingTags(updated);
+            this.onEditMatchingDelim(updated);
+            
+            this.in_updateui = false;
+        ]]>
+        </body>
+        </method>
         
+        <method name="_onUpdateUI_debounced">
+        <parameter name="updated"/>
+        <body>
+        <![CDATA[
+            this._uiTimer = null;
+
             var lineNo = this.scimoz.lineFromPosition(this.scimoz.currentPos);
             if ( ! ko.history._marking && ! this.in_updateui &&
                 (updated & this.scimoz.SC_UPDATE_SELECTION) &&
                 Math.abs(lineNo - this.last_line) > 5)
             {
-                clearTimeout(this._noteLocTimer);
-                this._noteLocTimer = setTimeout(function() {
-                    ko.history.note_loc_unless_history_move(this, true);		
-                }.bind(this), 200);
+                ko.history.note_loc_unless_history_move(this, true);
             }
             
             this.in_updateui = true;
             this.last_line = lineNo;
+        
+            this.__proto__.__proto__._onUpdateUI_debounced.call(this, updated);
             
-            try {
-                //TODO: Minimap pref
-                //dump(">> views-editor.p.xml: onUpdateUI\n");
-                if (this.minimap && this.showMinimap && !this.minimap.in_updateui) {
-                    var firstDocLine, lastDocLineOnScreen;
-                    [firstDocLine, lastDocLineOnScreen] = this.getEditorViewBoundaries();
-                    var updateMinimap = this._needsUpdate(firstDocLine, lastDocLineOnScreen);
-                    if (updateMinimap) {
-                        this.minimap.syncMinimapFromBuffer();
-                        this.updateEditorViewBoundaries(firstDocLine, lastDocLineOnScreen);
-                        this.minimap.updateEditorViewBoundaries();
-                    }
+            this.in_updateui = false;
+
+        ]]>
+        </body>
+        </method>
+
+        <method name="onEditMatchingTags">
+        <parameter name="updated"/> <!-- Can be -1 to skip certain checks -->
+        <body>
+        <![CDATA[
+            // When an HTML/XML tag is selected, select its complement as
+            // a multiple selection to allow paired editing.
+            if (updated != -1 && this._mouseButton != -1) {
+                return;
+            }
+
+            // Stop if this isnt a selection event, pref is disabled or if there
+            // already is a multi-caret session
+            if ((updated != -1 && (updated & this.scimoz.SC_UPDATE_SELECTION) <= 0)
+                || ! this.prefs.getBooleanPref("editMatchingTags")
+                || this.scimoz.selections != 1)
+            {
+                return;
+            }
+
+            var scimoz = this.scimoz;
+            var startPos = scimoz.selectionStart;
+            var endPos = scimoz.selectionEnd;
+            
+            // Stop if we're not currently selecting the entirety of a tag
+            if (startPos == endPos
+                || scimoz.getStyleAt(startPos -1 ) == scimoz.SCE_UDL_M_TAGNAME
+                || scimoz.getStyleAt(startPos) != scimoz.SCE_UDL_M_TAGNAME
+                || scimoz.getStyleAt(endPos + 1) == scimoz.SCE_UDL_M_TAGNAME
+                || scimoz.wordStartPosition(startPos, true) != startPos
+                || scimoz.wordEndPosition(endPos, true) != endPos)
+            {
+                return;
+            }
+
+            // Stop if we aren't in an XML element
+            var actualLanguageObj = this.languageObj.supportsXMLIndentHere(scimoz, startPos);
+            if ( ! actualLanguageObj) {
+                return;
+            }
+
+            var result = {};
+            actualLanguageObj.getMatchingTagInfo(scimoz, startPos, false, result, {});
+            if (result.value && result.value.length == 5) {
+                if (result.value[0]
+                    && result.value[1] <= startPos && result.value[2] >= endPos) {
+                    // Selected start tag.
+                    scimoz.addSelection(result.value[4], result.value[3] + 2);
+                    this.in_lite_multicaret = true;
+                } else if (!result.value[0]
+                           && result.value[3] <= startPos && result.value[4] >= endPos) {
+                    // Selected end tag.
+                    scimoz.addSelection(result.value[2], result.value[1] + 1);
+                    this.in_lite_multicaret = true;
                 }
-                
-                // When an HTML/XML tag is selected, select its complement as
-                // a multiple selection to allow paired editing.
-                if ((updated & this.scimoz.SC_UPDATE_SELECTION) > 0
-                    && this.prefs.getBooleanPref("editMatchingTags")
-                    && this.scimoz.selections == 1) {
-                    var scimoz = this.scimoz;
-                    var startPos = scimoz.selectionStart;
-                    var endPos = scimoz.selectionEnd;
-                    if (startPos != endPos
-                        && scimoz.getStyleAt(startPos) == scimoz.SCE_UDL_M_TAGNAME
-                        && scimoz.getStyleAt(endPos - 1) == scimoz.SCE_UDL_M_TAGNAME
-                        && scimoz.wordStartPosition(startPos, true) == startPos
-                        && scimoz.wordEndPosition(endPos, true) == endPos) {
-                        var actualLanguageObj = this.languageObj.supportsXMLIndentHere(scimoz, startPos);
-                        if (actualLanguageObj) {
-                            var result = {};
-                            actualLanguageObj.getMatchingTagInfo(scimoz, startPos, false, result, {});
-                            if (result.value && result.value.length == 5) {
-                                if (result.value[0]
-                                    && result.value[1] <= startPos && result.value[2] >= endPos) {
-                                    // Selected start tag.
-                                    scimoz.addSelection(result.value[4], result.value[3] + 2);
-                                } else if (!result.value[0]
-                                           && result.value[3] <= startPos && result.value[4] >= endPos) {
-                                    // Selected end tag.
-                                    scimoz.addSelection(result.value[2], result.value[1] + 1);
-                                }
-                                scimoz.mainSelection = 0;
-                            }
-                        }
-                    }
-                }
-                
-                return this.__proto__.__proto__.onUpdateUI.call(this, updated);
-            } finally {
-                this.in_updateui = false;
+                scimoz.mainSelection = 0;
             }
         ]]>
         </body>
         </method>
         
+        <method name="onEditMatchingDelim">
+        <parameter name="updated"/> <!-- Can be -1 to skip certain checks -->
+        <body>
+        <![CDATA[
+            // When the delimiter of a styled text range is selected (e.g. a
+            // string, regex, etc.), select its complement as a multiple
+            // selection to allow paired editing. When continuing the
+            // selection beyond the delimiter, revert to single-selection.
+            // This only works with identical delimiter characters over
+            // unbroken style ranges.
+            
+            if (updated != -1 && this._mouseButton != -1) {
+                return;
+            }
+
+            if ((updated != -1 && (updated & this.scimoz.SC_UPDATE_SELECTION) <= 0)
+                || ! this.prefs.getBooleanPref("editMatchingDelimiter")
+                || this.scimoz.selections != 1
+                || this.scimoz.selText.length != 1
+                || this.scimoz.selText == " "
+                || this.scimoz.selections == 2)
+            {
+                return;
+            }
+            
+            var scimoz = this.scimoz;
+            var pos = scimoz.selectionStart;
+            var select_complement = scimoz.selections == 1;
+            if (!select_complement
+                && scimoz.currentPos < scimoz.anchor) {
+                // At a boundary like "fo[o"] selecting backwards
+                pos++;
+            }
+
+            var style = scimoz.getStyleAt(pos);
+            if (pos > 0 && scimoz.getStyleAt(pos - 1) != style) {
+                // At a boundary like ["]foo"
+                var end_pos = pos + 1;
+                while (end_pos < scimoz.length - 1
+                       && scimoz.getStyleAt(end_pos + 1) == style) {
+                    end_pos++;
+                }
+                if (scimoz.getCharAt(end_pos) == scimoz.getCharAt(pos)
+                    && end_pos - pos > 1) {
+                    if (select_complement) {
+                        scimoz.addSelection(end_pos, end_pos + 1);
+                        scimoz.mainSelection = 0;
+                        this.in_lite_multicaret = true;
+                        this.cancel_lite_multicaret_on_modify = true;
+                    } else {
+                        scimoz.cancel(); // return to 1 selection
+                    }
+                }
+            } else if (pos < scimoz.length - 1
+                       && scimoz.getStyleAt(pos + 1) != style) {
+                // At a boundary like 'foo[']
+                var end_pos = pos - 1;
+                while (end_pos > 0
+                       && scimoz.getStyleAt(end_pos - 1) == style) {
+                    end_pos--;
+                }
+                if (scimoz.getCharAt(end_pos) == scimoz.getCharAt(pos)
+                    && pos - end_pos > 1) {
+                    if (select_complement) {
+                        scimoz.addSelection(end_pos, end_pos + 1);
+                        scimoz.mainSelection = 0;
+                        this.in_lite_multicaret = true;
+                        this.cancel_lite_multicaret_on_modify = true;
+                    } else {
+                        scimoz.cancel(); // return to 1 selection
+                    }
+                }
+            }
+        ]]>
+        </body>
+        </method>
+
         <!-- This method is called OFTEN (every time text is inserted). -->
         <method name="onTextInserted">
         <parameter name="position"/>
@@ -2352,6 +2489,7 @@
 
             const DOM_VK_RETURN = event.DOM_VK_RETURN;
             const DOM_VK_TAB = event.DOM_VK_TAB;
+            const DOM_VK_ESCAPE = event.DOM_VK_ESCAPE;
             var charCode = event.charCode;
             var charCodeChar = null;
             var keyCode = event.keyCode;
@@ -2433,29 +2571,25 @@
                    }
                 }
                return true;
+            } else if (event.keyCode == DOM_VK_ESCAPE && this.in_lite_multicaret) {
+                for (let x=1;x<this.scimoz.selections;x++)
+                {
+                    this.scimoz.dropSelectionN(x);
+                }
+                this.in_lite_multicaret = false;
+                this.cancel_lite_multicaret_on_modify = false;
             }
             return undefined;
             ]]>
         </handler>
         
-        <handler event="mouseup" phase="bubbling" 
-<!-- #if PLATFORM != "darwin" -->
-                modifiers="control"
-<!-- #else -->
-                modifiers="meta"
-<!-- #endif -->
->
+        <handler event="mouseup" phase="bubbling">
         <![CDATA[
-            var ignoreKey = (event.shiftKey || event.altKey || 
-// #if PLATFORM != "darwin"
-                event.metaKey
-// #else
-                event.ctrlKey
-// #endif
-                            );
-            if (ignoreKey) {
-                return;
-            }
+            // run on timeout so as not to conflict with scintilla mouseup events
+            setTimeout(function() {
+                this.onEditMatchingTags(-1);
+                this.onEditMatchingDelim(-1);
+            }.bind(this), 50);
         ]]>
         </handler>
 

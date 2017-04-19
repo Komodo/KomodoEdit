@@ -354,6 +354,11 @@ $cons->BuildAndInstallXpt('addonManager/koamIUpdateListener.idl');
 $cons->InstallXpcomComponent('addonManager/koamAddonManager.js',
                              {'@activestate.com/platform/addons/addon-manager;1' => '{15f8ee3a-1b7f-43c8-bdd9-6add07b52e1d}'});
 
+# koIUtils
+$cons->BuildAndInstallXpt('koIUtils.idl');
+$cons->Install($idlExportDir, 'koIUtils.idl');
+$cons->InstallXpcomComponent('koUtils.py');
+
 # dev build helper
 if ($buildFlavour == "dev") {
     $cons->InstallXpcomComponent('koConsoleLogger.py');

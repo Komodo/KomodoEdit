@@ -13,20 +13,34 @@
         
         var results = [];
         
+        var isSystemAddon = packages.isSystemAddon(pkg.id);
+
         if (item.data.installed)
         {
-            results.push({
-                id: "pkg-uninstall",
-                name: "Uninstall",
-                scope: "scope-packages",
-                command: manage.uninstallPackage.bind(manage, pkg, commando.navBack.bind(commando))
-            });
-            results.push({
-                id: "pkg-update",
-                name: item.data.upgradeable ? "Update" : "Reinstall",
-                scope: "scope-packages",
-                command: manage.installPackage.bind(manage, pkg)
-            });
+            if (! isSystemAddon)
+            {
+                results.push({
+                    id: "pkg-uninstall",
+                    name: "Uninstall",
+                    scope: "scope-packages",
+                    command: manage.uninstallPackage.bind(manage, pkg, commando.navBack.bind(commando))
+                });
+                results.push({
+                    id: "pkg-update",
+                    name: item.data.upgradeable ? "Update" : "Reinstall",
+                    scope: "scope-packages",
+                    command: manage.installPackage.bind(manage, pkg)
+                });
+            }
+            if (pkg.kind == packages.ADDONS)
+            {
+                results.push({
+                    id: "pkg-toggle",
+                    name: item.data.disabled ? "Enable" : "Disable",
+                    scope: "scope-packages",
+                    command: manage.toggleAddon.bind(manage, pkg)
+                });
+            }
             this._appendOptions(pkg, uuid);
         }
         else

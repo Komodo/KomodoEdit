@@ -134,7 +134,6 @@ ko.analytics = new function()
     {
         window.addEventListener('editor_view_opened', this._eventProxy.bind(this, this.onViewOpened));
         window.addEventListener('focus', this._eventProxy.bind(this, this.onWindowFocus));
-        document.getElementById('toolbox_side').addEventListener('click', this._eventProxy.bind(this, this.onSidetoolbarClick));
         window.addEventListener('current_widget_changed', this._eventProxy.bind(this, this.onWidgetChanged));
         //window.addEventListener('loadDialog', e => e.detail["dialog"]
         //                                            .addEventListener('focus',_proxy.bind(this, this.onWindowFocus)) );
@@ -142,11 +141,7 @@ ko.analytics = new function()
         var ww = Cc["@mozilla.org/embedcomp/window-watcher;1"].getService(Ci.nsIWindowWatcher);
         ww.registerNotification(this.onWindowOpened);
 
-        var _prefs = prefs.getPref('analytics_track_prefs');
-        for (let x=0;x<_prefs.length;x++)
-        {
-            prefs.prefObserverService.addObserver(this.onPrefChanged, _prefs.getString(x), false);
-        }
+        prefs.prefObserverService.addObserver(this.onPrefChanged, "__all__", false);
     };
 
     ///**
@@ -198,32 +193,32 @@ ko.analytics = new function()
             case 'interface-scheme':
             case 'widget-scheme':
                 val = ko.prefs.getStringPref(topic);
-                this.trackEvent(CAT_PREF_METRIC, data + "_" + topic, val);
+                this.trackEvent(CAT_PREF_METRIC, "global_" + data, val);
                 break;
 
             // Track the string value for these prefs
             case 'ui.tabs.sidepanes.left.layout':
             case 'ui.tabs.sidepanes.right.layout':
             case 'ui.tabs.sidepanes.bottom.layout':
-                val = ko.prefs.getStringPref(topic);
-                this.trackEvent(CAT_PREF_METRIC, data + "_" + topic, val);
+                val = ko.prefs.getStringPref(data);
+                this.trackEvent(CAT_PREF_METRIC, "global_" + data, val);
                 break;
 
             // Track boolean state, int value or otherwise just track that the pref was set
             default:
-                if (prefs.getPrefType(topic) == 'boolean')
+                if (prefs.getPrefType(data) == 'boolean')
                 {
-                    val = ko.prefs.getBooleanPref(topic);
-                    this.trackEvent(CAT_PREF_METRIC, data + "_" + topic, val, val ? 1 : 0);
+                    val = ko.prefs.getBooleanPref(data);
+                    this.trackEvent(CAT_PREF_METRIC, "global_" + data, val, val ? 1 : 0);
                 }
-                else if (prefs.getPrefType(topic) == 'long')
+                else if (prefs.getPrefType(data) == 'long')
                 {
-                    val = ko.prefs.getLongPref(topic);
-                    this.trackEvent(CAT_PREF_METRIC, data + "_" + topic, val, val);
+                    val = ko.prefs.getLongPref(data);
+                    this.trackEvent(CAT_PREF_METRIC, "global_" + data, val, val);
                 }
                 else
                 {
-                    this.trackEvent(CAT_PREF_METRIC, data + "_" + topic);
+                    this.trackEvent(CAT_PREF_METRIC, "global_" + data);
                 }
                 break;
         }
@@ -324,25 +319,15 @@ ko.analytics = new function()
     };
     this.onWindowFocus._previous = null;
     
-    this.onSidetoolbarClick = (e) =>
-    {
-        if (e.target.nodeName != "toolbarbutton")
-            return;
-        
-        if (e.target.classList.contains("dynamic-button"))
-        {
-            this.trackEvent(CAT_BUTTONS_METRIC, "dynamic-button", e.target.getAttribute("label") || e.target.getAttribute("id"));
-        }
-        
-        if (e.target.parentNode.getAttribute("id") == "toolsToolbarGroup")
-        {
-            this.trackEvent(CAT_BUTTONS_METRIC, "static-tool-button", e.target.getAttribute("label") || e.target.getAttribute("id"));
-        }
-    };
-    
     this.onWidgetChanged = (e) =>
     {
-        this.trackEvent(CAT_WIDGET_METRIC, "widget-accessed", e.detail.getAttribute("label") || e.detail.getAttribute("id"));
+        var label = e.detail.getAttribute("label") || e.detail.getAttribute("id");
+        
+        // Debug widget labels include the filename, so force the label
+        if (label.indexOf("Debug:") === 0)
+            label = "Debugging";
+        
+        this.trackEvent(CAT_WIDGET_METRIC, "widget-accessed", label);
     };
 
     var _lastPageView = null;

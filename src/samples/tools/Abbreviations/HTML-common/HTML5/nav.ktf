@@ -1,0 +1,12 @@
+// komodo tool: nav
+// ================
+// auto_abbreviation: false
+// indent_relative: true
+// set_selection: true
+// treat_as_ejs: false
+// type: snippet
+// version: 1.0.12
+// ================
+<nav>
+	!@#_currentPos!@#_anchor
+</nav>

@@ -1,0 +1,39 @@
+// komodo tool: drinstall
+// ======================
+// auto_abbreviation: false
+// indent_relative: true
+// set_selection: false
+// treat_as_ejs: false
+// type: snippet
+// version: 1.0.12
+// ======================
+<?php
+// \$Id\$
+
+/**
+ * Implementation of hook_install
+ */
+function [[%tabstop1:example]]_install() {
+	switch ($GLOBALS['db_type']) {
+		case 'mysqli':
+		case 'mysql':
+		db_query("CREATE TABLE IF NOT EXISTS {[[%tabstop1]]} (
+		         id int unsigned NOT NULL auto_increment,
+		         field varchar(128) NOT NULL default ''
+		         PRIMARY KEY (id),
+		) /*!40100 DEFAULT CHARACTER SET utf8 */;");
+		break;
+	}
+}
+
+
+/**
+ * Implementation of hook_uninstall
+ */
+function [[%tabstop1]]_uninstall() {
+	db_query("DROP TABLE {[[%tabstop1]]}");
+	$variables = db_query("SELECT name FROM {variable} WHERE name LIKE '[[%tabstop1]]%%'");
+	while ($variable = db_fetch_object($variables)) {
+		variable_del($variable->name);
+	}
+}!@#_currentPos!@#_anchor

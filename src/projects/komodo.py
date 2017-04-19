@@ -139,12 +139,13 @@ def interpolate(s, bracketed=0):
         strings = [s]
         bracketedStrings = []
     from komodo import document, editor, view
-    fileName = lineNum = word = selection = projectFile = prefSet = None
+    fileName = lineNum = word = selection = projectFile = prefSet = lineText = None
     if document: fileName = document.displayPath
     if editor:
         lineNum = editor.lineFromPosition(editor.currentPos) + 1
         selection = editor.selText
         word = getWordUnderCursor()
+        lineText = editor.getLine(lineNum - 1)[1]
     if view:
         prefSet = view.prefs
 
@@ -152,7 +153,7 @@ def interpolate(s, bracketed=0):
         queries, i1strings = iSvc.Interpolate1(strings, bracketedStrings,
                                                fileName, lineNum, word,
                                                selection, projectFile,
-                                               prefSet)
+                                               prefSet, lineText)
     except COMException, ex:
         lastErrorSvc = components.classes["@activestate.com/koLastErrorService;1"].\
                        getService(components.interfaces.koILastErrorService)

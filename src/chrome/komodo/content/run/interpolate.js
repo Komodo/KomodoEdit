@@ -253,7 +253,7 @@ this.getViewData = function Interpolate_getViewData(editor,
     if (typeof viewData == 'undefined' || viewData == null)
         viewData = new Object();
 
-    var view = editor.ko.views.manager.currentView;
+    var view = editor.require("ko/views").current().get();
     var scimoz = null;
     if (view && view.scintilla) {
         scimoz = view.scintilla.scimoz;
@@ -307,6 +307,16 @@ this.getViewData = function Interpolate_getViewData(editor,
             viewData.prefSet = view.prefs;
         } else {
             viewData.prefSet = null;  // means: fallback to the global prefset
+        }
+    }
+    
+    // lineText
+    if ( !("lineText" in viewData) ){
+        if(scimoz)
+        {
+            viewData.lineText = editor.require("ko/editor").getLine();
+        } else {
+            viewData.lineText = null;
         }
     }
 
@@ -374,6 +384,7 @@ this.interpolate = function Interpolate_interpolate(editor, strings, bracketedSt
                       viewData.word, viewData.selection,
                       viewData.projectFile,
                       viewData.prefSet,
+                      viewData.lineText,
                       queriesCountObj, queriesObj,
                       i1countObj, i1stringsObj);
     var queries = queriesObj.value;

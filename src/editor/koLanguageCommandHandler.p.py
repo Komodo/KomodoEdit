@@ -1010,6 +1010,106 @@ class GenericCommandHandler:
         sm.ensureVisibleEnforcePolicy(startLine)
         sm.sendUpdateCommands("select")
 
+    def _do_cmd_delimitedBlockSelect(self):
+        """
+        Selects blocks of text based on logical delimiters, rather than some
+        sort of code intelligence. Selects text inside delimiters first, then
+        the delimiters themselves next, then text inside parent delimiters, and
+        so on.
+        One example ("|" is the caret, "[foobar]" is a selection):
+            if (...) { for(...) { print("foo|bar") } }
+            if (...) { for(...) { print("[foobar]") } }
+            if (...) { for(...) { print(["foobar"]) } }
+            if (...) { for(...) { print[("foobar")] } }
+            if (...) { for(...) {[ print("foobar") ]} }
+            if (...) { for(...) [{ print("foobar") }] }
+            if (...) {[ for(...) { print("foobar") } ]}
+            if (...) [{ for(...) { print("foobar") } }]
+            [if (...) { for(...) { print("foobar") } }]
+        Another:
+            <div class="..."><h1>foo|bar</h1></div>
+            <div class="..."><h1>[foobar]</h1></div>
+            <div class="...">[<h1>foobar</h1>]</div>
+            [<div class="..."><h1>foobar</h1></div>]
+        """
+        sm = self._view.scimoz
+        
+        s, e = sm.selectionStart, sm.selectionEnd
+        if s == 0:
+            return # nothing more to do
+        ch = chr(sm.getCharAt(s))
+        chPrev = chr(sm.getCharAt(sm.positionBefore(s)))
+        
+        # Determine the delimiters to consider.
+        # This is a product of the configured delimiters, whether or not there
+        # is a multi-line selection, and whether or not the current language is
+        # an XML-based one.
+        delimiters = self._view.prefs.getStringPref('editDelimitedBlockSelectDelimiters')
+        if sm.lineFromPosition(s) != sm.lineFromPosition(e):
+            # For multi-line selections, ignore any delimiters whose start and
+            # end is the same. When coming across a '"' for example, it's not
+            # clear if it is the beginning of a multi-line string or the end
+            # of a singe-line string without considering syntax highlighting.
+            delimiters = re.sub('[^(\[{<]', '', delimiters)
+        xml = self._view.languageObj.supportsXMLIndentHere(sm, sm.currentPos)
+        if xml:
+            if chPrev == '>':
+                # Assume text within tag is selected (e.g. <div>[foobar]</div>),
+                # so now only look for '<' in order to select entire tag.
+                delimiters = "<"
+            else:
+                # Also consider '<' and '>' such that:
+                #   <div>foo|bar</div>     => <div>[foobar]</div>
+                #   <div class|="foobar">  => [<div class="foobar">]
+                delimiters += "<>"
+        endDelimiters = {'(': ')', '[': ']', '{': '}', '<': '>', '>': '<'}
+        
+        if not sm.selectionEmpty and chPrev in delimiters:
+            # Text between delimiters is already selected. Select delimiters.
+            sm.setSel(sm.selectionEnd + 1, sm.selectionStart - 1)
+        else:
+            # Search behind for a delimiter and then select all text within it
+            # (but not including the delimiter).
+            # If an end delimiter is encountered, keep track of it such that
+            # when its complement is encountered, that complement is skipped.
+            # This correctly selects the if block's '{' '}' for example:
+            #   if (...) { for(...) [{ ... }] }
+            #                       ^-------^-- existing selection
+            ignore = {'(': 0, '[': 0, '{': 0}
+            delimiter = None
+            while s > 0:
+                ch = chr(sm.getCharAt(sm.positionBefore(s)))
+                if ch in delimiters and not ignore.get(ch, 0):
+                    # Found a beginning delimiter. Now look for its ending
+                    # complement and select the text in-between.
+                    delimiter = endDelimiters.get(ch, ch)
+                    if xml and ch == '<':
+                        # Instead of selecting in-between '<' and '>', include
+                        # '<' in the selection.
+                        s = sm.positionBefore(s)
+                    break
+                elif ch in delimiters:
+                    # Found a beginning delimiter to skip.
+                    ignore[ch] -= 1
+                elif ch in endDelimiters.values():
+                    # Check if this is an end delimiter. If so, its beginning
+                    # complement needs to be skipped when encountered.
+                    for key in ignore.keys():
+                        if endDelimiters[key] == ch:
+                            ignore[key] += 1
+                            break
+                s = sm.positionBefore(s)
+            while e < sm.length - 1:
+                ch = chr(sm.getCharAt(e))
+                if ch == delimiter:
+                    if xml and ch == '>':
+                        # Instead of selecting in-between '<' and '>', include
+                        # '>' in the selection.
+                        e = sm.positionAfter(e)
+                    break
+                e = sm.positionAfter(e)
+            sm.setSel(e, s)
+
     def _is_cmd_comment_enabled(self):
         commenter = self._view.languageObj.getLanguageService(
             components.interfaces.koICommenterLanguageService)
@@ -1941,10 +2041,11 @@ class GenericCommandHandler:
         delta = newIndentWidth - currentIndentWidth
         indentlog.info("delta = %d", delta)
         # apply that delta to each line in the region
-        region = sm.getTextRange(startPos, endPos)
-        lines = region.splitlines(1) # keep line ends
-        data = []
-        for line in lines:
+        sm.beginUndoAction()
+        for i in xrange(startLineNo, endLineNo + 1):
+            sm.targetStart = sm.positionFromLine(i)
+            sm.targetEnd = sm.getLineEndPosition(i)
+            line = sm.getTargetText()[1]
             count = 0
             for char in line:
                 if char in ' \t':
@@ -1956,24 +2057,16 @@ class GenericCommandHandler:
             numspaces = max(len(indent) + delta, 0)
             indent = scimozindent.makeIndentFromWidth(sm, numspaces)
             newline = indent + rest
-            data.append(newline)
-        region = ''.join(data)
-        regionUtf8Len = self.sysUtils.byteLength(region)
-        sm.targetStart = startPos
-        sm.targetEnd = endPos
-        # bug101318: try to keep the FVL in place, allow for wrapped lines
-        # (folded blocks will be unfolded by the tab operation).
-        firstVisibleLine = sm.firstVisibleLine
-        firstDocLine = sm.docLineFromVisible(firstVisibleLine)
-        sm.replaceTarget(len(region), region)
-        sm.firstVisibleLine = sm.visibleFromDocLine(firstDocLine)
-        endPos = startPos + regionUtf8Len
+            sm.replaceTarget(len(newline), newline)
+        sm.endUndoAction()
         if sm.selectionMode == sm.SC_SEL_LINES:
             # Maintain the same cursor position.
             startPos = sm.findColumn(startLineNo, startPosColumn + delta)
             endPos = sm.findColumn(endLineNo, endPosColumn + delta)
         elif ignoreEndLine:
             endPos = sm.positionFromLine(endLineNo + 1)
+        else:
+            endPos = sm.getLineEndPosition(endLineNo)
         if anchorFirst:
             sm.anchor = startPos
             sm.currentPos = endPos

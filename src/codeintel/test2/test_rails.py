@@ -106,9 +106,12 @@ class PureRailsTestCase(_BaseTestCase):
         self.failUnlessEqual(rails_info["name"], "Rails")
         self.failUnless(rails_info["description"] is not None)
 
+    @tag("knownfailure")
     def test_railsenv_model_basic(self):
         test_dir = join(self.test_dir, "railsapp01", "app", "models")
         main_filename = "cart1.rb"
+        # TODO: Rails 2 removed "acts_as_*", "insert_at", etc. in favor of a
+        # plugin.
         main_content, main_positions = \
           unmark_text(self.adjust_content(dedent("""\
             class Cart < ActiveRecord::<1>Base
@@ -136,7 +139,7 @@ class PureRailsTestCase(_BaseTestCase):
                                                            pos=main_positions[i + 1]),
                                                targets[i])
 
-    @tag("global")
+    @tag("global", "knownfailure")
     def test_railsenv_model_toplevel_1(self):
         test_dir = join(self.test_dir, "railsapp01", "app", "models")
         main_filename = "cart1.rb"
@@ -149,6 +152,7 @@ class PureRailsTestCase(_BaseTestCase):
         main_path = join(test_dir, main_filename)
         writefile(main_path, main_content)
         main_buf = self.mgr.buf_from_path(main_path)
+        # TODO: Rails 2 removed "acts_as_*" in favor of a plugin.
         pos_targets = [
              ("function", "acts_as_list"),
              ("function", "acts_as_tree"),
@@ -181,10 +185,8 @@ class PureRailsTestCase(_BaseTestCase):
         writefile(main_path, main_content)
         main_buf = self.mgr.buf_from_path(main_path)
         class_targets = [
-            ("function", "validate"),
-            ("function", "validate_find_options"),
-            ("function", "validate_on_create"),
-            ("function", "validate_on_update"),
+            ("function", "validates"),
+            ("function", "validates_absence_of"),
             ("function", "validates_acceptance_of"),
             ("function", "validates_associated"),
             ("function", "validates_confirmation_of"),
@@ -200,7 +202,12 @@ class PureRailsTestCase(_BaseTestCase):
              ]
         inst_targets = [
              ("function", "destroy"),
-             ("function", "destroy_all"),
+             # TODO: ActiveRecord::Base extends ActiveRecord::Querying, which
+             # ultimately has "destroy_all", but Codeintel only recognizes
+             # the "include" keyword, and not "extend". When a class "include"s
+             # something, it gets instance methods. When a class "extend"s
+             # something, it gets class methods.
+             #("function", "destroy_all"),
              ]
         self.assertCompletionsInclude2(main_buf, main_positions[1],
                                         class_targets)
@@ -252,10 +259,9 @@ class PureRailsTestCase(_BaseTestCase):
             end
             class AdminController < <1>App<2>licationController
                 aft<3>er_filter :check_authentication, :except => [:signin]
-                AdminController.filter_parameter_logging(<6>'a', 'b')
                 def open
                     exp<4>ires_in 10.seconds
-                    self.<5>redirect_to("chumley")
+                    self.<5>redirect_to(<6>"chumley")
                 end
             end
         """)))
@@ -283,7 +289,7 @@ class PureRailsTestCase(_BaseTestCase):
                     ("function", "expires_now")
                    ],
                    [("function", "redirect_to"), #5
-                    ("function", "session_enabled?"),
+                    ("function", "render"),
                    ],
                   ]
                    
@@ -291,16 +297,7 @@ class PureRailsTestCase(_BaseTestCase):
         for i in (2, 5):
             self.assertCompletionsInclude2(adminc_buf, adminc_positions[i],
                                            targets[i])
-        self.assertCalltipIs2(adminc_buf, adminc_positions[6],
-                              dedent("""\
-    (*filter_words, &block) {|key, value| ...}
-    Replace sensitive paramater data from the request log.
-    Filters paramaters that have any of the arguments as a
-    substring. Looks in all subhashes of the param hash for keys
-    to filter. If a block is given, each key and value of the
-    paramater hash and all subhashes is passed to it, the value
-    or key can be replaced using String#replace or similar
-    method."""))
+        self.assertCalltipIs2(adminc_buf, adminc_positions[6], "redirect_to(...)")
 
 
     @tag("bug65336", "knownfailure")
@@ -476,7 +473,7 @@ class PureRailsTestCase(_BaseTestCase):
                     Cart.<1>create(:no => 1, :fields => 2, :yet => 3)
                 end
                 def self.down
-                    Cart.<2>delete_all
+                    Cart.<2>destroy(1)
                 end
                 end
         """)))
@@ -515,13 +512,13 @@ class PureRailsTestCase(_BaseTestCase):
         self.assertCompletionsInclude2(migrate_buf, migrate_positions[2],
                                        [("function", "new"),
                                         ("function", "create"),
-                                        ("function", "delete_all"),
+                                        ("function", "destroy"),
                                        ])
         self.assertCompletionsInclude2(migrate_buf, migrate_positions[1],
                                        [("function", "new"),
                                         ("function", "create"),
-                                        ("function", "delete_all"),
-                                       ])        
+                                        ("function", "destroy"),
+                                       ])
 
     @tag("bug69532",  "railstests")
     def test_functional_test_sees_model(self):
@@ -1016,6 +1013,58 @@ class PureRailsTestCase(_BaseTestCase):
                                 ilk="class", name="Book", line=1, path=fixed_book_path)
         self.assertDefnMatches2(adminc_buf, adminc_positions[8],
                                 ilk="function", name="read", line=2, path=fixed_book_path)
+    
+    def test_rails_new_controller_model_generation(self):
+        """
+        Rails 5 at least (perhaps this is in 4 as well) generates controllers
+        and models that inherit from predefined "ApplicationController" and
+        "ApplicationRecord" classes, respectively. These classes then inherit
+        from "ActionController::Base" and "ActiveRecord::Base", respectively,
+        but CodeIntel does not know that because controllers and models do not
+        'require' the files these classes are defined in. Therefore, the
+        rails.cix catalog needs the following two definitions to be manually
+        added:
+            <scope ilk="class" name="ApplicationController" classrefs="ActionController::Base" />
+            <scope ilk="class" name="ApplicationRecord" classrefs="ActiveRecord::Base" />
+        If this test fails, it is because a new rails.cix file was generated,
+        but these two definitions were not manually added.
+        """
+        models_dir = join(self.test_dir, "railsapp01", "app", "models")
+        model_filename = "article.rb"
+        model_content, model_positions = \
+          unmark_text(self.adjust_content(dedent("""\
+            class Article < App<1>licationRecord
+                val<2>
+            end
+        """)))
+        model_path = join(models_dir, model_filename)
+        writefile(model_path, model_content)
+        model_buf = self.mgr.buf_from_path(model_path)
+        
+        ctrls_dir = join(self.test_dir, "railsapp01", "app", "controllers")
+        ctrl_filename = "admin_controller.rb"
+        ctrl_content, ctrl_positions = \
+          unmark_text(self.adjust_content(dedent("""\
+            class ArticlesController < App<1>licationController
+                def index 
+                    ren<2>der 'something'
+                end
+            end
+        """)))
+        ctrl_path = join(ctrls_dir, ctrl_filename)
+        writefile(ctrl_path, ctrl_content)
+        ctrl_buf = self.mgr.buf_from_path(ctrl_path)
+        
+        self.assertCompletionsInclude2(model_buf, model_positions[1],
+                                       [("class", "ApplicationController"),
+                                        ("class", "ApplicationRecord")])
+        self.assertCompletionsInclude2(model_buf, model_positions[2],
+                                       [("function", "validates")])
+        self.assertCompletionsInclude2(ctrl_buf, ctrl_positions[1],
+                                       [("class", "ApplicationController"),
+                                        ("class", "ApplicationRecord")])
+        self.assertCompletionsInclude2(ctrl_buf, ctrl_positions[2],
+                                       [("function", "render")])
         
 
 re_cursor = re.compile(r'<[\|\d]+>')
@@ -1041,18 +1090,16 @@ class MultiLangRailsTestCase(_BaseTestCase):
           unmark_text(self.adjust_content(dedent("""\
             # Contrived: most layouts are implicit members of this class
             class Zoomoo < ActionView::<1>Base 
-                Zoomoo.<2>cache_template_extensions
-                Zoomoo.new.<3>form_for
-                "whatever".<4>pluralize
+                Zoomoo.new.<2>form_for
+                "whatever".<3>pluralize
             end
             h = {'zounds' => 1, 'ok' => 2}
-            h.<5>keys
+            h.<4>keys
         """)))
         main_path = join(test_dir, main_filename)
         writefile(main_path, main_content)
         main_buf = self.mgr.buf_from_path(main_path)
         targets = [[("class", "Base"),],
-             [("function", "cache_template_extensions"),],
              [("function", "form_for"),],
              [("function", "pluralize"),],
              [("function", "stringify_keys!"),],
@@ -1149,7 +1196,6 @@ class MultiLangRailsTestCase(_BaseTestCase):
         self.assertCalltipIs2(main_buf, main_positions[1],
                               dedent("""\
                                      (name, options = {}, html_options = nil, *parameters_for_method_reference)"""))
-        '''
         self.assertCalltipIs2(main_buf, main_positions[2],
                               dedent("""\
     (condition, name, options = {}, html_options = {}, *parameters_for_method_reference, &block)
@@ -1159,6 +1205,7 @@ class MultiLangRailsTestCase(_BaseTestCase):
     the default behavior, you can pass a block that accepts the
     name or the full argument list for link_to_unless (see the
     examples in link_to_unless)."""))
+        '''
         self.assertNoPrecedingTrigger(markup_text(main_content,
                                                 start_pos=main_positions['start_pos'],
                                                   pos=main_positions[3]))

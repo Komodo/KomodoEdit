@@ -1,0 +1,11 @@
+--- lexers/LexPowerShell.cxx	2013-05-21 19:05:18.000000000 -0400
++++ lexers/LexPowerShell.cxx	2016-09-27 13:29:54.347070220 -0400
+@@ -149,6 +149,8 @@
+ 				sc.SetState(SCE_POWERSHELL_OPERATOR);
+ 			} else if (IsAWordChar(sc.ch)) {
+ 				sc.SetState(SCE_POWERSHELL_IDENTIFIER);
++			} else if (sc.ch == '`') {
++				sc.Forward(); // skip next escaped character
+ 			}
+ 		}
+ 	}

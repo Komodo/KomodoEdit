@@ -88,6 +88,8 @@
             widgets.restoreAutoAbbreviationTriggerCharacters = document.getElementById("restoreAutoAbbreviationTriggerCharacters");
             widgets.enableAutoAbbreviations = document.getElementById("enableAutoAbbreviations");
             check_trigger_characters_changed();
+            widgets.editDelimitedBlockSelectDelimiters = document.getElementById("editDelimitedBlockSelectDelimiters");
+            widgets.editDelimitedBlockSelectDelimiters_FactorySetting = prefset.getStringPref("editDelimitedBlockSelectDelimiters_FactorySetting");
         } catch (ex) {
             // Ignore any errors.
         }
@@ -164,6 +166,15 @@
     
     function check_wrap_delimiters_changed() {
         widgets.restoreWrapSelectionDelimiters.disabled = widgets.wrapSelectionDelimiters_FactorySetting == widgets.wrapSelectionDelimiters.value;
+    }
+    
+    function pref_delimitedBlockSelect_restoreDefaults() {
+        widgets.editDelimitedBlockSelectDelimiters.value = widgets.editDelimitedBlockSelectDelimiters_FactorySetting;
+        check_delimited_block_select_delimiters_changed();
+    }
+    
+    function check_delimited_block_select_delimiters_changed() {
+        widgets.restoreDelimitedBlockSelectDelimiters.disabled = widgets.editDelimitedBlockSelectDelimiters_FactorySetting == widgets.editDelimitedBlockSelectDelimiters.value;
     }
     
     function pref_autoAbbreviations_doEnabling(checkbox) {
@@ -300,10 +311,10 @@
                       label="&wrapSelection.label;"
                       pref="true"
                       oncommand="pref_wrapSelection_doEnabling(this);"/>
-            <checkbox id="editSmartWrapSelectionKeep"
-                      label="&wrapSelectionKeep.label;"
-                      pref="true"/>
             <vbox id="wrapSelectionDetails" class="indentedPref01 advanced">
+                <checkbox id="editSmartWrapSelectionKeep"
+                          label="&wrapSelectionKeep.label;"
+                          pref="true"/>
                 <checkbox id="wrapSelectionOnlyPlainText"
                           label="&wrapSelectionOnlyPlainText.label;"
                           pref="true"/>
@@ -319,6 +330,9 @@
                             oncommand="pref_wrapSelection_restoreDefaults();"/>
                 </hbox>
             </vbox>
+            <checkbox id="editMatchingDelimiter"
+                      label="&editMatchingDelimiter.label;"
+                      pref="true"/>
     
             <separator class="thin"/>
             <checkbox id="editSmartCutCopyWithoutSelection"
@@ -339,6 +353,21 @@
                       label="&enableMultipleSelectionMouse.label;" pref="true"
                       prefattribute="checked"/>
             
+            <separator class="thin"/>
+            <vbox id="delimited-block-select-section-vbox">
+                <hbox align="center">
+                    <label value="&delimitedBlockSelectDelimiters.label;"/>
+                    <textbox oninput="check_delimited_block_select_delimiters_changed();"
+                           pref="true" size="16" id="delimitedBlockSelectDelimiters"
+                           prefstring="editDelimitedBlockSelectDelimiters"
+                           prefattribute="value"/>
+                    <button class="green-undo-icon button-toolbar-a"
+                            id="restoreDelimitedBlockSelectDelimiters"
+                            tooltiptext="&restoreDelimitedBlockSelectDelimiters.label;"
+                            oncommand="pref_delimitedBlockSelect_restoreDefaults();"/>
+                </hbox>
+                <description style="margin-left: 27px;">&delimitedBlockSelectDelimiters.description;</description>
+            </vbox>
         </groupbox>
     
         <!-- auto-abbreviations prefs are currently global

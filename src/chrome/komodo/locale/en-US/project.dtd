@@ -37,6 +37,8 @@
 <!ENTITY DDirectoryPathOfFile.label "[[&#37;D]]: directory path of file">
 <!ENTITY FFilePath.label "[[&#37;F]]: file path">
 <!ENTITY LCurrentLineNumber.label "[[&#37;L]]: current line number">
+<!ENTITY LCurrentLineText.label "[[&#37;l]]: current line text">
+<!ENTITY currentLineOrSelEscaped.label "[[&#37;t]] : text under selection or current line, escaped and shortened">
 <!ENTITY PPathOfTheActiveProject.label "[[&#37;P]]: path of the active project file">
 <!ENTITY SURLEscapedSelection.label "[[&#37;S]]: URL-escaped selection">
 <!ENTITY WURLEscapedSelectionOrWordUnderCursor.label "[[&#37;W]]: URL-escaped selection or word under cursor">
@@ -48,6 +50,7 @@
 <!ENTITY askpassAskForPassword.label "[[&#37;askpass]]: ask for password">
 <!ENTITY async.accesskey "b">
 <!ENTITY AutoAbbreviation.label "Auto-Abbreviation">
+<!ENTITY AutoAbbreviationLanguage.label "Language">
 <!ENTITY bFileBaseNameWithoutExtension.label "[[&#37;b]]: file base name without extension">
 <!ENTITY beforeFileCloseTheMacroCanReturnTrueToPreventFileClose.label "Before file close (the userscript can return true to prevent file close)">
 <!ENTITY beforeFileSaveTheMacroCanReturnTrueToPreventFileSave.label "Before file save (the userscript can return true to prevent file save)">
@@ -92,6 +95,7 @@
 <!ENTITY snippetTab.accesskey "n">
 <!ENTITY softCharTabStopReplace.label "[[&#37;soft]]: soft characters">
 <!ENTITY tabstopTabStopReplace.label "[[&#37;tabstop]]: Tab Stop/Replace">
+<!ENTITY defaultForLanguage.label "Default template for selected language">
 <!ENTITY TreatAsEJS.label "Treat As EJS">
 <!ENTITY triggerPostopen.accesskey "o">
 <!ENTITY triggerPreclose.accesskey "c">

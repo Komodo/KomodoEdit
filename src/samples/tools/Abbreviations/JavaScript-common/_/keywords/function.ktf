@@ -1,0 +1,25 @@
+// komodo tool: function
+// =====================
+// auto_abbreviation: true
+// indent_relative: true
+// set_selection: false
+// treat_as_ejs: true
+// type: snippet
+// version: 1.0.12
+// =====================
+<%
+var scimoz = ko.views.manager.currentView.scimoz;
+var currentPos = scimoz.currentPos;
+var lineStartPos = scimoz.positionFromLine(scimoz.lineFromPosition(currentPos));
+var currentLine = scimoz.getTextRange(lineStartPos, currentPos);
+// Simplification: Emit an abbrev'n only for function statements,
+// not function expressions.
+if (!(/^\s*$/.test(currentLine))) {
+    var msg = "Auto-abbreviation 'function' cancelled due to leading characters."
+    require("notify/notify").send(msg, "Editor");
+    throw new ko.snippets.RejectedSnippet(msg)
+}
+%>
+function [[%tabstop:name]][[%soft:(]][[%tabstop:args]][[%soft:)]] {
+	[[%tabstop://code]]
+}

@@ -1,0 +1,76 @@
+<?xml version="1.0"?>
+<!DOCTYPE dialog SYSTEM "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" [
+  <!ENTITY % projectDTD SYSTEM "chrome://komodo/locale/project.dtd">
+  %projectDTD;
+]>
+
+<!-- Copyright (c) 2000-2006 ActiveState Software Inc.
+     See the file LICENSE.txt for licensing information. -->
+
+<?xml-stylesheet href="less://komodo/skin/global/global.less" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/views.css" type="text/css"?>
+<?xml-stylesheet href="chrome://komodo/skin/bindings/widgets.css" type="text/css"?>
+
+<!--For the rightarrow-button-->
+<?xml-stylesheet href="chrome://komodo/skin/bindings/buttons.css" type="text/css"?>
+<!--For the keybinding tab-->
+<?xml-stylesheet href="chrome://komodo/skin/bindings/keybinding.css" type="text/css"?>
+<?xul-overlay href="chrome://komodo/content/bindings/scintilla-overlay.xul"?>
+
+<dialog xmlns:html="http://www.w3.org/1999/xhtml"
+        xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        id="dialog-templateproperties"
+        windowtype="komodo_templateproperties"
+        style="min-width: 40em;"
+        orient="vertical"
+        persist="width height screenX screenY"
+        buttons="accept,extra1,cancel"
+        ondialogaccept="return templateProperties.accept()"
+        ondialogcancel="return templateProperties.cancel()"
+        ondialogextra1="return templateProperties.apply()">
+
+    <script src="chrome://xtk/content/xtk.js"                          type="application/x-javascript;version=1.7"/>
+    <script src="chrome://xtk/content/domutils.js"                         type="application/x-javascript;version=1.7"/>
+    <script src="chrome://komodo/content/library/logging.js"           type="application/x-javascript;version=1.7" />
+    <script src="chrome://komodo/content/run/interpolate.js"           type="application/x-javascript;version=1.7" />
+    <script src="chrome://komodo/content/library/uriparse.js"          type="application/x-javascript;version=1.7" />
+    <script src="chrome://komodo/content/launch.js"                    type="application/x-javascript;version=1.7" />
+    <script src="chrome://komodo/content/project/templateProperties.js" type="application/x-javascript;version=1.7" />
+
+    <hbox id="scintillaOverlayXul"/>
+
+    <menupopup id="bufferContextMenu" type="buffercontext" />
+
+    <spacer height="5" id="spacer" context="token-context-menu"/>
+    <hbox style="height:27px;">
+        <spacer width="5"/>
+        <textbox id="name" flex="1" value=""
+                 onkeyup="templateProperties.updateTitle();"/>
+        <spacer width="5"/>
+        <langlist id="languageList"
+                  default="Pick a Language,---------------"
+                  default-value="-1,-1"/>
+    </hbox>
+    <separator class="groovy-thin"/>
+    <view id="value"
+          flex="1"
+          type="buffer"
+          pluginPaintHack="true"
+          />
+    <separator class="groovy-thin"/>
+    <checkbox id="default"
+              label="&defaultForLanguage.label;"
+              checked="false"/>
+    <checkbox id="treat_as_ejs"
+              label="&TreatAsEJS.label;"
+              checked="false"/>
+
+    <vbox id="error-wrapper" class="alertBox alert-box" collapsed="true">
+        <description>
+            Cannot save template.
+        </description>
+        <description id="error-message"></description>
+    </vbox>
+
+</dialog>
+

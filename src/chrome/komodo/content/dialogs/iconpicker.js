@@ -65,6 +65,8 @@ function OnLoad()
         okButton.setAttribute("accesskey", bundle.GetStringFromName("okButton.accessKey"));
         var customButton = dialog.getButton("extra1");
         customButton.setAttribute("label", bundle.GetStringFromName("chooseOther"));
+        var resetButton = dialog.getButton("extra2");
+        resetButton.setAttribute("label", bundle.GetStringFromName("reset"));
         var menulist = document.getElementById("icon-families");
         var lastSelectedIndex = parseInt(menulist.getAttribute("lastSelectedIndex"));
         menulist.selectedIndex = lastSelectedIndex;
@@ -162,11 +164,21 @@ function FillInHTMLTooltip(tipElement) {
 
 function OK()
 {
-    obj.value = gCurrentURI;
-    obj.retval = "OK";
+    if ( ! obj.value)
+    {
+        obj.value = gCurrentURI;
+        obj.retval = "OK";
+    }
     var menulist = document.getElementById("icon-families");
     menulist.setAttribute("lastSelectedIndex", menulist.selectedIndex);
     return true;
+}
+
+function Reset()
+{
+    obj.value = "reset";
+    obj.retval = "OK";
+    document.getElementById('dialog-iconpicker').acceptDialog();
 }
 
 function PickCustom()

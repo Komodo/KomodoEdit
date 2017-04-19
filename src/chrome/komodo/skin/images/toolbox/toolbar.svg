@@ -14,7 +14,7 @@
    height="14"
    viewBox="0 0 14 14"
    id="svg2"
-   inkscape:version="0.91 r13725"
+   inkscape:version="0.92.0 r"
    sodipodi:docname="toolbar.svg">
   <sodipodi:namedview
      pagecolor="#ffffff"
@@ -28,14 +28,18 @@
      inkscape:window-width="1030"
      inkscape:window-height="746"
      id="namedview10"
-     showgrid="false"
+     showgrid="true"
      inkscape:zoom="14.75"
-     inkscape:cx="-3.8644068"
+     inkscape:cx="8.4316268"
      inkscape:cy="6.9152542"
      inkscape:window-x="614"
      inkscape:window-y="193"
      inkscape:window-maximized="0"
-     inkscape:current-layer="svg2" />
+     inkscape:current-layer="svg2">
+    <inkscape:grid
+       type="xygrid"
+       id="grid4484" />
+  </sodipodi:namedview>
   <metadata
      id="metadata14">
     <rdf:RDF>
@@ -61,9 +65,8 @@
        x1="0" />
   </g>
   <path
-     transform="matrix(1.000000,0.000000,0.000000,1.000000,0.000000,0.000000)"
-     style="fill:#9e9e9e;fill-opacity:1"
+     style="fill:#9e9e9e;fill-opacity:1;stroke-width:0.92582011"
      inkscape:connector-curvature="0"
      id="path8"
-     d="M14.0 4.0L14.0 10.0L10.0 10.0L10.0 4.0ZM9.0 4.0L9.0 10.0L5.0 10.0L5.0 4.0ZM4.0 4.0L4.0 10.0L0.0 10.0L0.0 4.0Z" />
+     d="m 13,4 v 6 H 9.5714286 V 4 Z M 8.7142858,4 v 6 H 5.2857142 V 4 Z M 4.4285714,4 v 6 H 1 V 4 Z" />
 </svg>

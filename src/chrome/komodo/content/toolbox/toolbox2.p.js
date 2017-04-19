@@ -109,6 +109,20 @@ initialize: function() {
     getService(Components.interfaces.nsIObserverService);
     obsSvc.addObserver(this, 'toolbox-tree-changed', 0);
     obsSvc.addObserver(this, 'toolbox-reload-view', 0);
+
+    var w = require("ko/windows").getMain();
+    w.addEventListener("file_saved", function(e) {
+        var view = e.detail.view;
+
+        if ( ! view.koDoc || ! view.koDoc.file)
+            return;
+
+        if (view.koDoc.file.ext != ".ktf")
+            return;
+
+        this.toolbox2Svc.updateFilePath(view.koDoc.file.path);
+    }.bind(this));
+
     // Give the toolbox observers time to have started up before
     // notifying them that the toolbox has changed.
     setTimeout(function() {
@@ -189,6 +203,7 @@ _fixCogPopupmenu: function() {
     popupmenu.appendChild(document.createElementNS(XUL_NS, 'menuseparator'));
     var src_popupmenu  = document.getElementById("tb2ContextMenu_importPopupMenu");
     var childNodes = src_popupmenu.childNodes;
+    var menuItems = [];
     for (i = 0; i < childNodes.length; i++) {
         childNode = childNodes[i];
         if (!childNode || childNode.getAttribute('disableIfInMenu') == 'standardToolbox') {
@@ -204,8 +219,11 @@ _fixCogPopupmenu: function() {
             var fixedCmd = cmd.replace('(event)', '_toStdToolbox(event)');
             mi.setAttribute("oncommand", fixedCmd);
         }
-        popupmenu.appendChild(mi);
+        menuItems.push(mi);
     }
+    var importMenu = require('ko/ui/menu').create(menuItems,
+                                                  {attributes:{label:"Import"}});
+    popupmenu.appendChild(importMenu.element);
 },
 
 updateFilter: function(event) {
@@ -262,6 +280,9 @@ this.onload = function() {
                        nsIDOMKeyEvent.DOM_VK_DOWN,
                        nsIDOMKeyEvent.DOM_VK_LEFT,
                        nsIDOMKeyEvent.DOM_VK_RIGHT];
+    
+    var w = require("ko/windows").getMain();
+    xtk.domutils.fireEvent(w, "toolbox-ready");
 };
 
 this.onUnload = function() {
@@ -328,12 +349,12 @@ this.updateContextMenu = function(event, menupopup) {
 this.processMenu = function(menuNode, toolType) {
     //todo: testHideIf
     var hideUnless = menuNode.getAttribute('hideUnless');
-    if (hideUnless && hideUnless.indexOf(toolType) == -1) {
+    if (hideUnless && hideUnless.split(/\s+/).indexOf(toolType) == -1) {
         menuNode.setAttribute('collapsed', true);
         return; // No need to do anything else
     }
     var hideIf = menuNode.getAttribute('hideIf');
-    if (hideIf && hideIf.indexOf(toolType) != -1) {
+    if (hideIf && hideIf.split(/\s+/).indexOf(toolType) != -1) {
         menuNode.setAttribute('collapsed', true);
         return; // No need to do anything else
     }
@@ -577,6 +598,10 @@ this.getAbbreviationSnippet = function(abbrev, subnames, isAutoAbbrev/*=false*/)
     return this.manager.toolsMgr.getAbbreviationSnippet(abbrev, subnames,
                                                         subnames.length,
                                                         isAutoAbbrev);
+};
+
+this.getDefaultTemplateForLanguage = function(language) {
+    return this.manager.toolsMgr.getDefaultTemplateForLanguage(language);
 };
 
 this.getToolsByTypeAndName = function(toolType, toolName) {

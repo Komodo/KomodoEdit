@@ -1,0 +1,33 @@
+// komodo tool: nnew
+// =================
+// auto_abbreviation: true
+// indent_relative: true
+// set_selection: false
+// treat_as_ejs: true
+// type: snippet
+// version: 1.0.12
+// =================
+<% // Perl constructor dynamic snippet
+var i, numReps = ko.snippets.consumeLeadingNumericFactor(":");
+%>[[%tabstop:##
+ # new()
+<% for (i = 1; i <= numReps; i++) { %>
+ # @param $[[%tabstop<%= i %>:arg<%= i %>]]
+<% } %>
+##]]
+sub new {
+	my ($[[%tabstop<%= numReps + 1 %>:class]]<% for (i = 1; i <= numReps; i++) { %>
+, $[[%tabstop<%= i %>:arg<%= i %>]]<% } %>) = @_;
+	my $self = bless {
+<% if (numReps > 0) { %>
+<% for (i = 1; i <= numReps; i++) { %>
+		[[%tabstop<%= i %>:arg<%= i %>]] => $[[%tabstop<%= i %>:arg<%= i %>]],
+<% } %>
+<% } else { %>
+		[[%tabstop:name]] => [[%tabstop:value]],
+<% } %>
+	}, $[[%tabstop<%= numReps + 1 %>:class]];
+	[[%tabstop:#code]]
+	[[%tabstop:return $self;]]
+}
+!@#_currentPos!@#_anchor

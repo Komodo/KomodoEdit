@@ -203,6 +203,7 @@ interface koIInterpolationService : nsISupports {
                       in wstring word, in wstring selection,
                       in wstring projectFile,
                       in koIPreferenceSet prefSet,
+                      in wstring lineText,
                       out unsigned long qcount,
                       [array, size_is(qcount)] out koIInterpolationQuery queries,
                       out unsigned long i1count,
@@ -521,6 +522,9 @@ interface koIRunService : nsISupports {
                            [optional] in wstring cwd,
                            [optional] in wstring env,
                            [optional] in AString input);
+    
+    void argvSplit(in wstring argvStr, [optional] out unsigned long count,
+                                  [retval, array, size_is(count)] out wstring arg);
 };
 
 

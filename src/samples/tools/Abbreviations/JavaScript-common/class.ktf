@@ -1,0 +1,20 @@
+// komodo tool: class
+// ==================
+// auto_abbreviation: false
+// indent_relative: true
+// set_selection: false
+// treat_as_ejs: false
+// type: snippet
+// version: 1.0.12
+// ==================
+[[%tabstop:/*
+ * [[%tabstop1:className]]
+ * @param [[%tabstop2:firstArgName]]
+ */]]
+function [[%tabstop1]]([[%tabstop2]][[%soft:) {]][[%tabstop:
+	/*
+	 * [[%tabstop:docstring]]
+	 */]]
+	[[%tabstop:]]
+}[[%tabstop:]]
+!@#_currentPos!@#_anchor

@@ -86,6 +86,7 @@
     <tabbox id="commandProperties" orient="vertical" flex="1">
         <tabs id="tabs" orient="horizontal">
             <tab id="command_tab" label="&command.label;"/>
+            <tab id="advanced_tab" label="&advancedOptions.label;"/>
             <tab id="shortcut_tab" label="&keyBinding.label;"
                  onfocus="gDlg.nameLabel.value=gDlg.nameTextbox.value;" />
         </tabs>
@@ -97,29 +98,19 @@
                     <hbox style="width: 22px;">
                         <vbox>
                             <spring flex="1"/>
-                            <image src="chrome://komodo/skin/images/run_commands.png"
-                                   style="max-width: 22px; max-height:16px"
-                                   id="commandtab_icon"/>
+                            <button oncommand="pick_icon()">
+                                <image src="chrome://komodo/skin/images/run_commands.png"
+                                       style="max-width: 22px; max-height:16px"
+                                       id="commandtab_icon"/>
+                            </button>
                             <spring flex="1"/>
                         </vbox>
                     </hbox>
                     <spacer width="5"/>
                     <textbox id="name-textbox" flex="1" value="&unnamedCommand.label;"
                              onkeyup="UpdateField('name');" style="max-height: 1.6em;"/>
-                    <spacer width="10"/>
-                    <vbox _style="padding: 5px 5px 0px 5px;">
-                        <spring flex="1"/>
-                        <button accesskey="&changeIcon.accesskey;" label="&changeIcon.label;" oncommand="pick_icon()"/>
-                    </vbox>
-                    <vbox _style="padding: 5px 5px 0px 5px;">
-                        <button id="reseticon" accesskey="&reseticon.accesskey;" label="&reset.label;" oncommand="pick_icon(true)"/>
-                        <spring flex="1"/>
-                    </vbox>
                 </hbox>
-                <spacer height="10"/>
-
                 <separator class="groovy-thin"/>
-                <spacer height="15"/>
 
                 <!-- Basic options -->
                 <vbox flex="1">
@@ -174,11 +165,17 @@
                                 <menuitem label="&LCurrentLineNumber.label;"
                                           shortcut="%L"
                                           oncommand="InsertCommandShortcut(this);"/>
+                                <menuitem label="&LCurrentLineText.label;"
+                                          shortcut="%l"
+                                          oncommand="InsertCommandShortcut(this);"/>
                                 <menuitem label="&sSelection.label;"
                                           shortcut="%s"
                                           oncommand="InsertCommandShortcut(this);"/>
                                 <menuitem label="&SURLEscapedSelection.label;"
                                           shortcut="%S"
+                                          oncommand="InsertCommandShortcut(this);"/>
+                                <menuitem label="&currentLineOrSelEscaped.label;"
+                                          shortcut="%t"
                                           oncommand="InsertCommandShortcut(this);"/>
                                 <menuitem label="&wSelectionOrWordUnderCursor.label;"
                                           shortcut="%w"
@@ -223,134 +220,127 @@
                               label="&passSelectionAsInput.label;"
                               accesskey="&operateOnSelectionCheckbox.accesskey;" oncommand="UpdateField('operate-on-selection');"/>
                 </vbox>
-
-                <!-- Advanced options stuff -->
-                <vbox id="adv-options-box">
-                    <spacer height="5"/>
-                    <groupbox id="adv-options-box" orient="vertical">
-                        <caption label="&advancedOptions.label;"/>
-
-                        <hbox flex="1" align="center">
-                            <label value="&startIn.label;" control="cwd-textbox"
-                                   style="width: 50px;"
-                                   accesskey="&startIn.accesskey;"/>
-                            <textbox id="cwd-textbox"
-                                     flex="1"
-                                     maxrows="10"
-                                     type="autocomplete"
-                                     autocompletesearch="mru_and_filepath"
-                                     autocompletesearchparam="mru: run-cwdMru; maxmru: 5"
-                                     autocompletepopup="popupTextboxAutoComplete"
-                                     enablehistory="true"
-                                     completeselectedindex="true"
-                                     tabscrolling="true"
-                                     ontextentered="this.focus();"
-                                     oninput="UpdateField('cwd');"/>
-                            <button type="menu" id="shortcuts-menubutton"
-                                    tooltiptext="&shortcuts.tooltiptext;" tooltip="dialogTooltip"
-                                    class="rightarrow-button">
-                                <menupopup position="end_before">
-                                    <menuitem label="&escapedPercentSign.label;"
-                                              shortcut="%%"
-                                              oncommand="InsertCwdShortcut(this);"/>
-                                    <menuitem label="&DDirectoryPathOfFile.label;"
-                                              shortcut="%D"
-                                              oncommand="InsertCwdShortcut(this);"/>
-                                    <menuitem label="&projectBaseDirectory.label;"
-                                              shortcut="%i"
-                                              oncommand="InsertCwdShortcut(this);"/>
-                                    <menuitem label="&pDirectoryPathOfTheActiveProject.label;"
-                                              shortcut="%p"
-                                              oncommand="InsertCwdShortcut(this);"/>
-                                    <menuseparator/>
-                                    <menuitem label="&askAskForUserInput.label;"
-                                              shortcut="%(ask:QUESTION:DEFAULT)"
-                                              oncommand="InsertCwdShortcut(this);"/>
-                                    <menuseparator/>
-                                    <menuitem label="&helpOnShortcuts.label;"
-                                              oncommand="ko.help.open('interpolation_shortcuts');"/>
-                                </menupopup>
-                            </button>
-                            <button id="cwd-browse-button" label="&browse.label;"
-                                    oncommand="BrowseForCwd();" accesskey="&cwdBrowseButton.accesskey;"/>
-                        </hbox>
-                        <spacer height="5"/>
-
-                        <hbox flex="1">
-                            <label value="&runIn.label;" control="run-in-use-menulist"
-                                   style="width: 50px;"/>
-                            <vbox flex="1">
-                                <menulist id="run-in-menulist" oncommand="UpdateField('runIn');">
-                                    <menupopup>
-                                        <menuitem value="command-output-window"
-                                                  label="&commandOutputTab.label;"/>
-                                        <menuitem value="new-console"
-                                                  label="&newConsole.label;"/>
-                                        <menuitem value="no-console"
-                                                  label="&noConsoleGUIApplication.label;"/>
-                                    </menupopup>
-                                </menulist>
-                                <checkbox id="do-not-open-output-window-checkbox"
-                                          label="&doNotOpenOutputPane.label;"
-                                          accesskey="&doNotOpenOutputWindowCheckbox.accesskey;"
-                                          oncommand="UpdateField('do-not-open-output-window');"/>
-                                <hbox>
-                                    <checkbox id="parse-output-checkbox"
-                                              label="&parseOutputWith.label;"
-                                              oncommand="UpdateField('parse-output');"/>
-                                    <textbox id="parse-regex-textbox"
-                                             flex="1"
-                                             accesskey="&parseRegexTextbox.accesskey;"
-                                             maxrows="10"
-                                             type="autocomplete"
-                                             autocompletesearch="mru"
-                                             autocompletesearchparam="run-parseRegexMru"
-                                             autocompletepopup="popupTextboxAutoComplete"
-                                             enablehistory="true"
-                                             tabscrolling="true"
-                                             completeselectedindex="true"
-                                             ontextentered="this.focus();"
-                                             oninput="UpdateField('parse-regex');"/>
-                                </hbox>
-                                <checkbox id="show-parsed-output-list-checkbox"
-                                          label="&showParsedOutputAsAList.label;"
-                                          oncommand="UpdateField('show-parsed-output-list');"/>
-                            </vbox>
-                        </hbox>
-
-                        <!-- Environment variables tree and buttons -->
-                        <spacer height="5"/>
-                        <vbox flex="1">
-                            <script>var gEnvView = null;</script>
-                            <label value="&environmentVar.label;"/>
-                            <tree id="env" style="height: 70px;"
-                                      onclick="Env_OnClick(event);"
-                                      onkeypress="return Env_OnKeyPress(event);">
-                                <treecols>
-                                <treecol id="env-variable" primary="true" label="&variable.label;"
-                                             class="treecol-header treecol-inset-header sortDirectionIndicator"
-                                             flex="1" persist="width"/>
-                                <splitter class="tree-splitter"/>
-                                <treecol id="env-value" label="&value.label;"
-                                             flex="3" persist="width"/>
-                                </treecols>
-                                <treechildren id="env-body" flex="1"/>
-                            </tree>
-                            <spacer height="5"/>
-                            <hbox pack="end">
-                                <button id="env-new-button" label="&new.label;"
-                                        accesskey="&envNewButton.accesskey;" oncommand="Env_New();"/>
-                                <button id="env-edit-button" label="&edit.label;"
-                                        accesskey="&envEditButton.accesskey;" oncommand="Env_Edit();"
-                                        disabled="true"/>
-                                <button id="env-delete-button" label="&delete.label;"
-                                        accesskey="&envDeleteButton.accesskey;" oncommand="Env_Delete();"
-                                        disabled="true"/>
-                            </hbox>
-                        </vbox>
-                    </groupbox>
-                </vbox>
+        </vbox>
+        <!-- Advanced options stuff -->
+        <vbox id="adv-options-box">
+            <hbox flex="1" align="center">
+                <label value="&startIn.label;" control="cwd-textbox"
+                       style="width: 50px;"
+                       accesskey="&startIn.accesskey;"/>
+                <textbox id="cwd-textbox"
+                         flex="1"
+                         maxrows="10"
+                         type="autocomplete"
+                         autocompletesearch="mru_and_filepath"
+                         autocompletesearchparam="mru: run-cwdMru; maxmru: 5"
+                         autocompletepopup="popupTextboxAutoComplete"
+                         enablehistory="true"
+                         completeselectedindex="true"
+                         tabscrolling="true"
+                         ontextentered="this.focus();"
+                         oninput="UpdateField('cwd');"/>
+                <button type="menu" id="shortcuts-menubutton"
+                        tooltiptext="&shortcuts.tooltiptext;" tooltip="dialogTooltip"
+                        class="rightarrow-button">
+                    <menupopup position="end_before">
+                        <menuitem label="&escapedPercentSign.label;"
+                                  shortcut="%%"
+                                  oncommand="InsertCwdShortcut(this);"/>
+                        <menuitem label="&DDirectoryPathOfFile.label;"
+                                  shortcut="%D"
+                                  oncommand="InsertCwdShortcut(this);"/>
+                        <menuitem label="&projectBaseDirectory.label;"
+                                  shortcut="%i"
+                                  oncommand="InsertCwdShortcut(this);"/>
+                        <menuitem label="&pDirectoryPathOfTheActiveProject.label;"
+                                  shortcut="%p"
+                                  oncommand="InsertCwdShortcut(this);"/>
+                        <menuseparator/>
+                        <menuitem label="&askAskForUserInput.label;"
+                                  shortcut="%(ask:QUESTION:DEFAULT)"
+                                  oncommand="InsertCwdShortcut(this);"/>
+                        <menuseparator/>
+                        <menuitem label="&helpOnShortcuts.label;"
+                                  oncommand="ko.help.open('interpolation_shortcuts');"/>
+                    </menupopup>
+                </button>
+                <button id="cwd-browse-button" label="&browse.label;"
+                        oncommand="BrowseForCwd();" accesskey="&cwdBrowseButton.accesskey;"/>
+            </hbox>
             <spacer height="5"/>
+
+            <hbox flex="1">
+                <label value="&runIn.label;" control="run-in-use-menulist"
+                       style="width: 50px;"/>
+                <vbox flex="1">
+                    <menulist id="run-in-menulist" oncommand="UpdateField('runIn');">
+                        <menupopup>
+                            <menuitem value="command-output-window"
+                                      label="&commandOutputTab.label;"/>
+                            <menuitem value="new-console"
+                                      label="&newConsole.label;"/>
+                            <menuitem value="no-console"
+                                      label="&noConsoleGUIApplication.label;"/>
+                        </menupopup>
+                    </menulist>
+                    <checkbox id="do-not-open-output-window-checkbox"
+                              label="&doNotOpenOutputPane.label;"
+                              accesskey="&doNotOpenOutputWindowCheckbox.accesskey;"
+                              oncommand="UpdateField('do-not-open-output-window');"/>
+                    <hbox>
+                        <checkbox id="parse-output-checkbox"
+                                  label="&parseOutputWith.label;"
+                                  oncommand="UpdateField('parse-output');"/>
+                        <textbox id="parse-regex-textbox"
+                                 flex="1"
+                                 accesskey="&parseRegexTextbox.accesskey;"
+                                 maxrows="10"
+                                 type="autocomplete"
+                                 autocompletesearch="mru"
+                                 autocompletesearchparam="run-parseRegexMru"
+                                 autocompletepopup="popupTextboxAutoComplete"
+                                 enablehistory="true"
+                                 tabscrolling="true"
+                                 completeselectedindex="true"
+                                 ontextentered="this.focus();"
+                                 oninput="UpdateField('parse-regex');"/>
+                    </hbox>
+                    <checkbox id="show-parsed-output-list-checkbox"
+                              label="&showParsedOutputAsAList.label;"
+                              oncommand="UpdateField('show-parsed-output-list');"/>
+                </vbox>
+            </hbox>
+
+            <!-- Environment variables tree and buttons -->
+            <spacer height="5"/>
+            <vbox flex="1">
+                <script>var gEnvView = null;</script>
+                <label value="&environmentVar.label;"/>
+                <tree id="env" style="height: 70px;"
+                          onclick="Env_OnClick(event);"
+                          onkeypress="return Env_OnKeyPress(event);">
+                    <treecols>
+                    <treecol id="env-variable" primary="true" label="&variable.label;"
+                                 class="treecol-header treecol-inset-header sortDirectionIndicator"
+                                 flex="1" persist="width"/>
+                    <splitter class="tree-splitter"/>
+                    <treecol id="env-value" label="&value.label;"
+                                 flex="3" persist="width"/>
+                    </treecols>
+                    <treechildren id="env-body" flex="1"/>
+                </tree>
+                <spacer height="5"/>
+                <hbox pack="end">
+                    <button id="env-new-button" label="&new.label;"
+                            accesskey="&envNewButton.accesskey;" oncommand="Env_New();"/>
+                    <button id="env-edit-button" label="&edit.label;"
+                            accesskey="&envEditButton.accesskey;" oncommand="Env_Edit();"
+                            disabled="true"/>
+                    <button id="env-delete-button" label="&delete.label;"
+                            accesskey="&envDeleteButton.accesskey;" oncommand="Env_Delete();"
+                            disabled="true"/>
+                </hbox>
+            </vbox>
         </vbox>
             <vbox id="shortcut_tabpanel">
                 <!-- header -->
@@ -370,9 +360,7 @@
                     <label id="name-label" style="height:25px; padding-left: 2px; padding-top: 4px;"
                            value="" flex="1" crop="center"/>
                 </hbox>
-                <spacer height="10"/>
                 <separator class="groovy-thin"/>
-                <spacer height="15"/>
                 <editkeybinding id="keybindings" applycb="UpdateField('shortcut')"
                                 commandId="cmd_callPart"/>
                 <spacer height="10"/>

@@ -176,7 +176,64 @@ this.invoke_editSnippet = function(tool) {
         tool = this._getSelectedTool('snippet');
         if (!tool) return;
     }
-    ko.open.URI(tool.url);
+    ko.open.URI(tool.url, "editor", false, function () {
+        var language = tool.getStringAttribute("language");
+        ko.views.manager.currentView.koDoc.language = language;
+    });
+};
+
+this.invoke_useTemplate = function(tool) {
+    if (typeof(tool) == 'undefined') {
+        tool = this._getSelectedTool('template');
+        if (!tool) return;
+    }
+    if (!tool.value) {
+        // Bug 98835: initially, we don't always have the item's text
+        // Don't know why, but getting its value will make an initial
+        // call to the database to init the tool
+        var koFileEx = tool.getFile();
+        koFileEx.open("r");
+        tool.value = koFileEx.readfile();
+        koFileEx.close();
+    }
+    ko.projects.useTemplate(tool);
+};
+
+this.invoke_useFolderTemplate = function(tool) {
+    if (typeof(tool) == 'undefined') {
+        tool = this._getSelectedTool('folder_template');
+        if (!tool) return;
+    }
+    if (!tool.value) {
+        // Bug 98835: initially, we don't always have the item's text
+        // Don't know why, but getting its value will make an initial
+        // call to the database to init the tool
+        var koFileEx = tool.getFile();
+        koFileEx.open("r");
+        tool.value = koFileEx.readfile();
+        koFileEx.close();
+    }
+    ko.projects.useFolderTemplate(tool);
+};
+
+this.invoke_editTemplate = function(tool) {
+    if (typeof(tool) == 'undefined') {
+        tool = this._getSelectedTool('template');
+        if (!tool) return;
+    }
+    ko.open.URI(tool.url, "editor", false, function () {
+        var language = tool.getStringAttribute("language");
+        ko.views.manager.currentView.koDoc.language = language;
+    });
+};
+
+this.invoke_editRaw = function(tool) {
+    if (typeof(tool) == 'undefined') {
+        tool = this._getSelectedTool();
+        if (!tool) return;
+    }
+    ko.open.skipNextPrompt = true;
+    ko.open.URI(ko.uriparse.pathToURI(tool.path));
 };
 
 this.editProperties_snippet = function(tool) {
@@ -187,31 +244,16 @@ this.editProperties_snippet = function(tool) {
     ko.projects.snippetProperties(tool);
 };
 
-this.add_snippet = function(parent, item) {
-    ko.projects.addSnippet(parent, item);
-};
-
-// Templates
-this.invoke_openTemplate = function(tool) {
+this.editProperties_template = function(tool) {
     if (typeof(tool) == 'undefined') {
         tool = this._getSelectedTool('template');
         if (!tool) return;
     }
-    ko.views.manager.doFileNewFromTemplateAsync(tool.url);
+    ko.projects.templateProperties(tool);
 };
 
-this.add_template = function(parent, item) {
-    // ref code peTemplate.js::addTemplate
-    var obj = { type:'file',
-                templateOnly:true
-    };
-    ko.launch.newTemplate(obj);
-    if (obj.template == null) return;
-    // Avoid multiple calls to uriparse.*
-    var templateName = ko.uriparse.baseName(obj.template);
-    item.setStringAttribute('name', templateName);
-    item.value = ko.uriparse.localPathToURI(obj.template);
-    this.addNewItemToParent(item, parent);
+this.add_snippet = function(parent, item) {
+    ko.projects.addSnippet(parent, item);
 };
 
 // Toolbars
@@ -258,6 +300,22 @@ this.editProperties_URL = function(tool) {
 
 this.add_URL = function(parent, item) {
     ko.projects.addURL(parent, item);
+};
+
+this.editProperties_folder_template = function(tool) {
+    if (typeof(tool) == 'undefined') {
+        tool = this._getSelectedTool('folder_template');
+        if (!tool) return;
+    }
+    ko.projects.folderTemplateProperties(tool);
+};
+
+this.add_template = function(parent, item) {
+    ko.projects.addTemplate(parent, item);
+};
+
+this.add_folder_template = function(parent, item) {
+    ko.projects.addFolderTemplate(parent, item);
 };
 
 // folders
@@ -344,6 +402,19 @@ this.importFilesFromFileSystem_common = function(defaultDirectory, index) {
     try {
         this.manager.toolbox2Svc.importFiles(defaultDirectory, paths.length, paths);
         this.manager.view.reloadToolsDirectoryView(index);
+    } catch(ex) {
+        var msg = komodo_bundle.formatStringFromName("importFilesFromFileSystemFailed.template", [ex], 1);
+        this.log.exception(msg);
+        alert(msg);
+    }
+};
+
+this.importFilesFromFileSystem_dragDrop = function(path) {
+    try {
+        var pathInArray = [path];
+        this.manager.toolbox2Svc.importFiles(this.manager.toolbox2Svc.getStandardToolbox().path,
+                                             pathInArray.length, pathInArray);
+        this.manager.view.reloadToolsDirectoryView(-1);
     } catch(ex) {
         var msg = komodo_bundle.formatStringFromName("importFilesFromFileSystemFailed.template", [ex], 1);
         this.log.exception(msg);
@@ -616,7 +687,7 @@ this._getUniqueFileName = function(targetDirectory, newPath) {
     var newName, selectionStart, selectionEnd;
     [newName, selectionStart, selectionEnd] =
         this._getNewSuggestedName(osPathSvc.basename(newPath), targetDirectory);
-    var suffix = ".komodotool"
+    var suffix = ".ktf"
     if (newName.indexOf(suffix) > -1) {
         newName = newName.substring(0, newName.length - suffix.length);
     }
@@ -965,8 +1036,9 @@ this.invokeTool = function(tool) {
         'command': this.invoke_runCommand,
         'macro': this.invoke_executeMacro,
         'snippet': this.invoke_insertSnippet,
-        'template': this.invoke_openTemplate,
-        'URL': this.invoke_openURLInBrowser
+        'template': this.invoke_useTemplate,
+        'URL': this.invoke_openURLInBrowser,
+        'folder_template': this.invoke_useFolderTemplate,
     }[tool.type];
     _invoker(tool);
 }

@@ -191,6 +191,48 @@
                           "_blank",
                           opts.features || "chrome,modal,titlebar,centerscreen",
                           _opts);
-    }
+    };
+
+    this.filepicker = (message, callback, opts) =>
+    {
+        var ss = require("ko/simple-storage").get("dialogs");
+        var  legacy = require("ko/windows").getMain().ko;
+        var _opts;
+
+        if (typeof callback == "object")
+        {
+            _opts = callback;
+            callback = opts;
+            opts = _opts;
+        }
+
+        _opts = {};
+        var props = ["type", "path", "callback"];
+        _.each(props, (prop) => { _opts[prop] = opts[prop] || null; });
+
+        message = message || "Choose path";
+        opts.type = opts.type || "file";
+        opts.path = opts.path || ss.storage.filepicker_path || legacy.uriparse.URIToLocalPath(legacy.places.getDirectory());
+        opts.callback = callback || opts.callback || function() { log.error("callback not defined"); };
+
+        require("ko/modal").open(
+            message,
+            {
+                path: {
+                    type: "filepath",
+                    options: { type: opts.type },
+                    value: opts.path
+                }
+            },
+            (data) =>
+            {
+                if ( ! data)
+                    return opts.callback();
+
+                ss.storage.filepicker_path = data.path;
+                return opts.callback(data.path);
+            }
+        );
+    };
 
 }).apply(module.exports);

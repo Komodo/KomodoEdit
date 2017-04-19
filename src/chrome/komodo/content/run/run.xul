@@ -136,11 +136,17 @@
                             <menuitem label="&LCurrentLineNumber.label;"
                                       shortcut="%L"
                                       oncommand="InsertCommandShortcut(this);"/>
+                            <menuitem label="&LCurrentLineText.label;"
+                                      shortcut="%l"
+                                      oncommand="InsertCommandShortcut(this);"/>
                             <menuitem label="&sSelection.label;"
                                       shortcut="%s"
                                       oncommand="InsertCommandShortcut(this);"/>
                             <menuitem label="&SURLEscapedSelection.label;"
                                       shortcut="%S"
+                                      oncommand="InsertCommandShortcut(this);"/>
+                            <menuitem label="&currentLineOrSelEscaped.label;"
+                                      shortcut="%t"
                                       oncommand="InsertCommandShortcut(this);"/>
                             <menuitem label="&wSelectionOrWordUnderCursor.label;"
                                       shortcut="%w"

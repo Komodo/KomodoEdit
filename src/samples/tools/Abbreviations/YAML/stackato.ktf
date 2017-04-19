@@ -1,0 +1,44 @@
+// komodo tool: stackato
+// =====================
+// auto_abbreviation: false
+// indent_relative: true
+// set_selection: true
+// treat_as_ejs: false
+// type: snippet
+// version: 1.0.12
+// =====================
+name: [[%tabstop:name]]
+framework:
+	type: [[%tabstop1:language]]
+	runtime: [[%tabstop1:language]][[%tabstop2:suffix]][[%tabstop:
+processes:
+	web: python [[%tabstop:DEFAULT]]]]
+mem: [[%tabstop:64]]M
+instances: [[%tabstop:1]][[%tabstop:
+services:
+	[[%tabstop:name]]: [[%tabstop:type]]]][[%tabstop:
+ignores: [[%tabstop:["tmp", ".git"] ]]]][[%tabstop:
+env:
+    [[%tabstop:name]]: [[%tabstop:value]]]][[%tabstop:
+hooks:[[%tabstop:
+	pre-staging:
+		- python prestaging.py]][[%tabstop:
+	post-staging:
+		- python manage.py syncdb --noinput
+		- python manage.py migrate --noinput]][[%tabstop:
+	pre-running:
+		- python prerunsetup.py]]]][[%tabstop:
+min-version:
+	client: [[%tabstop:0.3.12.0.20]]
+	server: [[%tabstop:0.7.1]]]][[%tabstop:
+cron:
+	- PLUGH=[[%tabstop:value]]
+	- [[%tabstop:"*/1 * * * * env > $HOME/env"]]]][[%tabstop:
+requirements:
+	staging:
+		ubuntu:
+			- [[%tabstop:["ppa:gophers/go"]]]
+			- golang-stable
+		running:
+			ubuntu:
+				- libfool]]!@#_currentPos!@#_anchor

@@ -7,7 +7,8 @@
  */
 
 var $      = require("ko/dom");
-var parent = require("./element");
+var parent = require("./container");
+
 var Module = Object.assign({}, parent); 
 module.exports = Module;
 
@@ -25,8 +26,6 @@ module.exports = Module;
         
         this.init = function(label, options = {})
         {
-            var attributes = Object.assign(options.attributes || {}, this.attributes);
-            
             if (Array.isArray(options))
             {
                 options = { options: options };
@@ -42,13 +41,14 @@ module.exports = Module;
                 options.label = label;
             }
             
-            this.options = options;
-            this.attributes = attributes;
+            this.parseOptions(options);
+            options = this.options;
+            
             this.$element = $($.create(this.name).toString());
             this.$element.addClass("ui-radiogroup-wrapper");
             this.element = this.$element.element();
             
-            this.$formElement = $($.create("radiogroup", attributes).toString());
+            this.$formElement = $($.create("radiogroup", this.attributes).toString());
             this.$formElement.addClass("ui-radiogroup");
             this.formElement = this.$formElement.element();
             this.$element.append(this.formElement);
@@ -57,28 +57,64 @@ module.exports = Module;
             {
                 this.$element.prepend(require("./label").create(options.label).element);
             }
-            
-            if (options.options)
+            var radioBtns = options.options;
+            if (radioBtns && Array.isArray(radioBtns))
             {
-                for (let option of options.options) {
-                    let element;
-                    if ("isSdkElement" in option)
-                        element = option.element;
-                    else if ("koDom" in option)
-                        element = option.element();
-                    else if ("nodeName" in option)
-                        element = option;
-                    else
-                        element = require("./radio").create(option).element;
-                    
-                    this.$formElement.append(element);
-                }
+                this.addRadioItems(radioBtns);
+            }
+            else if (radioBtns && ! Array.isArray(radioBtns))
+            {
+                log.warn("Radio items must be in an array.  Failed to add menu "+
+                         "items to menu.");
             }
         };
         
         this.onChange = function (callback)
         {
             this.$element.on("command", callback);
+        };
+        
+        this.addRadioItems = function (items)
+        {
+            for (let item of items) {
+                this.addRadioItem(item);
+            }
+        };
+        
+        /**
+         * Add an item to the container
+         *
+         * @argument {string, ko/ui/obj, ko/dom/obj, DOM, Object} item item to be added
+         * to the container.
+         *
+         * @returns {DOM Object} DOM element
+         *
+         * Object refers to an Options object used through this SDK. The options
+         * should contain an attributes property to assign a label at the very
+         * least:
+         *
+         *  {
+         *      attributes:
+         *      {
+         *          label:"itemLable",
+         *          value:"itemValue // if not supplied, `label` is used as `value`
+         *      }
+         *  }
+         *  
+         */ 
+        this.addRadioItem = function(item)
+        {
+            let element;
+                if ("isSdkElement" in item)
+                    element = item.element;
+                else if ("koDom" in item)
+                    element = item.element();
+                else if ("nodeName" in item)
+                    element = item;
+                else
+                    element = require("./radio").create(item).element;
+            this.$formElement.append(element);
+            return element;
         };
         
         this.value = function(value)

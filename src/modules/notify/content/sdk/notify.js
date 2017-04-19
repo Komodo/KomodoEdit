@@ -248,6 +248,26 @@
             this.queue(notif);
         }
     }
+    
+    this.warn = (message, category) =>
+    {
+        this.send(message, category, { priority: "warning" });
+    }
+    
+    this.error = (message, category) =>
+    {
+        this.send(message, category, { priority: "error" });
+    }
+    
+    this.interactiveWarning = (message, category) =>
+    {
+        this.interact(message, category, { priority: "warning" });
+    }
+    
+    this.interactiveError = (message, category) =>
+    {
+        this.interact(message, category, { priority: "error" });
+    }
 
     this.queue = (notif) =>
     {
@@ -599,7 +619,6 @@
     
     this.hideNotification = (notif, animate) =>
     {
-        log.debug("Hiding Notification: " + notif.opts.id);
         
         if ( ! notif)
         {
@@ -612,6 +631,8 @@
             }
             return;
         }
+        
+        log.debug("Hiding Notification: " + notif.opts.id);
         
         var panel = queue[notif.opts.from].activePanel;
         if (panel && queue[notif.opts.from].timeout) timers.clearTimeout(queue[notif.opts.from].timeout);

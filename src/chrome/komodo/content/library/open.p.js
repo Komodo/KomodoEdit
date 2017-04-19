@@ -150,6 +150,8 @@ this.recentURI = function open_recentURI(uri,
     this.URI(uri, viewType, skipRecentOpenFeature, callback);
 };
 
+this.skipNextPrompt = false;
+
 /**
  * Asynchronously open the URI in a new Komodo tab, if the file is already
  * open then this existing tab becomes the currently focused tab.
@@ -197,45 +199,63 @@ this.URIAtLine = function open_openURIAtLine(uri, lineno, viewType /* ="editor" 
         } else if (uri.match(/\.kpz$/i)) {
             ko.toolboxes.importPackage(uri);
         } else {
-            if (uri.match(/\.ksf$/i)) {
-                var prompt = _viewsBundle.formatStringFromName("importFileAsScheme.prompt", [ko.uriparse.baseName(uri)], 1);
-                var buttons = [_viewsBundle.GetStringFromName("OK.customButtonLabel"),
-                               _viewsBundle.GetStringFromName("openAsText.customButtonLabel"),
-                               _viewsBundle.GetStringFromName("Cancel.customButtonLabel")];
-                var responses = removeAmpersands(buttons);
-                var text = null;
-                var title = _viewsBundle.GetStringFromName("openingSchemeFile.label");
-                var answer = ko.dialogs.customButtons(prompt,
+            var buttons = [_viewsBundle.GetStringFromName("OK.customButtonLabel"),
+                           _viewsBundle.GetStringFromName("openAsText.customButtonLabel"),
+                           _viewsBundle.GetStringFromName("Cancel.customButtonLabel")];
+            var responses = removeAmpersands(buttons);
+            var text = null;
+            if ( ! this.skipNextPrompt) {
+                if (uri.match(/\.ksf$/i)) {
+                    var prompt = _viewsBundle.formatStringFromName("importFileAsScheme.prompt", [ko.uriparse.baseName(uri)], 1);
+                    var title = _viewsBundle.GetStringFromName("openingSchemeFile.label");
+                    var answer = ko.dialogs.customButtons(prompt,
+                                                          buttons,
+                                                          null,  //response=buttons[0]
+                                                          null, // text
+                                                          title);
+                    if (!answer || answer == responses[2]) {
+                        return null;
+                    } else if (answer == responses[0]) {
+                        var schemeService = Components.classes['@activestate.com/koScintillaSchemeService;1'].getService();
+                        var schemeBaseName = _checkKSFBaseName(schemeService, uri);
+                        if (!schemeBaseName) {
+                            // The user cancelled, so don't open anything
+                            return null;
+                        }
+                        try {
+                            var newSchemeName = schemeService.loadSchemeFromURI(uri, schemeBaseName);
+                            var oldScheme = schemeService.activateScheme(newSchemeName);
+                            this._notifyHowtoRestoreOldScheme(schemeService, oldScheme, newSchemeName);
+                            return null;
+                        } catch(ex) {
+                            alert(ex);
+                            log.exception(ex);
+                            // At this point we want to load the original file,
+                            // as there's something wrong with its contents.
+                        }
+                    }
+                } else if (uri.match(/(?:\.komodotool|\.ktf)$/i)) {
+                    var prompt = _viewsBundle.GetStringFromName("importFileAsKomodoTool.prompt");
+                    var title = _viewsBundle.GetStringFromName("openingKomodoToolFile.label");
+                    var answer = ko.dialogs.customButtons(prompt,
                                                       buttons,
                                                       null,  //response=buttons[0]
                                                       null, // text
                                                       title);
-                if (!answer || answer == responses[2]) {
-                    return null;
-                } else if (answer == responses[0]) {
-                    var schemeService = Components.classes['@activestate.com/koScintillaSchemeService;1'].getService();
-                    var schemeBaseName = _checkKSFBaseName(schemeService, uri);
-                    if (!schemeBaseName) {
-                        // The user cancelled, so don't open anything
+                    if (!answer || answer == responses[2]) {
+                        return null;
+                    } else if (answer == responses[0]) {
+                        ko.toolbox2.importFilesFromFileSystem_dragDrop(ko.uriparse.URIToPath(uri));
                         return null;
                     }
-                    try {
-                        var newSchemeName = schemeService.loadSchemeFromURI(uri, schemeBaseName);
-                        var oldScheme = schemeService.activateScheme(newSchemeName);
-                        this._notifyHowtoRestoreOldScheme(schemeService, oldScheme, newSchemeName);
-                        return null;
-                    } catch(ex) {
-                        alert(ex);
-                        log.exception(ex);
-                        // At this point we want to load the original file,
-                        // as there's something wrong with its contents.
-                    }
+                } else if (!viewType && (ko.open.isImageUrl(uri)
+                                         || ko.open.isAudioUrl(uri))) {
+                    // Open the image for previewing, bug 85103.
+                    viewType = "browser";
                 }
-            } else if (!viewType && (ko.open.isImageUrl(uri)
-                                     || ko.open.isAudioUrl(uri))) {
-                // Open the image for previewing, bug 85103.
-                viewType = "browser";
             }
+            this.skipNextPrompt = false;
+            
             if (lineno) {
                 ko.views.manager.doFileOpenAtLineAsync(uri, lineno, viewType, null, -1, callback);
             } else {
@@ -488,26 +508,6 @@ this.filePicker = function view_openFilesWithPicker(viewType/*='editor'*/) {
     if (ko.views.manager.currentView)
         window.setTimeout('ko.views.manager.currentView.setFocus();',1);
 }
-
-/**
- * open a file picker, and open the templates that the user selects.  This
- * allows editing the templates, it is not for creating new files from
- * templates.
- */
-this.templatePicker = function view_openTemplatesWithPicker(viewType/*='editor'*/) {
-    try {
-        var os = Components.classes["@activestate.com/koOs;1"].getService();
-        var templateSvc = Components.classes["@activestate.com/koTemplateService?type=file;1"].getService();
-        var defaultDir = templateSvc.getUserTemplatesDir();
-        var paths = ko.filepicker.browseForFiles(defaultDir);
-        if (paths == null)
-            return;
-        ko.open.multipleURIs(paths, viewType);
-    } catch (e) {
-        log.exception(e);
-    }
-}
-
 
 /* ---- internal support stuff ---- */
 

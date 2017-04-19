@@ -329,9 +329,11 @@
     }
     
     toolbarbutton[type="menu-button"].dynamic-button:before,
+    toolbarbutton[type="menu"].dynamic-button:before,
     .dynamic-button label.toolbarbutton-counter:not([value])
     {
         visibility: collapse;
+        display: none;
     }
     
     .dynamic-button[disabled="true"]
@@ -373,6 +375,20 @@
         font-weight: bold;
     }
     
+    
+    toolbarbutton[type="menu"].dynamic-button 
+    {
+        box[anonid="toolbarbutton-icon-box"]
+        {
+            font-size: 16px !important;
+        }
+        
+        label.toolbarbutton-counter
+        {
+            margin: 4px 10px 0 -10px;
+        }
+    }
+    
     .dynamic-button.error label.toolbarbutton-counter { background: @state-error; }
     .dynamic-button.warning label.toolbarbutton-counter { background: @state-warning; }
     .dynamic-button.info label.toolbarbutton-counter { background: @state-info; }
@@ -404,6 +420,11 @@ statusbar
     statusbarpanel[anonid="statusbar-pos-info"]
     {
         min-width: 200px;
+    }
+
+    hbox[anonid="statusbar-message-deck-default"]
+    {
+        overflow: hidden;
     }
 }
 
@@ -644,4 +665,27 @@ minimap
   border-left: 1px solid @border;
 }
 
+}
+
+/* Dynamic Button Menu */
+
+#dynamicBtn-Add
+{
+    menu
+    {
+        padding-top: 4px;
+        padding-bottom: 4px;
+
+        &:before
+        {
+            font-size: 16px;
+        }
+
+        & > label
+        {
+            margin-left: 4px;
+            margin-right: 4px;
+            -moz-box-flex: 1;
+        }
+    }
 }

@@ -99,7 +99,7 @@ this.addNewFileFromTemplate = function peFolder_addNewFileFromTemplate(/*koIPart
     if (!targetDir) {
         targetDir = parent.project.getFile().dirName;
     }
-    ko.views.manager.newTemplateAsync(targetDir, view_callback);
+    ko.projects.chooseTemplate(targetDir, view_callback);
 }
     
 this.addFile = function peFolder_addFile(parent_item)

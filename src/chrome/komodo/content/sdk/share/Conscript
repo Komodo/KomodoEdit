@@ -1,0 +1,17 @@
+
+#!/usr/local/bin/perl
+# Copyright (c) 2000-2010 ActiveState Software Inc.
+# See the file LICENSE.txt for licensing information.
+
+
+Import(
+    'cons',
+    'mozChromeDir',
+    'mozComponentsDir',
+);
+
+$cons->InstallInChrome('kopy.js');
+$cons->InstallInChrome('sources/diff.js');
+$cons->InstallInChrome('sources/editor.js');
+$cons->InstallInChrome('sources/logs.js');
+$cons->InstallInChrome('sources/trackchanges.js');

@@ -21,7 +21,7 @@ var breadcrumbs = function(view) {
     //log.setLevel(ko.logging.LOG_DEBUG);
 
     /* Element References */
-    var breadcrumbBar, overflowBtn, sectionList;
+    var breadcrumbBar, overflowBtn, wrapper;
 
     /* Templates */
     var template = {};
@@ -81,10 +81,8 @@ var breadcrumbs = function(view) {
         template.overflowItem   = breadcrumbBarWrap.find('[anonid="overflowMenuTemplate"]').element();
         overflowBtn             = breadcrumbBarWrap.find('[anonid="breadcrumbOverflowBtn"]').element();
         
-        sectionList             = xv.findAnonymous('anonid', "statusbar-sectionlist").element();
-        
-        var parent = xv.findAnonymous("anonid", "statusbar-message-deck-default");
-        parent.append(breadcrumbBarWrap);
+        wrapper = xv.findAnonymous("anonid", "statusbar-message-deck-default");
+        wrapper.prepend(breadcrumbBarWrap);
 
         // Bind event listeners
         this.bindListeners();
@@ -114,11 +112,6 @@ var breadcrumbs = function(view) {
     {
         log.debug("Load");
 
-        if (sectionList)
-        {
-            sectionList.setAttribute("collapsed", true);
-        }
-        
         // By default the load is delayed so as not to interfere with the
         // event that triggered it. 
         if ( ! noDelay || eventContext.loadInProgress)
@@ -168,12 +161,6 @@ var breadcrumbs = function(view) {
         // Manually set file status as no event is triggered at this point
         this.onUpdateFileStatus(view);
 
-        if (sectionList)
-        {
-            sectionList.removeAttribute("collapsed");
-            breadcrumbBar.appendChild(sectionList);
-        }
-        
         // Update overflow whenever breadcrumbs are loaded
         this.checkOverflow();
 
@@ -201,7 +188,7 @@ var breadcrumbs = function(view) {
 
         /* DOM Events */
         window.addEventListener('resize', this._checkOverflowBound);
-        window.addEventListener('sectionlist-updated', this._checkOverflowBound);
+        window.addEventListener('symbollist_updated', this._checkOverflowBound);
         window.addEventListener('current_view_changed', this._checkOverflowBound);
         window.addEventListener('keydown', this._menuKeyPressBound);
         
@@ -229,7 +216,7 @@ var breadcrumbs = function(view) {
         window.removeEventListener('workspace_restored', this._onLoadBound);
         window.removeEventListener('project_opened', this._onLoadBound);
         window.removeEventListener('resize', this._checkOverflowBound);
-        window.removeEventListener('sectionlist-updated', this._checkOverflowBound);
+        window.removeEventListener('symbollist_updated', this._checkOverflowBound);
         window.removeEventListener('current_view_changed', this._checkOverflowBound);
         window.removeEventListener('keydown', this._menuKeyPressBound);
 
@@ -1307,7 +1294,8 @@ var breadcrumbs = function(view) {
         //}
 
         // Now check whether the breadcrumb bar is actually overflown
-        var diff = Math.abs(breadcrumbBar.scrollWidth - breadcrumbBar.boxObject.width);
+        var overflower = wrapper.element();
+        var diff = Math.abs(overflower.scrollWidth - overflower.boxObject.width);
         if (diff > 5)
         {
             overflowBtn.removeAttribute("collapsed");
@@ -1315,10 +1303,10 @@ var breadcrumbs = function(view) {
             
             // Iterate through the crumbs, collapsing one at a time until
             // the breadcrumb bar is no longer overflown
-            var i = 0, width = breadcrumbBar.scrollWidth;
+            var i = 0, width = overflower.scrollWidth;
             buttons = breadcrumbBar.querySelectorAll("toolbarbutton.breadcrumb");
 
-            while (width > breadcrumbBar.boxObject.width)
+            while (width > overflower.boxObject.width)
             {
                 if ( ! (i in buttons))
                 {

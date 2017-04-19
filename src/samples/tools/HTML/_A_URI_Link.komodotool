@@ -1,6 +1,6 @@
 {
   "keyboard_shortcut": "", 
-  "name": "<A> URI Link", 
+  "name": "<a> URI Link", 
   "value": [
     "<a href=\"[[%w:else:]]\">[[%w:else:]]!@#_currentPos!@#_anchor</a>"
   ], 

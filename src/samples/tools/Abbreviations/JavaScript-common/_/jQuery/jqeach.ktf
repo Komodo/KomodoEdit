@@ -1,0 +1,15 @@
+// komodo tool: jqeach
+// ===================
+// auto_abbreviation: true
+// indent_relative: true
+// set_selection: false
+// treat_as_ejs: false
+// type: snippet
+// version: 1.0.12
+// ===================
+$('[[%tabstop:selector]]').each(
+	function([[%tabstop1:name]]) {
+		// Do something with [[%tabstop1:name]]
+		[[%tabstop:]]
+	}
+);[[%tabstop:]]!@#_currentPos!@#_anchor

@@ -18,6 +18,8 @@
     const log           = require("ko/logging").getLogger("ko-shell");
     const platform      = require("sdk/system").platform;
     const pathSplitter  = platform == "winnt" ? /;/g : /:/g;
+    const w             = require("ko/windows").getMain();
+    const $             = require("ko/dom");
     //log.setLevel(require("ko/logging").LOG_DEBUG);
     
     /**
@@ -143,45 +145,107 @@
         var proc = require("sdk/system/child_process");
         var process = proc.spawn(binary, args, _opts);
         
+        this.mediator(process, opts, binary);
+
+        return process;
+    };
+
+    this.mediator = (process, opts = {}, command = "") =>
+    {
+        var lastLine = null;
         var stdout = "";
         var stderr = "";
         process.stdout.on('data', function (data)
         {
             stdout += data;
+
+            if (lastLine)
+            {
+                data = lastLine + data;
+                lastLine = null;
+            }
+            
+            if (data.substr(-1) != "\n")
+            {
+                var index = data.lastIndexOf("\n");
+                lastLine = data.substr(index+1);
+                data = data.substr(0, index+1);
+            }
+            
+            callbacks.stdout.forEach(function(callback)
+            {
+                callback(data);
+            });
         });
 
         process.stderr.on('data', function (data)
         {
             stderr += data;
+            
+            callbacks.stderr.forEach(function(callback)
+            {
+                callback(data);
+            });
+        });
+        
+        process.on('error', function (e)
+        {
+            log.error(e.message);
         });
         
         process.on('close', function (code, signal)
         {
             if (code !== 0)
             {
-                log.error("child process ended with code " + code + ", stdout: " + stdout + ", stderr: " + stderr);
+                log.debug("child process ended with code " + code + ", stdout: " + stdout + ", stderr: " + stderr);
             }
             
-            callbacks.forEach(function(callback)
+            if (lastLine)
+            {
+                callbacks.stdout.forEach(function(callback)
+                {
+                    callback(lastLine);
+                });
+            }
+            
+            callbacks.complete.forEach(function(callback)
             {
                 callback(stdout, stderr, code, signal);
             });
+
+            if (w)
+                $(w.document).trigger("process_close");
         });
         
-        var callbacks = [];
+        var callbacks = { complete: [], stdout: [], stderr: [] };
         var on = process.on;
         process.on = function(event, callback)
         {
-            if (event != "complete")
+            if (event == "complete")
+                callbacks.complete.push(callback);
+            else if (event == "stdout")
+                callbacks.stdout.push(callback);
+            else if (event == "stderr")
+                callbacks.stderr.push(callback);
+            else
             {
                 on.call(process, event, callback);
             }
-            else
-                callbacks.push(callback);
+
+            return process;
         };
+
+        if ("runIn" in opts && opts.runIn == "hud")
+            showOutputInHud(process, opts.readable || command);
+
+        process.on("close", () =>
+        {
+            if (w)
+                $(w.document).trigger("process_close");
+        });
         
         return process;
-    }
+    };
     
     /**
      * Alias for run
@@ -208,7 +272,7 @@
         _opts = _.extend(_opts, opts);
         
         // Prepare platform command
-        var platform = require("sdk/system").platform
+        var platform = require("sdk/system").platform;
         var file, cmdArgs;
         
         if (opts.argv)
@@ -237,8 +301,7 @@
         var proc = require("sdk/system/child_process");
         var process = proc.execFile(file, cmdArgs, _opts, callback);
         
-        if ("runIn" in opts && opts.runIn == "hud")
-            showOutputInHud(process, opts.readable || command);
+        this.mediator(process, opts, command);
         
         return process;
     }
@@ -256,7 +319,6 @@
         var running = true;
         
         // Create the output panel
-        var $ = require("ko/dom");
         var hud =
         $($.create("panel", {class: "hud shell-output", noautohide: true, width: 500, level: "floating"},
             $.create("textbox", {multiline: true, rows: 15, readonly: true, style: "max-width: 490px"})
@@ -277,12 +339,16 @@
         var left = (bo.x + (bo.width / 2)) - (elem.width / 2);
         elem.openPopup(undefined, undefined, left, 100);
         
+        var colorRx = /\[\d{0,2}m/g;
+        
         // Show stdout and stderr data the same way, leave to user to interpret
         var onData = function(data)
         {
             var textbox = hud.find("textbox");
             var elem = document.getAnonymousNodes(textbox.element())[0].childNodes[0];
             var isAtBottom = elem.scrollTop == elem.scrollTopMax;
+            
+            data = data.replace(colorRx, '');
             
             textbox.value(textbox.value() + data);
             

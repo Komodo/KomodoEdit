@@ -40,6 +40,7 @@
 import copy, re, types, eollib
 import Queue
 import logging
+import json
 
 import scimozindent
 from xpcom import components
@@ -1278,6 +1279,23 @@ class KoLanguageBase:
             self._commenter = KoCommenterLanguageService(
                 self.commentDelimiterInfo)
         return self._commenter
+
+    def getCommentDelimiter(self, key = "line", index = 0):
+        if not self.commentDelimiterInfo or not self.commentDelimiterInfo.get(key, False):
+            return ""
+
+        if index >= len(self.commentDelimiterInfo[key]):
+            return ""
+
+        result = self.commentDelimiterInfo[key][index]
+
+        return json.dumps(result)
+
+    def getCommentDelimiters(self, key = "line"):
+        if not self.commentDelimiterInfo or not self.commentDelimiterInfo.get(key, False):
+            return ""
+
+        return json.dumps(self.commentDelimiterInfo[key])
 
     def getEncodingWarning(self, encoding):
         if not encoding.encoding_info.ascii_superset:

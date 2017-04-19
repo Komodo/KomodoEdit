@@ -1,0 +1,21 @@
+// komodo tool: main
+// =================
+// auto_abbreviation: false
+// indent_relative: true
+// set_selection: false
+// treat_as_ejs: false
+// type: snippet
+// version: 1.0.12
+// =================
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://komodo/skin/global/" type="text/css"?>
+
+<window
+    id="[[%tabstop:id]]"
+    title="[[%tabstop:title]]"
+    orient="horizontal"
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+    
+    <script src="[[%tabstop:filename]]" type="application/x-javascript;version=1.7"/>
+    
+</window>!@#_currentPos!@#_anchor

@@ -172,6 +172,9 @@ if (typeof module === 'undefined') module = {}; // debugging helper
         var __insert = false
         if (typeof insert == 'string')
             __insert = $.createElement(insert);
+            
+        if ( ! elems.koDom)
+            elems = $(elems);
 
         return elems.each(function()
         {
@@ -208,7 +211,7 @@ if (typeof module === 'undefined') module = {}; // debugging helper
 
         this._elements = [];
         
-        if (typeof query == "object" && query.length)
+        if (query && typeof query == "object" && query.length)
             query = Array.prototype.slice.call(query);
         
         // Use push.apply to force array type
@@ -217,7 +220,16 @@ if (typeof module === 'undefined') module = {}; // debugging helper
         else if (query && query.nodeType)
             this._elements.push.apply(this._elements, [query]);
         else if ('' + query === query)
-            this._elements.push.apply(this._elements,  (customParent || parent).querySelectorAll(query));
+        {
+            try
+            {
+                this._elements.push.apply(this._elements,  (customParent || parent).querySelectorAll(query));
+            }
+            catch (e)
+            {
+                log.exception(e, `Invalid selector: ${query}`);
+            }
+        }
         else if ((query != null && query === query.window) ||
                  (query != null && query.window && query == query.window.document))
             this._elements.push(query);
@@ -270,7 +282,7 @@ if (typeof module === 'undefined') module = {}; // debugging helper
         {
             var elems = this;
             
-            var listener = function()
+            var listener = () =>
             {
                 action.apply(this, arguments);
                 this.off(event, listener);
@@ -410,13 +422,26 @@ if (typeof module === 'undefined') module = {}; // debugging helper
         /**
          * Append content to elem
          * 
-         * @param   {string|object} value String or queryObject
+         * @param   {element} elem
          *
          * @returns this
          */
         append: function(elem)
         {
             insertIntoElem(this, elem);
+            return this;
+        },
+        
+        /**
+         * Append elem to another element
+         * 
+         * @param   {element} elem
+         *
+         * @returns this
+         */
+        appendTo: function(elem)
+        {
+            insertIntoElem(elem, this);
             return this;
         },
 
@@ -466,7 +491,8 @@ if (typeof module === 'undefined') module = {}; // debugging helper
          */
         prev: function()
         {
-            return new queryObject(this.element().previousSibling);
+            var elem = this.element();
+            return new queryObject(elem ? elem.previousSibling : null);
         },
         
         /**
@@ -476,7 +502,8 @@ if (typeof module === 'undefined') module = {}; // debugging helper
          */
         next: function()
         {
-            return new queryObject(this.element().nextSibling);
+            var elem = this.element();
+            return new queryObject(elem ? this.element().nextSibling : null);
         },
 
         /**
@@ -533,14 +560,26 @@ if (typeof module === 'undefined') module = {}; // debugging helper
         {
             // Todo: support different value types
             var valueKey = 'value';
-
-            if (value === undefined)
-                return this.element()[valueKey];
-
-            return this.each(function()
+            
+            // Using property
+            if (valueKey in this.element())
             {
-                this[valueKey] = value;
-            });
+                if (value === undefined)
+                    return this.element()[valueKey];
+    
+                return this.each(function()
+                {
+                    this[valueKey] = value;
+                });
+            }
+            // Using attribute
+            else
+            {
+                if (value === undefined)
+                    return this.attr(valueKey);
+                
+                return this.attr(valueKey, value);
+            }
         },
 
         /**
@@ -685,11 +724,12 @@ if (typeof module === 'undefined') module = {}; // debugging helper
          * 
          * @returns this
          */
-        addClass: function(className)
+        addClass: function()
         {
+            var args = arguments;
             return this.each(function()
             {
-                this.classList.add(className);
+                this.classList.add.apply(this.classList, args);
             });
         },
 
@@ -700,11 +740,12 @@ if (typeof module === 'undefined') module = {}; // debugging helper
          * 
          * @returns this
          */
-        removeClass: function(className)
+        removeClass: function()
         {
+            var args = arguments;
             return this.each(function()
             {
-                this.classList.remove(className);
+                this.classList.remove.apply(this.classList, args);
             });
         },
 
@@ -1044,6 +1085,16 @@ if (typeof module === 'undefined') module = {}; // debugging helper
         children: function()
         {
             return new queryObject(this.element().childNodes);
+        },
+
+        /**
+         * Get number of child nodes
+         *
+         * @returns {int}
+         */
+        childCount: function()
+        {
+            return this.element().childNodes.length;
         },
 
         /**

@@ -1,0 +1,54 @@
+// komodo tool: Run the current Macro
+// ==================================
+// async: 0
+// language: JavaScript
+// rank: 100
+// trigger: trigger_postopen
+// trigger_enabled: 0
+// type: macro
+// version: 1.0.12
+// ==================================
+/*
+ * a quick macro that tries to run the current macro open in the buffer
+*/
+
+var infoSvc = Components.classes["@activestate.com/koInfoService;1"].getService();
+var version = infoSvc.version;
+if (Number(version.split('.')[0]) < 6) {
+  alert("This macro works only with version 6+ of Komodo");
+  return;
+}
+try {
+  var view = ko.views.manager.currentView;
+  var uri = view.koDoc.displayPath;
+  var self = ko.macros.current;
+  var msg = '';
+  var re = /^macro2:\/\/(\d+)\/(.*)/
+  var m_view_match = re.exec(uri);
+  var m_macro_match = re.exec(self.url);
+  if (!m_view_match) {
+    msg = 'Not a macro buffer, nothing to do...';
+  } else if (!m_macro_match) {
+    msg = "Unexpected: the macro we're running doesn't look like a macro"
+  } else {
+    var view_id = m_view_match[1];
+    var macro_id = m_macro_match[1];
+    if (view_id == macro_id) {
+      msg = 'FAIL: you shouldn\'t try to run this macro *with* this macro.';
+    } else {
+      try {
+        ko.projects.executeMacroById(view_id);
+        msg = "Ran macro '" + unescape(m_view_match[1]) + "'";
+      } catch(ex) {
+        msg = ex.message;
+        dump(ex + "\n");
+      }
+    }
+  }
+  if (msg) {
+    require("notify/notify").send(msg, 'editor');
+  }
+} catch(e) {
+  ko.dialogs.internalError(e, 'Error: '+e);
+  dump(e + "\n");
+}

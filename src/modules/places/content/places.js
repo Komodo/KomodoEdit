@@ -352,7 +352,43 @@ viewMgrClass.prototype = {
             require("ko/dom")(window.parent).trigger("folder_touched", {path: dir});
 
         }.bind(this);
-        ko.views.manager.newTemplateAsync(dir, callback);
+        ko.projects.chooseTemplate(dir, callback);
+    },
+
+    addNewFolderFromTemplate: function() {
+        var isLocal = ko.places.manager.currentPlaceIsLocal;
+        if (!isLocal) {
+            ko.dialogs.alert(_bundle.GetStringFromName("remoteTemplateNewFileNotAvailable"));
+            return;
+        }
+        var index, uri;
+        if (ko.places.manager._clickedOnRoot()) {
+            index = -1;
+            uri = ko.places.manager.currentPlace;
+        } else {
+            index = this.view.selection.currentIndex;
+            uri = this.view.getURIForRow(index);
+        }
+        var dir = ko.uriparse.URIToLocalPath(uri);
+        ko.projects.chooseFolderTemplate(dir);
+    },
+
+    addNewTemplateFromFolder: function() {
+        var isLocal = ko.places.manager.currentPlaceIsLocal;
+        if (!isLocal) {
+            ko.dialogs.alert(_bundle.GetStringFromName("remoteTemplateNewFileNotAvailable"));
+            return;
+        }
+        var index, uri;
+        if (ko.places.manager._clickedOnRoot()) {
+            index = -1;
+            uri = ko.places.manager.currentPlace;
+        } else {
+            index = this.view.selection.currentIndex;
+            uri = this.view.getURIForRow(index);
+        }
+        var dir = ko.uriparse.URIToLocalPath(uri);
+        ko.projects.createFolderTemplateFromDir(dir);
     },
 
     addNewFile: function() {
@@ -3474,8 +3510,11 @@ this.matchAllTypes = function(typeListAttr, typesSelectedArray) {
  * @returns {String} The URI of the current places directory.
  */
 this.getDirectory = function() {
-    return ko.places.manager.currentPlace;
+    if (ko.places.manager)
+        this.getDirectory.__cached = ko.places.manager.currentPlace;
+    return this.getDirectory.__cached;
 };
+this.getDirectory.__cached = "file://";
 
 /**
  * Set places to the given directory.

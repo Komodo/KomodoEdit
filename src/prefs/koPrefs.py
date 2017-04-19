@@ -469,6 +469,16 @@ class koPreferenceSetBase(object):
         if hasattr(pref, "container"):
             pref.container = self
         self._setPrefValue(prefName, "object", pref)
+        
+    def createPref(self, prefName):
+        pref = koPreferenceChild()
+        pref.id = prefName
+        if hasattr(pref, "container"):
+            pref.container = self
+        pref.inheritFrom = None
+            
+        self.prefs[prefName] = (pref, "object")
+        self._notifyPreferenceChange(prefName)
 
     @components.ProxyToMainThreadAsync
     def setString(self, prefName, pref):
@@ -760,6 +770,7 @@ class koPreferenceSetBase(object):
         if self._observerService:
             try:
                 self._observerService.notifyObservers(prefset, self.id, pref_id)
+                self._observerService.notifyObservers(prefset, "__all__", pref_id)
             except COMException, e:
                 pass # no one is listening
 
@@ -768,6 +779,7 @@ class koPreferenceSetBase(object):
         if "prefObserverService" in self.__dict__:
             try:
                 self.prefObserverService.notifyObservers(prefset, pref_id, self.id)
+                self.prefObserverService.notifyObservers(prefset, "__all__", pref_id)
             except COMException, e:
                 pass # no one is listening
 
@@ -894,6 +906,17 @@ class koPreferenceChild(koPreferenceSetBase):
         pref = UnwrapObject(pref) # Shut up PyXPCOM warnings about no attr
         if hasattr(pref, "chainNotifications"):
             pref.chainNotifications = self.chainNotifications
+            
+    def createPref(self, prefName):
+        """Set a preference in the preference set"""
+        pref = koPreferenceChild()
+        pref.id = prefName
+        if hasattr(pref, "container"):
+            pref.container = self
+        pref.inheritFrom = None
+            
+        self.prefs[prefName] = (pref, "object")
+        self._notifyPreferenceChange(prefName)
 
     def clone(self):
         ret = koPreferenceChild()

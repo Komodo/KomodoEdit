@@ -1,0 +1,13 @@
+This patch comes upstream from Scintilla 3.7.x. Whenever we upgrade this can be
+removed.
+--- cocoa/ScintillaView.mm
++++ cocoa/ScintillaView.mm
+@@ -1207,6 +1207,7 @@
+   [[NSNotificationCenter defaultCenter] removeObserver:self];
+   delete mBackend;
+   mBackend = NULL;
++  [marginView setClientView:nil];
+   [marginView release];
+   [super dealloc];
+ }
+

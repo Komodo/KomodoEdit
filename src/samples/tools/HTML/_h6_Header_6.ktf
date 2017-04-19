@@ -1,0 +1,10 @@
+// komodo tool: <h6> Header 6
+// ==========================
+// auto_abbreviation: false
+// indent_relative: true
+// set_selection: true
+// treat_as_ejs: false
+// type: snippet
+// version: 1.0.12
+// ==========================
+<h6>[[%(w:else:)]]!@#_currentPos!@#_anchor</h6>

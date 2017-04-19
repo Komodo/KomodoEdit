@@ -1,0 +1,10 @@
+// komodo tool: tag
+// ================
+// auto_abbreviation: false
+// indent_relative: true
+// set_selection: false
+// treat_as_ejs: false
+// type: snippet
+// version: 1.0.12
+// ================
+<[[%tabstop1:div]]>[[%tabstop:]]</[[%tabstop1]]>!@#_currentPos!@#_anchor

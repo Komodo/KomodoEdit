@@ -1,0 +1,10 @@
+// komodo tool: lic
+// ================
+// auto_abbreviation: false
+// indent_relative: true
+// set_selection: false
+// treat_as_ejs: false
+// type: snippet
+// version: 1.0.12
+// ================
+<% link_to("[[%tabstop:text]]", :controller => "[[%tabstop:items]]" %>!@#_currentPos!@#_anchor

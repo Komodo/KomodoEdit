@@ -1,0 +1,10 @@
+// komodo tool: Make current file writeable
+// ========================================
+// doNotOpenOutputWindow: 0
+// insertOutput: 0
+// operateOnSelection: 0
+// runIn: command-output-window
+// type: command
+// version: 1.0.12
+// ========================================
+attrib -R "%F"

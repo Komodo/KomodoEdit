@@ -50,7 +50,8 @@ create table common_details (
     path_id INTEGER PRIMARY KEY NOT NULL ,
     /* uuid CHAR(36) NOT NULL, */
     name text NOT NULL,
-    type text NOT NULL
+    type text NOT NULL,
+    is_clean bool DEFAULT 'false'
 );
 
 create table common_tool_details (
@@ -69,12 +70,28 @@ create table hierarchy (
 );
 create index hierarchy_parent_path_id_index on hierarchy(parent_path_id);
 
+create table template (
+    path_id INTEGER PRIMARY KEY NOT NULL,
+    treat_as_ejs bool default false,
+    lang_default bool default false,
+    language text ""
+);
+
+create table folder_template (
+    path_id INTEGER PRIMARY KEY NOT NULL,
+    language text,
+    author text,
+    license text,
+    website text
+);
+
 create table snippet (
     path_id INTEGER PRIMARY KEY NOT NULL,
     set_selection bool default false,
     indent_relative bool default false,
     auto_abbreviation bool default false,
-    treat_as_ejs bool default false
+    treat_as_ejs bool default false,
+    language text ""
 );
 
 create table macro (

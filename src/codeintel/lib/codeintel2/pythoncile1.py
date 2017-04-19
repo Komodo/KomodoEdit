@@ -1493,6 +1493,9 @@ def _convert3to2(src):
 
     # def foo(foo:Bar, baz=lambda x: qoox): => def foo(bar, baz=_lambda(qoox)):
     src = _rx(r'(\bdef\s+\w+\s*\()(.+?)(\)\s*:)').sub(_clean_func_args, src)
+    
+    # Remove async keyword from function definitions
+    src = _rx(r'\basync\s+(def\s+)').sub(r'\1', src)
 
     # yield from => yield
     # bug 101404

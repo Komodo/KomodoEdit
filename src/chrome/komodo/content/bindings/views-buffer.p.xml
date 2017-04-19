@@ -99,7 +99,18 @@
         ]]>
         </constructor>
 
-        <property name="scintilla" onget="return document.getAnonymousElementByAttribute(this, 'anonid', 'scintilla');"/>
+        <field name="_scintilla">null</field>
+
+        <property name="scintilla">
+            <getter><![CDATA[
+            if (typeof require == "undefined")
+                return document.getAnonymousElementByAttribute(this, 'anonid', 'scintilla');
+
+            if ( ! this._scintilla)
+                this._scintilla = require("ko/dom")(this).findAnonymous('anonid', "scintilla").element();
+            return this._scintilla;
+            ]]></getter>
+        </property>
 
         <!-- Whether the buffer/editor sends DOM events. -->
         <field name="_dispatch_events">false</field>
@@ -130,6 +141,8 @@
         <property name="scimoz"
             onget="return this.scintilla.scimoz;"/>
 
+        <field name="_uiTimer">null</field>
+
         <property name="dragHandler"
             onget="return this.scintilla;"/>
 
@@ -137,9 +150,25 @@
 
         <field name="textChangeUndoPending">false</field>
 
-        <field name="findbar">
-            document.getAnonymousElementByAttribute(this, 'anonid', 'findbar')
-        </field>
+        <field name="_findbar">null</field>
+
+        <property name="findbar">
+            <getter>
+                <![CDATA[
+                if (typeof require == "undefined")
+                    return document.getAnonymousElementByAttribute(this, 'anonid', 'findbar');
+
+                if ( ! this._findbar)
+                    this._findbar = require("ko/dom")(this).findAnonymous('anonid', "findbar").element();
+                return this._findbar;
+                ]]>
+            </getter>
+            <setter>
+                <![CDATA[
+                    this._findbar = val;
+                ]]>
+            </setter>
+        </property>
 
         <!-- Properties related to CodeIntel functionality for this view. -->
 
@@ -599,6 +628,10 @@
         <body>
         <![CDATA[
             //this.log.info('view-buffer is closing')
+            
+            if (this._uiTimer)
+                clearTimeout(this._uiTimer);
+            
             // Note that we have to deal with being called after scintilla has
             // already been unloaded.
             try {
@@ -1038,7 +1071,6 @@
         ]]>
         </body>
         </method>
-
         
         <method name="onUpdateUI">
         <parameter name="updated"/>
@@ -1047,9 +1079,7 @@
             if (!this.log) return; // closed
             this.log.debug('doUpdateUI called');
             var scimoz = this.scimoz;
-            // None of the registered callbacks should need to do
-            // a timeout, because they're already run after a delay.
-            // other update-events, they will be run at a later time.
+
             var callbacks = this._updateUICallbacks;
             // Note: We check linesOnScreen to ensure Scintilla is ready.
             if (callbacks.length && scimoz.linesOnScreen > 0) {
@@ -1067,13 +1097,16 @@
             // Since onUpdateUI is called for a lot of different cases, we
             // check to see if the position has really changed.
             var currentPos = scimoz.currentPos;
+            var selectionStart = scimoz.selectionStart;
+            var selectionEnd = scimoz.selectionEnd;
             var currentLineNo = scimoz.lineFromPosition(currentPos);
             var columnNo = scimoz.getColumn(currentPos);
             var firstVisibleLine = scimoz.firstVisibleLine;
-            var newPosLineAndCol = [currentPos, currentLineNo, columnNo, firstVisibleLine];
+            var newPosLineAndCol = [selectionStart, currentLineNo, columnNo, firstVisibleLine, selectionEnd];
             if ((this._lastPosLineAndCol[0] != newPosLineAndCol[0]) ||
                 (this._lastPosLineAndCol[1] != newPosLineAndCol[1]) ||
-                (this._lastPosLineAndCol[2] != newPosLineAndCol[2])) {
+                (this._lastPosLineAndCol[2] != newPosLineAndCol[2]) ||
+                (this._lastPosLineAndCol[4] != newPosLineAndCol[4])) {
                 this._lastPosLineAndCol = newPosLineAndCol;
                 // The position has changed since the last time we updated.
                 var data = {
@@ -1097,11 +1130,9 @@
                 if (!this.textChangeUndoPending && !this.lastCharAdded) {
                     // Position hasn't changed, no chars were added and no text
                     // was modified - we've got nothing to do.
-                    return;
+                    return false;
                 }
             }
-
-            scimoz.doBraceMatch();
 
             // If there is an active calltip, then update it as necessary.
             if (this.isCICplnEnabled) { 
@@ -1126,27 +1157,67 @@
                 }
             }
 
-            // Hmm, we might be able to now catch tabs, etc. right here.
-            if (this.lastCharAdded) {
-                if (this.isCICplnEnabled && this._isCITriggeringEnabled) {
-                    // Trigger completions or calltip.
-                    ko.codeintel.trigger(this, true);
-                }
+            if (this.textChangeUndoPending) {
+                // Fix bug 89414 -- undo/redo buttons not getting updated on doc changes
+                window.updateCommands('undo');
+                this.textChangeUndoPending = false;
+            }
 
-                this.doCommandCompletion();
+            // Forward the call to the languageObj so it can provide language
+            // specific features (smart indent, electric bracers, .. )
+            if (this.lastCharAdded) {
                 if (this.languageObj &&
                     this.prefs.getBooleanPref("editElectricBrace")) {
                     // "keyPressed" is the poorly named mechanism to initiate
                     // auto-indenting functionality.
                     this.languageObj.keyPressed(this.lastCharAdded, this.scimoz);
                 }
-                this.lastCharAdded = null;
             }
 
-            if (this.textChangeUndoPending) {
-                // Fix bug 89414 -- undo/redo buttons not getting updated on doc changes
-                window.updateCommands('undo');
-                this.textChangeUndoPending = false;
+            // Trigger CodeIntel completions
+            if (this.lastCharAdded) {
+                this.doCommandCompletion();
+                if (this.isCICplnEnabled && this._isCITriggeringEnabled) {
+                    // Trigger completions or calltip.
+                    ko.codeintel.trigger(this, true);
+                }
+            }
+
+            var obsvc;
+            if (this.charModified) {
+                this.dispatchEvent(new CustomEvent('buffer_char_modified', { bubbles: true, detail: this.lastCharAdded }));
+            }
+
+            if (this.lastPosition !== null && currentPos != this.lastPosition) {
+                this.dispatchEvent(new CustomEvent('buffer_pos_changed', { bubbles: true, detail: currentPos - this.lastPosition }));
+            }
+
+            this.lastCharAdded = null;
+            this.charModified = false;
+            this.lastPosition = currentPos;
+            
+            if (this._uiTimer) {
+                clearTimeout(this._uiTimer);
+            }
+            
+            this._uiTimer = setTimeout(this._onUpdateUI_debounced.bind(this, updated), 200);
+        ]]>
+        </body>
+        </method>
+        
+        <method name="_onUpdateUI_debounced">
+        <parameter name="updated"/>
+        <body>
+        <![CDATA[
+            this._uiTimer = null;
+            
+            var scimoz = this.scimoz;
+            
+            scimoz.doBraceMatch();
+
+            if (updated & (scimoz.SC_UPDATE_CONTENT | scimoz.SC_UPDATE_SELECTION)) {
+                // Highlight indentation guide for matching XML tags, as necessary.
+                this._xmlTagsHighlightGuide();
             }
         ]]>
         </body>
@@ -1635,6 +1706,81 @@
         </body>
         </method>
 
+        <method name="_xmlTagsHighlightGuide">
+        <body>
+        <![CDATA[
+        // Show indentation guide for matching XML tags.
+        // This needs to be as fast as possible since it is in the UpdateUI
+        // notification.
+        // First, check for XML language. Then check to make sure the caret is
+        // in an XML tag. Next, find the matching tag. Finally, show the guide.
+        var scimoz = this.scimoz;
+        var xmlLang = this.languageObj.supportsXMLIndentHere(scimoz, scimoz.currentPos);
+        if (!xmlLang) {
+            return;
+        }
+        var pos = scimoz.currentPos;
+        if (scimoz.getLineIndentation(scimoz.lineFromPosition(pos)) == 0) {
+            // No indent means no guide can be shown. This also guarantees that
+            // pos > 0 and that any matching XML tag's start position > 0.
+            return;
+        }
+        // Ensure the current position is on, in, or just after an XML tag.
+        var style = scimoz.getStyleAt(pos);
+        var prevStyle = scimoz.getStyleAt(scimoz.positionBefore(pos));
+        var validStyles = [scimoz.SCE_UDL_M_STAGO,
+                           scimoz.SCE_UDL_M_TAGNAME,
+                           scimoz.SCE_UDL_M_TAGSPACE,
+                           scimoz.SCE_UDL_M_ATTRNAME,
+                           scimoz.SCE_UDL_M_OPERATOR,
+                           scimoz.SCE_UDL_M_STAGC,
+                           scimoz.SCE_UDL_M_STRING,
+                           scimoz.SCE_UDL_M_ETAGO,
+                           scimoz.SCE_UDL_M_ETAGC];
+        if (validStyles.indexOf(style) === -1
+            && validStyles.indexOf(prevStyle) === -1) {
+            return;
+        }
+        // Then ensure `pos` is at a tag name (e.g. <|div>). This is needed for
+        // the `getMatchingTagInfo()` function call later.
+        if (style == scimoz.SCE_UDL_M_STAGO
+            || style == scimoz.SCE_UDL_M_ETAGO) {
+            // At starting '<'. Get position after.
+            pos = scimoz.positionAfter(pos);
+        } else {
+            // Move back to the tag's starting '<' and get the position after.
+            for (pos = scimoz.positionBefore(pos); pos > 0; pos = scimoz.positionBefore(pos)) {
+                style = scimoz.getStyleAt(pos);
+                if (style == scimoz.SCE_UDL_M_STAGO
+                    || style == scimoz.SCE_UDL_M_ETAGO) {
+                    pos = scimoz.positionAfter(pos);
+                    break;
+                } else if (validStyles.indexOf(style) === -1) {
+                    break; // invalid tag; abort
+                }
+            }
+        }
+        // Check for matching XML tags.
+        var result = {};
+        xmlLang.getMatchingTagInfo(scimoz, pos, false, result, {});
+        if (!result.value) {
+            return;
+        }
+        // Highlight the indentation guide.
+        // Note that Scintilla requires brace highlighting in order to highlight
+        // indentation guides, so highlight the line end positions as "braces".
+        var startTagPos = result.value[1];
+        var endTagPos = result.value[3];
+        var startTagLine = scimoz.lineFromPosition(startTagPos);
+        var endTagLine = scimoz.lineFromPosition(endTagPos);
+        var bracePos = scimoz.getLineEndPosition(startTagLine);
+        var bracePos2 = scimoz.getLineEndPosition(endTagLine);
+        scimoz.braceHighlight(bracePos, bracePos2);
+        scimoz.highlightGuide = scimoz.getLineIndentation(startTagLine);
+        ]]>
+        </body>
+        </method>
+
         <method name="_flashMatchingTag">
         <body>
         <![CDATA[
@@ -1838,6 +1984,13 @@
         <handler event="mousedown" phase="capturing">
             <![CDATA[
             this._mouseButton = event.button;
+            ]]>
+        </handler>
+        <handler event="mouseup" phase="capturing">
+            <![CDATA[
+            setTimeout(function() {
+                this._mouseButton = -1;
+            }.bind(this), 0);
             ]]>
         </handler>
         <handler event="mousemove" phase="capturing">

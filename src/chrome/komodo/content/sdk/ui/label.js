@@ -18,8 +18,19 @@ module.exports = Module;
         
         this.name = "label";
         
-        this.init = function (value, options) this.initWithAttribute("value", value, options);
+        this.init = function (value, options) { return this.initWithAttribute("value", value, options); };
         
+        this.value = function(value)
+        {
+            if (value !== undefined)
+            {
+                this.element.setAttribute("value", value);
+                this.element.value = value;
+            }
+
+            return this.element.value || this.element.getAttribute("value");
+        };
+
     }).apply(this.Model); 
     
 }).apply(Module);

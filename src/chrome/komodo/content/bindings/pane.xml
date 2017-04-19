@@ -264,6 +264,7 @@
                 for (let [name, value] in Iterator(data.attrs)) {
                   widget.setAttribute(name, value);
                 }
+                widget.setAttribute("id", id);
                 widget.setAttribute("type", "ko-widget");
                 widget.setAttribute("label", data.label);
                 if (data.iconURL) widget.setAttribute("icon", data.iconURL);

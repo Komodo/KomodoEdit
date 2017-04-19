@@ -145,6 +145,7 @@ button, toolbarbutton, menuitem, dropmarker, tab,
 .columns-icon { .icon(); .icon-columns(); }
 .find-copy-icon{ .icon(); .icon-files-empty2();}
 .warning-icon{ .icon(); .icon-warning();}
+.icon-share > .box-inherit { .icon(); .icon-earth2() }
 
 // Work around to space out icons from their text or neighbours
 // Add any new icons that require spacing this section so we
@@ -237,7 +238,42 @@ tab[widget^="debugsession"][dbg_status="interactive"] { .icon(); .icon-play-circ
 tab[widget^="findresults_tabpanel"] { .icon(); .icon-binoculars(); }
 tab[widget^="klint_tabpanel"] { .icon(); .icon-circle-code(); }
 
+/* Find results view */
 tab[view-type="findresults"] .tab-icons:first-child { .icon(); .icon-binoculars(); }
+richlistitem.file-item[view-type="findresults"]
+{
+    .icon();
+    .icon-binoculars();
+    
+    .file-icon
+    {
+        display: none;
+    }
+}
+
+/* Browser preview view */
+tab[view-type="browser"]
+{
+    .tab-icons:first-child
+    {
+        .icon(); .icon-earth2();
+    }
+    
+    .tab-icon
+    {
+        display: none;
+    }
+}
+richlistitem.file-item[view-type="browser"]
+{
+    .icon();
+    .icon-earth2();
+    
+    .file-icon
+    {
+        display: none;
+    }
+}
 
 /* Breakpoints */
 .breakpoint-new-icon > .box-inherit
@@ -366,6 +402,17 @@ checkbox:not(.label-only)
     
     &:not([checked="true"]) .checkbox-spacer-box { .icon-square(); }
     &[checked="true"] .checkbox-spacer-box { .icon-check-square(); }
+}
+
+listitem[type="checkbox"]
+{
+    listcell
+    {
+        .icon();
+    }
+
+    &:not([checked="true"]) listcell { .icon-square(); }
+    &[checked="true"] listcell { .icon-check-square(); }
 }
 
 menuitem[type="checkbox"]

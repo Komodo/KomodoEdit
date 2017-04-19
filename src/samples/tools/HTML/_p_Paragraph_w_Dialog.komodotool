@@ -1,6 +1,6 @@
 {
   "keyboard_shortcut": "", 
-  "name": "<p> Paragraph w/Dialog", 
+  "name": "<p> Paragraph w/ Dialog", 
   "value": [
     "<p style=\"[[%ask:Style]]\" class=\"[[%ask:Class]]\">[[%(w:else:)]]!@#_currentPos!@#_anchor</p>"
   ], 

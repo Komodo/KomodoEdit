@@ -365,7 +365,7 @@ var sdkEditor = function(_scintilla, _scimoz) {
         var lineNo = this.getLineNumber(pos);
         var word = "";
         
-        while (this.getLineNumber(pos) == lineNo)
+        while (pos > 0 && this.getLineNumber(pos) == lineNo)
         {
             let letter = this.getRange(--pos, pos+1)
             if ( ! letter.match(match)) break;
@@ -464,6 +464,53 @@ var sdkEditor = function(_scintilla, _scimoz) {
         var cury = _scimoz.pointYFromPosition(pos);
 
         return {x: (scx + curx), y: (scy + cury)};
+    };
+
+    /**
+     * Get the line number from the given x/y position
+     *
+     * @param   {int} x relative to scimoz view
+     * @param   {int} y relative to scimoz view
+     *
+     * @returns {int} Line number
+     */
+    this.getLineFromMousePosition = function(x, y)
+    {
+        var _scimoz = scimoz();
+
+        var pos = scimoz.positionFromPoint(x, y);
+        var line = scimoz.lineFromPosition(pos);
+
+        return line+1;
+    };
+
+    /**
+     * Get margin number relative to x/y position
+     *
+     * @param   {int} x relative to scimoz view
+     * @param   {int} y relative to scimoz view
+     * 
+     * @returns {int} Margin number, see ISciMoz.template.idl
+     */
+    this.getMarginFromMousePosition = function(x,y)
+    {
+        if (x <= 0)
+            return -1;
+
+        var totalWidth = 0;
+        var _scimoz = scimoz();
+        for (var i=0; i <= _scimoz.SC_MAX_MARGIN; i++)
+        {
+            let marginWidth = _scimoz.getMarginWidthN(i);
+            if (marginWidth)
+            {
+                totalWidth += marginWidth;
+                if (x < totalWidth)
+                    return i;
+            }
+        }
+
+        return -1;
     };
 
     /**
@@ -595,6 +642,23 @@ var sdkEditor = function(_scintilla, _scimoz) {
         scimoz().addText(text);
     };
 
+    this.insertLine = function(line, position = "after")
+    {
+        this.setCursor({line: line});
+
+        if (position == "before")
+            this.goLineStart();
+        else
+            this.goLineEnd();
+
+        this.insertLineBreak();
+    };
+
+    this.insertLineBreak = function()
+    {
+        this.scimoz().newLine();
+    };
+
     /**
      * Move cursor to a specific line
      *
@@ -622,14 +686,14 @@ var sdkEditor = function(_scintilla, _scimoz) {
      * Delete the given range of characters
      *
      * @param   {Object|Int} start Position
-     * @param   {Object|Int} end   Position
+     * @param   {Int} length
      *
      * @returns {Void} 
      */
-    this.deleteRange = function(start, end)
+    this.deleteRange = function(start, length)
     {
-        [start, end] = this._posFormat([start, end], "absolute");
-        scimoz().deleteRange(start, end);
+        start = this._posFormat(start, "absolute");
+        scimoz().deleteRange(start, length);
     };
 
     /** ****** Selections ****** **/
@@ -898,6 +962,42 @@ var sdkEditor = function(_scintilla, _scimoz) {
         // using
         return(lineMarkerState & bookmarkMask)
     };
+    
+    /**
+     * Find a string in the current buffer
+     * 
+     * @param   {String} text           String of text to find
+     * @param   {Object|Int} startPos   Start position (optional)
+     * @param   {Int} maxResults        Maximum number of results, -1 for unlimited (optional)
+     * 
+     * @returns {Array} Returns an array of relative positions
+     */
+    this.findString = function(text, startPos = 0, maxResults = -1)
+    {
+        startPos = this._posFormat(startPos, "absolute");
+        var sc = scimoz();
+        
+        if ( ! sc)
+            return [];
+        
+        var results = [];
+        var pos;
+        
+        while (startPos < sc.length && (results.length <= maxResults || maxResults == -1))
+        {
+            sc.setTargetRange(startPos, sc.length);
+            pos = sc.searchInTarget(text.length, text);
+            
+            if ( ! pos)
+                break;
+            
+            results.push(this._posToRelative(pos));
+            
+            startPos += pos + text.length;
+        }
+        
+        return results;
+    };
 
     /** ****** Helpers ****** **/
 
@@ -923,7 +1023,7 @@ var sdkEditor = function(_scintilla, _scimoz) {
      * @returns {Array|Object|Int} Returns a single position or an array of positions
      *                              if the input was an array
      */
-    this._posFormat = function(positions, format)
+    this._posFormat = function(positions, format = "relative")
     {
         var result = [];
 
@@ -937,17 +1037,33 @@ var sdkEditor = function(_scintilla, _scimoz) {
             if (format == "absolute")
             {
                 if ((typeof pos) != "number")
-                    pos = this._posToAbsolute(pos)
+                    pos = this._posToAbsolute(pos);
             }
             else if ((typeof pos) == "number")
             {
-                pos = this._posToRelative(pos)
+                pos = this._posToRelative(pos);
+            }
+            // Don't assume that already defined relative pos gives proper values
+            else if (format == "relative")
+            {
+                pos = this._sanitizeRelativePos(pos);
             }
 
             result.push(pos);
         }
 
         return result.length == 1 ? result[0] : result;
+    };
+
+    this._sanitizeRelativePos = function(pos)
+    {
+        var _scimoz = scimoz();
+        var linePos = _scimoz.positionFromLine(pos.line-1);
+        var maxCh = _scimoz.getLineEndPosition(pos.line-1) - linePos;
+
+        pos.ch = Math.min(pos.ch, maxCh) || 0;
+
+        return pos;
     };
 
     /**
@@ -959,11 +1075,14 @@ var sdkEditor = function(_scintilla, _scimoz) {
      */
     this._posToRelative = function(abs)
     {
+        var lineNo = scimoz().lineFromPosition(abs);
+        var linePos = scimoz().positionFromLine(lineNo);
+
         return {
-            line: scimoz().lineFromPosition(abs)+1,
-            ch: scimoz().getColumn(abs),
+            line: lineNo+1,
+            ch: abs - linePos,
             absolute: abs
-        }
+        };
     };
 
     /**
@@ -975,9 +1094,12 @@ var sdkEditor = function(_scintilla, _scimoz) {
      */
     this._posToAbsolute = function(pos)
     {
-        if ( ! pos.line ) pos.line = this.getLineNumber();
-        return scimoz().positionFromLine(pos.line-1) + (pos.ch || 0);
-    }
+        pos.line = pos.line || this.getLineNumber();
+        pos.ch = pos.ch || 0;
+        pos = this._sanitizeRelativePos(pos);
+
+        return scimoz().positionFromLine(pos.line-1) + pos.ch;
+    };
 
 };
 

@@ -1,0 +1,24 @@
+<codeintel version="2.0">
+  <file lang="Tcl" mtime="42" path="scan_inputs/tcl/oo2.tcl">
+    <scope ilk="blob" lang="Tcl" name="oo2" src="scan_inputs/tcl/oo2.tcl">
+      <scope ilk="class" line="1" lineend="27" name="Account">
+        <variable line="3" name="AccountNumber" />
+        <variable line="3" name="Balance" />
+        <scope ilk="function" line="6" lineend="9" name="UpdateBalance" signature="UpdateBalance {change}">
+          <variable ilk="argument" line="6" name="change" />
+        </scope>
+        <scope ilk="function" line="10" lineend="10" name="balance" signature="balance {}" />
+        <scope ilk="function" line="11" lineend="13" name="withdraw" signature="withdraw {amount}">
+          <variable ilk="argument" line="11" name="amount" />
+        </scope>
+        <scope ilk="function" line="14" lineend="16" name="deposit" signature="deposit {amount}">
+          <variable ilk="argument" line="14" name="amount" />
+        </scope>
+        <scope ilk="function" line="19" lineend="23" name="constructor" signature="constructor {account_no}">
+          <variable ilk="argument" line="19" name="account_no" />
+        </scope>
+        <scope ilk="function" line="24" lineend="26" name="destructor" />
+      </scope>
+    </scope>
+  </file>
+</codeintel>

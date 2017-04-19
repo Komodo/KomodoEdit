@@ -146,7 +146,8 @@
     {
         var style = "";
         
-        var scheme = schemeService.getScheme(prefs.getString("interface-scheme"));
+        var name = prefs.getString("interface-scheme");
+        var scheme = schemeService.getScheme(name);
         
         // Write interfaceChrome.less
         path = koFile.join(koDirSvc.userDataDir, "interfaceChrome.less");
@@ -198,6 +199,10 @@
         fp.close();
         
         require("ko/less").reload(true);
+        
+        var observerSvc = Cc["@mozilla.org/observer-service;1"].
+                            getService(Ci.nsIObserverService);
+        observerSvc.notifyObservers(null, 'interface-scheme-changed', name);
     }
     _applyInterface.timer = null;
     

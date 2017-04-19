@@ -71,6 +71,6 @@ $consLocal->Command(
     
     # The actual command
     qq(
-        cd %1:d && $siloedPython setup.py build --enable-all-extensions  --enable=fts3,fts4,fts3_parenthesis,load_extension install --install-lib=$komodoPythonUtilsDir --install-scripts=bitbucket --install-data=bitbucket --prefix=bitbucket
+        cd %1:d && $siloedPython setup.py build --enable=fts3,fts4,fts3_parenthesis,load_extension install --install-lib=$komodoPythonUtilsDir --install-scripts=bitbucket --install-data=bitbucket --prefix=bitbucket
     )
 );

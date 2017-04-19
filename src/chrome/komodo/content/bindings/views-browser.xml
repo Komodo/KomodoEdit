@@ -159,6 +159,13 @@
             this._title = val;
         </setter>
         </property>
+        
+        <constructor><![CDATA[
+            var tab = this.parentNode._tab;
+            
+            tab.setAttribute("tooltiptext", "Browser Preview");
+            tab.setAttribute("view-type", "browser");
+        ]]></constructor>
 
         <method name="getURI">
         <body>

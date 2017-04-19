@@ -126,6 +126,7 @@ import string
 import types
 import logging
 import subprocess
+import json
 
 sys.path.insert(0, join(dirname(__file__), "..", "util"))
 import which
@@ -2082,18 +2083,18 @@ def target_src(argv=["src"]):
         repoURL = getRepoFromTree(treeName)
         hgRepo = os.path.join(buildDir, "mozilla")
         bundleFile = os.path.abspath("%s.hg" % (treeName,))
-        bundleURL = "http://ftp.mozilla.org/pub/mozilla.org/firefox/bundles/%s.hg" % (treeName,)
-
+        log.info("retrieving available bundles from hg.cdn.mozilla.net")
+        hg_data = json.load(urllib2.urlopen('https://hg.cdn.mozilla.net/bundles.json'))['releases/%s' % (treeName,)]["gzip-v2"]
+        relativebundleURL = hg_data['path']
+        bundleURL = "https://hg.cdn.mozilla.net/%s" % (relativebundleURL,)
         def inside_activestate_network():
             import socket
-            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            hostname = "nas1.activestate.com"
             try:
-                s.connect(("gmail.com",80))
+                socket.gethostbyname(hostname)
+                return True
             except:
-                return 
-            ip_address = s.getsockname()[0]
-            s.close()
-            return ip_address.startswith("192.168.68.") or ip_address.startswith("192.168.69.")
+                return False
 
         if inside_activestate_network():
             try:

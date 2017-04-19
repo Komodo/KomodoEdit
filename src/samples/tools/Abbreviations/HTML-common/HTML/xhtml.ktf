@@ -1,0 +1,21 @@
+// komodo tool: xhtml
+// ==================
+// auto_abbreviation: false
+// indent_relative: true
+// set_selection: false
+// treat_as_ejs: false
+// type: snippet
+// version: 1.0.12
+// ==================
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+
+<head>
+	<title>[[%tabstop1:title]]</title>
+</head>
+<body>
+	<[[%tabstop2:h1]]>[[%tabstop1]]</[[%tabstop2]]>
+	[[%tabstop:]]
+</body>
+</html>
+!@#_currentPos!@#_anchor

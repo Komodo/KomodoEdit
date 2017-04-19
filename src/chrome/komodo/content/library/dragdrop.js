@@ -240,7 +240,7 @@ if (typeof(ko.dragdrop)=='undefined') {
 
     KomodoDropData.prototype.__defineGetter__("isKomodoToolURL",
         function KoDropData_get_isKomodoToolURL() {
-            return this.isURL && this.value.match(/\.komodotool(\?.*)?$/i);
+            return this.isURL && (this.value.match(/\.komodotool(\?.*)?$/i) || this.value.match(/\.ktf(\?.*)?$/i));
         }
     );
 

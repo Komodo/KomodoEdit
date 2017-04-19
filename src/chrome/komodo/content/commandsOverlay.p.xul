@@ -310,10 +310,6 @@
             oncommand="ko.commands.doCommandAsync('cmd_open_remote', event)"
             desc="&generalOpenRemoteFileDialog.desc;"/>
         <command
-            id="cmd_openTemplate" key="key_cmd_openTemplate"
-            oncommand="ko.commands.doCommandAsync('cmd_openTemplate', event)"
-            desc="&generalOpenTemplate.desc;"/>
-        <command
             id="cmd_printSetup" key="key_cmd_printSetup"
             oncommand="ko.commands.doCommandAsync('cmd_printSetup', event)"
             desc="&generalPrintSetup.desc;"/>
@@ -1337,6 +1333,11 @@
             oncommand="ko.commands.doCommand('cmd_blockSelect')"
             disabled="true"
             desc="&sourceCodeSelectBlock.desc;"/>
+        <command
+            id="cmd_delimitedBlockSelect" key="key_cmd_delimitedBlockSelect"
+            oncommand="ko.commands.doCommand('cmd_delimitedBlockSelect')"
+            disabled="true"
+            desc="&editorDelimitedBlockSelect.desc;"/>
         <command
             id="cmd_cleanLineEndings" key="key_cmd_cleanLineEndings"
             oncommand="ko.commands.doCommandAsync('cmd_cleanLineEndings', event)"

@@ -1,0 +1,19 @@
+// komodo tool: opts
+// =================
+// auto_abbreviation: false
+// indent_relative: true
+// set_selection: false
+// treat_as_ejs: false
+// type: snippet
+// version: 1.0.12
+// =================
+from optparse import OptionParser
+parser = OptionParser()
+
+parser.add_option("-[[%tabstop:f]]",
+                  "--[[%tabstop1:file]]",
+                  dest="[[%tabstop1]]",
+                  help="[[%tabstop:desc]].",
+                  default="[[%tabstop:DEFAULT]]"
+                  )
+(options, args) = parser.parse_args()!@#_currentPos!@#_anchor

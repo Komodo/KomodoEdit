@@ -79,9 +79,10 @@
             results.push({
                 id: scope.id,
                 name: scope.name,
+                accesskey: scope.accesskey,
                 description: scope.description || "",
                 icon: icon,
-                scope: "scope-everything",
+                scope: "scope-combined",
                 data: {
                     isScope: true
                 }

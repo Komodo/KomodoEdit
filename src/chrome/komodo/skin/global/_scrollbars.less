@@ -12,6 +12,11 @@ page.widget[containerOrient="vertical"] scrollbar
     overflow-y: scroll !important;
 }
 
+scrollcorner
+{
+    background: transparent !important;
+}
+
 scrollbar
 {
     -moz-appearance: none !important;
@@ -53,7 +58,7 @@ scrollbar
 
 /* Modals */
 
-dialog, :root.dialog, :root.pref-window
+dialog, :root.dialog, :root.pref-window, .widgetToolbarWrap
 {
     scrollbar thumb
     {
@@ -66,11 +71,6 @@ dialog, :root.dialog, :root.pref-window
     scrollbar
     {
         margin-left: -16px;
-    }
-    
-    scrollbar thumb
-    {
-        background: @contrast-special;
     }
 }
 

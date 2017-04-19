@@ -228,7 +228,7 @@
     {
         let reply = "";
         aTrace.forEach(function(frame) {
-            reply += fmt(frame.filename, 20, 20, {
+            reply += fmt(frame.filename, 50, 50, {
                 truncate: "start"
             }) + " " +
                 fmt(frame.lineNumber, 5, 5) + " " +

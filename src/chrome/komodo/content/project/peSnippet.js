@@ -132,6 +132,8 @@ this.addSnippet = function peSnippet_addSnippet(/*koIPart|koITool*/ parent,
     snippet.setStringAttribute('set_selection', 'false');
     snippet.setStringAttribute('indent_relative', 'false');
     snippet.setStringAttribute('auto_abbreviation', 'false');
+    snippet.setStringAttribute('language', "Text");
+    snippet.setStringAttribute('treat_as_ejs', "false");
     snippet.value = '';
     var obj = new Object();
     obj.item = snippet;
@@ -288,14 +290,14 @@ this._stripLeadingWS  = function(text, tabWidth, baseIndentation) {
     return fixedLines.join("");
 }
 
-this.snippetInsertImpl = function snippetInsertImpl(snippet, view /* =<curr view> */) {
+this.snippetInsertImpl = function snippetInsertImpl(snippet, view /* =<curr view> */, newLine = false) {
     
     if(typeof(view) == 'undefined') {
         view = ko.views.manager.currentView;
     }
     
     var scimoz = view.scimoz;
-    
+
     view.scintilla.focus(); // we want focus right now, not later
     var setSelection = snippet.hasAttribute('set_selection')
             && snippet.getStringAttribute('set_selection') == 'true';
@@ -391,6 +393,13 @@ this.snippetInsertImpl = function snippetInsertImpl(snippet, view /* =<curr view
                         viewData);
     text = istrings[0];
 
+    if (newLine) {
+        scimoz.lineEnd();
+        //scimoz.newLine();
+        // cmd_newline auto calculates the indentation
+        ko.commands.doCommand("cmd_newline");
+    }
+
     var oldInsertionPoint;
     // Do the indentation, if necessary.
     var remainingText = null;
@@ -452,7 +461,6 @@ this.snippetInsertImpl = function snippetInsertImpl(snippet, view /* =<curr view
         scimoz.replaceSel("");
         oldInsertionPoint = scimoz.currentPos;
     }
-
 
     // Determine and set the selection and cursor position.
     var anchor = text.indexOf(ANCHOR_MARKER);
@@ -528,7 +536,7 @@ this._textFromEJSTemplate = function _textFromEJSTemplate(text, eol, eol_str, sn
     try {
         ejs = new ko.snippets.EJS(text);
     } catch(ex) {
-        ex.fileName = ko.snippets.snippetPathShortName(snippet);
+        ex.fileName = this.toolPathShortName(snippet);
         var msg2 = _bundle.formatStringFromName("snippet exception details 2",
                                                 [ex.fileName], 1);
         var msg3 = _bundle.formatStringFromName("snippet exception details 3",

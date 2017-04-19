@@ -1,0 +1,13 @@
+// komodo tool: drinfo
+// ===================
+// auto_abbreviation: false
+// indent_relative: true
+// set_selection: false
+// treat_as_ejs: false
+// type: snippet
+// version: 1.0.12
+// ===================
+; \$Id\$
+name = "[[%tabstop:Example Module]]"
+description = "[[%tabstop:Example module description]]"
+dependencies = [[%tabstop:]]!@#_currentPos!@#_anchor

@@ -1,0 +1,14 @@
+// komodo tool: block
+// ==================
+// auto_abbreviation: false
+// indent_relative: false
+// set_selection: true
+// treat_as_ejs: false
+// type: snippet
+// version: 1.0.12
+// ==================
+<?php
+
+!@#_currentPos!@#_anchor
+
+?>

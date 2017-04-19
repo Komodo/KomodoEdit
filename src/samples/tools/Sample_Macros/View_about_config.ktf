@@ -1,0 +1,13 @@
+// komodo tool: View about:config
+// ==============================
+// async: 0
+// language: JavaScript
+// rank: 100
+// trigger: trigger_postopen
+// trigger_enabled: 0
+// type: macro
+// version: 1.0.12
+// ==============================
+try {
+    ko.open.URI('about:config','browser');
+} catch(e) { alert(e); }

@@ -1,6 +1,6 @@
 {
   "keyboard_shortcut": "", 
-  "name": "<textarea> Form Text Area w/Dialog", 
+  "name": "<textarea> Form Text Area w/ Dialog", 
   "value": [
     "<textarea name=\"[[%ask:Name:]]\" cols=\"[[%ask:Columns:40]]\" rows=\"[[%ask:Rows:10]]\" wrap=\"[[%ask:Wrap:SOFT]]\">!@#_currentPos!@#_anchor</textarea>"
   ], 

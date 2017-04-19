@@ -5,7 +5,7 @@
   <!-- This version field is used by Komodo to upgrade preferences.
        The value should be kept in sync with "../components/koInitService.p.py"
   -->
-  <long id="version">21</long>
+  <long id="version">23</long>
 
   <!-- "uilayout_version" is used by Komodo to upgrade ui layouts.
        Must keep in sync with "../chrome/komodo/content/library/uilayout.p.js"
@@ -113,7 +113,7 @@
   <boolean id="colorizing_enabled">1</boolean>
   <boolean id="editUseAlternateFaceType">0</boolean>
   <!-- editFoldStyle: none, box, plusminus, curvytree, squaretree, arrows -->
-  <string id="editFoldStyle">arrows</string>
+  <string id="editFoldStyle">squaretree</string>
   
   <!-- editShowMinimap: whether to show a minimap scrollbar -->
   <boolean id="editShowMinimap">false</boolean>
@@ -195,6 +195,14 @@
   <string id="perlExtraPaths"></string>
   <string id="perlExcludePaths"></string>
 
+  <!-- Go prefs -->
+  <string id="gocodeDefaultLocation"></string>
+  <string id="godefDefaultLocation"></string>
+  <string id="golangDefaultLocation"></string>
+  <string id="Go/newEncoding">utf-8</string>
+  <long id="Go/indentWidth">8</long>
+  <boolean id="Go/useTabs">1</boolean>
+  
   <!-- Namespace mappings for Codeintel. These are stored as-->
   <!-- '::'-separated local paths. Keys and values are-->
   <!-- stored as '##'-separated.-->
@@ -375,6 +383,7 @@
  '*.inc': 'PHP',
  '*.inl': 'C++',
  '*.java': 'Java',
+ '*.jinja': 'Jinja2',
  '*.js': 'JavaScript',
  '*.json': 'JSON',
  '*.jsm': 'JavaScript',
@@ -546,6 +555,11 @@
   <boolean id="wrapSelectionOnlyPlainText">1</boolean>
   <string id="wrapSelectionDelimiters_FactorySetting">([{&lt;&quot;&apos;`*/</string>
   <string id="wrapSelectionDelimiters">([{&lt;&quot;&apos;`*/</string>
+  
+  <string id="editDelimitedBlockSelectDelimiters_FactorySetting">&apos;&quot;`([{</string>
+  <string id="editDelimitedBlockSelectDelimiters">&apos;&quot;`([{</string>
+
+  <boolean id="editMatchingDelimiter">1</boolean>
   
   <boolean id="enableElasticTabstops">0</boolean>
   
@@ -794,11 +808,6 @@
        to filenames chosen with ko.filepicker.saveFile. -->
   <boolean id="donotask_ensure_filename_has_ext">0</boolean>
   <string id="donotask_action_ensure_filename_has_ext"></string>
-
-  <!-- Whether to ask and, if not, whether to append an appropriate extension
-       to filenames entered in the "New File" dialog. -->
-  <boolean id="donotask_ensure_new_filename_has_ext">0</boolean>
-  <string id="donotask_action_ensure_new_filename_has_ext"></string>
 
   <!-- Whether to add new files (created via File -> New -> File) to the
        current project, if any. -->
@@ -1125,4 +1134,7 @@
   
   <string id="virtualStyles" nonvital="true">less://resource/profile/interfaceChrome.less,less://resource/profile/userChrome.less</string>
   
+  <long id="unittest_throttle_volume">100</long>
+  <long id="unittest_throttle_time">250</long>
+
 </preference-set>

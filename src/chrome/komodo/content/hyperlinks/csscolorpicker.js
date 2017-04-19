@@ -231,6 +231,7 @@ ko.hyperlinks.ColorPickerHandler.named_css_colors = [
     "tan",
     "teal",
     "thistle",
+    "transparent",
     "tomato",
     "turquoise",
     "violet",
@@ -263,10 +264,14 @@ ko.hyperlinks.ColorPickerHandler.prototype.show = function(
     
     var start = scimoz.wordStartPosition(position, true);
     var end = scimoz.wordEndPosition(position, true);
+    var prevChar = scimoz.getWCharAt(start - 1).toString();
     var hyperlink;
+    var isNotVar = prevChar != '@' && prevChar != '$';
+    
     // Check if it's a named css color, else try the regex matching.
     if ((start < end) &&
-        (ko.hyperlinks.ColorPickerHandler.named_css_colors.indexOf(scimoz.getTextRange(start, end).toLowerCase()) >= 0)) {
+        (ko.hyperlinks.ColorPickerHandler.named_css_colors.indexOf(scimoz.getTextRange(start, end).toLowerCase()) >= 0) &&
+        isNotVar) {
         var prefs = Components.classes["@activestate.com/koPrefService;1"].
                         getService(Components.interfaces.koIPrefService).prefs;
         var languages = prefs.getString('hyperlinksColorpickerEnabled').split(",");
@@ -383,7 +388,13 @@ ko.hyperlinks.ColorPickerHandler.prototype.colorToHex = function(color) {
 ko.hyperlinks.ColorPickerHandler.prototype.colorToRGB = function(color) {
     var span = document.createElement('span');
     span.style.color = color;
-    return window.getComputedStyle(span, null).color;
+    var computedColor = window.getComputedStyle(span, null).color;
+    if (computedColor == 'transparent' && color != 'transparent') {
+        computedColor = color;
+    } else if (color == 'transparent') {
+        computedColor = 'rgba(0,0,0,0)';
+    }
+    return computedColor;
 }
 
 ko.hyperlinks.ColorPickerHandler.prototype.showColorPicker = function(view, hyperlink) {

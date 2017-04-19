@@ -204,7 +204,7 @@ function _appendFilters(fp, limitTo /* =null */) {
     names.push(local.bundle.GetStringFromName("komodoColorScheme"));
     filters.push(["*.ksf"]);
     names.push("Komodo Tool");
-    filters.push(["*.komodotool"]);
+    filters.push(["*.komodotool", "*.ktf"]);
     names.push("Zip");
     filters.push(["*.zip"]);
     names.push(local.bundle.GetStringFromName("codeIntelligenceXml"));
@@ -1023,9 +1023,12 @@ this.saveAsRemoteFiles = function filepicker_saveAsRemoteFiles(defaultUrl, defau
  * A dialog to pick a directory, and put the directory path into a XUL
  * textbox.
  *
- * @param {Element} textbox
+ * @param {Element|String} textbox
  */
 this.browseForDir = function filepicker_browseForDir(textbox) {
+    if (typeof textbox == "string")
+        return ko.filepicker.getFolder(textbox);
+    
     var dir = ko.filepicker.getFolder(textbox.value);
     if (dir) {
         textbox.value = dir;
@@ -1038,21 +1041,28 @@ this.browseForDir = function filepicker_browseForDir(textbox) {
  * @param {Element} textbox
  */
 this.browseForRemoteDir = function filepicker_browseForRemoteDir(textbox) {
+    var value = textbox;
+    if (typeof textbox != "string")
+        value = textbox.value;
+    
     var defaultUrl = "";
     if (textbox.value) {
         var RCService = Cc["@activestate.com/koRemoteConnectionService;1"].
                         getService(Ci.koIRemoteConnectionService);
         // Only set the default url if it's actually a remote url, otherwsie
         // we'll get an erro about an unknown protocol.
-        if (RCService.isSupportedRemoteUrl(textbox.value)) {
-            defaultUrl = textbox.value;
+        if (RCService.isSupportedRemoteUrl(value)) {
+            defaultUrl = value;
         }
     }
     var retval = ko.filepicker.remoteFileBrowser(defaultUrl,
                                               "" /* defaultFilename */,
                                               Ci.nsIFilePicker.modeGetFolder);
     if (retval && retval.file) {
-        textbox.value = retval.file;
+        if (typeof textbox == "string")
+            return retval.file;
+        else
+            textbox.value = retval.file;
     }
 };
 

@@ -28,6 +28,7 @@ function loadIntoWindow(window) {
             name: "Tools and Commands",
             icon: "koicon://ko-svg/chrome/icomoon/skin/cogs.svg?size=16",
             handler: "scope-combined/toolscommands",
+            accesskey: "l",
             keybindTransit: "cmd_invokeTool"
         });
     } catch (e) {

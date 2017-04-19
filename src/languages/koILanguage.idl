@@ -136,6 +136,9 @@ interface koILanguage : nsISupports {
     void getLanguageService(in nsIIDRef iid, 
                             [retval,iid_is(iid)] out nsISupports result);
     wstring getEncodingWarning(in koIEncoding encoding);
+
+    wstring getCommentDelimiter(in wstring key, in long index);
+    wstring getCommentDelimiters(in wstring key);
   
     const long NOT_A_BRACE = 0;
     const long INDENT_BRACE = 1;

@@ -80,9 +80,11 @@ DEFAULT_TARGET_DIRECTORY = "tools"
 PROJECT_TARGET_DIRECTORY = ".komodotools"
 
 TOOL_EXTENSION = ".komodotool"
+TOOL_EXTENSION_CLEAN = ".ktf"
 UI_FOLDER_FILENAME = ".folderdata"
 PROJECT_FILE_EXTENSION = ".komodoproject"
 
+TOOL_META_START = "komodo tool: "
 
 #---- errors
 
@@ -105,7 +107,7 @@ class Database(object):
     # (b) add a change log comment here, and
     # (c) add an entry to `_upgrade_info_from_curr_ver`.
     #
-    # db change log:
+    # db change log (for Database and ToolboxLoader):
     # - 1.0.5: initial version (due to copy/paste error)
     # - 1.0.6: convert DirectoryShortcut tools into specialized macros
     # - 1.0.7: signal change in items: items get their own versions
@@ -116,7 +118,13 @@ class Database(object):
     # - 1.0.12: signal change moving from 11 to 12, to update tool item versions,
     #           and add auto_abbreviation fields to snippets
     # - 1.0.13: add treat_as_ejs property to snippets, default is false
-    VERSION = "1.0.13"
+    # - 1.1.5:  add language field to snippets
+    # - 1.1.6:  add is_clean column
+    # - 1.1.7:  add file template table
+    # - 1.1.8:  convert old tools
+    # - 1.1.9:  import sample file templates
+    # - 1.1.10: add folder template table
+    VERSION = "1.1.10"
     FIRST_VERSION = "1.0.5"
     
     def __init__(self, db_path, schemaFile):
@@ -124,6 +132,10 @@ class Database(object):
         self.cu = self.cx = None
         self.schemaFile = schemaFile
         self.item_version_changed = False
+
+        self.observerSvc = components.classes["@mozilla.org/observer-service;1"].\
+                           getService(components.interfaces.nsIObserverService)
+
         if not exists(db_path):
             self.create()
         elif os.path.getsize(db_path) == 0:
@@ -149,17 +161,111 @@ class Database(object):
             'macro':['async', 'trigger_enabled', 'trigger',
                           'language', 'rank'],
             'snippet':['set_selection', 'indent_relative', 'auto_abbreviation',
-                       'treat_as_ejs'],
+                       'treat_as_ejs', 'language'],
+            'template':['treat_as_ejs', 'language', 'lang_default'],
+            'folder_template':['language', 'author', 'website', 'license'],
             'menu':['accesskey', 'priority'],
             'toolbar':['priority'],
             'folder':[],
             }
-        self.observerSvc = components.classes["@mozilla.org/observer-service;1"].\
-                           getService(components.interfaces.nsIObserverService)
+
+    def _add_is_clean(self, curr_ver, result_ver):
+        with self.connect(commit=True) as cu:
+            cu.execute("ALTER TABLE common_details ADD COLUMN is_clean bool DEFAULT false")
+
+    def _transition_file_templates(self, curr_ver, result_ver):
+        self._add_file_template_table(curr_ver, result_ver)
+
+        with self.connect(commit=True) as cu:
+            cu.execute("DELETE FROM common_details WHERE type='template'")
+
+        koDirSvc = components.classes["@activestate.com/koDirs;1"].getService()
+        currUserDataDir = koDirSvc.userDataDir
+
+        templatesDir = os.path.join(currUserDataDir, "templates")
+        targetDir = os.path.join(currUserDataDir, "tools", "File Templates")
+
+        if os.path.exists(templatesDir):
+            if not os.path.exists(targetDir):
+                os.makedirs(targetDir)
+
+            toolbox2Svc = components.classes["@activestate.com/koToolbox2Service;1"]\
+                            .getService(components.interfaces.koIToolbox2Service)
+
+            try:
+                toolbox2Svc.convertToTemplate(templatesDir, targetDir)
+
+                readme = os.path.join(targetDir, "ReadMe.ktf")
+                sample = os.path.join(targetDir, "My Templates", "Sample Custom Template.ktf")
+
+                if os.path.isfile(readme):
+                    os.remove(readme)
+
+                if os.path.isfile(sample):
+                    os.remove(sample)
+            except:
+                log.exception("Failed converting old templates")
+
+    def _import_files_templates(self, curr_ver, result_ver):
+        koDirs = components.classes["@activestate.com/koDirs;1"].\
+                 getService(components.interfaces.koIDirs)
+        destDir = os.path.join(koDirs.userDataDir, 'tools')
+        srcDir = os.path.join(koDirs.supportDir, 'samples', 'tools', 'File Templates')
+
+        if not os.path.isdir(os.path.join(destDir, 'File Templates')):
+            import fileutils
+            try:
+                fileutils.copyLocalFolder(srcDir, destDir)
+            except:
+                log.exception("Failed to copy srcChild:%s to dest destDir:%s", srcDir, destDir)
+        else:
+            import shutil
+            destDir = os.path.join(destDir, 'File Templates')
+            for name in os.listdir(srcDir):
+                srcChild = os.path.join(srcDir, name)
+                try:
+                    shutil.copy(srcChild, destDir)
+                except:
+                    log.exception("Failed to copy srcChild:%s to dest destDir:%s", srcChild, destDir)
+
+    def _add_folder_template_table(self, curr_ver, result_ver):
+        """
+        Add file template table
+        """
+        with self.connect(commit=True) as cu:
+            cu.execute("create table folder_template (\
+                        path_id INTEGER PRIMARY KEY NOT NULL,\
+                        language text,\
+                        author text,\
+                        license text,\
+                        website text,\
+            )")
+
+    def _convert_komodotool_to_ktf(self, curr_ver, result_ver):
+        toolbox2Svc = components.classes["@activestate.com/koToolbox2Service;1"]\
+                            .getService(components.interfaces.koIToolbox2Service)
+
+        koDirSvc = components.classes["@activestate.com/koDirs;1"].getService()
+        currUserDataDir = koDirSvc.userDataDir
+
+        toolsDir = os.path.join(currUserDataDir, "tools")
+
+        toolbox2Svc.convertOldFormat(toolsDir, True)
+
+    def _add_file_template_table(self, curr_ver, result_ver):
+        """
+        Add file template table
+        """
+        with self.connect(commit=True) as cu:
+            cu.execute("create table template (\
+                        path_id INTEGER PRIMARY KEY NOT NULL,\
+                        treat_as_ejs bool default false,\
+                        lang_default bool default false,\
+                        language text)")
             
     def __repr__(self):
         return "<Toolbox2 Database %s>" % self.path
-    
+
     # Do this to wrap large numbers of transactions
     def establishConnection(self):
         self.cx = sqlite3.connect(self.path)
@@ -179,7 +285,7 @@ class Database(object):
             yield cu
         else:
             cx = sqlite3.connect(self.path)
-            # This is required 
+            # This is required
             cx.text_factory = lambda x:unicode(x, "utf-8", "ignore")
             cu = cx.cursor()
             try:
@@ -268,6 +374,9 @@ class Database(object):
                        ("version",))
             
     def _signal_item_version_change(self, curr_ver, result_ver):
+        """Forces ToolboxLoader._testAndAddItem to update toolbox files when a
+        new field is added. Assumes you added a function to
+        ToolboxLoader._upgrade_item_info_from_curr_ver to add the field."""
         self.item_version_changed = True
         
     def _signal_check_remove_scc_dir(self, curr_ver, result_ver):
@@ -287,7 +396,16 @@ class Database(object):
         """
         with self.connect(commit=True) as cu:
             cu.execute("alter table snippet add column treat_as_ejs bool default false")
-        
+    
+
+    def _add_lang_field_to_snippets_table(self, curr_ver, result_ver):
+        """
+        Add this field: language text default ""
+        """
+        self._signal_item_version_change(curr_ver, result_ver)
+        with self.connect(commit=True) as cu:
+            cu.execute("alter table snippet add column language text")
+
     _upgrade_info_from_curr_ver = {
         # <current version>: (<resultant version>, <upgrader method>, <upgrader args>)
         "1.0.5": ('1.0.6',  _delete_directory_shortcuts, None),
@@ -298,6 +416,12 @@ class Database(object):
         "1.0.10": ('1.0.11', _add_auto_abbreviation_field_to_snippets, None),
         "1.0.11": ('1.0.12',  _signal_item_version_change, None),
         "1.0.12": ('1.0.13', _add_treat_as_ejs_to_snippets, None),
+        "1.0.13": ('1.1.5', _add_lang_field_to_snippets_table, None),
+        "1.1.5": ("1.1.6", _add_is_clean, None),
+        "1.1.6": ("1.1.7", _transition_file_templates, None),
+        "1.1.7": ("1.1.8", _convert_komodotool_to_ktf, None),
+        "1.1.8": ("1.1.9", _import_files_templates, None),
+        "1.1.9": ("1.1.10", _add_folder_template_table, None),
     }
 
     def get_meta(self, key, default=None, cu=None):
@@ -548,13 +672,13 @@ class Database(object):
     
     # Adder functions
 
-    def _addCommonDetails(self, path, name, item_type, parent_path_id, cu):
+    def _addCommonDetails(self, path, name, item_type, is_clean, parent_path_id, cu):
         stmt = 'insert into paths(path) values(?)'
         cu.execute(stmt, (path,))
         id = cu.lastrowid
         stmt = '''insert into common_details
-                (path_id, name, type) values (?, ?, ?)'''
-        cu.execute(stmt, (id, name, item_type))
+                (path_id, name, type, is_clean) values (?, ?, ?, ?)'''
+        cu.execute(stmt, (id, name, item_type, is_clean))
         if parent_path_id is None and item_type == "folder":
             stmt = 'insert into hierarchy(path_id) values(?)'
             cu.execute(stmt, (id,))
@@ -583,12 +707,12 @@ class Database(object):
                     actual_name = data.get('name', None) or name
                     new_id = self._addCompoundItem(path, actual_name, data, parent_path_id, cu)
                     return new_id
-            id = self._addCommonDetails(path, name, 'folder', parent_path_id, cu)
+            id = self._addCommonDetails(path, name, 'folder', False, parent_path_id, cu)
             return id
 
     def addContainerItem(self, data, item_type, path, fname, parent_path_id):
         with self.connect(commit=True) as cu:
-            id = self._addCommonDetails(path, fname, item_type, parent_path_id, cu)
+            id = self._addCommonDetails(path, fname, item_type, False, parent_path_id, cu)
             names = self._specific_names[item_type]
             if names:
                 final_values = [id]
@@ -607,7 +731,7 @@ class Database(object):
     def _addCompoundItem(self, path, name, data, parent_path_id, cu):
         node_type = data.get('type', 'folder')
         # Process the children in the directory
-        id = self._addCommonDetails(path, name, node_type, parent_path_id, cu)
+        id = self._addCommonDetails(path, name, node_type, False, parent_path_id, cu)
         if node_type == 'menu':
             stmt = 'insert into menu(path_id, accessKey, priority) values(?, ?, ?)'
             cu.execute(stmt, (id, data.get('accesskey', ""), data.get('priority', 100)))
@@ -623,7 +747,7 @@ class Database(object):
     def finishAddingCompoundItem(self, item_type, id, name, path,
                                  attributes, parent_id):
         with self.connect(commit=True) as cu:
-            self._addCommonDetails(path, name, item_type, parent_id, cu)
+            self._addCommonDetails(path, name, item_type, False, parent_id, cu)
             names = self._specific_names[item_type]
     
     def addTool(self, data, item_type, path, fname, parent_path_id):
@@ -641,7 +765,7 @@ class Database(object):
                 #log.debug("key %s not in tool %s(type %s)", name, fname, item_type)
                 pass
         with self.connect(commit=True) as cu:
-            new_id = self._addCommonDetails(path, pretty_name, item_type, parent_path_id, cu)
+            new_id = self._addCommonDetails(path, pretty_name, item_type, data.get("is_clean", False), parent_path_id, cu)
             prefix = '_add_'
             toolMethod = getattr(self, prefix + item_type, None)
             if not toolMethod:
@@ -714,11 +838,50 @@ class Database(object):
             ('indent_relative', False),
             ('auto_abbreviation', False),
             ('treat_as_ejs', False),
+            ('language', ''),
             ]
         valueList = self._getValuesFromDataAndDelete(id, data, names_and_defaults)
         stmt = '''insert into snippet(
                   path_id, set_selection, indent_relative, auto_abbreviation,
-                  treat_as_ejs)
+                  treat_as_ejs, language)
+                  values(?, ?, ?, ?, ?, ?)'''
+        cu.execute(stmt, valueList)
+        if data:
+            return self.addMiscProperties(id, data, cu)
+
+    def _unsetTemplateDefault(self, language):
+        stmt = '''UPDATE template SET lang_default='false' WHERE language=?'''
+        cu.execute(stmt, [language])
+
+    def _add_template(self, id, data, item_type, cu):
+        if (data.get("lang_default", "false") is "true" or data.get("lang_default", "false") is True):
+            self._unsetTemplateDefault(self, data["language"])
+
+        self.addCommonToolDetails(id, data, cu)
+        names_and_defaults = [
+            ('treat_as_ejs', False),
+            ('lang_default', False),
+            ('language', ''),
+            ]
+        valueList = self._getValuesFromDataAndDelete(id, data, names_and_defaults)
+        stmt = '''insert into template(
+                  path_id, treat_as_ejs, lang_default, language)
+                  values(?, ?, ?, ?)'''
+        cu.execute(stmt, valueList)
+        if data:
+            return self.addMiscProperties(id, data, cu)
+
+    def _add_folder_template(self, id, data, item_type, cu):
+        self.addCommonToolDetails(id, data, cu)
+        names_and_defaults = [
+            ('language', ''),
+            ('author', ''),
+            ('license', ''),
+            ('website', ''),
+            ]
+        valueList = self._getValuesFromDataAndDelete(id, data, names_and_defaults)
+        stmt = '''insert into folder_template(
+                  path_id, language, author, license, website)
                   values(?, ?, ?, ?, ?)'''
         cu.execute(stmt, valueList)
         if data:
@@ -729,7 +892,6 @@ class Database(object):
         if data:
             return self.addMiscProperties(id, data, cu)
 
-    _add_template = _addSimpleItem
     _add_URL = _addSimpleItem
             
     def addMiscProperties(self, id, data, cu):
@@ -751,7 +913,7 @@ class Database(object):
         _, content, keyboard_shortcut = values
         if not content:
             content = ""
-        else:
+        elif not isinstance(content, basestring):
             if not content[-1]:
                 del content[-1]
             if content and not content[0]:
@@ -881,269 +1043,96 @@ class Database(object):
             cu.execute(stmt, (toolType, name))
             return [x[0] for x in cu.fetchall()]
 
-    def _completeAbbrevSearchQuery(self, select_part_s, from_parts_a, where_parts_a,
-                                   abbrev, subnames, cu, 
-                                   caller, # for debug stmts only
-                                   outside_language_folder=False):
-        stmt = "select %s from %s where %s;" % (select_part_s,
-                                               ", ".join(from_parts_a),
-                                               " and ".join(where_parts_a))
-        value_tuple = tuple([abbrev] + subnames)
-        #log.debug("%s: stmt: %s\n, value_tuple: %s", caller, stmt, value_tuple)
-        cu.execute(stmt, value_tuple)
-        final_rows = []
-        rows = cu.fetchall()
-        for row in rows:
-            p3_id, cd3_name, cd2_name, p1_path, p2_path, p3_path = row
-            #log.debug("%s: looking for abbrev %s: got path: %s",
-            #           caller, abbrev, p1_path)
-            #log.debug("p2_path:%s, \np3_path:%s, len(p2_path):%d, len(p3_path):%d",
-            #           p2_path, p3_path, len(p2_path), len(p3_path))
-            isSampleAbbrev = self._sampleAbbrevRE.match(p1_path) != None
-            final_rows.append([p3_id, cd3_name, cd2_name,
-                               outside_language_folder, isSampleAbbrev])
-        return final_rows
+    def getDefaultTemplateForLanguage(self, language):
+        stmt = "SELECT path_id FROM template WHERE language=? AND lang_default='true'"
+        with self.connect() as cu:
+            cu.execute(stmt, [language])
+            row = cu.fetchone()
 
-    def _searchAbbrevFolderSnippet(self, abbrev, subnames, isAutoAbbrev, cu):
-        """
-        Match snippet S in language folder L
-        Abbreviations/.../L/...S
-        
-        In this SQL, p1 points to the Abbreviations folder,
-        p2 points to the language folder, and
-        p3 points to the snippet.
-        Favor case-sensitive over case-insensitive matches.
-        This query uses self-joins so it can be done in one shot
-        to the database.
-        
-        Without the question-marks:
-        
-        Type 1 search:
-        
-        select ... <see below>
-            from paths as p1, paths as p2, paths as p3,
-                 common_details as cd3, common_details as cd2, common_details as cd1
-            where cd1.name = "Abbreviations" and cd1.type = "folder"
-              and cd2.type = "folder" and (cd2.name like "HTML" or cd2.name like "HTML5")
-              and cd1.path_id = p1.id
-              and cd2.path_id = p2.id
-              and substr(p2.path, 0, length(p1.path)) = p1.path
-              and cd3.type = "snippet" and cd3.name like "SNIPPET_NAME"
-              and cd3.path_id = p3.id
-              and substr(p3.path, 0, length(p2.path)) = p2.path ;
-        
-        """
-        q_subnames = ' or '.join(['cd2.name like ?'] * len(subnames))
-        sep = os.path.sep
-        select_part_s = 'p3.id, cd3.name, cd2.name, p1.path, p2.path, p3.path'
-        from_parts_a = ['paths as p1', 'paths as p2', 'paths as p3',
-                        'common_details as cd3', 'common_details as cd2',
-                        'common_details as cd1']
-        if isAutoAbbrev:
-            from_parts_a.append('snippet as s3')
-        where_parts_a = ['cd3.type = "snippet"',
-                         'cd3.name %s ?' % (isAutoAbbrev and "=" or "like"),
-                         ]
-        if isAutoAbbrev:
-            where_parts_a += ['s3.path_id = cd3.path_id',
-                              's3.auto_abbreviation = "true"']
-        where_parts_a += [
-                         'cd1.name = "Abbreviations"',
-                         'cd1.type = "folder"',
-                         'cd2.type = "folder"',
-                         '(%s)' % q_subnames,
-                         'cd1.path_id = p1.id',
-                         'cd2.path_id = p2.id',
-                         'substr(p2.path, 1, length(p1.path) + 1) = p1.path || "%s"' % sep,
-                         'cd3.path_id = p3.id',                         
-                         'substr(p3.path, 1, length(p2.path) + 1) = p2.path || "%s"' % sep,
-                         ]
-        return self._completeAbbrevSearchQuery(select_part_s, from_parts_a, where_parts_a,
-                                               abbrev, subnames, cu,
-                                               "_searchAbbrevFolderSnippet",
-                                               outside_language_folder=False)
-        
-    def _searchAbbrevSnippetFolder(self, abbrev, subnames, isAutoAbbrev, cu):
-        """
-        Match snippet S in a hierarchy that *contains* language L (a bit weird,
-        used for common sub-languages.  The "*" folder is a better idea0.)
-        Abbreviations/.../S/.../L/...
-        
-        In this SQL, p1 points to the Abbreviations folder,
-        p2 points to the language folder, and
-        p3 points to the snippet, and
-        p4 points to the snippet's parent.
-        
-        Again, case-sensitive over case-insensitive matches
-        """
-        q_subnames = ' or '.join(['cd2.name like ?'] * len(subnames))
-        sep = os.path.sep
-        select_part_s = 'p3.id, cd3.name, cd2.name, p1.path, p2.path, p4.path'
-        from_parts_a = ['paths as p1', 'paths as p2', 'paths as p3',
-                        'paths as p4',
-                        'common_details as cd3', 'common_details as cd2',
-                        'common_details as cd1',
-                        'hierarchy as h3', 'hierarchy as h4']
-        if isAutoAbbrev:
-            from_parts_a.append('snippet as s3')
-        where_parts_a = ['cd3.type = "snippet"',
-                         'cd3.name %s ?' % (isAutoAbbrev and "=" or "like"),
-                         ]
-        if isAutoAbbrev:
-            where_parts_a += ['s3.path_id = cd3.path_id',
-                              's3.auto_abbreviation = "true"']
-        where_parts_a += [
-                         'cd1.name = "Abbreviations"',
-                         'cd1.type = "folder"',
-                         'cd1.path_id = p1.id',
-                         'cd3.path_id = p3.id',
-                         'substr(p3.path, 1, length(p1.path) + 1) = p1.path || "%s"' % sep, # snippet is descendant of Abbreviations
-                         'h3.path_id = p3.id',
-                         'h3.parent_path_id = h4.path_id',
-                         'h4.path_id = p4.id', # p4 is the snippet's parent
-                         'cd2.type = "folder"',
-                         '(%s)' % q_subnames,
-                         'p2.id = cd2.path_id',
-                         'p2.path != p4.path', # if snippet's parent is the folder, this is query #1
-                         'substr(p2.path, 1, length(p4.path) + 1) = p4.path || "%s"' % sep,
-                         ]
-        return self._completeAbbrevSearchQuery(select_part_s, from_parts_a, where_parts_a,
-                                               abbrev, subnames, cu,
-                                               "_searchAbbrevSnippetFolder",
-                                               outside_language_folder=True)
-    
-    def _searchAbbrevSnippetInCommonFolder(self, abbrev, subnames, isAutoAbbrev, cu):
-        """
-        Match snippet S in
-        Abbreviations/.../*/...S
-        Abbreviations/.../L/...
-        where "*" is a peer to language folder "L"
-        
-        In this SQL, p1 points to the Abbreviations folder,
-        p2 points to the language folder, and
-        p3 points to the snippet, and
-        p4 points to the snippet's parent, and
-        p5 points to the "common" folder, and
-        p6 points to the common parent of p5 and p2, could be "Abbreviations"
-        """
-        q_subnames = ' or '.join(['cd2.name like ?'] * len(subnames))
-        sep = os.path.sep
-        select_part_s = 'p3.id, cd3.name, cd2.name, p1.path, p2.path, p4.path'
-        from_parts_a = ['paths as p1', 'paths as p2', 'paths as p3',
-                        'paths as p4', 'paths as p5', 'paths as p6',
-                        'common_details as cd3', 'common_details as cd2',
-                        'common_details as cd1',
-                        'common_details as cd5', 'common_details as cd6',
-                        'hierarchy as h2',
-                        'hierarchy as h3',
-                        'hierarchy as h4',
-                        'hierarchy as h5']
-        if isAutoAbbrev:
-            from_parts_a.append('snippet as s3')
-        where_parts_a = ['cd3.type = "snippet"',
-                         'cd3.name %s ?' % (isAutoAbbrev and "=" or "like"),
-                         ]
-        if isAutoAbbrev:
-            where_parts_a += ['s3.path_id = cd3.path_id',
-                              's3.auto_abbreviation = "true"']
-        where_parts_a += [
-                         'cd1.name = "Abbreviations"',
-                         'cd1.type = "folder"',
-                         'cd5.type = "folder"',
-                         'cd5.name = "*"',
-                         'cd1.path_id = p1.id',
-                         'cd5.path_id = p5.id',
-                         'substr(p5.path, 1, length(p1.path) + 1) = p1.path || "%s"' % (sep,),
-                         '(%s)' % q_subnames,
-                         'p3.id = cd3.path_id',
-                         # snippet is descendant of abbrev
-                         'substr(p3.path, 1, length(p5.path) + 1) = p5.path || "%s"' % (sep,),
-                         'cd2.type = "folder"',
-                         'p2.id = cd2.path_id',
-                         'substr(p2.path, 1, length(p1.path) + 1) = p1.path || "%s"' % (sep,),
-                         'cd6.type = "folder"',
-                         'p6.id = cd6.path_id',
-                         # We don't need to test that p6 is in Abbreviations
-                         # because if it's a parent of p5 and p2, it must be.
-                         #'substr(p6.path, 1, length(p1.path) + 1) = p1.path || "%s"' % (sep,),
-                         'h2.path_id == p2.id',
-                         'h2.parent_path_id == p6.id',
-                         'h5.path_id == p5.id',
-                         'h5.parent_path_id == p6.id',
-                         'h3.path_id = p3.id',
-                         'h3.parent_path_id = h4.path_id',
-                         # p4 is the snippet's parent
-                         'h4.path_id = p4.id',]
-        return self._completeAbbrevSearchQuery(select_part_s, from_parts_a, where_parts_a,
-                                               abbrev, subnames, cu,
-                                               "_searchAbbrevSnippetInCommonFolder",
-                                               outside_language_folder=False)
-    
+            if row:
+                return row[0]
+            return None
+
     def getAbbreviationSnippetId(self, abbrev, subnames, isAutoAbbrev):
         """
-        First look for target snippets in the path
-        /.../Abbreviations/.../[s in subnames]/.../<target>
+        Mimic hierarchy of legacy system for snippet location:
+        Project toolbox > Toolbox Root > Abbreviations folder
         
-        If none are found, look for target snippets in all paths
-        /.../Abbreviations/.../P/<target>
-        where
-        /.../Abbreviations/.../P/.../[s in subnames] exists.
-        
-        This allows trees like so:
-        Abbreviations
-        + htmlish
-          + generic html snippets
-          + HTML
-            + html-specific snippets
-          + HTML5
-            + html5-specific snippets
-            
-        In Sqlite, doing a 'like' on a value ignores case.  Since abbrev
-        need to be names, we don't need to worry about wildcard chars.
-        
-        Lookup functions return rows containing:
-        [snippetID, snippetName, associated folder languageName,
-         isInsideFolder, isSampleAbbrev]
+        Account for langs that have version that differ enough to warrant
+        their own snippets per version, eg. `print "blah"` and `print("blah")`
+        for Python and Python3 respectively.
         """
+        query="""
+        SELECT snippet.path_id, paths.path
+        FROM snippet
+        JOIN common_details on snippet.path_id = common_details.path_id
+        JOIN paths ON snippet.path_id = paths.id
+        WHERE common_details.name=? AND snippet.language=? AND snippet.auto_abbreviation=?""";
+        abbrevID = None
+        language = subnames[0]
+        if isAutoAbbrev:
+            isAutoAbbrev = "true"
+        else:
+            isAutoAbbrev = "false"
         with self.connect() as cu:
-            rows = self._searchAbbrevFolderSnippet(abbrev, subnames, isAutoAbbrev, cu)
-            # Look for case-sensitive matches to avoid a second search
-            # This should be the most common form anyway
-            for row in rows:
-                if row[2] != "General" and row[1] == abbrev and not row[4]:
-                    return row[0]
-            rows += self._searchAbbrevSnippetFolder(abbrev, subnames, isAutoAbbrev, cu)
-            rows += self._searchAbbrevSnippetInCommonFolder(abbrev, subnames, isAutoAbbrev, cu)
-        if not rows:
-            return None
-        elif len(rows) == 1:
-            return rows[0][0]
-        # Now favor in this order (first not isSampleAbbrev):
-        # 1. inside language folder, matches case (already checked)
-        # 2. inside language folder, any case
-        # 3. above language folder (not general), matches case
-        # 4. above language folder, any case
-        # 5. inside General, matches case
-        # 6. inside General, any case
-        # 7. above General, matches case
-        # 8. rest (above General, any case)
-        # 9..16: as above, but with isSampleAbbrev true
-        for row in rows:
-            score = 0
-            if row[1] != abbrev:
-                score += 1 # Add 1 for a case-insensitive match
-            if row[3]:
-                score += 2 # Add 2 for matching above the language folder
-            if row[2].lower() == "general":
-                score += 4  # Add 4 for a general match
-            if row[4]:
-                score += 8  # Add 8 if it's a sample abbrev'n
-            if score == 1:
-                # This is the second-best score, so don't sort rows & go with it.
-                return row[0]
-            row.insert(0, score)
-        rows.sort()
-        return rows[0][1]
+            cu.execute(query, (abbrev, language, isAutoAbbrev))
+            abbrevID = self._rankSnippetResults(cu.fetchall())
+            # Special cases where there is more than one versions of a language
+            # in Komodo and they are different enough to warrant potentially
+            # different snippets
+            if abbrevID is None and ("Python" in language or "Python3" in language):
+                cu.execute(query,(abbrev, "Python-common", isAutoAbbrev))
+                try:
+                    abbrevID = self._rankSnippetResults(cu.fetchall())
+                except:
+                    pass
+                if abbrevID is not None:
+                    return abbrevID
+            if abbrevID is None and ("JavaScript" in language or "Node.js" in language):
+                cu.execute(query, (abbrev, "JavaScript-common", isAutoAbbrev))
+                try:
+                    abbrevID = self._rankSnippetResults(cu.fetchall())
+                except:
+                    pass
+                if abbrevID is not None:
+                    return abbrevID
+            if abbrevID is None and "HTML" in language:
+                cu.execute(query,(abbrev, "HTML-common", isAutoAbbrev))
+                try:
+                    abbrevID = self._rankSnippetResults(cu.fetchall())
+                except:
+                    pass
+                if abbrevID is not None:
+                    return abbrevID
+        return abbrevID
+    
+    def _rankSnippetResults(self, results):
+        """
+        Take an array of results from a snippet query and rank return a winner
+        based on the following hierarchy:
+        Project Tools > Toolbox Root Dir > "samples" in Abbreviations folder
+        """
+        projSnip = None
+        rootSnip = None
+        sampleSnip = None
+         # If you get more than one result back prioritize
+        for i in results:
+            # First take project specific snippets
+            if ".komodotools" in i[1]:
+                projSnip = i[0]
+            # then take root dir snippets
+            elif "Abbreviations" not in i[1]:
+                rootSnip = i[0]
+            else:
+                sampleSnip = i[0]
+        if projSnip:
+            return projSnip
+        if rootSnip:
+            return rootSnip
+        if sampleSnip:
+            return sampleSnip
+        return None
+        
 
     def getChildByName(self, id, name, recurse, typeName=None):
         """ Return the first tool that's a child of id that has the
@@ -1281,7 +1270,7 @@ class Database(object):
                                                'path_id', path_id, cu)
             if res:
                 tool_type = res[0]
-                if tool_type in ['snippet', 'macro', 'command', 'menu', 'toolbar']:
+                if tool_type in ['snippet', 'macro', 'command', 'menu', 'toolbar', 'tutorial']:
                     tableNames.append(tool_type)
             for t in tableNames:
                 try:
@@ -1424,6 +1413,17 @@ class Database(object):
         self.saveToolInfo(path_id, 'snippet', name, value, attributes,
                           self.getSnippetInfo)
     
+    def saveTemplateInfo(self, path_id, name, value, attributes):
+        if (attributes["lang_default"] is "true" or attributes["lang_default"] is True):
+            self._unsetTemplateDefault(self, attributes["language"])
+
+        self.saveToolInfo(path_id, 'template', name, value, attributes,
+                          self.getTemplateInfo)
+
+    def saveFolderTemplateInfo(self, path_id, name, value, attributes):
+        self.saveToolInfo(path_id, 'folder_template', name, value, attributes,
+                          self.getFolderTemplateInfo)
+
     def saveMenuInfo(self, path_id, tool_name, attributes):
         self.saveContainerInfo(path_id, 'menu', tool_name, attributes,
                                self.getMenuInfo)
@@ -1431,7 +1431,7 @@ class Database(object):
     def saveToolbarInfo(self, path_id, tool_name, attributes):
         self.saveContainerInfo(path_id, 'toolbar', tool_name, attributes,
                                self.getToolbarInfo)
-            
+
     def saveMiscInfo(self, path_id, oldAttrList, newAttrList, cu=None):
         names_to_update = []
         vals_to_update = []
@@ -1479,6 +1479,30 @@ class Database(object):
         with self.connect() as cu:
             self.getCommonToolDetails(path_id, obj, cu)
             cu.execute(("select %s from snippet where path_id = ?" %
+                        ", ".join(names)), (path_id,))
+            row = cu.fetchone()
+        for i, name in enumerate(names):
+            obj[name] = row[i]
+        return obj
+    
+    def getTemplateInfo(self, path_id, cu=None):
+        obj = {}
+        names = self._specific_names.get('template')
+        with self.connect() as cu:
+            self.getCommonToolDetails(path_id, obj, cu)
+            cu.execute(("select %s from template where path_id = ?" %
+                        ", ".join(names)), (path_id,))
+            row = cu.fetchone()
+        for i, name in enumerate(names):
+            obj[name] = row[i]
+        return obj
+
+    def getFolderTemplateInfo(self, path_id, cu=None):
+        obj = {}
+        names = self._specific_names.get('folder_template')
+        with self.connect() as cu:
+            self.getCommonToolDetails(path_id, obj, cu)
+            cu.execute(("select %s from folder_template where path_id = ?" %
                         ", ".join(names)), (path_id,))
             row = cu.fetchone()
         for i, name in enumerate(names):
@@ -1562,15 +1586,17 @@ def slugify(s):
 def updateToolName(path, newBaseName):
     try:
         fp = open(path, 'r')
-        data = json.load(fp, encoding="utf-8")
+        data = DataParser.readData(fp)
         fp.close()
         if newBaseName.endswith(TOOL_EXTENSION):
             newToolname = newBaseName[:-len(TOOL_EXTENSION)]
+        elif newBaseName.endswith(TOOL_EXTENSION_CLEAN):
+            newToolname = newBaseName[:-len(TOOL_EXTENSION_CLEAN)]
         else:
             newToolname = newBaseName
         data['name'] = newToolname
-        fp = open(path, 'w')
-        json.dump(data, fp, encoding="utf-8", indent=2)
+        fp = open(path, 'r+')
+        DataParser.writeData(fp, data)
         fp.close()
     except:
         try:
@@ -1583,7 +1609,7 @@ class ToolboxLoader(object):
     # Pure Python class that manages the new Komodo Toolbox back-end
 
     # When ITEM_VERSION changes update util/upgradeExtensionTools.py
-    ITEM_VERSION = "1.0.12" 
+    ITEM_VERSION = "1.1.5"
     FIRST_ITEM_VERSION = "1.0.5"
 
     def __init__(self, db_path, db):
@@ -1640,9 +1666,9 @@ class ToolboxLoader(object):
                     result_ver, json_data['name'])
         json_data['version'] = result_ver
         try:
-            fp = open(path, 'w')
+            fp = open(path, 'r+')
             try:
-                json.dump(json_data, fp, encoding="utf-8", indent=2)
+                DataParser.writeData(fp, json_data)
             except:
                 log.exception("Can't write out json_data to %s", path)
             fp.close()
@@ -1671,7 +1697,31 @@ class ToolboxLoader(object):
         except KeyError:
             pass
         self._update_version(curr_ver, result_ver, json_data, path)
-            
+    
+    def _add_lang_field_to_snippets(self, curr_ver, result_ver, json_data, path):
+        try:
+            langRegistry = components.classes["@activestate.com/koLanguageRegistryService;1"].getService(components.interfaces.koILanguageRegistryService);
+            UnwrapObject(langRegistry)
+            langNames = langRegistry.getLanguageNames()
+            if json_data['type'] == "snippet" and "language" not in json_data:
+                json_data["language"] = ""
+                processedPath = path #so I can munge the path up while searching it
+                if "Abbreviations" in processedPath:
+                    basename = ""
+                    while basename != "Abbreviations":
+                        basename = os.path.basename(processedPath)
+                        processedPath = os.path.dirname(processedPath)
+                        if basename in langNames:
+                            json_data["language"] = basename
+                            break
+                        elif "common" in basename:
+                            json_data["language"] = basename
+                            break
+        except KeyError:
+            pass
+        
+        if json_data['version'] != result_ver:
+            self._update_version(curr_ver, result_ver, json_data, path)
 
     _upgrade_item_info_from_curr_ver = {
         # <item's version>: (<resultant version>, <upgrader method>)
@@ -1680,6 +1730,7 @@ class ToolboxLoader(object):
         # DB changes 1.0.8, 1.0.9, 1.0.10 don't affect snippets.
         '1.0.7': ('1.0.11', _add_auto_abbrev_field_to_snippets),
         '1.0.11': ('1.0.12', _add_treat_as_ejs_to_snippets),
+        '1.0.12': ('1.1.5', _add_lang_field_to_snippets)
      }
 
     def upgradeItem(self, json_data, path):
@@ -1705,7 +1756,10 @@ class ToolboxLoader(object):
                         existing_child_paths=None):
         path = join(dirname, fname)
         isDir = os.path.isdir(path)
-        isTool = os.path.splitext(fname)[1] == TOOL_EXTENSION
+        isTool = os.path.splitext(fname)[1] == TOOL_EXTENSION or \
+                 os.path.splitext(fname)[1] == TOOL_EXTENSION_CLEAN
+        isCleanFormat = os.path.splitext(fname)[1] == TOOL_EXTENSION_CLEAN
+
         if not isDir and not isTool:
             return
         elif not self.dbTimestamp:
@@ -1742,32 +1796,58 @@ class ToolboxLoader(object):
         if need_update:
             if isTool:
                 try:
-                    try:
-                        fp = open(path, 'r')
-                    except IOError:
-                        log.error("database loader: Couldn't load file %s", path)
-                        return
-                    try:
-                        data = json.load(fp, encoding="utf-8")
-                        if data['type'] == "DirectoryShortcut":
-                            log.info("Deleting DirectoryShortcut tool %s", path)
-                            os.unlink(path)
+                    fp = open(path, 'r')
+
+                    if isCleanFormat:
+                        data = DataParser.readCleanData(fp)
+
+                        if not data:
                             return
+
                         self.upgradeItem(data, path)
-                    except:
-                        log.exception("Couldn't load json data for path %s", path)
-                        return
+                    else:
+                        try:
+                            data = DataParser.readJsonData(fp)
+
+                            if data['type'] == "DirectoryShortcut":
+                                log.info("Deleting DirectoryShortcut tool %s", path)
+                                os.unlink(path)
+                                return
+
+                            self.upgradeItem(data, path)
+                        except:
+                            log.exception("Couldn't load json data for path %s", path)
+                            return
+                except IOError:
+                    log.error("database loader: Couldn't load file %s", path)
+                    return
+                except:
+                    log.exception("Couldn't analyze path: %s", path)
+                    return
                 finally:
                     fp.close()
                 if need_disk_based_update_only:
                     return
-                type = data['type']
-                new_id = self.db.addTool(data, type, path, fname, parent_id)
+                new_id = self.db.addTool(data, data['type'], path, fname, parent_id)
             else:
                 new_id = self.db.addFolder(path, fname, parent_id)
             if notifyNow:
                 tool = self._toolsSvc.getToolById(new_id)
                 tool.added()
+
+            return new_id
+
+    def updateFilePath(self, path):
+        if not os.path.exists(path) or not os.path.isfile(path):
+            return
+
+        dirname = os.path.dirname(path)
+        fname = os.path.basename(path)
+
+        parent_id = self.db.get_id_from_path(dirname)
+        existing_child_paths = dict([(x, 1) for x in self.db.getChildPaths(parent_id)])
+
+        return self._testAndAddItem(True, dirname, fname, parent_id, existing_child_paths)
 
     def walkFunc(self, notifyNow, dirname, fnames):
         if os.path.basename(dirname) in self._excludedFolders:
@@ -1892,7 +1972,7 @@ class ToolboxLoader(object):
         parent_id = self.db.get_id_from_path(parentPath)
         for srcPath in toolPaths:
             ext = os.path.splitext(srcPath)[1]
-            if ext == TOOL_EXTENSION:
+            if ext == TOOL_EXTENSION or ext == TOOL_EXTENSION_CLEAN:
                 destPath = join(parentPath, os.path.basename(srcPath))
                 shutil.copy(srcPath, destPath)
                 self._testAndAddItem(True, parentPath, destPath, parent_id)
@@ -1905,7 +1985,7 @@ class ToolboxLoader(object):
     def importFileWithNewName(self, parentPath, srcPath, destPath):
         parent_id = self.db.get_id_from_path(parentPath)
         ext = os.path.splitext(srcPath)[1]
-        if ext == TOOL_EXTENSION:
+        if ext == TOOL_EXTENSION or ext == TOOL_EXTENSION_CLEAN:
             shutil.copy(srcPath, destPath)
             updateToolName(destPath, os.path.basename(destPath))
             self._testAndAddItem(True, parentPath, destPath, parent_id)
@@ -1965,6 +2045,276 @@ class ToolboxLoader(object):
                 if id is not None:
                     log.debug("We never loaded path %s (id %d)", path, id)
                     self.db.deleteItem(id)
+
+class DataParser:
+
+    @staticmethod
+    def readData(fp):
+        if fp.name.endswith(TOOL_EXTENSION_CLEAN):
+            return DataParser.readCleanData(fp)
+        else:
+            return DataParser.readJsonData(fp)
+
+    @staticmethod
+    def writeData(fp, data):
+        if data.get("is_clean", None) == "true" or data.get("is_clean", None) == True:
+            DataParser.writeCleanData(fp, data)
+        else:
+            DataParser.writeJsonData(fp, data)
+
+    @staticmethod
+    def readJsonData(fp):
+        try:
+            return json.load(fp, encoding="utf-8")
+        except ValueError:
+            # For some reason some .komodotool files have an extra closing
+            # bracket at the end, no idea why, not wasting cycles on finding out
+            fp.seek(0)
+            return json.loads(fp.read()[0:-1], encoding="utf-8")
+
+    @staticmethod
+    def writeJsonData(fp, data):
+        json.dump(data, fp, encoding="utf-8", indent=2)
+
+    @staticmethod
+    def readCleanData(fp):
+        data = { "value": "", "is_clean": "true" }
+        metaRx = re.compile(r"(\w+):\s*(.*)\n")
+        subMetaRx = re.compile(r"komodo meta:\s*(.*)\n")
+        inMeta = True
+        pastMetaStartPending = False
+        pastMetaStart = False
+        inSubMeta = False
+        subMetaKey = "value"
+        subMetaQueue = ""
+
+        for num, line in enumerate(fp, 1):
+            # Check if we are past the meta start info (TOOL_META_START)
+            # and before the meta info (pastMetaStartPending)
+            # This strips the --- line
+            if pastMetaStartPending:
+                pastMetaStart = True
+                pastMetaStartPending = False
+                continue
+
+            # Detect the meta start identifier
+            if not pastMetaStart:
+
+                # If after 2 lines we still havent received the meta start info
+                # then this file is not formatted as a komodo tool
+                if num > 2:
+                    fp.close()
+                    return False
+
+                # Detect the TOOL_META_START and extract the tool name from it
+                if line.lower().find(TOOL_META_START) != -1:
+                    data["name"] = line[line.lower().find(TOOL_META_START) + len(TOOL_META_START):]
+                    pastMetaStartPending = True
+
+                continue
+
+            # Parse simple key/val meta info
+            if inMeta:
+                match = metaRx.search(line)
+
+                if match:
+                    data[match.group(1)] = match.group(2)
+
+                # Check for the end indicator for meta info
+                elif line.find("===") != -1:
+                    inMeta = False
+
+            # Submeta is for multi-line values, primarily intended for the
+            # tutorial logic portion
+            elif inSubMeta:
+                match = subMetaRx.search(line)
+                
+                if match:
+                    subMetaKey = match.group(1).strip()
+                    data[subMetaKey] = ""
+                else:
+                    # If we didn't find the key then we werent looking at submeta
+                    # after all, and we need to append the previous line to the
+                    # previous entry value
+                    inSubMeta = False
+                    data[subMetaKey] += subMetaQueue
+
+                subMetaQueue = ""
+
+            # Multi-line values
+            else:
+                # Detect submeta
+                if line.find("===") != -1:
+                    inSubMeta = True
+                    subMetaQueue = line
+
+                # Else this is a regular value
+                else:
+                    data[subMetaKey] += line
+
+        [name, ext] = os.path.splitext(fp.name)
+
+        if not data.get("name", False):
+            data["name"] = name
+
+        data["name"] = data["name"].strip()
+
+        if not data.get("language", False):
+            langRegistry = components.classes["@activestate.com/koLanguageRegistryService;1"]\
+                            .getService(components.interfaces.koILanguageRegistryService)
+            data["language"] = langRegistry.suggestLanguageForFile(fp.name)
+
+        return data
+    
+    @staticmethod
+    def writeCleanData(fp, data):
+        metaRx = re.compile(r"(.*?)\w+:.*\n")
+        endRx = re.compile(r"===+(.*)\n")
+
+        inMeta = True
+        pastMetaStartPending = False
+        pastMetaStart = False
+
+        namePrefix = None
+        startPrefix = None
+        endSuffix = None
+        metaPrefix = None
+
+        multiLineCommented = False
+
+        # Detect namePrefix and metaPrefix
+        if fp.mode == "r+":
+            for num, line in enumerate(fp, 1):
+
+                # Check if we are past the meta start info (TOOL_META_START)
+                # and before the meta info (pastMetaStartPending)
+                # This strips the === line
+                if pastMetaStartPending:
+                    pastMetaStart = True
+                    pastMetaStartPending = False
+                    continue
+                
+                # Detect the meta start identifier
+                if not pastMetaStart:
+                    if line.lower().find(TOOL_META_START) != -1:
+                        if not namePrefix:
+                            namePrefix = ""
+                        else:
+                            multiLineCommented = True
+
+                        namePrefix += line[0:(line.lower().find(TOOL_META_START) + len(TOOL_META_START))]
+                        pastMetaStartPending = True
+                    else:
+                        # If after 2 lines we still havent received the meta start info
+                        # then this file is not formatted as a komodo tool
+                        namePrefix = line
+                        if num > 2:
+                            break
+                    continue
+
+                # Detect regular meta info
+                else:
+                    match = metaRx.search(line)
+
+                    if match:
+                        metaPrefix = match.group(1)
+                    else:
+
+                        # End loop when we get to the meta end indicator
+                        if line.find("===") != -1:
+                            match = endRx.search(line)
+                            endSuffix = match.group(1)
+                            break
+
+        langRegistry = components.classes["@activestate.com/koLanguageRegistryService;1"]\
+                        .getService(components.interfaces.koILanguageRegistryService)
+
+        language = data.get("language", None)
+        if not language:
+            language = langRegistry.suggestLanguageForFile(fp.name)
+
+        if multiLineCommented and not metaPrefix:
+            metaPrefix = ""
+
+        langInfo = langRegistry.getLanguage(language)
+        lineComment = langInfo.getCommentDelimiter("line", 0)
+        blockComment = langInfo.getCommentDelimiter("block", 0)
+
+        if metaPrefix == None:
+            if lineComment:
+                metaPrefix = json.loads(lineComment).strip() + " "
+            elif blockComment:
+                metaPrefix = ""
+                blockComment = json.loads(blockComment)
+                namePrefix = blockComment[0] + "\n" + TOOL_META_START
+                startPrefix = blockComment[0]
+                endSuffix = blockComment[1]
+            else:
+                metaPrefix = "// "
+
+        if not endSuffix:
+            endSuffix = ""
+        if not startPrefix:
+            startPrefix = ""
+
+        if not namePrefix:
+            namePrefix = "%s%s" % (metaPrefix, TOOL_META_START)
+
+        concatenated = "%s%s" % (TOOL_META_START, data["name"])
+        separator = metaPrefix
+        separator += "%s" % ("=" * len(concatenated))
+        
+        startSeparator = startPrefix + separator + "\n"
+        endSeparator = separator + endSuffix + "\n"
+        separator = separator + "\n"
+
+        # Now lets start writing
+
+        writeData = ""
+        writeData += "%s%s\n" % (namePrefix, data["name"])
+        writeData += separator
+
+        keys = data.keys()
+        keys.sort()
+
+        multiLineKeys = ["value"]
+
+        for key in keys:
+            value = data[key]
+
+            if key == "value" or key == "name" or value == "":
+                continue
+
+            if isinstance(value, basestring) and "\n" in value:
+                multiLineKeys.append(key)
+                continue
+            
+            writeData += "%s%s: %s\n" % (metaPrefix, key, value)
+
+        writeData += endSeparator
+
+        first = True
+        for key in multiLineKeys:
+            value = data[key]
+
+            if not first:
+                writeData += "\n"
+                
+                writeData += startSeparator
+                writeData += "%skomodo meta: %s\n" % (metaPrefix, key)
+                writeData += endSeparator
+
+            if isinstance(data["value"], basestring):
+                writeData += data["value"]
+            else:
+                writeData += eol.join(data["value"])
+                
+            first = False
+
+        fp.seek(0)
+        fp.truncate()
+
+        fp.write(writeData)
             
 # Use this class for testing only.
 class ToolboxAccessor(object):

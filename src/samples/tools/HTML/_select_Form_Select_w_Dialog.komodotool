@@ -1,6 +1,6 @@
 {
   "keyboard_shortcut": "", 
-  "name": "<select> Form Select w/Dialog", 
+  "name": "<select> Form Select w/ Dialog", 
   "value": [
     "<select name=\"[[%ask:Name:]]\"><option>!@#_currentPos!@#_anchor</option></select>"
   ], 

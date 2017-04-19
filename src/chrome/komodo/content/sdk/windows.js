@@ -17,6 +17,53 @@
     
     const {Cc, Ci, Cu}  = require("chrome");
     const log           = require("ko/logging").getLogger("sdk/windows");
+
+    var onLoadCallbacks = { all: [] };
+    var initialized = false;
+
+    this.init = () =>
+    {
+        if (initialized)
+            return;
+
+        initialized = true;
+
+        var w = this.getMain();
+        w.addEventListener("window_opened", onWindowOpened);
+    };
+
+    var onWindowOpened = function(e)
+    {
+        var w = e.detail;
+        if (w.location.href in onLoadCallbacks)
+        {
+            for (let callback of onLoadCallbacks[w.location.href])
+            {
+                callback(w);
+            }
+        }
+
+        for (let callback of onLoadCallbacks.all)
+        {
+            callback(w);
+        }
+    };
+
+    this.onLoad = function(href, callback)
+    {
+        if (typeof href == "function")
+        {
+            callback = href;
+            href = "all";
+        }
+
+        if ( ! (href in onLoadCallbacks))
+        {
+            onLoadCallbacks[href] = [];
+        }
+
+        onLoadCallbacks[href].push(callback);
+    };
     
     /**
      * Retrieve the main komodo window

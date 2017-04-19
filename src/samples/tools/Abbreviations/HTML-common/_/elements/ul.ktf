@@ -1,0 +1,13 @@
+// komodo tool: ul
+// ===============
+// auto_abbreviation: true
+// indent_relative: true
+// set_selection: false
+// treat_as_ejs: true
+// type: snippet
+// version: 1.0.12
+// ===============
+<%= ko.snippets.HTML_emitLessThanIfNeeded()
+%>ul>
+	<li>[[%tabstop:text]]</li>
+</ul>!@#_currentPos!@#_anchor

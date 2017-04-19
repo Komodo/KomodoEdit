@@ -22,11 +22,9 @@ module.exports = Module;
         
         this.init = function(entries, options = {})
         {
-            var attributes = Object.assign(options.attributes || {}, this.attributes);
+            this.parseOptions(options);
 
-            this.options = options;
-            this.attributes = attributes;
-            this.$element = $($.create(this.name, attributes).toString());
+            this.$element = $($.create(this.name, this.attributes).toString());
             this.$element.addClass("ui-list");
             this.element = this.$element.element();
             

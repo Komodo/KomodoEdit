@@ -414,6 +414,33 @@ this.Manager.prototype._remove_keybinding_sequences = function (command_to_key_s
 }
 
 /**
+ * transition the binding for one keybind to another
+ * @private
+ */
+this.Manager.prototype._transition_keybinding_sequences = function (oldCmd, newCmd) {
+    var currentSequences = this.command2keysequences(oldCmd);
+    if ( ! currentSequences)
+        return;
+
+    var oldSequences = { };
+    oldSequences[oldCmd] = [];
+
+    var newSequences = { };
+    newSequences[newCmd] = [];
+
+    for (let sequence of currentSequences) {
+        oldSequences[oldCmd].push(sequence);
+        newSequences[newCmd].push(sequence);
+    }
+
+    if ( ! oldSequences[oldCmd].length)
+        return;
+
+    this._remove_keybinding_sequences(oldSequences);
+    this._add_keybinding_sequences(newSequences);
+}
+
+/**
  * Add this dictionary of keybinds.
  *
  * Example map containing three commands:
@@ -474,7 +501,7 @@ this.Manager.prototype._add_keybinding_sequences = function (command_to_key_sequ
 this.Manager.prototype._upgradeKeybingings = function (from_version,
                                                        vi_enabled) {
     // Loop around until it's fully upgraded
-    while (from_version < currentKeybindingVersionNumber) {
+    while (from_version <= currentKeybindingVersionNumber) {
         switch (from_version) {
         case 1: // Handles upgrades to Komodo 4.2
             // For Komodo 4.1 and earlier (lots of versions, lots of change)

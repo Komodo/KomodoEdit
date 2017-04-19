@@ -119,7 +119,7 @@
                               label="&newURL.label;"
                               class="menuitem-iconic"
                               accesskey="&folderContextNewURL.accesskey;"
-                              image="chrome://komodo/skin/images/toolbox/browser.svg"
+                              image="chrome://komodo/skin/images/toolbox/url.svg"
                               oncommand="ko.toolbox2.addToolboxItem('URL')"
                               />
                     <menuitem id="tb2_addContext_newTemplate"
@@ -128,6 +128,13 @@
                               accesskey="&folderContextNewTemplate.accesskey;"
                               image="chrome://komodo/skin/images/toolbox/template.svg"
                               oncommand="ko.toolbox2.addToolboxItem('template')"
+                              />
+                    <menuitem id="tb2_addContext_newFolderTemplate"
+                              label="&newFolderTemplate.label;"
+                              class="menuitem-iconic"
+                              accesskey="&folderContextNewFolderTemplate.accesskey;"
+                              image="chrome://komodo/skin/images/toolbox/foldertemplate.svg"
+                              oncommand="ko.toolbox2.addToolboxItem('folder_template')"
                               />
                     <menuseparator anonid="addItemSeparator" />
                     <menuitem id="tb2_addContext_newFolder"
@@ -165,7 +172,15 @@
                               />
                 </menupopup>
             </menu>
-            <menu id="tb2ContextMenu_importMenu" label="&importExport.label;"
+            <menuitem id="toolbox2ContextMenu_exportAsZipFile"
+                      keep_background="true"
+                      class="menuitem-iconic"
+                      label="&exportAsZipFile.label;"
+                      hideUnless="folder menu toolbar" 
+                      disableIfInMenu="standardToolbox"
+                      oncommand="ko.toolbox2.exportAsZipFile(event)"
+                      />
+            <menu id="tb2ContextMenu_importMenu" label="&import.label;"
                   hideUnless="folder menu toolbar standardToolbox" 
                   testDisableIf="t:multipleSelection" >
               <menupopup id="tb2ContextMenu_importPopupMenu">
@@ -193,35 +208,6 @@
                              oncommand="ko.toolbox2.importPackageFromWeb(event)"
                              testDisableIf="t:multipleSelection"
                              />
-                   <menuseparator id="toolbox2ContextMenu_importExportSeparator" disableIfInMenu="standardToolbox" />
-                   <menuitem id="toolbox2ContextMenu_exportAsZipFile"
-                             keep_background="true"
-                             class="menuitem-iconic"
-                             label="&exportAsZipFile.label;"
-                             disableIfInMenu="standardToolbox"
-                             oncommand="ko.toolbox2.exportAsZipFile(event)"
-                             />
-                   <menuseparator id="toolbox2ContextMenu_packageSeparator"/>
-                   <menuitem id="toolbox2ContextMenu_installMacro"
-                             class="menuitem-iconic"
-                             label="&getMacro.label;"
-                             oncommand="require('scope-packages/packages').openCategory('macros')"
-                             />
-                   <menuitem id="toolbox2ContextMenu_installToolbox"
-                             class="menuitem-iconic"
-                             label="&getToolbox.label;"
-                             oncommand="require('scope-packages/packages').openCategory('toolbox')"
-                             />
-                   <menuitem id="toolbox2ContextMenu_browsePackages"
-                             class="menuitem-iconic"
-                             label="&browsePackages.label;"
-                             oncommand="ko.browse.browseTag('packages')"
-                             />
-                   <menuitem id="toolbox2ContextMenu_contribute"
-                             class="menuitem-iconic"
-                             label="&contributePackages.label;"
-                             oncommand="ko.browse.browseTag('contribute')"
-                             />
               </menupopup>
             </menu>
             <menuitem id="toolbox2ContextMenu_executeMacro"
@@ -238,6 +224,28 @@
                       hideUnless="macro"
                       testDisableIf="t:multipleSelection"
                       />
+            <menuitem id="toolbox2ContextMenu_useTemplate"
+                      label="&useTemplate.label;"
+                      class="menuitem-iconic primary_menu_item"
+                      oncommand="ko.toolbox2.invoke_useTemplate()"
+                      hideUnless="template"
+                      testDisableIf="t:multipleSelection"
+                      testDisableUnless="cmd:cmd_insertSnippet"
+                      />
+            <menuitem id="toolbox2ContextMenu_useFolderTemplate"
+                      label="&useFolderTemplate.label;"
+                      class="menuitem-iconic primary_menu_item"
+                      oncommand="ko.toolbox2.invoke_useFolderTemplate()"
+                      hideUnless="folder_template"
+                      testDisableIf="t:multipleSelection"
+                      />
+            <menuitem id="toolbox2ContextMenu_editTemplate"
+                      label="&editTemplate.label;"
+                      class="menuitem-iconic"
+                      oncommand="ko.toolbox2.invoke_editTemplate()"
+                      hideUnless="template"
+                      testDisableIf="t:multipleSelection"
+                      />
             <menuitem id="toolbox2ContextMenu_insertSnippet"
                       label="&insertSnippet.label;"
                       class="menuitem-iconic primary_menu_item"
@@ -251,6 +259,13 @@
                       class="menuitem-iconic"
                       oncommand="ko.toolbox2.invoke_editSnippet()"
                       hideUnless="snippet"
+                      testDisableIf="t:multipleSelection"
+                      />
+            <menuitem id="toolbox2ContextMenu_editRaw"
+                      label="&editRaw.label;"
+                      class="menuitem-iconic"
+                      oncommand="ko.toolbox2.invoke_editRaw()"
+                      hideIf="standardToolbox"
                       testDisableIf="t:multipleSelection"
                       />
             <menuitem id="toolbox2ContextMenu_runCommand"
@@ -273,11 +288,6 @@
                       oncommand="ko.toolbox2.invoke_openURLInTab()"
                       hideUnless="URL"
                       testDisableIf="t:multipleSelection"
-                      />
-            <menuitem id="toolbox2ContextMenu_share"
-                      class="menuitem-iconic"
-                      label="&shareTool.label;"
-                      oncommand="ko.browse.browseTag('contribute')"
                       />
             <menuseparator anonid="primaryseparator"
                            />
@@ -349,12 +359,12 @@
                       oncommand="ko.toolbox2.deleteItem(event)"
                       />
             <menuseparator anonid="secondaryseparator_4"
-                      hideIf="folder template standardToolbox"
+                      hideIf="folder standardToolbox"
                            />
             <menuitem id="toolbox2ContextMenu_editProperties"
                       label="&properties.label;"
                       oncommand="ko.toolbox2.editPropertiesItem(event)"
-                      hideIf="folder template standardToolbox"
+                      hideIf="folder standardToolbox"
                       testDisableIf="t:multipleSelection"
                       />
         </menupopup>

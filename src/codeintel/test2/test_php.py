@@ -3268,6 +3268,25 @@ EOD;
             [("function", "foo")])
         self.assertCompletionsAre(markup_text(content, pos=positions[2]),
             [("function", "bar")])
+            
+    def test_phpunit_catalog(self):
+        """
+        Tests the built-in phpunit-5.cix codeintel catalog.
+        It should be in lib/codeintel2/catalogs/.
+        """
+        content, positions = unmark_text(dedent(php_markup("""\
+            use PHPUnit\Framework\TestCase;
+            
+            class MyTestClass extends <1>PHPUnit_Framework_TestCase {
+                function testMe() {
+                    $this-><2>
+                }
+            }
+        """)))
+        self.assertCompletionsInclude(markup_text(content, pos=positions[1]),
+            [("class", "PHPUnit_Framework_TestCase")])
+        self.assertCompletionsInclude(markup_text(content, pos=positions[2]),
+            [("function", "assertEquals")])
 
 class IncludeEverythingTestCase(CodeIntelTestCase):
     lang = "PHP"
@@ -4935,6 +4954,22 @@ class DefnTestCase(CodeIntelTestCase):
             ilk="function", name="add_filter", line=4,
             path=join(test_dir, "plugin.php"), )
         self.assertCalltipIs2(buf, positions[2], "add_filter()\n\nCorrect")
+        
+    @tag("bug1682")
+    def test_defn_in_control_structure(self):
+        test_dir = join(self.test_dir, "test_defn_in_control_structure")
+        foo_content, foo_positions = unmark_text(php_markup(dedent("""\
+            if ($var = "something") {
+                $var<1>
+            }
+        """)))
+
+        path = join(test_dir, "foo.php")
+        writefile(path, foo_content)
+
+        buf = self.mgr.buf_from_path(path)
+        self.assertDefnMatches2(buf, foo_positions[1],
+            ilk="variable", name="var", line=1, path=path, )
 
 class EscapingTestCase(CodeIntelTestCase):
     lang = "PHP"

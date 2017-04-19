@@ -1,0 +1,12 @@
+// komodo tool: if
+// ===============
+// auto_abbreviation: true
+// indent_relative: true
+// set_selection: false
+// treat_as_ejs: false
+// type: snippet
+// version: 1.0.12
+// ===============
+if [[%soft:(]][[%tabstop:test]][[%soft:) {]]
+	[[%tabstop://code]]
+}

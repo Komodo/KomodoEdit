@@ -1956,6 +1956,21 @@ this.findAllInFiles = function Find_FindAllInFiles(editor, context, pattern, pat
     return true;
 }
 
+this.findAllInFolder = function Find_FindAllInFolder(pattern, folder)
+{
+    lazy.findSvc.options.encodedFolders = folder;
+    lazy.findSvc.options.patternType = Ci.koIFindOptions.FOT_SIMPLE;
+    lazy.findSvc.options.caseSensitivity = Ci.koIFindOptions.FOC_INSENSITIVE;
+    lazy.findSvc.options.searchBackward = false;
+    lazy.findSvc.options.matchWord = false;
+    
+    var context = Cc["@activestate.com/koFindInFilesContext;1"]
+        .createInstance(Ci.koIFindInFilesContext);
+    context.type = Ci.koIFindContext.FCT_IN_FILES;
+    
+    return this.findAllInFiles(require("ko/windows").getMain(), context, pattern);
+}
+
 
 /**
  * Replace all hits in files.

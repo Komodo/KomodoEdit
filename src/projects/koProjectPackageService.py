@@ -35,7 +35,7 @@ class koProjectPackageService:
         icon = part.get_iconurl()
         if self.test:
             print "icon [%s]"%icon
-        if not icon.startswith(('chrome://', 'moz-icon://stock/')):
+        if not icon.startswith(('chrome://', 'moz-icon://stock/', 'koicon://')):
             newicon = os.path.join('.icons', os.path.basename(icon))
             part.set_iconurl(newicon)
             icons.append((uriparse.URIToLocalPath(icon),newicon))

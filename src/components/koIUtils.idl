@@ -1,0 +1,18 @@
+/* Copyright (c) 2017 ActiveState Software Inc. */
+
+#include "nsISupports.idl"
+interface koIAsyncCallback;
+
+[scriptable, uuid(043fbad0-861c-476a-a08a-1754004379f9)]
+interface koIUtils: nsISupports {
+
+    void unzip(in AString path,
+               in AString subfolder,
+               in AString target,
+               in koIAsyncCallback callback);
+
+    void copytree(in AString path,
+                  in AString target,
+                  in koIAsyncCallback callback);
+
+};

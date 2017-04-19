@@ -65,6 +65,11 @@ ko-pane[ko-pane-drag-status="dragover"] .pane-drop-feedback
         margin-top: 10px;
     }
     
+    .groupbox-body
+    {
+        margin-bottom: 0;
+    }
+    
     .wrapper
     {
         padding: 10px;
@@ -173,6 +178,16 @@ ko-pane[ko-pane-drag-status="dragover"] .pane-drop-feedback
                     font-size: 16px;
                     
                     label { display: none; }
+                }
+                
+                .dynamic-button[type="menu-button"],
+                .dynamic-button[type="menu"]
+                {
+                    &:before,
+                    dropmarker
+                    {
+                        display: none;
+                    }
                 }
                 
                 & > button

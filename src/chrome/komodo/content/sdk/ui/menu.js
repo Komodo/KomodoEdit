@@ -31,14 +31,17 @@ module.exports = Module;
                 menuitems = null;
             }
             
+            this.parseOptions(options);
+            options = this.options;
+
             if ("menuitems" in options)
             {
                 menuitems = options.menuitems;
             }
             
-            this.options = options;
-            this.$element = $($.create(this.name, options.attributes || {}).toString());
+            this.$element = $($.create(this.name, this.attributes).toString());
             this.element = this.$element.element();
+            this.$element.addClass("ui-" + this.name);
             
             if (menuitems && Array.isArray(menuitems))
             {
@@ -51,6 +54,8 @@ module.exports = Module;
             }
         };
         
+        this.entries = function() { this.addMenuItems.apply(this, arguments); };
+        
         this.addMenuItems = function (menuitems)
         {
             for (let menuitem of menuitems) {
@@ -58,16 +63,39 @@ module.exports = Module;
             }
         };
         
+        /**
+         * Add an item to the container
+         *
+         * @argument {ko/ui/obj|ko/dom/obj|DOM|Object} item item to be added
+         * to the container.
+         *
+         * Object refers to an Options object used through this SDK. The options
+         * should contain an attributes property to assign a label at the very
+         * least:
+         *
+         *  {
+         *      attributes:
+         *      {
+         *          label:"itemLable"
+         *      }
+         *  }
+         *
+         *
+         * 
+         */ 
         this.addMenuItem = function (menuitem)
         {
-            if ( ! this.menupopup)
+            if ( ! this.menupopup )
             {
                 this.menupopup = require("./menupopup").create();
                 this.$element.append(this.menupopup.element);
             }
             
             var element;
-            if ("isSdkElement" in menuitem)
+            if (typeof menuitem == "string") {
+                element = require("ko/ui/menuitem").create(menuitem).element;
+            }
+            else if ("isSdkElement" in menuitem)
             {
                 element = menuitem.element;
             }
@@ -91,7 +119,13 @@ module.exports = Module;
                 element = require('./' + type).create(menuitem).element;
             }
             
-            this.menupopup.$element.append(element);
+            this.menupopup.addMenuItem(element);
+            var $element = $(element);
+            // Don't set if it's already set.
+            if ( $element.attr("tooltiptext") === "" )
+            {
+                $element.attr("tooltiptext", $(element).attr("label") );
+            }
             
             if (element.getAttribute("selected") == "true" && "selectedItem" in this.element)
             {

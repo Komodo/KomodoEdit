@@ -97,18 +97,14 @@ keywords = ["after", "append", "apply", "array", "auto_execok",
 
 # Codeintel will assume we're running v 8.6+
 # Other clients can pick and choose the keywords they want.
-v8_6_keywords = ["coroutine",
-                 "finally"
-                 "lmap"
-                 "on"
-                 "tailcall",
-                 "throw",
-                 "trap"
-                 "try",
-                 "yield",
-                 "yieldto",
-                 "zlib",
-                 ]
+v8_6_keywords = ["coroutine", "finally", "lmap", "my", "next", "on",
+                 "oo::class", "oo::copy", "oo::define", "oo::objdefine",
+                 "oo::object", "self", "tailcall", "throw", "trap", "try",
+                 "ttk::spinbox", "yield", "yieldto", "zlib",
+                 # Commands for oo::define and oo::objdefine
+                 "constructor", "deletemethod", "destructor", "export",
+                 "filter", "forward", "method", "mixin", "renamemethod",
+                 "superclass", "unexport"]
                   
 
 line_end_re = re.compile("(?:\r\n|\r)")

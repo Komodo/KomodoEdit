@@ -420,13 +420,6 @@ function UpdateField(field, initializing /* =false */)
 function update_icon(URI)
 {
     try {
-        if (URI == gDefaultPartIconURL) {
-            document.getElementById('reseticon').setAttribute('disabled', 'true');
-        } else {
-            if (document.getElementById('reseticon').hasAttribute('disabled')) {
-                document.getElementById('reseticon').removeAttribute('disabled');
-            }
-        }
         document.getElementById('keybindingtab_icon').setAttribute('src', URI);
         document.getElementById('propertiestab_icon').setAttribute('src', URI);
         document.getElementById('triggertab_icon').setAttribute('src', URI);
@@ -454,7 +447,9 @@ function pick_icon(useDefault /* false */)
         if (! useDefault) {
             URI = ko.dialogs.pickIcon();
             if (!URI) return;
-        } else {
+        }
+
+        if (useDefault || URI == "reset") {
             URI = gDefaultPartIconURL;
         }
         update_icon(URI);

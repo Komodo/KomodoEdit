@@ -20,7 +20,7 @@ module.exports = Module;
         
         this.init = function (appendElement = null, options = {})
         {
-            if ("caption" in appendElement)
+            if (appendElement && "caption" in appendElement)
             {
                 options = appendElement;
                 appendElement = null;

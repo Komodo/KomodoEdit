@@ -74,7 +74,7 @@ class koFileEx:
             elif scheme in ['macro', 'snippet']:
                 handler = projectURIHandler(self._URI)
 
-            elif scheme in ['macro2', 'snippet2']:
+            elif scheme in ['macro2', 'snippet2', 'template']:
                 handler = projectURI2_Handler(self._URI)
 
             else:

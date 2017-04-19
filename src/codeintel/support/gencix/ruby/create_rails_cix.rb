@@ -40,6 +40,7 @@
 
 # Create a rails environment, walk the modules, write out a CIX file.
 
+$: << './'
 require 'obj_collector'
 require 'obj2cix'
 
@@ -98,20 +99,26 @@ class Runner
     
     require 'rubygems'
     require 'rails/version'
-    require 'active_support'
+    require 'abstract_controller'
+    require 'active_job'
+    require 'active_model'
     require 'active_record'
+    require 'active_support'
+    require 'action_cable'
     require 'action_controller'
+    require 'action_dispatch'
     require 'action_mailer'
-    require 'action_web_service'
+    require 'action_view'
     puts "Done" if @options['verbose']
     
     after_constants = Object.constants
-    diff_constants = (after_constants - before_constants).grep(/^Act/).sort
-    expected_names = %w/ActionController ActionMailer ActionView
-                      ActionWebService ActiveRecord ActiveSupport/.sort
+    diff_constants = (after_constants - before_constants).grep(/^A(bs|ct)/).sort.map(&:to_s)
+    expected_names = %w/AbstractController ActionCable ActionController
+                        ActionDispatch ActionMailer ActionPack ActionView
+                        ActiveJob ActiveModel ActiveRecord ActiveSupport/.sort
     if diff_constants != expected_names
-      raise RuntimeError("Expected names <#{expected_names.join(", ")}>, got
-                #{diff_constants.join(", ")}>")
+      raise RuntimeError, "Expected names <#{expected_names.join(", ")}>, got
+                                                     <#{diff_constants.join(", ")}>"
     end
     expected_names.each {|n|
       if !diff_constants.member?(n)

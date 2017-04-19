@@ -531,14 +531,6 @@ this.newWindowForIndex = function newWindowForIndex(workspaceIndex)
                                  thisIndexOnly:true});
 }
 
-this.newTemplate = function newTemplate(obj)
-{
-    window.openDialog("chrome://komodo/content/templates/new.xul",
-                      "_blank",
-                      "chrome,modal,titlebar,resizable=yes,centerscreen",
-                      obj);
-}
-
 
 }).apply(ko.launch);
 }

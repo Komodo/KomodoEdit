@@ -1,0 +1,20 @@
+// komodo tool: namespace
+// ======================
+// auto_abbreviation: false
+// indent_relative: true
+// set_selection: false
+// treat_as_ejs: false
+// type: snippet
+// version: 1.0.12
+// ======================
+/**
+ * namespace [[%tabstop1:name]]
+ */
+
+if(typeof([[%tabstop1]]) == 'undefined') {
+	var [[%tabstop1]] = {};
+}
+
+(function() {
+	[[%tabstop:]]
+}).apply([[%tabstop1]]);!@#_currentPos!@#_anchor

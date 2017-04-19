@@ -1,0 +1,17 @@
+From: Nathan Rijksen <nathanr@activestate.com>
+Subject: Fix TCPSocket.js to read NUL bytes
+
+Unsure whether this is the proper file, might be ko-rel/dist/bin/components/TCPSocket.js, but that one seems to originate from dom/network/TCPSocket.js
+---
+Index: komodo-dev/mozilla/build/moz3500-ko10.10/mozilla/ko-rel/dist/bin/components/TCPSocket.js
+--- a/dom/network/TCPSocket.js
++++ b/dom/network/TCPSocket.js
+@@ -892,7 +892,7 @@
+       this._inputStreamBinary.readArrayBuffer(count, buffer);
+       this.callListener("data", buffer);
+     } else {
+-      this.callListener("data", this._inputStreamScriptable.read(count));
++      this.callListener("data", this._inputStreamScriptable.readBytes(count));
+     }
+ 
+ //@line 957 "/komodo/dev/mozilla/build/moz3500-ko10.10/mozilla/dom/network/TCPSocket.js"

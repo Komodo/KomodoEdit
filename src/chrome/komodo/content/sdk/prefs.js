@@ -6,6 +6,7 @@
  */
 
 const {Cc, Ci} = require("chrome");
+const w = require("ko/windows").getMain();
 
 /**
  * Wrap the Komodo global preferences (XPCOM) object.
@@ -78,6 +79,40 @@ exports.removeOnChange = function(pref, callback)
         }
     });
 }
+
+/**
+ * Return the current projects prefs
+ * Falls back to global if there is no project open
+ */
+exports.project = function()
+{
+    var prefs;
+    if(w.ko.projects.manager.currentProject)
+    {
+        return w.ko.projects.manager.currentProject.prefset;
+    }
+    else
+    {
+        return exports;
+    }
+};
+
+/**
+ * Return the current files prefs
+ * Falls back to project level if there is no file open
+ * Then Falls back to global level if there is no project open
+ */
+exports.file = function()
+{
+    if(ko.views.manager.currentView)
+    {
+        return w.ko.views.manager.currentView.koDoc.prefs;
+    }
+    else
+    {
+        return exports.project();
+    }
+};
 
 /**
  * Check if the preference exists (is defined)

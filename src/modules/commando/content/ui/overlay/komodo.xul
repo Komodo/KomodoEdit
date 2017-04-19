@@ -61,73 +61,81 @@
                         <hbox class="rect3"/>
                     </hbox>
                 </hbox>
-                <vbox id="commando-subscope-wrap" pack="start"></vbox>
-                <script id="tpl-co-subscope" type="x-dot-template">
-                    <hbox>
-                        <hbox class="icon-wrapper" pack="center" align="center">
-                            {{?it.scope.favourite}}
-                                <box class="icon favourite-icon"></box>
-                            {{??it.scope.icon}}
-                                <box class="icon" style='background-image: url({{!it.scope.icon}})'></box>
-                            {{?}}
+                <vbox id="commando-subscope-wrap" pack="start">
+                    <script id="tpl-co-subscope" type="x-dot-template">
+                        <hbox align="center">
+                            {{~it.scopes :s:index}}
+                                <button tooltiptext="{{!s.subscope.name}}" index="{{=index}}">
+                                    {{?s.subscope.favourite}}
+                                        <box class="icon favourite-icon"></box>
+                                    {{??s.subscope.icon}}
+                                        <box class="icon" style='background-image: url({{!s.subscope.icon}})'></box>
+                                    {{?}}
+                                    <label value="{{!s.subscope.name}}" accesskey="{{=s.subscope.accesskey}}" class="title"/>
+                                </button>
+                            {{~}}
                         </hbox>
-                        <hbox class="entry-wrapper" align="center" pack="center">
-                            <description class="title">
-                                {{~it.scopes :s:index}}
-                                    {{=s.subscope.name}} >
-                                {{~}}
-
-                                {{=it.scope.name}} >
-                            </description>
+                    </script>
+                </vbox>
+                <hbox id="commando-scope-filter-wrapper" pack="start">
+                    <script id="tpl-co-scopefilter" type="x-dot-template">
+                        <hbox align="center">
+                        {{~it.scopes :s:index}}
+                            <button tooltiptext="{{!s.scope.name}}" scope="{{=s.scope.id}}">
+                                <box class="icon" style='background-image: url({{!s.scope.icon}})'></box>
+                                <label class="count">{{=s.count}}</label>
+                                <label class="title" accesskey="{{=s.scope.accesskey}}" value="{{!s.scope.name}}"/>
+                                <label class="title short" accesskey="{{=s.scope.accesskey}}" value="({{!s.scope.accesskey}})"/>
+                            </button>
+                        {{~}}
                         </hbox>
-                    </hbox>
-                </script>
+                    </script>
+                </hbox>
                 <hbox flex="1" id="commando-result-outer">
                     <vbox flex="1" id="commando-results-outer">
                         <vbox flex="1" id="commando-results-wrapper">
                             <!-- Result template -->
                             <script id="tpl-co-result" type="x-dot-template">
-                                <richlistitem class="{{?it.classList}}{{=it.classList}}{{?}} {{?it.multiline}}multiline{{?}}" id="co-result-item-{{!it.id}}" result-id="{{!it.id}}">
-                                    <box class="entry-wrapper-outer">
-                                        <hbox>
-                                            <hbox class="icon-wrapper" pack="center" align="center">
-                                                {{?it.favourite}}
-                                                    <box class="icon favourite-icon"></box>
-                                                {{??it.icon}}
-                                                    <box class="icon" style="background-image: url('{{!it.icon}}')"></box>
-                                                {{?}}
-                                            </hbox>
-                                            <hbox class="number-wrapper" align="center" pack="end"><label class="number"/></hbox>
-                                            {{?!it.multiline}}
-                                                <hbox class="entry-wrapper" align="center" pack="center">
-                                                    <hbox class="prefix">
-                                                        <label class="title">{{!it.name}}</label>
-                                                        {{?it.descriptionPrefix}}
-                                                            <label class="descriptionPrefix">{{!it.descriptionPrefix}}</label>
-                                                        {{?}}
-                                                    </hbox>
-                                                    {{?it.description}}
-                                                        <description class="description" flex="1">{{!it.description}}</description>
+                                <richlistitem
+                                              class="{{?it.classList}}{{=it.classList}}{{?}}"
+                                              id="co-result-item-{{!it.id}}"
+                                              result-id="{{!it.id}}"
+                                              xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+                                              xmlns:html="http://www.w3.org/1999/xhtml">
+                                    <hbox class="entry-wrapper" flex="1">
+                                        <vbox class="number-wrapper" align="center" pack="center"><label class="number"/></vbox>
+                                        <vbox class="icon-wrapper" pack="center" align="center">
+                                            {{?it.favourite}}
+                                                <box class="icon favourite-icon"></box>
+                                            {{??it.icon}}
+                                                <box class="icon" style="background-image: url('{{!it.icon}}')"></box>
+                                            {{?}}
+                                        </vbox>
+                                        <vbox class="entry-inner" flex="1" pack="center">
+                                            <hbox class="title-wrapper">
+                                                <hbox class="title-inner" align="center">
+                                                    <!-- We use description here as it can wrap, whereas label cannot -->
+                                                    {{?!it.searchQuery}}
+                                                        <description class="title" accesskey="{{?it.accesskey}}{{=it.accesskey}}{{?}}" value="{{!it.name}}"/>
+                                                    {{??}}
+                                                        <description class="title">{{=it.nameHighlighted}}</description>
+                                                    {{?}}
+                                                    {{?it.descriptionPrefix}}
+                                                        <description class="descriptionPrefix"> ({{=it.descriptionPrefixHighlighted}})</description>
                                                     {{?}}
                                                 </hbox>
-                                            {{?}}
-                                            {{?it.multiline}}
-                                                <hbox class="entry-wrapper">
-                                                    <label class="title">{{!it.name}}</label>
-                                                </hbox>
-                                            {{?}}
-                                        </hbox>
-                                        {{?it.multiline}}
-                                            <hbox class="entry-wrapper multiline">
-                                                {{?it.descriptionPrefix}}
-                                                    <label class="descriptionPrefix">{{!it.descriptionPrefix}}</label>
-                                                {{?}}
+                                                <spacer flex="1"/>
+                                            </hbox>
+                                            <hbox class="description-wrapper">
                                                 {{?it.description}}
-                                                    <description class="description" flex="1">{{!it.description}}</description>
+                                                    <description class="description" flex="1">{{=it.descriptionHighlighted}}</description>
                                                 {{?}}
                                             </hbox>
-                                        {{?}}
-                                    </box>
+                                        </vbox>
+                                        <vbox class="action-wrapper" pack="center" align="center">
+                                            <button anonid="expand" class="icon icon-cog" tooltiptext="Options. Press right-arrow key to access this with your keyboard."/>
+                                        </vbox>
+                                    </hbox>
                                 </richlistitem>
                             </script>
         

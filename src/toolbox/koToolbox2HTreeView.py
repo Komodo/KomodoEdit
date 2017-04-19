@@ -161,6 +161,9 @@ class _KoSnippetToolHView(_KoToolHView):
 class _KoTemplateToolHView(_KoToolHView):
     typeName = 'template'
 
+class _KoFolderTemplateToolHView(_KoToolHView):
+    typeName = 'folder_template'
+
 class _KoURLToolHView(_KoToolHView):
     typeName = 'URL'
 

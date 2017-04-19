@@ -47,7 +47,13 @@ var log = ko.logging.getLogger("snippetProperties");
 
 var snippetname, snippetvalue, snippetnamelabel;
 var gApplyButton, gOKButton;
-var indentCheckbox, autoAbbreviation, treatAsEJS, keybinding, gItem;
+var indentCheckbox,
+    autoAbbreviation,
+    $autoAbbreviationLangMenu,
+    treatAsEJS,
+    keybinding,
+    language,
+    gItem;
 var gCaretPos;
 var gSetSelectionCheckbox;
 var scin;
@@ -56,6 +62,8 @@ var encodingSvc = Components.classes["@activestate.com/koEncodingServices;1"].
 var ANCHOR_MARKER = '!@#_anchor';
 var CURRENTPOS_MARKER = '!@#_currentPos';
 var gChromeWindowView = null;
+
+var $ = require("ko/dom");
 
 function onLoad(event) {
     try {
@@ -82,6 +90,7 @@ function onLoad(event) {
         snippetvalue = document.getElementById('snippetvalue');
         indentCheckbox = document.getElementById('indent_relative');
         autoAbbreviation = document.getElementById('auto_abbreviation');
+        $autoAbbreviationLangMenu = $("#languageList");
         treatAsEJS = document.getElementById('treat_as_ejs');
         gSetSelectionCheckbox = document.getElementById('set_selection');
 
@@ -138,6 +147,7 @@ function onLoad(event) {
         scin.currentPos = scin.positionAtChar(0,currentPos);
         indentCheckbox.setAttribute('checked', gItem.getStringAttribute('indent_relative'));
         autoAbbreviation.setAttribute('checked', gItem.getStringAttribute('auto_abbreviation'));
+        $autoAbbreviationLangMenu.element().selection = gItem.getStringAttribute('language');
         treatAsEJS.setAttribute('checked', gItem.getStringAttribute('treat_as_ejs'));
         gSetSelectionCheckbox.setAttribute('checked', gItem.getStringAttribute('set_selection'));
         keybinding.init();
@@ -157,7 +167,6 @@ function onLoad(event) {
         log.exception(e);
     }
 }
-
 
 function onUnload(event) {
     try {
@@ -291,6 +300,13 @@ function Apply() {
     }
     var isAutoAbbreviation = autoAbbreviation.getAttribute('checked') == 'true';
     gItem.setStringAttribute('auto_abbreviation', isAutoAbbreviation ? 'true' : 'false');
+
+    language = $autoAbbreviationLangMenu.element().selection;
+    if (language == "-1")
+        language = "Text";
+
+    gItem.setStringAttribute('language', language);
+    
     var updatedTreatAsEJS = treatAsEJS.getAttribute('checked') == 'true';
     gItem.setStringAttribute('treat_as_ejs', updatedTreatAsEJS ? 'true' : 'false');
     var setSelection = gSetSelectionCheckbox.getAttribute('checked') == 'true';
@@ -441,13 +457,6 @@ function InsertShortcut(shortcutWidget) {
 function update_icon(URI)
 {
     try {
-        if (URI == 'chrome://komodo/skin/images/toolbox/snippet.svg') {
-            document.getElementById('reseticon').setAttribute('disabled', 'true');
-        } else {
-            if (document.getElementById('reseticon').hasAttribute('disabled')) {
-                document.getElementById('reseticon').removeAttribute('disabled');
-            }
-        }
         document.getElementById('keybindingtab_icon').setAttribute('src', URI);
         document.getElementById('snippettab_icon').setAttribute('src', URI);
         if (URI.indexOf('_missing.png') != -1) {
@@ -467,7 +476,9 @@ function pick_icon(useDefault /* false */)
         if (! useDefault) {
             URI = ko.dialogs.pickIcon();
             if (!URI) return;
-        } else {
+        }
+
+        if (useDefault || URI == "reset") {
             URI = 'chrome://komodo/skin/images/toolbox/snippet.svg';
         }
         update_icon(URI);

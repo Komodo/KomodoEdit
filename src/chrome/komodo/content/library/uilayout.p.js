@@ -1755,6 +1755,35 @@ this.onload = function uilayout_onload()
     setTimeout(function() {
         ko.uilayout._updateToolbarViewStates();
     }, 3000);
+    
+    require("ko/share/kopy").load();
+    
+    // Run getting started tutorial
+    if (ko.prefs.getBoolean('runGetStartedTutorial', false))
+    {
+        var runTutorial = function(attempt=0)
+        {
+            ko.prefs.setBoolean('runGetStartedTutorial', false);
+            
+            try
+            {
+                var tutorial = ko.toolbox2.getToolsByTypeAndName("tutorial", "Getting Started");
+                if (tutorial.length)
+                {
+                    require("tutorials/tutorials").onInvoke(tutorial[0]);
+                }
+            }
+            catch (e)
+            {
+                _log.exception(e, "Running getting started tutorial failed");
+            }
+        }
+        
+        if (ko.toolbox2 && ko.toolbox2.manager)
+            runTutorial();
+        else
+            window.addEventListener("toolbox-ready", runTutorial);
+    }
 }
 
 this.updateWindowButtons = function (w) {

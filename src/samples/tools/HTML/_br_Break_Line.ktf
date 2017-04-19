@@ -1,0 +1,10 @@
+// komodo tool: <br/> Break Line
+// =============================
+// auto_abbreviation: false
+// indent_relative: false
+// set_selection: true
+// treat_as_ejs: false
+// type: snippet
+// version: 1.0.12
+// =============================
+<br/>!@#_currentPos!@#_anchor

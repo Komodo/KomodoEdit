@@ -242,7 +242,12 @@ class Parser:
     def get_parsing_objects(self, kwd):
         return {
             "namespace": [ModuleNode, self.parse_aux],
-            "proc" : [MethodNode, self.parse_method]
+            "proc" : [MethodNode, self.parse_method],
+            "class": [ClassNode, self.parse_aux],
+            "define": [ClassNode, self.parse_aux],
+            "method": [MethodNode, self.parse_method],
+            "constructor": [MethodNode, self.parse_method],
+            "destructor": [MethodNode, self.parse_method],
         }.get(kwd, [None, None])
         
     def _parse_name_list(self):
@@ -257,9 +262,16 @@ class Parser:
         return vars
     
     def parse_method(self, curr_node):
-        # Syntax: proc name { args } { body }
+        # Syntax: proc|method name { args } { body }
+        # or constructor { args } { body }
+        # or destructor { body }
         tok = self.tokenizer.get_next_token()
-        if self.classifier.is_operator(tok, "{"):
+        if curr_node.name == "destructor" and \
+           self.classifier.is_operator(tok, "{"):
+            # Destructors do not have arguments. Skip to body.
+            do_regular_args = False
+            self.tokenizer.put_back(tok)
+        elif self.classifier.is_operator(tok, "{"):
             # Standard, keep going
             do_regular_args = True
         elif self.classifier.is_identifier(tok):
@@ -358,12 +370,31 @@ class Parser:
             tok = self.tokenizer.get_next_token()
             if tok['style'] == shared_lexer.EOF_STYLE:
                 break
+            if tok['text'] == 'oo':
+                # Lookahead for oo::class and oo::define.
+                next_tok = self.tokenizer.get_next_token()
+                if self.classifier.is_operator(next_tok, '::'):
+                    next_tok = self.tokenizer.get_next_token()
+                    if next_tok['text'] in ["class", "define"]:
+                        tok = next_tok
+                        oo_token = True
+                    else:
+                        self.tokenizer.put_back(next_tok)
+                else:
+                    self.tokenizer.put_back(next_tok)
+            else:
+                oo_token = False
             # style, text, start_column, start_line, end_column, end_line = tok
             style, text = tok['style'], tok['text']
             if style == self.classifier.style_word and \
-               (cmdStart or tok['start_column'] == self.tokenizer.get_curr_indentation()):
+               (cmdStart or tok['start_column'] == self.tokenizer.get_curr_indentation()) or \
+               oo_token:
                 cmdStart = False
-                if text in ["namespace", "proc"]:
+                if text in ["namespace", "proc",
+                            # Either oo::class or oo::define.
+                            "class", "define",
+                            # Instance methods.
+                            "method", "constructor", "destructor"]:
                     curr_indent = self.tokenizer.get_curr_indentation()
                     if text == "namespace":
                         tok1 = self.tokenizer.get_next_token()
@@ -376,27 +407,65 @@ class Parser:
                     
                     # Get the comments before further parsing.
                     comment_lines = remove_hashes(self.tokenizer.curr_comment())
-                    nm_token = self.get_fully_qualified_name()
-                    fqname = nm_token[0]
+                    if text == "class":
+                        # Since syntax is oo::class create ClassName, skip over
+                        # the "create" token such that the name is the next
+                        # token.
+                        tok = self.tokenizer.get_next_token()
+                        if tok['text'] != "create":
+                            break
+                    if text not in ["constructor", "destructor"]:
+                        nm_token = self.get_fully_qualified_name()
+                        fqname = nm_token[0]
+                    else:
+                        fqname = text
                     if not fqname:
                         break                    
                     # Handle only local names for now
                     if fqname.startswith("::") and  text == "namespace":
                             fqname = fqname[2:]
 
-                    new_node = node_class(fqname, tok['start_line'])
-                    new_node.doc_lines = comment_lines
-                    new_node.indentation = curr_indent
-                    self.block_stack.append(new_node)
-                    curr_node.append_node(new_node)
+                    # Create a new node for the namespace, proc, class, method,
+                    # etc.
+                    # However, for oo::define, the subsequent body should be
+                    # added to an existing class. Find the previously created
+                    # node and use it as the "new" node.
+                    existing_node_found = False
+                    if text == "define":
+                        for node in curr_node.children:
+                            if node.name == fqname:
+                                new_node = node
+                                existing_node_found = True
+                                break
+                    if not existing_node_found:
+                        # Create the new parent node.
+                        new_node = node_class(fqname, tok['start_line'])
+                        new_node.doc_lines = comment_lines
+                        new_node.indentation = curr_indent
+                        curr_node.append_node(new_node)
+                        # TODO: instance method names with lowercase are public
+                        # while others are private. However, "export" can make
+                        # private members public.
+                    
+                    # For oo::class, determine if there's a body after it.
+                    class_body = False
+                    if text == "class":
+                        next_tok = self.tokenizer.get_next_token()
+                        class_body = self.classifier.is_operator(next_tok, '{')
+                        self.tokenizer.put_back(next_tok)
 
-                    # Push new containers on the symbol table
-                    self.containers[VAR_KIND_LOCAL].append(new_node.local_vars)
+                    # Anything in the subsequent body belongs to the parent
+                    # node. Set this up.
+                    if text != "class" or class_body:
+                        self.block_stack.append(new_node)
 
-                    node_parser(new_node)  # Has self bound to it
-                    self.block_stack.pop()
-                    self.containers[VAR_KIND_LOCAL].pop()
+                        # Push new containers on the symbol table
+                        self.containers[VAR_KIND_LOCAL].append(new_node.local_vars)
 
+                        node_parser(new_node)  # Has self bound to it
+                        self.block_stack.pop()
+                        self.containers[VAR_KIND_LOCAL].pop()
+                    
                     # Clear any comment that's hanging around
                     self.tokenizer.clear_comments()
 
@@ -435,6 +504,11 @@ class Parser:
                     if self.classifier.is_identifier(tok, True):
                         if curr_globals.has_key(tok['text']):
                             pass
+                        elif len(self.block_stack) > 1 and \
+                             isinstance(self.block_stack[-2], ClassNode) and \
+                             self.block_stack[-2].local_vars.has_key(tok['text']):
+                            # Declared instance variable. Move along.
+                            pass
                         else:
                             self.parse_assignment(tok['text'], tok['start_line'], isLocal)
                 elif text == "variable" and isinstance(curr_node, ModuleNode):
@@ -443,6 +517,16 @@ class Parser:
                     tok = self.tokenizer.get_next_token()
                     if self.classifier.is_identifier(tok, True):
                         self.parse_assignment(tok['text'], tok['start_line'], True)
+                elif text == "variable" and isinstance(curr_node, ClassNode):
+                    # "variable" declarations in classes are considered instance
+                    # variables.
+                    line_num = tok['start_line']
+                    tok = self.tokenizer.get_next_token()
+                    while self.classifier.is_identifier(tok, True) and \
+                          tok['start_line'] == line_num:
+                        self.parse_assignment(tok['text'], tok['start_line'], True)
+                        tok = self.tokenizer.get_next_token()
+                    self.tokenizer.put_back(tok)
                 elif text == "lassign":
                     tok = self.tokenizer.get_next_token()
                     if self.classifier.is_operator(tok, "{"):
