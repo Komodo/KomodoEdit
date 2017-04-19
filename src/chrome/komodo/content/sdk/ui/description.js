@@ -18,7 +18,21 @@ module.exports = Module;
         
         this.name = "description";
         
-        this.init = function (value, options) { return this.initWithAttribute("value", value, options); }
+        this.init = function (value, options)
+        {
+            if (typeof value == "object")
+            {
+                options = value;
+                value = null;
+            }
+
+            this.defaultInit(options);
+
+            if (value)
+            {
+                this.element.textContent = value;
+            }
+        };
         
         this.value = function(value)
         {
