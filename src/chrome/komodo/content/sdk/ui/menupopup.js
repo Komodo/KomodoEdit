@@ -76,14 +76,6 @@ module.exports = Module;
         {
             this.$element.append(require("ko/ui/menuseparator").create().element);
         };
-
-        /**
-         * Remove all elements in the menupopup
-         */
-        this.empty = function()
-        {
-            this.$element.empty();
-        };
         
         /**
          * Remove an item from the list
