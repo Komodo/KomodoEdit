@@ -107,6 +107,33 @@
             w.dispatchEvent(evt);
             
             this.loadVirtualStylesheets();
+            
+            var require = w.require;
+            var hideChrome = require("ko/prefs").getBoolean("ui.hide.chrome");
+            if (hideChrome)
+            {
+              window.addEventListener("load", function() {
+                setTimeout(function() {
+                  window.sizeToContent();
+                  
+                  // Force the window to respect its minimum width, (yet another XUL bug)
+                  var width = window.innerWidth;
+                  window.innerWidth = 1000;
+                  window.innerWidth = width;
+                }, 100);
+              });
+            }
+    
+            var _sizeToContent = window.sizeToContent;
+            window.sizeToContent = function() {};
+            
+            _sizeToContent();
+            setTimeout(() =>
+            {
+              _sizeToContent();
+              window.sizeToContent = _sizeToContent;
+            }, 0);
+            
           }
           catch(e)
           {
@@ -224,6 +251,30 @@
             window.restore = this.restore;
         }
 <!-- #endif -->
+
+          if (hideChrome)
+          {
+            window.addEventListener("load", function() {
+              setTimeout(function() {
+                window.sizeToContent();
+                
+                // Force the window to respect its minimum width, (yet another XUL bug)
+                var width = window.innerWidth;
+                window.innerWidth = 1000;
+                window.innerWidth = width;
+              }, 100);
+            });
+          }
+  
+          var _sizeToContent = window.sizeToContent;
+          window.sizeToContent = function() {};
+          
+          _sizeToContent();
+          setTimeout(() =>
+          {
+            _sizeToContent();
+            window.sizeToContent = _sizeToContent;
+          }, 0);
         ]]>
       </constructor>
 <!-- #if PLATFORM == "win" -->
@@ -480,31 +531,14 @@
 
           window.addEventListener("load", function() {
             setTimeout(function() {
-              window.sizeToContent();
-              
-              // Force the window to respect its minimum width, (yet another XUL bug)
-              var width = window.innerWidth;
-              window.innerWidth = 1000;
-              window.innerWidth = width;
-              
               if (window.screenX !== 0 || window.screenY !== 0)
                 return;
               var x = window.screen.left + Math.round((window.screen.availWidth - window.outerWidth) / 2);
               var y = window.screen.top + Math.round((window.screen.availHeight - window.outerHeight) / 2);
               window.moveTo(x,y);
-            }, 100);
+            }, 0);
           });
         }
-
-        var _sizeToContent = window.sizeToContent;
-        window.sizeToContent = function() {};
-        
-        _sizeToContent();
-        setTimeout(() =>
-        {
-          _sizeToContent();
-          window.sizeToContent = _sizeToContent;
-        }, 0);
         ]]>
       </constructor>
     </implementation>
