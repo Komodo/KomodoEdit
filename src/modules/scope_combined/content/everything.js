@@ -82,6 +82,7 @@
                 accesskey: scope.accesskey,
                 description: scope.description || "",
                 icon: icon,
+                allowExpand: false,
                 scope: "scope-combined",
                 data: {
                     isScope: true
