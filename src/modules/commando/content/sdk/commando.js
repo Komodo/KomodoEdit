@@ -57,7 +57,8 @@
         resultHeightTimer: null,
         lastSearch: 0,
         showing: false,
-        accesskeys: {}
+        accesskeys: {},
+        tipMessage: null
     };
 
     var elems = {
@@ -2052,6 +2053,10 @@
         elem("search").removeAttr("disabled");
         local.blocked = false;
     }
+    
+    this.pinTipMessage = (tipMessage) => {
+        local.tipMessage = tipMessage;
+    }
 
     this.tip = function(tipMessage, type = "normal")
     {
@@ -2063,6 +2068,8 @@
                 tipMessage = "TIP: Press " + bindLabel + " to quickly Go To Anything.";
         }
         
+        if (local.tipMessage) tipMessage = local.tipMessage;
+
         // todo: Use localized database of tips
         elem("tip").attr("tip-type", type);
         elem("tip").text(tipMessage ||
