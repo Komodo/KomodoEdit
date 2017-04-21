@@ -17,26 +17,4 @@
         elem = commando.elem;
     }
 
-    this.onSearch = function()
-    {
-        _onKitt();
-    }
-
-    var _onKitt = function()
-    {
-        // You didn't see this, you were never here
-        if (_onKitt.kitt)
-        {
-            elem("panel").removeClass("kitt");
-            delete _onKitt.kitt
-        }
-        if (["kitt", "michael"].indexOf(elem('search').value()) !== -1)
-        {
-            var sound = Cc["@mozilla.org/sound;1"].createInstance(Ci.nsISound);
-            sound.play(ioService.newURI('chrome://commando/content/loading.wav', null, null));
-            elem("panel").addClass("kitt");
-            _onKitt.kitt = true;
-        }
-    }
-
 }).apply(module.exports);
