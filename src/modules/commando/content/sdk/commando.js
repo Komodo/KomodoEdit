@@ -1877,7 +1877,11 @@
         local.blocked = false;
     }
 
-    this.pinTipMessage = (tipMessage) => {
+    this.unpinTip = () => {
+        local.tipMessage = null;
+    }
+
+    this.pinTip = (tipMessage) => {
         local.tipMessage = tipMessage;
     }
 
@@ -1890,16 +1894,13 @@
             elem("tip").text(tipMessage || "");
         }
 
-<<<<<<< HEAD
-=======
         if (local.tipMessage) tipMessage = local.tipMessage;
 
         // todo: Use localized database of tips
         elem("tip").attr("tip-type", type);
         elem("tip").text(tipMessage ||
-                             'TIP: Hit the right arrow key to "expand" your selection');
+            'TIP: Hit the right arrow key to "expand" your selection');
 
->>>>>>> 1e8722a7a... Commando: added pinTipMessage function to pin a tip until it's called again with null argument
         c.reloadTip();
     }
 
