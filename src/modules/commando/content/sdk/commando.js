@@ -2054,7 +2054,11 @@
         local.blocked = false;
     }
     
-    this.pinTipMessage = (tipMessage) => {
+    this.unpinTip = () => {
+        local.tipMessage = null;
+    }
+
+    this.pinTip = (tipMessage) => {
         local.tipMessage = tipMessage;
     }
 
