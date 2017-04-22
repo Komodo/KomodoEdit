@@ -417,10 +417,10 @@
 <!ENTITY editTemplate.label "Edit Template">
 <!ENTITY insertSnippet.label "Insert Snippet">
 <!ENTITY joinLines.label "Join Lines">
-<!ENTITY jumpToCorrespondingLine.label "Jump to corresponding line">
-<!ENTITY jumpToCorrespondingLineForDiffMode.label "Jump to Corresponding Line (for Diff mode)">
-<!ENTITY jumpToMatchingBrace.label "Jump to Matching Brace">
-<!ENTITY jumpToNextResult.label "Jump to next result">
+<!ENTITY jumpToCorrespondingLine.label "Go to corresponding line">
+<!ENTITY jumpToCorrespondingLineForDiffMode.label "Go to Corresponding Line (for Diff mode)">
+<!ENTITY jumpToMatchingBrace.label "Go to Matching Brace">
+<!ENTITY jumpToNextResult.label "Go to next result">
 <!ENTITY jumpToNextResult.tooltiptext "Jump To Next Result">
 <!ENTITY jumpToPreviousResult.tooltiptext "Jump To Previous Result">
 <!ENTITY historyBack.accesskey "B">
@@ -738,8 +738,8 @@
 <!ENTITY sourceCodeFindNextFunction.desc "Code: Find Next Function">
 <!ENTITY sourceCodeFindPreviousFunction.desc "Code: Find Previous Function">
 <!ENTITY sourceCodeGoToDefinition.desc "Code: Go to Definition">
-<!ENTITY sourceCodeJumpToCorrespondingLine.desc "Code: Jump to corresponding line">
-<!ENTITY sourceCodeJumpToMatchingBrace.desc "Code: Jump to Matching Brace">
+<!ENTITY sourceCodeJumpToCorrespondingLine.desc "Code: Go to corresponding line">
+<!ENTITY sourceCodeJumpToMatchingBrace.desc "Code: Go to Matching Brace">
 <!ENTITY sourceCodeNextSyntaxErrorWarning.desc "Code: Next Syntax Error/Warning">
 <!ENTITY sourceCodeRunSyntaxCheck.desc "Code: Run Syntax Check">
 <!ENTITY sourceCodeSelectBlock.desc "Code: Select Block">
