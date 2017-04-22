@@ -561,7 +561,7 @@
 <!ENTITY newWindow.accesskey "N">
 <!ENTITY newWindow.label "New Window">
 <!ENTITY newURL.label "New URL...">
-<!ENTITY nextBookmark.label "Next Bookmark">
+<!ENTITY nextBookmark.label "Go to Next Bookmark">
 <!ENTITY nextFile.label "Next Tab">
 <!ENTITY noSelection.label "No selection">
 <!ENTITY notifications.label "Notifications">
@@ -602,7 +602,7 @@
 <!ENTITY pressEnterToFindInFiles.tooltiptext "Press Enter to Find in Files">
 <!ENTITY preview.label "Preview">
 <!ENTITY previewBufferInBrowser.tooltiptext "Preview Buffer in Browser">
-<!ENTITY previousBookmark.label "Previous Bookmark">
+<!ENTITY previousBookmark.label "Go to Previous Bookmark">
 <!ENTITY previousFile.label "Previous Tab">
 <!ENTITY print.label "Print">
 <!ENTITY print.tooltiptext "Print">
