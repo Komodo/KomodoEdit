@@ -367,7 +367,7 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
         helpGroupbox.addRow([
             require("ko/ui/list").create([
                 require("ko/ui/link").create("Documentation", { attributes: { href: "http://docs.komodoide.com" }}),
-                require("ko/ui/link").create("Forums", { attributes: { href: "http://forum.komodoide.com/" }}),
+                require("ko/ui/link").create("Forums", { attributes: { href: "https://community.komodoide.com/" }}),
                 require("ko/ui/link").create("Bug Tracker", { attributes: { href: "https://github.com/Komodo/KomodoEdit/issues" }})
             ])
         ]);
@@ -388,10 +388,10 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
         
         resourcesGroupbox.addRow([
             require("ko/ui/list").create([
-                require("ko/ui/link").create("What's New?", { attributes: { href: "http://komodoide.com/features/" }}),
-                require("ko/ui/link").create("Packages", { attributes: { href: "http://komodoide.com/packages/" }}),
-                require("ko/ui/link").create("Blog", { attributes: { href: "http://komodoide.com/blog/" }}),
-                require("ko/ui/link").create("Buy Komodo IDE", { attributes: { href: "http://komodoide.com/pricing/" }})
+                require("ko/ui/link").create("What's New?", { attributes: { href: "https://www.activestate.com/komodo-ide/whats-new" }}),
+                require("ko/ui/link").create("Packages", { attributes: { href: "http://community.komodoide.com/packages/" }}),
+                require("ko/ui/link").create("Blog", { attributes: { href: "https://www.activestate.com/blog?field_blog_tags_tid=komodo&published_year=All" }}),
+                require("ko/ui/link").create("Buy Komodo IDE", { attributes: { href: "https://www.activestate.com/komodo-ide/pricing" }})
             ])
         ]);
         
