@@ -58,9 +58,9 @@
   <?define KomodoVersion = "PP_MSI_KOMODO_VERSION" ?>
   <?define KomodoRegistryId = "PP_MSI_REGISTRY_ID" ?>
   <?if $(var.ProductType) = "edit" ?>
-    <?define ProductURL = "http://komodoide.com/komodo-edit/" ?>
+    <?define ProductURL = "https://www.activestate.com/komodo-edit" ?>
   <?else ?>
-    <?define ProductURL = "http://www.komodoide.com/" ?>
+    <?define ProductURL = "https://www.activestate.com/komodo-ide" ?>
   <?endif ?>
   <?define UninstallText = "Modify or Uninstall Komodo" ?>
   <?define VccrtMsmPath = "PP_MSI_VCCRT_MSM_PATH" ?>
