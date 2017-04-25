@@ -60,12 +60,12 @@ pref("security.dialog_enable_delay", 500);
 
 // Preferences for the Get Add-ons pane
 pref("extensions.getAddons.showPane", true);
-pref("extensions.getAddons.browseAddons", "http://komodoide.com/packages");
+pref("extensions.getAddons.browseAddons", "https://community.komodoide.com/packages/");
 pref("extensions.getAddons.maxResults", 5);
-pref("extensions.getAddons.recommended.browseURL", "http://komodoide.com/packages");
-pref("extensions.getAddons.recommended.url", "http://komodoide.com/packages");
-pref("extensions.getAddons.search.browseURL", "http://komodoide.com/packages");
-pref("extensions.getAddons.search.url", "http://komodoide.com/packages");
+pref("extensions.getAddons.recommended.browseURL", "https://community.komodoide.com/packages/");
+pref("extensions.getAddons.recommended.url", "https://community.komodoide.com/packages/");
+pref("extensions.getAddons.search.browseURL", "https://community.komodoide.com/packages/");
+pref("extensions.getAddons.search.url", "https://community.komodoide.com/packages/");
 pref("extensions.webservice.discoverURL", "");
 // Blocklist preferences
 pref("extensions.blocklist.enabled", false);
@@ -113,8 +113,8 @@ pref("extensions.showMismatchUI", false);
 // this by manually checking for updates via the add-on dialog.
 pref("extensions.update.url", "https://komodo.activestate.com/update/VersionCheck.php?reqVersion=%REQ_VERSION%&id=%ITEM_ID%&version=%ITEM_VERSION%&maxAppVersion=%ITEM_MAXAPPVERSION%&status=%ITEM_STATUS%&appID=%APP_ID%&appVersion=%APP_VERSION%&appOS=%APP_OS%&appABI=%APP_ABI%");
 // Non-symmetric (not shared by extensions) extension-specific [update] preferences
-pref("extensions.getMoreExtensionsURL", "http://komodoide.com/packages");
-pref("extensions.getMoreThemesURL", "http://komodoide.com/packages");
+pref("extensions.getMoreExtensionsURL", "https://community.komodoide.com/packages/");
+pref("extensions.getMoreThemesURL", "https://community.komodoide.com/packages/");
 // Add-on metadata query (screenshots, description, ratings, downloads, ...)
 // Not used by Komodo - and it actually causes our ads to be blocked - bug 97923.
 pref("extensions.getAddons.cache.enabled", false);
