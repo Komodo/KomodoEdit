@@ -268,7 +268,22 @@
       <method name="onInput">
         <body>
         <![CDATA[
-          this.controller.search(this.text);
+          for each (var clazz in Array.slice(this.classList)) {
+            if (/^ko-findbar-status-/.test(clazz)) {
+              this.classList.remove(clazz);
+            }
+          }
+          if (!this.patternType == "FOT_REGEX_PYTHON") {
+            this.controller.search(this.text);
+            return;
+          }
+          try {
+            this.classList.add('ko-findbar-status'); // reset class to normal
+            var regex = new RegExp(this.text);
+            this.controller.search(this.text);
+          } catch (e) {
+            this.classList.add('ko-findbar-status-invalid-regex');
+          }
         ]]>
         </body>
       </method>

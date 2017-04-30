@@ -30,6 +30,11 @@ ko-findbar.ko-findbar-status-not-found .ko-findbar-textbox > * {
   color: white;
 }
 
+ko-findbar.ko-findbar-status-invalid-regex .ko-findbar-textbox >
+.autocomplete-textbox-container {
+    color: rgba(255, 64, 64, 0.8);
+}
+
 ko-findbar .ko-findbar-status {
   visibility:  collapse;
   -moz-box-pack: start;
