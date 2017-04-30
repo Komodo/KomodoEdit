@@ -444,6 +444,13 @@ viewMgrClass.prototype = {
             event.buttons === 1 &&
             !(event.shiftKey || event.ctrlKey || event.altKey)) {
             this.view.toggleOpenState(index);
+        } else if (!this.view.isContainer(index) &&
+                   ko.prefs.getBoolean('pref_places_singleClickOpen', false) &&
+                   event.which === 1) {
+            var uri = this.view.getURIForRow(index);
+            if (uri) {
+                ko.open.URI(uri);
+            }
         }
     },
 
