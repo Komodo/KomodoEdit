@@ -2600,12 +2600,148 @@ this.checkDiskFiles = function view_checkDiskFiles(event)
     return true;
 }
 
+/**
+ * Specifically called after remote files have run updatesStatsAsync
+ */
+function _checkDiskRemoteFiles(results)
+{
+    window.updateCommands('clipboard');
+    var changedItems = [];
+    var removedItems = [];
+    var connectionIssues = [];
+    var viewsToReload;
+    var conflictedItems = [];
+    var view, url, i, j;
+    var views, file, prompt, title, item, items;
+    // Deal with views first
+    views = ko.views.manager.topView.getDocumentViewList(true);
+    for (i = 0; i < views.length; i++) {
+        view = views[i];
+        // browser views do not load via document, so will
+        // always be wrong when trying to update status.
+        if (view.getAttribute('type')!='editor') continue;
+        if (typeof(view.koDoc) == 'undefined' ||
+            !view.koDoc ||
+            view.koDoc.isUntitled) continue;
+        file = view.koDoc.file;
+        // We don't like ur kind round here...locals.
+        if ( file.isLocal )
+        {
+            continue;
+        }
+        item = {};
+        item.type = 'view';
+        item.view = view;
+        item.file = file;
+        if (file.remoteFileConnectionStatus)
+        {
+            connectionIssues.push(item);
+            continue
+        }
+        if (!file.exists) {
+            removedItems.push(item);
+            view.koDoc.isDirty = true;
+        } else {
+            if (view.koDoc.differentOnDisk() &&
+                // If this is has a pending operation, the view will be
+                // updated automatically when the command finishes, we
+                // don't want to warn about it until it's finished. See bug:
+                // http://bugs.activestate.com/show_bug.cgi?id=74471
+                !Services.koAsync.uriHasPendingOperation(file.URI)) {
+
+                if (view.koDoc.isDirty) {
+                    conflictedItems.push(item);
+                } else {
+                    changedItems.push(item);
+                }
+                view.koDoc.isDirty = true;
+            }
+        }
+    }
+    // XXX CHECK FOR FILES WITH CONNECTION ISSUES
+    if (connectionIssues.length > 0)
+    {
+        prompt = locals.bundle.GetStringFromName("connectionIssues.prompt");
+        title = locals.bundle.GetStringFromName("connectionIssues.title");
+        var text = '';
+        for (i = 0; i < connectionIssues.length; i++) {
+            text += connectionIssues[i].file.displayPath + '\n'
+        }
+        ko.dialogs.alert(prompt, text, title, "remote_file_bad_connections")
+    
+    }
+    // handle files and projects that have changed on disk
+    if (changedItems.length > 0) {
+        title = locals.bundle.GetStringFromName("reloadChangedRemoteFiles.prompt");
+        prompt = locals.bundle.GetStringFromName("someOpenRemoteFilesHaveChanged.prompt");
+        items = ko.dialogs.selectFromList(title,
+                                      prompt,
+                                      changedItems,
+                                      'zero-or-more',
+                                      _itemStringifier,
+                                      'reload_changed_remote_files');
+        if (items != null && items.length > 0) {
+            for (i = 0; i < items.length; i++) {
+                if (item.type == 'view') {
+                    items[i].view.revertUnconditionally()
+                }
+            }
+        }
+    }
+    // handle files and projects that have changed on disk
+    if (removedItems.length > 0) {
+        for (i = 0; i < removedItems.length; ++i) {
+            if (removedItems[i].view &&
+                removedItems[i].view.koDoc) {
+                removedItems[i].view.koDoc.isDirty = true;
+            }
+        }
+        title = locals.bundle.GetStringFromName("closeDeletedRemoteFiles.prompt");
+        prompt = locals.bundle.GetStringFromName("theFollowingRemoteFilesDeleted.prompt");
+        items = ko.dialogs.selectFromList(title,
+                                      prompt,
+                                      removedItems,
+                                      'zero-or-more',
+                                      _itemStringifier,
+                                      'close_deleted_remote_files');
+        if (items != null && items.length > 0) {
+            for (i = 0; i < items.length; i++) {
+                if (item.type == 'view') {
+                    items[i].view.close(true);
+                } 
+            }
+        }
+    }
+
+    //XXX You can get this dialog when closing Komodo with
+    //    a file one choses to not save and after everything else has
+    //    closed so there is nothing that can really be done.
+    // handle files and projects that have changed and are dirty
+    if (conflictedItems.length > 0) {
+        prompt = locals.bundle.GetStringFromName("theFollowingRemoteFilesHaveChangedOnDisk.prompt");
+        title = locals.bundle.GetStringFromName("modifiedRemoteFilesHaveChangedOnDisk.prompt");
+        var text = '';
+        for (i = 0; i < conflictedItems.length; i++) {
+            text += _itemStringifier(conflictedItems[i]) + '\n'
+        }
+        ko.dialogs.alert(prompt, text, title, "buffer_conflicts_with_file_on_server")
+    }
+    Services.koFileStatus.updateStatusForAllFiles(REASON_ONFOCUS_CHECK);
+    // when we leave this function, if any dialogs were shown, the
+    // main window gets a focus event again.  So we want to wait long
+    // enough so that the new focus event does not enter this function
+    // again. (bug 29037)
+    window.setTimeout(function() { _gInCheckDiskFiles = false; }, 100);
+    return true;
+}
+
 function _view_checkDiskFiles(event) {
     // checks open files and projects for dirtiness
     try {
         window.updateCommands('clipboard');
         var changedItems = [];
         var removedItems = [];
+        var remoteFiles = [];
         var viewsToReload;
         var conflictedItems = [];
         var view, url, i, j;
@@ -2623,7 +2759,16 @@ function _view_checkDiskFiles(event) {
                 !view.koDoc ||
                 view.koDoc.isUntitled) continue;
             file = view.koDoc.file;
-            if (!checkNetworkFiles && (!file.isLocal || file.isNetworkFile)) continue; // stop outright
+            if (!checkNetworkFiles && ( ! file.isLocal || file.isNetworkFile ))
+            {
+                continue; // stop outright
+            } else if( ! file.isLocal || file.isNetworkFile )
+            {
+                // save the remote files to run async update separately.
+                remoteFiles.push(file);
+                continue;
+            }
+            // We've haven't run this yet so we can update local files
             file.updateStats();
             item = new Object;
             item.type = 'view';
@@ -2653,6 +2798,19 @@ function _view_checkDiskFiles(event) {
                     }
                     view.koDoc.isDirty = true;
                 }
+            }
+        }
+        
+        // Fire off the remote file updates then continue with local file state checking
+        for (let file of remoteFiles)
+        {
+            let file = view.koDoc.file
+            if ( ! file.isLocal )
+            {
+                let debounced_checkDiskRemoteFiles = require("contrib/underscore").debounce(
+                    _checkDiskRemoteFiles,(require("ko/prefs").getLong("remotefiles_defaultConnectionTimeout")*1000)/2
+                )
+                file.updateStatsAsync(debounced_checkDiskRemoteFiles);
             }
         }
 
@@ -2775,7 +2933,11 @@ function _view_checkDiskFiles(event) {
     // main window gets a focus event again.  So we want to wait long
     // enough so that the new focus event does not enter this function
     // again. (bug 29037)
-    window.setTimeout(function() { _gInCheckDiskFiles = false; }, 100);
+    // Defer to _checkDiskRemoteFiles if that has been run.
+    if (remoteFiles.length == 0)
+    {
+        window.setTimeout(function() { _gInCheckDiskFiles = false; }, 100);
+    }
     return true;
 }
 

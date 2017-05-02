@@ -42,6 +42,8 @@ import stat, os, sys, copy
 from os.path import splitdrive
 from hashlib import md5
 import types, re
+import threading
+import json
 
 win32 = sys.platform.startswith("win")
 from xpcom import components, COMException, ServerException, nsError
@@ -480,6 +482,7 @@ class URIParser(object):
 class FileHandlerBase(object):
 
     isNetworkFile = False
+    remoteFileConnectionStatus = 0
 
     @LazyClassAttribute
     def lastErrorSvc(self):
@@ -538,6 +541,9 @@ class FileHandlerBase(object):
         except COMException:
             # Last error should already be set in this case
             raise ServerException(nsError.NS_ERROR_FAILURE)
+
+    def updateStatsAsync(self):
+        raise NotImplementedError,"'updateStatsAsync' not implemented for local files."
 
     def write(self, text):
         try:
@@ -902,12 +908,17 @@ class xpURIHandler(FileHandlerBase):
 class RemoteURIHandler(FileHandlerBase):
     isLocal = 0
     isRemoteFile = 1
+    remoteFileConnectionStatus = 0;
     
     @LazyClassAttribute
     def remoteFileSvc(self):
         return components.classes["@activestate.com/koRemoteConnectionService;1"].\
                     getService(components.interfaces.koIRemoteConnectionService)
-
+    
+    @components.ProxyToMainThreadAsync
+    def _callback(self, callback, value):
+        callback.callback(0, json.dumps(value))
+    
     def __init__(self,path):
         import re
         FileHandlerBase.__init__(self)
@@ -986,13 +997,33 @@ class RemoteURIHandler(FileHandlerBase):
     stats = property(get_stats)
 
     def updateStats(self):
-        if not self._stats:
-            return 0
-        tmpstats = self.__get_stats(refresh=1)
-        if self._stats != tmpstats:
-            self._stats = tmpstats
-            return 1
-        return 0
+        return self._updateStats(None)
+    
+    def _updateStats(self, callback):
+        changed = 0
+        if self._stats:
+            try:
+                tmpstats = self.__get_stats(refresh=1)
+                if self._stats != tmpstats:
+                    self._stats = tmpstats
+                    changed = 1
+                self.remoteFileConnectionStatus = 0
+            except Exception as e:
+                # XXX set file koFile.REMOTEFILE_ERROR status
+                if callback:
+                    self.remoteFileConnectionStatus = 1;
+                    self._callback(callback,{"status":"error", "message":"Connection error: Check logs."})
+            if callback:
+                if changed:
+                    self._callback(callback,{"status":"changed"})
+                else:
+                    self._callback(callback,{"status":"unchanged"})
+        return changed
+
+    def updateStatsAsync(self, callback):
+        t = threading.Thread(target=self._updateStats, args=(callback,))
+        t.start()
+       
 
     @property
     def hasChangedNoStatUpdate(self):

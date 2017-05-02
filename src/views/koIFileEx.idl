@@ -39,6 +39,7 @@
 */
 
 #include "nsISupports.idl"
+interface koIAsyncCallback;
 
 /*
   koIFile represents a file on disk.
@@ -302,7 +303,20 @@ interface koIFileEx : nsISupports
      * @returns {boolean} true if the stats changed.
      */
     boolean updateStats();
-
+    
+    /**
+     * Updates the stat information asynchronously.
+     *
+     * @returns {boolean} true if the stats changed.
+     */
+    void updateStatsAsync(in koIAsyncCallback callback);
+    
+    /**
+     * If a remote file, it's current connection status.
+     * It's either 0 (good) or 1(something wrong, check your connection or logs)
+     */
+    attribute long remoteFileConnectionStatus;
+    
     /**
      * A method to retreive keys and values for all status attributes; this is
      * an optimization for JS when we need to retreive all of it.
