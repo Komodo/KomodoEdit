@@ -908,7 +908,7 @@ class xpURIHandler(FileHandlerBase):
 class RemoteURIHandler(FileHandlerBase):
     isLocal = 0
     isRemoteFile = 1
-    remoteFileConnectionStatus = 0;
+    remoteFileConnectionStatus = 0
     
     @LazyClassAttribute
     def remoteFileSvc(self):
