@@ -26,5 +26,7 @@ RUN chown root:root /root/.ssh/authorized_keys
 ADD id_rsa.pub /root/.ssh/authorized_keys2
 RUN chown root:root /root/.ssh/authorized_keys2
 
+RUN echo "X11UseLocalhost no" >> /etc/ssh/sshd_config
+
 # start the ssh daemon
 CMD ["/usr/sbin/sshd", "-D"]
