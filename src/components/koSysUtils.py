@@ -258,21 +258,15 @@ class koSysUtils:
             manager = self._getManager()
             if os.path.isfile(filename):
                 filename = os.path.dirname(filename)
-            if manager == "gnome":
+            xdg_open = self.Which('xdg-open')
+            if xdg_open:
+                os.system('xdg-open "%s" &' % filename)
+            elif manager == "gnome":
                 os.system('nautilus "%s" &' % filename)
             elif manager == "kde":
-                os.system('konqueror --profile filemanagement "%s" &' % filename)
+                os.system('dolphin "%s" &' % filename)
             else:
-                # see if nautilus or konqueror exists, and use them
-                nautilus = self.Which("nautilus")
-                if nautilus:
-                    os.system('nautilus "%s" &' % filename)
-                    return
-                konqueror = self.Which("konqueror")
-                if konqueror:
-                    os.system('konqueror --profile filemanagement "%s" &' % filename)
-                    return
-                raise "NOT IMPLEMENTED"
+                raise "File manager not found / xdg-open not installed"
 
     def OpenFile(self, filename):
         """OpenFile
