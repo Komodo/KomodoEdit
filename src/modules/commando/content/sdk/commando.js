@@ -1682,9 +1682,16 @@
             {
                 resultElem.addItemToSelection(sibling);
                 resultElem.ensureElementIsVisible(sibling);
+                c.tip("Selected " + resultElem.selectedCount + " items");
+            } else if (!selItem.resultData.allowMultiSelect) {
+                c.tip("Selected item is not allowed for multiselection");
+            } else if (sibling || !sibling.resultData.allowMultiSelect) {
+                let tip = 'Next item is not allowed for multiselection';
+                if (resultElem.selectedCount > 1) {
+                    tip += `, selected ${resultElem.selectedCount} items`;
+                }
+                c.tip(tip);
             }
-
-            c.tip("Selected " + resultElem.selectedCount + " items");
         }
         else
         {
@@ -1729,9 +1736,16 @@
             {
                 resultElem.addItemToSelection(sibling);
                 resultElem.ensureElementIsVisible(sibling);
+                c.tip("Selected " + resultElem.selectedCount + " items");
+            } else if (!selItem.resultData.allowMultiSelect) {
+                c.tip("Selected item is not allowed for multiselection");
+            } else if (sibling || !sibling.resultData.allowMultiSelect) {
+                let tip = 'Previous item is not allowed for multiselection';
+                if (resultElem.selectedCount > 1) {
+                    tip += `, selected ${resultElem.selectedCount} items`;
+                }
+                c.tip(tip);
             }
-
-            c.tip("Selected " + resultElem.selectedCount + " items");
         }
         else
         {
