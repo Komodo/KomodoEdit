@@ -423,7 +423,7 @@
     var onNavUp = function(e)
     {
         if (e.ctrlKey) {
-            c.onNavBack();
+            onNavBack();
         } else {
             c.navUp(e && e.shiftKey);
         }
@@ -1659,12 +1659,19 @@
         resultElem.selectedIndex = 0;
     }
 
+    var findMultiSelectItem = (current, previous = false) => {
+        if (!current) return;
+        let sibling = current.nextSibling;
+        if (previous) sibling = current.previousSibling;
+        if (sibling && sibling.resultData.allowMultiSelect) return sibling;
+        return findMultiSelectItem(sibling, previous);
+    }
+
     this.navDown = function(append = false)
     {
         var results = elem('results');
         var resultElem = results.element();
         var resultCount = resultElem.getRowCount();
-        
         var selIndex = resultElem.selectedIndex || 0;
         for (let item of resultElem.selectedItems)
         {
@@ -1677,14 +1684,15 @@
             log.debug("Add Next to Selection in Results");
 
             var selItem = resultElem.getItemAtIndex(selIndex);
-            var sibling = selItem.nextSibling;
+            var sibling = findMultiSelectItem(selItem);
             if (sibling && selItem.resultData.allowMultiSelect && sibling.resultData.allowMultiSelect)
             {
                 resultElem.addItemToSelection(sibling);
                 resultElem.ensureElementIsVisible(sibling);
+                c.tip("Selected " + resultElem.selectedCount + " items");
+            } else if (!(selItem.resultData.allowMultiSelect || sibling.resultData.allowMultiSelect)) {
+                c.tip("Current item could not be multi-selected with anything");
             }
-
-            c.tip("Selected " + resultElem.selectedCount + " items");
         }
         else
         {
@@ -1724,14 +1732,15 @@
             log.debug("Add Previous to Selection in Results");
 
             var selItem = resultElem.getItemAtIndex(selIndex);
-            var sibling = selItem.previousSibling;
+            var sibling = findMultiSelectItem(selItem, true);
             if (sibling && selItem.resultData.allowMultiSelect && sibling.resultData.allowMultiSelect)
             {
                 resultElem.addItemToSelection(sibling);
                 resultElem.ensureElementIsVisible(sibling);
+                c.tip("Selected " + resultElem.selectedCount + " items");
+            } else if (!(selItem.resultData.allowMultiSelect || sibling.resultData.allowMultiSelect)) {
+                c.tip("Current item could not be multi-selected with anything");
             }
-
-            c.tip("Selected " + resultElem.selectedCount + " items");
         }
         else
         {
