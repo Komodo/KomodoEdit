@@ -125,6 +125,7 @@
         elem('results').on("keydown", onKeyNav.bind(this));
         elem('results').on("dblclick", onSelectResult.bind(this));
         elem('results').on("command", onSelectResult.bind(this));
+        elem('results').on('click', onMouseClick.bind(this));
         elem('subscopeWrap').on("command", onCommandSubscope.bind(this));
         elem('scopeFilter').on("command", onCommandFilter.bind(this));
         
@@ -134,7 +135,7 @@
             if (e.target.nodeName == "label" && e.target.getAttribute("anonid") == "notification-widget-text")
                 onQuickSearchFocus();
         });
-        
+
         if (window == _window)
         {
             local.transitKeyBinds = prefs.getBoolean("transit_commando_keybinds", false);
@@ -217,6 +218,13 @@
     };
 
     /** Controllers **/
+    
+    var onMouseClick = (e) => {
+        c.mouseClick(e);
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+    };
 
     var onKeyNav = function(e)
     {
@@ -225,7 +233,7 @@
         var results = elem('results');
         if ( ! results.visible()) return;
         var prevDefault = false;
-        
+
         if (local.blocked)
         {
             e.preventDefault();
@@ -1704,6 +1712,30 @@
                 description = data.name + " - " + data.description;
             c.tip(description);
         }
+    }
+    
+    this.mouseClick = (e) => {
+        let results = elem('results'),
+            resultElem = results.element(),
+            selectedItems = resultElem.selectedItems,
+            selectedItem = resultElem.selectedItem;
+
+        if (selectedItems.length > 1) {
+            let filtered = selectedItems.filter(item => item.resultData.allowMultiSelect);
+            let suffix = {
+                files: filtered.length != 1 ? 's' : '',
+                folders: (selectedItems.length - filtered.length) != 1 ? 's' : ''
+            };
+            c.tip(`Selected ${filtered.length} file${suffix.files}; ignoring ${selectedItems.length - filtered.length} folder${suffix.folders}`);
+        } else if (selectedItem) {
+            let data = selectedItem.resultData;
+            let description = data.name;
+            if ("tip" in data) description = data.tip;
+            if (("description" in data) && data.description && data.description.length)
+                description = data.name + " - " + data.description;
+            c.tip(description);
+        }
+        
     }
 
     this.navUp = function(append = false)
