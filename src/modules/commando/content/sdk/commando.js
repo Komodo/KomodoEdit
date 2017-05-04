@@ -1684,9 +1684,9 @@
                 resultElem.ensureElementIsVisible(sibling);
                 c.tip("Selected " + resultElem.selectedCount + " items");
             } else if (!selItem.resultData.allowMultiSelect) {
-                c.tip("Selected item is not allowed for multiselection");
+                c.tip("Cannot expand selection to item meant for single selection only");
             } else if (sibling || !sibling.resultData.allowMultiSelect) {
-                let tip = 'Next item is not allowed for multiselection';
+                let tip = 'Cannot expand selection to item meant for single selection only';
                 if (resultElem.selectedCount > 1) {
                     tip += `, selected ${resultElem.selectedCount} items`;
                 }
@@ -1738,9 +1738,9 @@
                 resultElem.ensureElementIsVisible(sibling);
                 c.tip("Selected " + resultElem.selectedCount + " items");
             } else if (!selItem.resultData.allowMultiSelect) {
-                c.tip("Selected item is not allowed for multiselection");
+                c.tip("Cannot expand selection to item meant for single selection only");
             } else if (sibling || !sibling.resultData.allowMultiSelect) {
-                let tip = 'Previous item is not allowed for multiselection';
+                let tip = 'Cannot expand selection to item meant for single selection only';
                 if (resultElem.selectedCount > 1) {
                     tip += `, selected ${resultElem.selectedCount} items`;
                 }
