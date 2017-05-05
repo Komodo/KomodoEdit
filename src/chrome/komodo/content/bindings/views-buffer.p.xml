@@ -95,7 +95,6 @@
                 <![CDATA[
                     if (!this._onUpdateUI_timeout) {
                         this._onUpdateUI_timeout = require('ko/prefs').getLong('onUpdateUI_timeout', 200);
-                        console.log("Setting up the timeout");
                     }
                     return this._onUpdateUI_timeout;
                 ]]>
@@ -118,7 +117,6 @@
         let prefs = require('ko/prefs');
         let observer = {
             observe: (subject, topic, data) => {
-                console.log("onUpdateUI_timeout has been changed; updating my buffer");
                 this.onUpdateUI_timeout = prefs.getLong(topic, 200);
             }
         }
