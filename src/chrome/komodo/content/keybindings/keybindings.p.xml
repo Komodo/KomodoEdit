@@ -579,7 +579,7 @@
                         var numlabels = this.keylabels.length;
                         if (numlabels < 2) {
                             if (numlabels == 0) {
-                                this.currentkey.value = "None"; // this._bundle.GetStringFromName("none.message");
+                                this.currentkey.value = this._bundle.GetStringFromName("none.message");
                             } else {
                                 this.currentkey.value = this.keylabels[0];
                             }
