@@ -89,14 +89,12 @@
     <implementation name="viewbufferbase" implements="koIScintillaView, ISciMozEvents, nsIObserver">
         
         <field name="_onUpdateUI_timeout">null</field>
-        
-        <field name="__prefs">null</field>
 
         <property name="onUpdateUI_timeout">
             <getter>
                 <![CDATA[
                     if (!this._onUpdateUI_timeout) {
-                        this._onUpdateUI_timeout = this.__prefs.getLong('onUpdateUI_timeout', 200);
+                        this._onUpdateUI_timeout = require('ko/prefs').getLong('onUpdateUI_timeout', 200);
                     }
                     return this._onUpdateUI_timeout;
                 ]]>
@@ -111,13 +109,6 @@
                            Components.interfaces.ISciMoz.SC_MOD_INSERTTEXT |
                            Components.interfaces.ISciMoz.SC_MOD_DELETETEXT);
         this.addModifiedHandler(this._onModifiedHandler, this, 1000, wantedflags);
-        this.__prefs = require('ko/prefs');
-        let observer = {
-            observe: (subject, topic, data) => {
-                this._onUpdateUI_timeout = this.__prefs.getLong(topic, 200);
-            }
-        }
-        this.__prefs.prefObserverService.addObserver(observer, 'onUpdateUI_timeout', false);
         ]]>
         </constructor>
 
@@ -136,6 +127,8 @@
 
         <!-- Whether the buffer/editor sends DOM events. -->
         <field name="_dispatch_events">false</field>
+        
+        <field name="__prefs">null</field>
 
         <property name="prefs">
              <getter><![CDATA[
