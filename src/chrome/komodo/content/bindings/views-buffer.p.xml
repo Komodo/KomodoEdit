@@ -1200,7 +1200,8 @@
                 clearTimeout(this._uiTimer);
             }
             
-            this._uiTimer = setTimeout(this._onUpdateUI_debounced.bind(this, updated), 200);
+            this._uiTimer = setTimeout(this._onUpdateUI_debounced.bind(this, updated),
+                                       ko.prefs.getLong('onUpdateUI_timeout', 200));
         ]]>
         </body>
         </method>
