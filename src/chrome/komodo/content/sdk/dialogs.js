@@ -168,6 +168,65 @@
 
         return _opts.response == _opts.yes;
     }
+    
+    /** Show the user some prompt and request one of a number of responses.
+     * 
+     * Options:
+     *  "prompt" is message to show.
+     *  "buttons" is either a list of strings, each a label of a button to show, or
+     *      a list of array items [label, accesskey, tooltiptext], where accesskey
+     *      and tooltiptext are both optional.
+     *      Currently this is limited to three buttons, plus an optional "Cancel"
+     *      button. For example to mimic (mostly) ko.dialogs.yesNo use ["Yes", "No"]
+     *      and to mimic ko.dialogs.yesNoCancel use ["Yes", "No", "Cancel"].
+     *  "response" is the default response. This button is shown as the default.
+     *      It must be one of the strings in "buttons" or empty, in which case the
+     *      first button is the default.
+     *  "text" allows you to specify a string of text that will be display in a
+     *      non-edittable selectable text box. If "text" is null or no specified
+     *      then this textbox will not be shown.
+     *  "title" is the dialog title.
+     *  "doNotAskPref", uses/requires the following two prefs:
+     *      boolean donotask_<doNotAskPref>: whether to not show the dialog
+     *      string donotask_action_<doNotAskPref>: the name of the button pressed
+     *  "className", the class attribute to be applied to the dialog icon.
+     *
+     * @param {String} message  The message to be displayed to the user
+     * @param {Object} opts  The options object.  Attributes explained above.
+     *
+     * @returns {String} returns the name of the button pressed.
+     * 
+     */
+    this.open = (message, opts = {}) =>
+    {
+        var _opts = {};
+        var props = ["response", "text", "title", "doNotAskPref", "helpTopic",
+                     "buttons", "classNames","hidechrome", "pin"];
+        _.each(props, (prop) => { _opts[prop] = opts[prop] || null; });
+        _opts.prompt = message;
+        _opts.style = opts.className || "question-icon spaced";
+    
+        // Break out early if "doNotAskPref" prefs so direct.
+        var bpref = null, spref = null;
+        if (_opts.doNotAskPref) {
+            bpref = "donotask_"+_opts.doNotAskPref;
+            spref = "donotask_action_"+_opts.doNotAskPref;
+            if (prefs.getBooleanPref(bpref)) {
+                return prefs.getStringPref(spref);
+            }
+        }
+    
+        window.openDialog("chrome://komodo/content/dialogs/customButtons.xul",
+                          "_blank",
+                          "chrome,modal,titlebar,centerscreen",
+                          _opts);
+    
+        if (_opts.doNotAskPref && _opts.doNotAsk) {
+            prefs.setBooleanPref(bpref, true);
+            prefs.setStringPref(spref, _opts.response);
+        }
+        return _opts.response;
+    };
 
     /**
      * Show an alert message
