@@ -36,6 +36,11 @@
      */
     this.use = function(properties)
     {
+        if ( ! properties)
+        {
+            properties = this.getBundleURI();
+        }
+
         log.debug("Using " + properties);
         
         if (properties in used)
