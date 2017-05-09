@@ -55,3 +55,4 @@ $cons->InstallInChrome('richlistitem.js');
 $cons->InstallInChrome('separator.js');
 $cons->InstallInChrome('spacer.js');
 $cons->InstallInChrome('spinner.js');
+$cons->InstallInChrome('deck.js');
