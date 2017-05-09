@@ -55,7 +55,8 @@ if (typeof module === 'undefined') module = {}; // debugging helper
     /**
      * Create element from complex string input
      *
-     * @param   {String} html   HTML string, must validate properly (no syntax errors)
+     * @param   {String} html                   HTML string, must validate properly (no syntax errors), can also be just the nodename
+     * @param   {Bool|Object} allowMultiple     boolean or object, if object then this is taken as an object of attributes to assign to the element
      *
      * @returns {Node}
      */
@@ -63,6 +64,24 @@ if (typeof module === 'undefined') module = {}; // debugging helper
     {
         try
         {
+            if (typeof html == "string" && typeof allowMultiple == "object")
+            {
+                var attributes = allowMultiple;
+                var node = document.createElement(html);
+
+                for (let k in attributes)
+                {
+                    if ( ! attributes.hasOwnProperty(k))
+                    {
+                        continue;
+                    }
+
+                    node.setAttribute(k, attributes[k]);
+                }
+
+                return node;
+            }
+        
             var parsed = (/^<(\w+)\s*\/?>(?:<\/\1>|)$/).exec(html);
             if (parsed) {
                 return document.createElement(parsed[1]);
