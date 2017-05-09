@@ -39,7 +39,7 @@ module.exports = Module;
                 menuitems = options.menuitems;
             }
             
-            this.$element = $($.create(this.name, this.attributes).toString());
+            this.$element = $($.createElement(this.name, this.attributes));
             this.element = this.$element.element();
             this.$element.addClass("ui-" + this.name);
             

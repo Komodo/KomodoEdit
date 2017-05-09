@@ -23,7 +23,7 @@ module.exports = Module;
         this.init = function(value, options = {})
         {
             this.parseOptions(options);
-            this.$element = $($.create(this.name, this.attributes).toString());
+            this.$element = $($.createElement(this.name, this.attributes));
             this.$element.text(value);
             this.$element.addClass("ui-span");
             this.element = this.$element.element();

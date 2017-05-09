@@ -40,7 +40,7 @@ module.exports = Module;
                 listitems = options.listitems;
             }
             
-            this.$element = $($.create(this.name, this.attributes).toString());
+            this.$element = $($.createElement(this.name, this.attributes));
             this.$element.addClass("ui-" + this.name);
             this.element = this.$element.element();
             

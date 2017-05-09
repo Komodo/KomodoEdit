@@ -99,7 +99,7 @@ module.exports = Module;
             }
             
             this.parseOptions(options);
-            this.$element = $($.create(this.name, this.attributes).toString());
+            this.$element = $($.createElement(this.name, this.attributes));
             this.$element.addClass("ui-" + this.name);
             this.element = this.$element.element();
             

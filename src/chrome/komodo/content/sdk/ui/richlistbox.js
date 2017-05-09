@@ -40,7 +40,7 @@ module.exports = Module;
                 richlistitems = options.richlistitems;
             }
 
-            this.$element = $($.create(this.name, this.attributes).toString());
+            this.$element = $($.createElement(this.name, this.attributes));
             this.element = this.$element.element();
 
             if (richlistitems && Array.isArray(richlistitems))

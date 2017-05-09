@@ -44,11 +44,11 @@ module.exports = Module;
             this.parseOptions(options);
             options = this.options;
             
-            this.$element = $($.create(this.name).toString());
+            this.$element = $($.createElement(this.name));
             this.$element.addClass("ui-radiogroup-wrapper");
             this.element = this.$element.element();
             
-            this.$formElement = $($.create("radiogroup", this.attributes).toString());
+            this.$formElement = $($.createElement("radiogroup", this.attributes));
             this.$formElement.addClass("ui-radiogroup");
             this.formElement = this.$formElement.element();
             this.$element.append(this.formElement);
