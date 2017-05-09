@@ -34,7 +34,7 @@ module.exports = Module;
 
         this.show = function ()
         {
-            this.$element.hide.apply(this.$element, arguments);
+            this.$element.show.apply(this.$element, arguments);
             this.$element.addClass("enabled");
         };
         
