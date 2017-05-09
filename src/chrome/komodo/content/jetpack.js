@@ -9,6 +9,7 @@
 
 const [JetPack, require] = (function() {
     var ko = this.ko || {};
+    var cache = {};
     const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
     const { Services } = Cu.import("resource://gre/modules/Services.jsm", {});
     const { main, Loader, resolve, resolveURI } =
@@ -165,19 +166,29 @@ const [JetPack, require] = (function() {
     };
 
     const require = function(id) {
+        if (id in cache)
+        {
+            // Why have our own cache in addition to the loader.modules one below?
+            // because loader.modules depends on resolveURI, which is still very slow
+            return cache[id];
+        }
+
+        var _id = id;
         if (id.indexOf("/") == -1) {
             // Automatically resolve module namespaces
-            id = id + "/" + id;
+            _id = id + "/" + id;
         }
-            
+
         try {
-            let uri = resolveURI(id, loader.mapping)
+            let uri = resolveURI(_id, loader.mapping);
             if (uri in loader.modules) {
                 // Module already loaded; don't load it again
-                return loader.modules[uri].exports;
+                cache[id] = loader.modules[uri].exports;
+                return cache[id];
             }
             // Load the module for the first time
-            return main(loader, id);
+            cache[id] = main(loader, _id);
+            return cache[id];
         } catch (ex) {
             Cu.reportError('While trying to require("' + id + '"):');
             Cu.reportError(ex);
@@ -246,6 +257,8 @@ const [JetPack, require] = (function() {
         if (loader.mapping.length <= mapping_length) {
             throw new Error("setRequirePath didn't succeed in adding a mapping");
         }
+        
+        cache = {};
     }
     
     require.getRequirePaths = function() {
@@ -268,6 +281,8 @@ const [JetPack, require] = (function() {
                 break
             }
         }
+        
+        cache = {};
     }
 
     return [JetPack, require];
