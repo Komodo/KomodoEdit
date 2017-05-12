@@ -21,7 +21,7 @@
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         id="dialog-templateproperties"
         windowtype="komodo_templateproperties"
-        style="min-width: 40em;"
+        style="min-width: 600px; min-height: 600px;"
         orient="vertical"
         persist="width height screenX screenY"
         buttons="accept,extra1,cancel"

@@ -64,7 +64,7 @@
         onload="onLoad()"
         onunload="onUnload()"
         persist="width height screenX screenY"
-        style="min-width: 420px; min-height: 600px;"
+        style="min-width: 600px; min-height: 600px;"
         buttons="accept,extra1,cancel,help"
         ondialogaccept="return OK(event)"
         ondialogextra1="return Apply()"
