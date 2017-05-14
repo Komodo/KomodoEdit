@@ -1,4 +1,8 @@
 @import url("chrome://komodo/skin/global/icons/style.less");
+@import url("chrome://komodo/skin/global/colors.less");
+@import url("resource://profile/colors.less");
+
+@twisty-color: escape("@{foreground-widget}");
 
 .icon, [class^="icon-"], [class*=" icon-"], [class$="-icon"], [class*="-icon "],
 {
@@ -464,13 +468,13 @@ treechildren::-moz-tree-image
 
 treechildren::-moz-tree-twisty {
     list-style-image: none !important;
-    background-image: url("koicon://ko-svg/chrome/komodo/skin/images/trees/twisty-right.svg?size=14");
+    background-image: url("koicon://ko-svg/chrome/komodo/skin/images/trees/twisty-right.svg?size=14&color=@{twisty-color}");
     background-size: 14px;
     background-repeat: no-repeat;
 }
 
 treechildren::-moz-tree-twisty(open) {
-    background-image: url("koicon://ko-svg/chrome/komodo/skin/images/trees/twisty-down.svg?size=14");
+    background-image: url("koicon://ko-svg/chrome/komodo/skin/images/trees/twisty-down.svg?size=14&color=@{twisty-color}");
 }
 
 treecol[type="checkbox"]
