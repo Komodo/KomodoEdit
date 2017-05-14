@@ -48,18 +48,8 @@
     <binding id="editkeybinding">
         <content>
         <xul:vbox flex="1">
-            <xul:label class="label"
-                       value="&currentKeySequence.label;"
-                       accesskey="&currentKeySequence.accesskey;"
-                       control="currentlist"
-                       style="width: 110px;"
-                       align="right"
-                       flex="1"/>
             <xul:hbox flex="1">
-                <xul:menulist flex="1" style="width: 110px;" id="currentlist" collapsed="true">
-                    <xul:menupopup id="currentpopup"/>
-                </xul:menulist>
-                <xul:textbox flex="1" id="currentkey" readonly="true"/>
+                <xul:textbox flex="1" id="currentkey" readonly="true" multiline="true" rows="1"/>
                 <xul:button id="clear" oncommand="document.getBindingParent(this)._clear1()"
                     label="&clear.label;"/>
                 <xul:button id="clearall" oncommand="document.getBindingParent(this)._clearAll()"
@@ -123,8 +113,6 @@
                 this.change = this.getElement('button', 'change');
                 this.add = this.getElement('button', 'add');
                 this.usedby = this.getElement('listbox', 'usedby');
-                this.currentpopup = this.getElement('menupopup', 'currentpopup');
-                this.currentlist = this.getElement('menulist', 'currentlist');
                 this.notAvailable = this.getElement('label', 'notAvailable');
                 this.keyname = '';
                 this._halfwaydone = false;  // this is true if there's a keybinding entered but not 'add'ed or 'change'd
@@ -220,7 +208,7 @@
                         if (!this.prefsdialog) {
                             // We find the label being changed
                             for (i in this.keylabels) {
-                                if (this.keylabels[i] == this.currentlabel) {
+                                if (this.keylabels[i] == this.currentkey.value) {
                                     this.keylabels[i] = this.keyname;
                                     break;
                                 }
@@ -275,12 +263,7 @@
                     <![CDATA[
                     try {
                         if (!this.prefsdialog) {
-                            var currentkey;
-                            if (this.currentkey.hasAttribute('collapsed')){
-                                currentkey = this.currentlist.label;
-                            } else {
-                                currentkey = this.currentkey.value;
-                            }
+                            var currentkey = this.currentkey.value;
 
                             // We find the label being changed
                             for (var i = this.keylabels.length-1; i >= 0; i--) {
@@ -298,12 +281,7 @@
                             }
                             if (this.gKeybindingMgr.configurationWriteable(this.gKeybindingMgr.currentConfiguration)) {
                                 this.newkey.value = '';
-                                var currentlabel;
-                                if (this.currentkey.hasAttribute('collapsed')) {
-                                    currentlabel = this.currentlist.label;
-                                } else {
-                                    currentlabel = this.currentkey.value;
-                                }
+                                var currentlabel = this.currentkey.value;
                                 this.gKeybindingMgr.clearSequence(this.commandId, currentlabel, !this.prefsdialog);
                                 this.updateCurrentKey();
                                 this.updateUsedBys();
@@ -437,11 +415,7 @@
                 try {
                     var oldkey;
                     this.log.debug("keybindings.xml: assignKey");
-                    if (this.currentkey.hasAttribute('collapsed')){
-                        oldkey = this.currentlist.label;
-                    } else {
-                        oldkey = this.currentkey.value;
-                    }
+                    oldkey = this.currentkey.value;
                     this.log.debug("keybindings.xml: keyname = " + this.keyname);
                     var keysequence = this.keyname.split(', ');
                     this.log.debug("keybindings.xml: keysqueence = " + keysequence);
@@ -468,12 +442,7 @@
                 <body>
                 <![CDATA[
                 try {
-                    var currentlabel;
-                    if (this.currentkey.hasAttribute('collapsed')) {
-                        currentlabel = this.currentlist.label;
-                    } else {
-                        currentlabel = this.currentkey.value;
-                    }
+                    var currentlabel = this.currentkey.value;
                     if (currentlabel) {
                         var noneMessage = this._bundle.GetStringFromName("none.message");
                         if (currentlabel == noneMessage) {
@@ -608,32 +577,14 @@
                     <![CDATA[
                     try {
                         var numlabels = this.keylabels.length;
-                        var usePopup = numlabels>1;
                         if (numlabels < 2) {
                             if (numlabels == 0) {
                                 this.currentkey.value = this._bundle.GetStringFromName("none.message");
-                                this.currentlabel = '';
                             } else {
                                 this.currentkey.value = this.keylabels[0];
-                                this.currentlabel = this.keylabels[0]
                             }
-                            this.currentkey.removeAttribute('collapsed');
-                            this.currentlist.setAttribute('collapsed', 'true');
                         } else {
-                            this.currentlist.removeAttribute('collapsed');
-                            this.currentkey.setAttribute('collapsed', 'true');
-                            // multiple key sequences for one command
-                            while (this.currentpopup.hasChildNodes()) {
-                                this.currentpopup.removeChild(this.currentpopup.firstChild);
-                            }
-                            for (var i in this.keylabels) {
-                                var keylabel = this.keylabels[i];
-                                var menuitem = document.createElement('menuitem');
-                                menuitem.setAttribute('label', keylabel);
-                                this.currentpopup.appendChild(menuitem);
-                            }
-                            this.currentlist.selectedIndex = 0;
-                            this.currentlabel = this.keylabels[0]
+                            this.currentkey.value = this.keylabels.join('\n')
                         }
                         this.updateButtons();
                     } catch (e) {
