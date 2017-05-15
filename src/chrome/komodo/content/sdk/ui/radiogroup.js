@@ -47,6 +47,7 @@ module.exports = Module;
             this.$element = $($.createElement(this.name));
             this.$element.addClass("ui-radiogroup-wrapper");
             this.element = this.$element.element();
+            this.element._sdk = this;
             
             this.$formElement = $($.createElement("radiogroup", this.attributes));
             this.$formElement.addClass("ui-radiogroup");

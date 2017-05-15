@@ -42,6 +42,7 @@ module.exports = Module;
             this.$element = $($.createElement(this.name, this.attributes));
             this.element = this.$element.element();
             this.$element.addClass("ui-" + this.name);
+            this.element._sdk = this;
             
             if (menuitems && Array.isArray(menuitems))
             {

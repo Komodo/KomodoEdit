@@ -27,6 +27,7 @@ module.exports = Module;
             this.$element.text(value);
             this.$element.addClass("ui-span");
             this.element = this.$element.element();
+            this.element._sdk = this;
         };
         
     }).apply(this.Model); 

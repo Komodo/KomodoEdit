@@ -29,6 +29,7 @@ module.exports = Module;
             this.$element = $($.create(this.name, this.attributes).toString());
             this.$element.addClass("ui-" + this.name);
             this.element = this.$element.element();
+            this.element._sdk = this;
         };
 
         this.parseOptions = function(options)
@@ -54,6 +55,7 @@ module.exports = Module;
             this.$element = $($.create(this.name, this.attributes).toString());
             this.$element.addClass("ui-" + this.name);
             this.element = this.$element.element();
+            this.element._sdk = this;
         };
         
         this.initWithLabel = function(label, options = {})
@@ -80,6 +82,7 @@ module.exports = Module;
             this.$element = $($.create(this.name, this.attributes).toString());
             this.$element.addClass("ui-" + this.name);
             this.element = this.$element.element();
+            this.element._sdk = this;
         };
 
         this.initWithElement = function(appendElement = null, options = {})
@@ -102,6 +105,7 @@ module.exports = Module;
             this.$element = $($.createElement(this.name, this.attributes));
             this.$element.addClass("ui-" + this.name);
             this.element = this.$element.element();
+            this.element._sdk = this;
             
             this.addElement(appendElement);
         };

@@ -42,6 +42,7 @@ module.exports = Module;
 
             this.$element = $($.createElement(this.name, this.attributes));
             this.element = this.$element.element();
+            this.element._sdk = this;
 
             if (richlistitems && Array.isArray(richlistitems))
             {
