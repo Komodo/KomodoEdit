@@ -56,3 +56,4 @@ $cons->InstallInChrome('separator.js');
 $cons->InstallInChrome('spacer.js');
 $cons->InstallInChrome('spinner.js');
 $cons->InstallInChrome('deck.js');
+$cons->InstallInChrome('tooltip.js');
