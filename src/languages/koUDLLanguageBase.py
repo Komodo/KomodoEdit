@@ -251,6 +251,7 @@ class KoUDLLanguage(KoLanguageBase):
                             }
 
     supportsFolding = 1
+    variablePrefix = ""
 
     def __init__(self):
         # log.debug("creating a KoUDLLanguage(%s)[clsid %s], lang_from_udl_family=%r", self.name, self._reg_clsid_, self.lang_from_udl_family)

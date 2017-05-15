@@ -68,6 +68,7 @@ interface koILanguage : nsISupports {
     // classes).
     readonly attribute string namedBlockDescription;
     readonly attribute string defaultExtension;
+    readonly attribute string variablePrefix;
     readonly attribute string sample;
 
     /**

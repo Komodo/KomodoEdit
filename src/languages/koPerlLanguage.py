@@ -92,6 +92,7 @@ class KoPerlLanguage(KoLanguageBase):
     _lineup_close_chars = ")]}"
 
     supportsSmartIndent = "brace"
+    variablePrefix = "$"
     sample = r"""#  Fruit salad recipe
 my %salad;
 while (<DATA>) {
