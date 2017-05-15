@@ -158,6 +158,7 @@
         
         var defer = prefs.getBoolean("interface-font-defer");
         var font = prefs.getString("interface-font");
+        var fontEditor = prefs.getString("editor-font");
         var size = prefs.getString("interface-font-size");
         
         // Write colors.less
@@ -172,6 +173,16 @@
                 if ( ! defer && k == "font")
                 {
                     style += `@${k}: ${font};` + "\n";
+                    continue;
+                }
+                
+                // Defer editor-font to global pref
+                if (k == "editor-font")
+                {
+                    if ( ! defer)
+                        style += `@${k}: ${fontEditor};` + "\n";
+                    else
+                        style += `@${k}: ${scheme.getFont('default_fixed')};` + "\n";
                     continue;
                 }
                 
