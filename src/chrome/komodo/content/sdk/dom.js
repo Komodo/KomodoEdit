@@ -81,6 +81,10 @@ if (typeof module === 'undefined') module = {}; // debugging helper
 
                 return node;
             }
+            else if (typeof html == "string" && html.match(/^\w+$/))
+            {
+                return document.createElement(html);
+            }
         
             var parsed = (/^<(\w+)\s*\/?>(?:<\/\1>|)$/).exec(html);
             if (parsed) {
