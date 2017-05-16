@@ -204,6 +204,8 @@ interface koILanguageRegistryService : nsISupports {
                                   out unsigned long count);
     koIHierarchyItem getLanguageHierarchy();
 
+    void changeLanguageStatus(in string languageName, in boolean status);
+
     // Get the (sorted) list of current file associations.
     void getFileAssociations(
             out unsigned long pattern_count,
