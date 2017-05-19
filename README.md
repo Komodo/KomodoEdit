@@ -62,7 +62,12 @@ guide check <BUILD.txt>.
  * Install [version 1.9.0 of "MozillaBuild-$ver.exe"](http://ftp.mozilla.org/pub/mozilla.org/mozilla/libraries/win32/) package into *the default dir*
    (i.e. "C:\mozilla-build").
 
+   * Once installed remove the wget and hg directories
+   * Download version 2.2.0 and install it to a temp directory, then copy the wget directory from 2.2 to the 1.9 install directory
+
  * Install the [latest ActivePerl](http://downloads.activestate.com/ActivePerl/releases/).
+
+ * Install Mercurial
 
 See <http://developer.mozilla.org/en/docs/Windows_Build_Prerequisites> for
 more details on Windows build prerequisites. However, following the above
@@ -77,7 +82,7 @@ steps is *meant to be sufficient* to get Komodo building.
    ```
     cd mozilla
     setenv-moz-msvc11.bat
-    python build.py configure -k 10.10
+    python build.py configure -k 11.10
     python build.py distclean all
    ```
 
@@ -91,7 +96,7 @@ steps is *meant to be sufficient* to get Komodo building.
    ```
     cd ..
     set PATH=util\black;%PATH%
-    bk configure -V 10.10.0-devel
+    bk configure -V 11.10.0-devel # --without-binary-dbgp-clients
     bk build
    ```
 
