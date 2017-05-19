@@ -551,14 +551,23 @@
     <!-- name note: this is not a Komodo toolbox, but the top-level
       toolbar
       -->
-
     <toolbox id="toolbox_main"
              context="context-toolbox-menu"
              persist="mode"
              mode="icons"
              class="chromeclass-toolbar toolbox-top">
-        <resizer dir="top" flex="1"/>
-        
+
+        <hbox class="resizer-box top">
+          <resizer dir="topleft"/>
+          <resizer dir="top" flex="1"   />
+          <resizer dir="topright"/>
+        </hbox>
+
+        <hbox flex="1" id="toolbox_main_inner">
+
+            <resizer dir="left"/>
+            <vbox id="toolbox_main_inner_vbox" flex="1">
+
         <hbox id="titlebar" pack="center" align="center">
             <spacer id="windowButtonsSpacer"/>
             
@@ -2078,6 +2087,12 @@
 
         <toolbarpalette id="komodo-toolbarpalette"/>
         <toolbarset id="customToolbars" context="context-toolbox-menu"/>
+        
+            </vbox>
+
+            <resizer dir="right"/>
+        
+        </hbox>
 
     </toolbox>
 
@@ -2086,10 +2101,7 @@
     <deck id="komodo-box" selectedIndex="0" flex="1">
     <vbox id="komodo-vbox" flex="1">
         <hbox id="komodo-hbox" flex="1">
-            <vbox class="resizer-box">
-              <resizer dir="left" flex="1"   />
-              <resizer dir="bottomleft"/>
-            </vbox>
+            <resizer dir="left" />
             <ko-pane id="workspace_left_area"
                      width="200"
                      rotation="270"
@@ -2191,7 +2203,7 @@
         </hbox>
         
         <hbox class="resizer-box bottom">
-          <spacer></spacer>
+          <resizer dir="bottomleft"/>
           <resizer dir="bottom" flex="1"   />
           <resizer dir="bottomright"/>
         </hbox>

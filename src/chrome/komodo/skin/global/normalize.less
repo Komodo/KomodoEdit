@@ -759,11 +759,7 @@ button[type="checkbox"][checked="true"]
 
 /* Modals */
 
-.dialog:root,
-dialog:root,
-.pref-window,
-panel.dialog,
-tooltip.dialog
+:root:not(#komodo_main):not(page)
 {
     &:not(.embedded)
     {
