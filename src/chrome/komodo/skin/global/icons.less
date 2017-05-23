@@ -464,13 +464,22 @@ treechildren::-moz-tree-image
 
 treechildren::-moz-tree-twisty {
     list-style-image: none !important;
-    background-image: url("koicon://ko-svg/chrome/komodo/skin/images/trees/twisty-right.svg?size=14");
+    background-image: url("koicon://ko-svg/chrome/komodo/skin/images/trees/twisty-right.svg?size=14&scheme-name=interface&scheme-color=contrast");
     background-size: 14px;
     background-repeat: no-repeat;
 }
 
 treechildren::-moz-tree-twisty(open) {
-    background-image: url("koicon://ko-svg/chrome/komodo/skin/images/trees/twisty-down.svg?size=14");
+    background-image: url("koicon://ko-svg/chrome/komodo/skin/images/trees/twisty-down.svg?size=14&scheme-name=interface&scheme-color=button");
+}
+
+tree:not(.twisty-only) treechildren::-moz-tree-image(folder_open) {
+    list-style-image: url("koicon://ko-svg/chrome/komodo/skin/images/folder_open.svg?size=14&scheme-name=interface&scheme-color=icons");
+    opacity: 0.6;
+}
+tree:not(.twisty-only) treechildren::-moz-tree-image(folder_closed) {
+    list-style-image: url("koicon://ko-svg/chrome/komodo/skin/images/folder_closed.svg?size=14&scheme-name=interface&scheme-color=icons");
+    opacity: 0.6;
 }
 
 treecol[type="checkbox"]

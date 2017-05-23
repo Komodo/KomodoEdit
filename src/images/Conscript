@@ -102,6 +102,9 @@ $cons->InstallAs("$imagesDir/codeintel/cb_trait.svg", "icons/codeintel/cb_trait.
 $cons->InstallAs("$imagesDir/codeintel/cb_xml_element.svg", "icons/codeintel/cb_xml_element.svg");
 $cons->InstallAs("$imagesDir/codeintel/cb_xml_attribute.svg", "icons/codeintel/cb_xml_attribute.svg");
 
+$cons->Install($imagesDir, "icons/folder_open.svg");
+$cons->Install($imagesDir, "icons/folder_closed.svg");
+
 # Find system icons
 $cons->Install($imagesDir, "icons/find_stop.png");
 $cons->Install($imagesDir, "icons/find_stop_disable.png");

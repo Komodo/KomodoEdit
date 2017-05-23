@@ -16,46 +16,8 @@
    viewBox="0 0 9 14"
    inkscape:version="0.91 r13725"
    sodipodi:docname="twisty-down.svg">
-  <metadata
-     id="metadata8">
-    <rdf:RDF>
-      <cc:Work
-         rdf:about="">
-        <dc:format>image/svg+xml</dc:format>
-        <dc:type
-           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-      </cc:Work>
-    </rdf:RDF>
-  </metadata>
-  <defs
-     id="defs6" />
-  <sodipodi:namedview
-     pagecolor="#ffffff"
-     bordercolor="#666666"
-     borderopacity="1"
-     objecttolerance="10"
-     gridtolerance="10"
-     guidetolerance="10"
-     inkscape:pageopacity="0"
-     inkscape:pageshadow="2"
-     inkscape:window-width="1920"
-     inkscape:window-height="1031"
-     id="namedview4"
-     showgrid="true"
-     inkscape:zoom="16.857143"
-     inkscape:cx="-10.322034"
-     inkscape:cy="6.5254239"
-     inkscape:window-x="1280"
-     inkscape:window-y="1"
-     inkscape:window-maximized="1"
-     inkscape:current-layer="svg2">
-    <inkscape:grid
-       type="xygrid"
-       id="grid4136" />
-  </sodipodi:namedview>
   <path
      id="path4"
-     style="fill:#444444"
      d="m 7.5,5.75 q 0,0.102 -0.08002,0.18 L 3.6846627,9.571 Q 3.6046422,9.649 3.5,9.649 3.3953578,9.649 3.3153373,9.571 L -0.41997948,5.93 Q -0.5,5.852 -0.5,5.75 q 0,-0.102 0.0800205,-0.18 l 0.40112849,-0.391 q 0.08002052,-0.078 0.18466274,-0.078 0.10464221,0 0.18466273,0.078 L 3.5,8.249 6.6495255,5.179 q 0.08002,-0.078 0.1846628,-0.078 0.1046422,0 0.1846627,0.078 L 7.4199795,5.57 Q 7.5,5.648 7.5,5.75 Z"
      inkscape:connector-curvature="0" />
 </svg>

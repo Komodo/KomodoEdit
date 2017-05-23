@@ -129,7 +129,7 @@
             ondragend="ko.places.viewMgr.doEndDrag(event, this);"
             context="places-files-popup"
             hidecolumnpicker="true"
-            class="placestree bg_transparent twisty-only"
+            class="placestree bg_transparent"
             persist="class"
             seltype="multiple">
           <treecols id="places-files-treecols">
