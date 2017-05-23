@@ -8,13 +8,14 @@
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    preserveAspectRatio="xMidYMid"
-   height="16"
-   width="16"
+   height="14"
+   width="14"
    scaleAuto="16"
    id="svg2"
    version="1.1"
-   inkscape:version="0.91 r13725"
-   sodipodi:docname="angularjs.svg">
+   inkscape:version="0.92.1 r"
+   sodipodi:docname="angularjs.svg"
+   viewBox="0 0 14 14">
   <metadata
      id="metadata10">
     <rdf:RDF>
@@ -23,7 +24,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -41,17 +42,21 @@
      inkscape:window-width="1077"
      inkscape:window-height="741"
      id="namedview6"
-     showgrid="false"
+     showgrid="true"
      inkscape:zoom="20.85965"
-     inkscape:cx="10.693499"
+     inkscape:cx="2.4239451"
      inkscape:cy="3.1613641"
      inkscape:window-x="699"
      inkscape:window-y="225"
      inkscape:window-maximized="0"
-     inkscape:current-layer="svg2" />
+     inkscape:current-layer="svg2">
+    <inkscape:grid
+       type="xygrid"
+       id="grid7" />
+  </sodipodi:namedview>
   <path
      inkscape:connector-curvature="0"
-     style="fill:#c4473a"
-     d="m 6.4775029,7.9990045 2.9494562,0 -1.5678484,-3.278482 z M 7.8643047,0.02052365 0.3567491,2.6626177 1.5429922,12.498824 7.8722866,15.977484 14.234141,12.451821 15.420004,2.6158678 7.8643047,0.02052365 Z m -1.997471,9.37212425 -0.9204373,2.3028041 -1.7206436,0.0071 4.6380453,-10.2722896 -0.00883,-0.019382 -0.00812,0 1.269e-4,-0.016851 0.00802,0.016851 0.017868,0 0.015584,-0.034711 0,0.034711 -0.015706,0 -0.00873,0.019382 4.83835,10.3151136 -1.656408,-0.03636 -1.018881,-2.3539896 -2.1757303,0.010385"
+     style="fill:#c4473a;stroke-width:0.76331216"
+     d="M 6.0792628,7.1509661 H 8.3306186 L 7.1338608,4.6484609 Z M 7.1378256,1.0608945 1.4072168,3.0776371 2.3126906,10.585734 7.1439182,13.241037 12,10.549854 12.905184,3.0419524 Z m -1.524694,7.1538567 -0.702581,1.7577584 -1.3133883,0.00543 3.5402765,-7.8409639 -0.00674,-0.014795 h -0.0062 l 9.67e-5,-0.012863 0.00613,0.012863 h 0.013639 l 0.011895,-0.026495 v 0.026495 h -0.01199 l -0.00666,0.014795 3.6931655,7.8736463 -1.2643557,-0.027755 -0.7777242,-1.796829 -1.6607615,0.00793"
      id="path4" />
 </svg>

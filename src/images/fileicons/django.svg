@@ -5,11 +5,32 @@
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    id="svg4"
    version="1.1"
    viewBox="0 0 14 14"
    height="14"
-   width="14">
+   width="14"
+   sodipodi:docname="django.svg"
+   inkscape:version="0.92.1 r">
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="640"
+     inkscape:window-height="480"
+     id="namedview7"
+     showgrid="false"
+     inkscape:zoom="38.285714"
+     inkscape:cx="2.494403"
+     inkscape:cy="7"
+     inkscape:current-layer="svg4" />
   <metadata
      id="metadata10">
     <rdf:RDF>
@@ -25,9 +46,10 @@
   <defs
      id="defs8" />
   <path
-     style="fill:#6699ff"
+     style="fill:#20aa76"
      id="path2"
-     d="m 5.999,1 c -1.108,0 -2,0.892 -2,2 h 3 v 1 h -4 c -1.108,0 -2,0.892 -2,2 v 2 c 0,1.108 0.892,2 2,2 V 9 c 0,-0.889 0.39,-1.676 1,-2.225 L 4.001,6.773 C 4.133,6.654 4.276,6.547 4.427,6.453 4.428,6.452 4.43,6.452 4.431,6.451 4.58,6.358 4.737,6.279 4.902,6.213 4.932,6.201 4.964,6.194 4.994,6.184 5.134,6.133 5.277,6.087 5.426,6.057 5.612,6.021 5.803,6 6,6 h 4 V 3 C 10,1.892 9.108,1 8,1 Z m 0,0.5 c 0.277,0 0.5,0.223 0.5,0.5 0,0.277 -0.223,0.5 -0.5,0.5 -0.277,0 -0.5,-0.223 -0.5,-0.5 0,-0.277 0.223,-0.5 0.5,-0.5" />
+     d="m 5.999,1 c -1.108,0 -2,0.892 -2,2 h 3 v 1 h -4 c -1.108,0 -2,0.892 -2,2 v 2 c 0,1.108 0.892,2 2,2 V 9 c 0,-0.889 0.39,-1.676 1,-2.225 L 4.001,6.773 C 4.133,6.654 4.276,6.547 4.427,6.453 4.428,6.452 4.43,6.452 4.431,6.451 4.58,6.358 4.737,6.279 4.902,6.213 4.932,6.201 4.964,6.194 4.994,6.184 5.134,6.133 5.277,6.087 5.426,6.057 5.612,6.021 5.803,6 6,6 h 4 V 3 C 10,1.892 9.108,1 8,1 Z m 0,0.5 c 0.277,0 0.5,0.223 0.5,0.5 0,0.277 -0.223,0.5 -0.5,0.5 -0.277,0 -0.5,-0.223 -0.5,-0.5 0,-0.277 0.223,-0.5 0.5,-0.5"
+     inkscape:connector-curvature="0" />
   <path
      style="fill:#ff9900"
      id="path2-3"

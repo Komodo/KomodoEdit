@@ -1453,6 +1453,7 @@ if (typeof ko.openfiles == 'undefined')
                     return {
                         name: language,
                         classlist: ['languageicon'],
+                        style: `list-style-image: url("koicon://ko-language/${language}")`,
                         attributes: {language: language}
                     };
                 }

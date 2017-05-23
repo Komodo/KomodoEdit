@@ -5,15 +5,11 @@
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   preserveAspectRatio="xMidYMid"
-   height="16"
-   width="16"
-   id="svg2"
+   id="svg4"
    version="1.1"
-   inkscape:version="0.91 r13725"
-   sodipodi:docname="python.svg">
+   viewBox="0 0 14 14"
+   height="14"
+   width="14">
   <metadata
      id="metadata10">
     <rdf:RDF>
@@ -22,45 +18,18 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
   <defs
      id="defs8" />
-  <sodipodi:namedview
-     pagecolor="#ffffff"
-     bordercolor="#666666"
-     borderopacity="1"
-     objecttolerance="10"
-     gridtolerance="10"
-     guidetolerance="10"
-     inkscape:pageopacity="0"
-     inkscape:pageshadow="2"
-     inkscape:window-width="1920"
-     inkscape:window-height="1025"
-     id="namedview6"
-     showgrid="false"
-     inkscape:zoom="14.75"
-     inkscape:cx="-34.711864"
-     inkscape:cy="7.4576271"
-     inkscape:window-x="0"
-     inkscape:window-y="27"
-     inkscape:window-maximized="1"
-     inkscape:current-layer="svg2" />
   <path
-     style="fill:#536dfe;fill-opacity:1"
-     d="m 8,1.05 c 3.5,0 3.2,1.9 3.2,1.9 l 0,3 c 0,1.9 -1.8,1.9 -1.8,1.9 l -3.2,0 c -1.9,0 -1.8,1.9 -1.8,1.9 l 0,1.7 -1.2,0 c 0,0 -1.9,0.1 -1.9,-3.5 0,-3.5 2.2,-3.3 2.2,-3.3 l 4.5,0 0,-0.5 -3.2,0 0,-1.6 c 0,0 -0.2,-1.5 3.2,-1.5 z"
-     id="path4139" />
+     style="fill:#3366cc"
+     id="path2"
+     d="m 5.999,1 c -1.108,0 -2,0.892 -2,2 h 3 v 1 h -4 c -1.108,0 -2,0.892 -2,2 v 2 c 0,1.108 0.892,2 2,2 V 9 c 0,-0.889 0.39,-1.676 1,-2.225 L 4.001,6.773 C 4.133,6.654 4.276,6.547 4.427,6.453 4.428,6.452 4.43,6.452 4.431,6.451 4.58,6.358 4.737,6.279 4.902,6.213 4.932,6.201 4.964,6.194 4.994,6.184 5.134,6.133 5.277,6.087 5.426,6.057 5.612,6.021 5.803,6 6,6 h 4 V 3 C 10,1.892 9.108,1 8,1 Z m 0,0.5 c 0.277,0 0.5,0.223 0.5,0.5 0,0.277 -0.223,0.5 -0.5,0.5 -0.277,0 -0.5,-0.223 -0.5,-0.5 0,-0.277 0.223,-0.5 0.5,-0.5" />
   <path
-     style="fill:#536dfe;fill-opacity:1"
-     d="m 6.2,2.15 c -0.3,0 -0.6,0.2 -0.6,0.6 0,0.4 0.3,0.6 0.6,0.6 0.3,0 0.6,-0.3 0.6,-0.6 0,-0.3 -0.3,-0.6 -0.6,-0.6 z"
-     id="path4137" />
-  <path
-     style="fill:#fdbc12;fill-opacity:1"
-     d="m 8.1,14.95 c -3.6,0 -3.3,-1.8 -3.3,-1.8 l 0,-3.1 c 0,-1.9 1.8,-1.8 1.8,-1.8 l 3.2,0 c 1.9,0 1.9,-2 1.9,-2 l 0,-1.7 1.1,0 c 0,0 1.9,-0.1 1.9,3.5 0,3.6 -2.2,3.3 -2.2,3.3 l -4.5,0 0,0.5 3.2,0 0,1.6 c 0,0 0.3,1.5 -3.1,1.5 z"
-     id="path4135" />
-  <path
-     style="fill:#ffc107;fill-opacity:1"
-     d="m 9.9,13.85 c 0.3,0 0.5,-0.2 0.5,-0.6 0,-0.4 -0.2,-0.6 -0.5,-0.6 -0.3,0 -0.6,0.3 -0.6,0.6 0,0.3 0.2,0.6 0.6,0.6 z"
-     id="path4" />
+     style="fill:#ff9900"
+     id="path2-3"
+     d="M 11,4 V 5 C 11,5.889 10.608,6.678 10,7.227 9.868,7.346 9.725,7.453 9.574,7.547 9.573,7.548 9.571,7.548 9.57,7.549 9.421,7.642 9.264,7.721 9.099,7.787 9.069,7.799 9.037,7.806 9.007,7.816 8.867,7.867 8.724,7.913 8.575,7.943 8.389,7.979 8.198,8 8.001,8 h -4 v 3 c 0,1.108 0.892,2 2,2 h 2 c 1.108,0 2,-0.892 2,-2 h -3 v -1 h 4 c 1.108,0 2,-0.892 2,-2 V 6 c 0,-1.108 -0.892,-2 -2,-2 m -3,7.5 c 0.277,0 0.5,0.223 0.5,0.5 0,0.277 -0.223,0.5 -0.5,0.5 -0.277,0 -0.5,-0.223 -0.5,-0.5 0,-0.277 0.223,-0.5 0.5,-0.5" />
 </svg>

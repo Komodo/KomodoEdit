@@ -21,7 +21,7 @@ class KoJSXLanguage(KoUDLLanguage):
     _reg_categories_ = [("komodo-language", name)]
     _reg_clsid_ = "e5611d6c-c2b8-4fd7-b1f8-9138f8d70076"
 
-    primary = 0  # Whether the language shows up in Komodo's first level language menus.
+    primary = 1  # Whether the language shows up in Komodo's first level language menus.
 
     # ------------ Sub-language Controls ------------ #
     lang_from_udl_family = {

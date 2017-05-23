@@ -1279,6 +1279,7 @@ function _buildMenuTree(hierarchy, toplevel) {
         menuitem.setAttribute("accesskey", hierarchy.key);
         menuitem.setAttribute("type", "radio");
         menuitem.setAttribute("class", "languageicon");
+        menuitem.setAttribute("style", `list-style-image: url("koicon://ko-language/${hierarchy.name}")`);
         menuitem.setAttribute("language", hierarchy.name);
         menuitem.setAttribute("oncommand", "ko.views.manager.do_ViewAs('" + hierarchy.name + "');");
 

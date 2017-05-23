@@ -110,6 +110,7 @@ function _updateLanguage(view) {
         var language = view.koDoc.language;
         languageMenu.setAttribute("label", language);
         languageMenu.setAttribute('language', language);
+        languageMenu.setAttribute('style', `list-style-image: url("koicon://ko-language/${language}")`);
         languageWidget.removeAttribute('collapsed');
     } catch(e) {
     }
