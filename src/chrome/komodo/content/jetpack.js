@@ -14,89 +14,49 @@ const [JetPack, require] = (function() {
     const { Services } = Cu.import("resource://gre/modules/Services.jsm", {});
     const { main, Loader, resolve, resolveURI } =
         Cu.import('resource://gre/modules/commonjs/toolkit/loader.js', {}).Loader;
-        
-    var topHref = "chrome://komodo/content/komodo.xul";
-    var topWindow = null;
-    if (typeof window != 'undefined' && window)
-    {
-        topWindow = window;
-        
-        var assignWindow = function(w, k)
-        {
-            while (w.location.href != topHref && w[k] && w[k] != w)
-                w = w[k];
-            return w;
-        };
-        
-        var prevWindow = null;
-        while (prevWindow != topWindow)
-        {
-            prevWindow = topWindow;
-            topWindow = assignWindow(topWindow, "opener");
-            topWindow = assignWindow(topWindow, "parent");
-            topWindow = assignWindow(topWindow, "top");
-        }
-        
-        if (topWindow.location.href != topHref)
-            topWindow = null;
-    }
     
     /* Populate requirePaths with category entries */
     const catMan = Cc["@mozilla.org/categorymanager;1"]
                         .getService(Ci.nsICategoryManager);
+    const reserved = ["chrome"];
     var requirePaths = {};
     var setRequirePaths = function() {
+
+        // Set requirePaths manually
         
-        // Attempt to get the main komodo window to inherit require paths from it
-        var _window = window;
-        var wm = Cc["@mozilla.org/appshell/window-mediator;1"].getService(Ci.nsIWindowMediator);
-        let windows = wm.getEnumerator("Komodo");
-        while (windows.hasMoreElements()) {
-            let __window = windows.getNext().QueryInterface(Ci.nsIDOMWindow);
-            if ("require" in __window && __window.require && __window != window) {
-                _window = __window;
-            }
-        }
+        // Komodo API fallback...
+        requirePaths["ko/"] = "chrome://komodo/content/sdk/";
+        // Komodo API fallback...
+        requirePaths["contrib/"] = "chrome://komodo/content/contrib/commonjs/";
+        // Default path
+        requirePaths[''] = 'resource://gre/modules/commonjs/';
         
-        if (_window && "require" in _window && _window.require) {
-            // Inherit requirePaths
-            requirePaths = _window.require.getRequirePaths();
-        } else {
-            // Set requirePaths manually
-            
-            // Komodo API fallback...
-            requirePaths["ko/"] = "chrome://komodo/content/sdk/";
-            // Komodo API fallback...
-            requirePaths["contrib/"] = "chrome://komodo/content/contrib/commonjs/";
-            // Default path
-            requirePaths[''] = 'resource://gre/modules/commonjs/';
-            
-            Components.utils.import("resource://gre/modules/osfile.jsm")
-            var tmpPath = Cc["@mozilla.org/file/directory_service;1"]
-             .getService(Ci.nsIProperties).get("TmpD", Ci.nsIFile).path;
-            requirePaths['tmp'] = OS.Path.toFileURI(tmpPath);
-            
-            var entries = catMan.enumerateCategory('require-path');
-            while (entries.hasMoreElements()) {
-                let entry = entries.getNext().QueryInterface(Ci.nsISupportsCString);
-                let uri = catMan.getCategoryEntry('require-path', entry);
-                // Stringafy entry - in order to get the nice JS string functions.
-                entry = entry.toString();
-                if (entry && !entry.endsWith("/")) {
-                    // Needs a trailing slash in order to map correctly.
-                    entry += "/";
-                }
-                requirePaths[entry] = uri;
+        Components.utils.import("resource://gre/modules/osfile.jsm")
+        var tmpPath = Cc["@mozilla.org/file/directory_service;1"]
+         .getService(Ci.nsIProperties).get("TmpD", Ci.nsIFile).path;
+        requirePaths['tmp'] = OS.Path.toFileURI(tmpPath);
+        
+        var entries = catMan.enumerateCategory('require-path');
+        while (entries.hasMoreElements()) {
+            let entry = entries.getNext().QueryInterface(Ci.nsISupportsCString);
+            let uri = catMan.getCategoryEntry('require-path', entry);
+            // Stringafy entry - in order to get the nice JS string functions.
+            entry = entry.toString();
+            if (entry && !entry.endsWith("/")) {
+                // Needs a trailing slash in order to map correctly.
+                entry += "/";
             }
+            requirePaths[entry] = uri;
         }
     }
     setRequirePaths();
+    
     /* Reload require paths on addon install */
     Components.utils.import("resource://gre/modules/AddonManager.jsm");
     AddonManager.addInstallListener({onInstallEnded: setRequirePaths});
     // TODO: May need to reset "loader.modules" when the add-on is loaded?
 
-    var globals = { ko: ko, topWindow: topWindow };
+    var globals = { ko: ko };
     if (String(this).contains("Window")) {
         // Have a window scope available
         globals.window = window;
@@ -174,7 +134,7 @@ const [JetPack, require] = (function() {
         }
 
         var _id = id;
-        if (id.indexOf("/") == -1) {
+        if (id.indexOf("/") == -1 && reserved.indexOf(id) == -1) {
             // Automatically resolve module namespaces
             _id = id + "/" + id;
         }

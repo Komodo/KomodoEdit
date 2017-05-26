@@ -11,7 +11,10 @@ const ko = require("ko/windows").getMain().ko;
 
 (function() {
     
-    var storages = {};
+    if ( ! ("simpleStorage" in global))
+        global.simpleStorage = {};
+
+    var storages = global.simpleStorage;
     
     // A generic JSON store backed by a file on disk.  This should be isolated
     // enough to move to its own module if need be...

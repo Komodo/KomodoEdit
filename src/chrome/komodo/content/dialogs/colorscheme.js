@@ -1,6 +1,6 @@
 (function() {
     
-    var $ = require("ko/dom");
+    var $ = require("ko/dom").window(window);
     var prefs = require("ko/prefs");
     
     var Cc = Components.classes;

@@ -14,6 +14,12 @@ if (typeof module === 'undefined') module = {}; // debugging helper
 
     const log   = require("ko/logging").getLogger("ko-dom");
     //log.setLevel(require("ko/logging").LOG_DEBUG);
+    
+    if ( ! window)
+    {
+        var window = require("ko/windows").getMain();
+        var document = window.document;
+    }
 
     /* === MAIN CONSTRUCTION LOGIC === */
 
@@ -23,7 +29,15 @@ if (typeof module === 'undefined') module = {}; // debugging helper
      * http://www.dustindiaz.com/smallest-domready-ever
      * returns instance or executes function on ready
      */
-    var $ = function(query, parent) {
+    var $ = function(query, parent)
+    {
+        if (query instanceof window.ChromeWindow && parent) // Allow for the parent to be bound
+        {
+            var _query = parent;
+            parent = query;
+            query = _query;
+        }
+
         parent = parent || window.document;
         
         if (("document" in parent) && parent.constructor.toString().indexOf("Window()") !== -1)
@@ -48,7 +62,20 @@ if (typeof module === 'undefined') module = {}; // debugging helper
         }
         else
             return new queryObject(query, parent);
-    }
+    };
+    
+    $.window = (w) =>
+    {
+        // Return bound version of $
+        var bound = $.bind(null, w);
+        for (let prop in $)
+        {
+            if ( ! ($.hasOwnProperty(prop)))
+                continue;
+            bound[prop] = $[prop];
+        }
+        return bound;
+    };
 
     /* === HELPER FUNCTIONS === */
 

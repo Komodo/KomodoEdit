@@ -3,7 +3,8 @@
     const commando  = require("commando/commando");
     const timers    = require("sdk/timers");
     const {Cc, Ci}  = require("chrome");
-    const prefs     = ko.prefs;
+    const legacy    = require("ko/windows").getMain().ko;
+    const prefs     = legacy.prefs;
 
     const tbSvc     = Cc["@activestate.com/koToolbox2Service;1"]
                         .getService(Ci.koIToolbox2Service);
@@ -25,7 +26,7 @@
 
         // Get ordered list of best language scope (a *list* for
         // multi-language files).
-        var currView = ko.views.manager.currentView;
+        var currView = legacy.views.manager.currentView;
         var langs = [];
         if (currView && currView.koDoc)
         {
@@ -145,7 +146,7 @@
                 timers.setTimeout(function()
                            {
                     log.debug("Invoking tool: " + resultData.id);
-                    ko.toolbox2.invokeTool(resultData.data.tool.koTool);
+                    legacy.toolbox2.invokeTool(resultData.data.tool.koTool);
                 }, 0)
             }
             catch(e)

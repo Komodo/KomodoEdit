@@ -5,6 +5,8 @@
  * @overview -
  */
 
+const legacy = require("ko/windows").getMain().ko;
+
 /**
  * The editor SDK
  *
@@ -18,8 +20,6 @@ var sdkEditor = function(_scintilla, _scimoz) {
      * to work well for developers. It is not intended to be fully backwards or
      * forward compatible with CodeMirror.
      */
-    
-    var _win = require("ko/windows").getMain();
 
     var scimoz = function()
     {
@@ -27,7 +27,7 @@ var sdkEditor = function(_scintilla, _scimoz) {
         
         var sc = scintilla(); 
         if ( ! sc) return undefined;
-        
+
         return sc.scimoz;
     }
 
@@ -35,8 +35,8 @@ var sdkEditor = function(_scintilla, _scimoz) {
     {
         if (_scintilla !== undefined) return _scintilla;
         
-        if ( ! _win.ko.views.manager.currentView) return undefined;
-        return _win.ko.views.manager.currentView.scintilla;
+        if ( ! legacy.views.manager.currentView) return undefined;
+        return legacy.views.manager.currentView.scintilla;
     }
 
     /**
@@ -796,20 +796,20 @@ var sdkEditor = function(_scintilla, _scimoz) {
     /**
      * Get all registered bookmarks
      * 
-     * @param   {Long} type     See ko.markers
+     * @param   {Long} type     See legacy.markers
      * 
      * @returns {Array}
      */
-    this.getAllMarks = function(type = ko.markers.MARKNUM_BOOKMARK)
+    this.getAllMarks = function(type = legacy.markers.MARKNUM_BOOKMARK)
     {
         if ( ! scimoz()) return [];
 
         var lineNo = 0;
         var bookmarkLines = {};
         var marker_mask = 1 << type;
-        if (type == ko.markers.MARKNUM_BOOKMARK) {
+        if (type == legacy.markers.MARKNUM_BOOKMARK) {
             for (let i = 0; i < 10; i++) {
-                marker_mask |= 1 << ko.markers['MARKNUM_BOOKMARK' + i];
+                marker_mask |= 1 << legacy.markers['MARKNUM_BOOKMARK' + i];
             }
         }
 
@@ -866,11 +866,11 @@ var sdkEditor = function(_scintilla, _scimoz) {
      *
      * @param {number} line number.  Default is current line.  Line is decremented
      *   when passed in.
-     * @param {number} Optional type of bookmark. See ko.markers.
+     * @param {number} Optional type of bookmark. See legacy.markers.
      *
      * @return {number} ID of marker according to Scimoz
      */
-    this.setBookmark = function(lineNum, type = ko.markers.MARKNUM_BOOKMARK)
+    this.setBookmark = function(lineNum, type = legacy.markers.MARKNUM_BOOKMARK)
     {
         if ( ! lineNum )
         {
@@ -922,7 +922,7 @@ var sdkEditor = function(_scintilla, _scimoz) {
             --lineNum;
         }
         
-        var bookMarknum = ko.markers.MARKNUM_BOOKMARK;
+        var bookMarknum = legacy.markers.MARKNUM_BOOKMARK;
         var data = {
                       'line': lineNum,
                     }  
@@ -930,7 +930,7 @@ var sdkEditor = function(_scintilla, _scimoz) {
 
         scimoz().markerDelete(lineNum, bookMarknum);
         for (let i = 0; i < 10; i++) {
-            scimoz().markerDelete(lineNum, ko.markers['MARKNUM_BOOKMARK' + i]);
+            scimoz().markerDelete(lineNum, legacy.markers['MARKNUM_BOOKMARK' + i]);
         }
         mainWindow.dispatchEvent(new mainWindow.CustomEvent("bookmark_deleted",{
                                                 bubbles: true, detail: data }));
@@ -953,10 +953,10 @@ var sdkEditor = function(_scintilla, _scimoz) {
         }
         
         var lineMarkerState = scimoz().markerGet(lineNum);
-        var bookMarknum = ko.markers.MARKNUM_BOOKMARK;
+        var bookMarknum = legacy.markers.MARKNUM_BOOKMARK;
         var bookmarkMask = (1 << bookMarknum)
         for (let i = 0; i < 10; i++) {
-            bookmarkMask |= 1 << ko.markers['MARKNUM_BOOKMARK' + i];
+            bookmarkMask |= 1 << legacy.markers['MARKNUM_BOOKMARK' + i];
         }
         // bitwise-AND to see if a marker is on the line
         // using

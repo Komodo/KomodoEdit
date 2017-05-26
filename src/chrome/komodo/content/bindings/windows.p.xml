@@ -12,7 +12,6 @@
           xmlns:xbl="http://www.mozilla.org/xbl"
           xmlns:html="http://www.w3.org/1999/xhtml"
           xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-  
 
     <binding id="root-element"
              extends="chrome://global/content/bindings/general.xml#root-element">
@@ -29,10 +28,10 @@
             window.addEventListener("activate", () => window.isActive = true);
             window.addEventListener("deactivate", () => window.isActive = false);
             
-            var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator);
-            var w = wm.getMostRecentWindow("Komodo");
-            if ( ! w) return;
-            w = w.require("ko/windows").getMain();
+            if (typeof require == "undefined")
+                return;
+            
+            var w = require("ko/windows").getMain();
             if ( ! w) return;
             
             w.require("ko/windows").init();
@@ -67,13 +66,8 @@
       <method name="loadVirtualStylesheets">
         <body>
         <![CDATA[
-          var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator);
-          var w = wm.getMostRecentWindow("Komodo").require("ko/windows").getMain();
-          
-          if ( ! w) return;
-            
           if (typeof require == "undefined")
-            var require = w.require;
+            return;
           
           var styleUtil = require("sdk/stylesheet/utils");
           var styles = require("ko/prefs").getString("virtualStyles").split(",");
@@ -101,8 +95,10 @@
             var sysInfo = Components.classes["@mozilla.org/system-info;1"].getService(Components.interfaces.nsIPropertyBag2);
             document.documentElement.setAttribute("os-name", sysInfo.get("name"));
             
-            var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator);
-            var w = wm.getMostRecentWindow("Komodo").require("ko/windows").getMain();
+            if (typeof require == "undefined")
+                return;
+            
+            var w = require("ko/windows").getMain();
             if ( ! w) return;
             
             var evt = new CustomEvent("window_opened", { detail: window });
@@ -147,13 +143,8 @@
       <method name="loadVirtualStylesheets">
         <body>
         <![CDATA[
-          var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator);
-          var w = wm.getMostRecentWindow("Komodo").require("ko/windows").getMain();
-          
-          if ( ! w) return;
-            
           if (typeof require == "undefined")
-            var require = w.require;
+            return;
           
           var styleUtil = require("sdk/stylesheet/utils");
           var styles = require("ko/prefs").getString("virtualStyles").split(",");

@@ -499,7 +499,7 @@ this.checkForUpdates = function checkForUpdates()
  */
 this.newWindow = function newWindow(uris /* =null */)
 {
-    var args = {};
+    var args = {mainWindow: true};
     if (typeof(uris) != "undefined"){
         if (typeof(uris) == "string"){
             _log.deprecated("ko.launch.newWindow now takes an Array of URIs as of \

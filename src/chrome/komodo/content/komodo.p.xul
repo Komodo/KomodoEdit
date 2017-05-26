@@ -215,7 +215,6 @@
     </popupset>
     
     <panel id="hidden-placeholder" collapsed="true">
-        <html:canvas id="canvas-proxy" style="display: none"/>
     </panel>
 
     <popupset id="extensionPopupSet"/>

@@ -69,18 +69,42 @@
      * Retrieve the main komodo window
      * 
      * @returns {Window}
-     */
-    this.getMain = function()
+     */   
+    this.getMain = function(w)
     {
-        // Return the topWindow global if it's set, this is the topmost window
-        // as detected by jetpack.js
-        if (topWindow)
+        if ( ! w)
+            w = window;
+
+        var topHref = "chrome://komodo/content/komodo.xul";
+        var topWindow = null;
+        topWindow = w;
+        
+        var assignWindow = function(w, k)
         {
-            return topWindow;
+            while (( ! w.location || w.location.href != topHref) && w[k] && w[k] != w)
+                w = w[k];
+            return w;
+        };
+        
+        var prevWindow = null;
+        while (prevWindow != topWindow)
+        {
+            prevWindow = topWindow;
+            topWindow = assignWindow(topWindow, "opener");
+            topWindow = assignWindow(topWindow, "parent");
+            topWindow = assignWindow(topWindow, "top");
         }
         
-        var wm = Cc["@mozilla.org/appshell/window-mediator;1"].getService(Ci.nsIWindowMediator);
-        return wm.getMostRecentWindow("Komodo");
+        if (topWindow.location.href != topHref)
+            topWindow = null;
+            
+        if ( ! topWindow)
+            topWindow = this.getMostRecent("Komodo");
+            
+        if ( ! topWindow)
+            topWindow = this.getMostRecent();
+        
+        return topWindow;
     }
     
     /**

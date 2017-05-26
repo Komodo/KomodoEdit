@@ -2,7 +2,8 @@
     const log       = require("ko/logging").getLogger("commando-scope-commands")
     const commando  = require("commando/commando");
     const {Cc, Ci}  = require("chrome");
-    const prefs     = ko.prefs;
+    const legacy    = require("ko/windows").getMain().ko;
+    const prefs     = legacy.prefs;
 
     var local = {};
 
@@ -18,13 +19,13 @@
             var desc;
             var commandname;
 
-            if (!ko.keybindings.manager.commanditems)
+            if (!legacy.keybindings.manager.commanditems)
             {
                 // Load the keybinding description information.
-                ko.keybindings.manager.parseGlobalData();
+                legacy.keybindings.manager.parseGlobalData();
             }
 
-            var commanditems = ko.keybindings.manager.commanditems;
+            var commanditems = legacy.keybindings.manager.commanditems;
             for (var i=0; i < commanditems.length; i++)
             {
                 commandname = commanditems[i].name;
@@ -77,7 +78,7 @@
             let resultData = selectedItems[item].resultData;
             try {
                 log.debug("Invoking command: " + resultData.id);
-                ko.commands.doCommandAsync(resultData.id);
+                legacy.commands.doCommandAsync(resultData.id);
             } catch(e) {
                 log.exception(e, "Failed to invoke command: ");
             }

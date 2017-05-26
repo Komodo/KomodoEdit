@@ -35,16 +35,17 @@
     const schemes       = require("ko/colorscheme");
     const system        = require("sdk/system");
     const shell         = require("ko/shell");
+    const w             = require("ko/windows").getMain();
     //log.setLevel(require("ko/logging").LOG_DEBUG);
 
     var self = this, icons = this;
     var pixelRatio = 1;
 
     this.handlers = {};
-    
+
     this.init = () =>
     {
-        pixelRatio = window.devicePixelRatio;
+        pixelRatio = w.devicePixelRatio;
         if (system.platform == "linux")
         {
             if (prefs.hasPref('pixelRatio'))
@@ -590,16 +591,20 @@
             textStream.close();
         }
 
-        var canvas = document.getElementById('canvas-proxy').cloneNode();
+        //var canvas = w.document.createElement('html:canvas');
+        var canvas = Cc["@mozilla.org/xul/xul-document;1"].createInstance(Ci.nsIDOMDocument)
+                        .implementation.createDocument("http://www.w3.org/1999/xhtml", "html", null)
+                        .createElementNS("http://www.w3.org/1999/xhtml", "canvas");
+
         canvas.setAttribute("width", attrs.width || 14);
         canvas.setAttribute("height", attrs.height || 14);
         var ctx = canvas.getContext('2d');
 
-        var img = new window.Image();
+        var img = new w.Image();
         img.onload = function() {
             ctx.drawImage(img, 0, 0);
             var dataURL = canvas.toDataURL("image/png");
-            var data = window.atob( dataURL.substring( "data:image/png;base64,".length ) );
+            var data = w.atob( dataURL.substring( "data:image/png;base64,".length ) );
 
             //log.debug("Saving PNG: " + savePath);
 

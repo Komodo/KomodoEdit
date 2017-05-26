@@ -3,7 +3,9 @@
     const {Cc, Ci} = require("chrome");
     const views = require("ko/views");
     const editor = require("ko/editor");
-    const prefs = ko.prefs;
+    const prefs = require("ko/prefs");
+    const w = require("ko/windows").getMain();
+    const legacy = w.ko;
     
     /** The preference that enables/disables elastic tabstops. */
     const PREF_ENABLE_ELASTIC_TABSTOPS = "enableElasticTabstops";
@@ -34,7 +36,7 @@
             this.observe(null, PREF_TAB_WIDTH, null);
         }.bind(this), 2500);
         
-        log.setLevel(ko.logging.LOG_INFO);
+        log.setLevel(legacy.logging.LOG_INFO);
         log.info("Elastic tabstops loaded.");
     }
     

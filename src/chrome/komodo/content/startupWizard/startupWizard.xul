@@ -24,9 +24,8 @@ set to a chrome URL.
         buttonorient="horizontal">
     
     <script>
-        const {Services} = Components.utils.import("resource://gre/modules/Services.jsm");
-        Services.scriptloader.loadSubScript("chrome://komodo/content/sdk/console.js");
-        Services.scriptloader.loadSubScript("chrome://komodo/content/jetpack.js");
+        Components.utils.import("chrome://komodo/content/sdk/console.js");
+        Components.utils.import("chrome://komodo/content/jetpack.js");
     </script>
     
     <!-- Scintilla overlay - required files. -->
