@@ -37,6 +37,34 @@ for (var name of Object.keys(prefs.__proto__)) {
     }
 }
 
+/**
+ * Register a preference set to be displayed in the prefs window
+ *
+ * @param {String}      name    The preference name that will be displayed in the preferences window
+ * @param {String}      path    The chrome path to your *.xul file
+ * @param {String}      insertAfter     ID of the element to insert after
+ */
+exports.registerCatagory = function(name, path, insertAfter=null )
+{
+    let id = name.replace(/\s/g,"_");
+    let prefCatagoryStorage = require("ko/simple-storage").get("pref-catagories").storage;
+    if ( ! prefCatagoryStorage.registered )
+    {
+        prefCatagoryStorage.registered = [];
+        prefCatagoryStorage.catagories = [];
+    }
+    if ( prefCatagoryStorage.registered.indexOf(path) < 0)
+    {
+        prefCatagoryStorage.registered.push(path);
+        prefCatagoryStorage.catagories.push({name:name,path:path,id:id,insertAfter:insertAfter});
+    }
+};
+
+exports.getRegisteredCatagories = function()
+{
+    return require("ko/simple-storage").get("pref-catagories").storage.catagories;
+};
+
 var observer =
 {
     observing: {},

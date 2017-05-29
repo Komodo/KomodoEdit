@@ -146,6 +146,7 @@ window.doneLoading = false;
 
 function koPrefWindow( frame_id, prefset /* = null */, usesDeck /* = false */ )
 {
+    _loadModulePrefs();
     if (frame_id)
         this.deck = document.getElementById(frame_id);
     else
