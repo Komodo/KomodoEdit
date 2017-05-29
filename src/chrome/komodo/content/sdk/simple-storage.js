@@ -1,7 +1,9 @@
-/* This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/. 
- * Based on the mozilla SDK simple-storage module */
+/**
+ * @copyright (c) ActiveState Software Inc.
+ * @license Mozilla Public License v. 2.0
+ * @author ActiveState, Mozilla
+ * @overview Based on the mozilla SDK simple-storage module
+ */
 
 const { Cc, Ci } = require("chrome");
 const file = require("sdk/io/file");
@@ -9,6 +11,15 @@ const timer = require("sdk/timers");
 const prefs = require("ko/prefs");
 const ko = require("ko/windows").getMain().ko;
 
+var global = window.global;
+
+/**
+ * simple-storage module which lets you store persistent data
+ *
+ * For storing preferences (user facing persistent data) use ko/prefs   
+ *
+ * @module ko/simple-storage
+ */
 (function() {
     
     if ( ! ("simpleStorage" in global))
@@ -118,7 +129,22 @@ const ko = require("ko/windows").getMain().ko;
             }
         }
     };
-  
+    
+    /**
+     * Get persistent data for the given name (will be created if it doesnt exist)
+     *
+     * Use the storage property to write and retrieve data.
+     *
+     * eg:
+     * ```
+     * var ss = require("ko/simple-storage").get("foo");
+     * ss.storage.foobar = "foo";
+     * ```
+     * 
+     * @param   {String} name 
+     * 
+     * @returns {Object} {storage: {}, filename: "...", jsonStore: {}}
+     */
     this.get = function(name)
     {
         if (name in storages)
@@ -158,6 +184,13 @@ const ko = require("ko/windows").getMain().ko;
         return storages[name];
     };
     
+    /**
+     * Remove/purge all persistent data for the given name
+     * 
+     * @param   {String} name 
+     * 
+     * @returns {Void} 
+     */
     this.remove = function(name)
     {
         this.get(name); // ensure it exists
