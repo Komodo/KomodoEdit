@@ -56,7 +56,7 @@ var global = {};
         w.console = console;
 
         var mainWindow = w.arguments && w.arguments.length > 0 &&
-                          typeof w.arguments[0] == "object" &&
+                          w.arguments[0] && typeof w.arguments[0] == "object" &&
                           w.arguments[0].mainWindow;
         
         if ( ! mainWindow && _w && _w != w)
