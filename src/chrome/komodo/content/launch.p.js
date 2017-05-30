@@ -166,6 +166,10 @@ this.viewErrorLog = function() {
     var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
             .getService(Components.interfaces.nsIStringBundleService)
             .createBundle("chrome://komodo/locale/komodo.properties");
+    
+    if (!osSvc.path.exists(logPath)) {
+        logPath = osSvc.path.join(dirsSvc.userDataDir + '-kotemp-original', 'pystderr.log');
+    }
 
     if (osSvc.path.exists(logPath)) {
         sysUtilsSvc.FlushStderr();
