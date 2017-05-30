@@ -9,8 +9,6 @@ const {Cc, Ci} = require("chrome");
 const w = require("ko/windows").getMain();
 const log = require("ko/logging").getLogger("ko/prefs");
 
-log.setLevel(10);
-
 const LEVEL_GLOBAL = 'global';
 const LEVEL_PROJECT = 'project';
 const LEVEL_FILE = 'file';
