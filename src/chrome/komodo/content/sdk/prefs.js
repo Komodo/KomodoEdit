@@ -192,7 +192,7 @@ var PreferenceSet = function(prefset, level = LEVEL_GLOBAL)
      *
      * @returns {Long}
      */
-    this.getLong = (name) => cached.bind(this, "getLong");
+    this.getLong = cached.bind(this, "getLong");
 
     this.getLongPref = cached.bind(this, "getLongPref");
 
