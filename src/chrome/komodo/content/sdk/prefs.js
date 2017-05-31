@@ -8,28 +8,29 @@
 const {Cc, Ci} = require("chrome");
 const w = require("ko/windows").getMain();
 const log = require("ko/logging").getLogger("ko/prefs");
+const prefService = Cc["@activestate.com/koPrefService;1"].getService(Ci.koIPrefService).prefs;
 
-const LEVEL_GLOBAL = 'global';
-const LEVEL_PROJECT = 'project';
-const LEVEL_FILE = 'file';
+var storage = require("ko/session-storage").get("pref-catagories").storage;
+var prefsets = {};
 
-var storage = require("ko/session-storage").get("pref-catagories").storage
-
-var PreferenceSet = function(prefset, level = LEVEL_GLOBAL)
+var PreferenceSet = function(prefset)
 {
     var cache = {};
 
     var init = () =>
     {
+        log.debug(`Initializing ${prefset.id}`);
+        
         /**
          * Wrap the Komodo global preferences (XPCOM) object.
          */
         for (let name of Object.keys(prefset.__proto__))
         {
-            if (name == "QueryInterface")
+            if (name == "QueryInterface" || name == "chainNotifications")
                 continue;
             if (name in this)
                 continue;
+            //console.log(name);
             if (typeof(prefset[name]) == "function")
             {
                 this[name] = prefset[name].bind(prefset);
@@ -47,6 +48,33 @@ var PreferenceSet = function(prefset, level = LEVEL_GLOBAL)
                 })(name);
             }
         }
+
+        var parent = prefset.parent;
+        while ( ! ("prefObserverService" in this) && parent)
+        {
+            if ("prefObserverService" in parent)
+                this.prefObserverService = parent.prefObserverService;
+            parent = prefset.parent;
+        }
+
+        if ( ! ("prefObserverService" in this))
+            this.prefObserverService = prefService.prefObserverService;
+
+        this.onChange('__all__', (subject, topic, data) =>
+        {
+            log.debug(`Changed pref: ${data}`);
+            if (data in prefsets && data != "global")
+            {
+                log.debug(`Clearing prefset cache for ${data}`);
+                delete prefsets[data];
+            }
+
+            if (data in cache)
+            {
+                log.debug(`Clearing cache for ${data}`);
+                delete cache[data];
+            }
+        });
     };
 
     var cached = (method, name, fallback) =>
@@ -96,7 +124,7 @@ var PreferenceSet = function(prefset, level = LEVEL_GLOBAL)
         if (result === null)
         {
             if (fallback === undefined)
-                throw Error(`The preference '${name}' does not exist in '${level}'`);
+                throw Error(`The preference '${name}' does not exist in '${prefset.id}'`);
 
             log.debug("Returning fallback");
             return fallback;
@@ -217,7 +245,17 @@ var PreferenceSet = function(prefset, level = LEVEL_GLOBAL)
      *
      * @returns {prefset}
      */
-    this.getPref = cached.bind(this, "getPref");
+    this.getPref = (name) =>
+    {
+        if (name in prefsets)
+        {
+            log.debug(`Returning cached prefset: ${name}`);
+            return prefsets[name];
+        }
+
+        var _prefset = prefset.getPref(name);
+        return new PreferenceSet(_prefset);
+    };
 
     /**
      * Set a prefset value
@@ -236,11 +274,6 @@ var PreferenceSet = function(prefset, level = LEVEL_GLOBAL)
         observing: {},
         observe: function(subject, topic, data)
         {
-            if (topic in cache)
-            {
-                delete cache[topic];
-            }
-
             observer.observing[topic].forEach(function(callback)
             {
                 callback(subject, topic, data);
@@ -263,7 +296,7 @@ var PreferenceSet = function(prefset, level = LEVEL_GLOBAL)
         if ( ! (pref in observer.observing))
         {
             observer.observing[pref] = [];
-            prefs.prefObserverService.addObserver(observer, pref, false);
+            this.prefObserverService.addObserver(observer, pref, false);
         }
 
         observer.observing[pref].push(callback);
@@ -292,7 +325,7 @@ var PreferenceSet = function(prefset, level = LEVEL_GLOBAL)
                 if ( ! observer.observing[pref].length)
                 {
                     delete observer.observing[pref];
-                    prefs.prefObserverService.removeObserver(observer, pref, false);
+                    this.prefObserverService.removeObserver(observer, pref, false);
                     return false;
                 }
             }
@@ -308,9 +341,7 @@ var PreferenceSet = function(prefset, level = LEVEL_GLOBAL)
  *
  * @module ko/prefs
  */
-module.exports = new PreferenceSet(
-    Cc["@activestate.com/koPrefService;1"].getService(Ci.koIPrefService).prefs
-);
+module.exports = new PreferenceSet(prefService);
 
 (function()
 {
@@ -324,10 +355,12 @@ module.exports = new PreferenceSet(
      */
     this.project = () =>
     {
-        var prefs;
         if(w.ko.projects.manager.currentProject)
         {
-            return new PreferenceSet(w.ko.projects.manager.currentProject.prefset, LEVEL_PROJECT);
+            var _prefset = w.ko.projects.manager.currentProject.prefset;
+            if (_prefset.id in prefsets)
+                return prefsets[_prefset.id];
+            return new PreferenceSet(w.ko.projects.manager.currentProject.prefset);
         }
         else
         {
@@ -348,7 +381,10 @@ module.exports = new PreferenceSet(
     {
         if(w.ko.views.manager.currentView)
         {
-            return new PreferenceSet(w.ko.views.manager.currentView.koDoc.prefs, LEVEL_FILE);
+            var _prefset = w.ko.views.manager.currentView.koDoc.prefs;
+            if (_prefset.id in prefsets)
+                return prefsets[_prefset.id];
+            return new PreferenceSet(w.ko.views.manager.currentView.koDoc.prefs);
         }
         else
         {
