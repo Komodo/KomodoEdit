@@ -35,7 +35,7 @@
 
     var doOpen = (opts, parent) =>
     {
-        var wrapper = require("ko/ui/column").create();
+        var wrapper = require("ko/ui/column").create({ class: "modal-ui-inner" });
         parent.document.documentElement.appendChild(wrapper.element);
         parent.document.documentElement.classList.add("modal-ui");
         parent.document.documentElement.setAttribute("title", opts.title);
@@ -76,12 +76,18 @@
             if (field.label)
                 row.add(require("ko/ui/label").create({ attributes: { value: field.label + ":", tooltiptext: field.label, crop: "center" }}));
 
-            let elem = require("ko/ui/" + (field.type || "textbox")).create(field.options || undefined);
+            let elem = require("ko/ui/" + (field.type || "textbox")).create(field.options || field.attributes || undefined);
             mapping[key] = elem;
             row.add(elem);
             
             field.elem = elem;
             
+            if (field.fullwidth)
+            {
+                row.addClass("fullwidth");
+                elem.addClass("fullwidth");
+            }
+
             if (field.entries && elem.entries)
                 elem.entries(field.entries);
             
