@@ -4,6 +4,8 @@
 (function() {
     
     const log       = require("ko/logging").getLogger("jsonrpc");
+    const KoPromise = require("ko/promise");
+    //log.setLevel(10);
     
     this.ERROR_PARSING = -32700;
     this.ERROR_INVALID_REQUEST = -32600;
@@ -57,13 +59,14 @@
                 return;
             }
             
-            return new Promise((resolve, reject) =>
+            return new KoPromise((resolve, reject, each) =>
             {
                 log.debug(`Sending request: ${data}`);
                 
                 callbacks[reqid] = {};
                 callbacks[reqid].resolve = resolve;
                 callbacks[reqid].reject = reject;
+                callbacks[reqid].each = each;
                 
                 socket.send(data);
             });
@@ -99,7 +102,13 @@
             if (data.id in callbacks)
             {
                 if ("result" in data)
-                    callbacks[data.id].resolve(data.result);
+                {
+                    if ( ! data.complete)
+                        callbacks[data.id].each(data.result);
+                    else
+                        callbacks[data.id].resolve(data.result);
+                }
+
                 if ("error" in data)
                     callbacks[data.id].reject(data.error);
                     
