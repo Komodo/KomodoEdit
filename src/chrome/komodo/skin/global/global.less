@@ -104,11 +104,16 @@
     .spinner(@special);
 }
 
-.loader.enabled
+.loader.enabled:not([determined="true"])
 {
     .loader(@special);
 }
 
+.loader[determined="true"]
+{
+    background: @special;
+    height: 1rem;
+}
 
 // All text fields
 ::-moz-selection
@@ -129,4 +134,32 @@ notificationbox spacer,
 scintilla spacer
 {
     visibility: collapse;
+}
+
+/* Progress Indicator */
+
+.ui-progress-parent
+{
+    min-width: 350px;
+
+    .loader
+    {
+        margin-bottom: 6px;
+    }
+
+    label,
+    .loader
+    {
+        padding-right: 6px;
+    }
+}
+
+.dialog.ui-progress-parent
+{
+    max-width: 350px;
+
+    label
+    {
+        width: 350px;
+    }
 }

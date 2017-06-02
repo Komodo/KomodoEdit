@@ -6,7 +6,7 @@
  */
 
 /**
- * Shows a small panel with an undetermined progress indicator, allows setting
+ * Shows a small panel with a progress indicator, allows setting
  * of messages to indicate progress
  *
  * @module ko/progress
@@ -16,7 +16,7 @@
 
     var Progress = function (opts = {})
     {
-        var parent, message;
+        var parent, message, loader, spacer;
 
         var callbacks = { message: [], close: [] };
 
@@ -28,7 +28,6 @@
             {
                 parent = require("ko/ui/panel").create({ attributes: {
                     class: "dialog ui-progress-parent",
-                    style: "min-width: 250px",
                     noautohide: true
                 } });
             }
@@ -42,16 +41,23 @@
             this.$element = parent.$element;
             this.element = parent.element;
 
-            parent.addRow(
-                require("ko/ui/row").create({ attributes: { class: "loader enabled", flex: 1 } }),
-                { attributes: { align: "center", pack: "center" } }
+            loader = require("ko/ui/row").create({ attributes: { class: "loader enabled", determined: opts.determined } });
+            if ( ! opts.determined)
+                loader.attr("flex", 1);
+
+            var row = parent.addRow(
+                loader,
+                { attributes: { align: "start", pack: "center" } }
             );
+            
+            if (opts.determined)
+                spacer = row.addRow({ flex: 100 });
 
             parent.add(
                 require("ko/ui/spacer").create({ attributes: { class: "slim" } })
             );
             
-            message = require("ko/ui/label").create("Loading ..");
+            message = require("ko/ui/label").create("Loading ..", { crop: "center" });
             parent.addRow(
                 message,
                 { attributes: { align: "center", pack: "center" } }
@@ -77,6 +83,12 @@
                 return;
 
             callbacks[type] = callbacks[type].filter((v) => v != callback);
+        };
+
+        this.percentage = (value) =>
+        {
+            loader.attr("flex", value);
+            spacer.attr("flex", 100 - value);
         };
 
         this.message = (value) =>
@@ -112,11 +124,13 @@
     /**
      * Open a new progress panel
      *
+     * @param {bool} determined     whether this progress indicator is determined or undetermined (spinner or load progress)
+     *
      * @returns {Progress} Returns instance of progress, which holds the .message(value) and .close() methods
      */
-    this.open = () =>
+    this.open = (determined = false) =>
     {
-        return new Progress({panel: true});
+        return new Progress({panel: true, determined: determined});
     };
     
     /**
