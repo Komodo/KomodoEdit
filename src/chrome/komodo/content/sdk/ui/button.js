@@ -138,6 +138,13 @@ module.exports = Module;
             }
         };
         
+        this.value = function (label)
+        {
+            if (label)
+                this.attr("label", label);
+            return this.attr("label");
+        };
+
     }).apply(this.Model); 
     
 }).apply(Module);
