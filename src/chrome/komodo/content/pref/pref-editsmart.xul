@@ -436,7 +436,7 @@
                       prefstring="editRestoreFoldPoints" prefattribute="checked"/>
         </groupbox>
 
-        <groupbox class="load-context-check" showIfLoadContext="global">
+        <groupbox class="load-context-check" showIfLoadContext="global" id="highlightvariable_groupbox">
             <caption label="&highlightVariable.label;"/>
             <checkbox label="&highlightVariableMouse.label;" pref="true"
                       preftype="boolean"
