@@ -75,7 +75,8 @@ module.exports = Module;
                 {
                     var x = anchor.boxObject.screenX + ((anchor.boxObject.width/2)-(panelElement.boxObject.width/2));
                     var y = anchor.boxObject.screenY + ((anchor.boxObject.height/2)-(panelElement.boxObject.height/2));
-                    panelElement.moveTo(x,y);
+                    if (panelElement && panelElement.moveTo)
+                        panelElement.moveTo(x,y);
                 }
             };
             
