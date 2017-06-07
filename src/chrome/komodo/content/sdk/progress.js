@@ -66,6 +66,7 @@
             if (opts.panel)
             {
                 parent.open();
+                new require("ko/windows/draggable")(parent.element);
             }
         };
 
