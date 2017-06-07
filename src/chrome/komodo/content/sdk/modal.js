@@ -73,7 +73,7 @@
 
             let row = groupParent.addRow();
             
-            if (field.label)
+            if (field.label !== undefined)
                 row.add(require("ko/ui/label").create({ attributes: { value: field.label + ":", tooltiptext: field.label, crop: "center" }}));
 
             let elem = require("ko/ui/" + (field.type || "textbox")).create(field.options || field.attributes || undefined);
