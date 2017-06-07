@@ -972,6 +972,7 @@ window.embedded.widget
 
 .modal-ui:not(:root),
 .modal-ui-inner,
+.modal-ui .groupbox-body,
 .modal-ui wizardpage
 {
     .ui-title
@@ -979,12 +980,17 @@ window.embedded.widget
         margin-bottom: 4px;
     }
     
-    & > .ui-hbox.fullwidth
+    .ui-hbox.fullwidth
     {
         padding-left: 50px;
     }
 
-    & > .ui-hbox:not(.ui-title):not(.buttons-ui)
+    .ui-hbox.centered
+    {
+        padding-left: 104px;
+    }
+
+    .ui-hbox:not(.ui-title):not(.buttons-ui)
     {
         padding-right: 50px;
     }
@@ -995,21 +1001,21 @@ window.embedded.widget
         -moz-box-align: center;
     }
     
-    & .ui-radiogroup-wrapper
+    .ui-radiogroup-wrapper
     {
         -moz-box-align: center;
         -moz-box-pack: center;
     }
     
-    & .ui-label:not(.fullwidth)
+    .ui-label:not(.fullwidth)
     {
         width: 100px;
         margin-right: 4px;
         text-align: right;
     }
     
-    & .ui-checkbox:not(.fullwidth),
-    & .ui-description:not(.fullwidth)
+    .ui-checkbox:not(.fullwidth),
+    .ui-description:not(.fullwidth)
     {
         margin-left: 104px;
     }

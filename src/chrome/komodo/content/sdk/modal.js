@@ -88,6 +88,11 @@
                 elem.addClass("fullwidth");
             }
 
+            if (field.centered)
+            {
+                row.addClass("centered");
+            }
+
             if (field.entries && elem.entries)
                 elem.entries(field.entries);
             
