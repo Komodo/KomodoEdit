@@ -320,7 +320,9 @@ function javaScript_setup(languageName) {
          "lintWithJSHint",
          "jshint_linter_specific",
          "jshint_linter_chooser",
-         "jshint_linter_specific_version"
+         "jshint_linter_specific_version",
+         "eslint_binary",
+         "eslint_config"
          ].forEach(function(name) {
             djs[name] = document.getElementById(name);
         });
@@ -422,6 +424,24 @@ function javaScriptInfo(languageName) {
             djs['jshint_linter_chooser'].selectedIndex = selectedIndex;
             this.updateJSLinter_selectedVersionField(jshint_linter_specific.value,
                                                      djs['jshint_linter_specific_version']);
+        },
+        browseForESLinter: function() {
+            var djs = dialog[languageName];
+            var eslint_binary = djs['eslint_binary'];
+            var currentPath = eslint_binary.value;
+            var path = ko.filepicker.browseForExeFile(null, currentPath || "");
+            if (path) {
+                eslint_binary.value = path;
+            }
+        },
+        browseForESConfig: function() {
+            var djs = dialog[languageName];
+            var eslint_config = djs['eslint_config'];
+            var currentPath = eslint_config.value;
+            var path = ko.filepicker.browseForFile(null, currentPath || "");
+            if (path) {
+                eslint_config.value = path;
+            }
         },
         
         __EOD__: null

@@ -709,6 +709,13 @@ adding an additional caret at the clicked position.">
 <!ENTITY javascriptFolder.description "Specify any directories that you want Komodo to use for autocomplete and calltips. Komodo will recursively scan these directories for information.">
 <!ENTITY javascriptExcludeFolder.description "Specify any directories you want to exclude from the scan.">
 <!ENTITY javascriptNamespaceMapping.description "Specify any custom namespace mappings for Komodo to use when looking up modules in 'require' statements for code intelligence. These mappings are useful for projects that have non-standard module locations.">
+<!ENTITY eslintChecking.caption "ESLint Linter Checking">
+<!ENTITY eslintChecking.checkbox "Enable the ESLint linter">
+<!ENTITY eslintChecking.description "Use the ESLint linter when doing background syntax checking.">
+<!ENTITY eslintChecking.binary "ESLint binary:">
+<!ENTITY eslintChecking.binaryPlaceholder "Find in node_modules...">
+<!ENTITY eslintChecking.config "ESLint config:">
+<!ENTITY eslintChecking.configPlaceholder "Find in current working directory...">
 
 <!--pref-nodejs.xul-->
 <!ENTITY nodejs.label "Node.js">
