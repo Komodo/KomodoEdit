@@ -16,6 +16,8 @@
 {
     var ioFile      = require("sdk/io/file");
     var system      = require("sdk/system");
+    var { uuid }    = require('sdk/util/uuid');
+
     
     this.separator = system.platform == "winnt" ? "\\" : "/";
 
@@ -123,6 +125,31 @@
     this.open = () => ioFile.open.apply(ioFile, arguments);
     
     /**
+     * Open a temporary file with the given name as a seed,
+     * the file is removed when the stream is closed
+     *
+     * @param   {String} name
+     * @param   {String} mode
+     *
+     * @returns {Stream}
+     */
+    this.openTemp = (name, mode, del = true) =>
+    {
+        var path = this.createTemp(name);
+        var stream = this.open(path, mode);
+        if (stream  && del)
+        {
+            stream.__close = stream.close;
+            stream.close = () =>
+            {
+                stream.__close();
+                this.remove(path);
+            };
+        }
+        return stream;
+    };
+    
+    /**
      * Opens a file and returns a string containing its entire contents.
      *
      * @param {String} path     The file path
@@ -131,7 +158,7 @@
      * @returns {String}
      */
     this.read = () => ioFile.read.apply(ioFile, arguments);
-    
+
     /**
      * Removes a file from the file system. To remove directories, use rmdir.
      *
@@ -194,7 +221,24 @@
         
         return true;
     }
-
+    
+    /**
+     * Create a temporary file, this file is not automatically deleted by Komodo
+     * ie. the deleting is handled by the OS/platform
+     * 
+     * @param   {String} name 
+     * 
+     * @returns {String} path
+     */
+    this.createTemp = (name) =>
+    {
+        name = name.replace(/(?:\/|\\)/g, '');
+        var tmpd = require('sdk/system').pathFor('TmpD');
+        var path = this.join(tmpd, uuid() + name);
+        this.create(path);
+        return path;
+    }
+    
     /**
      * Rename the given file
      * 
