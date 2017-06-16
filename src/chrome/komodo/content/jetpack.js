@@ -221,6 +221,14 @@ const [JetPack, require] = (function() {
         cache = {};
     }
     
+    require.unsetRequirePath = function(namespace) {
+        if ( ! (namespace in requirePaths))
+            return;
+        delete requirePaths[namespace];
+        loader.mapping = loader.mapping.filter((a) => a[0] != namespace);
+        cache = {};
+    }
+
     require.getRequirePaths = function() {
         return requirePaths;
     }
