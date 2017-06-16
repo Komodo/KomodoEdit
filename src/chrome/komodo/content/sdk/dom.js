@@ -261,7 +261,7 @@ if (typeof module === 'undefined') module = {}; // debugging helper
 
         this._elements = [];
         
-        if (query && typeof query == "object" && query.length)
+        if (query && typeof query == "object" && ! (query instanceof window.ChromeWindow) && query.length)
             query = Array.prototype.slice.call(query);
         
         // Use push.apply to force array type
