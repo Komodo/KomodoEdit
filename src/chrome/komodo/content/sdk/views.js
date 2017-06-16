@@ -75,6 +75,7 @@
         return {
             get: get,
             
+            uid: get("uid"),
             scintilla: get("scintilla"),
             scimoz: get("scimoz"),
             koDoc: get("koDoc"),
