@@ -49,69 +49,71 @@
 <binding id="view-editor"
     extends="chrome://komodo/content/bindings/views-buffer.xml#view-buffer-base">
     <content orient="vertical" flex="6">
-        <xul:vbox anonid="wrapper" flex="1">
-            <xul:statusbar orient="horizontal">
-                
-                <xul:statusbarpanel anonid="statusbar-message-panel" flex="1">
-                    <xul:deck anonid="statusbar-message-deck" class="for-vi-mode" selectedIndex="0" flex="1">
-                        <xul:hbox anonid="statusbar-message-deck-default">
-                        </xul:hbox>
-                    </xul:deck>
-                </xul:statusbarpanel>
-                
-                <xul:statusbarpanel anonid="statusbar-pos-info"
-                                tooltiptext="&filePosition.tooltiptext;"
-                                align="center"
-                                pack="end">
+        <xul:box anonid="outer" flex="1">
+            <xul:vbox anonid="wrapper" flex="1">
+                <xul:statusbar orient="horizontal">
 
-                    <xul:label anonid="statusbar-selection"/>
-                    <xul:label anonid="statusbar-line-col"/>
+                    <xul:statusbarpanel anonid="statusbar-message-panel" flex="1">
+                        <xul:deck anonid="statusbar-message-deck" class="for-vi-mode" selectedIndex="0" flex="1">
+                            <xul:hbox anonid="statusbar-message-deck-default">
+                            </xul:hbox>
+                        </xul:deck>
+                    </xul:statusbarpanel>
 
-                </xul:statusbarpanel>
+                    <xul:statusbarpanel anonid="statusbar-pos-info"
+                                    tooltiptext="&filePosition.tooltiptext;"
+                                    align="center"
+                                    pack="end">
 
-                <xul:statusbarpanel anonid="statusbar-encoding"
-                                    style="min-width: 5rem"
-                                tooltiptext="&fileEncoding.tooltiptext;"
-                                >
-                    <xul:toolbarbutton class="statusbar-label"
-                          anonid="statusbar-encoding-label"
-                          flex="1"
-                          orient="horizontal"
-                          type="menu"
-                          persist="buttonstyle"
-                          label="--"
-                          buttonstyle="text">
-                        <xul:menupopup anonid="statusbar-encoding-menupopup"
-                                   onpopupshowing="ko.statusBar.setupEncodingMenu(this);" />
-                    </xul:toolbarbutton>
-                </xul:statusbarpanel>
+                        <xul:label anonid="statusbar-selection"/>
+                        <xul:label anonid="statusbar-line-col"/>
 
-                <xul:statusbarpanel anonid="statusbar-language"
-                                    style="min-width: 5rem"
-                                pack="end"
-                                >
-                    <xul:toolbarbutton class="statusbar-label languageicon"
-                          anonid="statusbar-language-menu"
-                          tooltiptext="&fileType.tooltiptext;"
-                          flex="1"
-                          orient="horizontal"
-                          type="menu"
-                          persist="buttonstyle"
-                          label="--"
-                          buttonstyle="text">
-                        <xul:menupopup anonid="statusbar-filetype-menu"
-                                   position="before_end"
-                                   onpopupshowing="ko.uilayout.updateViewAsLanguageMenu(this);" />
-                    </xul:toolbarbutton>
-                </xul:statusbarpanel>
+                    </xul:statusbarpanel>
 
-            </xul:statusbar>
-            <xul:scintilla xbl:inherits="flex,focused,context,mozcontext" flex="1"
-                           anonid="scintilla"
-                           allowIME="true"
-                           mozcontext="editorContextMenu"/>
-            <xul:ko-findbar class="hud" anonid="findbar"/>
-        </xul:vbox>
+                    <xul:statusbarpanel anonid="statusbar-encoding"
+                                        style="min-width: 5rem"
+                                    tooltiptext="&fileEncoding.tooltiptext;"
+                                    >
+                        <xul:toolbarbutton class="statusbar-label"
+                              anonid="statusbar-encoding-label"
+                              flex="1"
+                              orient="horizontal"
+                              type="menu"
+                              persist="buttonstyle"
+                              label="--"
+                              buttonstyle="text">
+                            <xul:menupopup anonid="statusbar-encoding-menupopup"
+                                       onpopupshowing="ko.statusBar.setupEncodingMenu(this);" />
+                        </xul:toolbarbutton>
+                    </xul:statusbarpanel>
+
+                    <xul:statusbarpanel anonid="statusbar-language"
+                                        style="min-width: 5rem"
+                                    pack="end"
+                                    >
+                        <xul:toolbarbutton class="statusbar-label languageicon"
+                              anonid="statusbar-language-menu"
+                              tooltiptext="&fileType.tooltiptext;"
+                              flex="1"
+                              orient="horizontal"
+                              type="menu"
+                              persist="buttonstyle"
+                              label="--"
+                              buttonstyle="text">
+                            <xul:menupopup anonid="statusbar-filetype-menu"
+                                       position="before_end"
+                                       onpopupshowing="ko.uilayout.updateViewAsLanguageMenu(this);" />
+                        </xul:toolbarbutton>
+                    </xul:statusbarpanel>
+
+                </xul:statusbar>
+                <xul:scintilla xbl:inherits="flex,focused,context,mozcontext" flex="1"
+                               anonid="scintilla"
+                               allowIME="true"
+                               mozcontext="editorContextMenu"/>
+                <xul:ko-findbar class="hud" anonid="findbar"/>
+            </xul:vbox>
+        </xul:box>
         <children/>
     </content>
 
