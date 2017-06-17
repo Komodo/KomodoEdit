@@ -261,12 +261,8 @@ class koSysUtils:
             xdg_open = self.Which('xdg-open')
             if xdg_open:
                 os.system('xdg-open "%s" &' % filename)
-            elif manager == "gnome":
-                os.system('nautilus "%s" &' % filename)
-            elif manager == "kde":
-                os.system('dolphin "%s" &' % filename)
             else:
-                raise "File manager not found / xdg-open not installed"
+                raise "xdg-open is not installed (or it's not on your $PATH)"
 
     def OpenFile(self, filename):
         """OpenFile
