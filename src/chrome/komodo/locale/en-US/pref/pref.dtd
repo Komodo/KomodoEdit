@@ -487,6 +487,7 @@ adding an additional caret at the clicked position.">
 <!ENTITY xslXSLT.label ".xsl: XSLT">
 <!ENTITY xsltXSLT.label ".xslt: XSLT">
 <!ENTITY yYearWithoutCentury0099.label "&#37;y : year without century [00,99]">
+<!ENTITY primaryLanguage.label "Primary Language:">
 
 <!--editenvironvar.xul-->
 <!ENTITY AddEditEnvir.label "Add/Edit Environment Variable">
