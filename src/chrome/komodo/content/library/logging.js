@@ -4,10 +4,6 @@
         // This is being loaded in a window; make sure we have the jetpack loader,
         // and define ko.logging as a lazy property
         var { classes: Cc, interfaces: Ci, utils: Cu } = Components;
-        if ( ! window.ko) {
-            window.ko = {};
-        }
-        JetPack.defineLazyProperty(ko, "logging", "ko/logging", true);
         if (window && window.__is_unit_test__) {
             window.__method__ = "window"; // For unit testing
         }

@@ -13,8 +13,6 @@ const observerSvc = Cc["@mozilla.org/observer-service;1"].getService(Ci.nsIObser
                         
 Services.scriptloader.loadSubScript("chrome://komodo/content/sdk/console.js");
 
-console.log("Start");
-
 const EXPORTED_SYMBOLS = ["global"];
 
 var global = {};
@@ -69,6 +67,9 @@ var global = {};
             // knows how to get things into the right scope, for backwards compat)
             w.global = global;
             Services.scriptloader.loadSubScript("chrome://komodo/content/jetpack.js", w);
+            if ( ! w.ko)
+                w.ko = {};
+            w.JetPack.defineLazyProperty(w.ko, "logging", "ko/logging", true);
         }
         
         // Any sub windows should get it modules from the top window
@@ -94,6 +95,10 @@ var global = {};
             
             targetWindow[k] = sourceWindow[k];
         }
+
+        if ( ! targetWindow.ko)
+            targetWindow.ko = {};
+        targetWindow.JetPack.defineLazyProperty(targetWindow.ko, "logging", "ko/logging", true);
     };
     
     this.triggerEvent = (eventName, eventData) =>
