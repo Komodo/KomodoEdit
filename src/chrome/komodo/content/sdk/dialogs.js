@@ -14,7 +14,7 @@
 
     const log       = require("ko/logging").getLogger("sdk/dialogs");
     const _         = require('contrib/underscore');
-    const prefs     = ko.prefs;
+    const prefs     = require("ko/prefs");;
 
     /**
      * A dialog to query the user for a string in a textbox.
