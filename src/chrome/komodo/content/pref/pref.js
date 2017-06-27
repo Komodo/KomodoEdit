@@ -50,46 +50,6 @@ function Onload()
     koFilteredTreeView.loadPrefsFullText();
 }
 
-function _loadModulePrefs()
-{
-    var modulePrefs = require("ko/windows").getMain().require("ko/prefs").getRegisteredCatagories();
-    var prefsTree = document.getElementById("panelChildren");
-    for (let m of modulePrefs)
-    {
-        var treeItem = _generateTreeChild(m);
-        if(m.insertAfter)
-        {
-            try
-            {
-                require("ko/dom")("#"+m.insertAfter).after(treeItem);
-                continue;
-            }
-            catch(e)
-            {
-                preflog.warn("Could not add pref in requested position.  Appending to list:\n"+e);
-            }
-        }
-        prefsTree.appendChild(treeItem);
-    }
-}
-
-function _generateTreeChild(module)
-{
-    var item = document.createElement("treeitem");
-    item.setAttribute("container", false);
-    item.setAttribute("id", module.id)
-    var row = document.createElement("treerow");
-    item.appendChild(row);
-    
-    var cell = document.createElement("treecell");
-    cell.setAttribute("label", module.name);
-    cell.setAttribute("url", module.path);
-    cell.setAttribute("id", module.id+"_cell");
-    cell.setAttribute("helptag", module.id);
-    row.appendChild(cell);
-    return item;
-}
-
 function switchToPanel(selectedItem) {
     hPrefWindow.helper.selectRowById(selectedItem);
     prefPanelTree.focus();
