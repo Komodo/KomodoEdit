@@ -190,7 +190,7 @@
         
         process.on('error', function (e)
         {
-            log.error(e.message);
+            log.exception(e, "Error during process execution");
         });
         
         process.on('close', function (code, signal)
@@ -334,8 +334,8 @@
         
         // Center the panel on the editor
         var elem = hud.element();
-        var bo = document.getElementById('komodo-editor-vbox');
-        bo = bo ? bo.boxObject : document.documentElement.boxObject;
+        var bo = w.document.getElementById('komodo-editor-vbox');
+        bo = bo ? bo.boxObject : w.document.documentElement.boxObject;
         var left = (bo.x + (bo.width / 2)) - (elem.width / 2);
         elem.openPopup(undefined, undefined, left, 100);
         
@@ -416,7 +416,7 @@
             showing = false;
             hud.remove();
             
-            var view = ko.views.manager.currentView;
+            var view = w.ko.views.manager.currentView;
             if (view && view.getAttribute("type") == "editor")
                 view.scintilla.focus();
         });
