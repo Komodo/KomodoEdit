@@ -1260,6 +1260,7 @@
         <body>
         <![CDATA[
             if (typeof(forceSave) == 'undefined') forceSave = false;
+            window.dispatchEvent(new CustomEvent('file_saving', { bubbles: true, detail: {view: this} }));
             try {
                 this.koDoc.save(forceSave);
             } catch (ex) {
