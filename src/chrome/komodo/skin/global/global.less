@@ -163,3 +163,33 @@ scintilla spacer
         width: 350px;
     }
 }
+
+
+/* Version check window */
+
+#versioncheck
+{
+    min-width: 600px;
+    max-width: 600px;
+    min-height: 800px;
+    max-height: 800px;
+
+    button
+    {
+        margin-top: 6px;
+        padding-top: 0.5rem;
+        padding-bottom: 0.5rem;
+
+        &.primary
+        {
+            background: @special;
+            color: @foreground-special;
+            font-weight: bold;
+
+            &:hover
+            {
+                background: @contrast-special;
+            }
+        }
+    }
+}

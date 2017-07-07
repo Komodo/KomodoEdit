@@ -1137,4 +1137,7 @@
   <long id="unittest_throttle_volume">100</long>
   <long id="unittest_throttle_time">250</long>
 
+  <string id="versioncheck.url">http://docs.komodoide.com/changelog/%s</string>
+  <string id="versioncheck.moreinfo.url">https://www.activestate.com/komodo-ide</string>
+
 </preference-set>

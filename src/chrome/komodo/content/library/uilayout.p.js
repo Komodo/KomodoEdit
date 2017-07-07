@@ -1785,6 +1785,15 @@ this.onload = function uilayout_onload()
         else
             window.addEventListener("toolbox-ready", runTutorial);
     }
+
+    try
+    {
+        ko.launch.newVersionCheck();
+    }
+    catch (e)
+    {
+        log.exception(e, "newVersionCheck failed");
+    }
 }
 
 this.updateWindowButtons = function (w) {
