@@ -540,6 +540,85 @@ this.newTemplate = function newTemplate(obj)
 }
 
 
+this.newVersionCheck = function(includeMinor=false)
+{
+    var infoSvc = Cc["@activestate.com/koInfoService;1"].getService(Ci.koIInfoService);
+    var [major, minor] = infoSvc.version.split(".");
+    var versionStr = major + "";
+    if (includeMinor)
+        versionStr += minor;
+
+    var dontBotherPref = "versioncheck.dontask." + versionStr;
+
+    if (ko.prefs.getBoolean(dontBotherPref, false))
+        return;
+
+    var url = ko.prefs.getString("versioncheck.url");
+    url = url.replace("%s", versionStr);
+
+    _log.debug("versioncheck on " + url);
+
+    var ajax = require("ko/ajax");
+    ajax.get(url, function(code, responseText)
+    {
+        if (code != 200 && code != 301)
+        {
+            if ( ! includeMinor)
+                this.newVersionCheck(true);
+            return;
+        }
+
+        var w = require("ko/windows").getMain();
+        var dialog = w.openDialog("chrome://komodo/content/empty.xul?name=versioncheck", "Komodo Just Got Better!", "modal=true,width=600,height=800,resizable=0");
+        var $ = require("ko/dom");
+
+        dialog.addEventListener("DOMContentLoaded", function (e)
+        {
+            if (e.target != dialog.document)
+                return;
+
+            dialog.document.documentElement.setAttribute("id", "versioncheck");
+
+            var de = $(dialog.document.documentElement);
+            var browser = $("<browser>").attr({src: url, flex: 1, type: "content"});
+            var hbox = $("<hbox>").attr({ align: "center", pack: "center" });
+            var ok = $("<button>").attr({ label: "Find out More", class: "primary" });
+            var cancel = $("<button>").attr({ label: "Not Interested" });
+            de.append(browser);
+            de.append(hbox);
+            hbox.append(ok);
+            hbox.append(cancel);
+
+            ok.on("command", function()
+            {
+                var moreInfoUrl = ko.prefs.getString("versioncheck.moreinfo.url");
+                ko.browse.openUrlInDefaultBrowser(moreInfoUrl);
+                dialog.close();
+            });
+
+            cancel.on("command", function()
+            {
+                ko.prefs.setBoolean(dontBotherPref, true);
+                dialog.close();
+            });
+
+            browser.on("DOMContentLoaded", function (e)
+            {
+                browser.element().contentDocument.documentElement.classList.add("native-scrollbars");
+                var bde = browser.element().contentDocument;
+
+                var nav = bde.querySelector("NAV");
+                var bc = bde.querySelector(".breadcrumbs");
+
+                if (nav)
+                    nav.style.display = "none";
+                if (bc)
+                    bc.style.display = "none";
+            });
+        }.bind(this));
+    }.bind(this));
+}
+
 }).apply(ko.launch);
 }
 

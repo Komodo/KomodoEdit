@@ -1139,4 +1139,6 @@
   
   <string id="virtualStyles" nonvital="true">less://resource/profile/interfaceChrome.less,less://resource/profile/userChrome.less</string>
   
+  <string id="versioncheck.url">http://docs.komodoide.com/changelog/%s</string>
+  <string id="versioncheck.moreinfo.url">https://www.activestate.com/komodo-ide</string>
 </preference-set>
