@@ -5,6 +5,7 @@
     
     const log       = require("ko/logging").getLogger("jsonrpc");
     const KoPromise = require("ko/promise");
+    const base64    = require("sdk/base64");
     //log.setLevel(10);
     
     this.ERROR_PARSING = -32700;
@@ -51,11 +52,11 @@
                 
             try
             {
-                data = JSON.stringify(data);
+                data = base64.encode(JSON.stringify(data));
             }
             catch(e)
             {
-                log.error("Failed serializing request for method: " + method);
+                log.exception(e, "Failed serializing request for method: " + method);
                 return;
             }
             
@@ -88,11 +89,11 @@
             
             try
             {
-                data = JSON.parse(data.trim());
+                data = JSON.parse(base64.decode(data.trim()));
             }
             catch (e)
             {
-                log.error("Failed parsing JSON: " + data);
+                log.exception(e, "Failed parsing JSON: " + data);
                 return;
             }
             
