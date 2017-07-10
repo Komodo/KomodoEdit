@@ -19,6 +19,8 @@ const [JetPack, require] = (function() {
     const catMan = Cc["@mozilla.org/categorymanager;1"]
                         .getService(Ci.nsICategoryManager);
     const reserved = ["chrome"];
+
+    var log;
     var requirePaths = {};
     var setRequirePaths = function() {
 
@@ -150,11 +152,19 @@ const [JetPack, require] = (function() {
             cache[id] = main(loader, _id);
             return cache[id];
         } catch (ex) {
-            Cu.reportError('While trying to require("' + id + '"):');
-            Cu.reportError(ex);
+            var msg = 'While trying to require("' + id + '"):';
 
-            if (typeof(ex) == 'object' && 'stack' in ex && ex.stack)
-                Cu.reportError(ex.stack);
+            if (log)
+                log.exception(ex, msg);
+            else
+            {
+                Cu.reportError('While trying to require("' + id + '"):');
+                Cu.reportError(ex);
+
+                if (typeof(ex) == 'object' && 'stack' in ex && ex.stack)
+                    Cu.reportError(ex.stack);
+            }
+
                 
             throw ex;
         }
@@ -251,6 +261,16 @@ const [JetPack, require] = (function() {
         }
         
         cache = {};
+    }
+
+    try
+    {
+        log = require("ko/logging").getLogger("jetpack");
+    }
+    catch (e)
+    {
+        Cu.reportError('Failed starting jetpack logger');
+        Cu.reportError(ex);
     }
 
     return [JetPack, require];
