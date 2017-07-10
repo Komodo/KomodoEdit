@@ -363,6 +363,8 @@ class KoJSHintLinter(CommonJSLinter):
             # jshint tests options.strict !== false, otherwise strict is on
             # Other options are tested as simply !options.strict
             cmd.append('strict=false')
+        if not "esnext" in options and not "esversion" in options:
+            cmd.append('esnext=true')
 
         fd = open(jsfilename)
         cwd = request.cwd or None
