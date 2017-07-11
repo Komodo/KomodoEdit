@@ -1141,4 +1141,6 @@
   
   <string id="versioncheck.url">http://docs.komodoide.com/changelog/%s</string>
   <string id="versioncheck.moreinfo.url">https://www.activestate.com/komodo-ide</string>
+  <string id="versioncheck.valid.domains">komodoide.com,activestate.com</string>
+
 </preference-set>
