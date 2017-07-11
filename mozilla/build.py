@@ -2083,10 +2083,6 @@ def target_src(argv=["src"]):
         repoURL = getRepoFromTree(treeName)
         hgRepo = os.path.join(buildDir, "mozilla")
         bundleFile = os.path.abspath("%s.hg" % (treeName,))
-        log.info("retrieving available bundles from hg.cdn.mozilla.net")
-        hg_data = json.load(urllib2.urlopen('https://hg.cdn.mozilla.net/bundles.json'))['releases/%s' % (treeName,)]["gzip-v2"]
-        relativebundleURL = hg_data['path']
-        bundleURL = "https://hg.cdn.mozilla.net/%s" % (relativebundleURL,)
         def inside_activestate_network():
             import socket
             hostname = "nas1.activestate.com"
@@ -2107,6 +2103,11 @@ def target_src(argv=["src"]):
                 # access to the local mirror; use the canonical mozilla.org server
                 log.info("Failed to reach ActiveState internal mercurial mirror, "
                          "using Mozilla canonical server")
+        else:
+            log.info("retrieving available bundles from hg.cdn.mozilla.net")
+            hg_data = json.load(urllib2.urlopen('https://hg.cdn.mozilla.net/bundles.json'))['releases/%s' % (treeName,)]["gzip-v2"]
+            relativebundleURL = hg_data['path']
+            bundleURL = "https://hg.cdn.mozilla.net/%s" % (relativebundleURL,)
 
         _run("wget -t 5 -T 30 --progress=dot:mega -O %s %s" % (bundleFile, bundleURL), log.info)
         _run("hg init %s" % (hgRepo,), log.info)
