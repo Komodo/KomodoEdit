@@ -1324,16 +1324,54 @@ class KoLanguageBase:
             return None
 
     def guessIndentation(self, scimoz, tabWidth, defaultUsesTabs):
-        return self._guessIndentation(scimoz, tabWidth, defaultUsesTabs, self._style_info)
+        """
+        Automatically detect the indentation used in the given scimoz buffer
 
-    def _guessIndentation(self, scimoz, tabWidth, defaultUsesTabs, style_info):
-        indent, usesTabs = _findIndent(scimoz,
-                                       self._indent_open_chars,
-                                       style_info._indent_open_styles,
-                                       style_info._comment_styles,
-                                       tabWidth,
-                                       defaultUsesTabs)
-        return indent, usesTabs
+        The logic is relatively simple:
+
+        Scan the first 250 lines until we find the first indented line of code
+        wherein code is text that is neither a comment or a string. The indentation
+        is then detected as the indentation used for this first indented line of code.
+        """
+        comment_styles = self.getCommentStyles()
+        string_styles = self.getStringStyles()
+
+        guess = 0
+        usesTabs = 0
+        lineCount = min(scimoz.lineCount, 250)
+        for lineNo in range(lineCount):
+            lineStartPos = scimoz.positionFromLine(lineNo)
+            lineEndPos = scimoz.getLineEndPosition(lineNo)
+            line = scimoz.getTextRange(lineStartPos, lineEndPos)
+            indentEndPos = scimoz.getLineIndentPosition(lineNo)
+            realLineEndPos = lineStartPos + len(line.rstrip())
+            indentation = line[:indentEndPos]
+            indentWidth = scimoz.getLineIndentation(lineNo)
+
+            # Skip empty lines
+            if not line.strip():
+                continue
+
+            # Don't consider comments or string as valid indentation
+            styleNoLineStart = scimoz.getStyleAt(indentEndPos)
+            styleNoLineEnd = scimoz.getStyleAt(realLineEndPos)
+            if styleNoLineStart in comment_styles or styleNoLineStart in string_styles \
+               or styleNoLineEnd in comment_styles or styleNoLineEnd in string_styles:
+                continue
+
+            # If indentEndPos > 0 we are on a line with indentation
+            if indentWidth:
+                # If guess is not yet defined (we haven't guessed the indent width yet)
+                # then we'll base our indent width on the indentation length of
+                # the current line, and in addition we'll base the indent type
+                # on the type of indent white space used on this line
+                if indentWidth and ((guess and indentWidth < guess) or not guess):
+                    guess = indentWidth
+                    
+                    if '\t' in indentation or u'\t' in indentation:
+                        usesTabs = 1
+
+        return guess, usesTabs # if guess is 0 caller will decide instead
     
     def guessIndentationByFoldLevels(self, scimoz, tabWidth, defaultUsesTabs, minIndentLevel):
         """This routine is needed because the base-class routine
@@ -3281,189 +3319,6 @@ class KoLanguageBaseDedentMixin(object):
         currNonWhiteColumn = scimoz.getColumn(currLineStart + currWhiteLen)
         if currNonWhiteColumn > prevNonWhiteColumn:
             return prevWhiteSequence
-
-def _findIndent(scimoz, chars, styles, comment_styles, tabWidth, defaultUsesTabs):
-    """
-    This code is fairly sophisticated, and a tad tricky.  Here's how it works.
-    We're looking for an "indenting line" followed by an "indented line".
-    Indenting lines are defined as lines that end in a special character in a special style,
-    ignoring trailing whitespace and comments.  For example,
-            if foo() { // asdasd
-    is an indenting line in C++, but:
-            if foo() // {
-    is not, since the { character would not be styled as an 'indenting char'.
-
-    Indented lines are lines that contain non-comment and non-whitespace characters
-    which are indented by a positive amount compared to the indented line.  Thus
-    in the code:
-
-        [scriptable, uuid(96A8CC18-168B-4137-8435-E633D13F7925)]
-        interface koILanguageService : nsISupports {
-                // template interface for language services
-        };
-        
-        [scriptable, uuid(29098AA5-7F16-4671-823D-FC0817250A7C)]
-        interface koILanguage : nsISupports {
-          readonly attribute string name;
-
-    The _last_ line is the first valid 'indented' line, and so the computed
-    indent is 2 (the first interface definition contains only comments, so is
-    ignored.
-  
-    The code ignores indenting lines that are not followed by an indented line 
-    
-    The arguments are:
-        scimoz:
-            the scintilla object with the buffer being processed
-        chars:
-            a sequence of _unicode_ characters which are used in the
-            specific language to indicate block openings (typically u'{')
-        styles:
-            a sequence of Scintilla style numbers which are valid for
-            block-opening characters
-        comment_styles:
-            a sequence of Scintilla style numbers which corresponds
-            to comments or other code to be ignored
-        tabWidth:
-            what a tab character should be counted as (almost always 8).
-    
-    At most the first 300 lines are looked at.
-    
-    As a side effect, the first 300 lines of the buffer will be 'colourised' if they
-    are not already.
-    """
-    textLength = scimoz.length
-    if textLength == 0:
-        return 0, 0
-    indenting = None
-    # first, colourise the first 300 lines at most so we have
-    # styling information.
-    N = min(300, scimoz.lineCount)
-    end = scimoz.getLineEndPosition(N - 1)
-    if end < textLength:
-        end = scimoz.positionFromLine(N)
-    if scimoz.endStyled < end:
-        scimoz.colourise(scimoz.endStyled, end)
-    data = scimoz.getStyledText(0, end)
-    # data is a list of (character, styleNo)
-    tabcount = 0
-    spacecount = 0
-
-    for lineNo in range(N):
-        # the outer loop tries to find the 'indenting' line.
-        if not scimoz.getLineIndentation(lineNo+1): # skip unindented lines
-            # check this line's indentation for leading tabs.
-            lineStartPos = scimoz.positionFromLine(lineNo)
-            if scimoz.getWCharAt(lineStartPos) in ' \t':
-                lineEndPos = scimoz.getLineEndPosition(lineNo)
-                if lineEndPos > lineStartPos:
-                    line = scimoz.getTextRange(lineStartPos, lineEndPos)
-                    blackPos = len(line) - len(line.lstrip())
-                    if '\t' in line[:blackPos]:
-                        tabcount += 1
-                    elif blackPos >= tabWidth:
-                        spacecount += 1
-            continue
-        lineEndPos = scimoz.getLineEndPosition(lineNo)
-        if lineNo == N - 1 and lineEndPos == end:
-            lineEndPos = scimoz.getPositionBefore(end)
-        lineStartPos = scimoz.positionFromLine(lineNo)
-        WHITESPACE = '\t\n\x0b\x0c\r '  # don't use string.whitespace (bug 81316)
-        try:
-            # we'll look for each character in the line, going from
-            # the back, for an 'indenting' character
-            for pos in range(lineEndPos, lineStartPos-1, -1):
-                char = data[pos*2]
-                if char in WHITESPACE: # skip whitespace
-                    continue
-                style = ord(data[pos*2+1])
-                if style in comment_styles: # skip comments
-                    continue
-                if (char in chars) and (style in styles):
-                    # we found that the first 'interesting'
-                    # character from the right of the line is an
-                    # indent-causing character
-                    indenting = scimoz.getTextRange(lineStartPos, lineEndPos)
-                    log.info("Found indenting line: %r" % indenting)
-                    # look for an indented line after this line
-                    guess, foundTabs = _findIndentedLine(scimoz,
-                                                         N, lineNo, indenting,
-                                                         comment_styles, tabWidth, data)
-                    if guess is not None:
-                        # if the indent is a divisor of the tab width, then we should check
-                        # if there are tabs used for indentation
-                        if tabWidth % guess == 0:
-                            for lineNo in range(lineNo + 1, N):
-                                lineStartPos = scimoz.positionFromLine(lineNo)
-                                # skip lines that aren't indented at all
-                                if scimoz.getWCharAt(lineStartPos) not in ' \t':
-                                    continue
-                                lineEndPos = scimoz.getLineEndPosition(lineNo)
-                                line = scimoz.getTextRange(lineStartPos, lineEndPos)
-                                blackPos = len(line) - len(line.lstrip())
-                                if '\t' in line[:blackPos]:
-                                    tabcount += 1
-                                    break
-                                elif blackPos >= tabWidth:
-                                    spacecount += 1
-                        return guess, tabcount > spacecount or (tabcount and defaultUsesTabs)
-                    else:
-                        # probably an empty block
-                        raise _NextLineException()
-                else:
-                    # We've found a character which is not a block opener
-                    # so this can't be an indenting line.
-                    raise _NextLineException()
-        except _NextLineException:
-            continue
-    log.info("Couldn't find indentation information from the file")
-    return 0, 0
-
-def _findIndentedLine(scimoz, N, lineNo, indenting, comment_styles, tabWidth, data):
-    """
-    This function looks through the 'scimoz' buffer until at most the line number
-    'N' for a line which is 'indented' relative to the 'indenting' line, ignoring
-    characters styled as one of the styles in 'comment_styles'.
-    
-    N points 1 past the last line to look at.
-    """
-    indentedLineNo = lineNo + 1
-    guess = None
-    textLength = scimoz.length
-    WHITESPACE = '\t\n\x0b\x0c\r '  # don't use string.whitespace (bug 81316)
-    for indentedLineNo in range(indentedLineNo, N):
-        if not scimoz.getLineIndentation(indentedLineNo): # skip unindented lines
-            continue
-        lineEndPos = scimoz.getLineEndPosition(indentedLineNo)
-        if lineEndPos >= textLength:
-            # Bug in Scintilla:
-            # lineEndPos(lastLine) == doc.textLength
-            lineEndPos = textLength - 1 
-        lineStartPos = scimoz.positionFromLine(indentedLineNo)
-        # we want to skip characters that are just comments or just whitespace
-        for pos in range(lineEndPos, lineStartPos-1, -1):
-            char = data[pos*2]
-            if char in WHITESPACE: # skip whitespace
-                continue
-            style = ord(data[pos*2+1])
-            if style in comment_styles: # skip comments
-                continue
-            # We have an indenting and an indented.
-            indented = scimoz.getTextRange(lineStartPos, lineEndPos)
-            log.info("opener: %r" % indenting)
-            log.info("indented: %r" % indented)
-            raw, indentsmall, foundTabsInOpener = classifyws(indenting, tabWidth)
-            raw, indentlarge, foundTabsInIndented = classifyws(indented, tabWidth)
-            foundTabs = foundTabsInOpener or foundTabsInIndented
-            guess = indentlarge - indentsmall
-            # If the guess is reasonable, use it -- indents less than
-            # 2 don't qualify.
-            if guess > 1:
-                return guess, foundTabs
-            else:
-                log.warn("Found non-positive guess")
-                return None, None
-    return None, None
     
 # taken from IDLE
 # Look at the leading whitespace in s.

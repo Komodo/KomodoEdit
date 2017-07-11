@@ -279,9 +279,6 @@ end section
                 return False
         return False
 
-    def guessIndentation(self, scimoz, tabWidth, defaultUsesTabs):
-        return self.guessIndentationByFoldLevels(scimoz, tabWidth, defaultUsesTabs, minIndentLevel=2)
-
     def _is_special_variable(self, scimoz, pos, opStyle):
         if pos == 0:
             return False;
