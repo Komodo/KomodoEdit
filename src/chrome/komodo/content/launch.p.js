@@ -548,12 +548,20 @@ this.newVersionCheck = function(includeMinor=false)
     var url = ko.prefs.getString("versioncheck.url");
     url = url.replace("%s", versionStr);
 
+    var validDomains = ko.prefs.getString("versioncheck.valid.domains").split(",");
+
     _log.debug("versioncheck on " + url);
 
     var ajax = require("ko/ajax");
-    ajax.get(url, function(code, responseText)
+    ajax.request({url: url, method: 'HEAD'}, function(code, responseText, req)
     {
-        if (code != 200 && code != 301)
+        var responseURL = req.responseURL;
+        responseURL = require("sdk/url").URL(responseURL);
+        var domain = responseURL.host.replace(/.*?(\w+\.\w+)$/, "$1");
+
+        _log.debug("Response: " + responseURL + " (" + code + ")");
+
+        if (validDomains.indexOf(domain) == -1 || (code != 200 && code != 301))
         {
             if ( ! includeMinor)
                 this.newVersionCheck(true);
