@@ -609,11 +609,34 @@ this.newVersionCheck = function(includeMinor=false)
 
                 var nav = bde.querySelector("NAV");
                 var bc = bde.querySelector(".breadcrumbs");
+                var bcu = bde.querySelector("#under-breadcrumb-actions");
 
                 if (nav)
                     nav.style.display = "none";
                 if (bc)
                     bc.style.display = "none";
+                if (bcu)
+                    bcu.style.display = "none";
+
+                var links = $(browser.element().contentDocument).find("a[href]");
+                links.on("click", function (e)
+                {
+                    ko.browse.openUrlInDefaultBrowser(e.target.href);
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return false;
+                });
+
+                browser.element().contentWindow.wrappedJSObject.open = (url) =>
+                {
+                    if ( ! url)
+                        return;
+
+                    window.setTimeout(() =>
+                    {
+                        ko.browse.openUrlInDefaultBrowser(url);
+                    }, 0);
+                };
             });
         }.bind(this));
     }.bind(this));
