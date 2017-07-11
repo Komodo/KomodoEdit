@@ -207,3 +207,10 @@ pref("plugin.state.libnpscimoz", 2);
 
 // Always show scrollbars 
 pref("layout.testing.overlay-scrollbars.always-visible", true);
+
+#ifdef WIN32
+// Work around font rendering issues on Windows
+pref("gfx.direct2d.force-enabled", true);
+pref("gfx.font_rendering.cleartype.always_use_for_content", true);
+pref("gfx.font_rendering.directwrite.enabled", true);
+#endif
