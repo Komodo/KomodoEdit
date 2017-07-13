@@ -158,14 +158,13 @@ const [JetPack, require] = (function() {
                 log.exception(ex, msg);
             else
             {
-                Cu.reportError('While trying to require("' + id + '"):');
+                Cu.reportError(msg);
                 Cu.reportError(ex);
 
                 if (typeof(ex) == 'object' && 'stack' in ex && ex.stack)
                     Cu.reportError(ex.stack);
             }
 
-                
             throw ex;
         }
         return null;
