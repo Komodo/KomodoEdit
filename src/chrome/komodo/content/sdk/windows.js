@@ -65,6 +65,22 @@
         onLoadCallbacks[href].push(callback);
     };
     
+    this.removeOnLoad = function(href, callback)
+    {
+        if (typeof href == "function")
+        {
+            callback = href;
+            href = "all";
+        }
+
+        if ( ! (href in onLoadCallbacks))
+        {
+            return;
+        }
+
+        onLoadCallbacks[href] = onLoadCallbacks[href].filter((cb) => cb != callback);
+    };
+
     /**
      * Retrieve the main komodo window
      * 
