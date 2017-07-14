@@ -927,6 +927,20 @@
             [x,y] = this._last_mousemove_xy;
 /* #endif */
 
+            if (typeof require == 'undefined')
+                return;
+
+            var w = require("ko/windows").getMain();
+            if ( ! w || ! w.ko || ! w.ko.uilayout)
+                return;
+
+            var legacy = w.ko;
+            var bo = this.boxObject;
+            var [parentX, parentY] = legacy.uilayout.mousepos;
+            if (parentX < bo.x || parentY < bo.y || // left, top
+                parentX > bo.x + bo.width || parentY > bo.y + bo.height) // right, bottom
+                return;
+
             // Send event.
             if (this._dispatch_events) {
                 var data = { view: this, position: position, x: x, y: y };

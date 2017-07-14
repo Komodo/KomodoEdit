@@ -1660,6 +1660,8 @@ function uilayout_upgrade() {
     }
 }
 
+this.mousepos = [0,0,0,0];
+
 this.onload = function uilayout_onload()
 {
     var uilayout_version = 2;
@@ -1785,6 +1787,11 @@ this.onload = function uilayout_onload()
         else
             window.addEventListener("toolbox-ready", runTutorial);
     }
+
+    window.addEventListener("mousemove", (e) =>
+    {
+        this.mousepos = [e.clientX, e.clientY, e.screenX, e.screenY];
+    });
 
     try
     {
