@@ -1566,7 +1566,19 @@
         <field name="_matchedTagUnhighlighter">0</field>
         <field name="_mouseButton">-1</field>
 
+        <field name="_marginClickPending">false</field>
         <method name="onMarginClick">
+        <parameter name="modifiers"/>
+        <parameter name="position"/>
+        <parameter name="margin"/>
+        <body>
+        <![CDATA[
+           this._marginClickPending = arguments;
+        ]]>
+        </body>
+        </method>
+
+        <method name="_onMarginClick">
         <parameter name="modifiers"/>
         <parameter name="position"/>
         <parameter name="margin"/>
@@ -1615,6 +1627,7 @@
 
 
             this._mouseButton = -1;
+            this._marginClickPending = false;
         ]]>
         </body>
         </method>
@@ -1984,12 +1997,17 @@
         <handler event="mousedown" phase="capturing">
             <![CDATA[
             this._mouseButton = event.button;
+            if (this._marginClickPending)
+            {
+                this._onMarginClick.apply(this, this._marginClickPending);
+            }
             ]]>
         </handler>
         <handler event="mouseup" phase="capturing">
             <![CDATA[
             setTimeout(function() {
                 this._mouseButton = -1;
+                this._marginClickPending = false;
             }.bind(this), 0);
             ]]>
         </handler>
