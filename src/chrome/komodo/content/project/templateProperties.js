@@ -6,7 +6,7 @@ window.templateProperties = {};
             .getService(Components.interfaces.nsIStringBundleService)
             .createBundle("chrome://komodo/locale/project/macro.properties");
 
-    var $ = require("ko/dom");
+    var $ = require("ko/dom").window(window);
     var prefs = require("ko/prefs");
     var log = require("ko/logging").getLogger("templateProperties");
 

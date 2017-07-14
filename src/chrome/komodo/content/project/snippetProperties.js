@@ -63,7 +63,7 @@ var ANCHOR_MARKER = '!@#_anchor';
 var CURRENTPOS_MARKER = '!@#_currentPos';
 var gChromeWindowView = null;
 
-var $ = require("ko/dom");
+var $ = require("ko/dom").window(window);
 
 function onLoad(event) {
     try {
