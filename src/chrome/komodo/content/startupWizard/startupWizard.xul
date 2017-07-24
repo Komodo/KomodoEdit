@@ -16,7 +16,7 @@ set to a chrome URL.
 <?xul-overlay href="chrome://komodo/content/bindings/scintilla-overlay.xul"?>
 
 <window id="startup-wizard"
-        title="Komodo IDE - Let's Get Started"
+        title="Komodo Edit - Let's Get Started"
         class="dialog"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         orient="vertical"
