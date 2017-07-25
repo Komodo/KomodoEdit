@@ -1182,6 +1182,10 @@
         <body>
         <![CDATA[
             this.koDoc.revert();
+            if (this.koDoc && this.koDoc.file)
+            {
+                require("ko/dom")(window).trigger("folder_touched", {path: this.koDoc.file.dirName});
+            }
         ]]>
         </body>
         </method>
