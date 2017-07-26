@@ -67,6 +67,7 @@ class KoCoffeeScriptLexerLanguageService(KoLexerLanguageService):
 
 class koJSLikeLanguage(KoLanguageBase):
     variableIndicators = '$'
+    importPref = "javascriptExtraPaths"
     def __init__(self):
         KoLanguageBase.__init__(self)
         self._style_info.update(
@@ -185,6 +186,8 @@ class koNodeJSLanguage(koJavaScriptLanguage):
     primary = 1
     defaultExtension = ".js"
     searchURL = "http://nodejs.org/docs/latest/api/index.html"
+    
+    importPref = "nodejsExtraPaths"
 
     sample = """
 var fs = require('fs');

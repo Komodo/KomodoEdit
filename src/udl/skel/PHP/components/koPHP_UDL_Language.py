@@ -88,6 +88,7 @@ class KoPHPLanguage(KoUDLLanguage, KoLanguageBaseDedentMixin):
     _dedenting_statements = [u'throw', u'return', u'break', u'continue']
     supportsSmartIndent = "brace"
     variablePrefix = "$"
+    importPref = "phpExtraPaths"
     sample = """<?php
 class foo {
     // a comment

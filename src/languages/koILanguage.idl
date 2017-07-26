@@ -64,6 +64,7 @@ interface koILanguage : nsISupports {
     // A regular expression to match a "named block" (e.g. a function or class
     // definition).
     readonly attribute string namedBlockRE;
+    readonly attribute string importPref;
     // A plaintext description of what namedBlockRE matches (e.g. functions and
     // classes).
     readonly attribute string namedBlockDescription;

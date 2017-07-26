@@ -93,6 +93,7 @@ class KoPerlLanguage(KoLanguageBase):
 
     supportsSmartIndent = "brace"
     variablePrefix = "$"
+    importPref = "perlExtraPaths"
     sample = r"""#  Fruit salad recipe
 my %salad;
 while (<DATA>) {

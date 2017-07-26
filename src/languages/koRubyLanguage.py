@@ -99,6 +99,8 @@ class KoRubyLanguage(KoLanguageKeywordBase):
     styleStdin = sci_constants.SCE_RB_STDIN
     styleStdout = sci_constants.SCE_RB_STDOUT
     styleStderr = sci_constants.SCE_RB_STDERR
+
+    importPref = "rubyExtraPaths"
     
     def __init__(self):
         KoLanguageKeywordBase.__init__(self)

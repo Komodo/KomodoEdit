@@ -1089,6 +1089,8 @@ class KoLanguageBase:
     
     isHTMLLanguage = False
 
+    importPref = ''
+
     ##
     # Deprecated scimoz mask helpers.
     # @deprecated since Komodo 9.0
