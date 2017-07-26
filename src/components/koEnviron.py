@@ -428,6 +428,28 @@ class KoUserEnviron:
     def keys(self):
         return self._userEnviron.keys()
 
+    def getEnvVar(self, name, prefs):
+        envStr = prefs.getString("userEnvironmentStartupOverride", "")
+        envList = envStr.split('\n')
+
+        for entry in envList:
+            try:
+                entry = entry.split("=", 1)
+                if len(entry) != 2:
+                    continue
+                key, value = entry
+                if key == name:
+                    return value
+            except ValueError:
+                log.error("error on value %s" % entry)
+
+        for piece in self.GetEnvironmentStrings():
+            equalSign = piece.find('=')
+            if piece[:equalSign] == name:
+                return piece[equalSign+1:]
+
+        return ""
+
     def GetEnvironmentStrings(self):
         self._initialize()
         return ["%s=%s" % (item[0], item[1])\
