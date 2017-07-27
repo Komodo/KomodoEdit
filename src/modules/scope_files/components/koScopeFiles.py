@@ -186,6 +186,8 @@ class Searcher:
         
         self.stripPathRe = {}
 
+        self.maxDepth = prefs.getLong("commando_files_max_depth")
+
     def stop(self, soft = False):
         log.debug(self.opts["uuid"] + " Stopping Searcher")
         
@@ -264,17 +266,20 @@ class Searcher:
             if subPath is parentPath:
                 continue;
 
+            relative = self.stripPathRe[parentPath].sub("", subPath)
+
             matchScore = 0
             if self.opts["queryOriginal"] != "":
-                matchScore = self._matchScore(subPath.lower(), self.opts["query"], 75)
+                matchScore = self._matchScore(subPath.lower(), relative, self.opts["query"], 75)
 
             if self.opts["queryOriginal"] == "" or matchScore > 0:
                 if matchScore > 0:
-                    matchScore += self._matchScore(os.path.basename(subPath).lower(), self.opts["query"], 25, lazyMatch = True)
+                    matchScore += self._matchScore(os.path.basename(subPath).lower(), relative, self.opts["query"], 25, lazyMatch = True)
 
                 pathEntry = {
                     "filename": filename,
                     "path": subPath,
+                    "relative": relative,
                     "type": "dir" if filename in dirnames else "file",
                     "score": matchScore
                 }
@@ -285,14 +290,14 @@ class Searcher:
                 if self.opts["numResults"] >= self.opts.get("maxresults", 200):
                     log.debug(self.opts["uuid"] + " Max results reached")
                     return self.stop(True)
-                
-    def _matchScore(self, string, words, weight = 100, lazyMatch = False):
+
+    def _matchScore(self, path, relativePath, words, weight = 100, lazyMatch = False):
         # Doing a loop for some reason is faster than all()
         # This isn't part of the main loop as this will be triggered far
         # more often than an actual match
         if not lazyMatch:
             for word in words:
-                if word not in string:
+                if word not in path:
                     return 0
 
         matchScore = 0
@@ -305,26 +310,31 @@ class Searcher:
             matchWeight = weight / len(words)
 
         for word in words:
-            if word not in string:
+            if word not in path:
                 return 0
 
             # If sequence matter, record whether
             if not lazyMatch:
-                index = string.index(word)
+                index = path.index(word)
                 if not sequence or index > sequence:
                     sequence = index
                 else:
                     sequence = False
 
-            matchScore += string.count(word) * matchWeight
+            matchScore += path.count(word) * matchWeight
 
         if not lazyMatch:
             if sequence and matchScore > 0:
                 matchScore += weight * 0.25
 
-            basename = os.path.basename(string)
+            basename = os.path.basename(path)
             if word in basename and basename.index(words[-1]) == 0:
-                matchScore += weight * 0.50
+                matchScore += weight * 0.25
+
+            weightLimit = weight * 0.25
+            depth = len(os.path.split(relativePath))
+            depthScore = 1.0 - (float(depth) / float(self.maxDepth))
+            matchScore += weightLimit * depthScore
 
         if matchScore > weight:
             matchScore = weight
@@ -336,7 +346,7 @@ class Searcher:
         description = pathEntry["path"]
 
         if not self.opts.get("fullpath", False):
-            description = self.stripPathRe[parentPath].sub("", description)
+            description = pathEntry["relative"]
 
         # cant be accessed outside of main thread
         # we should track our own usage numbers to make this more relevant
