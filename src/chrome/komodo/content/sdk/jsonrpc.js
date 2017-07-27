@@ -52,7 +52,9 @@
                 
             try
             {
-                data = base64.encode(JSON.stringify(data));
+                data = JSON.stringify(data);
+                log.debug(`Sending request: ${data}`);
+                data = base64.encode(data);
             }
             catch(e)
             {
@@ -62,8 +64,6 @@
             
             return new KoPromise((resolve, reject, each) =>
             {
-                log.debug(`Sending request: ${data}`);
-                
                 callbacks[reqid] = {};
                 callbacks[reqid].resolve = resolve;
                 callbacks[reqid].reject = reject;
@@ -85,11 +85,13 @@
         
         var onData = (data) =>
         {
-            log.debug(`Received data: ${data}, length: ${data.length}`);
+            log.debug(`Receiving data`);
             
             try
             {
-                data = JSON.parse(base64.decode(data.trim()));
+                data = base64.decode(data.trim());
+                log.debug(`Received data: ${data}, length: ${data.length}`);
+                data = JSON.parse(data);
             }
             catch (e)
             {
