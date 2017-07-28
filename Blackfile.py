@@ -1856,21 +1856,31 @@ def UploadKomodoPackages(cfg, argv):
     ver_info = _ver_info_from_long_ver_str(version)
     short_ver = _short_ver_str_from_ver_info(ver_info)
     d = "%s-%s-%s" % (cfg.sccRepoName, cfg.normSCCBranch, buildNum)    
-    upload_dir = ujoin(upload_base_dir, short_ver, "DevBuilds", d)
+    devBuilds_dir = ujoin(upload_base_dir, short_ver, "DevBuilds")
+    upload_dir = ujoin(devBuilds_dir, d)
+    latest_dir = ""
+    if cfg.sccRepoName is "oksvn":
+        latest_dir = ujoin(devBuilds_dir, "latest-edit")
+    else:
+        latest_dir = ujoin(devBuilds_dir, "latest-ide")
 
-    for dirpath, dirnames, filenames in os.walk(cfg.packagesRelDir):
-        reldir = _relpath(dirpath, cfg.packagesRelDir).replace('\\', '/')
-        for filename in filenames:
-            if "pad" in reldir.split('/'):
-                pass
-            elif str(buildNum) not in filename and "/log" not in reldir:
-                continue
-            src = join(dirpath, filename)
-            dst = unormpath(ujoin(upload_dir, reldir, filename))
-            buildutils.remote_mkdir(udirname(dst), parents=True,
-                                    log=log.info)
-            buildutils.remote_cp(src, dst, log.info)
-
+    if os.path.isdir("packages"):
+        for dirpath, dirnames, filenames in os.walk(cfg.packagesRelDir):
+            reldir = _relpath(dirpath, cfg.packagesRelDir).replace('\\', '/')
+            for filename in filenames:
+                if "pad" in reldir.split('/'):
+                    pass
+                elif str(buildNum) not in filename and "/log" not in reldir:
+                    continue
+                src = join(dirpath, filename)
+                dst = unormpath(ujoin(upload_dir, reldir, filename))
+                buildutils.remote_mkdir(udirname(dst), parents=True,
+                                        log=log.info)
+                buildutils.remote_cp(src, dst, log.info)
+    else:
+        log.warn("`packages` folder does not exist.  You must run `bk package` before uploading Komodo bits.")
+    buildutils.remote_rm(latest_dir, log.debug);
+    buildutils.remote_symlink(upload_dir, latest_dir, log.debug);
 
 def PackageKomodo(cfg, argv):
     """Build Komodo packages.
