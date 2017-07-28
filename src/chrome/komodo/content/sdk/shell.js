@@ -143,8 +143,10 @@
 
         if (platform == "winnt")
         {
-            args.unshift("/c", binary);
+            args.unshift(binary);
+            args = '"' + args.join('" "') + '"';
             binary = this.lookup("cmd");
+            args = [binary, "/c", args];
         }
 
         var proc = require("sdk/system/child_process");
