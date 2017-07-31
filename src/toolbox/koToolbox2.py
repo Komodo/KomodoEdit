@@ -224,7 +224,7 @@ class Database(object):
             for name in os.listdir(srcDir):
                 srcChild = os.path.join(srcDir, name)
                 try:
-                    shutil.copy(srcChild, destDir)
+                    shutil.copytree(srcChild, destDir)
                 except:
                     log.exception("Failed to copy srcChild:%s to dest destDir:%s", srcChild, destDir)
 
