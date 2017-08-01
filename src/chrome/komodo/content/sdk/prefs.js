@@ -254,7 +254,7 @@ var PreferenceSet = function(prefset)
         }
 
         var _prefset = prefset.getPref(name);
-        return new PreferenceSet(_prefset);
+        return _prefset;
     };
 
     /**
