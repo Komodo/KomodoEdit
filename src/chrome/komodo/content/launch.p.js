@@ -158,6 +158,12 @@ this.alternate = function() {
  * Open the Komodo error log for viewing.
  */
 this.viewErrorLog = function() {
+    var tailWindows = require("ko/windows").getWindows("komodo_tail");
+    if (tailWindows.length > 0)
+    {
+        tailWindows[0].focus();
+        return;
+    }
     var osSvc = Components.classes['@activestate.com/koOs;1'].getService(Components.interfaces.koIOs);
     var dirsSvc = Components.classes['@activestate.com/koDirs;1'].getService(Components.interfaces.koIDirs);
     var sysUtilsSvc = Components.classes['@activestate.com/koSysUtils;1'].getService(Components.interfaces.koISysUtils);
