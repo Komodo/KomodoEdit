@@ -201,11 +201,13 @@ window.app = {};
             
             if (result !== undefined) this.print("output", result);
         }
-        
-        history.unshift(input);
-        history = history.slice(0, 50);
-        historyPos = -1;
-        prefs.setString("console_history", JSON.stringify(history));
+
+        if (input.trim()) {
+            history.unshift(input);
+            history = history.slice(0, 50);
+            historyPos = -1;
+            prefs.setString("console_history", JSON.stringify(history));
+        }
         
         elem.input.value = "";
     }
