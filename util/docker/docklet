@@ -154,8 +154,8 @@ function build-quick {
 }
 
 function run {
-    cd $KODIRNAME
-    ./mozilla/build/moz3500-ko11.10/mozilla/ko-rel/dist/bin/komodo # Todo: auto-detect path
+    setSshCmd
+    ${SSH_CMD} "PATH=/komodo/dev/util/black:\$PATH && cd /komodo/dev && bk run"
 }
 
 function image {
