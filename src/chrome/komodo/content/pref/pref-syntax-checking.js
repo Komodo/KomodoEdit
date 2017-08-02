@@ -428,23 +428,6 @@ function javaScriptInfo(languageName) {
     };
 }
 
-languageInfo.Ruby = {
-    browseForRubocopBinary: () => {
-        let rubocop_binary = document.getElementById('rubocop_binary');
-        let currentPath = rubocop_binary.value;
-        let path = ko.filepicker.browseForExeFile(null, currentPath || "");
-        if (path)
-            rubocop_binary.value = path;
-    },
-    browseForRubocopConfig: () => {
-        let rubocop_config = document.getElementById('rubocop_config');
-        let currentPath = rubocop_config.value;
-        let path = ko.filepicker.browseForExeFile(null, currentPath || "");
-        if (path)
-            rubocop_config.value = path;
-    }
-};
-
 function typescript_setup() {
     if (!('TypeScript' in dialog)) {
         dialog.TypeScript = {};
