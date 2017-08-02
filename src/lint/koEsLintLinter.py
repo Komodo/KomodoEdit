@@ -28,15 +28,19 @@ class KoEsLintLinter(object):
 
     def __init__(self,):
         self.project = Cc["@activestate.com/koPartService;1"].getService(Ci.koIPartService)
+        self.jshint_linter = Cc["@activestate.com/koLinter?language=JavaScript&type=JSHint;1"].getService(Ci.koILinter)
 
     def lint(self, request):
         text = request.content.encode(request.encoding.python_encoding_name)
         return self.lint_with_text(request, text)
 
+    def jshint_lint(self, request, text):
+        return self.jshint_linter.lint(request)
+
     def lint_with_text(self, request, text):
         if not request.prefset.getBoolean("lint_eslint_enabled", False):
             log.debug("EsLint: not enabled")
-            return
+            return self.jshint_lint(request, text)
 
         is_project = False
         cwd = None
@@ -66,7 +70,7 @@ class KoEsLintLinter(object):
                     log.debug("EsLint: eslint executable found on $PATH")
                 except which.WhichError:
                     log.debug("EsLint: eslint executable is not found on $PATH")
-                    return
+                    return self.jshint_lint(request, text)
             else:
                 log.debug("EsLint: eslint executable is set by the user")
 
@@ -84,12 +88,12 @@ class KoEsLintLinter(object):
                 config = request.prefset.getString('eslint_config', '')
         else:
             log.debug("EsLint: cwd is empty")
-            return
+            return self.jshint_lint(request, text)
         if config and os.path.isfile(config):
             cmd = [eslint, '--no-color', '--format', 'json', '--config', config]
         else:
             log.info("EsLint: .eslintrc is not found")
-            return
+            return self.jshint_lint(request, text)
 
         cmd += ['--stdin', '--stdin-filename', request.koDoc.file.encodedPath]
 
@@ -106,7 +110,7 @@ class KoEsLintLinter(object):
         except Exception, e:
             log.warn('Failed to parse the eslint output!')
             log.warn('The output was: {}'.format(stdout))
-            return
+            return self.jshint_lint(request, text)
 
         for message in data:
             line = message['line']
