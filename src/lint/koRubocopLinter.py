@@ -28,7 +28,6 @@ class KoRubocopLinter(object):
         self.ignore_cops = ["Style/FileName"]
         self.file_ext = '.rb'
         self.project = Cc["@activestate.com/koPartService;1"].getService(Ci.koIPartService)
-        self.ruby_linter = Cc["@activestate.com/koLinter?language=Ruby;1"].getService(Ci.koILinter)
 
     def lint(self, request):
         text = request.content.encode(request.encoding.python_encoding_name)
@@ -37,7 +36,7 @@ class KoRubocopLinter(object):
     def lint_with_text(self, request, text):
         if not request.prefset.getBoolean("lint_rubocop_enabled", False):
             log.debug("Rubocop: not enabled")
-            return self.ruby_linter.lint(request)
+            return
         try:
             rubocop = request.prefset.getString('rubocop_binary' ,'')
             if rubocop == '':
@@ -45,7 +44,7 @@ class KoRubocopLinter(object):
                 rubocop = which.which('rubocop')
         except which.WhichError:
             log.debug("Rubocop: rubocop is not found")
-            return self.ruby_linter.lint(request)
+            return
 
         cwd = None
         cmd = []
