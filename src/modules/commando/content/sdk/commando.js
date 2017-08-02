@@ -274,14 +274,14 @@
                 onNavUp(e);
                 prevDefault = true;
                 break;
-            case KeyEvent.DOM_VK_RIGHT: 
+            case KeyEvent.DOM_VK_RIGHT:
                 onExpandResult(e);
                 break;
             case KeyEvent.DOM_VK_ALT:
                 local.altPressed = true;
                 break;
         }
-        
+
         var numberNav = prefs.getBoolean('commando_navigate_by_number', true);
         numberNav = numberNav && ! local.prevSearchValue;
         if (numberNav || (local.altPressed && e.keyCode != KeyEvent.DOM_VK_ALT))
@@ -517,13 +517,11 @@
                 var resultElem = elem('results').element();
                 resultElem.selectedItem = target;
             }
-
-            e.preventDefault();
-            e.stopPropagation();
         }
-        else
+
+        var textbox = elem("search").element();
+        if ( ! e || e.currentTarget == textbox)
         {
-            var textbox = elem("search").element();
 
             if (textbox.selectionEnd != textbox.selectionStart ||
                 textbox.selectionStart < textbox.value.length)
@@ -539,6 +537,12 @@
             return;
 
         c.expandResult(selected);
+
+        if (e)
+        {
+            e.preventDefault();
+            e.stopPropagation();
+        }
     }
 
     var onChangeScope = function(e)
