@@ -68,7 +68,7 @@
             _opts.mruName = null;
         }
         
-        w = opts.window || window;
+        var w = opts.window || window;
 
         w.openDialog("chrome://komodo/content/dialogs/prompt.xul",
                   "_blank",
