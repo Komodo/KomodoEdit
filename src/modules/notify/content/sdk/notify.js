@@ -421,7 +421,7 @@
         this.bindActions(notif, panel);
         
         if (notif.opts.from != "widget")
-            panel.focusedElement = document.commandDispatcher.focusedElement;
+            panel.focusedElement = _document.commandDispatcher.focusedElement;
 
         queue[notif.opts.from].activeId = notif.opts.id;
         queue[notif.opts.from].activePanel = panel;

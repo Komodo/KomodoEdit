@@ -1587,7 +1587,14 @@
         <parameter name="margin"/>
         <body>
         <![CDATA[
-           this._marginClickPending = arguments;
+           if(require("sdk/system").platform == "winnt")
+           {
+               this._onMarginClick.apply(this, arguments);
+           }
+           else
+           {
+               this._marginClickPending = arguments;
+           }
         ]]>
         </body>
         </method>
