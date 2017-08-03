@@ -261,13 +261,20 @@
      * 
      * @returns {Process}
      */
-    this.exec = function(command, opts, callback)
+    this.exec = function(command, opts = {}, callback = function() {})
     {
         var _opts = {
             cwd: this.getCwd(),
             env: this.getEnv()
         };
-        
+
+        // Resolve binary
+        command = command.trim().split(" ");
+        var binary = command.shift();
+        binary = this.lookup(binary);
+        command.unshift(binary);
+        command = command.join(" ");
+
         var _ = require("contrib/underscore");
         _opts = _.extend(_opts, opts);
         
