@@ -2070,7 +2070,7 @@
                 tipMessage = "TIP: Press " + bindLabel + " to quickly Go To Anything.";
         }
 
-        if (!tipMessage && selected.allowExpand !== false) {
+        if (selected && !tipMessage && "allowExpand" in selected && selected.allowExpand !== false) {
             tipMessage = 'TIP: Hit the right arrow key to "expand" your selection';
         }
 
