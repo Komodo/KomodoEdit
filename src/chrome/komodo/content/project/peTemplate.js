@@ -74,7 +74,7 @@ if (typeof(ko.projects)=='undefined') {
                 view.saveAsURI(ko.uriparse.localPathToURI(path));
             }
 
-            callback(e.detail);
+            callback(view);
         };
 
         window.addEventListener("editor_view_opened_from_template", handleViewOpened);
