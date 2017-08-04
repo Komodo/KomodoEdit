@@ -1928,6 +1928,10 @@ class koDocumentBase(object):
             log.info("_indentWidth is not none, it's %s" % self._indentWidth)
         return self._indentWidth
 
+    def redetectIndentWidth(self):
+        self._indentWidth = None
+        indentWidth = self.indentWidth
+
     @indentWidth.setter
     def indentWidth(self, value):
         self._indentWidth = value

@@ -240,6 +240,7 @@ interface koIDocument : nsISupports
     attribute long tabWidth;    // number of spaces that a tab character uses in display
     attribute boolean useTabs;  // true if tabs are used for indentation
     attribute long indentWidth; // number of spaces for an indent (typically 4 or 8)
+    void redetectIndentWidth();
 
     AString getUnsavedChanges();
                              
