@@ -752,8 +752,8 @@
         else
         {
             // Center horizontally on the window
-            var bo = document.getElementById('komodo-editor-vbox');
-            bo = bo ? bo.boxObject : document.documentElement.boxObject;
+            var bo = _document.getElementById('komodo-editor-vbox');
+            bo = bo ? bo.boxObject : _document.documentElement.boxObject;
             var wx = bo.screenX,
                 wy = bo.screenY,
                 ww = bo.width,
