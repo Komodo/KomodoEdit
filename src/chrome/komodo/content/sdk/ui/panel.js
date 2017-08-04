@@ -47,37 +47,57 @@ module.exports = Module;
                 
             args = _.extend(this.options, args);
                 
-            var anchor =  args.anchor || _window.document.documentElement;
+            var anchor =  args.anchor === undefined ? _window.document.documentElement : anchor;
+            var parent = anchor || _window.document.documentElement;
             
             if( ! this.element.parentNode || ! this.element.parentNode.parentNode)
             {
-                anchor.ownerDocument.documentElement.appendChild(this.element);
+                parent.ownerDocument.documentElement.appendChild(this.element);
             }
             
             var position = args.position || null;
             var x = args.x || 0;
             var y = args.y || 0;
             var isContextMenu = args.isContextMenu || false;
-            var attributesOverride = args.attributes || false;
-            var triggerEvent = args.triggerEvent || null;
             var panelElement = this.element;
-            panelElement.openPopup(anchor,
-                                   position,
-                                   x,
-                                   y,
-                                   isContextMenu,
-                                   attributesOverride,
-                                   triggerEvent);
+
+            if (anchor)
+                panelElement.openPopup(anchor,
+                                        position,
+                                        x,
+                                        y,
+                                        isContextMenu);
+            else
+                panelElement.openPopupAtScreen(x, y, isContextMenu);
             
             var center = function()
             {
-                if ( ! args.x && ! args.y )
+                if ( ! panelElement || ! panelElement.moveTo)
+                    return;
+
+                var x, y;
+                if (anchor && ! args.x && ! args.y )
                 {
-                    var x = anchor.boxObject.screenX + ((anchor.boxObject.width/2)-(panelElement.boxObject.width/2));
-                    var y = anchor.boxObject.screenY + ((anchor.boxObject.height/2)-(panelElement.boxObject.height/2));
-                    if (panelElement && panelElement.moveTo)
-                        panelElement.moveTo(x,y);
+                    x = anchor.boxObject.screenX + ((anchor.boxObject.width/2) - (panelElement.boxObject.width/2));
+                    y = anchor.boxObject.screenY + ((anchor.boxObject.height/2) - (panelElement.boxObject.height/2));
                 }
+                else if (anchor && args.x && args.y)
+                {
+                    x = anchor.boxObject.screenX + args.x;
+                    y = anchor.boxObject.screenY + args.y;
+                }
+                else
+                {
+                    x = args.x;
+                    y = args.y;
+                }
+
+                if (args && args.align == "bottom")
+                {
+                    y -= panelElement.boxObject.height;
+                }
+
+                panelElement.moveTo(x,y);
             };
             
             // Yay XUL
