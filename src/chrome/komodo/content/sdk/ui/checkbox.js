@@ -31,7 +31,12 @@ module.exports = Module;
             if (value !== undefined) {
                 this.$element.attr("checked", value);
             }
-            return this.element.checked;
+
+            var val = this.$element.attr("checked");
+            if ( ! val)
+                return false;
+
+            return ["false", "0"].indexOf(val) == -1;
         };
         
         this.value = function(value)
