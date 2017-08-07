@@ -728,6 +728,8 @@ if (typeof module === 'undefined') module = {}; // debugging helper
         {
             var el = this.element();
             var w = el.ownerDocument.defaultView;
+
+            if ( ! w) return false;
             
             if ( ! el) return false;
             
