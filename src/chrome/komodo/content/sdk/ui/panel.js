@@ -22,7 +22,7 @@ module.exports = Module;
         this.name = "panel";
         
         this.init = this.initWithElement;
-        
+
         /**
          * Show the panel.
          *
@@ -47,7 +47,7 @@ module.exports = Module;
                 
             args = _.extend(this.options, args);
                 
-            var anchor =  args.anchor === undefined ? _window.document.documentElement : anchor;
+            var anchor =  args.anchor === undefined ? _window.document.documentElement : args.anchor;
             var parent = anchor || _window.document.documentElement;
             
             if( ! this.element.parentNode || ! this.element.parentNode.parentNode)
@@ -96,7 +96,7 @@ module.exports = Module;
                 {
                     y -= panelElement.boxObject.height;
                 }
-
+                
                 panelElement.moveTo(x,y);
             };
             
