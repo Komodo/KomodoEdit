@@ -585,7 +585,6 @@
         
         setTimeout(function() {
             c.show(undefined, true);
-            c.search();
         }, 100);
     }
     
