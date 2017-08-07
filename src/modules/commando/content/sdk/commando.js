@@ -1418,8 +1418,6 @@
             {
                 log.exception(e, "Failed rendering result: " + result.name);
             }
-            
-            if (appended) this.sortResult(resultEntry);
 
             if (result.scope)
             {
@@ -1428,6 +1426,11 @@
                 local.resultsByScope[result.scope]++;
             }
         }
+
+        fragment.children().each(function()
+        {
+            c.sortResult(this);
+        });
 
         var counter = 1;
         fragment.find("label.number").each(function()
