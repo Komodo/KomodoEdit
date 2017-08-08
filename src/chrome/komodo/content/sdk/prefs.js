@@ -399,7 +399,7 @@ module.exports = new PreferenceSet(prefService);
      * @param {String}      path    The chrome path to your *.xul file
      * @param {String}      insertAfter     ID of the element to insert after
      */
-    this.registerCatagory = function(name, path, insertAfter=null )
+    this.registerCategory = function(name, path, insertAfter=null )
     {
         let id = name.replace(/\s/g,"_");
         let prefCatagoryStorage = storage;
@@ -415,7 +415,7 @@ module.exports = new PreferenceSet(prefService);
         }
     };
     
-    this.getRegisteredCatagories = function()
+    this.getRegisteredCategories = function()
     {
         return storage.catagories || [];
     };
