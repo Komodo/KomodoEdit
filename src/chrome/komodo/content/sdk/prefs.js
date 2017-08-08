@@ -404,12 +404,12 @@ module.exports = new PreferenceSet(prefService);
     {
         let id = name.replace(/\s/g,"_");
         categories = categories.filter((c) => c.path != path);
-        catagories.push({ name: name, path: path, id: id, insertAfter: insertAfter });
+        categories.push({ name: name, path: path, id: id, insertAfter: insertAfter });
     };
     
     this.getRegisteredCategories = function()
     {
-        return storage.catagories || [];
+        return categories || [];
     };
 
 }).apply(module.exports);
