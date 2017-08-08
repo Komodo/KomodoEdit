@@ -1019,6 +1019,11 @@ window.embedded.widget
     .ui-description:not(.fullwidth)
     {
         margin-left: 104px;
+
+        &.ui-description
+        {
+          width: 400px; /* required or else the text will take as much width as it needs without wrapping */
+        }
     }
     
     .ui-textbox,
