@@ -10,8 +10,9 @@ const w = require("ko/windows").getMain();
 const log = require("ko/logging").getLogger("ko/prefs");
 const prefService = Cc["@activestate.com/koPrefService;1"].getService(Ci.koIPrefService).prefs;
 
-var storage = require("ko/session-storage").get("pref-catagories").storage;
 var prefsets = {};
+
+var categories = [];
 
 var PreferenceSet = function(prefset)
 {
@@ -402,17 +403,8 @@ module.exports = new PreferenceSet(prefService);
     this.registerCategory = function(name, path, insertAfter=null )
     {
         let id = name.replace(/\s/g,"_");
-        let prefCatagoryStorage = storage;
-        if ( ! prefCatagoryStorage.registered )
-        {
-            prefCatagoryStorage.registered = [];
-            prefCatagoryStorage.catagories = [];
-        }
-        if ( prefCatagoryStorage.registered.indexOf(path) < 0)
-        {
-            prefCatagoryStorage.registered.push(path);
-            prefCatagoryStorage.catagories.push({ name: name, path: path, id: id, insertAfter: insertAfter });
-        }
+        categories = categories.filter((c) => c.path != path);
+        catagories.push({ name: name, path: path, id: id, insertAfter: insertAfter });
     };
     
     this.getRegisteredCategories = function()
