@@ -417,7 +417,7 @@ module.exports = new PreferenceSet(prefService);
     
     this.getRegisteredCatagories = function()
     {
-        return storage.catagories;
+        return storage.catagories || [];
     };
 
 }).apply(module.exports);
