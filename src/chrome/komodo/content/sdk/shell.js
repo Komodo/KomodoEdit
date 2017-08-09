@@ -271,7 +271,7 @@
         // Resolve binary
         command = command.trim().split(" ");
         var binary = command.shift();
-        binary = this.lookup(binary);
+        binary = this.lookup(binary) || binary;
         command.unshift(binary);
         command = command.join(" ");
 
