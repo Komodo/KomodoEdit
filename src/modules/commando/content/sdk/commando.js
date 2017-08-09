@@ -1280,6 +1280,43 @@
     {
         if ( ! results.length) return;
         
+        if (local.searchingUuid != searchUuid && local.resultUuid == searchUuid)
+        {
+            log.debug(searchUuid + " - Skipping "+results.length+" results for old search uuid: " + searchUuid);
+            return;
+        }
+
+        if (local.searchingUuid == searchUuid && local.resultUuid != searchUuid)
+        {
+            local.resultCache = [];
+            local.resultsReceived = 0;
+            local.resultsRendered = 0;
+            local.resultsByScope = {};
+            local.resultUuid = searchUuid;
+        }
+
+        if ( ! cacheOrigin)
+            local.resultsReceived += results.length;
+
+        if ( ! noDelay)
+        {
+            local.resultCache = local.resultCache.concat(results);
+
+            if ( ! local.renderResultsTimer)
+            {
+                log.debug("Setting result timer");
+                window.clearTimeout(local.renderResultsTimer);
+                local.renderResultsTimer = window.setTimeout(function()
+                {
+                    log.debug("Triggering result timer");
+                    this.renderResults(local.resultCache, searchUuid, true, true);
+                    local.resultCache = [];
+                    local.renderResultsTimer = false;
+                }.bind(this), prefs.getLong("commando_result_render_delay"));
+            }
+            return;
+        }
+        
         // Prepare wordRx for highlighting matched words
         var searchValue = elem('search').value().trim();
         var wordRx;
@@ -1304,43 +1341,6 @@
             str = str.replace(wordReplacedRx, wordReplacedReplacement);
             return str;
         };
-
-        if (local.searchingUuid != searchUuid && local.resultUuid == searchUuid)
-        {
-            log.debug(searchUuid + " - Skipping "+results.length+" results for old search uuid: " + searchUuid);
-            return;
-        }
-
-        if (local.searchingUuid == searchUuid && local.resultUuid != searchUuid)
-        {
-            local.resultCache = [];
-            local.resultsReceived = 0;
-            local.resultsRendered = 0;
-            local.resultsByScope = {};
-            local.resultUuid = searchUuid;
-        }
-        
-        if ( ! cacheOrigin)
-            local.resultsReceived += results.length;
-        
-        if ( ! noDelay)
-        {
-            local.resultCache = local.resultCache.concat(results);
-    
-            if ( ! local.renderResultsTimer)
-            {
-                log.debug("Setting result timer");
-                window.clearTimeout(local.renderResultsTimer);
-                local.renderResultsTimer = window.setTimeout(function()
-                {
-                    log.debug("Triggering result timer");
-                    this.renderResults(local.resultCache, searchUuid, true, true);
-                    local.resultCache = [];
-                    local.renderResultsTimer = false;
-                }.bind(this), prefs.getLong("commando_result_render_delay"));
-            }
-            return;
-        }
 
         log.debug(searchUuid + " - Rendering "+results.length+" Results");
 
