@@ -241,8 +241,7 @@ class Database(object):
                         language text,\
                         author text,\
                         license text,\
-                        website text,\
-            )")
+                        website text)")
 
     def _convert_komodotool_to_ktf(self, curr_ver, result_ver):
         toolbox2Svc = components.classes["@activestate.com/koToolbox2Service;1"]\
