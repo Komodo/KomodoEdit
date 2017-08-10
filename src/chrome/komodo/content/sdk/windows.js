@@ -88,12 +88,13 @@
      */   
     this.getMain = function(w)
     {
-        if ( ! w)
+        if ( ! w && typeof window != 'undefined')
             w = window;
 
+        w = w || null;
+
         var topHref = "chrome://komodo/content/komodo.xul";
-        var topWindow = null;
-        topWindow = w;
+        var topWindow = w;
         
         var assignWindow = function(w, k)
         {
@@ -111,7 +112,7 @@
             topWindow = assignWindow(topWindow, "top");
         }
         
-        if (topWindow.location.href != topHref)
+        if (topWindow && topWindow.location.href != topHref)
             topWindow = null;
             
         if ( ! topWindow)
