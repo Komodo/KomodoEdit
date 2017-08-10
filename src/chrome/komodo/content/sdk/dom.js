@@ -1158,7 +1158,8 @@ if (typeof module === 'undefined') module = {}; // debugging helper
         {
             this.each(function()
             {
-                this.parentNode.removeChild(this);
+                if (this.parentNode)
+                    this.parentNode.removeChild(this);
             });
         },
         
