@@ -727,7 +727,7 @@ adding an additional caret at the clicked position.">
 <!ENTITY lintJSHint_Explanation.descr "Use a format like bitwise=false debug=true esnext=true maxerr=5 predef=['document','window']">
 <!ENTITY lintJSHint_WebSiteLabel.label "See all allowed options at: ">
 <!ENTITY chooseACustomOrUpdatedJshint.js.label "Choose a custom or updated jshint.js">
-<!ENTITY defaultJshintLinter.label "Default linter (version 2.6.3)">
+<!ENTITY defaultJshintLinter.label "Default linter">
 <!ENTITY customJshintLinter.label "Custom linter">
 <!ENTITY separateNamesWithCommas.tooltip "Separate names with commas and/or spaces.">
 
