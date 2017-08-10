@@ -4,7 +4,7 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
     var log = require("ko/logging").getLogger("startupWizard");
     //log.setLevel(10);
     
-    var $ = require("ko/dom");
+    var $ = require("ko/dom").window(window);
     var prefs = require("ko/prefs");
     var platform = require("sdk/system").platform;
     
