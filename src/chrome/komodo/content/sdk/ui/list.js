@@ -6,7 +6,7 @@
  */
 
 var $ = require("ko/dom");
-var parent = require("./element");
+var parent = require("./column");
 var Module = Object.assign({}, parent); 
 module.exports = Module;
 
@@ -16,9 +16,6 @@ module.exports = Module;
     this.Model = Object.assign({}, this.Model);
     
     (function() {
-        
-        this.name = "html:ul";
-        this.attributes = { "xmlns:html": "http://www.w3.org/1999/xhtml" };
         
         this.init = function(entries, options = {})
         {
@@ -58,8 +55,7 @@ module.exports = Module;
                 return;
             }
             
-            var entryWrapper = $("<li>").append(element);
-            this.$element.append(entryWrapper);
+            this.addRow(element);
         };
         
     }).apply(this.Model); 
