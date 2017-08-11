@@ -2089,6 +2089,7 @@ class DataParser:
         subMetaQueue = ""
 
         for num, line in enumerate(fp, 1):
+            line = line.decode()
             # Check if we are past the meta start info (TOOL_META_START)
             # and before the meta info (pastMetaStartPending)
             # This strips the --- line
