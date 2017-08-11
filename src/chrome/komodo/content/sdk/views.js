@@ -86,6 +86,7 @@
             language: get("koDoc", "language"),
             title: get("title"),
             basename: get("koDoc","file","baseName"),
+            dirname: get("koDoc","file","dirName"),
             
             type: view ? view.getAttribute("type") : false
         }
