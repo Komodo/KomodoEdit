@@ -1355,6 +1355,10 @@ class KoLanguageBase:
                 continue
 
             # Don't consider comments or string as valid indentation
+            if scimoz.endStyled < realLineEndPos:
+                # Ensure styling is correct. Style from line start like
+                # Scintilla in order to prevent inaccurate styling.
+                scimoz.colourise(scimoz.positionFromLine(scimoz.lineFromPosition(scimoz.endStyled)), realLineEndPos)
             styleNoLineStart = scimoz.getStyleAt(indentEndPos)
             styleNoLineEnd = scimoz.getStyleAt(realLineEndPos)
             if styleNoLineStart in comment_styles or styleNoLineStart in string_styles \
