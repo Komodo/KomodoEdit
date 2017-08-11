@@ -221,11 +221,13 @@
             require("notify/notify").send(
                 prefix + ", " + topResult.description + " (" + severity + ")",
                 "lint",
-                {command: function(topResult)
                 {
-                    var editor = require("ko/editor");
-                    editor.setCursor({line: topResult.lineStart, ch: topResult.columnStart});
-                }.bind(this, topResult)
+                    command: function(topResult)
+                    {
+                        var editor = require("ko/editor");
+                        editor.setCursor({line: topResult.lineStart, ch: topResult.columnStart});
+                    }.bind(this, topResult),
+                    panel: false
             });
         }
     }
