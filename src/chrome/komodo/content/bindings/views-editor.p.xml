@@ -294,13 +294,6 @@
                 }
                 let language = val.language;
                 this._setLanguage(language);
-
-                setTimeout(() =>
-                {
-                  if (this._koDoc)
-                    this._koDoc.redetectIndentWidth();
-                }, 0);
-                
                 xtk.domutils.fireEvent(this, 'view_document_attached');
             }
         ]]>

@@ -119,13 +119,6 @@ function viewManager() {
                             this.handle_view_closed_setup, false);
     window.addEventListener('view_opened',
                             this.handle_view_opened_setup, false);
-    window.addEventListener('komodo-post-startup', () =>
-    {
-        for (let view of this.getAllViews())
-        {
-            view.koDoc.redetectIndentWidth();
-        }
-    });
     this._viewCount = 0;
     this.batchMode = false;
     this.lastviewcache = this.cacheCommandData(null);
