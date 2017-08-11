@@ -1203,7 +1203,8 @@
             }
 
             if (this.lastPosition !== null && currentPos != this.lastPosition) {
-                this.dispatchEvent(new CustomEvent('buffer_pos_changed', { bubbles: true, detail: currentPos - this.lastPosition }));
+                var char = this.charModified ? this.lastCharAdded : null;
+                this.dispatchEvent(new CustomEvent('buffer_pos_changed', { bubbles: true, detail: { offset: currentPos - this.lastPosition, char: char } }));
             }
 
             this.lastCharAdded = null;
