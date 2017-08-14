@@ -512,7 +512,8 @@
             
             // First one sometimes doesn't take
             timers.setTimeout(function() {
-                panel.element().moveTo(pos.x, pos.y);
+                if (panel.exists())
+                    panel.element().moveTo(pos.x, pos.y);
             }, 50);
         }
         else
