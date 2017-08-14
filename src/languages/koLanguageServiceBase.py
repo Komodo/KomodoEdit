@@ -1043,6 +1043,8 @@ class KoLanguageBase:
     _lineup_close_chars = ")]"
     _dedent_chars = ""
 
+    variablePrefix = ""
+
     # These should be overriden by the language implementation
     # "statements" should have been "keywords"
     # These mark what should be the last line in the block.
