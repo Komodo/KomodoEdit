@@ -12,6 +12,8 @@
  */
 (function()
 {
+    var w = require("ko/windows").getMain();
+    var ko = w.ko;
     
     /**
      * Access the view manager (see ko.views.manager)
