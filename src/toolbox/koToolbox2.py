@@ -125,8 +125,7 @@ class Database(object):
     # - 1.1.9: convert old tools
     # - 1.1.10: import sample file templates
     # - 1.1.11: add folder template table
-    # - 1.1.12: import sample folder templates
-    VERSION = "1.1.12"
+    VERSION = "1.1.11"
     FIRST_VERSION = "1.0.5"
     
     def __init__(self, db_path, schemaFile):
@@ -421,13 +420,12 @@ class Database(object):
         "1.0.11": ('1.0.12',  _signal_item_version_change, None),
         "1.0.12": ('1.0.13', _add_treat_as_ejs_to_snippets, None),
         "1.0.13": ('1.1.5', _add_lang_field_to_snippets_table, None),
-        "1.1.5": ("1.1.6", lambda x,y: True, None), #version shouldn't have been at 1.1.6 yet.
+        "1.1.5": ("1.1.6", lambda self,x,y: True, None), #version shouldn't have been at 1.1.6 yet.
         "1.1.6": ("1.1.7", _add_is_clean, None),
         "1.1.7": ("1.1.8", _transition_file_templates, None),
         "1.1.8": ("1.1.9", _convert_komodotool_to_ktf, None),
         "1.1.9": ("1.1.10", _import_files_templates, None),
         "1.1.10": ("1.1.11", _add_folder_template_table, None),
-        "1.1.11": ("1.1.12", _import_folders_templates, None),
     }
 
     def get_meta(self, key, default=None, cu=None):
