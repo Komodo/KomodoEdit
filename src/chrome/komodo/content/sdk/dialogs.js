@@ -285,7 +285,7 @@
             {
                 path: {
                     type: "filepath",
-                    options: { type: opts.type },
+                    options: { filetype: opts.type },
                     value: opts.path
                 }
             },
