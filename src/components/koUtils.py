@@ -61,12 +61,18 @@ class koUtils:
                     extracted = True
 
                     _targetPath = os.path.join(target, filename)
+                    _targetDir = os.path.dirname(_targetPath)
+
+                    if not os.path.isdir(_targetDir):
+                        os.makedirs(_targetDir)
+
                     if item.filename.endswith(os.path.sep):
                         # Directories end with a path separator
-                        os.makedirs(_targetPath)
+                        if not os.path.isdir(_targetDir):
+                            os.makedirs(_targetPath)
                     else:
                         _source = archive.open(item.filename)
-                        _target = open(_targetPath, "wb")
+                        _target = open(_targetPath, "wb+")
 
                         shutil.copyfileobj(_source, _target)
 
