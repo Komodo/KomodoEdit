@@ -137,6 +137,7 @@ Object.defineProperty(exports, "LOG_CRITICAL", {value: LOG_CRITICAL, enumerable:
 const Logger = exports.Logger = function(logger, logger_name) {
     this._logger = logger;
     this._logger_name = logger_name;
+    this._enabledCache = {};
 };
 
 Logger.prototype = {
@@ -194,6 +195,7 @@ const getLogger = exports.getLogger = function(logger_name) {
  */
 Logger.prototype.setLevel = function(level) {
     this._logger.setLevel(level);
+    this._enabledCache = {};
 };
 
 Object.defineProperty(Logger.prototype, "level", {
@@ -211,7 +213,12 @@ Logger.prototype.getEffectiveLevel = function() {
 };
 
 Logger.prototype.isEnabledFor = function(level) {
-    return this._logger.isEnabledFor(level);
+    if (level in this._enabledCache)
+        return this._enabledCache[level];
+    
+    var result = this._logger.isEnabledFor(level);
+    this._enabledCache[level] = result;
+    return result;
 };
 
 /**
