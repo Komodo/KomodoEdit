@@ -53,7 +53,7 @@ class koUtils:
                 # does not support this
                 for item in (f for f in archive.filelist if f.filename.startswith(subfolder)):
                     # Strip subfolder from filepath
-                    filename = os.path.join(*(item.filename.split(os.path.sep)[1:])) 
+                    filename = os.path.join(*(item.filename.split("/")[1:])) 
 
                     if not filename:
                         continue

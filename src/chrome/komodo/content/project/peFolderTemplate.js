@@ -201,6 +201,11 @@ if (typeof(ko.projects)=='undefined') {
     var _useUrl = (url, target, progress) =>
     {
         var basename = koFile.basename(url.path);
+        var system = require("sdk/system");
+        var pathSep = "/";
+        if (system.platform == "winnt")
+            pathSep = "\\";
+            basename = basename.replace(/\//g,"\\\\");
         progress.message("Downloading " + basename + " ..");
 
         Cu.import("resource://gre/modules/FileUtils.jsm");
@@ -221,8 +226,7 @@ if (typeof(ko.projects)=='undefined') {
         }
 
         // Download to a temp location
-        var tmp = FileUtils.getFile("TmpD", [basename]).path;
-
+        var tmp = FileUtils.getFile("TmpD", basename.split(pathSep)).path;
         var _onFileDownloadFailed = (message) =>
         {
             // Mozilla doesnt seem to give us a clean way of getting a humanly
@@ -239,7 +243,7 @@ if (typeof(ko.projects)=='undefined') {
 
         var _onFileDownloaded = () =>
         {
-            _useZip(tmp, subfolder, target, progress);
+            _useZip(tmp, subfolder ? subfolder : null, target, progress);
             return true;
         };
 
