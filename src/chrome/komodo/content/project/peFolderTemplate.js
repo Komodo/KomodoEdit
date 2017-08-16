@@ -243,7 +243,7 @@ if (typeof(ko.projects)=='undefined') {
 
         var _onFileDownloaded = () =>
         {
-            _useZip(tmp, subfolder ? subfolder : null, target, progress);
+            _useZip(tmp, subfolder, target, progress);
             return true;
         };
 
