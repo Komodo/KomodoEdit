@@ -17,10 +17,11 @@
     /**
      * @function sizeof
      */
-    this.sizeof = function(object, giveSummary = true)
+    this.sizeof = function(object, giveSummary = true, includeProto = false, includeGetters = false, processed = null)
     {
-        var processed = {};
+        processed = processed || [object];
         var summary = [];
+        var _summary = [];
         var size = 0;
         var obSize = 0;
 
@@ -46,48 +47,52 @@
             case 'object':
 
                 if (Object.prototype.toString.call(object) != '[object Array]') {
-                    size += 2 * Object.keys(object).toString().length
+                    try {
+                        size += 2 * Object.keys(object).toString().length;
+                    } catch (e) {
+                        return 0;
+                    }
                 }
 
-                for (var key in object)
+                for (let key in object)
                 {
                     try
                     {
                         let descriptor = Object.getOwnPropertyDescriptor(object, key);
-                        if (descriptor && descriptor.get)
+                        if ( ! includeGetters && descriptor && descriptor.get)
                             continue; // nope, not dealing with getters
                     } catch (e) {}
-                    
+
                     let type;
                     try
                     {
-                        if ( ! object.hasOwnProperty(key)) continue;
+                        if ( ! includeProto && ! object.hasOwnProperty(key)) continue;
                         type = typeof object[key];
                     }
                     catch(e)
                     {
+                        if (giveSummary)
+                            _summary.push([0, key + ": exception: " + e.message]);
                         continue;
                     }
-                    
-                    if (type == "object" && ! object[key]) continue; // don't care about nulls
-                    
-                    if (type != "object" || ! ("__obj_processed" in object[key]))
-                    {
-                        try
-                        {
-                            if (type == "object")
-                                object[key].__obj_processed = true
-                                
-                            let _size = this.sizeof(object[key], false);
-                            
-                            if (giveSummary)
-                                summary.push(key + ": " + _formatBytes(_size));
-                            
-                            size += _size;
-                            obSize += _size;
-                        }
-                        catch (e) {}
-                    }
+
+                    if ( ! type || type == "object" && ! object[key])
+                        continue; // don't care about nulls
+
+                    let _processed = false;
+                    let _size;
+
+                    if (processed.indexOf(object[key]) != -1)
+                        continue;
+
+                    processed.push(object[key]);
+                    _size = this.sizeof(object[key], false, false, includeGetters, processed);
+
+                    if (giveSummary)
+                        _summary.push([_size, key + ": " + _formatBytes(_size)]);
+
+                    size += _size;
+                    obSize += _size;
                 }
 
                 break;
@@ -95,6 +100,10 @@
         }
 
         if ( ! giveSummary) return size;
+
+        _summary = _summary.sort((a,b) => { return a[0] < b[0]; });
+        for (let entry of _summary)
+            summary.push(entry[1]);
 
         summary.push("---------------------");
         summary.push("Self: " + _formatBytes(size - obSize));
