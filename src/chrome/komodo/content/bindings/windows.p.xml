@@ -270,6 +270,21 @@
           }, 0);
         ]]>
       </constructor>
+      <method name="_getRequireMethod">
+        <body>
+          <![CDATA[
+            if (typeof require == "undefined")
+            {
+                var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator);
+                var w = wm.getMostRecentWindow("Komodo");
+                if ( ! w) return;
+                return w.require;
+            }
+
+            return require;
+          ]]>
+        </body>
+      </method>
 <!-- #if PLATFORM == "win" -->
       <method name="onResizeConstraintChecker">
         <body>
