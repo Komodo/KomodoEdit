@@ -258,16 +258,16 @@ window.app = {};
         
         var message = document.createElement("div");
         message.classList.add("ex-message");
-        message.textContent = ex.message;
+        message.textContent = `${ex.message} (file: ${ex.filename}, line: ${ex.lineNumber})`;
         data.appendChild(message);
-
-        var traceStart = document.createElement("div");
-        message.classList.add("ex-trace-start");
-        traceStart.textContent = "  Stack Trace:";
-        data.appendChild(traceStart);
 
         if (ex.stack)
         {
+            var traceStart = document.createElement("div");
+            message.classList.add("ex-trace-start");
+            traceStart.textContent = "  Stack Trace:";
+            data.appendChild(traceStart);
+
             var trace = document.createElement("ul");
             var stack = ex.stack.split(/\n/g);
             stack.forEach(function(frame) {
