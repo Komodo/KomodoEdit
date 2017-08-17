@@ -28,7 +28,7 @@ module.exports = Module;
             // Set the value attribute, because who likes logic, right XUL?
             var attr = "value";
             if ("type" in this.attributes && this.attributes.type == "number")
-                attr = "_value";
+                attr = "valueNumber";
                 
             if (value)
             {
