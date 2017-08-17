@@ -1,5 +1,7 @@
 (function()
 {
+
+    const {Cc, Ci}  = require("chrome");
     
     this.open = (title, fields, onComplete, okLabel, cancelLabel) =>
     {
@@ -29,6 +31,8 @@
         var dialog = w.openDialog("chrome://komodo/content/empty.xul?name=" + opts.title.replace(/\s+/g, ''), opts.title, "modal=true");
         dialog.title = opts.title;
         dialog.addEventListener("load", () => doOpen(opts, dialog));
+
+        pinWindow(dialog);
 
         return dialog;
     };
@@ -168,6 +172,24 @@
         else
         {
             opts.parent.close();}
+    };
+    
+    var pinWindow = (w) =>
+    {
+        function getXULWindowForDOMWindow(win)
+            win.QueryInterface(Ci.nsIInterfaceRequestor)
+               .getInterface(Ci.nsIWebNavigation)
+               .QueryInterface(Ci.nsIDocShellTreeItem)
+               .treeOwner
+               .QueryInterface(Ci.nsIInterfaceRequestor)
+               .getInterface(Ci.nsIXULWindow)
+
+        w = getXULWindowForDOMWindow(w);
+        let parentWin = getXULWindowForDOMWindow(require("ko/windows").getMain());
+
+        Cc["@activestate.com/koIWindowManagerUtils;1"]
+          .getService(Ci.koIWindowManagerUtils)
+          .setOnTop(w, parentWin, true);
     };
     
 }).apply(module.exports);
