@@ -401,7 +401,12 @@ viewMgrClass.prototype = {
             var parentURI = (index >= 0
                              ? this.view.getURIForRow(index)
                              : ko.places.manager.currentPlace);
-            ko.views.manager.doFileOpenAsync(parentURI + "/" + name);
+            var callback = function(view) {
+                if (ko.prefs.hasPref("fileDefaultNew")) {
+                    view.koDoc.language = ko.prefs.getStringPref("fileDefaultNew");
+                }
+            }
+            ko.views.manager.doFileOpenAsync(parentURI + "/" + name, "editor", null, -1, callback);
             this._openFolder(index);
         } catch(ex) {
             ko.dialogs.alert(ex);

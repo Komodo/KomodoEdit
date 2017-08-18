@@ -756,7 +756,7 @@ adding an additional caret at the clicked position.">
 <!ENTITY mappedUri.description "Specify any mapping of a URI to a local path that you would like Komodo to use when opening files, previewing, etc.">
 
 <!--pref-newfiles.xul-->
-<!ENTITY newButtonSettings.description "Specify the default language for files created using the 'New' button.">
+<!ENTITY newButtonSettings.description "Specify the default language for newly created files.">
 <!ENTITY newFileEolIndicator.description "Specify the end-of-line (EOL) indicator for newly created files.">
 <!ENTITY noExtensionFile.label "If filename in &quot;New From Template&quot; has no extension:">
 <!ENTITY numberTemplatesRember.label "Number of recent templates to remember:">
