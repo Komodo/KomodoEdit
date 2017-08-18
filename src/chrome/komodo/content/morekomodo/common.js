@@ -233,6 +233,10 @@ MoreKomodoCommon.moveFile = function(path, newPath, command = "move") {
         {
             file = fp.file;
 
+            // We're not moving the file to the same location ..
+            if (command == "move" && file.path == path)
+                return false;
+
             if (file.exists()) {
                 file.remove(false);
             }
@@ -274,7 +278,7 @@ MoreKomodoCommon.moveFile = function(path, newPath, command = "move") {
 
     var sdkFile = require("ko/file");
     require("ko/dom")(window.parent).trigger("folder_touched", {path: sdkFile.dirname(path)});
-    require("ko/dom")(window.parent).trigger("folder_touched", {path: sdkFile.dirname(newPath)});
+    require("ko/dom")(window.parent).trigger("folder_touched", {path: sdkFile.dirname(file.path)});
 }
 
 MoreKomodoCommon.deleteFile = function(uri) {
