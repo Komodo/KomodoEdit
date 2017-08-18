@@ -1,26 +1,26 @@
 #!/usr/local/bin/perl
 # ***** BEGIN LICENSE BLOCK *****
 # Version: MPL 1.1/GPL 2.0/LGPL 2.1
-# 
+#
 # The contents of this file are subject to the Mozilla Public License
 # Version 1.1 (the "License"); you may not use this file except in
 # compliance with the License. You may obtain a copy of the License at
 # http://www.mozilla.org/MPL/
-# 
+#
 # Software distributed under the License is distributed on an "AS IS"
 # basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
 # License for the specific language governing rights and limitations
 # under the License.
-# 
+#
 # The Original Code is Komodo code.
-# 
+#
 # The Initial Developer of the Original Code is ActiveState Software Inc.
 # Portions created by ActiveState Software Inc are Copyright (C) 2000-2007
 # ActiveState Software Inc. All Rights Reserved.
-# 
+#
 # Contributor(s):
 #   ActiveState Software Inc
-# 
+#
 # Alternatively, the contents of this file may be used under the terms of
 # either the GNU General Public License Version 2 or later (the "GPL"), or
 # the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
@@ -32,7 +32,7 @@
 # and other provisions required by the GPL or the LGPL. If you do not delete
 # the provisions above, a recipient may use your version of this file under
 # the terms of any one of the MPL, the GPL or the LGPL.
-# 
+#
 # ***** END LICENSE BLOCK *****
 
 # Construct file for Komodo
@@ -213,7 +213,7 @@ if ($platform eq "win") {
 
 
 $mozIncludeDir = "$mozDevelDist/include";
-$mozIncludePath = join($platformPathSep, 
+$mozIncludePath = join($platformPathSep,
                        ("$mozIncludeDir",
                         "$mozIncludeDir/nspr",
                         "$mozIncludeDir/mozilla",
@@ -221,7 +221,7 @@ $mozIncludePath = join($platformPathSep,
                         "$mozIncludeDir/mozilla/plugins"));
 
 $mozLibPath = "$mozDevelDist/lib";
-$mozIdlIncludePath = "$mozDevelDist/idl"; 
+$mozIdlIncludePath = "$mozDevelDist/idl";
 $nsprIncludePath="$mozSrc/mozilla/nsprpub/pr/include";
 $nsprPrivateIncludePath="$mozSrc/mozilla/nsprpub/pr/include/private";
 
@@ -242,7 +242,7 @@ my %environ = (
     'TEMP' => $ENV{TEMP} || "/tmp",
     'TMP' => $ENV{TMP} || $ENV{TEMP} || "/tmp",
     'MOZ_SRC' => $ENV{MOZ_SRC},   #XXX required for perldbglistener, goes away when that makefile goes. (but now I am scared too --TM :)
-    'PYTHONPATH' => $ENV{PYTHONPATH},           # needed for 'regxpcom' 
+    'PYTHONPATH' => $ENV{PYTHONPATH},           # needed for 'regxpcom'
     'MOZILLA_FIVE_HOME' => $ENV{MOZILLA_FIVE_HOME}, # needed for 'regxpcom' on Linux
     # Needed for when XPCOM stuff is invoked, so our patched Mozilla
     # appdata dir determination code can use it.
@@ -344,7 +344,7 @@ Link $testBuild => 'test';
 Build(
     "$build/Conscript",
     "$build/chrome/xtk/Conscript",
-    
+
     "$build/chrome/komodo/locale/en-US/Conscript",
     "$build/chrome/komodo/content/Conscript",
     "$build/chrome/komodo/content/bindings/Conscript",
@@ -416,13 +416,12 @@ Build(
     "$build/updater/Conscript",
     "$build/views/Conscript",
     "prebuilt/Conscript",
-      
+
     "$build/modules/koextgen/Conscript",
     "$build/modules/places/Conscript",
     "$build/modules/breadcrumbs/Conscript",
     "$build/modules/openfiles/Conscript",
     "$build/modules/golang/Conscript",
-    "$build/modules/markdown-viewer/Conscript",
     "$build/modules/spellcheck/Conscript",
     "$build/modules/trackchanges/Conscript",
     "$build/modules/zendframework/Conscript",
@@ -507,7 +506,7 @@ if ($platform eq "win") {
 # Run the Python 2 -> 3 syntax converter on the given path.
 sub cons::Py2To3 {
     my ($env, $srcPath, $dstPath, @fixerNames) = @_;
-    
+
     # die if required elements are not defined
     defined($platform) or
         die "*** 'platform' is not defined for " .
@@ -515,7 +514,7 @@ sub cons::Py2To3 {
     defined($siloedPython) or
         die "*** 'siloedPython' is not defined for " .
         "Py2To3(). You need to 'Import' it.\n";
-    
+
     my $fixersOpts = "";
     foreach my $fixerName (@fixerNames) {
         $fixersOpts .= " --fixer=$fixerName";
@@ -541,7 +540,7 @@ sub cons::KoExt {
     if (! scalar(@toSkip)) {
         @toSkip = (".svn", ".git", "*.xpi", "build", '\.consign');  # default skips
     }
-    
+
     # Die if required elements are not defined.
     defined($sdkDir) or die "*** sdkDir is not defined for KoExt\n";
     defined($build) or die "*** build is not defined for KoExt\n";
@@ -573,7 +572,7 @@ sub cons::KoExt {
             $extra_options .= " --dev --unjarred";
         }
     }
-    
+
     my $abs_builddir = cwd()."/".DirPath($buildDir);
 
     $cons->Command(
@@ -601,7 +600,7 @@ sub cons::KoExtUnpack {
     if (! scalar(@toSkip)) {
         @toSkip = (".svn", "*.xpi", "build");  # default skips
     }
-    
+
     # Die if required elements are not defined.
     defined($sdkDir) or die "*** sdkDir is not defined for KoExtUnpack\n";
     defined($build) or die "*** build is not defined for KoExtUnpack\n";
@@ -637,7 +636,7 @@ sub cons::KoExtSourceDevInstall {
     if (! scalar(@toSkip)) {
         @toSkip = (".svn", "*.xpi", "build");  # default skips
     }
-    
+
     # Die if required elements are not defined.
     defined($sdkDir) or die "*** sdkDir is not defined for KoExtSourceDevInstall\n";
     defined($build) or die "*** build is not defined for KoExtSourceDevInstall\n";
@@ -697,12 +696,12 @@ sub cons::Preprocess {
         die "*** 'platform' is not defined for " .
         "Preprocess(). You need to 'Import' it.\n";
     $substStr .= " -D PLATFORM=$platform";
-    
+
     defined($productType) or
         die "*** 'productType' is not defined for " .
         "Preprocess(). You need to 'Import' it.\n";
     $substStr .= " -D PRODUCT_TYPE=$productType";
-    
+
     defined($buildFlavour) or
         die "*** 'buildFlavour' is not defined for " .
         "Preprocess(). You need to 'Import' it.\n";
@@ -712,14 +711,14 @@ sub cons::Preprocess {
         die "*** 'unsiloedPythonExe' is not defined. for " .
         "Preprocess(). You need to 'Import' it.\n";
     $substStr .= " -D UNSILOED_PYTHON=$unsiloedPythonExe";
-    
+
     defined($mozVersion) or
         die "*** 'mozVersion' is not defined for " .
         "Preprocess(). You need to 'Import' it.\n";
     $substStr .= " -D MOZILLA_VERSION=$mozVersion";
     my $mozVersionMajor = int($mozVersion);
     $substStr .= " -DMOZILLA_VERSION_MAJOR=$mozVersionMajor";
-    
+
     #XXX Would prefer that each of these grow the checking that the other
     #    vars have to _require_ that they be defined. This will avoid
     #    accidentally forgetting to Import one of these in a needed
@@ -743,14 +742,14 @@ sub cons::Preprocess {
 # preprocessed file to the $dstDir.
 sub cons::PreprocessAndInstall {
     my ($env, $dstDir, $src, $ppdata) = @_;
-    
+
     $env->Preprocess($src, "$src.preprocessed", $ppdata);
     $env->InstallAs("$dstDir/".basename($src), "$src.preprocessed");
 }
 
 sub cons::PreprocessAndInstallAs {
     my ($env, $dstPath, $src, $ppdata) = @_;
-    
+
     $env->Preprocess($src, "$src.preprocessed", $ppdata);
     $env->InstallAs("$dstPath", "$src.preprocessed");
 }
@@ -888,7 +887,7 @@ sub cons::GenerateIdlDependencies {
         }
         return ();
     }
-    
+
     # Process the .idl path in the source area (can't rely on it having been
     # copied to the build area yet).
     my %idlDeps;
@@ -909,7 +908,7 @@ sub cons::GenerateIdlDependencies {
                 my $dep = "$preferedIdlIncludeDir/$1";
                 $dep =~ s/\\/\//;
                 push(@includes, $dep);
-            } 
+            }
         }
     }
     return @includes;
@@ -956,7 +955,7 @@ sub cons::ChromePath {
     my ($env, $fileName) = @_;
     my $projRootedFileName = FilePath($fileName);
     my @chromePathDirs = File::Spec->splitdir($projRootedFileName);
-    $_ = ''; 
+    $_ = '';
     $_ = shift @chromePathDirs while $_ ne 'chrome'; # drop dir up to 'chrome'
     my $chromePath = File::Spec->catdir(@chromePathDirs);
     return $chromePath;
@@ -1178,7 +1177,7 @@ sub cons::InstallPythonUtilityPackage {
     defined($ranRegxpcomStateFileName) or
         die "*** ranRegxpcomStateFileName is not defined for $fileName\n";
     # install in the designated directory (that we make sure is one the PythonPath
-    
+
     # XXX - $packageName should have "." replaced with "/" - however,
     # current usage only has single depth packages, so not yet a problem.
     $env->Install("$komodoPythonUtilsDir/$packageName", $fileName);
@@ -1470,7 +1469,7 @@ sub cons::DependsRecursive {
     } else {
         my $baseDirName = dirname(SourcePath("Conscript"));
         print "... baseDirName: $baseDirName\n" if $logIt;
-        my $depPath = (file_name_is_absolute($dep) ? 
+        my $depPath = (file_name_is_absolute($dep) ?
                        $dep : "$baseDirName/$dep");
         print "... depPath: $depPath\n" if $logIt;
         if (ref($dep) eq "ARRAY") {

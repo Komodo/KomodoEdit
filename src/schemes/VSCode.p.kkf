@@ -11,16 +11,16 @@ binding cmd_left Left
 binding cmd_linePrevious Up
 binding cmd_lineNext Down
 binding cmd_right Right
-binding cmd_home Home 
-binding cmd_end End 
+binding cmd_home Home
+binding cmd_end End
 binding cmd_newline Return
 binding cmd_newlineExtra Shift+Return
 binding cmd_indent Ctrl+]
 binding cmd_dedent Ctrl+[
 
 binding cmd_newlineSame Ctrl+Shift+Return
-binding cmd_pageDown Page_Down 
-binding cmd_pageUp Page_Up 
+binding cmd_pageDown Page_Down
+binding cmd_pageUp Page_Up
 binding cmd_documentHome Ctrl+Home
 binding cmd_documentEnd Ctrl+End
 binding cmd_lineScrollUp Ctrl+Up
@@ -136,7 +136,7 @@ binding cmd_cancel Escape
 binding cmd_editPrefs Ctrl+,
 binding cmd_editProperties Alt+Return
 binding cmd_editReflow Ctrl+Q
-binding cmd_toggleOvertype Insert 
+binding cmd_toggleOvertype Insert
 binding cmd_showSectionList Ctrl+L
 binding cmd_quit Alt+F4
 binding cmd_runInLine Ctrl+B
@@ -144,10 +144,10 @@ binding cmd_newWindow Ctrl+Shift+N
 binding cmd_splittab Ctrl+\
 binding cmd_closeAll Ctrl+K Ctrl+W
 binding cmd_moveTabToNewWindow Ctrl+K O
-binding cmd_markdownPreview Ctrl+Shift+V
+binding cmd_preview Ctrl+Shift+V
 
 # Help
-binding cmd_helpHelp F1   
+binding cmd_helpHelp F1
 binding cmd_scope-docs Shift+F1
 
 # Code completion
@@ -213,7 +213,7 @@ binding cmd_fontZoomReset Ctrl+0
 binding cmd_refreshStatus Ctrl+K R
 
 # Debugging / DBGP
-binding cmd_dbgGo F5 
+binding cmd_dbgGo F5
 binding cmd_dbgGo Ctrl+Shift+D
 binding cmd_dbgGoSkipDialog Ctrl+F5
 binding cmd_dbgStop Shift+F5
