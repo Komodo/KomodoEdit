@@ -8,6 +8,7 @@ var breadcrumbs = function(view) {
     const {Cc, Ci} = require("chrome");
     const { NetUtil } =   window.Cu.import("resource://gre/modules/NetUtil.jsm", {});
     const w = require("ko/windows").getMain();
+    const document = w.document;
     const legacy = w.ko;
 
     var RCService   = Cc["@activestate.com/koRemoteConnectionService;1"]
