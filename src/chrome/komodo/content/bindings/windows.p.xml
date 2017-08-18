@@ -27,13 +27,15 @@
             window.isActive = true;
             window.addEventListener("activate", () => window.isActive = true);
             window.addEventListener("deactivate", () => window.isActive = false);
+
+            require = this._getRequireMethod();
             
             if (typeof require == "undefined")
                 return;
             
             var w = require("ko/windows").getMain();
             if ( ! w) return;
-            
+
             w.require("ko/windows").init();
 
             var evt = new CustomEvent("window_opened", { detail: window });
@@ -83,7 +85,7 @@
       </method>
     </implementation>
     </binding>
-    
+
     <binding id="dialog"
              extends="chrome://global/content/bindings/dialog.xml#dialog">
     <implementation>
@@ -95,6 +97,8 @@
             var sysInfo = Components.classes["@mozilla.org/system-info;1"].getService(Components.interfaces.nsIPropertyBag2);
             document.documentElement.setAttribute("os-name", sysInfo.get("name"));
             
+            require = this._getRequireMethod();
+
             if (typeof require == "undefined")
                 return;
             
@@ -118,6 +122,7 @@
                   var width = window.innerWidth;
                   window.innerWidth = 1000;
                   window.innerWidth = width;
+                  console.log(1);
                 }, 100);
               });
             }
@@ -140,6 +145,21 @@
           }
         ]]>
       </constructor>
+      <method name="_getRequireMethod">
+        <body>
+          <![CDATA[
+            if (typeof require == "undefined")
+            {
+                var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator);
+                var w = wm.getMostRecentWindow("Komodo");
+                if ( ! w) return;
+                return w.require;
+            }
+            
+            return require;
+          ]]>
+        </body>
+      </method>
       <method name="loadVirtualStylesheets">
         <body>
         <![CDATA[
@@ -199,7 +219,7 @@
       <field name="_tophandle">true</field>
       <constructor>
         <![CDATA[
-        var require = this._getRequireMethod();
+        require = this._getRequireMethod();
         if ( ! require) return;
             
         var hideChrome = require("ko/prefs").getBoolean("ui.hide.chrome");
@@ -289,19 +309,17 @@
       <method name="onResizeConstraintChecker">
         <body>
         <![CDATA[
-        var require = this._getRequireMethod();
-        
         if (typeof require == "undefined")
           return;
-        
+
         var hideChrome = require("ko/prefs").getBoolean("ui.hide.chrome");
         if ( ! hideChrome || document.documentElement.getAttribute("sizemode") != "maximized") return;
-        
+
         // If we didn't maximize store the state
         if (window.outerHeight < window.screen.availHeight &&
             window.outerWidth < window.screen.availWidth)
           this.restoreState = [window.outerWidth, window.outerHeight, window.screenX, window.screenY];
-        
+
         if (window.outerHeight > window.screen.availHeight)
           window.outerHeight = window.screen.availHeight;
         
@@ -507,14 +525,8 @@
           return;
         }
         
-        if (typeof require == "undefined")
-        {
-            var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                        .getService(Components.interfaces.nsIWindowMediator);
-            var w = wm.getMostRecentWindow("Komodo").require("ko/windows").getMain();
-            if ( ! w) return;
-            var require = w.require;
-        }
+        require = this._getRequireMethod();
+        if ( ! require) return;
         
         var hideChrome = require("ko/prefs").getBoolean("ui.hide.chrome");
         
@@ -549,6 +561,21 @@
         }
         ]]>
       </constructor>
+      <method name="_getRequireMethod">
+        <body>
+          <![CDATA[
+            if (typeof require == "undefined")
+            {
+                var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator);
+                var w = wm.getMostRecentWindow("Komodo");
+                if ( ! w) return;
+                return w.require;
+            }
+
+            return require;
+          ]]>
+        </body>
+      </method>
     </implementation>
     </binding>
     
