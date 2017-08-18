@@ -122,7 +122,6 @@
                   var width = window.innerWidth;
                   window.innerWidth = 1000;
                   window.innerWidth = width;
-                  console.log(1);
                 }, 100);
               });
             }
@@ -269,25 +268,26 @@
           {
             window.addEventListener("load", function() {
               setTimeout(function() {
-                window.sizeToContent();
-                
                 // Force the window to respect its minimum width, (yet another XUL bug)
                 var width = window.innerWidth;
                 window.innerWidth = 1000;
                 window.innerWidth = width;
               }, 100);
             });
+    
+<!-- #if PLATFORM == "win" -->
+            var _sizeToContent = window.sizeToContent;
+            window.sizeToContent = () =>
+            {
+              this.removeAttribute("chromemargin");
+              _sizeToContent();
+              this.setAttribute("chromemargin", "0,0,0,0");
+            };
+            
+            sizeToContent();
+<!-- #endif -->
           }
-  
-          var _sizeToContent = window.sizeToContent;
-          window.sizeToContent = function() {};
-          
-          _sizeToContent();
-          setTimeout(() =>
-          {
-            _sizeToContent();
-            window.sizeToContent = _sizeToContent;
-          }, 0);
+
         ]]>
       </constructor>
       <method name="_getRequireMethod">
