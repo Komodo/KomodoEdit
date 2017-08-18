@@ -429,7 +429,14 @@ class KoUserEnviron:
         return self._userEnviron.keys()
 
     def getEnvVar(self, name, prefs):
-        envStr = prefs.getString("userEnvironmentStartupOverride", "")
+        envStr = ""
+
+        try:
+            envStr = prefs.getString("userEnvironmentStartupOverride", "")
+        except Exception:
+            # XPCOM bug that happens when the pref doesnt exist, no time to dig
+            pass
+
         envList = envStr.split('\n')
 
         for entry in envList:
@@ -495,7 +502,7 @@ class KoUserEnviron:
         ]
         basename = os.path.basename(shell)
         type = None
-        for name, pattern in patterns:  
+        for name, pattern in patterns:
             if pattern.search(basename):
                 type = name
                 break
@@ -520,7 +527,7 @@ class KoUserEnviron:
             cmd = "%s -l" % shell
             stdin = "printenv"
 
-        # all other shell man pages I looked at say 
+        # all other shell man pages I looked at say
         # first char of arg 0 is - means login shell, so -c printenv should
         # be fine.
         else:
@@ -613,7 +620,7 @@ class KoEnvironUtils:
                 replacements[envRefMatch.group("envRef")] = envDict[envName]
         for old, new in replacements.items():
             interpolated = interpolated.replace(old, new)
-            
+
         #print "_Interpolate: interpolate '%s' -> '%s'" % (envValue, interpolated)
         return interpolated
 
@@ -633,4 +640,3 @@ class KoEnvironUtils:
         finally:
             fin.close()
         return shells
-
