@@ -96,6 +96,7 @@ var breadcrumbs = function(view) {
     this.reload = function breadcrumbs_reload()
     {
         this.load();
+        this.checkOverflow();
     };
 
     /**
