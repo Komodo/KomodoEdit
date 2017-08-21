@@ -94,8 +94,13 @@
 
 /* HUD elements */
 
-.hud, #editorTooltip
+.hud, #editorTooltip, tooltip;
 {
+    &, label, description
+    {
+        color: @foreground;
+    }
+
     background: @contrast;
 }
 
