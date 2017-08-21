@@ -6,10 +6,8 @@ Cu.import("resource://gre/modules/NetUtil.jsm");
 
 const prefs     = Cc['@activestate.com/koPrefService;1']
                     .getService(Ci.koIPrefService).prefs;
-const loggingSvc= Cc["@activestate.com/koLoggingService;1"].
-                    getService(Ci.koILoggingService);
-const log       = this.loggingSvc.getLogger('koiconprotocol');
-//log.setLevel(10);
+const {logging} = Components.utils.import("chrome://komodo/content/library/logging.js", {});
+const log       = logging.getLogger('koiconprotocol');
 
 var queued = {};
 
@@ -150,10 +148,7 @@ IconChannel.prototype = {
             }
             catch (e)
             {
-                log.error("Unable to detect icon, falling back on default: " + e.message);
-                if ("stack" in e)
-                    log.error(e.stack);
-
+                log.exception(e, "Unable to detect icon, falling back on default");
                 self._asyncOpen(iconFile, listener, aContext);
             }
         }
