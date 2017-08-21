@@ -176,7 +176,7 @@
         {
             //log.debug("Parsing info from language");
 
-            var pattern = /ko-language\/([a-z0-9+#\-_\. ]*)\??(?:size=(\d*)|$)/i;
+            var pattern = /ko-language\/([a-z0-9+#\-_\.% ]*)\??(?:size=(\d*)|$)/i;
             var match = uri.match(pattern);
             if ( ! match) return false;
 
@@ -286,7 +286,11 @@
         this.getIconForUri = (uri, namespace, relativePath, callback) =>
         {
             var info = getInfo(uri, namespace);
-            if ( ! info) return callback(false);
+            if ( ! info)
+            {
+                log.warn("Could not find info for URI: " + uri);
+                return callback(false);
+            }
 
             var filename = (info.language + info.ext + info.size).replace(/\W/g, '');
             info.size = Math.ceil(info.size * pixelRatio);
