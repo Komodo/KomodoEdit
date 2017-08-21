@@ -149,12 +149,14 @@ IconChannel.prototype = {
             catch (e)
             {
                 log.exception(e, "Unable to detect icon, falling back on default");
+                delete queued[self.URI.spec];
                 self._asyncOpen(iconFile, listener, aContext);
             }
         }
         else
         {
             log.error("Unable to load icon lib, falling back on default: " + e.message);
+            delete queued[self.URI.spec];
             self._asyncOpen(iconFile, listener, aContext);
         }
 
