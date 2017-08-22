@@ -402,7 +402,10 @@ viewMgrClass.prototype = {
                              ? this.view.getURIForRow(index)
                              : ko.places.manager.currentPlace);
             var callback = function(view) {
-                if (ko.prefs.hasPref("fileDefaultNew")) {
+                if (ko.prefs.hasPref("fileDefaultNew") && view.koDoc.language == "Text") {
+                    // Only set a language if it does not override the existing
+                    // setting (e.g. do not override a language set by file 
+                    // extension).
                     view.koDoc.language = ko.prefs.getStringPref("fileDefaultNew");
                 }
             }
