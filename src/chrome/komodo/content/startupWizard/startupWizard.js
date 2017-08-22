@@ -119,7 +119,7 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
         fields.autofill.checked( prefs.getBoolean("codeintel_completion_auto_fillups_enabled") );
         
         fields.softchars = require("ko/ui/checkbox").create("Automatically insert ending delimiters and tags");
-        fields.softchars.checked( prefs.getBoolean("codeintelAutoInsertEndTag") );
+        fields.softchars.checked( prefs.getBoolean("editSmartSoftCharacters") );
         
         fields.showLineNumbers = require("ko/ui/checkbox").create("Show line numbers in Editor");
         fields.showLineNumbers.checked( prefs.getBoolean("showLineNumbers") );
