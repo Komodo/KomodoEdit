@@ -6,12 +6,14 @@
     const {Cc, Ci}  = require("chrome");
     const tcpSocket = Cc["@mozilla.org/tcp-socket;1"].getService(Ci.nsIDOMTCPSocket);
     const log       = require("ko/logging").getLogger("socket-tcp");
+    const legacy    = require("ko/windows").getMain().ko;
     
     var connection = function(server, port)
     {
         var socket;
         var callbacks = [];
         var delimiter = "\u0000";
+        var closing = false;
         
         var init = () =>
         {
@@ -37,6 +39,7 @@
         
         this.close = () =>
         {
+            closing = true;
             socket.close();
         };
         
@@ -47,6 +50,12 @@
         
         var pushData = () =>
         {
+            if (closing)
+            {
+                log.debug("pushData called while closing");
+                return;
+            }
+
             if (socket.readyState == "connecting")
                 return setTimeout(pushData, 100);
             
@@ -72,13 +81,24 @@
         
         var onClose = () =>
         {
+            closing = true;
             log.debug("onClose");
         };
         
         var onError = (event) =>
         {
             log.debug("onError");
-            log.error(`Error occurred: ${event.type} : ${event.data}`);
+
+            var data = event.data;
+            if (typeof data == "object")
+                data = data.name || data;
+
+            var msg = `Error occurred: ${event.type || event._type} : ${data}`;
+
+            if (closing || legacy.main.windowIsClosing)
+                log.debug(msg);
+            else
+                log.error(msg);
         };
         
         var onData = (event) =>
