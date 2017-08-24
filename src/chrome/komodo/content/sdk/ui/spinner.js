@@ -20,10 +20,6 @@ module.exports = Module;
         this.init = function()
         {
             this.defaultInit.apply(this, arguments);
-            
-            this.addElement(require("ko/ui/container").create({ class: "rect1" }));
-            this.addElement(require("ko/ui/container").create({ class: "rect2" }));
-            this.addElement(require("ko/ui/container").create({ class: "rect3" }));
         };
         
         this.hide = function ()
