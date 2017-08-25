@@ -1036,8 +1036,10 @@
             //XPIProvider.updateAddonDisabledState(addon, ! addon.userDisabled, ! addon.userDisabled);
             addon.userDisabled = ! addon.userDisabled;
             this.clearCaches();
+            commando.navBack();
 
             require("sdk/timers").setTimeout(() => {
+
                 if ((addon.pendingOperations & AddonManager.PENDING_DISABLE) ||
                     (addon.pendingOperations & AddonManager.PENDING_ENABLE))
                 {
