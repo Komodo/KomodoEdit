@@ -50,7 +50,7 @@
 <!ENTITY newGroupPlace.label "New Group...">
 <!ENTITY newGroupPlace.accesskey "G">
 <!ENTITY placesNewFileFromTemplate.label "New File From Template...">
-<!ENTITY placesNewFolderFromTemplate.label "New Folder From Template...">
+<!ENTITY placesNewFolderFromTemplate.label "New Folder From this Template...">
 <!ENTITY placesNewTemplateFromFolder.label "New Template from Folder...">
 
 <!ENTITY loadPlace.label "Open Directory...">
