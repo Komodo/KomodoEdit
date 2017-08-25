@@ -116,16 +116,18 @@
             {
               window.addEventListener("load", function() {
                 setTimeout(function() {
-                  window.sizeToContent();
-                  
                   // Force the window to respect its minimum width, (yet another XUL bug)
                   var width = window.innerWidth;
                   window.innerWidth = 1000;
                   window.innerWidth = width;
+// #if PLATFORM == "win"
+                window.sizeToContent();
+// #endif
                 }, 100);
               });
             }
     
+// #if PLATFORM == "win"
             var _sizeToContent = window.sizeToContent;
             window.sizeToContent = function() {};
             
@@ -135,6 +137,7 @@
               _sizeToContent();
               window.sizeToContent = _sizeToContent;
             }, 0);
+// #endif
             
           }
           catch(e)
@@ -249,7 +252,7 @@
             }
         }
         
-<!-- #if PLATFORM == "win" -->
+// #if PLATFORM == "win"
         window.addEventListener("resize", this.onResizeConstraintChecker.bind(this));
         this.onResizeConstraintChecker();
         
@@ -262,20 +265,21 @@
             window._restore = window.restore;
             window.restore = this.restore;
         }
-<!-- #endif -->
+// #endif
 
           if (hideChrome)
           {
-            window.addEventListener("load", function() {
-              setTimeout(function() {
-                // Force the window to respect its minimum width, (yet another XUL bug)
-                var width = window.innerWidth;
-                window.innerWidth = 1000;
-                window.innerWidth = width;
-              }, 100);
+            setTimeout(function() {
+              // Force the window to respect its minimum width, (yet another XUL bug)
+              var width = window.innerWidth;
+              window.innerWidth = 1000;
+              window.innerWidth = width;
+// #if PLATFORM == "win"
+              window.sizeToContent();
+// #endif
             });
     
-<!-- #if PLATFORM == "win" -->
+// #if PLATFORM == "win"
             var _sizeToContent = window.sizeToContent;
             window.sizeToContent = () =>
             {
@@ -285,7 +289,7 @@
             };
             
             sizeToContent();
-<!-- #endif -->
+// #endif
           }
 
         ]]>
