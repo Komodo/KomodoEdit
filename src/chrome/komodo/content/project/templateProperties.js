@@ -36,7 +36,10 @@ window.templateProperties = {};
         elems.applyButton().attr('accesskey', bundle.GetStringFromName("applyAccessKey"));
 
         if (window.arguments[0].task == 'new')
+        {
             elems.name().focus();
+            elems.applyButton().attr('collapsed', 'true');
+        }
         else
             elems.name().attr("value", tool.getStringAttribute('name'));
         this.updateTitle();
