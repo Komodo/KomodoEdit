@@ -167,11 +167,28 @@ if (typeof(ko.projects)=='undefined') {
     {
         var text = template.value;
         
+        var eol = view.koDoc.new_line_endings;
+        var eol_str;
+        switch (eol)
+        {
+            case Components.interfaces.koIDocument.EOL_LF:
+                eol_str = "\n";
+                break;
+            case Components.interfaces.koIDocument.EOL_CRLF:
+                eol_str = "\r\n";
+                break;
+            case Components.interfaces.koIDocument.EOL_CR:
+                eol_str = "\r";
+                break;
+        };
+
         var ejs = template.getStringAttribute('treat_as_ejs');
         if (ejs === true || ejs === "true")
         {
             text = _textFromEJSTemplate(template, view);
         }
+
+        text = text.replace(/\r\n|\n|\r/g, eol_str);
 
         view.scimoz.text = text;
         view.koDoc.language = template.getStringAttribute("language");
