@@ -9,6 +9,7 @@ window.templateProperties = {};
     var $ = require("ko/dom").window(window);
     var prefs = require("ko/prefs");
     var log = require("ko/logging").getLogger("templateProperties");
+    var legacy = require("ko/windows").getMain().ko;
 
     var elems = {
         dialog: () => $('#dialog-templateproperties'),
@@ -97,6 +98,13 @@ window.templateProperties = {};
         if (language == "-1")
             language = "Text";
         tool.setStringAttribute("language", language);
+
+        var currentDefault = legacy.toolbox2.getDefaultTemplateForLanguage(language);
+        if (elems.default().element().checked && currentDefault)
+        {
+            currentDefault.setStringAttribute("lang_default", false);
+            currentDefault.save();
+        }
 
         // If it's not new then just save
         if (window.arguments[0].task != 'new')
