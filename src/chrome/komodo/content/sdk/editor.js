@@ -5,7 +5,12 @@
  * @overview -
  */
 
-const legacy = require("ko/windows").getMain().ko;
+const w = require("ko/windows").getMain();
+const legacy = w.ko;
+const prefs = require("ko/prefs");
+const shell = require("ko/shell");
+const log = require("ko/logging").getLogger("sdk/editor");
+const system = require("sdk/system");
 
 /**
  * The editor SDK
@@ -13,6 +18,36 @@ const legacy = require("ko/windows").getMain().ko;
  * @module ko/editor
  */
 var sdkEditor = function(_scintilla, _scimoz) {
+
+    var pixelRatio = 1.0;
+
+    var init = () =>
+    {
+        pixelRatio = w.devicePixelRatio;
+        if (system.platform == "linux")
+        {
+            if (prefs.hasPref('pixelRatio'))
+            {
+                pixelRatio = parseFloat(prefs.getString('pixelRatio'));
+                log.debug("Using pixelRatio: " + pixelRatio);
+            }
+            else
+            {
+                var cmd = "gsettings get org.gnome.desktop.interface text-scaling-factor";
+                shell.exec(cmd, {}, (error, stdout) => {
+                    if (error)
+                    {
+                        log.error(error);
+                        return;
+                    }
+
+                    pixelRatio = parseFloat(stdout.trim().match(/\d(?:\.\d{1,2}|)/));
+
+                    log.debug("Using pixelRatio: " + pixelRatio);
+                });
+            }
+        }
+    }
 
     /**
      * The editor module is loosely based on the CodeMirror(.net) API to make it
@@ -460,8 +495,8 @@ var sdkEditor = function(_scintilla, _scimoz) {
             scy = _scintilla.boxObject.screenY;
         }
 
-        var curx = _scimoz.pointXFromPosition(pos);
-        var cury = _scimoz.pointYFromPosition(pos);
+        var curx = Math.round(_scimoz.pointXFromPosition(pos) / pixelRatio);
+        var cury = Math.round(_scimoz.pointYFromPosition(pos) / pixelRatio);
 
         return {x: (scx + curx), y: (scy + cury)};
     };
@@ -520,7 +555,7 @@ var sdkEditor = function(_scintilla, _scimoz) {
      */
     this.defaultTextHeight = function()
     {
-        return scimoz().textHeight(0);
+        return Math.round(scimoz().textHeight(0) / pixelRatio);
     };
 
     /**
@@ -531,7 +566,7 @@ var sdkEditor = function(_scintilla, _scimoz) {
      */
     this.defaultTextWidth = function()
     {
-        return scimoz().textWidth(0,1);
+        return Math.round(scimoz().textWidth(0,1) / pixelRatio);
     };
 
     /**
@@ -1100,6 +1135,15 @@ var sdkEditor = function(_scintilla, _scimoz) {
 
         return scimoz().positionFromLine(pos.line-1) + pos.ch;
     };
+
+    try
+    {
+        init();
+    }
+    catch (e)
+    {
+        log.exception(e, "init failed, continuing without");
+    }
 
 };
 
