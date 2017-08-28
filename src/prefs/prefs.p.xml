@@ -1130,6 +1130,7 @@
     <string>spellCheck</string>
     <string>testPlans</string>
     <string>publishing</string>
+    <string>mru</string>
   </ordered-preference>
   
   <string id="virtualStyles" nonvital="true">less://resource/profile/interfaceChrome.less,less://resource/profile/userChrome.less</string>
