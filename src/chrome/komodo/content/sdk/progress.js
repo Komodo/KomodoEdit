@@ -137,11 +137,13 @@
     /**
      * Get a progress element, which can be inserted into the DOM however wanted
      *
+     * @param {bool} determined     whether this progress indicator is determined or undetermined (spinner or load progress)
+     *
      * @returns {Progress} Returns instance of progress, which holds the .message(value) and .close() methods
      */
-    this.get = (callback) =>
+    this.get = (determined = false) =>
     {
-        return new Progress({panel: false});
+        return new Progress({panel: false, determined: determined});
     };
 
 }).apply(module.exports);
