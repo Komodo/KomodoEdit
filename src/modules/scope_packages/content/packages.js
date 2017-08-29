@@ -1156,7 +1156,7 @@
      */
     this._downloadFile = function(url, callback, errorCallback, dir)
     {
-        var filename = url.match(/[^\/\\]+$/);
+        var filename = url.match(/[^\/\\]+$/)[0];
         var target = OS.Path.join(dir || OS.Constants.Path.tmpDir, filename);
         Task.spawn(function*()
         {
