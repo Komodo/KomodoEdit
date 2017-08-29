@@ -80,7 +80,11 @@
             if (field.label !== undefined)
                 row.add(require("ko/ui/label").create({ attributes: { value: field.label + ":", tooltiptext: field.label, crop: "center" }}));
 
-            let elem = require("ko/ui/" + (field.type || "textbox")).create(field.options || field.attributes || undefined);
+            var attributes = field.attributes || {};
+            if (field.options)
+                attributes.options = field.options;
+
+            let elem = require("ko/ui/" + (field.type || "textbox")).create(attributes);
             mapping[key] = elem;
             row.add(elem);
             
