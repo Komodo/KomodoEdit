@@ -163,7 +163,7 @@
         if (missing.length)
         {
             var error = "Please enter a value for: " + missing.join(", ");
-            panel.$element.find(".ui-error label").show().attr("value", error);
+            parent.$element.find(".ui-error label").show().attr("value", error);
             return;
         }
         
