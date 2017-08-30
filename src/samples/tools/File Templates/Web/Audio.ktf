@@ -1,8 +1,10 @@
 <!--
 komodo tool: Audio
 ==================
+is_clean: true
 language: HTML
 type: template
+version: 1.1.5
 ==================-->
 <!DOCTYPE html>
 
@@ -12,8 +14,8 @@ type: template
 </head>
 
 <body>
-    <audio src="[[%tabstop1:music.mp3]]" controls>
-        <a href="[[%tabstop1]]">Download this music.</a>
+    <audio src="" controls>
+        <a href="">Download this music.</a>
     </audio>
 </body>
 </html>

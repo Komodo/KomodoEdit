@@ -1,8 +1,10 @@
 <!--
 komodo tool: Video
 ==================
+is_clean: true
 language: HTML
 type: template
+version: 1.1.5
 ==================-->
 <!DOCTYPE html>
 
@@ -12,11 +14,11 @@ type: template
 </head>
 
 <body>
-    <video src="[[%tabstop1:video.ogv]]"
+    <video src=""
            controls
            poster="poster.png"
            width="320" height="240">
-        <a href="[[%tabstop1]]">Download this movie.</a>
+        <a href="">Download this movie.</a>
     </video>
 </body>
 </html>

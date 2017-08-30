@@ -1,19 +1,19 @@
 <!--
 komodo tool: HTML 5
 ===================
+is_clean: true
 language: HTML
 type: template
+version: 1.1.5
 ===================-->
 <!DOCTYPE html>
 
 <html>
 <head>
-    <title>[[%tabstop:Page Title]]</title>
+    <title></title>
 </head>
-
 <body>
 
-[[%tabstop]]
 
 </body>
 </html>
