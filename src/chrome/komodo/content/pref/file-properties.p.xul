@@ -234,13 +234,13 @@
         </groupbox>
         <groupbox orient="vertical" id="markupSettings">
             <caption label="&documentMarkupSettings.label;"/>
-            <label value="&filePropertiesDefaultDoctype.label;"/>
+            <!--<label value="&filePropertiesDefaultDoctype.label;"/>
             <menulist id="doctypeList"
                       flex="1">
                 <menupopup id="doctypePopup">
                     <menuitem label="&determineFromContent.label;"/>
                 </menupopup>
-            </menulist>
+            </menulist>-->
             <label value="&filePropertiesDefaultNamespace.label;"/>
             <menulist id="namespaceList"
                       flex="1">
