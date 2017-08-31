@@ -117,7 +117,7 @@ this.snippetProperties = function snippet_editProperties (item)
     obj.task = 'edit';
     window.openDialog(
         "chrome://komodo/content/project/snippetProperties.xul",
-        "Komodo:SnippetProperties",
+        "Komodo:SnippetProperties"+Date.now(),
         "chrome,close=yes,dependent=no,resizable=yes,centerscreen",
         obj);
 }

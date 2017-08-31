@@ -24,7 +24,7 @@ if (typeof(ko.projects)=='undefined') {
         obj.prettytype = 'FolderTemplate';
         window.openDialog(
             "chrome://komodo/content/project/folderTemplateProperties.xul",
-            "Komodo:URLProperties",
+            "Komodo:URLProperties"+Date.now(),
             "chrome,centerscreen,close=yes,dependent=yes,modal=yes,resizable=yes", obj);
     };
 
@@ -49,7 +49,7 @@ if (typeof(ko.projects)=='undefined') {
         obj.parent = parent;
         window.openDialog(
             "chrome://komodo/content/project/folderTemplateProperties.xul",
-            "Komodo:URLProperties",
+            "Komodo:URLProperties"+Date.now(),
             "chrome,centerscreen,close=yes,modal=yes,resizable=yes", obj);
     };
 

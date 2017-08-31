@@ -31,7 +31,7 @@ if (typeof(ko.projects)=='undefined') {
         obj.task = 'new';
         ko.windowManager.openOrFocusDialog(
             "chrome://komodo/content/project/templateProperties.xul",
-            "Komodo:TemplateProperties",
+            "Komodo:TemplateProperties"+Date.now(),
             "chrome,centerscreen,close=yes,dependent=no,resizable=yes",
             obj);
     };
@@ -44,7 +44,7 @@ if (typeof(ko.projects)=='undefined') {
                 imgsrc : 'chrome://komodo/skin/images/toolbox/template.svg'};
         window.openDialog(
             "chrome://komodo/content/project/templateProperties.xul",
-            "Komodo:TemplateProperties",
+            "Komodo:TemplateProperties"+Date.now(),
             "chrome,centerscreen,close=yes,dependent=no,resizable=yes",
             obj);
     };

@@ -362,7 +362,7 @@ this.fileProperties = function peFile_Properties(item, view, folder)
         try {
             window.openDialog(
                     "chrome://komodo/content/pref/project.xul",
-                    'Komodo:ProjectPrefs',
+                    'Komodo:ProjectPrefs'+Date.now(),
                     "chrome,dependent,resizable,close=yes,modal=yes",
                     resp);
         } catch(ex) {
