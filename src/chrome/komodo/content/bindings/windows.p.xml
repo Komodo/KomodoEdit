@@ -553,8 +553,23 @@
             this.setAttribute("hidechrome", true);
 // #endif
 
+// #if PLATFORM == "win"
+          var borderFix = () =>
+          {
+            var h = window.innerHeight;
+            window.innerHeight = h+100;
+            setTimeout(function() {
+              window.innerHeight = h-100;
+            }, 0);
+          };
+          setTimeout(borderFix, 100);
+// #endif
+
           window.addEventListener("load", function() {
             setTimeout(function() {
+// #if PLATFORM == "win"
+              setTimeout(borderFix, 100);
+// #endif
               if (window.screenX !== 0 || window.screenY !== 0)
                 return;
               var x = window.screen.left + Math.round((window.screen.availWidth - window.outerWidth) / 2);
