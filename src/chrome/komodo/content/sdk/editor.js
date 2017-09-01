@@ -12,6 +12,8 @@ const shell = require("ko/shell");
 const log = require("ko/logging").getLogger("sdk/editor");
 const system = require("sdk/system");
 
+var pixelRatio = null;
+
 /**
  * The editor SDK
  *
@@ -19,10 +21,11 @@ const system = require("sdk/system");
  */
 var sdkEditor = function(_scintilla, _scimoz) {
 
-    var pixelRatio = 1.0;
-
     var init = () =>
     {
+        if (pixelRatio)
+            return;
+
         pixelRatio = w.devicePixelRatio;
         if (system.platform == "linux")
         {
