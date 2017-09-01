@@ -218,10 +218,16 @@
     <implementation>
       <field name="_draggable">true</field>
       <field name="_tophandle">true</field>
+      <field name="initialWidth">null</field>
+      <field name="initialHeight">null</field>
       <constructor>
         <![CDATA[
         require = this._getRequireMethod();
         if ( ! require) return;
+
+        var d = document.documentElement;
+        this.initialWidth = d.getAttribute("width");
+        this.initialHeight = d.getAttribute("height");
             
         var hideChrome = require("ko/prefs").getBoolean("ui.hide.chrome");
         
@@ -246,7 +252,10 @@
             
             if (window.parent == window || window.arguments)
             {
-              window.addEventListener("load", () => { setTimeout(this.restorePosition.bind(this), 0); });
+              if (document.readyState == "complete")
+                setTimeout(this.restorePosition.bind(this), 0);
+              else
+                window.addEventListener("load", () => { setTimeout(this.restorePosition.bind(this), 0); });
               window.addEventListener("unload", this.savePosition.bind(this));
             }
         }
@@ -429,11 +438,16 @@
           var id = document.documentElement.id || window.location.href;
           var dimensions =  _window ? _window.ko.prefs.getString("windowDimensions-" + id, "").split(",") : [];
           
-          var centerWindow = (w) =>  window.moveTo(w.screen.left + Math.round((w.screen.availWidth - w.outerWidth) / 2),
-                                                   w.screen.top + Math.round((w.screen.availHeight - w.outerHeight) / 2));
+          var centerWindow = (w) =>  window.moveTo(_window.screen.left + Math.round((w.screen.availWidth - w.outerWidth) / 2),
+                                                   _window.screen.top + Math.round((w.screen.availHeight - w.outerHeight) / 2));
           
           if (dimensions.length != 4)
           {
+            if (this.initialWidth)
+              window.outerWidth = this.initialWidth;
+            if (this.initialHeight)
+              window.outerHeight = this.initialHeight;
+
             // If no dimensions were stored just center the window
             centerWindow(window);
             return;
