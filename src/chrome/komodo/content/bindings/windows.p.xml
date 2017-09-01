@@ -120,23 +120,22 @@
                   var width = window.innerWidth;
                   window.innerWidth = 1000;
                   window.innerWidth = width;
-// #if PLATFORM == "win"
-                window.sizeToContent();
-// #endif
                 }, 100);
               });
             }
     
 // #if PLATFORM == "win"
-            var _sizeToContent = window.sizeToContent;
-            window.sizeToContent = function() {};
-            
-            _sizeToContent();
-            setTimeout(() =>
-            {
-              _sizeToContent();
-              window.sizeToContent = _sizeToContent;
-            }, 0);
+          var borderFix = () =>
+          {
+            var h = window.innerHeight;
+            window.innerHeight = h+100;
+            window.innerHeight = h;
+          };
+          setTimeout(borderFix, 100);
+
+          window.addEventListener("load", function() {
+              setTimeout(borderFix, 100);
+          });
 // #endif
             
           }
@@ -274,21 +273,20 @@
               var width = window.innerWidth;
               window.innerWidth = 1000;
               window.innerWidth = width;
-// #if PLATFORM == "win"
-              window.sizeToContent();
-// #endif
             });
-    
+
 // #if PLATFORM == "win"
-            var _sizeToContent = window.sizeToContent;
-            window.sizeToContent = () =>
-            {
-              this.removeAttribute("chromemargin");
-              _sizeToContent();
-              this.setAttribute("chromemargin", "0,0,0,0");
-            };
-            
-            sizeToContent();
+          var borderFix = () =>
+          {
+            var h = window.innerHeight;
+            window.innerHeight = h+100;
+            window.innerHeight = h;
+          };
+          setTimeout(borderFix, 100);
+
+          window.addEventListener("load", function() {
+              setTimeout(borderFix, 100);
+          });
 // #endif
           }
 
@@ -558,9 +556,7 @@
           {
             var h = window.innerHeight;
             window.innerHeight = h+100;
-            setTimeout(function() {
-              window.innerHeight = h-100;
-            }, 0);
+            window.innerHeight = h;
           };
           setTimeout(borderFix, 100);
 // #endif
