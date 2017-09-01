@@ -2064,21 +2064,12 @@
     {
         let selected = this.getSelectedResult();
 
-        if ( ! tipMessage && local.quickSearch)
+        if (tipMessage)
         {
-            var bindLabel = keybinds.getKeybindFromCommand("cmd_showCommando");
-            
-            if (bindLabel != "")
-                tipMessage = "TIP: Press " + bindLabel + " to quickly Go To Anything.";
+            // todo: Use localized database of tips
+            elem("tip").attr("tip-type", type);
+            elem("tip").text(tipMessage || "");
         }
-
-        if (selected && !tipMessage && "allowExpand" in selected && selected.allowExpand !== false) {
-            tipMessage = 'TIP: Hit the right arrow key to "expand" your selection';
-        }
-
-        // todo: Use localized database of tips
-        elem("tip").attr("tip-type", type);
-        elem("tip").text(tipMessage || "");
         
         c.reloadTip();
     }
