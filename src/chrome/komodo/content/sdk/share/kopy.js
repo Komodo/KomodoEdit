@@ -95,13 +95,13 @@
                 var msg = "URL copied to clipboard: " + url;
                 require("notify/notify").send(msg, "kopy",
                 {
-                    command: () => { ko.browse.openUrlInDefaultBrowser(url) }
+                    command: () => { legacy.browse.openUrlInDefaultBrowser(url) }
                 });
             }
 
             if (showInBrowser)
             {
-                ko.browse.openUrlInDefaultBrowser(url);
+                legacy.browse.openUrlInDefaultBrowser(url);
             }
         };
 
