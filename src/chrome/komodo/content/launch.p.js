@@ -525,7 +525,7 @@ this.newWindowFromWorkspace = function newWindow(workspaceIndex)
     ko.windowManager.openWindow("chrome://komodo/content",
                                 "_blank",
                                 "chrome,all,dialog=no",
-                                {workspaceIndex: workspaceIndex});
+                                {workspaceIndex: workspaceIndex, mainWindow: true});
 }
 
 this.newWindowForIndex = function newWindowForIndex(workspaceIndex)
@@ -534,7 +534,7 @@ this.newWindowForIndex = function newWindowForIndex(workspaceIndex)
                                 "_blank",
                                 "chrome,all,dialog=no",
                                 {workspaceIndex: workspaceIndex,
-                                 thisIndexOnly:true});
+                                 thisIndexOnly:true, mainWindow: true});
 }
 
 
