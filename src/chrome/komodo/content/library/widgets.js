@@ -860,7 +860,13 @@ if (typeof(ko.widgets)=='undefined') {
                         selected = alternate;
                     }
                     log.debug("onload: selecting " + selected + " in " + id);
-                    pane.addWidget(selected, {focus: true});
+                    try
+                    {
+                        pane.addWidget(selected, {focus: true});
+                    } catch (e)
+                    {
+                        log.exception(e, "Failed loading widget: " + id);
+                    }
                     pane.collapsed = panes[id].collapsed;
                 } else {
                     pane.collapsed = true;
