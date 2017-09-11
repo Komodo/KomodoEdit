@@ -1492,7 +1492,7 @@ class koDocumentBase(object):
 
             # Clean the document content.
             text = scimoz.text
-            lines = text.splitlines(True)
+            lines = re.findall(".*(?:\r\n|\n|$)", text)
             eolStr = eollib.eol2eolStr[eollib.scimozEOL2eol[scimoz.eOLMode]] # '\r\n' or '\n'...
             if text.endswith(eolStr):
                 # Model Scintilla: when a document ends with an EOL, Scintilla
