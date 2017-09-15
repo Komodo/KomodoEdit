@@ -334,7 +334,15 @@ if (typeof module === 'undefined') module = {}; // debugging helper
             
             var listener = () =>
             {
-                action.apply(this, arguments);
+                try
+                {
+                    action.apply(this, arguments);
+                }
+                catch (e)
+                {
+                    log.exception(e, "once callback failed");
+                }
+
                 this.off(event, listener);
             };
             
