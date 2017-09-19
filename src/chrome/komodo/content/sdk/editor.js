@@ -26,7 +26,9 @@ var sdkEditor = function(_scintilla, _scimoz) {
         if (pixelRatio)
             return;
 
-        pixelRatio = w.devicePixelRatio;
+        // We currently only translate the position according to pixelRatio on Linux,
+        // other platforms handle this at a lower level
+        pixelRatio = system.platform == "linux" ? w.devicePixelRatio : 1;
         if (system.platform == "linux")
         {
             if (prefs.hasPref('pixelRatio'))
