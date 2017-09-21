@@ -1,0 +1,25 @@
+# HG changeset patch
+# User Neil Hodgson <nyamatongwe@gmail.com>
+# Date 1505701440 -36000
+#      Mon Sep 18 12:24:00 2017 +1000
+# Node ID 711d6bbf62b6323c3190b67e25cafe79d6320324
+# Parent  dd15228b06e761e38058690c83ca7471204761a2
+Bug [#1885]. Improve scrolling on macOS 10.12.
+
+diff -r dd15228b06e7 -r 711d6bbf62b6 cocoa/ScintillaView.mm
+--- cocoa/ScintillaView.mm	Fri Sep 15 19:51:21 2017 +1000
++++ cocoa/ScintillaView.mm	Mon Sep 18 12:24:00 2017 +1000
+@@ -728,6 +728,13 @@
+     long lineHeight = mOwner.backend->WndProc(SCI_TEXTHEIGHT, 0, 0);
+     rc.origin.y = roundf(static_cast<XYPOSITION>(rc.origin.y) / lineHeight) * lineHeight;
+   }
++  // Snap to whole points - on retina displays this avoids visual debris
++  // when scrolling horizontally.
++  if ((rc.origin.x > 0) && (NSMaxX(rc) < contentRect.size.width)) {
++    // Only snap for positions inside the document - allow outside
++    // for overshoot.
++    rc.origin.x = roundf(static_cast<XYPOSITION>(rc.origin.x));
++  }
+   return rc;
+ }
+ 
