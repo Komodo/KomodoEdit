@@ -501,7 +501,11 @@ treecol[type="checkbox"]
 }
 
 treechildren::-moz-tree-checkbox {
-    list-style-image: url("koicon://ko-svg/chrome/fontawesome/skin/square.svg?size=16") !important;
+    background-image: url("koicon://ko-svg/chrome/fontawesome/skin/square.svg?size=16") !important;
+    background-size: 16px;
+    background-repeat: no-repeat;
+    background-position: center;
+    list-style: none !important;
     margin: 0;
     padding: 0;
     margin-left: -2px;
@@ -509,7 +513,7 @@ treechildren::-moz-tree-checkbox {
 }
 
 treechildren::-moz-tree-checkbox(checked) {
-    list-style-image: url("koicon://ko-svg/chrome/fontawesome/skin/check-square.svg?size=16") !important;
+    background-image: url("koicon://ko-svg/chrome/fontawesome/skin/check-square.svg?size=16") !important;
 }
 
 treechildren::-moz-tree-checkbox(disabled)
