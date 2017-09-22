@@ -16,6 +16,7 @@ cocoa_ScintillaView_mm.patch
 cocoa_scrollbar_notifications.patch
 cocoa_tab_close_crash.patch
 cocoa_dealloc_crash_fix.patch
+cocoa_scrolling_10_12.patch
 coffeescript_instance_props.patch
 coffeescript_ranges.patch
 coffeescript_regex.patch
