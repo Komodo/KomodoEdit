@@ -33,6 +33,8 @@ module.exports = Module;
             if (value)
             {
                 this.$element.attr("value", value);
+                if ("accessibleType" in this.element)
+                    this.element[attr] = value;
             }
             return this.element[attr];
         };
