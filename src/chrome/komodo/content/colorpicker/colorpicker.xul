@@ -5,6 +5,7 @@
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         orient="vertical"
         title="Color Picker"
+        id="colorPickerWrapper"
         class="dialog"
         width="330"
         height="540"
