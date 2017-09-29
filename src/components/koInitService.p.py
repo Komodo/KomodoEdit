@@ -992,7 +992,7 @@ class KoInitService(object):
             prefs.deletePref("autoSaveMinutes")
 
     # This value must be kept in sync with the value in "../prefs/prefs.p.xml"
-    _current_pref_version = 23
+    _current_pref_version = 50
     
     def _deleteNonVitalUserPrefs(self, prefs):
         log.info("_deleteNonVitalUserPrefs")
@@ -1171,6 +1171,10 @@ class KoInitService(object):
         if version < 23: # Komodo 11 - square tree collapser
             prefs.setString("editFoldStyle", "squaretree")
             
+        if version < 50: # Komodo 11.0.1
+            prefs.deletePref("windowDimensions-chrome://komodo/content/colorpicker/colorpicker.xul")
+            prefs.deletePref("windowDimensions-prefWindow")
+
         # Set the version so we don't have to upgrade again.
         prefs.setLongPref("version", self._current_pref_version)
 

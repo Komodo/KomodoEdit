@@ -6,6 +6,8 @@
         orient="vertical"
         title="Color Picker"
         class="dialog"
+        width="330"
+        height="540"
         buttons="">
     
     <browser flex="1" width="330" height="540" src="chrome://komodo/content/colorpicker/colorpicker.html"/>

@@ -55,7 +55,8 @@
         windowtype="komodo_prefs"
         orient="vertical"
         class="dialog pref-window"
-        style="width: 56em; height: 54em; min-width: 52em;"
+        width="700"
+        height="700"
         persist="screenX screenY width height"
         onload="Onload();">
 

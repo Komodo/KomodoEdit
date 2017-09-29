@@ -444,9 +444,9 @@
           if (dimensions.length != 4)
           {
             if (this.initialWidth)
-              window.outerWidth = this.initialWidth;
+              window.outerWidth = parseInt(this.initialWidth);
             if (this.initialHeight)
-              window.outerHeight = this.initialHeight;
+              window.outerHeight = parseInt(this.initialHeight);
 
             // If no dimensions were stored just center the window
             centerWindow(window);
