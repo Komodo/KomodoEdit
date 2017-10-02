@@ -1,74 +1,12 @@
 /**
- * @copyright (c) 2015 ActiveState Software Inc.
- * @license MPL 1.1/GPL 2.0/LGPL 2.1
- * @author ActiveState
- * @overview -
- */
-
-/* ***** BEGIN LICENSE BLOCK *****
- * Version: MPL 1.1/GPL 2.0/LGPL 2.1
- * 
- * The contents of this file are subject to the Mozilla Public License
- * Version 1.1 (the "License"); you may not use this file except in
- * compliance with the License. You may obtain a copy of the License at
- * http://www.mozilla.org/MPL/
- * 
- * Software distributed under the License is distributed on an "AS IS"
- * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
- * License for the specific language governing rights and limitations
- * under the License.
- * 
- * The Original Code is Komodo code.
- * 
- * The Initial Developer of the Original Code is ActiveState Software Inc.
- * Portions created by ActiveState Software Inc are Copyright (C) 2000-2007
- * ActiveState Software Inc. All Rights Reserved.
- * 
- * Contributor(s):
- *   ActiveState Software Inc
- * 
- * Alternatively, the contents of this file may be used under the terms of
- * either the GNU General Public License Version 2 or later (the "GPL"), or
- * the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
- * in which case the provisions of the GPL or the LGPL are applicable instead
- * of those above. If you wish to allow use of your version of this file only
- * under the terms of either the GPL or the LGPL, and not to allow others to
- * use your version of this file under the terms of the MPL, indicate your
- * decision by deleting the provisions above and replace them with the notice
- * and other provisions required by the GPL or the LGPL. If you do not delete
- * the provisions above, a recipient may use your version of this file under
- * the terms of any one of the MPL, the GPL or the LGPL.
- * 
- * ***** END LICENSE BLOCK ***** */
-
-// koLogging.js
-
-// JS interface to the logging system.
-
-/* This should be available in all JS code in Komodo.
-
-Usage:
-
-    log = require("ko/logging").getLogger(<logger_name>);
-    log.debug(<message>);
-    log.info(<message>);
-    etc.
-
-For backwards compatibility, it is also possible to use:
-
-    log = ko.logging.getLogger(<logger_name>);
-
-To turn on or off a logger, use:
-
-    log.setLevel(ko.logging.LOG_DEBUG);
-
-Alternatively, on the command line used to launch komodo,
-
-    komodo --raw -log logger_name:DEBUG
-*/
-
-/**
  * @module ko/logging
+ * @copyright (c) 2017 ActiveState Software Inc.
+ * @license Mozilla Public License v. 2.0
+ * @author ActiveState
+ * @example
+ * var log = require("ko/logging").getLogger("foo");
+ * log.setLevel(log.DEBUG);
+ * log.debug("hello world!");
  */
 (function() {
 
@@ -140,6 +78,34 @@ const Logger = exports.Logger = function(logger, logger_name) {
     this._enabledCache = {};
 };
 
+
+/**
+ * Logger object
+ *
+ * @example
+ * set log level to debug:
+ * `myLogger.setLevel(myLogger.DEBUG);`
+ *
+ * @typedef class
+ * @class Logger
+ * @property {int} NOTSET - NOTSET log level
+ * @property {int} DEBUG - DEBUG log level
+ * @property {int} INFO - INFO log level
+ * @property {int} WARN - WARN log level
+ * @property {int} ERROR - ERROR log level
+ * @property {int} CRITICAL - CRITICAL log level
+ * @property {int} level - The current log level
+ * @property {function} setLevel - Set the logging level
+ * @property {function} debug=message - Log a debug message
+ * @property {function} info=message - Log a info message
+ * @property {function} error=message - Log a error message
+ * @property {function} critical=message - Log a critical message
+ * @property {function} exception=message - Log a exception message
+ * @property {function} warn|warning=message - Log a warn message
+ * @property {function} time - start timer
+ * @property {function} timeEnd - end timer
+ *
+ */
 Logger.prototype = {
     constructor: Logger,
     // Add level defines to the logger prototype, for ease of access.
@@ -176,11 +142,11 @@ const getLoggingMgr = exports.getLoggingMgr = function() {
 
 /**
  * Retrieve the given logger
- * 
+ *
  * @function getLogger
- * 
+ *
  * @param   {String} logger_name    Name of the logger (creates it if it does not exist)
- * 
+ *
  * @returns {Logger}
  */
 const getLogger = exports.getLogger = function(logger_name) {
@@ -190,8 +156,13 @@ const getLogger = exports.getLogger = function(logger_name) {
 
 /**
  * Set the logging level for the current logger, eg. logging.LOG_DEBUG
+ *
+ * @name setLevel
+ * @method
+ * @memberof module:ko/logging~Logger
  * 
  * @param   {Long} level
+ * 
  */
 Logger.prototype.setLevel = function(level) {
     this._logger.setLevel(level);
@@ -215,7 +186,7 @@ Logger.prototype.getEffectiveLevel = function() {
 Logger.prototype.isEnabledFor = function(level) {
     if (level in this._enabledCache)
         return this._enabledCache[level];
-    
+
     var result = this._logger.isEnabledFor(level);
     this._enabledCache[level] = result;
     return result;
@@ -224,6 +195,10 @@ Logger.prototype.isEnabledFor = function(level) {
 /**
  * Log a debug message
  * 
+ * @name debug
+ * @method
+ * @memberof module:ko/logging~Logger
+ *
  * @param   {String} message
  */
 Logger.prototype.debug = function(message) {
@@ -264,6 +239,10 @@ Logger.prototype.timeEnd = function(key) {
 /**
  * Log an info message
  * 
+ * @name info
+ * @method
+ * @memberof module:ko/logging~Logger
+ *
  * @param   {String} message
  */
 Logger.prototype.info = function(message) {
@@ -279,6 +258,10 @@ Logger.prototype.info = function(message) {
 /**
  * Log a warning message
  * 
+ * @name warn
+ * @method
+ * @memberof module:ko/logging~Logger
+ *
  * @param   {String} message
  */
 Logger.prototype.warn = function(message) {
@@ -411,7 +394,11 @@ function(object, deprecatedName, replacementName, logger) {
 /**
  * Log an error message
  * 
- * @param   {String} message    
+ * @name error
+ * @method
+ * @memberof module:ko/logging~Logger
+ *
+ * @param   {String} message
  * @param   {Boolean} noTraceback       Whether to log a backtrace
  */
 Logger.prototype.error = function(message, noTraceback=false) {
@@ -424,7 +411,7 @@ Logger.prototype.error = function(message, noTraceback=false) {
                           getStack(null, 0, 4);
             }
             this._logger.error(message);
-            
+
             if (!noTraceback) {
                 this.report(new Error(String(message)), "", "ERROR");
             }
@@ -437,6 +424,10 @@ Logger.prototype.error = function(message, noTraceback=false) {
 /**
  * Log a critical message
  * 
+ * @name critical
+ * @method
+ * @memberof module:ko/logging~Logger
+ *
  * @param   {String} message
  */
 Logger.prototype.critical = function(message) {
@@ -444,7 +435,7 @@ Logger.prototype.critical = function(message) {
         if (this.isEnabledFor(LOG_CRITICAL)) {
             this._logger.critical(message);
         }
-        
+
         this.report(new Error(message), "", "CRITICAL");
     } catch(ex) {
         dump("*** Error in logger.critical: "+ex+"\n");
@@ -454,7 +445,11 @@ Logger.prototype.critical = function(message) {
 /**
  * Log an exception
  * 
- * @param   {Exception} e      
+ * @name exception
+ * @method
+ * @memberof module:ko/logging~Logger
+ *
+ * @param   {Exception} e
  * @param   {String} message
  */
 Logger.prototype.exception = function(e, message="") {
@@ -473,7 +468,7 @@ Logger.prototype.exception = function(e, message="") {
                        objDump +
                        '-- EXCEPTION END --',
                        true /* noTraceback */);
-            
+
             this.report(e, message);
         }
     } catch(ex) {
@@ -488,16 +483,16 @@ Logger.prototype.exception = function(e, message="") {
 Logger.prototype.report = function(e, message, level = "EXCEPTION") {
     if (typeof require == "undefined") return;
     var prefs = require("ko/prefs");
-    
+
     if ( ! prefs.getBooleanPref("analytics_enabled", false)) {
         return;
     }
-    
+
     var view = require("ko/views").current();
     var i = Cc["@activestate.com/koInfoService;1"].getService(Ci.koIInfoService);
-    
+
     message = level + " :: " + e.name + " :: " + message + " :: " + e.message;
-    
+
     var payload = {
         apiKey: prefs.getString("bugsnag_key"),
         notifier: {
@@ -536,7 +531,7 @@ Logger.prototype.report = function(e, message, level = "EXCEPTION") {
             }
         ]
     }
-    
+
     require("ko/ajax").request({
         url: "https://notify.bugsnag.com",
         method: 'POST',
@@ -797,7 +792,7 @@ function(v, maxRecursion=2, parentProperties=true, recursionLevel=0)
             break;
         case "object":
             if (v !== null && recursionLevel >= maxRecursion) return '(max recursion) ...';
-            
+
             if (v == window) {
                 out = "<window>";
             }
@@ -840,12 +835,12 @@ function(v, maxRecursion=2, parentProperties=true, recursionLevel=0)
             out += ": " + vType;
             break;
     }
-	
+
     if (recursionLevel == 0)
     {
             dumpImportant(out, "Mixed Dump");
     }
-    
+
     return out;
 }
 
@@ -914,7 +909,7 @@ exports.setGlobalLevel = function(level) {
     require("notify/notify").send("Setting global logging level,\
                                   do not use this unless you know what you're doing",
             "dev", {priority: "warning"})
-    
+
     for (let k in _gLoggers)
     {
         getLogger(k).setLevel(level);

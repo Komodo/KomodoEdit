@@ -1,21 +1,29 @@
 /**
- * @copyright (c) 2015 ActiveState Software Inc.
+ * @copyright (c) 2017 ActiveState Software Inc.
  * @license Mozilla Public License v. 2.0
  * @author ActiveState
- * @overview -
  */
 
 /**
  * Some simple helper functions useful when debugging.
  *
- * This module will likely be merged into the [console] SDK soon.
+ * This module will likely be merged into the [console]{@link console.js} SDK soon.
  *
  * @module ko/debug
  */
 (function() {
-    
+
     /**
-     * @function sizeof
+     *
+     * Returns an approximate size of an object
+     *
+     * @param  {*}       object - The thing to calculate the size of in bytes   
+     * @param  {boolean=} giveSummary=false - gives a summary at the end
+     * @param  {boolean=} inclueProto=false - measure the size of prototype objects
+     * @param  {boolean=} includeGetters=false - measure the size of getters
+     * @param  {boolean=} processed=false - for internal use, do not use
+     *
+     * @returns size in bytes of the parameter
      */
     this.sizeof = function(object, giveSummary = true, includeProto = false, includeGetters = false, processed = null)
     {
@@ -110,7 +118,7 @@
         summary.push("Total: " + _formatBytes(size));
         return summary.join("\n");
     }
-    
+
     var _formatBytes = function(bytes,decimals)
     {
        if(bytes == 0) return '0 Byte';
@@ -120,5 +128,5 @@
        var i = Math.floor(Math.log(bytes) / Math.log(k));
        return (bytes / Math.pow(k, i)).toPrecision(dm) + ' ' + sizes[i];
     }
-    
+
 }).apply(module.exports);

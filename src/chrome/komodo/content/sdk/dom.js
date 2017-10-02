@@ -1,20 +1,21 @@
 /**
- * @copyright (c) 2015 ActiveState Software Inc.
+ * @copyright (c) 2017 ActiveState Software Inc.
  * @license Mozilla Public License v. 2.0
  * @author ActiveState
- * @overview -
  */
 
 if (typeof module === 'undefined') module = {}; // debugging helper
 
 /**
  * @module ko/dom
+ * @description this module is meant to be "mostly" backwards compatible with jquery
  */
+
 (function() {
 
     const log   = require("ko/logging").getLogger("ko-dom");
     //log.setLevel(require("ko/logging").LOG_DEBUG);
-    
+
     if ( ! window)
     {
         var window = require("ko/windows").getMain();
@@ -23,12 +24,25 @@ if (typeof module === 'undefined') module = {}; // debugging helper
 
     /* === MAIN CONSTRUCTION LOGIC === */
 
-    /**
-     * $ main function
-     * query = css selector, dom object, or function
-     * http://www.dustindiaz.com/smallest-domready-ever
-     * returns instance or executes function on ready
-     */
+     /**
+      * @class Constructor
+      *
+      * @description These methods live on the exported function, you can access them like so:
+      *
+      * ```require("ko/dom").methodName(..)```
+      */
+
+     /**
+      * @constructor module:ko/dom
+      * 
+      * @param {string} query       CSS query to use as the selector
+      * @param {element} parent     The parent element (can be the window)
+      * @example
+      * var $ = require("ko/dom");
+      * $(".foo").text("bar");
+      *
+      * @returns {module:ko/dom~QueryObject}
+      */
     var $ = function(query, parent)
     {
         if (query instanceof window.ChromeWindow && parent) // Allow for the parent to be bound
@@ -39,7 +53,7 @@ if (typeof module === 'undefined') module = {}; // debugging helper
         }
 
         parent = parent || window.document;
-        
+
         if (("document" in parent) && parent.constructor.toString().indexOf("Window()") !== -1)
         {
             parent = parent.document;
@@ -63,7 +77,22 @@ if (typeof module === 'undefined') module = {}; // debugging helper
         else
             return new queryObject(query, parent);
     };
-    
+
+    /**
+     * Get a ko/dom instance for the given window
+     * 
+     * @name window
+     * @method
+     * @memberof module:ko/dom~Constructor
+     * 
+     * @param {Window} w    Window reference
+     * 
+     * @example
+     * var $ = require("ko/dom").window(myWindow);
+     * $(".foo").text("bar");
+     * 
+     * @returns {module:ko/dom} Returns a ko/dom instance for the given window
+     */
     $.window = (w) =>
     {
         // Return bound version of $
@@ -81,6 +110,10 @@ if (typeof module === 'undefined') module = {}; // debugging helper
 
     /**
      * Create element from complex string input
+     * 
+     * @name createElement
+     * @method
+     * @memberof module:ko/dom~Constructor
      *
      * @param   {String} html                   HTML string, must validate properly (no syntax errors), can also be just the nodename
      * @param   {Bool|Object} allowMultiple     boolean or object, if object then this is taken as an object of attributes to assign to the element
@@ -112,7 +145,7 @@ if (typeof module === 'undefined') module = {}; // debugging helper
             {
                 return document.createElement(html);
             }
-        
+
             var parsed = (/^<(\w+)\s*\/?>(?:<\/\1>|)$/).exec(html);
             if (parsed) {
                 return document.createElement(parsed[1]);
@@ -134,15 +167,32 @@ if (typeof module === 'undefined') module = {}; // debugging helper
             return false;
         }
     }
-    
+
     /**
-     * $.create, Based on;
+     * Quickly create DOM structure 
+     * Based on: {@link http://gist.github.com/278016}
      * 
-     * source      : http://gist.github.com/278016
-     * author      : Thomas Aylott
-     * site        : subtlegradient.com
-     * copyright   : 2010 Thomas Aylott
-     * license     : MIT
+     * Example usage:
+     * 
+     * ```
+     * 	$.create('A href=#' , {class: "foo"}, $.create('IMG src="http://bit.ly/WinAylott"')
+     *    ('BR')
+	 *    ('' ,"View larger image") )
+     * ```
+     * 
+     * @name create
+     * @method
+     * @memberof module:ko/dom~Constructor
+     * 
+     * @param {string} selector                     The element definition
+     * @param {object|string|undefined} attributes  Attributes to add to the element, if content is undefined and this is a string then the value of attributes will be used as the content param
+     * @param {string|undefined} content            Content to append
+     * 
+     * @returns {module:ko/dom~Constructor.create} Returns instance of this function, so you can chain calls
+     * 
+     * @author Thomas Aylott (original author)
+     * @copyright 2010 Thomas Aylott
+     * @license MIT
      **/
     $.create = function (selector, attributes, content, output = '')
     {
@@ -151,12 +201,12 @@ if (typeof module === 'undefined') module = {}; // debugging helper
             content = attributes;
             attributes = undefined;
         }
-        
+
         if (typeof content == "function")
         {
             content = content.toString();
         }
-        
+
         if (attributes)
         {
             for (let key in attributes)
@@ -167,31 +217,35 @@ if (typeof module === 'undefined') module = {}; // debugging helper
                 selector += " " + key + "='"+value+"'";
             }
         }
-        
+
         output += '<' + selector + '>';
         output += ''+ ( content||'' );
         output += '</' + selector .split (' ')[0] + '>';
-        
+
         var BS = function(selector, attributes, content) {
             return $.create(selector, attributes, content, output);
         };
-        
+
         BS.toString = function () { return output; }
-        
+
         BS.finalize = function()
         {
             return new queryObject($.createElement(output, true /* Allow Multiple */));
         }
-        
+
         return BS;
     };
-    
+
     /**
      * Escape given string (html entities encode)
      * 
+     * @name escape
+     * @method
+     * @memberof module:ko/dom~Constructor
+     *
      * @param   {String} str    The input string
-     * 
-     * @returns {String} 
+     *
+     * @returns {String}
      */
     $.escape = function(str)
     {
@@ -210,19 +264,19 @@ if (typeof module === 'undefined') module = {}; // debugging helper
      * @param   {string|object} insert  HTML string or object to be inserted
      * @param   {object} opts           {where: prepend|after|before}
      *
-     * @returns {void} 
+     * @returns {void}
      */
     var insertIntoElem = function(elems, insert, opts)
     {
         opts = opts || {};
-        
+
         if (typeof insert == "object" && insert.koDom)
             insert.each(function() { insertIntoElem(elems, this, opts); });
 
         var __insert = false
         if (typeof insert == 'string')
             __insert = $.createElement(insert);
-            
+
         if ( ! elems.koDom)
             elems = $(elems);
 
@@ -232,7 +286,7 @@ if (typeof module === 'undefined') module = {}; // debugging helper
                 var _insert = insert.element()
             else
                 var _insert = __insert ? __insert.cloneNode(true) : insert;
-                
+
             if (("where" in opts) && opts.where == "prepend" && this.firstChild)
                 this.insertBefore(_insert, this.firstChild);
             else if (("where" in opts) && opts.where == "after")
@@ -252,18 +306,17 @@ if (typeof module === 'undefined') module = {}; // debugging helper
     /* === FUNCTION CHAIN === */
 
     /**
-     * queryObject function (internal use)
-     * query = selector, dom element or function
+     * @class QueryObject
      */
     function queryObject(query, customParent)
     {
         var parent = window.document;
 
         this._elements = [];
-        
+
         if (query && typeof query == "object" && ! (query instanceof window.ChromeWindow) && query.length)
             query = Array.prototype.slice.call(query);
-        
+
         // Use push.apply to force array type
         if(Object.prototype.toString.call(query) === '[object Array]')
             this._elements = query.slice(0);
@@ -283,9 +336,10 @@ if (typeof module === 'undefined') module = {}; // debugging helper
         else if ((query != null && query === query.window) ||
                  (query != null && query.window && query == query.window.document))
             this._elements.push(query);
-            
+
         this.length = this._elements.length;
     }
+
 
     // set query object prototype
     queryObject.prototype = {
@@ -295,19 +349,20 @@ if (typeof module === 'undefined') module = {}; // debugging helper
 
         // Identify as special DOM element
         koDom: true,
-        
+
         /**
          * Add event handler
          * 
+         * @memberof module:ko/dom~QueryObject
          * @param {Event} event         String event type i.e 'click'
          * @param {Function} action     Function
-         * 
-         * @returns this
+         *
+         * @returns {this}
          */
         on: function(event, action)
         {
             this.off(event, action); // Prevent duplicate event listeners
-            
+
             return this.each(function()
             {
                 if ( ! ("__koListeners" in this))
@@ -315,23 +370,24 @@ if (typeof module === 'undefined') module = {}; // debugging helper
                 if ( ! (event in this.__koListeners))
                     this.__koListeners[event] = [];
                 this.__koListeners[event].push(action);
-                
+
                 this.addEventListener(event, action);
             });
         },
-        
+
         /**
          * Add an event listener which only receives a callback once
-         * 
+         * @method
+         * @memberof module:ko/dom~QueryObject
          * @param {Event} event         String event type i.e 'click'
          * @param {Function} action     Callback function
-         * 
-         * @returns this
+         *
+         * @returns {this}
          */
         once: function(event, action)
         {
             var elems = this;
-            
+
             var listener = () =>
             {
                 try
@@ -345,16 +401,17 @@ if (typeof module === 'undefined') module = {}; // debugging helper
 
                 this.off(event, listener);
             };
-            
+
             this.on(event, listener);
         },
 
         /**
          * Remove event listener
-         * 
+         * @method
+         * @memberof module:ko/dom~QueryObject
          * @param {Event} event         String event type i.e 'click'
          * @param {Function} action     Callback function
-         * 
+         *
          * @returns this
          */
         off: function(event, action)
@@ -367,14 +424,15 @@ if (typeof module === 'undefined') module = {}; // debugging helper
                         return value != action;
                     });
                 }
-                
+
                 this.removeEventListener(event, action);
             });
         },
 
         /**
          * Trigger an event
-         *
+         * @method
+         * @memberof module:ko/dom~QueryObject
          * @returns this
          */
         trigger: function(type, params)
@@ -393,7 +451,8 @@ if (typeof module === 'undefined') module = {}; // debugging helper
 
         /**
          * Iterate over matched elements
-         * 
+         * @method
+         * @memberof module:ko/dom~QueryObject
          * @param {Function} action    The function to call on each iteration
          *
          * @returns this
@@ -410,7 +469,8 @@ if (typeof module === 'undefined') module = {}; // debugging helper
 
         /**
          * Reverse the element array
-         * 
+         * @method
+         * @memberof module:ko/dom~QueryObject
          * @returns this
          */
         reverse: function()
@@ -421,7 +481,8 @@ if (typeof module === 'undefined') module = {}; // debugging helper
 
         /**
          * Set text content of elem
-         * 
+         * @method
+         * @memberof module:ko/dom~QueryObject
          * @param   {string} value      The value
          *
          * @returns this
@@ -439,7 +500,8 @@ if (typeof module === 'undefined') module = {}; // debugging helper
 
         /**
          * Set html content of elem
-         * 
+         * @method
+         * @memberof module:ko/dom~QueryObject
          * @param   {string|object} value String or queryObject
          *
          * @returns this
@@ -453,13 +515,14 @@ if (typeof module === 'undefined') module = {}; // debugging helper
             {
                 this.innerHTML = value ? value : "";
             });
-            
+
             return this;
         },
 
         /**
          * Get outer html of elem
-         * 
+         * @method
+         * @memberof module:ko/dom~QueryObject
          * @returns this
          */
         outerHtml: function()
@@ -469,7 +532,8 @@ if (typeof module === 'undefined') module = {}; // debugging helper
 
         /**
          * Empty the contents of an element
-         *
+         * @method
+         * @memberof module:ko/dom~QueryObject
          * @returns this
          */
         empty: function()
@@ -479,7 +543,8 @@ if (typeof module === 'undefined') module = {}; // debugging helper
 
         /**
          * Append content to elem
-         * 
+         * @method
+         * @memberof module:ko/dom~QueryObject
          * @param   {element} elem
          *
          * @returns this
@@ -489,10 +554,11 @@ if (typeof module === 'undefined') module = {}; // debugging helper
             insertIntoElem(this, elem);
             return this;
         },
-        
+
         /**
          * Append elem to another element
-         * 
+         * @method
+         * @memberof module:ko/dom~QueryObject
          * @param   {element} elem
          *
          * @returns this
@@ -505,7 +571,8 @@ if (typeof module === 'undefined') module = {}; // debugging helper
 
         /**
          * Prepend content to elem
-         * 
+         * @method
+         * @memberof module:ko/dom~QueryObject
          * @param   {string|object} value String or queryObject
          *
          * @returns this
@@ -518,7 +585,8 @@ if (typeof module === 'undefined') module = {}; // debugging helper
 
         /**
          * Insert content after element
-         * 
+         * @method
+         * @memberof module:ko/dom~QueryObject
          * @param   {string|object} value String or queryObject
          *
          * @returns this
@@ -531,7 +599,8 @@ if (typeof module === 'undefined') module = {}; // debugging helper
 
         /**
          * Insert content before element
-         * 
+         * @method
+         * @memberof module:ko/dom~QueryObject
          * @param   {string|object} value String or queryObject
          *
          * @returns this
@@ -541,10 +610,11 @@ if (typeof module === 'undefined') module = {}; // debugging helper
             insertIntoElem(this, elem, {where: "before"});
             return this;
         },
-        
+
         /**
          * Get the previous sibling for the first element in the selection
-         *
+         * @method
+         * @memberof module:ko/dom~QueryObject
          * @returns {queryObject}
          */
         prev: function()
@@ -552,10 +622,11 @@ if (typeof module === 'undefined') module = {}; // debugging helper
             var elem = this.element();
             return new queryObject(elem ? elem.previousSibling : null);
         },
-        
+
         /**
          * Get the next sibling for the first element in the selection
-         *
+         * @method
+         * @memberof module:ko/dom~QueryObject
          * @returns {queryObject}
          */
         next: function()
@@ -566,9 +637,10 @@ if (typeof module === 'undefined') module = {}; // debugging helper
 
         /**
          * Replace matched element(s) with ..
-         * 
+         * @method
+         * @memberof module:ko/dom~QueryObject
          * @param   {Element} elem  The element
-         * 
+         *
          * @returns {Element} returns replaced element
          */
         replaceWith: function(elem)
@@ -579,17 +651,18 @@ if (typeof module === 'undefined') module = {}; // debugging helper
 
         /**
          * Clone matched element
-         * 
+         * @method
+         * @memberof module:ko/dom~QueryObject
          * @returns {Element} matched element
          */
         clone: function(deep = true, events = true)
         {
             var cloned = [];
-            
+
             this.each(function() {
                 var el = this;
                 var result = $(el.cloneNode(deep));
-                
+
                 if ("__koListeners" in el && events)
                 {
                     for (let event in el.__koListeners)
@@ -600,16 +673,17 @@ if (typeof module === 'undefined') module = {}; // debugging helper
                         });
                     }
                 }
-                
+
                 cloned.push(result.element());
             });
-            
+
             return new queryObject(cloned);
         },
 
         /**
          * Set / get value
-         * 
+         * @method
+         * @memberof module:ko/dom~QueryObject
          * @param   {String|Void} value  The value
          *
          * @returns this
@@ -618,13 +692,13 @@ if (typeof module === 'undefined') module = {}; // debugging helper
         {
             // Todo: support different value types
             var valueKey = 'value';
-            
+
             // Using property
             if (valueKey in this.element())
             {
                 if (value === undefined)
                     return this.element()[valueKey];
-    
+
                 return this.each(function()
                 {
                     this[valueKey] = value;
@@ -635,14 +709,15 @@ if (typeof module === 'undefined') module = {}; // debugging helper
             {
                 if (value === undefined)
                     return this.attr(valueKey);
-                
+
                 return this.attr(valueKey, value);
             }
         },
 
         /**
          * Retrieve parent node
-         *
+         * @method
+         * @memberof module:ko/dom~QueryObject
          * @returns {Element}   Parent node
          */
         parent: function()
@@ -652,7 +727,8 @@ if (typeof module === 'undefined') module = {}; // debugging helper
 
         /**
          * Delete matched elements
-         *
+         * @method
+         * @memberof module:ko/dom~QueryObject
          * @returns this
          */
         delete: function()
@@ -665,7 +741,8 @@ if (typeof module === 'undefined') module = {}; // debugging helper
 
         /**
          * Makes element visible by setting the visibility attribute
-         *
+         * @method
+         * @memberof module:ko/dom~QueryObject
          * @returns this
          */
         show: function()
@@ -678,7 +755,8 @@ if (typeof module === 'undefined') module = {}; // debugging helper
 
         /**
          * Makes element invisible by setting the visibility attribute
-         *
+         * @method
+         * @memberof module:ko/dom~QueryObject
          * @returns this
          */
         hide: function()
@@ -688,7 +766,7 @@ if (typeof module === 'undefined') module = {}; // debugging helper
                 this.style.visibility = "collapse";
             });
         },
-        
+
         fadeIn: function(callback)
         {
             this.each(function()
@@ -696,7 +774,7 @@ if (typeof module === 'undefined') module = {}; // debugging helper
                 this.style.opacity = 0;
                 this.style.visibility = "visible";
             });
-        
+
             this.animate( { opacity: 1 },
                 {
                     start: {opacity: 0},
@@ -705,7 +783,7 @@ if (typeof module === 'undefined') module = {}; // debugging helper
                 callback
             );
         },
-        
+
         fadeOut: function(callback)
         {
             this.each(function()
@@ -713,7 +791,7 @@ if (typeof module === 'undefined') module = {}; // debugging helper
                 this.style.opacity = 1;
                 this.style.visibility = "visible";
             });
-        
+
             this.animate( { opacity: 0 },
                 {
                     start: {opacity: 1},
@@ -729,7 +807,8 @@ if (typeof module === 'undefined') module = {}; // debugging helper
 
         /**
          * Check if element is visible
-         *
+         * @method
+         * @memberof module:ko/dom~QueryObject
          * @returns {Boolean}
          */
         visible: function()
@@ -738,26 +817,27 @@ if (typeof module === 'undefined') module = {}; // debugging helper
             var w = el.ownerDocument.defaultView;
 
             if ( ! w) return false;
-            
+
             if ( ! el) return false;
-            
+
             while (el && (el instanceof w.HTMLElement || el instanceof w.XULElement))
             {
                 let v = w.getComputedStyle(el, null).getPropertyValue("visibility");
                 let d = w.getComputedStyle(el, null).getPropertyValue("display");
-                
+
                 if (v == "hidden" || v == "collapse" || d == "none")
                     return false;
-                
+
                 el = el.parentNode;
             }
-            
+
             return true;
         },
 
         /**
          * Checks if element exists
-         * 
+         * @method
+         * @memberof module:ko/dom~QueryObject
          * @returns {Boolean}
          */
         exists: function()
@@ -766,10 +846,11 @@ if (typeof module === 'undefined') module = {}; // debugging helper
         },
 
         /**
-         * Checks for given class 
-         * 
+         * Checks for given class
+         * @method
+         * @memberof module:ko/dom~QueryObject
          * @param {String}  className   The class name
-         * 
+         *
          * @returns this
          */
         hasClass: function(className)
@@ -778,10 +859,11 @@ if (typeof module === 'undefined') module = {}; // debugging helper
         },
 
         /**
-         * Adds given class 
-         * 
+         * Adds given class
+         * @method
+         * @memberof module:ko/dom~QueryObject
          * @param {String}  className   The class name
-         * 
+         *
          * @returns this
          */
         addClass: function()
@@ -795,9 +877,10 @@ if (typeof module === 'undefined') module = {}; // debugging helper
 
         /**
          * Remove given class
-         * 
+         * @method
+         * @memberof module:ko/dom~QueryObject
          * @param {String}  className   The class name
-         * 
+         *
          * @returns this
          */
         removeClass: function()
@@ -811,29 +894,30 @@ if (typeof module === 'undefined') module = {}; // debugging helper
 
         /**
          * Set/get CSS value(s)
-         * 
+         * @method
+         * @memberof module:ko/dom~QueryObject
          * @param   {String|Object} key         The CSS property name, or an object with css properties/values
          * @param   {Mixed|Undefined} value     The CSS property value, or undefined if first arg was an object
-         * 
+         *
          * @returns this
          */
         css: function(key, value)
         {
             var pxRules = ["width", "height", "top", "left", "bottom", "right", "font-size"];
-            
+
             if ((typeof key) == 'string' && value === undefined)
             {
                 value = this.element().style[key];
-                
+
                 if (pxRules.indexOf(key) != -1 && value.indexOf("px") == (value.length-2))
                     value = value.substring(0, value.length-2);
-                
+
                 return value;
             }
-            
+
             if (pxRules.indexOf(key) != -1 && ! isNaN(value))
                 value = value + "px";
-            
+
             var rules = {};
             if (value !== undefined)
                 rules[key] = value;
@@ -851,10 +935,11 @@ if (typeof module === 'undefined') module = {}; // debugging helper
 
         /**
          * Set/get attributes
-         * 
+         * @method
+         * @memberof module:ko/dom~QueryObject
          * @param   {String|Object} key         The attribute key
          * @param   {Mixed|Undefined} value     The attribute value, or empty if you just want to retrieve it
-         * 
+         *
          * @returns this
          */
         attr: function(key, value)
@@ -869,7 +954,7 @@ if (typeof module === 'undefined') module = {}; // debugging helper
                 attrs[key] = value;
             else
                 attrs = key;
-                
+
             return this.each(function()
             {
                 for (let k in attrs)
@@ -878,12 +963,13 @@ if (typeof module === 'undefined') module = {}; // debugging helper
                 }
             });
         },
-        
+
         /**
          * Remove Attribute
-         * 
+         * @method
+         * @memberof module:ko/dom~QueryObject
          * @param   {String} key    The attribute key
-         * 
+         *
          * @returns this
          */
         removeAttr: function(key)
@@ -896,7 +982,8 @@ if (typeof module === 'undefined') module = {}; // debugging helper
 
         /**
          * Get a unique ID for the matched element
-         * 
+         * @method
+         * @memberof module:ko/dom~QueryObject
          * @returns {String}
          */
         uniqueId: function()
@@ -915,13 +1002,14 @@ if (typeof module === 'undefined') module = {}; // debugging helper
 
         /**
          * Animate certain properties on the matched elements
+         * @method
+         * @memberof module:ko/dom~QueryObject
+         * NOTE: This function is extremely experimental
          *
-         * NOTE: This function is extremely experimental 
-         * 
          * @param   {Object} props     The properties to animate
          * @param   {Object} opts      Options
          * @param   {Function|Null}    callback
-         * 
+         *
          * @returns this
          */
         animate: function(props, opts = {}, callback = null)
@@ -990,7 +1078,7 @@ if (typeof module === 'undefined') module = {}; // debugging helper
             });
 
             this._animComplete = opts.complete;
-            
+
             var frameStep = () =>
             {
                 frameCounter++;
@@ -999,7 +1087,7 @@ if (typeof module === 'undefined') module = {}; // debugging helper
 
                 try
                 {
-                    
+
                     this.each(function()
                     {
                         for (var prop in props)
@@ -1007,15 +1095,15 @@ if (typeof module === 'undefined') module = {}; // debugging helper
                             let style = styles[this.id];
                             let currentValue = style[prop];
                             let increment = style[prop + "::Increments"];
-    
+
                             if (isNaN(currentValue))
                                 continue;
-    
+
                             let newValue = frameCounter == frameCount ?
                                             props[prop] : currentValue + increment;
-    
+
                             log.debug("Setting " + prop + " to " + newValue);
-    
+
                             switch (prop)
                             {
                                 case 'panelX':
@@ -1028,11 +1116,11 @@ if (typeof module === 'undefined') module = {}; // debugging helper
                                     this.style[prop] = newValue;
                                     break;
                             }
-    
+
                             styles[this.id][prop] = newValue;
                         };
                     });
-                    
+
                 } catch (e)
                 {
                     log.exception(e, "Something went wrong while animating a frame, stopping animation");
@@ -1049,13 +1137,14 @@ if (typeof module === 'undefined') module = {}; // debugging helper
                 }
 
             }
-            
+
             this._animTimer = window.setTimeout(frameStep.bind(this), interval);
         },
 
         /**
          * Stop any running animations
-         * 
+         * @method
+         * @memberof module:ko/dom~QueryObject
          * @returns this
          */
         stop: function()
@@ -1077,7 +1166,8 @@ if (typeof module === 'undefined') module = {}; // debugging helper
 
         /**
          * Focus on element
-         *
+         * @method
+         * @memberof module:ko/dom~QueryObject
          * @returns this
          */
         focus: function()
@@ -1088,14 +1178,15 @@ if (typeof module === 'undefined') module = {}; // debugging helper
 
         /**
          * Find within current element
-         *
+         * @method
+         * @memberof module:ko/dom~QueryObject
          * @returns {queryObject}
          */
         find: function(query)
         {
             return new queryObject(query, this.element());
         },
-        
+
         findAnonymous: function(attr, value)
         {
             var childNodes = function (el)
@@ -1103,19 +1194,19 @@ if (typeof module === 'undefined') module = {}; // debugging helper
                 var children = [];
                 var _children = document.getAnonymousNodes(el);
                 if (_children) children = Array.prototype.slice.call(_children);
-                
+
                 if (el.childNodes.length)
                 {
                     children = children.concat(Array.prototype.slice.call(el.childNodes))
                 }
-                
+
                 return children;
             }
-            
+
             var children = childNodes(this.element());
-            
+
             if ( ! children) return new queryObject([]);
-            
+
             var child = children.shift();
             var matched = [];
             while (child)
@@ -1127,19 +1218,20 @@ if (typeof module === 'undefined') module = {}; // debugging helper
                         matched.push(child);
                         if (attr == "anonid") return new queryObject(child);
                     }
-                        
+
                     let _children = childNodes(child);
                     if (_children) children = children.concat(_children);
                 }
                 child = children.shift();
             }
-            
+
             return new queryObject(matched);
         },
 
         /**
          * Get child nodes
-         * 
+         * @method
+         * @memberof module:ko/dom~QueryObject
          * @returns {queryObject}
          */
         children: function()
@@ -1149,7 +1241,8 @@ if (typeof module === 'undefined') module = {}; // debugging helper
 
         /**
          * Get number of child nodes
-         *
+         * @method
+         * @memberof module:ko/dom~QueryObject
          * @returns {int}
          */
         childCount: function()
@@ -1159,7 +1252,7 @@ if (typeof module === 'undefined') module = {}; // debugging helper
 
         /**
          * Remove matched elements
-         * 
+         *
          * @returns {Void}
          */
         remove: function()
@@ -1170,58 +1263,63 @@ if (typeof module === 'undefined') module = {}; // debugging helper
                     this.parentNode.removeChild(this);
             });
         },
-        
+
         /**
          * Virtualizes the given element, this essentially takes it out of the DOM
          * and allows you to make modifications to it without forcing DOM updates
          *
          * This element will not be selectable using DOM queries nor will it be
          * able to use any sort of parent/sibling queries, until unvirtualized.
-         * 
-         * @returns {this} 
+         * @method
+         * @memberof module:ko/dom~QueryObject
+         * @returns {this}
          */
         virtualize: function() {
             this.each(function() {
                 this._virtualizedPlaceholder = $.createElement("<box/>");
                 this.parentNode.replaceChild(this._virtualizedPlaceholder, this);
             });
-            
+
             return this;
         },
-        
+
         /**
          * Un-virtualizes the element
-         * 
-         * @returns {this} 
+         * @method
+         * @memberof module:ko/dom~QueryObject
+         * @returns {this}
          */
         unvirtualize: function() {
             this.each(function() {
                 if ( ! this._virtualizedPlaceholder)
                     return;
-                
+
                 this._virtualizedPlaceholder.parentNode.replaceChild(this, this._virtualizedPlaceholder);
             });
-            
+
             return this;
         },
 
         /**
          * Get first matched element
-         * 
+         * @method
+         * @memberof module:ko/dom~QueryObject
          * @returns {queryObject}
          */
         first: function() { return new queryObject(this.element(0)); },
 
         /**
          * Get last matched element
-         * 
+         * @method
+         * @memberof module:ko/dom~QueryObject
          * @returns {queryObject}
          */
         last: function() { return new queryObject(this.element(-1)); },
 
         /**
          * Get first matched element, without wrapping it in a queryObject
-         * 
+         * @method
+         * @memberof module:ko/dom~QueryObject
          * @returns {Element}
          */
         element:  function(k) {
@@ -1230,5 +1328,5 @@ if (typeof module === 'undefined') module = {}; // debugging helper
     }
 
     module.exports = $;
-    
+
 })();

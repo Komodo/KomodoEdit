@@ -1,8 +1,7 @@
 /**
- * @copyright (c) 2015 ActiveState Software Inc.
+ * @copyright (c) 2017 ActiveState Software Inc.
  * @license Mozilla Public License v. 2.0
  * @author ActiveState
- * @overview -
  */
 
 /**
@@ -33,20 +32,20 @@
     /**
      * Add a new keybind
      *
-     * @param {string}          commandName
-     * @param {string|array}    keybind ["Ctrl+U", "A"] | "Ctrl+C"
-     * @param {bool} force      Whether to override any existing keybinds
+     * @param {string} commandName 
+     * @param {string|array} keybind - ["Ctrl+U", "A"] | "Ctrl+C"
+     * @param {bool=} force=false - Whether to override any existing keybinds
      */
     this.register = (commandName, keybind, force) =>
     {
         if (commandName.indexOf("cmd") !== 0)
             commandName = "cmd_" + commandName;
-            
+
         if (Object.prototype.toString.call(keybind) !== '[object Array]')
         {
             keybind = keybind.split(", ");
         }
-        
+
         if (this.usedBy(keybind).length)
         {
             log.debug("keybind already in use" + (JSON.stringify(keybind)));
@@ -70,7 +69,7 @@
     {
         if (commandName.indexOf("cmd") !== 0)
             commandName = "cmd_" + commandName;
-            
+
         var label = keyManager.command2keylabel(commandName);
 
         if ( ! label || ! label.length) return;
@@ -83,7 +82,7 @@
     /**
      * Retrieve string representation of keybind for command
      *
-     * @param {string} commandName
+     * @param {string} commandName - eg. "cmd_theCommandName"
      *
      * @returns {string}
      */
@@ -108,7 +107,7 @@
 
         return keyManager.usedBy(keybind);
     }
-    
+
     /**
      * Get the current key binding configuration
      *
@@ -121,9 +120,9 @@
             return prefs.getStringPref("keybinding-scheme");
         }
     }
-    
+
     /**
-     * Get the current key binding configuration
+     * Get all available keybinding schemes
      *
      * @returns {Array} An array of all available keybinding sets
      */
@@ -133,8 +132,8 @@
         keybindingService.getSchemeNames(schemes, new Object());
         return schemes.value;
     }
-    
-    
-    
+
+
+
 
 }).apply(module.exports);

@@ -1,13 +1,24 @@
+/**
+ * @copyright (c) ActiveState Software Inc.
+ * @license Mozilla Public License v. 2.0
+ * @author ActiveState
+ */
+
+/**
+ * Retrieve and parse available system fonts
+ *
+ * @module ko/fonts
+ */
 (function() {
-    
+
     const {Cc, Ci}  = require("chrome");
-    
+
     var fontTypes   = ["serif","sans-serif", /*"cursive", "fantasy",*/"monospace"];
     var fontLanguages = ['x-western','x-central-euro','ja','zh-TW',
                           'zh-CN','zh-HK','ko','x-cyrillic','x-baltic','el',
                           'tr','x-unicode','x-user-def','th','he','ar',
                           'x-devanagari','x-tamil'];
-    
+
     // Known Mono fonts are partially matched
     var knownMonoFonts = ["AnkaCoder", "6x13", "Agave",
                           "Anonymous Pro", "Anonymous", "Camingo Code",
@@ -28,10 +39,18 @@
                           "Smooth Pet", "Source Code Pro", "Sudo", "TeX Gyre Cursor",
                           "Telegrama", "Terminus", "Terminus", "Triskweline",
                           "Triskweline-Code", "UW ttyp0", "VGA Font", "VT323"];
-    
+
     var cache;
     var cacheAge = 0;
-    
+
+    /**
+     * Get available mono fonts
+     *
+     * This compares all available system fonts against a database of known mono fonts,
+     * because unfortunately there is no cross-platform method of identifying mono fonts.
+     *
+     * @returns {Array} List of font names
+     */
     this.getMonoFonts = () =>
     {
         var fonts = this.getSystemFonts();
@@ -44,11 +63,16 @@
                 if (v.toLowerCase().indexOf("mono") > 0)
                     return true;
             }
-            
+
             return false;
         });
     };
-    
+
+    /**
+     * Get all available system fonts
+     *
+     * @returns {Array} List of fonts
+     */
     this.getSystemFonts = () =>
     {
         var timestamp = Math.floor(Date.now() / 1000);
@@ -56,7 +80,7 @@
         {
             return cache;
         }
-        
+
         var enumerator = Cc["@mozilla.org/gfx/fontenumerator;1"].createInstance().QueryInterface(Ci.nsIFontEnumerator);
         var system = require("sdk/system");
         var strFontSpecs;
@@ -79,7 +103,7 @@
                 }
             }
         }
-        
+
         if (system.platform != "Linux")
         {
             // Did we miss any?
@@ -92,13 +116,19 @@
                 fontmap[fName]=fName;
             }
         }
-    
+
         cache = Object.keys(fontmap);
         cacheAge = timestamp;
-        
+
         return cache;
     };
-    
+
+    /**
+     * Take a font list (as used in CSS) and return the first font in the list
+     * that exists on the system
+     *
+     * @returns {String} name of font
+     */
     this.getEffectiveFont = (fontlist) =>
     {
         fontstack = fontlist.split(",");
@@ -112,8 +142,8 @@
             if (fonts.indexOf(font) != -1)
                 return font;
         }
-        
+
         return fontstack.slice(-1)[0];
     };
-    
+
 }).apply(module.exports);

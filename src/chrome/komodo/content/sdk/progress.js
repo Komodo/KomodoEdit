@@ -2,7 +2,6 @@
  * @copyright (c) ActiveState Software Inc.
  * @license Mozilla Public License v. 2.0
  * @author ActiveState
- * @overview -
  */
 
 /**
@@ -14,6 +13,11 @@
 (function()
 {
 
+    /**
+     * @class Progress
+     * @property {module:ko/dom~QueryObject}    $element        The ko/dom instance for the parent element
+     * @property {Element}                      element         The main DOM element for the parent element
+     */
     var Progress = function (opts = {})
     {
         var parent, message, loader, spacer;
@@ -49,15 +53,15 @@
                 loader,
                 { attributes: { align: "start", pack: "center" } }
             );
-            
+
             if (opts.determined)
                 spacer = row.addRow({ flex: 100 });
 
             parent.add(
                 require("ko/ui/spacer").create({ attributes: { class: "slim" } })
             );
-            
-            message = require("ko/ui/label").create("Loading ..", { crop: "center" });
+
+            message = require("ko/ui/label").create("Loading ..", { crop: "center", flex: 1 });
             parent.addRow(
                 message,
                 { attributes: { align: "center", pack: "center" } }
@@ -70,14 +74,30 @@
             }
         };
 
+        /**
+         * Add callback listener
+         * 
+         * @memberof module:ko/progress~Progress
+         * 
+         * @param   {string}    type=message|close      Event type
+         * @param   {function}  callback                Callback function
+         */
         this.on = (type, callback) =>
         {
             if ( ! (type in callbacks))
                 return;
-            
+
             callbacks[type].push(callback);
         };
 
+        /**
+         * Remove callback listener
+         * 
+         * @memberof module:ko/progress~Progress
+         * 
+         * @param   {string}    type=message|close      Event type
+         * @param   {function}  callback                The Callback function that was used to add the listener
+         */
         this.off = (type, callback) =>
         {
             if ( ! (type in callbacks))
@@ -86,12 +106,28 @@
             callbacks[type] = callbacks[type].filter((v) => v != callback);
         };
 
+        /**
+         * Set the percentage to the given value
+         * 
+         * This can only be used on determined progress bars
+         * 
+         * @memberof module:ko/progress~Progress
+         * 
+         * @param   {integer}   value
+         */
         this.percentage = (value) =>
         {
             loader.attr("flex", value);
             spacer.attr("flex", 100 - value);
         };
 
+        /**
+         * Set the given message under the progress bar
+         * 
+         * @memberof module:ko/progress~Progress
+         * 
+         * @param   {string}   value
+         */
         this.message = (value) =>
         {
             message.value(value);
@@ -102,6 +138,13 @@
             }
         };
 
+        /**
+         * Close the progress bar, this removes the element
+         * 
+         * @memberof module:ko/progress~Progress
+         * 
+         * @param   {boolean}   force   If force is false then an on("close") callback can interrupt this process
+         */
         this.close = (force = false) =>
         {
             var stop = false;
@@ -127,19 +170,19 @@
      *
      * @param {bool} determined     whether this progress indicator is determined or undetermined (spinner or load progress)
      *
-     * @returns {Progress} Returns instance of progress, which holds the .message(value) and .close() methods
+     * @returns {module:ko/progress~Progress} Returns instance of progress, which holds the .message(value) and .close() methods
      */
     this.open = (determined = false) =>
     {
         return new Progress({panel: true, determined: determined});
     };
-    
+
     /**
      * Get a progress element, which can be inserted into the DOM however wanted
      *
      * @param {bool} determined     whether this progress indicator is determined or undetermined (spinner or load progress)
      *
-     * @returns {Progress} Returns instance of progress, which holds the .message(value) and .close() methods
+     * @returns {module:ko/progress~Progress} Returns instance of progress, which holds the .message(value) and .close() methods
      */
     this.get = (determined = false) =>
     {

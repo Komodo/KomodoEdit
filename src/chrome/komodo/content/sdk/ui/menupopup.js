@@ -1,43 +1,73 @@
-/**
- * @copyright (c) 2016 ActiveState Software Inc.
- * @license Mozilla Public License v. 2.0
- * @author NathanR, CareyH
- * @overview Row sub module for the ko/ui SDK
- *
- */
-
 var parent = require("./element");
 var Module = Object.assign({}, parent); 
 module.exports = Module;
 
-// Main module (module.exports)
+/**
+ * ko/ui menupopup element
+ * 
+ * This module inherits methods and properties from the module it extends.
+ *
+ * @module ko/ui/menupopup
+ * @extends module:ko/ui/element
+ * @copyright (c) 2017 ActiveState Software Inc.
+ * @license Mozilla Public License v. 2.0
+ * @author NathanR, CareyH
+ * @example
+ * var menupopup = require("ko/ui/menupopup").create();
+ * menupopup.addMenuItem({ label: "Click me!", command: () => console.log("Hello!") });
+ */
 (function() {
     
     this.Model = Object.assign({}, this.Model);
     
+    /**
+     * The model for the menupopup UI element, this is what {@link model:ko/ui/menupopup.create} returns
+     * 
+     * @class Model
+     * @extends module:ko/ui/element~Model
+     * @property {string}       name        The node name of the element
+     * @property {Element}      element     A XUL Menupopup, see {@link https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XUL/menupopup}
+     */
     (function() {
         
         this.name = "menupopup";
+
+        /**
+         * Create a new menupopup UI element
+         * 
+         * @name create
+         * @method
+         * @param  {object}         [options]   An object containing attributes and options
+         * 
+         * @returns {module:ko/ui/menupopup~Model}
+         */
+
+        
+        /**
+         * Add items to the menupopup
+        *
+        * @param {array} item     Array of items to add, this calls {@link addMenuItem()} for each item
+        *
+        * @memberof module:ko/ui/menupopup~Model
+        */ 
+        this.addMenuItems = function (menuitems)
+        {
+            for (let menuitem of menuitems) {
+                this.addMenuItem(menuitem);
+            }
+        };
         
         /**
          * Add an item to the container
          *
-         * @argument {string, ko/ui/obj, ko/dom/obj, DOM, Object} item item to be added
-         * to the container.
-         *
-         * @returns {DOM Object} DOM element
-         *
-         * Object refers to an Options object used through this SDK. The options
-         * should contain an attributes property to assign a label at the very
-         * least:
-         *
-         *  {
-         *      attributes:
-         *      {
-         *          label:"itemLable"
-         *      }
-         *  }
-         *  
+         * @param {mixed} item  item to be added to the container.  Can be String (label), ko/ui/<elem>, ko/dom element, DOM element, option object.
+         *                      option object refers to an Options object used throughout this SDK. The options
+         *                      should contain an attributes property to assign a label at the very
+         *                      least: { label: "itemLabel" }
+         * 
+         * 
+         * @returns {Element}   Returns the inserted element, may be a ko/ui/element, ko/dom element or DOM element
+         * @memberof module:ko/ui/menupopup~Model
          */ 
         this.addMenuItem = function(menuitem)
         {
@@ -72,16 +102,22 @@ module.exports = Module;
             return element;
         };
         
+        /**
+         * Add a {@link module:ko/ui/menuseparator}
+         * 
+         * @memberof module:ko/ui/menupopup~Model
+         */
         this.addSeparator = function()
         {
             this.$element.append(require("ko/ui/menuseparator").create().element);
         };
         
         /**
-         * Remove an item from the list
+         * Removes the given menuitem
          *
-         * @argument @argument {ko/ui/obj, ko/dom/obj, DOM} item item to be removed
-         * to the container.
+         * @param {mixed} item  menuitem to be removed to the container, see {@link addMenuItem()} for type info
+         * 
+         * @memberof module:ko/ui/menupopup~Model
          */
         this.removeItem = function(item)
         {
@@ -99,7 +135,18 @@ module.exports = Module;
             }
         };
         
+        /**
+         * Open the menupopup
+         * 
+         * @memberof module:ko/ui/menupopup~Model
+         */
         this.open = function() { this.element.openPopup.apply(this.element, arguments); };
+
+        /**
+         * Hide/close the menupopup
+         * 
+         * @memberof module:ko/ui/menupopup~Model
+         */
         this.hide = function() { this.element.hidePopup.apply(this.element, arguments); };
 
     }).apply(this.Model); 

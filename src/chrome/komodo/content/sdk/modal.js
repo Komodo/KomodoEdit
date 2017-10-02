@@ -1,8 +1,31 @@
+/**
+ * The modal SDK
+ *
+ * @module ko/modal
+ */
 (function()
 {
 
     const {Cc, Ci}  = require("chrome");
     
+    /**
+     * Open a modal dialog with the given contents
+     * 
+     * @param {string|object} title         title of the modal, if this is an object then it will be used as the fields value
+     * @param {object} fields               object of fields to use, eg:
+     * ```
+     * fieldName: {
+     *     label: "Say something",
+     *     type: "textbox",
+     *     value: "hello"
+     * }
+     * ```
+     * @param {function} onComplete         Completion callback
+     * @param {string|undefined} okLabel    The label for the OK button
+     * @param {string|undefined} cancelLabel The label for the Cancel button
+     * 
+     * @returns {object} Returns an object with key and value being the field key and the entered value, eg. ```{fieldName: "hello"}```
+     */
     this.open = (title, fields, onComplete, okLabel, cancelLabel) =>
     {
         var opts;
@@ -180,13 +203,14 @@
     
     var pinWindow = (w) =>
     {
-        function getXULWindowForDOMWindow(win)
-            win.QueryInterface(Ci.nsIInterfaceRequestor)
+        function getXULWindowForDOMWindow(win) {
+            return win.QueryInterface(Ci.nsIInterfaceRequestor)
                .getInterface(Ci.nsIWebNavigation)
                .QueryInterface(Ci.nsIDocShellTreeItem)
                .treeOwner
                .QueryInterface(Ci.nsIInterfaceRequestor)
                .getInterface(Ci.nsIXULWindow)
+        }
 
         w = getXULWindowForDOMWindow(w);
         let parentWin = getXULWindowForDOMWindow(require("ko/windows").getMain());

@@ -1,10 +1,3 @@
-/**
- * @copyright (c) 2016 ActiveState Software Inc.
- * @license Mozilla Public License v. 2.0
- * @author NathanR, CareyH
- * @overview Row sub module for the ko/ui SDK
- */
-
 var $ = require("ko/dom");
 var parent = require("./element");
 var Module = Object.assign({}, parent);
@@ -12,18 +5,58 @@ var log = require("ko/logging").getLogger("sdk/ui/listbox");
 //log.setLevel(require("ko/logging").LOG_DEBUG);
 module.exports = Module;
 
-// Main module (module.exports)
+
+/**
+ * ko/ui listbox element
+ * 
+ * This module inherits methods and properties from the module it extends.
+ *
+ * @module ko/ui/listbox
+ * @extends module:ko/ui/element~Model
+ * @copyright (c) 2017 ActiveState Software Inc.
+ * @license Mozilla Public License v. 2.0
+ * @author NathanR, CareyH
+ * @example
+ * var panel = require("ko/ui/panel").create();
+ * var listbox = require("ko/ui/listbox").create();
+ * panel.addColumn(listbox);
+ * listbox.addListHeader("Good food");
+ * listbox.addListCol({width:200});
+ * listbox.addListItem("Still pizza");
+ * panel.open()
+ */
+
 (function() {
-    
+
     this.Model = Object.assign({}, this.Model);
-    
+
     this.listhead = null;
     this.listcols = null;
     
+    /**
+     * The model for the row UI element, this is what {@link model:ko/ui/listbox.create} returns
+     * 
+     * @class Model
+     * @extends module:ko/ui/element~Model
+     * @property {string}       name        The node name of the element
+     * @property {Element}      element     A XUL [listbox]{@link https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XUL/listbox}
+     * @property {Element}      listhead    {@link module:ko/ui/listhead~Model}
+     * @property {Element}      listcols    {@link module:ko/ui/listcols~Model}
+     */
+
     (function() {
-        
+
         this.name = "listbox";
         
+        /**
+         * Create a new listbox UI element
+         * 
+         * @name create
+         * @method
+         * @param  {object}         [options]   An object containing attributes and options
+         * 
+         * @returns {module:ko/ui/listbox~Model}
+         */
         this.init = function(listitems = [], options = {})
         {
             if ( ! Array.isArray(listitems) && typeof listitems == "object")
@@ -31,7 +64,7 @@ module.exports = Module;
                 options = listitems;
                 listitems = null;
             }
-            
+
             this.parseOptions(options);
             options = this.options;
 
@@ -39,11 +72,11 @@ module.exports = Module;
             {
                 listitems = options.listitems;
             }
-            
+
             this.$element = $($.createElement(this.name, this.attributes));
             this.$element.addClass("ui-" + this.name);
             this.element = this.$element.element();
-            
+
             if (listitems && Array.isArray(listitems))
             {
                 this.addListItems(listitems);
@@ -53,18 +86,25 @@ module.exports = Module;
                 log.warn("List items must be in an array.  Failed to add list "+
                          "items to listbox.");
             }
-            
+
             if ("listheaders" in options)
             {
                 this.addListHeaders(options.listheaders);
             }
-            
+
             if ("listcols" in options)
             {
                 this.addListCols(options.listcols);
             }
         };
         
+        /**
+         * Add items to the listbox
+        *
+        * @param {array} items     Array of items to add, this calls {@link addListItem()} for each item
+        *
+        * @memberof module:ko/ui/listbox~Model
+        */ 
         this.addListItems = function (entries)
         {
             for (let entry of entries) {
@@ -72,11 +112,13 @@ module.exports = Module;
             }
         };
         
-          /**
+        /**
          * Add an item to the container
          *
-         * @argument {ko/ui/obj | ko/dom/obj | DOM | Object} item item to be added
-         * to the container.
+         * @param {mixed} item  item to be added to the container.  Can be String (label), ko/ui/<elem>, ko/dom element, DOM element, option object.
+         *                      option object refers to an Options object used throughout this SDK. The options
+         *                      should contain an attributes property to assign a label at the very
+         *                      least: { label: "itemLabel" }
          *
          * Object refers to an Options object used through this SDK. The options
          * should contain an attributes property to assign a label at the very
@@ -88,6 +130,7 @@ module.exports = Module;
          *          label:"itemLable"
          *      }
          *  }
+         *  @memberof module:ko/ui/listbox~Model
          */ 
         this.addListItem = function (item)
         {
@@ -112,15 +155,22 @@ module.exports = Module;
                 var type = item.type || "listitem";
                 element = require('./' + type).create(item).element;
             }
-            
+
             this.$element.append(element);
-            
+
             if (element.getAttribute("selected") == "true" && "selectedItem" in this.element)
             {
                 this.element.selectedItem = element;
             }
         };
-        
+
+       /**
+        * Add list headers to the listbox
+        *
+        * @param {array} items     Array of items to add, this calls {@link addListHeader()} for each item
+        *
+        * @memberof module:ko/ui/listbox~Model
+        */ 
         this.addListHeaders = function(listheaders)
         {
             for (let listhead of listheaders)
@@ -129,6 +179,16 @@ module.exports = Module;
             }
         };
         
+        /**
+         * Add list header
+         *
+         * @param {mixed} item  item to be added to the container.  Can be String (label), ko/ui/<elem>, ko/dom element, DOM element, option object.
+         *                      option object refers to an Options object used throughout this SDK. The options
+         *                      should contain an attributes property to assign a label at the very
+         *                      least: { label: "itemLabel" }
+         *        
+         *  @memberof module:ko/ui/listbox~Model
+         */ 
         this.addListHeader = function(header)
         {
             if ( ! this.listhead)
@@ -136,10 +196,17 @@ module.exports = Module;
                 this.listhead = require("./listhead").create();
                 this.$element.append(this.listhead.$element);
             }
-            
+
             this.listhead.addListHeader.apply(this.listhead, arguments);
         };
         
+        /**
+        * Add list columns to the listbox
+        *
+        * @param {array} items     Array of items to add, this calls {@link addListCol()} for each item
+        *
+        * @memberof module:ko/ui/listbox~Model
+        */ 
         this.addListCols = function(listcols)
         {
             for (let listcol of listcols)
@@ -148,6 +215,13 @@ module.exports = Module;
             }
         };
         
+        /**
+         * Add list column
+         *
+         * @param {mixed} item  Calls @module:ko/ui/listcols~Model.addListCol
+         *        
+         *  @memberof module:ko/ui/listbox~Model
+         */ 
         this.addListCol = function()
         {
             if ( ! this.listcols)
@@ -155,25 +229,48 @@ module.exports = Module;
                 this.listcols = require("./listcols").create();
                 this.$element.append(this.listcols.$element);
             }
-            
+
             this.listcols.addListCol.apply(this.listcols, arguments);
         };
         
+        /**
+         * Set the selected item index in the lists
+         *
+         * @param {integer} index   The index of the item to be selected
+         * @memberof module:ko/ui/listbox~Model
+         */
         this.setSelectedIndex = function(index)
         {
             this.element.selectedIndex = index;
         };
 
+        /**
+         * Get list of selected items
+         *
+         * @returns {array} an array of selected items
+         * @memberof module:ko/ui/listbox~Model
+         */
         this.getSelectedItems = function()
         {
             return this.element.selectedItems;
         };
         
+        /**
+         * Get the selected item index in the lists
+         *
+         * @returns {element} the selected item
+         * @memberof module:ko/ui/listbox~Model
+         */
         this.getSelectedItem = function()
         {
             return this.element.selectedItem;
         };
         
+        /**
+         * Remove all items from the list
+         *
+         * @memberof module:ko/ui/listbox~Model
+         */
         this.removeAllItems = function()
         {
             if ( ! this.element.removeItemAt)
@@ -189,6 +286,12 @@ module.exports = Module;
             }
         };
         
+        /**
+         * Get the value/label of the selected item
+         *
+         * @returns {String} the value or label of the selected item
+         * @memberof module:ko/ui/listbox~Model
+         */
         this.value = function()
         {
             var item = this.getSelectedItem();
@@ -198,7 +301,6 @@ module.exports = Module;
             return item.hasAttribute("value") ? item.getAttribute("value") : item.getAttribute("label");
         };
 
-    }).apply(this.Model); 
-    
-}).apply(Module);
+    }).apply(this.Model);
 
+}).apply(Module);

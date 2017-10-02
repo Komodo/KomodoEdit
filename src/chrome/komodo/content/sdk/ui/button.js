@@ -1,52 +1,66 @@
-/**
- * @copyright (c) 2015 ActiveState Software Inc.
- * @license Mozilla Public License v. 2.0
- * @author NathanR, CareyH
- * @overview col sub module for the ko/ui SDK
- *
- */
-
 var parent = require("./element");
 var Module = Object.assign({}, parent); 
 module.exports = Module;
 
 /**
  * ko/ui button element
- *
- * Inherits from {ko/ui/element}
+ * 
+ * This module inherits methods and properties from the module it extends.
  *
  * @module ko/ui/button
+ * @extends module:ko/ui/element
+ * @copyright (c) 2017 ActiveState Software Inc.
+ * @license Mozilla Public License v. 2.0
+ * @author NathanR, CareyH
+ * @example
+ * // Regular button
+ * var button = require("ko/ui/button").create("Click Me!");
+ * button.on("click", () => console.log("Hello!"));
+ * 
+ * // Menu Button
+ * var button = require("ko/ui/button").create("I'm a menu button", { type: "menu-button" }); // type can also be "menu"
+ * button.addMenuItem({ label: "Click me!", command: () => console.log("Hello!") });
  */
 (function() {
     
     this.Model = Object.assign({}, this.Model);
     
+    /**
+     * The model for the button UI element, this is what {@link model:ko/ui/button.create} returns
+     * 
+     * @class Model
+     * @extends module:ko/ui/element~UiModelElement
+     * @property {string}       name        The node name of the element
+     * @property {Element}      element     A XUL Button, see {@link https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XUL/button}
+     */
     (function() {
         
         this.name = "button";
         
         /**
-         * `var button = require("ko/ui/button").create("Button Label", { attributes: { tooltiptext: "tooltip" } });`
-         *
-         * Uses {ko/ui/element}.initWithLabel
+         * Create a new button UI element
          * 
-         * @param {String|Object} label    If this is an object it will be used as the options param
-         * @param {Object} options         { attributes: .. }
+         * @name create
+         * @method
+         * @param  {string|object}  label       The label value, if this is an object then it will be used as the options param
+         * @param  {object}         [options]   An object containing attributes and options
+         * 
+         * @returns {module:ko/ui/button~Model}
          */
-        function create() {}
-        
         this.init = this.initWithLabel;
         
         /**
-         * ```
+         * Add a callback method that's used when the button is clicked
+         * 
+         * @example
          * button.onCommand(function() {
          *   console.log("button clicked");
          * });
-         * ```
-         *
-         * Add a callback method that's used when the button is clicked
          * 
-         * @param   {Type} callback Description
+         * @param   {function} callback     
+         *
+         * @memberof module:ko/ui/button~Model
+         * @deprecated use `.on("command", callback)` instead
          */
         this.onCommand = function (callback)
         {
@@ -55,6 +69,8 @@ module.exports = Module;
         
          /**
          * Check if the button has the menu-button type set
+         * 
+         * @memberof module:ko/ui/button~Model
          *
          * @returns {boolean}
          */
@@ -73,21 +89,9 @@ module.exports = Module;
          /**
           * Add items to the container
           *
-          * @argument {Array[string, ko/ui/obj, ko/dom/obj, DOM, Object]} item item to be added
-          * to the container.
+          * @param {array} item     Array of items to add, this calls {@link addMenuItem()} for each item
           *
-          * Basically, whatever addMenuItem can handle, this can handle it's array
-          *
-          * Object refers to an Options object used through this SDK. The options
-          * should contain an attributes property to assign a label at the very
-          * least:
-          *
-          *  {
-          *      attributes:
-          *      {
-          *          label:"itemLable"
-          *      }
-          *  }
+          * @memberof module:ko/ui/button~Model
           */ 
         this.addMenuItems = function (menuitems)
         {
@@ -103,19 +107,11 @@ module.exports = Module;
         /**
          * Add an item to the container
          *
-         * @argument {string, ko/ui/obj, ko/dom/obj, DOM, Object} item item to be added
-         * to the container.
-         *
-         * Object refers to an Options object used through this SDK. The options
-         * should contain an attributes property to assign a label at the very
-         * least:
-         *
-         *  {
-         *      attributes:
-         *      {
-         *          label:"itemLable"
-         *      }
-         *  }
+         * @param  {(Element|array|object|string)} appendElement - Element(s) to be appended. This can be a DOM element, ko/dom element or 
+         *                                                      even just the name of an element. See {@link module:ko/ui/menupopup~Model.addMenuItem} 
+         *                                                      for more information.
+         *                                                      If this is a simple object then it will be used as the options param 
+         * @memberof module:ko/ui/button~Model
          */ 
         this.addMenuItem = function (menuitem)
         {
@@ -138,10 +134,19 @@ module.exports = Module;
             }
         };
         
-        this.value = function (label)
+        /**
+         * Return or set the current value of the element.
+         *
+         * @param {String=} [label] - label to be set
+         *
+         * @memberof module:ko/ui/button~Model
+         * 
+         * @returns {String} the value of the element
+         */
+        this.value = function (value)
         {
-            if (label)
-                this.attr("label", label);
+            if (value)
+                this.attr("label", value);
             return this.attr("label");
         };
 

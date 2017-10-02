@@ -1,8 +1,7 @@
 /**
- * @copyright (c) 2015 ActiveState Software Inc.
+ * @copyright (c) 2017 ActiveState Software Inc.
  * @license Mozilla Public License v. 2.0
  * @author ActiveState
- * @overview -
  */
 
 /**
@@ -32,7 +31,7 @@ try
 catch (e)
 {
     log.debug("getTopLevelWindow failed, falling back on window mediator");
-    
+
     var wm = Cc["@mozilla.org/appshell/window-mediator;1"].getService(Ci.nsIWindowMediator);
     let windows = wm.getEnumerator("Komodo");
     while (windows.hasMoreElements()) {
@@ -69,6 +68,14 @@ function _initPrintSettings() {
     }
 }
 
+/**
+ * Open a print preview of the current file or selection
+ *
+ * @param   {Object}    view            Editor view
+ * @param   {Boolean}   preview         Whether to preview the print
+ * @param   {Boolean}   tofile          Print to a file
+ * @param   {Boolean}   selectionOnly   Only print the selection
+ */
 exports.printPreview = function(view, preview, tofile, selectionOnly)
 {
     _initPrintSettings();
@@ -108,7 +115,7 @@ exports.browserPrint = function()
 
 /**
  * Print the given view (editor)
- * 
+ *
  * @param   {Object}    view            Editor view
  * @param   {Boolean}   preview         Whether to preview the print
  * @param   {Boolean}   tofile          Print to a file
@@ -193,6 +200,9 @@ exports.print = function(view, preview, tofile, selectionOnly)
     return false;
 }
 
+/**
+ * Open the print configuration dialog
+ */
 exports.showPageSetup = function() {
     PrintUtils.showPageSetup();
 };
@@ -217,4 +227,3 @@ var printBrowserListener = {
   onStatusChange : function(aWebProgress, aRequest, aStatus, aMessage) {},
   onSecurityChange : function(aWebProgress, aRequest, aState) {}
 };
-

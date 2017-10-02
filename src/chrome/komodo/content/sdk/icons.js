@@ -1,8 +1,7 @@
 /**
- * @copyright (c) 2015 ActiveState Software Inc.
+ * @copyright (c) 2017 ActiveState Software Inc.
  * @license Mozilla Public License v. 2.0
  * @author ActiveState
- * @overview -
  */
 
 /**
@@ -14,7 +13,7 @@
 (function() {
 
     const {Cc, Ci, Cu}  = require("chrome");
-    
+
     Cu.import("resource://gre/modules/NetUtil.jsm");
     Cu.import("resource://gre/modules/Services.jsm");
     Cu.import("resource://gre/modules/FileUtils.jsm");
@@ -61,9 +60,9 @@
                         log.error(error);
                         return;
                     }
-                    
+
                     pixelRatio = parseFloat(stdout.trim().match(/\d(?:\.\d{1,2}|)/));
-                    
+
                     log.debug("Using pixelRatio: " + pixelRatio);
                 });
             }
@@ -314,7 +313,7 @@
             var svgPresetFile = FileUtils.getFile("AChrom", ["icons","default","fileicons", info.language.toLowerCase() + ".svg"], true);
             if ( ! svgPresetFile.exists())
                 svgPresetFile = FileUtils.getFile("AChrom", ["icons","default","fileicons", info.ext + ".svg"], true);
-                
+
             if (svgPresetFile.exists())
             {
                 //log.debug("Creating icon from SVG Preset: " + svgPresetFile.path);
@@ -349,21 +348,21 @@
             if (relativePath.slice(-1)[0].substr(-4) != ".svg")
                 return callback();
             namespace = relativePath.shift();
-            
+
             // Generate unique id for query based on the params
             var params = sdkQuery.parse(url.search.substr(1));
             params.size = Math.ceil((params.size || 14) * pixelRatio);
-            
+
             if (! ("fill" in params) &&  ! ("color" in params))
             {
                 var schemeName = "interface";
                 if (("scheme-name" in params))
                     schemeName = params.scheme;
-                
+
                 var schemeColor = "icons";
                 if (("scheme-color" in params))
                     schemeColor = params["scheme-color"];
-                
+
                 //log.debug("Using scheme-color "+schemeColor+" from " + schemeName);
                 params.fill = schemes.getInterfaceColor(schemeColor, schemeName);
             }
@@ -371,7 +370,7 @@
             if ("color" in params)
             {
                 //log.debug("Using custom color");
-                
+
                 params.fill = params.color;
                 delete params.color;
             }
@@ -379,12 +378,12 @@
             if ("defs" in params)
             {
                 //log.debug("Using custom defs");
-                
+
                 var defs = params.defs;
                 var path = "chrome://komodo/skin/svg/defs/" + defs + ".xml";
                 params.defs = prefs.getString("ko-svg-defs-" + defs, path);
             }
-            
+
             var filePointer;
             try
             {
@@ -434,7 +433,7 @@
     {
         //log.debug("Overriding svg attribute " + attribute + " to: " + value);
         svgData = unescape(encodeURIComponent(svgData));
-        
+
         if (attribute == "scaleAuto")
         {
             var sizeFrom = svgData.match(/width="(\d+)/);
@@ -466,7 +465,7 @@
         var re = new RegExp("<svg([^]*?)" + reAttr);
 
         var match = svgData.match(re);
-        
+
         var _svgData;
         if (match && match[1].indexOf(">") == -1)
             _svgData = svgData.replace(re, "<svg$1" + attribute + '="'+value+'"');
@@ -511,9 +510,9 @@
     /**
      * If using a custom size it assumes the following:
      *
-     * - Svg has a root <svg> element with the attributes "width" and "height"
+     * - Svg has a root &lt;svg&gt; element with the attributes "width" and "height"
      * - Both width and height use the same value (ie. svg canvas is square)
-     * - the root <svg> element is not using a transform attribute
+     * - the root &lt;svg&gt; element is not using a transform attribute
      *
      * @param {String}  svgPath     Path of the .svg
      * @param {String}  savePath    Path where .png is saved
@@ -632,7 +631,7 @@
                         catch(e)
                         {}
                     }
-    
+
                     if (opts.deleteAlso)
                     {
                         //log.debug("Also deleting: " + opts.deleteAlso);
@@ -655,7 +654,7 @@
 
             if (callback) callback();
         }
-        
+
         img.src = "file://" + svgPath;
 
         return svgPath;
@@ -718,6 +717,8 @@
             filePointer = "file://" + filePointer;
         var path = (typeof filePointer) == "string" ? filePointer : filePointer.path;
 
+        log.debug("Reading file: " + path);
+
         if (path in readFile.cache)
         {
             callback(readFile.cache[path]);
@@ -739,7 +740,7 @@
             callback(data);
         });
     }
-    
+
     readFile.cache = {};
 
     var hash = (str) =>
@@ -754,7 +755,7 @@
         }
 
         hash.converter.charset = "UTF-8";
-        
+
         var data = hash.converter.convertToByteArray(str, {});
         var ch = Cc["@mozilla.org/security/hash;1"].createInstance(Ci.nsICryptoHash);
         ch.init(ch.MD5);
@@ -769,10 +770,10 @@
         var a = [];
         for ( var i in res)
             a.push(toHexString(res.charCodeAt(i)));
-            
+
         return a.join("");
     }
-    
+
     this.init();
 
 }).apply(module.exports);
