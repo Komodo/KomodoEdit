@@ -70,7 +70,7 @@ module.exports = Module;
                 this.element.setAttribute("label", value);
             }
 
-            if (value in this.element)
+            if ("value" in this.element)
                 return this.element.value;
             if (this.element.hasAttribute("value"))
                 return this.element.getAttribute("value");
