@@ -2022,6 +2022,7 @@
             if (this._marginClickPending)
             {
                 this._onMarginClick.apply(this, this._marginClickPending);
+                this._marginClickPending = false;
             }
             ]]>
         </handler>
