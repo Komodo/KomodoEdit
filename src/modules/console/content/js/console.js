@@ -3,6 +3,7 @@ window.app = {};
     
     var prefs = require("ko/prefs");
     var win = require("ko/windows").getMain();
+    var stylesheet = require("ko/stylesheet");
     var elem = {
         statusbar: document.getElementById("statusbar"),
         input: document.getElementById("input"),
@@ -14,6 +15,9 @@ window.app = {};
     var history = JSON.parse(prefs.getString("console_history", "[]"));
     var historyPos = -1;
     
+    stylesheet.load("less://komodo/skin/global/global.less", window, "author");
+    stylesheet.load("less://console/content/less/console.less", window, "author");
+
     var charWidth = elem.inputMock.offsetWidth;
     var charHeight = elem.inputMock.offsetHeight / 2;
     

@@ -29,7 +29,12 @@
         {
             for (let s of loadedSheets)
             {
-                s.load(s.uri, s.window, s.type);
+                this.load(s.uri, s.window, s.type);
+            }
+
+            for (let s of globalSheets)
+            {
+                this.loadGlobal(s.uri, s.type);
             }
         };
 
@@ -95,6 +100,8 @@
      */
     this.loadGlobal = (uri, type) =>
     {
+        this.unloadGlobal(uri, type);
+
         for (let window of windows.getAll())
         {
             this.load(uri, window, type);
