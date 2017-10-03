@@ -1,12 +1,13 @@
-// komodo tool: switch
-// ===================
-// auto_abbreviation: true
-// indent_relative: true
-// set_selection: false
-// treat_as_ejs: false
-// type: snippet
-// version: 1.0.12
-// ===================
+# komodo tool: switch
+# ===================
+# auto_abbreviation: true
+# indent_relative: true
+# language: Tcl
+# set_selection: false
+# treat_as_ejs: false
+# type: snippet
+# version: 1.1.5
+# ===================
 switch [[%tabstop:STRING]][[%soft: {]]
 	[[%tabstop:PATTERN]][[%soft: {]]
 		[[%tabstop:ACTION]]

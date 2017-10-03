@@ -1,11 +1,13 @@
-// komodo tool: doctype
-// ====================
-// auto_abbreviation: false
-// indent_relative: true
-// set_selection: true
-// treat_as_ejs: false
-// type: snippet
-// version: 1.0.12
-// ====================
+<!--
+komodo tool: doctype
+====================
+auto_abbreviation: false
+indent_relative: true
+language: HTML5
+set_selection: true
+treat_as_ejs: false
+type: snippet
+version: 1.1.5
+====================-->
 <!DOCTYPE html>
 !@#_currentPos!@#_anchor

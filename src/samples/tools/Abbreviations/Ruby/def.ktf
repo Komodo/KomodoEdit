@@ -1,12 +1,13 @@
-// komodo tool: def
-// ================
-// auto_abbreviation: false
-// indent_relative: true
-// set_selection: false
-// treat_as_ejs: false
-// type: snippet
-// version: 1.0.12
-// ================
+# komodo tool: def
+# ================
+# auto_abbreviation: false
+# indent_relative: true
+# language: Ruby
+# set_selection: false
+# treat_as_ejs: false
+# type: snippet
+# version: 1.1.5
+# ================
 def [[%tabstop:name]]
 	[[%tabstop]]
 end!@#_currentPos!@#_anchor

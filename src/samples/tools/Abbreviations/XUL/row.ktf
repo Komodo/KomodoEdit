@@ -1,12 +1,14 @@
-// komodo tool: row
-// ================
-// auto_abbreviation: false
-// indent_relative: true
-// set_selection: false
-// treat_as_ejs: false
-// type: snippet
-// version: 1.0.12
-// ================
+<!--
+komodo tool: row
+================
+auto_abbreviation: false
+indent_relative: true
+language: XUL
+set_selection: false
+treat_as_ejs: false
+type: snippet
+version: 1.1.5
+================-->
 <row>
   <label value="[[%tabstop:Label]]"/>
   <textbox id="[[%tabstop:id]]"/>

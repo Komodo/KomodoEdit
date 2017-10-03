@@ -1,12 +1,13 @@
-// komodo tool: class
-// ==================
-// auto_abbreviation: true
-// indent_relative: true
-// set_selection: false
-// treat_as_ejs: false
-// type: snippet
-// version: 1.0.12
-// ==================
+# komodo tool: class
+# ==================
+# auto_abbreviation: true
+# indent_relative: true
+# language: Python
+# set_selection: false
+# treat_as_ejs: false
+# type: snippet
+# version: 1.1.5
+# ==================
 class [[%tabstop:name]][[%soft:(]][[%tabstop:object]][[%soft:)]][[%soft::]]
 	[[%tabstop:#code]]
 !@#_currentPos!@#_anchor

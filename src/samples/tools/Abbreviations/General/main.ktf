@@ -5,7 +5,7 @@
 // set_selection: false
 // treat_as_ejs: false
 // type: snippet
-// version: 1.0.12
+// version: 1.1.5
 // =================
 #!/bin/env [[%tabstop:bash]]
 # [[%tabstop:scriptname]]!@#_currentPos!@#_anchor
