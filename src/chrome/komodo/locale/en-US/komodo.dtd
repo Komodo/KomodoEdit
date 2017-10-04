@@ -931,4 +931,4 @@
 <!ENTITY contributePackages.label "Contribute Packages">
 <!ENTITY shareTool.label "Share this Tool">
 
-<!ENTITY tabAwarePaste.label "Tab-Aware Paste">
+<!ENTITY tabAwarePaste.label "Paste (Preserve Indentation)">
