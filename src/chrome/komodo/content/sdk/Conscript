@@ -54,7 +54,6 @@ $cons->InstallInChrome('socket/tcp.js');
 $cons->InstallInChrome('jsonrpc.js');
 $cons->InstallInChrome('stylesheet.js');
 $cons->InstallInChrome('progress.js');
-$cons->InstallInChrome('simpledebug.js');
 $cons->InstallInChrome('promise.js');
 
 if ($buildFlavour eq "dev") {
