@@ -125,7 +125,7 @@
 
         for (let x=0;x<globalSheets.length;x++)
         {
-            let s = loadedSheets[x];
+            let s = globalSheets[x];
             if (s.uri == uri && s.type == type)
             {
                 globalSheets.splice(x, 1);
