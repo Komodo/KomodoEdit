@@ -70,9 +70,9 @@ module.exports = Module;
                 this.element.setAttribute("label", value);
             }
 
-            if ("value" in this.element)
+            if ("value" in this.element && this.element.value)
                 return this.element.value;
-            if (this.element.hasAttribute("value"))
+            if (this.element.hasAttribute("value") && this.element.getAttribute("value"))
                 return this.element.getAttribute("value");
             if (this.element.hasAttribute("label"))
                 return this.element.getAttribute("label");
