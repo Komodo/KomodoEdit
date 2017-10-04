@@ -931,4 +931,5 @@
 <!ENTITY contributePackages.label "Contribute Packages">
 <!ENTITY shareTool.label "Share this Tool">
 
-
+<!ENTITY menuCloseAll.label "Close All">
+<!ENTITY menuCloseAll.accesskey "A">
