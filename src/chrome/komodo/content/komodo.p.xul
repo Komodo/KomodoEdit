@@ -257,6 +257,10 @@
                 accesskey="&pasteButton.accesskey;"
                 class="menuitem-iconic native-paste-icon"
                 observes="cmd_paste"/>
+        <menuitem id="editor-context-tabaware-paste"
+                label="&tabAwarePaste.label;"
+                class="menuitem-iconic native-paste-icon"
+                observes="cmd_tabAwarePaste"/>
         <menuitem label="&pasteHtml.label;"
                   id="menu_editPasteHtml"
                   class="menuitem-iconic"
