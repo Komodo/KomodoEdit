@@ -428,6 +428,7 @@
     {
         if ( ! ss.storage.buttons)
             ss.storage.buttons = {};
+    };
     this.register = function(label, opts)
     {
         if ((typeof label) == "object")
