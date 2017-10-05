@@ -168,27 +168,28 @@ if (typeof(ko.projects)=='undefined') {
         progress.message("Analyzing URL ..");
 
         url = require("sdk/url").URL(url);
+        var path = require("sdk/url").toFilename(url);
 
         // Check if this is a local file/folder or remote
         if (url.scheme == "file")
         {
             // No point importing a file that doesnt exist
-            if ( ! koFile.exists(url.path))
+            if ( ! koFile.exists(path))
             {
-                require("ko/dialogs").alert("Local path does not exist: " + url.path);
+                require("ko/dialogs").alert("Local path does not exist: " + path);
                 progress.close();
                 return;
             }
 
             // If this is a file then assume it's a ZIP
-            if (koFile.isFile(url.path))
+            if (koFile.isFile(path))
             {
-                _useZip(url.path, "", target, progress);
+                _useZip(path, "", target, progress);
             }
             // Otherwise import a folder
             else
             {
-                _useFolder(url.path, target, progress);
+                _useFolder(path, target, progress);
             }
 
             return;
