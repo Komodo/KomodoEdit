@@ -176,6 +176,7 @@ if (typeof(ko.projects)=='undefined') {
             if ( ! koFile.exists(url.path))
             {
                 require("ko/dialogs").alert("Local path does not exist: " + url.path);
+                progress.close();
                 return;
             }
 
