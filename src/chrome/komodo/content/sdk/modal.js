@@ -5,7 +5,8 @@
  */
 (function()
 {
-
+    
+    const plaftorm = require("sdk/system").platform;
     const {Cc, Ci}  = require("chrome");
     
     /**
@@ -55,7 +56,8 @@
         dialog.title = opts.title;
         dialog.addEventListener("load", () => doOpen(opts, dialog));
 
-        pinWindow(dialog);
+        if("darwin" == platform)
+            pinWindow(dialog);
 
         return dialog;
     };
