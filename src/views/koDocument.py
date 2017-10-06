@@ -1884,17 +1884,25 @@ class koDocumentBase(object):
         @note If any pref name starts with "%lang/" that prefix will be replaced
             with the name of the current language pref.
         """
+        # Prefer language-specific preferences first.
         prefset = self.prefs
-
         while prefset is not None:
             for key, getter in prefInfos:
                 if key.startswith("%lang/"):
                     key = "languages/%s/%s" % (self._language,
                                                key[len("%lang/"):])
-                if prefset.hasPrefHere(key):
-                    return key, getattr(prefset, getter)(key)
+                    if prefset.hasPrefHere(key):
+                        return key, getattr(prefset, getter)(key)
             prefset = prefset.inheritFrom
 
+        # Fall back on general preferences.
+        prefset = self.prefs
+        while prefset is not None:
+            for key, getter in prefInfos:
+                if not key.startswith("%lang/") and prefset.hasPrefHere(key):
+                    return key, getattr(prefset, getter)(key)
+            prefset = prefset.inheritFrom
+        
         # Prefs not found at any level?
         return None, None
 
