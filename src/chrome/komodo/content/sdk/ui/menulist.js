@@ -66,6 +66,11 @@ module.exports = Module;
         {
             if (value)
             {
+                if ("value" in this.element)
+                {
+                    this.element.value = value;
+                }
+
                 this.element.setAttribute("value", value);
                 this.element.setAttribute("label", value);
             }
