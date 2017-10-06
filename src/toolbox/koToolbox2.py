@@ -2126,14 +2126,14 @@ class DataParser:
                     data[match.group(1)] = match.group(2)
 
                 # Check for the end indicator for meta info
-                elif line.find("===") != -1:
+                elif line.find("===") != -1 and line.strip().endswith("="):
                     inMeta = False
 
             # Submeta is for multi-line values, primarily intended for the
             # tutorial logic portion
             elif inSubMeta:
                 match = subMetaRx.search(line)
-                
+
                 if match:
                     subMetaKey = match.group(1).strip()
                     data[subMetaKey] = ""
@@ -2149,7 +2149,7 @@ class DataParser:
             # Multi-line values
             else:
                 # Detect submeta
-                if line.find("===") != -1:
+                if line.find("===") != -1 and line.strip().endswith("="):
                     inSubMeta = True
                     subMetaQueue = line
 
@@ -2226,7 +2226,7 @@ class DataParser:
                     else:
 
                         # End loop when we get to the meta end indicator
-                        if line.find("===") != -1:
+                        if line.find("===") != -1 and line.strip().endswith("="):
                             match = endRx.search(line)
                             endSuffix = match.group(1)
                             break
