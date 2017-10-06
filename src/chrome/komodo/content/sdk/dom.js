@@ -915,7 +915,7 @@ if (typeof module === 'undefined') module = {}; // debugging helper
                 return value;
             }
 
-            if (pxRules.indexOf(key) != -1 && ! isNaN(value))
+            if (pxRules.indexOf(key) != -1 && Number.isInteger(value))
                 value = value + "px";
 
             var rules = {};
