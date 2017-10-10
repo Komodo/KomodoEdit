@@ -436,7 +436,7 @@
             _window = _window.require("ko/windows").getMain();
           
           var id = document.documentElement.id || window.location.href;
-          var dimensions =  _window ? _window.ko.prefs.getString("windowDimensions-" + id, "").split(",") : [];
+          var dimensions =  _window ? _window.ko.prefs.getString("windowDimensions-v2-" + id, "").split(",") : [];
           
           var centerWindow = (w) =>  window.moveTo(_window.screen.left + Math.round((w.screen.availWidth - w.outerWidth) / 2),
                                                    _window.screen.top + Math.round((w.screen.availHeight - w.outerHeight) / 2));
