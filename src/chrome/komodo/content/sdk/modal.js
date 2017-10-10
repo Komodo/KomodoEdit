@@ -6,7 +6,7 @@
 (function()
 {
     
-    const plaftorm = require("sdk/system").platform;
+    const platform = require("sdk/system").platform;
     const {Cc, Ci}  = require("chrome");
     
     /**
