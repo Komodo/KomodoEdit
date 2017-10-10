@@ -266,12 +266,12 @@
         
         if ("maximize" in window) {
             window._maximize = window.maximize;
-            window.maximize = this.maximize;
+            window.maximize = this.maximize.bind(this);
         }
         
         if ("restore" in window) {
             window._restore = window.restore;
-            window.restore = this.restore;
+            window.restore = this.restore.bind(this);
         }
 // #endif
 
