@@ -155,11 +155,36 @@
         return windows;
     }
 
+    /**
+     * Retrieve a window by its url
+     *
+     * @param   {string} url
+     *
+     * @returns {Window}
+     */
     this.getWindowByUrl = function(url)
     {
         for (let w of this.getAll())
         {
             if (w.location.href == url)
+                return w;
+        }
+
+        return false;
+    }
+
+    /**
+     * Retrieve a window by its name
+     *
+     * @param   {string} name
+     *
+     * @returns {Window}
+     */
+    this.getWindowByName = function(name)
+    {
+        for (let w of this.getAll())
+        {
+            if (w.name == name)
                 return w;
         }
 
