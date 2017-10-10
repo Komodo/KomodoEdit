@@ -1131,6 +1131,7 @@
     <string>testPlans</string>
     <string>publishing</string>
     <string>mru</string>
+    <string>Association</string>
   </ordered-preference>
   
   <string id="virtualStyles" nonvital="true">less://resource/profile/interfaceChrome.less,less://resource/profile/userChrome.less</string>
