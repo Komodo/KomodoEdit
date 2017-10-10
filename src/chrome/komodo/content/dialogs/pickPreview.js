@@ -131,8 +131,6 @@ function OnLoad()
             widgets.rememberCheckbox.setAttribute("collapsed", "true");
         }
 
-        window.sizeToContent();
-        
         setTimeout(function() {
             if (opener.innerHeight == 0) { // indicator that opener hasn't loaded yet
                 dialog.centerWindowOnScreen();

@@ -268,7 +268,6 @@ function OnLoad()
         }
 
         // Size to content before moving so calculations are correct.
-        window.sizeToContent();
         var screenX = window.arguments[0].screenX;
         if (typeof(screenX) == "undefined") screenX = null;
         var screenY = window.arguments[0].screenY;

@@ -275,8 +275,6 @@ function OnLoad()
             getService(Components.interfaces.koIFeatureStatusService);
 
         _requestFeatureStatus("*");
-
-        window.sizeToContent();
     } catch(ex) {
         fcplog.exception(ex, "Error loading feature status panel dialog.");
     }

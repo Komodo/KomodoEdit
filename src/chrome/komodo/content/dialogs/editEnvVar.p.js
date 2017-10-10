@@ -111,7 +111,6 @@ function OnLoad()
         interpolateMenu.removeAttribute('collapsed');
     }
 
-    window.sizeToContent();
     if (opener.innerHeight == 0) { // indicator that opener hasn't loaded yet
         dialog.centerWindowOnScreen();
     } else {

@@ -97,7 +97,6 @@ function OnLoad()
     }
     // Otherwise the textbox is given focus and it eats <Enter>.
     okButton.focus();
-    window.sizeToContent();
     window.getAttention();
 }
 
