@@ -111,7 +111,7 @@
             topWindow = assignWindow(topWindow, "top");
         }
 
-        if (topWindow && topWindow.location.href != topHref)
+        if (topWindow && topWindow.location && topWindow.location.href != topHref)
             topWindow = null;
 
         if ( ! topWindow)
