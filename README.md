@@ -124,9 +124,10 @@ should be a lot faster as much of the compiled data is cached.
 
    If you prefer the Python builds from python.org should be sufficient as well.
 
- * Xcode 6.4. For 8.0 see below. You can get version 6.4 from [the developer downloads site](https://developer.apple.com/downloads/).
+ * Xcode 6.4(SDK 10.9 & 10.10). For 8.0 see below. You can get version 6.4 from [the developer downloads site](https://developer.apple.com/downloads/).
   
-  * MacOSX10.10.sdk or older
+  * MacOSX10.10.sdk or older  
+  * *IDE ONLY* SDK 10.8 for Code Intel. Can be found in Xcode 5.1.1
   * If you have/need other versions of Xcode installed then you can use `xcode-select` to change the active Xcode:
   
      `$ xcode-select -s /Path/To/Xcode\ 6.4.app/`
