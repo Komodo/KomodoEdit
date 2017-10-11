@@ -98,7 +98,7 @@
      *                                              non-edittable selectable text box. If "text" is null or no specified
      *                                              then this textbox will no be shown.
      * @param {string}      [opts.title]            dialog title
-     * @param {boolean}     [opts.doNotAskPref]     prefname to use that stores whether the user chose not to give this prompt 
+     * @param {string}      [opts.doNotAskPref]     prefname to use that stores whether the user chose not to give this prompt
      *                                              again. If no prefname is given the prompt will always be shown.
      * @param {string}      [opts.yes]              override the label for the yes button (defaults to Ok)
      * @param {string}      [opts.no]               override the label for the no button (defaults to Cancel)
