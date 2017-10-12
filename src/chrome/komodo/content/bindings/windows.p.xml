@@ -573,6 +573,15 @@
             window.innerHeight = h;
           };
           setTimeout(borderFix, 100);
+          
+          var _sizeToContent = window.sizeToContent;
+          window.sizeToContent = () =>
+          {
+            var maxWidth = document.documentElement.style.maxWidth;
+            document.documentElement.style.maxWidth = window.innerWidth + "px";
+            _sizeToContent();
+            document.documentElement.style.maxWidth = maxWidth;
+          };
 // #endif
 
           window.addEventListener("load", function() {
