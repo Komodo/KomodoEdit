@@ -167,6 +167,7 @@ function OnLoad()
         gHelpTopic = window.arguments[0].helpTopic;
     }
 
+    window.sizeToContent();
     if (opener.innerHeight == 0) { // indicator that opener hasn't loaded yet
         dialog.centerWindowOnScreen();
     } else {

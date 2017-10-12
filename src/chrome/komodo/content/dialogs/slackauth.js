@@ -15,6 +15,7 @@ var slackApp = {};
         //Add event listner to content load to get page and process it
         $gBrowser.element().addEventListener("DOMContentLoaded", this.onPageLoad, false);
         this.loadSlackAuthPage();
+        window.sizeToContent();
     }
     this.getSlackAuthURI = function()
     {
