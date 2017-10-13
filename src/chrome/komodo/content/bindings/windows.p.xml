@@ -434,6 +434,9 @@
           var _window = wm.getMostRecentWindow("Komodo");
           if (_window)
             _window = _window.require("ko/windows").getMain();
+
+          if ( ! _window)
+            return;
           
           var id = document.documentElement.id || window.location.href;
           var dimensions =  _window ? _window.ko.prefs.getString("windowDimensions-v2-" + id, "").split(",") : [];
