@@ -390,9 +390,7 @@
       <menuitem id="placesContextMenu_refresh_status"
                 observes="cmd_refreshStatus"
                 label="&refreshStatus.label;"
-                class="menuitem-iconic"
-                disableIf="project"
-                testDisableIf="t:isRemote" />
+                class="menuitem-iconic" />
       <!--<menuitem id="placesContextMenu_folder_refresh_view"
                 oncommand="ko.places.manager.refreshView(event)"
                 label="&refreshView.label;"
