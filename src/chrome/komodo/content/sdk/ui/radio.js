@@ -63,7 +63,7 @@ module.exports = Module;
          */
         this.selected = function(value)
         {
-            if (typeof value != "string")
+            if (value !== undefined && typeof value != "string")
             {
                 if (value)
                 {
