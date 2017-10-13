@@ -370,7 +370,7 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
         
         helpGroupbox.addRow([
             require("ko/ui/list").create([
-                require("ko/ui/link").create("Documentation", { attributes: { href: "http://docs.komodoide.com" }}),
+                require("ko/ui/link").create("Documentation", { attributes: { href: "http://docs.activestate.com/komodo" }}),
                 require("ko/ui/link").create("Forums", { attributes: { href: "https://community.komodoide.com/" }}),
                 require("ko/ui/link").create("Bug Tracker", { attributes: { href: "https://github.com/Komodo/KomodoEdit/issues" }})
             ])
