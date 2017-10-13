@@ -74,7 +74,7 @@ module.exports = Module;
                     this.$element.attr("selected", "false");
                 }
             }
-            if (value)
+            else if (value)
             {
                 this.$element.attr("selected", value);
             }
