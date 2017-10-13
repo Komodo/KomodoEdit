@@ -1,3 +1,7 @@
+var parent = require("./element");
+var Module = Object.assign({}, parent);
+module.exports = Module;
+
 /**
  * ko/ui radio element
  * 
@@ -59,6 +63,17 @@
          */
         this.selected = function(value)
         {
+            if (typeof value != "string")
+            {
+                if (value)
+                {
+                    this.$element.attr("selected", "true");
+                }
+                else
+                {
+                    this.$element.attr("selected", "false");
+                }
+            }
             if (value)
             {
                 this.$element.attr("selected", value);
