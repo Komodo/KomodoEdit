@@ -166,7 +166,8 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
         {
             menulist.addMenuItem({ attributes: {
                 label: scheme,
-                selected: scheme == currentScheme
+                selected: scheme == currentScheme,
+                value: scheme
             } });
         }
         
@@ -191,7 +192,8 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
         {
             menulist.addMenuItem({ attributes: {
                 label: browser,
-                selected: browser == currentBrowser
+                selected: browser == currentBrowser,
+                value: browser
             } });
         }
         
@@ -223,7 +225,8 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
                         "background":   s.getCommon("default_fixed", "back")
                     },
                     isDark: s.isDarkBackground,
-                    selected: scheme == currentScheme
+                    selected: scheme == currentScheme,
+                    value: scheme
                 }
             });
         }
@@ -442,7 +445,7 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
         var koCS = require("ko/colorscheme");
         
         prefs.setString("widget-scheme", fields.colorScheme.value());
-        
+
         koCS.applyEditor(fields.colorScheme.value());
         koCS.applyInterface(fields.colorScheme.value(), true);
         
