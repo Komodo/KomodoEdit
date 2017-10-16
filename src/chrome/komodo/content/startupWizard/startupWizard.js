@@ -30,7 +30,8 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
         // OSX in particular likes to hide our window, force it not to
         try
         {
-            this.pinWindow();
+            if("darwin" == platform)
+                this.pinWindow();
         }
         catch (e)
         {
