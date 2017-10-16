@@ -165,7 +165,6 @@
     /** Show the user some prompt and request one of a number of responses.
      *
      * @param {String}      message                 The message to be displayed to the user
-     * @param {Object=}     opts                    The options object.  Attributes explained above.
      * @param {object=}     [opts]                  Optional object with options
      * @param {string}      [opts.prompt]           Message to show as the prompt
      * @param {string|array} [opts.buttons]         Either a list of strings, each a label of a button
@@ -173,7 +172,8 @@
      *                                              where accesskey and tooltiptext are both optional. Currently this is
      *                                              limited to three buttons, plus an optional "Cancel" button. For 
      *                                              example to mimic (mostly) ko.dialogs.yesNo use ["Yes", "No"] and to mimic
-     *                                              ko.dialogs.yesNoCancel use ["Yes", "No", "Cancel"].
+     *                                              ko.dialogs.yesNoCancel use ["Yes", "No", "Cancel"]. Note that the Cancel
+     *                                              button must always be last.
      * @param {string}      [opts.response]         The default response. This button is shown as the default.
      *                                              Must be one of "Yes" or "No". If left empty or null the default
      *                                              response is "Yes".
@@ -183,7 +183,7 @@
      * @param {string}      [opts.title]            dialog title
      * @param {boolean}     [opts.doNotAskPref]     prefname to use that stores whether the user chose not to give this prompt 
      *                                              again. If no prefname is given the prompt will always be shown.
-     * @param {string}      [opts.class]                 the class attribute to be applied to the dialog icon.
+     * @param {string}      [opts.className]        the css class attribute to be applied to the dialog icon.
      *
      * @returns {String} returns the name of the button pressed.
      */
