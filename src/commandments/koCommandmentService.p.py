@@ -163,7 +163,7 @@ def _handleCommandment(commandment):
         try:
             notifyObservers(None, "new_window", '')
         except COMException, e:
-            log.warn("No one observing 'quit' notification.")
+            log.warn("No one observing 'new_window' notification.")
 
     elif name == 'quit':
         try:
