@@ -40,6 +40,7 @@ catch (e)
 }
 
 var ko = _window.ko;
+var document = _window.document;
 
 function _initPrintSettings() {
     if (!PrintUtils._gOrigGetPrintSettings) {
