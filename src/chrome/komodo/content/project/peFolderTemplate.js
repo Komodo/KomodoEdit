@@ -167,12 +167,23 @@ if (typeof(ko.projects)=='undefined') {
         
         progress.message("Analyzing URL ..");
 
+        var _url = url;
         url = require("sdk/url").URL(url);
-        var path = require("sdk/url").toFilename(url);
 
         // Check if this is a local file/folder or remote
         if (url.scheme == "file")
         {
+            var path;
+            try
+            {
+                path = require("sdk/url").toFilename(url);
+            } catch (e)
+            {
+                require("ko/dialogs").alert("Could not resolve path for: " + _url);
+                progress.close();
+                return;
+            }
+
             // No point importing a file that doesnt exist
             if ( ! koFile.exists(path))
             {
