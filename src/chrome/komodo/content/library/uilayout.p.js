@@ -353,7 +353,8 @@ this._customizeComplete = (function uilayout__customizeComplete() {
         }
         delete this.customize._state;
     }
-    
+    ko.widgets.unload([]);
+    require("ko/prefs").saveState();
 }).bind(this);
 
 this._updateToolbarViewStates = (function uilayout__updateToolbarViewStates()
