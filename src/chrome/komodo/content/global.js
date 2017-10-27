@@ -110,7 +110,10 @@ var global = {};
         var _openDialog = tw.openDialog;
         tw.openDialog = (url, name) =>
         {
-            var _w = tw.require("ko/windows").getWindowByName(name);
+            var _w;
+            if (name)
+                _w = tw.require("ko/windows").getWindowByName(name);
+
             if (_w)
                 _w.focus();
             else
