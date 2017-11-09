@@ -354,7 +354,8 @@ this._customizeComplete = (function uilayout__customizeComplete() {
         delete this.customize._state;
     }
     ko.widgets.unload([]);
-    require("ko/prefs").saveState();
+    let prefSvc = Components.classes["@activestate.com/koPrefService;1"].getService(Components.interfaces.koIPrefService);
+    prefSvc.saveState();
 }).bind(this);
 
 this._updateToolbarViewStates = (function uilayout__updateToolbarViewStates()
