@@ -1855,7 +1855,10 @@ def UploadKomodoPackages(cfg, argv):
 
     ver_info = _ver_info_from_long_ver_str(version)
     short_ver = _short_ver_str_from_ver_info(ver_info)
-    d = "%s-%s-%s" % (cfg.sccRepoName, cfg.normSCCBranch, buildNum)    
+    releaseType = ""
+    if "nightly" in cfg.komodoTitleBarName:
+        releaseType = "-nightly"
+    d = "%s-%s-%s%s" % (cfg.sccRepoName, cfg.normSCCBranch, buildNum, releaseType)
     devBuilds_dir = ujoin(upload_base_dir, short_ver, "DevBuilds")
     upload_dir = ujoin(devBuilds_dir, d)
     latest_dir = ""
