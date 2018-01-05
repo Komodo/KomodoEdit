@@ -728,3 +728,7 @@ class SwiftScriptLangInfo(LangInfo):
     name = "Swift"
     exts = ['.swift']
 
+class RustLangInfo(LangInfo):
+    """https://rust-lang.org"""
+    name = "Rust"
+    exts = ['.rs']

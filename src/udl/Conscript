@@ -266,6 +266,12 @@ my @lexers = (
                codename => "haml_language",
                udl_path => "haml-mainlex.udl",
                skel => "skel/Haml",
+              },
+              {
+                language_name => "Rust",
+                codename => "rust_language",
+                udl_path => "rust-mainlex.udl",
+                skel => "skel/Rust",
               }
              );
 foreach my $info (@lexers) {
