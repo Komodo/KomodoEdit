@@ -985,3 +985,8 @@ adding an additional caret at the clicked position.">
 <!ENTITY label.84 "8.4">
 <!ENTITY label.85 "8.5">
 <!ENTITY label.86 "8.6">
+<!ENTITY rustChecking.rustcBinary "rustc binary:">
+<!ENTITY rustChecking.rustcBinaryPlaceholder "Find on PATH...">
+<!ENTITY rustChecking.cargoLabel "Enable project-wide cargo syntax checker">
+<!ENTITY rustChecking.cargoBinary "cargo binary:">
+<!ENTITY rustChecking.cargoBinaryPlaceholder "Find on PATH...">

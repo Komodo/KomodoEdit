@@ -71,6 +71,45 @@
                 </groupbox>
             </vbox>
             
+            <vbox id="langSyntaxCheck-Rust">
+                <groupbox orient="vertical">
+                    <checkbox id="rust.linter.enabled"
+                              label="&basicChecking.label;"
+                              pref="true" />
+                    <hbox>
+                        <description>
+                            &rustChecking.rustcBinary;
+                        </description>
+                        <textbox id="rust.linter.binaries.rustc"
+                                 flex="1"
+                                 value=''
+                                 pref="true"
+                                 placeholder="&rustChecking.rustcBinaryPlaceholder;"
+                                 preftype="string"/>
+                        <button id='rust_linter_rustc_browse'
+                                label="&browse.label;"
+                                oncommand="languageInfo.Rust.browseForRustcBinary();"/>
+                    </hbox>
+                    <checkbox id="rust.linter.cargo.enabled"
+                              label="&rustChecking.cargoLabel;"
+                              pref="true" />
+                    <hbox>
+                        <description>
+                            &rustChecking.cargoBinary;
+                        </description>
+                        <textbox id="rust.linter.binaries.cargo"
+                                 flex="1"
+                                 value=''
+                                 pref="true"
+                                 placeholder="&rustChecking.cargoBinaryPlaceholder;"
+                                 preftype="string"/>
+                        <button id='rust_linter_cargo_browse'
+                                label="&browse.label;"
+                                oncommand="languageInfo.Rust.browseForCargoBinary();"/>
+                    </hbox>
+                </groupbox>
+            </vbox>
+            
             <vbox id="langSyntaxCheck-JavaScript">
                 <label value="&javaScriptNodeSyntaxSettings.label;" />
                 <groupbox orient="vertical">

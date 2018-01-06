@@ -67,6 +67,7 @@ $cons->InstallXpcomComponent('koCSSExLinter.py');
 $cons->InstallXpcomComponent('koHTMLLinter.py');
 $cons->InstallXpcomComponent('koPHPLinter.py');
 $cons->InstallXpcomComponent('koJavaScriptLinter.py');
+$cons->InstallXpcomComponent('koRustLinter.py');
 $cons->InstallXpcomComponent('koLintService.py');
 $cons->InstallPythonUtility('koLintResults.py');
 

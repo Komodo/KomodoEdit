@@ -428,6 +428,23 @@ function javaScriptInfo(languageName) {
     };
 }
 
+languageInfo.Rust = {
+    browseForRustcBinary: () => {
+        let rustc_binary = document.getElementById('rust.linter.binaries.rustc');
+        let currentPath = rustc_binary.value;
+        let path = ko.filepicker.browseForExeFile(null, currentPath || "");
+        if (path)
+            rustc_binary.value = path;
+    },
+    browseForCargoBinary: () => {
+        let cargo_config = document.getElementById('rust.linter.binaries.cargo');
+        let currentPath = cargo_config.value;
+        let path = ko.filepicker.browseForExeFile(null, currentPath || "");
+        if (path)
+            cargo_config.value = path;
+    }
+};
+
 function typescript_setup() {
     if (!('TypeScript' in dialog)) {
         dialog.TypeScript = {};
