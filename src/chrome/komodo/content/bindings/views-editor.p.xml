@@ -2578,7 +2578,7 @@
                     cmdkey = cmdkey || event.shiftKey;
                 }
                 if (!cmdkey) {
-                    if (ko.abbrev.expandAutoAbbreviation(this)) {
+                    if (ko.abbrev.expandAbbrev()) {
                        return false;
                    }
                 }
