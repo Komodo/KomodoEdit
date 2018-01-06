@@ -90,7 +90,7 @@ state IN_SSL_NUMBER_2:
 /$/ : paint(upto, SSL_NUMBER), => IN_SSL_DEFAULT
 /[\d]/ : #stay
 /[Ee][-+]?/ : => IN_SSL_NUMBER_3
-'.' : paint(upto, SSL_NUMBER), paint(include, SSL_OPERATOR),  => IN_SSL_DEFAULT
+'.' : paint(include, SSL_NUMBER),  => IN_SSL_DEFAULT # [1..2]
 /./ : paint(upto, SSL_NUMBER), redo, => IN_SSL_DEFAULT
 
 state IN_SSL_NUMBER_3:
