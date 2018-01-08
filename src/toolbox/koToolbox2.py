@@ -1108,6 +1108,14 @@ class Database(object):
                     pass
                 if abbrevID is not None:
                     return abbrevID
+            if abbrevID is None:
+                cu.execute(query,(abbrev, "General", isAutoAbbrev))
+                try:
+                    abbrevID = self._rankSnippetResults(cu.fetchall())
+                except:
+                    pass
+                if abbrevID is not None:
+                    return abbrevID
         return abbrevID
     
     def _rankSnippetResults(self, results):
