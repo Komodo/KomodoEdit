@@ -385,14 +385,20 @@ this.snippetInsertImpl = function snippetInsertImpl(snippet, view /* =<curr view
         }
     }        
 
-    var istrings = ko.interpolate.interpolate(
+    try
+    {
+        var istrings = ko.interpolate.interpolate(
                         window,
                         [], // codes are not bracketed
                         [text], // codes are bracketed
                         snippet.getStringAttribute("name"),
                         viewData);
-    text = istrings[0];
-
+        text = istrings[0];
+    } catch(e)
+    {
+        require("notify/notify").send("Could not perform interpolation: "+e,{priority: "error"});
+    }
+    
     if (newLine) {
         scimoz.lineEnd();
         //scimoz.newLine();
