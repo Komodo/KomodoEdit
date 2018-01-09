@@ -38,39 +38,83 @@
     <script src="chrome://komodo/content/project/templateProperties.js" type="application/x-javascript;version=1.7" />
 
     <hbox id="scintillaOverlayXul"/>
-
-    <menupopup id="bufferContextMenu" type="buffercontext" />
-
-    <spacer height="5" id="spacer" context="token-context-menu"/>
-    <hbox style="height:27px;">
-        <spacer width="5"/>
-        <textbox id="name" flex="1" value=""
-                 onkeyup="templateProperties.updateTitle();"/>
-        <spacer width="5"/>
-        <langlist id="languageList"
-                  default="Pick a Language,---------------"
-                  default-value="-1,-1"/>
-    </hbox>
-    <separator class="groovy-thin"/>
-    <view id="value"
-          flex="1"
-          type="buffer"
-          pluginPaintHack="true"
-          />
-    <separator class="groovy-thin"/>
-    <checkbox id="default"
-              label="&defaultForLanguage.label;"
-              checked="false"/>
-    <checkbox id="treat_as_ejs"
-              label="&TreatAsEJS.label;"
-              checked="false"/>
-
-    <vbox id="error-wrapper" class="alertBox alert-box" collapsed="true">
-        <description>
-            Cannot save template.
-        </description>
-        <description id="error-message"></description>
-    </vbox>
-
+    <vbox flex="1">
+      <menupopup id="bufferContextMenu" type="buffercontext" />
+  
+      <spacer height="5" id="spacer" context="token-context-menu"/>
+      <hbox style="height:27px;">
+          <spacer width="5"/>
+          <textbox id="name" flex="1" value=""
+                   onkeyup="templateProperties.updateTitle();"/>
+          <spacer width="5"/>
+          <langlist id="languageList"
+                    default="Pick a Language,---------------"
+                    default-value="-1,-1"/>
+      </hbox>
+      <separator class="groovy-thin"/>
+      <hbox flex="1">
+        <view id="value"
+              flex="1"
+              type="buffer"
+              pluginPaintHack="true"
+              />
+        <vbox>
+          <button type="menu" id="shortcuts-menubutton"
+                tooltiptext="&shortcuts.tooltiptext;" tooltip="dialogTooltip"
+                class="rightarrow-button">
+            <menupopup position="end_before">
+                <menuitem label="&tabstopTabStopReplace.label;"
+                          shortcut="[[%tabstop:DEFAULT]]"
+                          select="DEFAULT"
+                          oncommand="window.templateProperties.insertShortcut(this);"/>
+                <menuitem label="&softCharTabStopReplace.label;"
+                          shortcut="[[%soft:SOFTCHARS]]"
+                          select="SOFTCHARS"
+                          oncommand="window.templateProperties.insertShortcut(this);"/>
+                <menuitem label="&projectBaseDirectory.label;"
+                          shortcut="[[%i]]"
+                          oncommand="window.templateProperties.insertShortcut(this);"/>
+                <menuitem label="&PPathOfTheActiveProject.label;"
+                          shortcut="[[%P]]"
+                          oncommand="window.templateProperties.insertShortcut(this);"/>
+                <menuitem label="&pDirectoryPathOfTheActiveProject.label;"
+                          shortcut="[[%p]]"
+                          oncommand="window.templateProperties.insertShortcut(this);"/>
+                <menuitem label="&guidANewGUID.label;"
+                          shortcut="[[%guid]]"
+                          oncommand="window.templateProperties.insertShortcut(this);"/>
+                <menuitem label="&dateCurrentDate.label;"
+                          shortcut="[[%date]]"
+                          oncommand="window.templateProperties.insertShortcut(this);"/>
+                <menuseparator/>
+                <menuitem label="&askAskForUserInput.label;"
+                          shortcut="[[%ask:QUESTION:DEFAULT]]"
+                          select="QUESTION"
+                          oncommand="window.templateProperties.insertShortcut(this);"/>
+                <menuitem label="&askpassAskForPassword.label;"
+                          shortcut="[[%askpass:Password]]"
+                          oncommand="window.templateProperties.insertShortcut(this);"/>
+                <menuseparator/>
+                <menuitem label="&helpOnShortcuts.label;"
+                          oncommand="ko.help.open('interpolation_shortcuts');"/>
+              </menupopup>
+          </button>
+        </vbox>
+      </hbox>
+      <separator class="groovy-thin"/>
+      <checkbox id="default"
+                label="&defaultForLanguage.label;"
+                checked="false"/>
+      <checkbox id="treat_as_ejs"
+                label="&TreatAsEJS.label;"
+                checked="false"/>
+  
+      <vbox id="error-wrapper" class="alertBox alert-box" collapsed="true">
+          <description>
+              Cannot save template.
+          </description>
+          <description id="error-message"></description>
+      </vbox>
+  </vbox>
 </dialog>
 

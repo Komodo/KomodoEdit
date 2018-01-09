@@ -133,6 +133,23 @@ window.templateProperties = {};
         return true;
     };
     
+    this.insertShortcut = (shortcutItem) =>
+    {
+        // Get the shortcut string from the menuitem widget and insert it into
+        // the current snippet text. Also, if the menuitem has a "select"
+        // attribute select the identified part of the inserted snippet.
+        var shortcutText = shortcutItem.getAttribute("shortcut");
+        var select = shortcutItem.getAttribute("select");
+        elems.scimoz().replaceSel(shortcutText);
+        if (select && shortcutText.indexOf(select) != -1) {
+            // Current position will be at the end of the inserted shortcutText.
+            var offset = shortcutText.indexOf(select);
+            elems.scimoz().anchor = elems.scimoz().currentPos - shortcutText.length + offset;
+            elems.scimoz().currentPos = elems.scimoz().anchor + select.length;
+        }
+        elems.scimoz().setFocus();
+    };
+    
     this.cancel = () => true;
 
     window.addEventListener("load", onLoad);
