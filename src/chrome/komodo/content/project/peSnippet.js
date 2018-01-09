@@ -396,7 +396,9 @@ this.snippetInsertImpl = function snippetInsertImpl(snippet, view /* =<curr view
         text = istrings[0];
     } catch(e)
     {
-        require("notify/notify").send("Could not perform interpolation: "+e,{priority: "error"});
+        let msg = "Could not perform interpolation";
+        require("notify/notify").send(msg+".  See logs for details.",{priority: "error"});
+        log.warn(msg +": "+e);
     }
     
     if (newLine) {
