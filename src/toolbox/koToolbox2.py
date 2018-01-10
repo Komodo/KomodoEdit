@@ -1771,7 +1771,6 @@ class ToolboxLoader(object):
         isTool = os.path.splitext(fname)[1] == TOOL_EXTENSION or \
                  os.path.splitext(fname)[1] == TOOL_EXTENSION_CLEAN
         isCleanFormat = os.path.splitext(fname)[1] == TOOL_EXTENSION_CLEAN
-
         if not isDir and not isTool:
             return
         elif not self.dbTimestamp:
@@ -2099,6 +2098,9 @@ class DataParser:
         inSubMeta = False
         subMetaKey = "value"
         subMetaQueue = ""
+        endSuffix=None
+        langRegistry = components.classes["@activestate.com/koLanguageRegistryService;1"]\
+            .getService(components.interfaces.koILanguageRegistryService)
 
         for num, line in enumerate(fp, 1):
             line = line.decode()
@@ -2128,14 +2130,27 @@ class DataParser:
 
             # Parse simple key/val meta info
             if inMeta:
+                try:
+                    language = data["language"]
+                    langInfo = langRegistry.getLanguage(language)
+                    blockComment = langInfo.getCommentDelimiter("block", 0)
+                    if blockComment:
+                        blockComment = json.loads(blockComment)
+                        endSuffix = blockComment[1]
+                except KeyError:
+                    pass
                 match = metaRx.search(line)
 
                 if match:
                     data[match.group(1)] = match.group(2)
 
                 # Check for the end indicator for meta info
-                elif line.find("===") != -1 and line.strip().endswith("="):
-                    inMeta = False
+                elif line.find("===") != -1:
+                    if endSuffix:
+                        if line.strip().endswith(endSuffix) :
+                            inMeta = False
+                    if line.strip().endswith("="):
+                        inMeta = False
 
             # Submeta is for multi-line values, primarily intended for the
             # tutorial logic portion
@@ -2173,17 +2188,13 @@ class DataParser:
         data["name"] = data["name"].strip()
 
         if not data.get("language", False):
-            langRegistry = components.classes["@activestate.com/koLanguageRegistryService;1"]\
-                            .getService(components.interfaces.koILanguageRegistryService)
             data["language"] = langRegistry.suggestLanguageForFile(fp.name)
 
         return data
     
     @staticmethod
     def writeCleanData(fp, data):
-        metaRx = re.compile(r"(.*?)\w+:.*\n")
         endRx = re.compile(r"===+(.*)\n")
-
         inMeta = True
         pastMetaStartPending = False
         pastMetaStart = False
@@ -2192,6 +2203,8 @@ class DataParser:
         startPrefix = None
         endSuffix = None
         metaPrefix = None
+        langRegistry = components.classes["@activestate.com/koLanguageRegistryService;1"]\
+                        .getService(components.interfaces.koILanguageRegistryService)
 
         multiLineCommented = False
 
@@ -2227,20 +2240,24 @@ class DataParser:
 
                 # Detect regular meta info
                 else:
-                    match = metaRx.search(line)
-
-                    if match:
-                        metaPrefix = match.group(1)
-                    else:
-
-                        # End loop when we get to the meta end indicator
-                        if line.find("===") != -1 and line.strip().endswith("="):
-                            match = endRx.search(line)
-                            endSuffix = match.group(1)
+                    try:
+                        language = data["language"]
+                        langInfo = langRegistry.getLanguage(language)
+                        blockComment = langInfo.getCommentDelimiter("block", 0)
+                        if blockComment:
+                            blockComment = json.loads(blockComment)
+                            endSuffix = blockComment[1]
+                    except KeyError:
+                        pass
+                    # End loop when we get to the meta end indicator
+                    if line.find("===") != -1:
+                        if endSuffix:
+                            if line.strip().endswith(endSuffix):
+                                break
+                        if line.strip().endswith("="):
                             break
 
-        langRegistry = components.classes["@activestate.com/koLanguageRegistryService;1"]\
-                        .getService(components.interfaces.koILanguageRegistryService)
+        
 
         language = data.get("language", None)
         if not language:
@@ -2254,14 +2271,14 @@ class DataParser:
         blockComment = langInfo.getCommentDelimiter("block", 0)
 
         if metaPrefix == None:
-            if lineComment:
-                metaPrefix = json.loads(lineComment).strip() + " "
-            elif blockComment:
+            if blockComment:
                 metaPrefix = ""
                 blockComment = json.loads(blockComment)
                 namePrefix = blockComment[0] + "\n" + TOOL_META_START
                 startPrefix = blockComment[0]
                 endSuffix = blockComment[1]
+            elif lineComment:
+                metaPrefix = json.loads(lineComment).strip() + " "
             else:
                 metaPrefix = "// "
 
