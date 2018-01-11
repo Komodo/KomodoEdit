@@ -691,6 +691,14 @@ if (typeof(ko.widgets)=='undefined') {
                            panes: { /* id: [] */ }};
     /**
      * Called by ko.main's window.onload
+     * @param {pref set} prefs: the preference set that has ui.tabs.sidepanes.state as
+     *                   a child element
+     * @param {array}  prefpath: id path to prefs set from above.  This function
+     *                 sets up a close handler to save state to that path on close.
+     *                 In the case that the prefpath doesn't exist yet, it will
+     *                 restore from the global prefs.  If that doesn't exist it
+     *                 will generate a new state from the current DOM.
+     * @param {boolean} forceRestore: Force a restore of the widgets.
      */
     this.restoreLayout = function koWidgetManager_restoreLayout(prefs, prefpath) {
 
@@ -729,50 +737,67 @@ if (typeof(ko.widgets)=='undefined') {
             // Remove empty children?
             panes[id].children = pane.children.filter(function(c) c && c.length > 0);
         }
-        // Restore data from prefs
+        log.debug("Getting prefs from " + prefpath.join(", "));
+        let originPref = prefs;
+        try{
+            for (let key of prefpath) {
+                prefs = prefs.getPref(key);
+            }
+        } catch(e) {
+            log.debug("Pref path doesn't exist: "+ prefpath.join(", "))
+            prefs = originPref;
+        }
+        // Restore data from prefpath
         try {
             this._persist_state = JSON.parse(prefs.getString("ui.tabs.sidepanes.state",
                                                              "(invalid json)"));
         } catch (SyntaxError) {
-            // Invalid json; try to pick it up from old prefs
-            for (let side of ["left", "right", "bottom"]) {
-                let id = "workspace_" + side + "_area";
-                let data = this._persist_state.panes[id] || {};
-                let pane = this.getPaneAt(id);
-                let collapsed = pane ? pane.getAttribute("collapsed") : false;
-                data.collapsed = prefs.getBoolean("uilayout_" + side + "TabBox_collapsed",
-                                                  (collapsed && collapsed != "false"));
-                let selected = prefs.getString("uilayout_" + side + "TabBoxSelectedTabId", "");
-                if (selected) {
-                    data.selectedTab = selected;
-                }
-                if (!("children" in data)) {
-                    data.children = [];
-                }
-                this._persist_state.panes[id] = data;
-            }
-            log.debug("onload: old panes = " + JSON.stringify(this._persist_state));
-            for (let id of prefs.getPrefIds()) {
-                log.debug("load prefs: id=" + id);
-                if (!/^uilayout_widget_position_/.test(id)) {
-                    continue;
-                }
-                let pos = prefs.getString(id);
-                if (!(pos in this._persist_state.panes)) {
-                    continue;
-                }
-                id = id.replace(/^uilayout_widget_position_/, "");
-                let data = this._get(id);
-                if (data) {
-                    // remove this widget from all other areas
-                    for (let [,d] in Iterator(this._persist_state.panes)) {
-                        for (let [i, child] in Iterator(d.children)) {
-                            d.children[i] = child.filter(function(u) u != id);
-                        }
+            try{
+                // try global ui prefs
+                log.warn("Can't load 'ui.tabs.sidepanes.state' from 'prefpath': "+prefpath);
+                this._persist_state = JSON.parse(ko.prefs.getString("ui.tabs.sidepanes.state",
+                                                             "(invalid json)"));
+            } catch(SyntaxError){
+                // do our best to recover a UI layout
+                for (let side of ["left", "right", "bottom"]) {
+                    let id = "workspace_" + side + "_area";
+                    let data = this._persist_state.panes[id] || {};
+                    let pane = this.getPaneAt(id);
+                    let collapsed = pane ? pane.getAttribute("collapsed") : false;
+                    data.collapsed = prefs.getBoolean("uilayout_" + side + "TabBox_collapsed",
+                                                      (collapsed && collapsed != "false"));
+                    let selected = prefs.getString("uilayout_" + side + "TabBoxSelectedTabId", "");
+                    if (selected) {
+                        data.selectedTab = selected;
                     }
-                    // Push it in the the pane, as a new tabpanel
-                    let d = this._persist_state.panes[pos];
-                    d.children.push([{id: id}]);
+                    if (!("children" in data)) {
+                        data.children = [];
+                    }
+                    this._persist_state.panes[id] = data;
+                }
+                log.debug("onload: old panes = " + JSON.stringify(this._persist_state));
+                for (let id of prefs.getPrefIds()) {
+                    log.debug("load prefs: id=" + id);
+                    if (!/^uilayout_widget_position_/.test(id)) {
+                        continue;
+                    }
+                    let pos = prefs.getString(id);
+                    if (!(pos in this._persist_state.panes)) {
+                        continue;
+                    }
+                    id = id.replace(/^uilayout_widget_position_/, "");
+                    let data = this._get(id);
+                    if (data) {
+                        // remove this widget from all other areas
+                        for (let [,d] in Iterator(this._persist_state.panes)) {
+                            for (let [i, child] in Iterator(d.children)) {
+                                d.children[i] = child.filter(function(u) u != id);
+                            }
+                        }
+                        // Push it in the the pane, as a new tabpanel
+                        let d = this._persist_state.panes[pos];
+                        d.children.push([{id: id}]);
+                    }
                 }
             }
         }
