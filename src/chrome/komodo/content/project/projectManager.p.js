@@ -433,7 +433,8 @@ projectManager.prototype.findOtherWindowProjectInstanceForUrl = function(project
         otherWindow = koWindowList[i];
         if (otherWindow != window
             && otherWindow.ko
-            && otherWindow.ko.projects) {
+            && otherWindow.ko.projects
+            && otherWindow.ko.projects.manager) {
             otherProject = otherWindow.ko.projects.manager.getProjectByURL(projectUrl);
             if (otherProject) {
                 return otherProject;
