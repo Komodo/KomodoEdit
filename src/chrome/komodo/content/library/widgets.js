@@ -744,7 +744,7 @@ if (typeof(ko.widgets)=='undefined') {
                 prefs = prefs.getPref(key);
             }
         } catch(e) {
-            log.debug("Pref path doesn't exist: "+ prefpath.join(", "))
+            log.warn("Pref path doesn't exist: "+ prefpath.join(", "))
             prefs = originPref;
         }
         // Restore data from prefpath
