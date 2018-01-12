@@ -992,7 +992,7 @@ class KoInitService(object):
             prefs.deletePref("autoSaveMinutes")
 
     # This value must be kept in sync with the value in "../prefs/prefs.p.xml"
-    _current_pref_version = 50
+    _current_pref_version = 70
     
     def _deleteNonVitalUserPrefs(self, prefs):
         log.info("_deleteNonVitalUserPrefs")
@@ -1174,6 +1174,22 @@ class KoInitService(object):
         if version < 50: # Komodo 11.0.1
             prefs.deletePref("windowDimensions-chrome://komodo/content/colorpicker/colorpicker.xul")
             prefs.deletePref("windowDimensions-prefWindow")
+            
+        if version < 70:
+            try:
+                workspaces = prefs.getPref("windowWorkspace")
+                ids = workspaces.getAllPrefIds()
+                compareDate = workspaces.getPref(ids.pop(0)).getLongPref("timestamp")
+                for id in ids:
+                    workspace = workspaces.getPref(id);
+                    # if the window was closed longer than 1 min before the last
+                    # window then it's too old and all other windows are too old.
+                    # Delete them.
+                    diff = compareDate - workspace.getLongPref("timestamp")
+                    if not ( diff <= 60 and diff >= 0):
+                        workspaces.deletePref(id)
+            except Exception as e:
+                log.warn("Couldn't upgrade prefs at step '70': %s", e)
 
         # Set the version so we don't have to upgrade again.
         prefs.setLongPref("version", self._current_pref_version)
