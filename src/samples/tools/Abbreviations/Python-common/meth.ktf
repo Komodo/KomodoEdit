@@ -2,10 +2,11 @@
 // =================
 // auto_abbreviation: false
 // indent_relative: true
+// language: Python-common
 // set_selection: false
 // treat_as_ejs: false
 // type: snippet
-// version: 1.0.12
+// version: 1.1.5
 // =================
 def [[%tabstop:name]](self,*args):
 	""" [[%tabstop:docs]] """

@@ -31,7 +31,7 @@ if (typeof(ko.projects)=='undefined') {
         obj.task = 'new';
         ko.windowManager.openOrFocusDialog(
             "chrome://komodo/content/project/templateProperties.xul",
-            "Komodo:TemplateProperties",
+            "Komodo:TemplateProperties"+Date.now(),
             "chrome,centerscreen,close=yes,dependent=no,resizable=yes",
             obj);
     };
@@ -44,7 +44,7 @@ if (typeof(ko.projects)=='undefined') {
                 imgsrc : 'chrome://komodo/skin/images/toolbox/template.svg'};
         window.openDialog(
             "chrome://komodo/content/project/templateProperties.xul",
-            "Komodo:TemplateProperties",
+            "Komodo:TemplateProperties"+Date.now(),
             "chrome,centerscreen,close=yes,dependent=no,resizable=yes",
             obj);
     };
@@ -74,7 +74,7 @@ if (typeof(ko.projects)=='undefined') {
                 view.saveAsURI(ko.uriparse.localPathToURI(path));
             }
 
-            callback(e.detail);
+            callback(view);
         };
 
         window.addEventListener("editor_view_opened_from_template", handleViewOpened);
@@ -165,15 +165,50 @@ if (typeof(ko.projects)=='undefined') {
 
     var _doUseTemplate = (view, template) =>
     {
-        var text = template.value;
+        var savedValue = template.value;
+        var view = require("ko/views").current().get();
+        if (!view || view.getAttribute('type') != 'editor') return;
+        var scimoz = view.scimoz;
         
-        var ejs = template.getStringAttribute('treat_as_ejs');
-        if (ejs === true || ejs === "true")
+        ko.tabstops.clearTabstopInfo(view); // could call endUndoAction() if there are active links
+        scimoz.beginUndoAction();
+        var lastErrorSvc = Components.classes["@activestate.com/koLastErrorService;1"].
+                            getService(Components.interfaces.koILastErrorService);
+        var enteredUndoableTabstop = false;
+        try
         {
-            text = _textFromEJSTemplate(template, view);
+            try
+            {
+                enteredUndoableTabstop = ko.projects.snippetInsertImpl(template, view);
+            }
+            catch (ex if ex instanceof ko.snippets.RejectedSnippet)
+            {
+                let msg;
+                if (ex.message) {
+                    msg = _bundle.formatStringFromName("template X insertion deliberately suppressed with reason", [template.name, ex.message], 2);
+                } else {
+                    msg = _bundle.formatStringFromName("template X insertion deliberately suppressed", [template.name], 1);
+                }
+                require("notify/notify").send(msg, "tools", {priority: "warning"});
+            } catch (ex) {
+                var errno = lastErrorSvc.getLastErrorCode();
+                if (errno == Components.results.NS_ERROR_ABORT) {
+                    // Command was cancelled.
+                } else if (errno == Components.results.NS_ERROR_INVALID_ARG) {
+                    var errmsg = lastErrorSvc.getLastErrorMessage();
+                    ko.dialogs.alert("Error inserting template: " + errmsg);
+                } else {
+                    log.exception(ex, "Error with template");
+                    ko.dialogs.internalError(ex, "Error inserting template");
+                }
+            }
+        } finally {
+            ko.macros.recordPartInvocation(template);
+            if (!enteredUndoableTabstop) {
+                scimoz.endUndoAction();
+            }
+            template.value = savedValue;
         }
-
-        view.scimoz.text = text;
         view.koDoc.language = template.getStringAttribute("language");
     };
     

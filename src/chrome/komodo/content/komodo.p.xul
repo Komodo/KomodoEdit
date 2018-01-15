@@ -612,8 +612,7 @@
                         <menupopup id="popup_file">
                             <menu id="menu_file_new" label="&new.label;"
                                   accesskey="&menuFileNew.accesskey;">
-                                <menupopup id="popup_filenew"
-                                           onpopupshowing="ko.uilayout.updateMRUMenuIfNecessary('template');">
+                                <menupopup id="popup_filenew">
                                     <menuitem id="menu_file_newTab"
                                               label="&newTab.label;"
                                               class="menuitem-iconic newtab-icon"
@@ -637,9 +636,6 @@
                                               class="menuitem-iconic new-window-icon"
                                               observes="cmd_newWindow"
                                               />
-                                    <menuseparator id="separator_mruTemplates"/>
-                                    <!-- menuitems are added dynamically for each
-                                         entry in the file MRU -->
                                 </menupopup>
                             </menu>
                             <menu id="menu_file_open" label="&open.label;"
@@ -1401,13 +1397,7 @@
                                   accesskey="&templates.accesskey;">
                                 <menupopup id="popup_project_templates"
                                           onpopupshowing="ko.projects.manager.loadTemplateMenuItems(event, this)">
-                                    <menuseparator id="menu_project_builtin_templates_separator"/>
-                                    <menuitem label="&createTemplateFromProject.label;"
-                                              id="menu_saveProjectAsTemplate"
-                                              accesskey="&createTemplateFromProject.accesskey;"
-                                              observes="cmd_saveProjectAsTemplate"
-                                              disableIfCurrentProjectIsClosed="true"
-                                              />
+                                    <menuseparator id="menu_project_builtin_templates_separator" collapsed="true"/>
                                 </menupopup>
                             </menu>
 

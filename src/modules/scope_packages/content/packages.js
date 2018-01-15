@@ -1036,8 +1036,10 @@
             //XPIProvider.updateAddonDisabledState(addon, ! addon.userDisabled, ! addon.userDisabled);
             addon.userDisabled = ! addon.userDisabled;
             this.clearCaches();
+            commando.navBack();
 
             require("sdk/timers").setTimeout(() => {
+
                 if ((addon.pendingOperations & AddonManager.PENDING_DISABLE) ||
                     (addon.pendingOperations & AddonManager.PENDING_ENABLE))
                 {
@@ -1154,7 +1156,7 @@
      */
     this._downloadFile = function(url, callback, errorCallback, dir)
     {
-        var filename = url.match(/[^\/\\]+$/);
+        var filename = url.match(/[^\/\\]+$/)[0];
         var target = OS.Path.join(dir || OS.Constants.Path.tmpDir, filename);
         Task.spawn(function*()
         {

@@ -1,14 +1,22 @@
 /**
- * @copyright (c) 2015 ActiveState Software Inc.
- * @license Mozilla Public License v. 2.0
- * @author ActiveState
- * @overview -
- */
-
-/**
  * The menu SDK allows you to easily register new menu items
  *
  * @module ko/menu
+ * @copyright (c) 2017 ActiveState Software Inc.
+ * @license Mozilla Public License v. 2.0
+ * @author ActiveState
+ * @example
+ * var opts = {
+ *      label:"Hello!", // mandatory, the rest are optional
+ *      image:"",
+ *      command: () => alert("Hello!"),
+ *      classList:"",
+ *      context: [ {
+ *          select: "#popup_view",
+ *          before: "#menu_view_tabs"
+ *      } ]
+ * };
+ * require("ko/menu").register(opts);
  */
 (function(){
 
@@ -23,24 +31,24 @@
 
     /**
      * Register a new menu item
-     *
-     * Sample context:
      * 
-     * ```
-     * context: [ {
-     *              select: "#popup_view",
-     *              before: "#menu_view_tabs"
-     *          } ]
-     * ```
      * 
-     * @param   {String|Object} label       Can also be the opts object, containing a label and command entry, doubles as ID
-     * @param   {Function} command          Callback function  
-     * @param   {Object} opts               Options {image, command, classList, context, label, id}
+     * @param   {String|Object}     label               Can also be the opts object, containing a label and command entry, doubles as ID
+     * @param   {Function}          command             Callback function  
+     * @param   {Object}            opts                Options 
+     * @param   {string}            opts.id             Identifier
+     * @param   {string}            opts.label          The menu label
+     * @param   {function|string}   [opts.command]      Command name or function to call when invoked
+     * @param   {string}            [opts.classList]    CSS classes to add
+     * @param   {array}             opts.context        An array of context entries
+     * @param   {string}            opts.context.select the CSS query for the parent
+     * @param   {string}            [opts.context.before] the CSS query for the left sibling (use either before or after, not both)
+     * @param   {string}            [opts.context.after]  the CSS query for the right sibling (use either before or after, not both)
      */
     this.register = (label, command, opts) =>
     {
         log.debug("Registering " + label);
-        
+
         if ((typeof label) == "object")
         {
             opts = label;
@@ -79,7 +87,7 @@
 
     /**
      * Unregister a menu item
-     * 
+     *
      * @param   {String} id         Identifier
      * @param   {Object} opts       Provide the context that was used to register {context: ..}
      */
@@ -115,10 +123,10 @@
         contexts.each(function()
         {
             let context = $(this);
-            
+
             let id = "sdk_menuitem_" + context.uniqueId() + opts.id;
             context.find(id).remove();
-    
+
             let menuitem = document.createElementNS(XUL_NS, !opts.separator ? 'menuitem' : 'menuseparator');
             menuitem.setAttribute("id", id);
             if (!opts.separator) {
@@ -128,7 +136,7 @@
                 menuitem.setAttribute("disabled", opts.disabled || false);
                 menuitem.addEventListener("command", opts.command);
             }
-            
+
             // Optionally set custom attributes
             try
             {
@@ -144,11 +152,11 @@
             {
                 log.exception(e, "Setting attributes failed");
             }
-            
+
             menuitem.classList.add("sdk-menuitem");
-    
+
             menuitem.sdkOpts = opts;
-    
+
             let sibling, appended;
             if (contextOpts.before || contextOpts.after)
             {
@@ -159,12 +167,12 @@
                     appended = true;
                 }
             }
-    
+
             if ( ! appended)
             {
                 context.append(menuitem);
             }
-    
+
             placeMenuEventListener(context);
         });
     }

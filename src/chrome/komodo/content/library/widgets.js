@@ -250,17 +250,52 @@ if (typeof(ko.widgets)=='undefined') {
                       data.browser.contentDocument.readyState + " @ " +
                       data.browser.currentURI.spec);
         }
+        // Get saved data if it exists for the current window
+        if(aForceLoad)
+        {
+            var widgetMetaData = getWidgetMetaData(aID);
+        }
+        
+        // Get widget ID from data if it exists 
+        // Add widget to Pane in the saved index
         if (aForceLoad && (!data.browser || data.browser.currentURI.spec == "about:blank")) {
-            let pane = this.getPaneAt(data.defaultPane || this.panes[0]);
+            let pane = this.getPaneAt(widgetMetaData.paneID || data.defaultPane || this.panes[0]);
             if (!pane) {
                 log.debug("no pane: " + data.defaultPane + " / " + JSON.stringify(this.panes) +
                           " / " + uneval(this._panes));
             }
             if (!data.browser) {
-                data.browser = pane.addWidget(aID, {focus: false});
+                if (widgetMetaData.tab)
+                {
+                    data.browser = pane.addWidget(aID,
+                                                {
+                                                    focus: false,
+                                                    tab: widgetMetaData.tab,
+                                                    height: widgetMetaData.height,
+                                                    width: widgetMetaData.width
+                                                });
+                }
+                else
+                {
+                    data.browser = pane.addWidget(aID,
+                                                {
+                                                    focus: false,
+                                                    insertBefore: widgetMetaData.insertBefore,
+                                                    height: widgetMetaData.height,
+                                                    width: widgetMetaData.width
+                                                });
+                }
             }
+            // Move siblings into tab if they are already loaded.
+            if(widgetMetaData && widgetMetaData.siblings)
+            {
+                addTabSiblings(pane, data.browser.tab, widgetMetaData.siblings);
+            }
+            //Force the panel content to re-adjust it's content spacing.
+            pane.setAttribute("width", parseInt(pane.getAttribute("width")) + 1)
+            pane.setAttribute("width", parseInt(pane.getAttribute("width")) - 1)
         }
-
+        
         if (data.browser && ! data._loadListenerAdded) {
             data._loadListenerAdded = true;
 
@@ -272,7 +307,7 @@ if (typeof(ko.widgets)=='undefined') {
                     detail: data
                 });
                 window.dispatchEvent(event);
-            }
+            };
 
             if (data.browser.contentDocument.readyState == "complete") {
                 loadEvent();
@@ -280,8 +315,87 @@ if (typeof(ko.widgets)=='undefined') {
                 data.browser.contentWindow.addEventListener("load", loadEvent);
             }
         }
-
         return data.browser;
+    };
+    
+    var addTabSiblings = (pane, tab, siblings) =>
+    {
+        for(let widgetInfo of siblings)
+        {
+            let data = this._get(widgetInfo.id);
+            if(data)
+            {
+                data.browser = pane.addWidget(data.browser,
+                            {
+                                focus: false,
+                                tab: tab,
+                                height: widgetInfo.height,
+                                width: widgetInfo.width
+                            });
+            }
+        }
+    };
+    
+    var getWidgetMetaData = (aID) =>
+    {
+        // If we can't find a workspace then try the global prefs
+        let paneID, insertBefore, tab, siblings, height, width;
+        
+        if ( this._persist_state )
+        {
+            let panes = this._persist_state.panes;
+            for (let key of Object.keys(panes))
+            {
+                if(paneID)
+                {
+                    break;
+                }
+                let pane = panes[key];
+                let tabs = pane.children;
+                for(let tabIdx in tabs)
+                {
+                    if(paneID)
+                    {
+                        break;
+                    }
+                    var tabItems = tabs[tabIdx];
+                    // There can be multiple widgets in this tabindex
+                    for (let widgetIdx in tabItems)
+                    {
+                        let widget = tabItems[widgetIdx];
+                        if (widget.id == aID)
+                        {
+                            // remember the pane
+                            paneID = key;
+                            insertBefore = widget.insertBefore;
+                            height = widget.height;
+                            width = widget.width;
+                            if(1 < tabItems.length && 0 == widgetIdx)
+                            {
+                                siblings = tabItems.slice(1);
+                            }
+                            // See if it had a tab to sit in.
+                            if(1 <= widgetIdx)
+                            {
+                                let data = this._get(tabItems[0].id);
+                                if (data && data.browser)
+                                {
+                                    // We found a existing tab
+                                    tab = data.browser.tab;
+                                }
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        return {paneID: paneID,
+            insertBefore: insertBefore,
+            tab: tab,
+            siblings: siblings,
+            height: height,
+            width: width};
     };
 
     this.getWidgetAsync = function koWidgetManager_getWidgetAsync(aID, aCallback) {
@@ -577,6 +691,14 @@ if (typeof(ko.widgets)=='undefined') {
                            panes: { /* id: [] */ }};
     /**
      * Called by ko.main's window.onload
+     * @param {pref set} prefs: the preference set that has ui.tabs.sidepanes.state as
+     *                   a child element
+     * @param {array}  prefpath: id path to prefs set from above.  This function
+     *                 sets up a close handler to save state to that path on close.
+     *                 In the case that the prefpath doesn't exist yet, it will
+     *                 restore from the global prefs.  If that doesn't exist it
+     *                 will generate a new state from the current DOM.
+     * @param {boolean} forceRestore: Force a restore of the widgets.
      */
     this.restoreLayout = function koWidgetManager_restoreLayout(prefs, prefpath) {
 
@@ -612,55 +734,75 @@ if (typeof(ko.widgets)=='undefined') {
         log.debug("after processing widgets: " + JSON.stringify(panes));
         // remove missing children
         for (let [id, pane] in Iterator(panes)) {
+            // Remove empty children?
             panes[id].children = pane.children.filter(function(c) c && c.length > 0);
         }
-        // Restore data from prefs
+        log.debug("Getting prefs from " + prefpath.join(", "));
+        let originPref = prefs;
+        try{
+            for (let key of prefpath) {
+                prefs = prefs.getPref(key);
+            }
+        } catch(e) {
+            log.warn("Pref path doesn't exist: "+ prefpath.join(", "))
+            prefs = originPref;
+        }
+        // Restore data from prefpath
         try {
             this._persist_state = JSON.parse(prefs.getString("ui.tabs.sidepanes.state",
                                                              "(invalid json)"));
         } catch (SyntaxError) {
-            // Invalid json; try to pick it up from old prefs
-            for (let side of ["left", "right", "bottom"]) {
-                let id = "workspace_" + side + "_area";
-                let data = this._persist_state.panes[id] || {};
-                let pane = this.getPaneAt(id);
-                let collapsed = pane ? pane.getAttribute("collapsed") : false;
-                data.collapsed = prefs.getBoolean("uilayout_" + side + "TabBox_collapsed",
-                                                  (collapsed && collapsed != "false"));
-                let selected = prefs.getString("uilayout_" + side + "TabBoxSelectedTabId", "");
-                if (selected) {
-                    data.selectedTab = selected;
-                }
-                if (!("children" in data)) {
-                    data.children = [];
-                }
-                this._persist_state.panes[id] = data;
-            }
-            log.debug("onload: old panes = " + JSON.stringify(this._persist_state));
-            for (let id of prefs.getPrefIds()) {
-                log.debug("load prefs: id=" + id);
-                if (!/^uilayout_widget_position_/.test(id)) {
-                    continue;
-                }
-                let pos = prefs.getString(id);
-                if (!(pos in this._persist_state.panes)) {
-                    continue;
-                }
-                id = id.replace(/^uilayout_widget_position_/, "");
-                let data = this._get(id);
-                if (data) {
-                    // remove this widget from all other areas
-                    for (let [,d] in Iterator(this._persist_state.panes)) {
-                        for (let [i, child] in Iterator(d.children)) {
-                            d.children[i] = child.filter(function(u) u != id);
-                        }
+            try{
+                // try global ui prefs
+                log.warn("Can't load 'ui.tabs.sidepanes.state' from 'prefpath': "+prefpath);
+                this._persist_state = JSON.parse(ko.prefs.getString("ui.tabs.sidepanes.state",
+                                                             "(invalid json)"));
+            } catch(SyntaxError){
+                // do our best to recover a UI layout
+                for (let side of ["left", "right", "bottom"]) {
+                    let id = "workspace_" + side + "_area";
+                    let data = this._persist_state.panes[id] || {};
+                    let pane = this.getPaneAt(id);
+                    let collapsed = pane ? pane.getAttribute("collapsed") : false;
+                    data.collapsed = prefs.getBoolean("uilayout_" + side + "TabBox_collapsed",
+                                                      (collapsed && collapsed != "false"));
+                    let selected = prefs.getString("uilayout_" + side + "TabBoxSelectedTabId", "");
+                    if (selected) {
+                        data.selectedTab = selected;
                     }
-                    // Push it in the the pane, as a new tabpanel
-                    let d = this._persist_state.panes[pos];
-                    d.children.push([{id: id}]);
+                    if (!("children" in data)) {
+                        data.children = [];
+                    }
+                    this._persist_state.panes[id] = data;
+                }
+                log.debug("onload: old panes = " + JSON.stringify(this._persist_state));
+                for (let id of prefs.getPrefIds()) {
+                    log.debug("load prefs: id=" + id);
+                    if (!/^uilayout_widget_position_/.test(id)) {
+                        continue;
+                    }
+                    let pos = prefs.getString(id);
+                    if (!(pos in this._persist_state.panes)) {
+                        continue;
+                    }
+                    id = id.replace(/^uilayout_widget_position_/, "");
+                    let data = this._get(id);
+                    if (data) {
+                        // remove this widget from all other areas
+                        for (let [,d] in Iterator(this._persist_state.panes)) {
+                            for (let [i, child] in Iterator(d.children)) {
+                                d.children[i] = child.filter(function(u) u != id);
+                            }
+                        }
+                        // Push it in the the pane, as a new tabpanel
+                        let d = this._persist_state.panes[pos];
+                        d.children.push([{id: id}]);
+                    }
                 }
             }
         }
+        
+        // Fix up JSON content to match latest code if needed
         for (let [paneId,paneData] in Iterator(this._persist_state.panes)) {
             if (/^__komodo_floating_pane__\d+/.test(paneId)) {
                 paneData.floating = true;
@@ -860,7 +1002,13 @@ if (typeof(ko.widgets)=='undefined') {
                         selected = alternate;
                     }
                     log.debug("onload: selecting " + selected + " in " + id);
-                    pane.addWidget(selected, {focus: true});
+                    try
+                    {
+                        pane.addWidget(selected, {focus: true});
+                    } catch (e)
+                    {
+                        log.exception(e, "Failed loading widget: " + id);
+                    }
                     pane.collapsed = panes[id].collapsed;
                 } else {
                     pane.collapsed = true;
@@ -902,18 +1050,30 @@ if (typeof(ko.widgets)=='undefined') {
                 panes[id].type = pane.getAttribute("type");
                 panes[id].orient = pane.orient;
             }
-            for (let tabpanel of pane.tabpanels.childNodes) {
+            // Save the widgets within one tab
+            var tabs = pane.tabs.childNodes;
+            for (let tab of tabs) {
                 let children = [];
-                for (let widget of tabpanel.childNodes) {
-                    if (!widget || !widget._is_ko_widget) {
+                let widgets = tab.linkedpanel.childNodes;
+                for (let i in widgets) {
+                    if (!widgets[i] || !widgets[i]._is_ko_widget) {
                         continue;
                     }
-                    let w_id = this._getIDForWidget(widget);
+                    let w_id = this._getIDForWidget(widgets[i]);
+                    
                     if (w_id && this._get(w_id).persist) {
                         let w_info = {id: w_id};
+                        try
+                        {
+                            w_info.insertBefore = this._getIDForWidget(tab.nextSibling.linkedpanel.childNodes[0]);
+                        }
+                        catch(e)
+                        {
+                            log.info("Can't save insertBefore Attribute");
+                        }
                         for (let prop of ["width", "height"]) {
-                            if (widget.hasAttribute(prop)) {
-                                let val = parseInt(widget.getAttribute(prop), 10);
+                            if (widgets[i].hasAttribute(prop)) {
+                                let val = parseInt(widgets[i].getAttribute(prop), 10);
                                 if (!isNaN(val)) {
                                     w_info[prop] = val;
                                 }

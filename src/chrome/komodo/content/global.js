@@ -80,7 +80,10 @@ var global = {};
                 _w = _w.defaultView;
 
             injectModules(w, _w);
+            injectOpenHandler(_w);
         });
+
+        injectOpenHandler(w);
     };
 
     var injectModules = (sourceWindow, targetWindow) =>
@@ -99,6 +102,24 @@ var global = {};
         if ( ! targetWindow.ko)
             targetWindow.ko = {};
         targetWindow.JetPack.defineLazyProperty(targetWindow.ko, "logging", "ko/logging", true);
+    };
+    
+    var injectOpenHandler = (targetWindow) =>
+    {
+        var tw = targetWindow;
+        var _openDialog = tw.openDialog;
+        tw.openDialog = (url, name) =>
+        {
+            var _w;
+            if (name)
+                _w = tw.require("ko/windows").getWindowByName(name);
+
+            if (_w)
+                _w.focus();
+            else
+                _w = _openDialog.apply(tw, arguments);
+            return _w;
+        };
     };
     
     this.triggerEvent = (eventName, eventData) =>

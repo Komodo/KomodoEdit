@@ -8,6 +8,7 @@ var breadcrumbs = function(view) {
     const {Cc, Ci} = require("chrome");
     const { NetUtil } =   window.Cu.import("resource://gre/modules/NetUtil.jsm", {});
     const w = require("ko/windows").getMain();
+    const document = w.document;
     const legacy = w.ko;
 
     var RCService   = Cc["@activestate.com/koRemoteConnectionService;1"]
@@ -47,9 +48,6 @@ var breadcrumbs = function(view) {
     var pathSeparator = window.navigator.platform.toLowerCase()
                             .indexOf("win32") !== -1 ? '\\' : '/';
 
-    /* Class Pointer */
-    var self;
-
     var xv;
 
 
@@ -68,8 +66,6 @@ var breadcrumbs = function(view) {
 
         var $ = require("ko/dom");
         xv = $(view);
-
-        self = this;
 
         var breadcrumbBarWrap = $('#breadcrumbBarWrap').clone();
         breadcrumbBarWrap.removeAttr("id");
@@ -101,6 +97,7 @@ var breadcrumbs = function(view) {
     this.reload = function breadcrumbs_reload()
     {
         this.load();
+        this.checkOverflow();
     };
 
     /**
@@ -212,7 +209,7 @@ var breadcrumbs = function(view) {
     {
         if (e.originalTarget != crumbView)
             return;
-        
+
         window.removeEventListener('file_saved', this._onLoadBound);
         window.removeEventListener('current_place_opened', this._onLoadBound);
         window.removeEventListener('workspace_restored', this._onLoadBound);

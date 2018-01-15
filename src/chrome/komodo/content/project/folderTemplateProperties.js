@@ -82,11 +82,13 @@ function onLoad() {
             filepicker.addEventListener("command", function() {
                 ko.filepicker.browseForDir(partvalue);
                 partvalue.value = ko.uriparse.pathToURI(partvalue.value);
+                updateOK();
             });
             filepickerZip.removeAttribute("collapsed");
             filepickerZip.addEventListener("command", function() {
                 ko.filepicker.browseForFile(partvalue, null, null, "Zip", ["Zip"]);
                 partvalue.value = ko.uriparse.pathToURI(partvalue.value);
+                updateOK();
             });
             partkey.setAttribute("value", "URI:");
             description.textContent = "Enter the URI of a zip file, or a local folder.";

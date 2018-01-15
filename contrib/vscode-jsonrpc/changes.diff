@@ -1,0 +1,51 @@
+--- /home/nathan/Projects/komodo-dev/mozilla/build/moz3500-ko11.10/mozilla/ko-rel/dist/bin/chrome/komodo/content/contrib/commonjs/vscode-jsonrpc/main.js
++++ /home/nathan/Projects/komodo-dev/mozilla/build/moz3500-ko11.10/mozilla/ko-rel/dist/bin/chrome/komodo/content/contrib/commonjs/vscode-jsonrpc/main.js (unsaved)
+@@ -3,7 +3,8 @@
+  * Licensed under the MIT License. See License.txt in the project root for license information.
+  * ------------------------------------------------------------------------------------------ */
+ /// <reference path="./thenable.ts" />
+ 'use strict';
++var { setTimeout, clearTimeout, setImmediate } = require("sdk/timers");
+ var __extends = (this && this.__extends) || (function () {
+     var extendStatics = Object.setPrototypeOf ||
+         ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+
+@@ -62,7 +62,6 @@
+ exports.CancellationTokenSource = cancellation_1.CancellationTokenSource;
+ exports.CancellationToken = cancellation_1.CancellationToken;
+ var linkedMap_1 = require("./linkedMap");
+-__export(require("./pipeSupport"));
+ var CancelNotification;
+ (function (CancelNotification) {
+     CancelNotification.type = new messages_1.NotificationType('$/cancelRequest');
+--- /home/nathan/Projects/komodo-dev/contrib/vscode-jsonrpc/cancellation.js
++++ /home/nathan/Projects/komodo-dev/contrib/vscode-jsonrpc/cancellation.js (unsaved)
+@@ -3,6 +3,7 @@
+  *  Licensed under the MIT License. See License.txt in the project root for license information.
+  *--------------------------------------------------------------------------------------------*/
+ 'use strict';
++var { setTimeout, clearTimeout, setImmediate } = require("sdk/timers");
+ Object.defineProperty(exports, "__esModule", { value: true });
+ var events_1 = require("./events");
+ var Is = require("./is");
+--- /home/nathan/Projects/komodo-dev/mozilla/build/moz3500-ko11.10/mozilla/ko-rel/dist/bin/chrome/komodo/content/contrib/commonjs/vscode-jsonrpc/messageReader.js
++++ /home/nathan/Projects/komodo-dev/mozilla/build/moz3500-ko11.10/mozilla/ko-rel/dist/bin/chrome/komodo/content/contrib/commonjs/vscode-jsonrpc/messageReader.js (unsaved)
+@@ -3,6 +3,7 @@
+  * Licensed under the MIT License. See License.txt in the project root for license information.
+  * ------------------------------------------------------------------------------------------ */
+ 'use strict';
++var { Buffer } = require("contrib/buffer");
++var { setTimeout, clearTimeout, setImmediate } = require("sdk/timers");
+ var __extends = (this && this.__extends) || (function () {
+     var extendStatics = Object.setPrototypeOf ||
+         ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+--- /home/nathan/Projects/komodo-dev/mozilla/build/moz3500-ko11.10/mozilla/ko-rel/dist/bin/chrome/komodo/content/contrib/commonjs/vscode-jsonrpc/messageWriter.js
++++ /home/nathan/Projects/komodo-dev/mozilla/build/moz3500-ko11.10/mozilla/ko-rel/dist/bin/chrome/komodo/content/contrib/commonjs/vscode-jsonrpc/messageWriter.js (unsaved)
+@@ -3,6 +3,7 @@
+  * Licensed under the MIT License. See License.txt in the project root for license information.
+  * ------------------------------------------------------------------------------------------ */
+ 'use strict';
++var { Buffer } = require("contrib/buffer");
+ var __extends = (this && this.__extends) || (function () {
+     var extendStatics = Object.setPrototypeOf ||
+         ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||

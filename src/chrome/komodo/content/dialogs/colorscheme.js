@@ -137,10 +137,18 @@
         $("#schemeslist").on("select", this.onSelectScheme);
         $("#newScheme").on("command", this.newScheme);
         $("#deleteScheme").on("command", this.deleteScheme);
-        $("#ok").on("command", () => { window.close(); });
+        $("#ok").on("command", () => { this.close(); });
         $("#save").on("command", this.saveScheme);
         $("#apply").on("command", this.applyScheme);
         
+        // experimental workaround for color scheme crashes - bug #2905
+        var close = $("#windowButtons #close");
+        if (close.length)
+        {
+            close.removeAttr("onclick");
+            close.on("click", this.close);
+        }
+
         for (let field in this.fields)
         {
             this.fields[field].init();
@@ -1190,26 +1198,51 @@
         selectedScheme.applyScheme(scintilla, selectedLanguage == -2 ? "Less" : selectedLanguage, encoding, alternateType);
     };
     
-    this.destroy = () =>
+    // experimental workaround for color scheme crashes - bug #2905
+    this.close = () =>
     {
+        if (this.close.invoked)
+            return;
+
+        document.documentElement.setAttribute("disabled", "true");
+
+        this.destroy();
+
+        this.close.invoked = true;
+
+        setTimeout(() =>
+        {
+            window.close();
+        }, 1000);
+    };
+    this.close.invoked = false;
+
+    this.destroy = (e) =>
+    {
+        if (this.destroy.invoked)
+            return;
+
         try
         {
             if (! selectedScheme.unsaved && selectedScheme.isDirty) {
                 selectedScheme.revert();
             }
             schemeService.purgeUnsavedSchemes();
-            
+
             sample.element().close();
             scintillaOverlayOnUnload();
+            
+            this.destroy.invoked = true;
         }
         catch (e)
         {
-            log.error(e);
+            log.exception(e, "Destroy failed");
         }
     };
+    this.destroy.invoked = false;
     
     $(window).on("load", this.init);
     $(window).on("unload", this.destroy);
     
     
-})();
+}).apply({}); // otherwise this = window

@@ -24,7 +24,7 @@ if (typeof(ko.projects)=='undefined') {
         obj.prettytype = 'FolderTemplate';
         window.openDialog(
             "chrome://komodo/content/project/folderTemplateProperties.xul",
-            "Komodo:URLProperties",
+            "Komodo:URLProperties"+Date.now(),
             "chrome,centerscreen,close=yes,dependent=yes,modal=yes,resizable=yes", obj);
     };
 
@@ -49,7 +49,7 @@ if (typeof(ko.projects)=='undefined') {
         obj.parent = parent;
         window.openDialog(
             "chrome://komodo/content/project/folderTemplateProperties.xul",
-            "Komodo:URLProperties",
+            "Komodo:URLProperties"+Date.now(),
             "chrome,centerscreen,close=yes,modal=yes,resizable=yes", obj);
     };
 
@@ -167,27 +167,40 @@ if (typeof(ko.projects)=='undefined') {
         
         progress.message("Analyzing URL ..");
 
+        var _url = url;
         url = require("sdk/url").URL(url);
 
         // Check if this is a local file/folder or remote
         if (url.scheme == "file")
         {
-            // No point importing a file that doesnt exist
-            if ( ! koFile.exists(url.path))
+            var path;
+            try
             {
-                require("ko/dialogs").alert("Local path does not exist: " + url.path);
+                path = require("sdk/url").toFilename(url);
+            } catch (e)
+            {
+                require("ko/dialogs").alert("Could not resolve path for: " + _url);
+                progress.close();
+                return;
+            }
+
+            // No point importing a file that doesnt exist
+            if ( ! koFile.exists(path))
+            {
+                require("ko/dialogs").alert("Local path does not exist: " + path);
+                progress.close();
                 return;
             }
 
             // If this is a file then assume it's a ZIP
-            if (koFile.isFile(url.path))
+            if (koFile.isFile(path))
             {
-                _useZip(url.path, "", target, progress);
+                _useZip(path, "", target, progress);
             }
             // Otherwise import a folder
             else
             {
-                _useFolder(url.path, target, progress);
+                _useFolder(path, target, progress);
             }
 
             return;
@@ -201,6 +214,11 @@ if (typeof(ko.projects)=='undefined') {
     var _useUrl = (url, target, progress) =>
     {
         var basename = koFile.basename(url.path);
+        var system = require("sdk/system");
+        var pathSep = "/";
+        if (system.platform == "winnt")
+            pathSep = "\\";
+            basename = basename.replace(/\//g,"\\\\");
         progress.message("Downloading " + basename + " ..");
 
         Cu.import("resource://gre/modules/FileUtils.jsm");
@@ -221,8 +239,7 @@ if (typeof(ko.projects)=='undefined') {
         }
 
         // Download to a temp location
-        var tmp = FileUtils.getFile("TmpD", [basename]).path;
-
+        var tmp = FileUtils.getFile("TmpD", basename.split(pathSep)).path;
         var _onFileDownloadFailed = (message) =>
         {
             // Mozilla doesnt seem to give us a clean way of getting a humanly

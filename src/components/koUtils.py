@@ -53,7 +53,7 @@ class koUtils:
                 # does not support this
                 for item in (f for f in archive.filelist if f.filename.startswith(subfolder)):
                     # Strip subfolder from filepath
-                    filename = os.path.join(*(item.filename.split(os.path.sep)[1:])) 
+                    filename = os.path.join(*(item.filename.split("/")[1:])) 
 
                     if not filename:
                         continue
@@ -61,12 +61,18 @@ class koUtils:
                     extracted = True
 
                     _targetPath = os.path.join(target, filename)
+                    _targetDir = os.path.dirname(_targetPath)
+
+                    if not os.path.isdir(_targetDir):
+                        os.makedirs(_targetDir)
+
                     if item.filename.endswith(os.path.sep):
                         # Directories end with a path separator
-                        os.makedirs(_targetPath)
+                        if not os.path.isdir(_targetDir):
+                            os.makedirs(_targetPath)
                     else:
                         _source = archive.open(item.filename)
-                        _target = open(_targetPath, "wb")
+                        _target = open(_targetPath, "wb+")
 
                         shutil.copyfileobj(_source, _target)
 

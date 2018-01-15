@@ -118,13 +118,14 @@ class Database(object):
     # - 1.0.12: signal change moving from 11 to 12, to update tool item versions,
     #           and add auto_abbreviation fields to snippets
     # - 1.0.13: add treat_as_ejs property to snippets, default is false
-    # - 1.1.5:  add language field to snippets
-    # - 1.1.6:  add is_clean column
-    # - 1.1.7:  add file template table
-    # - 1.1.8:  convert old tools
-    # - 1.1.9:  import sample file templates
-    # - 1.1.10: add folder template table
-    VERSION = "1.1.10"
+    # - 1.1.5: add language field to snippets
+    # - 1.1.6: should not have been at version 1.1.6 yet 
+    # - 1.1.7: add is_clean to commond_details
+    # - 1.1.8: add file template table
+    # - 1.1.9: convert old tools
+    # - 1.1.10: import sample file templates
+    # - 1.1.11: add folder template table
+    VERSION = "1.1.11"
     FIRST_VERSION = "1.0.5"
     
     def __init__(self, db_path, schemaFile):
@@ -224,7 +225,10 @@ class Database(object):
             for name in os.listdir(srcDir):
                 srcChild = os.path.join(srcDir, name)
                 try:
-                    shutil.copytree(srcChild, destDir)
+                    if os.path.isdir(srcChild):
+                        shutil.copytree(srcChild,  os.path.join(destDir,name))
+                    else:
+                        shutil.copytree(srcChild,  destDir)
                 except:
                     log.exception("Failed to copy srcChild:%s to dest destDir:%s", srcChild, destDir)
 
@@ -238,8 +242,7 @@ class Database(object):
                         language text,\
                         author text,\
                         license text,\
-                        website text,\
-            )")
+                        website text)")
 
     def _convert_komodotool_to_ktf(self, curr_ver, result_ver):
         toolbox2Svc = components.classes["@activestate.com/koToolbox2Service;1"]\
@@ -417,11 +420,12 @@ class Database(object):
         "1.0.11": ('1.0.12',  _signal_item_version_change, None),
         "1.0.12": ('1.0.13', _add_treat_as_ejs_to_snippets, None),
         "1.0.13": ('1.1.5', _add_lang_field_to_snippets_table, None),
-        "1.1.5": ("1.1.6", _add_is_clean, None),
-        "1.1.6": ("1.1.7", _transition_file_templates, None),
-        "1.1.7": ("1.1.8", _convert_komodotool_to_ktf, None),
-        "1.1.8": ("1.1.9", _import_files_templates, None),
-        "1.1.9": ("1.1.10", _add_folder_template_table, None),
+        "1.1.5": ("1.1.6", lambda self,x,y: True, None), #version shouldn't have been at 1.1.6 yet.
+        "1.1.6": ("1.1.7", _add_is_clean, None),
+        "1.1.7": ("1.1.8", _transition_file_templates, None),
+        "1.1.8": ("1.1.9", _convert_komodotool_to_ktf, None),
+        "1.1.9": ("1.1.10", _import_files_templates, None),
+        "1.1.10": ("1.1.11", _add_folder_template_table, None),
     }
 
     def get_meta(self, key, default=None, cu=None):
@@ -1104,6 +1108,14 @@ class Database(object):
                     pass
                 if abbrevID is not None:
                     return abbrevID
+            if abbrevID is None:
+                cu.execute(query,(abbrev, "General", isAutoAbbrev))
+                try:
+                    abbrevID = self._rankSnippetResults(cu.fetchall())
+                except:
+                    pass
+                if abbrevID is not None:
+                    return abbrevID
         return abbrevID
     
     def _rankSnippetResults(self, results):
@@ -1759,7 +1771,6 @@ class ToolboxLoader(object):
         isTool = os.path.splitext(fname)[1] == TOOL_EXTENSION or \
                  os.path.splitext(fname)[1] == TOOL_EXTENSION_CLEAN
         isCleanFormat = os.path.splitext(fname)[1] == TOOL_EXTENSION_CLEAN
-
         if not isDir and not isTool:
             return
         elif not self.dbTimestamp:
@@ -2087,8 +2098,12 @@ class DataParser:
         inSubMeta = False
         subMetaKey = "value"
         subMetaQueue = ""
+        endSuffix=None
+        langRegistry = components.classes["@activestate.com/koLanguageRegistryService;1"]\
+            .getService(components.interfaces.koILanguageRegistryService)
 
         for num, line in enumerate(fp, 1):
+            line = line.decode()
             # Check if we are past the meta start info (TOOL_META_START)
             # and before the meta info (pastMetaStartPending)
             # This strips the --- line
@@ -2115,6 +2130,15 @@ class DataParser:
 
             # Parse simple key/val meta info
             if inMeta:
+                try:
+                    language = data["language"]
+                    langInfo = langRegistry.getLanguage(language)
+                    blockComment = langInfo.getCommentDelimiter("block", 0)
+                    if blockComment:
+                        blockComment = json.loads(blockComment)
+                        endSuffix = blockComment[1]
+                except KeyError:
+                    pass
                 match = metaRx.search(line)
 
                 if match:
@@ -2122,13 +2146,17 @@ class DataParser:
 
                 # Check for the end indicator for meta info
                 elif line.find("===") != -1:
-                    inMeta = False
+                    if endSuffix:
+                        if line.strip().endswith(endSuffix) :
+                            inMeta = False
+                    if line.strip().endswith("="):
+                        inMeta = False
 
             # Submeta is for multi-line values, primarily intended for the
             # tutorial logic portion
             elif inSubMeta:
                 match = subMetaRx.search(line)
-                
+
                 if match:
                     subMetaKey = match.group(1).strip()
                     data[subMetaKey] = ""
@@ -2144,7 +2172,7 @@ class DataParser:
             # Multi-line values
             else:
                 # Detect submeta
-                if line.find("===") != -1:
+                if line.find("===") != -1 and line.strip().endswith("="):
                     inSubMeta = True
                     subMetaQueue = line
 
@@ -2160,17 +2188,13 @@ class DataParser:
         data["name"] = data["name"].strip()
 
         if not data.get("language", False):
-            langRegistry = components.classes["@activestate.com/koLanguageRegistryService;1"]\
-                            .getService(components.interfaces.koILanguageRegistryService)
             data["language"] = langRegistry.suggestLanguageForFile(fp.name)
 
         return data
     
     @staticmethod
     def writeCleanData(fp, data):
-        metaRx = re.compile(r"(.*?)\w+:.*\n")
         endRx = re.compile(r"===+(.*)\n")
-
         inMeta = True
         pastMetaStartPending = False
         pastMetaStart = False
@@ -2179,6 +2203,8 @@ class DataParser:
         startPrefix = None
         endSuffix = None
         metaPrefix = None
+        langRegistry = components.classes["@activestate.com/koLanguageRegistryService;1"]\
+                        .getService(components.interfaces.koILanguageRegistryService)
 
         multiLineCommented = False
 
@@ -2214,20 +2240,24 @@ class DataParser:
 
                 # Detect regular meta info
                 else:
-                    match = metaRx.search(line)
-
-                    if match:
-                        metaPrefix = match.group(1)
-                    else:
-
-                        # End loop when we get to the meta end indicator
-                        if line.find("===") != -1:
-                            match = endRx.search(line)
-                            endSuffix = match.group(1)
+                    try:
+                        language = data["language"]
+                        langInfo = langRegistry.getLanguage(language)
+                        blockComment = langInfo.getCommentDelimiter("block", 0)
+                        if blockComment:
+                            blockComment = json.loads(blockComment)
+                            endSuffix = blockComment[1]
+                    except KeyError:
+                        pass
+                    # End loop when we get to the meta end indicator
+                    if line.find("===") != -1:
+                        if endSuffix:
+                            if line.strip().endswith(endSuffix):
+                                break
+                        if line.strip().endswith("="):
                             break
 
-        langRegistry = components.classes["@activestate.com/koLanguageRegistryService;1"]\
-                        .getService(components.interfaces.koILanguageRegistryService)
+        
 
         language = data.get("language", None)
         if not language:
@@ -2241,14 +2271,14 @@ class DataParser:
         blockComment = langInfo.getCommentDelimiter("block", 0)
 
         if metaPrefix == None:
-            if lineComment:
-                metaPrefix = json.loads(lineComment).strip() + " "
-            elif blockComment:
+            if blockComment:
                 metaPrefix = ""
                 blockComment = json.loads(blockComment)
                 namePrefix = blockComment[0] + "\n" + TOOL_META_START
                 startPrefix = blockComment[0]
                 endSuffix = blockComment[1]
+            elif lineComment:
+                metaPrefix = json.loads(lineComment).strip() + " "
             else:
                 metaPrefix = "// "
 

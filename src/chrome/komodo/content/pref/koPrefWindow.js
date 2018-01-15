@@ -181,7 +181,7 @@ function koPrefWindow( frame_id, prefset /* = null */, usesDeck /* = false */ )
 
 function _loadModulePrefs()
 {
-    var modulePrefs = require("ko/windows").getMain().require("ko/prefs").getRegisteredCatagories();
+    var modulePrefs = require("ko/windows").getMain().require("ko/prefs").getRegisteredCategories();
     var prefsTree = document.getElementById("panelChildren");
     for (let m of modulePrefs)
     {

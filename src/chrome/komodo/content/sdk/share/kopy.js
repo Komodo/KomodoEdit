@@ -2,7 +2,6 @@
  * @copyright (c) ActiveState Software Inc.
  * @license Mozilla Public License v. 2.0
  * @author ActiveState
- * @overview -
  */
 
 /**
@@ -12,14 +11,15 @@
  */
 (function() {
     const log       = require("ko/logging").getLogger("kopy");
-    const prefs     = ko.prefs;
+    const prefs     = require("ko/prefs");
     const menu      = require("ko/menu");
     const button      = require("ko/button");
+    const legacy    = require("ko/windows").getMain().ko;
 
     this.load = function()
     {
         require("ko/share").register("kopy", "ko/share/kopy", "Share Code via kopy.io");
-        
+
         require("notify/notify").categories.register("kopy",
         {
             label: "kopy.io Integration"
@@ -28,10 +28,10 @@
 
     /**
      * Share the given data on kopy.io
-     * 
+     *
      * @param   {String} data     Data to share
-     * 
-     * @returns {Void} 
+     *
+     * @returns {Void}
      */
     this.share = function(data, meta)
     {
@@ -67,7 +67,7 @@
             scheme: prefs.getStringPref("editor-scheme").replace(/\-(dark|light)$/, '.$1')
         });
 
-        var baseUrl = ko.prefs.getString("kopy_baseurl", "https://kopy.io");
+        var baseUrl = prefs.getString("kopy_baseurl", "https://kopy.io");
         var httpReq = new window.XMLHttpRequest({mozSystem: true});
         httpReq.open("post", baseUrl + '/documents', true);
         httpReq.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
@@ -95,13 +95,13 @@
                 var msg = "URL copied to clipboard: " + url;
                 require("notify/notify").send(msg, "kopy",
                 {
-                    command: () => { ko.browse.openUrlInDefaultBrowser(url) }
+                    command: () => { legacy.browse.openUrlInDefaultBrowser(url) }
                 });
             }
 
             if (showInBrowser)
             {
-                ko.browse.openUrlInDefaultBrowser(url);
+                legacy.browse.openUrlInDefaultBrowser(url);
             }
         };
 

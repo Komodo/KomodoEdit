@@ -353,7 +353,9 @@ this._customizeComplete = (function uilayout__customizeComplete() {
         }
         delete this.customize._state;
     }
-    
+    ko.widgets.unload([]);
+    let prefSvc = Components.classes["@activestate.com/koPrefService;1"].getService(Components.interfaces.koIPrefService);
+    prefSvc.saveState();
 }).bind(this);
 
 this._updateToolbarViewStates = (function uilayout__updateToolbarViewStates()
@@ -741,9 +743,6 @@ function _updateMRUMenu(prefName, limit, addManageItem, MRUName, popupId)
         popupId = popupId || "recentProjects_menupopup";
     } else if (prefName == "mruFileList") {
         popupId = popupId || "popup_mruFiles"; // MRU list is the whole popup.
-    } else if (prefName == "mruTemplateList") {
-        separatorId = "separator_mruTemplates"; // MRU list is everything after the separator.
-        popupId = null;
     } else {
         throw new Error("Unexpected MRU menu to update: prefName='"+prefName+"'");
     }
@@ -766,19 +765,13 @@ function _doUpdateMRUMenu(prefName, limit, addManageItem, MRUName, menupopup, se
 {
     // Update a MRU menu popup under the file menu.
     //    "prefName" indicate which MRU menu to update.
-    //
-    // XXX This code was significantly complitcated just for the special
-    //     template MRU menu under File->New. Perhaps that should be
-    //     factored out.
     if (typeof(addManageItem) == "undefined") addManageItem = false;
     var prettyName;
     if (prefName == "mruProjectList") {
         prettyName = _bundle.GetStringFromName("Projects");
     } else if (prefName == "mruFileList") {
         prettyName = _bundle.GetStringFromName("Files");
-    } else if (prefName == "mruTemplateList") {
-        prettyName = _bundle.GetStringFromName("Templates");
-    } 
+    }
 
     var mruList = null;
     var menuitem;
@@ -803,10 +796,6 @@ function _doUpdateMRUMenu(prefName, limit, addManageItem, MRUName, menupopup, se
         //    <menuitem class="menuitem_mru"
         //              oncommand="ko.open.URI('URL');"
         //              label="URL_DISPLAY_NAME"/>
-        // For template MRU entries use this instead:
-        //    <menuitem class="menuitem_mru"
-        //              oncommand="ko.views.manager.newFileFromTemplateOrTrimMRU('URL');"
-        //              label="URL_BASENAME"/>
         if (!menupopup) {
             menupopup = separator.parentNode;
         }
@@ -849,39 +838,17 @@ function _doUpdateMRUMenu(prefName, limit, addManageItem, MRUName, menupopup, se
                 i -= 1; // gets incremented in the for-loop
                 continue;
             }
-            if (prefName == "mruTemplateList") {
-                // Check the template names
-                // Bug 81096: If the "url" is actually a path, and we're on
-                // Windows, convert it to a URI to get rid of the backslashes.
-                // Otherwise the backslashes get destroyed by the JS parser
-                // when it processes the oncommand value.
-                // In any case, get the canonical URL
-                //
-                // This should be done once during startup.
-                // And who's writing out the templates as paths anyway?
-                //
-                // Also make sure the template file exists.  Don't put
-                // bad entries in the menu.
-// #if PLATFORM == "win"
-                if (url != koFile.URI) {
-                    url = koFile.URI;
-                    mruList.deletePref(i);
-                    mruList.insertStringPref(i, url);
+
+            let pathPart = koFile.baseName;
+            if (prefName == "mruProjectList") {
+                // We don't need to show the ".komodoproject" extension.
+                let pos = pathPart.indexOf(".komodoproject");
+                if (pos >= 0) {
+                    pathPart = pathPart.slice(0, pos);
                 }
-// #endif
-                menuitem.setAttribute("label", labelNum + " " + koFile.baseName);
-            } else {
-                let pathPart = koFile.baseName;
-                if (prefName == "mruProjectList") {
-                    // We don't need to show the ".komodoproject" extension.
-                    let pos = pathPart.indexOf(".komodoproject");
-                    if (pos >= 0) {
-                        pathPart = pathPart.slice(0, pos);
-                    }
-                }
-                menuitem.setAttribute("label", labelNum + " " + pathPart);
-                menuitem.setAttribute("tooltiptext", koFile.isLocal && koFile.path || koFile.URI);
             }
+            menuitem.setAttribute("label", labelNum + " " + pathPart);
+            menuitem.setAttribute("tooltiptext", koFile.isLocal && koFile.path || koFile.URI);
 
             menuitem.setAttribute('class', 'menuitem-file-status');
             ko.fileutils.setFileStatusAttributesFromFile(menuitem, koFile);
@@ -891,17 +858,10 @@ function _doUpdateMRUMenu(prefName, limit, addManageItem, MRUName, menupopup, se
             // XXX:HACK: For whatever reason, the "observes" attribute is
             // ignored when the menu item is inside a popup, so we call
             // ko.commands.doCommand directly. THIS IS NOT A GOOD THING!
-            if (prefName == "mruTemplateList") {
-                menuitem.addEventListener("command", function(_url, _prefName, _i, e) {
-                    ko.uilayout.newFileFromTemplateOrTrimMRU(_url, _prefName, _i);
-                    e.stopPropagation();
-                }.bind(null, url, prefName, i));
-            } else {
-                menuitem.addEventListener("command", function(_url, e) {
-                    ko.open.recentURI(_url);
-                    e.stopPropagation();
-                }.bind(null, url));
-            }
+            menuitem.addEventListener("command", function(_url, e) {
+                ko.open.recentURI(_url);
+                e.stopPropagation();
+            }.bind(null, url));
 
             menupopup.appendChild(menuitem);
         }
@@ -921,40 +881,6 @@ function _doUpdateMRUMenu(prefName, limit, addManageItem, MRUName, menupopup, se
         menuitem.setAttribute("disabled", true);
         menupopup.appendChild(menuitem);
     }
-}
-
-
-// This is a little wrapper for ko.views.manager.doFileNewFromTemplateAsync()
-// that first checks to see if the template file exists, and if not: (1) does
-// not call doFileNewFromTemplateAsync and (2) removes the template entry
-// from the given MRU. The file/view will be opened asynchronously.
-//
-// XXX The *right* way to do this is for ko.views.manager.doFileNewFromTemplateAsync
-//     to return an error (code or exception) if the template doesn't exist --
-//     instead of bringing up an error dialog. Then we'd trap that error,
-//     notify the user, and trim the MRU. As it is we (practically) have to
-//     assume that the template URL is local.
-this.newFileFromTemplateOrTrimMRU = function uilayout_newFileFromTemplateOrTrimMRU(templateURI, mruPrefName,
-                                               mruIndex)
-{
-    var templatePath = null;
-    try {
-        templatePath = ko.uriparse.URIToLocalPath(templateURI);
-    } catch (ex) {
-        // Template URI is not local. Hope for the best. :)
-    }
-    if (templatePath) {
-        var osPathSvc = Components.classes["@activestate.com/koOsPath;1"]
-            .getService(Components.interfaces.koIOsPath)
-        if (!osPathSvc.exists(templatePath)) {
-            ko.dialogs.alert(_bundle.GetStringFromName("theTemplatePathCannotBeFound"),
-                         templatePath);
-            ko.mru.del(mruPrefName, mruIndex);
-            return;
-        }
-    }
-
-    ko.views.manager.doFileNewFromTemplateAsync(templateURI);
 }
 
 /**
@@ -981,7 +907,6 @@ this.updateToolboxContextMenu = function uilayout_updateToolboxContextMenu()
 // Flags used to defer (re)building of the MRU menus until necessary.
 var _gNeedToUpdateFileMRUMenu = false;
 var _gNeedToUpdateProjectMRUMenu = false;
-var _gNeedToUpdateTemplateMRUMenu = false;
 
 this.updateMRUMenuIfNecessary = function uilayout_UpdateMRUMenuIfNecessary(mru, limit, popupId, force)
 {
@@ -990,7 +915,7 @@ this.updateMRUMenuIfNecessary = function uilayout_UpdateMRUMenuIfNecessary(mru, 
     }
     // (Re)build the identified MRU menu if necessary.
     //    "mru" is indicates which MRU menu to update.
-    // Current possible values: project, file, template, window
+    // Current possible values: project, file, window
     if (mru == "project" && (_gNeedToUpdateProjectMRUMenu || force)) {
         _updateMRUMenu("mruProjectList", limit,
                        true /* addManageItem */,
@@ -1000,10 +925,7 @@ this.updateMRUMenuIfNecessary = function uilayout_UpdateMRUMenuIfNecessary(mru, 
     } else if (mru == "file" && (_gNeedToUpdateFileMRUMenu || force)) {
         _updateMRUMenu("mruFileList", limit, undefined, undefined, popupId);
         if ( ! force) _gNeedToUpdateFileMRUMenu = false;
-    } else if (mru == "template" && (_gNeedToUpdateTemplateMRUMenu || force)) {
-        _updateMRUMenu("mruTemplateList", limit, undefined, undefined, popupId);
-        if ( ! force) _gNeedToUpdateTemplateMRUMenu = false;
-    } else if (mru == "window") { // && _gNeedToUpdateTemplateMRUMenu) {
+    } else if (mru == "window") { 
         this._updateMRUClosedWindowMenu(limit);
     }
 }
@@ -1106,8 +1028,6 @@ _Observer.prototype.observe = function(subject, topic, data)
             _gNeedToUpdateFileMRUMenu = true;
         } else if (data == "mruProjectList") {
             _gNeedToUpdateProjectMRUMenu = true;
-        } else if (data == "mruTemplateList") {
-            _gNeedToUpdateTemplateMRUMenu = true;
         }
         break;
     case 'primary_languages_changed':
@@ -1279,7 +1199,7 @@ function _buildMenuTree(hierarchy, toplevel) {
         menuitem.setAttribute("accesskey", hierarchy.key);
         menuitem.setAttribute("type", "radio");
         menuitem.setAttribute("class", "languageicon");
-        menuitem.setAttribute("style", `list-style-image: url("koicon://ko-language/${hierarchy.name}")`);
+        menuitem.setAttribute("style", `list-style-image: url("koicon://ko-language/${escape(hierarchy.name)}")`);
         menuitem.setAttribute("language", hierarchy.name);
         menuitem.setAttribute("oncommand", "ko.views.manager.do_ViewAs('" + hierarchy.name + "');");
 
@@ -1672,7 +1592,6 @@ this.onload = function uilayout_onload()
 
     _gNeedToUpdateFileMRUMenu = true;
     _gNeedToUpdateProjectMRUMenu = true;
-    _gNeedToUpdateTemplateMRUMenu = true;
     gUilayout_Observer = new _Observer();
     _prefobserver = new _PrefObserver();
     _prefobserver.init();

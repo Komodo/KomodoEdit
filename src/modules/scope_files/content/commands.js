@@ -1,9 +1,10 @@
 (function() {
     const log       = require("ko/logging").getLogger("commando-scope-files-expand");
     const commando  = require("commando/commando");
-    const $         = require("ko/dom");
     const prefs     = require("ko/prefs");
     const handler   = require("scope-files/files");
+    const mw        = require("ko/windows").getMain();
+    const legacy    = mw.ko;
 
     var spref       = prefs.getPref("scope-files-shortcuts");
     //log.setLevel(require("ko/logging").LOG_DEBUG);
@@ -164,15 +165,15 @@
     
     function doOpenPlaces() {
         var item = commando.getSubscope();
-        var path = ko.uriparse.pathToURI(item.data.path);
-        ko.places.setDirectory(path);
+        var path = legacy.uriparse.pathToURI(item.data.path);
+        legacy.places.setDirectory(path);
         commando.hide();
     }
     
     function doShowInPlaces() {
         var item = commando.getSubscope();
-        var path = ko.uriparse.pathToURI(item.data.path);
-        ko.places.manager.showTreeItemByFile(path);
+        var path = legacy.uriparse.pathToURI(item.data.path);
+        legacy.places.manager.showTreeItemByFile(path);
         commando.hide();
     }
 

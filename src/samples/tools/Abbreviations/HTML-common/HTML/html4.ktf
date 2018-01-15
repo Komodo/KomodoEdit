@@ -1,12 +1,14 @@
-// komodo tool: html4
-// ==================
-// auto_abbreviation: false
-// indent_relative: true
-// set_selection: false
-// treat_as_ejs: false
-// type: snippet
-// version: 1.0.12
-// ==================
+<!--
+komodo tool: html4
+==================
+auto_abbreviation: false
+indent_relative: true
+language: HTML
+set_selection: false
+treat_as_ejs: false
+type: snippet
+version: 1.1.5
+==================-->
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
 		"http://www.w3.org/TR/html4/loose.dtd">
 <html>

@@ -1590,7 +1590,7 @@ def _PackageKomodoMSI(cfg):
 def _PackageKomodoUpdates(cfg, dryRun=False):
     print "packaging 'Komodo Updates'..."
     # Not creating updates for K7 alpha 2 (as the moz platform changed).
-    if cfg.komodoVersion in ('7.0.0-alpha2', ):
+    if cfg.komodoVersion in ('7.0.0-alpha2', '11.0.0'):
         print "  not creating updates for %r" % (cfg.komodoVersion, )
         return
     mozupdate = join("util", "mozupdate.py")
@@ -1855,7 +1855,10 @@ def UploadKomodoPackages(cfg, argv):
 
     ver_info = _ver_info_from_long_ver_str(version)
     short_ver = _short_ver_str_from_ver_info(ver_info)
-    d = "%s-%s-%s" % (cfg.sccRepoName, cfg.normSCCBranch, buildNum)    
+    releaseType = ""
+    if "nightly" in cfg.komodoTitleBarName:
+        releaseType = "-nightly"
+    d = "%s-%s-%s%s" % (cfg.sccRepoName, cfg.normSCCBranch, buildNum, releaseType)
     devBuilds_dir = ujoin(upload_base_dir, short_ver, "DevBuilds")
     upload_dir = ujoin(devBuilds_dir, d)
     latest_dir = ""

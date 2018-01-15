@@ -1043,6 +1043,8 @@ class KoLanguageBase:
     _lineup_close_chars = ")]"
     _dedent_chars = ""
 
+    variablePrefix = ""
+
     # These should be overriden by the language implementation
     # "statements" should have been "keywords"
     # These mark what should be the last line in the block.
@@ -1355,6 +1357,10 @@ class KoLanguageBase:
                 continue
 
             # Don't consider comments or string as valid indentation
+            if scimoz.endStyled < realLineEndPos:
+                # Ensure styling is correct. Style from line start like
+                # Scintilla in order to prevent inaccurate styling.
+                scimoz.colourise(scimoz.positionFromLine(scimoz.lineFromPosition(scimoz.endStyled)), realLineEndPos)
             styleNoLineStart = scimoz.getStyleAt(indentEndPos)
             styleNoLineEnd = scimoz.getStyleAt(realLineEndPos)
             if styleNoLineStart in comment_styles or styleNoLineStart in string_styles \

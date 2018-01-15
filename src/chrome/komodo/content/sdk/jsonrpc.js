@@ -52,7 +52,7 @@
                 
             try
             {
-                data = JSON.stringify(data);
+                data = unescape(encodeURIComponent(JSON.stringify(data)));
                 log.debug(`Sending request: ${data}`);
                 data = base64.encode(data);
             }

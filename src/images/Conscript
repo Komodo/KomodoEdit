@@ -255,3 +255,4 @@ $cons->InstallRecursive("$mozChromeDir/icons/default/fileicons",
 
 $cons->InstallAs("$imagesDir/trees/twisty-right.svg", "icons/trees/twisty-right.svg");
 $cons->InstallAs("$imagesDir/trees/twisty-down.svg", "icons/trees/twisty-down.svg");
+$cons->InstallAs("$imagesDir/other/spinner.gif", "other/spinner.gif");

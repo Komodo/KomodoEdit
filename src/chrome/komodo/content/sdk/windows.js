@@ -1,8 +1,7 @@
 /**
- * @copyright (c) 2015 ActiveState Software Inc.
+ * @copyright (c) 2017 ActiveState Software Inc.
  * @license Mozilla Public License v. 2.0
  * @author ActiveState
- * @overview -
  */
 
 /**
@@ -14,7 +13,7 @@
  * @module ko/windows
  */
 (function() {
-    
+
     const {Cc, Ci, Cu}  = require("chrome");
     const log           = require("ko/logging").getLogger("sdk/windows");
 
@@ -64,7 +63,7 @@
 
         onLoadCallbacks[href].push(callback);
     };
-    
+
     this.removeOnLoad = function(href, callback)
     {
         if (typeof href == "function")
@@ -83,25 +82,26 @@
 
     /**
      * Retrieve the main komodo window
-     * 
+     *
      * @returns {Window}
-     */   
+     */
     this.getMain = function(w)
     {
-        if ( ! w)
+        if ( ! w && typeof window != 'undefined')
             w = window;
 
+        w = w || null;
+
         var topHref = "chrome://komodo/content/komodo.xul";
-        var topWindow = null;
-        topWindow = w;
-        
+        var topWindow = w;
+
         var assignWindow = function(w, k)
         {
             while (( ! w.location || w.location.href != topHref) && w[k] && w[k] != w)
                 w = w[k];
             return w;
         };
-        
+
         var prevWindow = null;
         while (prevWindow != topWindow)
         {
@@ -110,38 +110,58 @@
             topWindow = assignWindow(topWindow, "parent");
             topWindow = assignWindow(topWindow, "top");
         }
-        
-        if (topWindow.location.href != topHref)
+
+        if (topWindow && topWindow.location && topWindow.location.href != topHref)
             topWindow = null;
-            
+
         if ( ! topWindow)
             topWindow = this.getMostRecent("Komodo");
-            
+
         if ( ! topWindow)
             topWindow = this.getMostRecent();
-        
+
         return topWindow;
     }
-    
+
+    /**
+     * Retrieve most recently accessed (current) window
+     *
+     * @param   {string} id
+     *
+     * @returns {Window}
+     */
+    this.getMostRecent = function(id = "")
+    {
+        var wm = Cc["@mozilla.org/appshell/window-mediator;1"].getService(Ci.nsIWindowMediator);
+        return wm.getMostRecentWindow(id);
+    }
+
     /**
      * Retrieve all windows (excluding internal)
-     * 
-     * @returns {Array} 
+     *
+     * @returns {Array}
      */
     this.getWindows = function(type = "")
     {
         var windows = [];
-        
+
         var wm = Cc["@mozilla.org/appshell/window-mediator;1"].getService(Ci.nsIWindowMediator);
         let enumerated = wm.getEnumerator(type);
         while (enumerated.hasMoreElements()) {
             let w = enumerated.getNext().QueryInterface(Ci.nsIDOMWindow);
             windows.push(w);
         }
-        
+
         return windows;
     }
-    
+
+    /**
+     * Retrieve a window by its url
+     *
+     * @param   {string} url
+     *
+     * @returns {Window}
+     */
     this.getWindowByUrl = function(url)
     {
         for (let w of this.getAll())
@@ -149,19 +169,37 @@
             if (w.location.href == url)
                 return w;
         }
-        
+
         return false;
     }
-    
+
+    /**
+     * Retrieve a window by its name
+     *
+     * @param   {string} name
+     *
+     * @returns {Window}
+     */
+    this.getWindowByName = function(name)
+    {
+        for (let w of this.getAll())
+        {
+            if (w.name == name)
+                return w;
+        }
+
+        return false;
+    }
+
     /**
      * Retrieve all windows (including internal)
-     * 
-     * @returns {Array} 
+     *
+     * @returns {Array}
      */
     this.getAll = function()
     {
         var windows = [];
-        
+
         var wm = Cc["@mozilla.org/appshell/window-mediator;1"].getService(Ci.nsIWindowMediator);
         let enumerated = wm.getEnumerator("");
         while (enumerated.hasMoreElements()) {
@@ -169,20 +207,20 @@
             windows.push(w);
             windows = windows.concat(this.getBrowserWindows(w, true));
         }
-        
+
         for (let w of this.getWidgetWindows())
         {
             windows.push(w);
             windows = windows.concat(this.getBrowserWindows(w, true));
         }
-        
+
         return windows;
     }
-    
+
     /**
      * Get windows belonging to widgets (side panes)
-     * 
-     * @returns {Array} 
+     *
+     * @returns {Array}
      */
     this.getWidgetWindows = function()
     {
@@ -199,22 +237,22 @@
                 log.debug("Cannot access widget " + id);
             }
         }
-        
+
         return windows;
     }
-    
+
     /**
      * Get browser windows residing within the given window
-     * 
+     *
      * @param   {Window}    _window     Window to search in
      * @param   {Boolean}   recursive   Recursively search within each window
-     * 
-     * @returns {Array} 
+     *
+     * @returns {Array}
      */
     this.getBrowserWindows = function(_window, recursive = false)
     {
         _window = _window || this.getMain();
-        
+
         var windows = [];
         var browsers = _window.document.querySelectorAll("browser, iframe");
         for (let browser of browsers)
@@ -223,18 +261,18 @@
             {
                 let w = browser.contentWindow;
                 windows.push(w);
-                
+
                 if (recursive) windows = windows.concat(this.getBrowserWindows(w, true));
             }
             catch (e)
             {
                 log.debug("Cannot access browser " + browser.id || null);
-            } 
+            }
         }
-        
+
         return windows;
     };
-    
+
     /**
      * Pin window ontop of other windows including non Komodo windows.
      *
@@ -259,5 +297,5 @@
           .getService(Ci.koIWindowManagerUtils)
           .setOnTop(rootWin, parentWin, true);
     };
-    
+
 }).apply(module.exports);

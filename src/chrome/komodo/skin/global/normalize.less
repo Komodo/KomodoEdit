@@ -1019,6 +1019,11 @@ window.embedded.widget
     .ui-description:not(.fullwidth)
     {
         margin-left: 104px;
+
+        &.ui-description
+        {
+          width: 400px; /* required or else the text will take as much width as it needs without wrapping */
+        }
     }
     
     .ui-textbox,
@@ -1051,5 +1056,20 @@ window.embedded.widget
     {
         margin-top: 4px;
     }
-    
+
+}
+
+.ui-list
+{
+  padding-left: 2rem;
+  margin: 0.5rem 0;
+  -moz-box-flex: 1;
+
+  & > .ui-hbox
+  {
+      padding: 0.2rem 0;
+      display: list-item;
+      list-style-type: disc;
+      list-style-position: inside;
+  }
 }

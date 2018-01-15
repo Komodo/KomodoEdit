@@ -585,7 +585,6 @@
         
         setTimeout(function() {
             c.show(undefined, true);
-            c.search();
         }, 100);
     }
     
@@ -1281,6 +1280,43 @@
     {
         if ( ! results.length) return;
         
+        if (local.searchingUuid != searchUuid && local.resultUuid == searchUuid)
+        {
+            log.debug(searchUuid + " - Skipping "+results.length+" results for old search uuid: " + searchUuid);
+            return;
+        }
+
+        if (local.searchingUuid == searchUuid && local.resultUuid != searchUuid)
+        {
+            local.resultCache = [];
+            local.resultsReceived = 0;
+            local.resultsRendered = 0;
+            local.resultsByScope = {};
+            local.resultUuid = searchUuid;
+        }
+
+        if ( ! cacheOrigin)
+            local.resultsReceived += results.length;
+
+        if ( ! noDelay)
+        {
+            local.resultCache = local.resultCache.concat(results);
+
+            if ( ! local.renderResultsTimer)
+            {
+                log.debug("Setting result timer");
+                window.clearTimeout(local.renderResultsTimer);
+                local.renderResultsTimer = window.setTimeout(function()
+                {
+                    log.debug("Triggering result timer");
+                    this.renderResults(local.resultCache, searchUuid, true, true);
+                    local.resultCache = [];
+                    local.renderResultsTimer = false;
+                }.bind(this), prefs.getLong("commando_result_render_delay"));
+            }
+            return;
+        }
+        
         // Prepare wordRx for highlighting matched words
         var searchValue = elem('search').value().trim();
         var wordRx;
@@ -1305,43 +1341,6 @@
             str = str.replace(wordReplacedRx, wordReplacedReplacement);
             return str;
         };
-
-        if (local.searchingUuid != searchUuid && local.resultUuid == searchUuid)
-        {
-            log.debug(searchUuid + " - Skipping "+results.length+" results for old search uuid: " + searchUuid);
-            return;
-        }
-
-        if (local.searchingUuid == searchUuid && local.resultUuid != searchUuid)
-        {
-            local.resultCache = [];
-            local.resultsReceived = 0;
-            local.resultsRendered = 0;
-            local.resultsByScope = {};
-            local.resultUuid = searchUuid;
-        }
-        
-        if ( ! cacheOrigin)
-            local.resultsReceived += results.length;
-        
-        if ( ! noDelay)
-        {
-            local.resultCache = local.resultCache.concat(results);
-    
-            if ( ! local.renderResultsTimer)
-            {
-                log.debug("Setting result timer");
-                window.clearTimeout(local.renderResultsTimer);
-                local.renderResultsTimer = window.setTimeout(function()
-                {
-                    log.debug("Triggering result timer");
-                    this.renderResults(local.resultCache, searchUuid, true, true);
-                    local.resultCache = [];
-                    local.renderResultsTimer = false;
-                }.bind(this), prefs.getLong("commando_result_render_delay"));
-            }
-            return;
-        }
 
         log.debug(searchUuid + " - Rendering "+results.length+" Results");
 
@@ -1419,8 +1418,6 @@
             {
                 log.exception(e, "Failed rendering result: " + result.name);
             }
-            
-            if (appended) this.sortResult(resultEntry);
 
             if (result.scope)
             {
@@ -1429,6 +1426,11 @@
                 local.resultsByScope[result.scope]++;
             }
         }
+
+        fragment.children().each(function()
+        {
+            c.sortResult(this);
+        });
 
         var counter = 1;
         fragment.find("label.number").each(function()
@@ -2062,21 +2064,12 @@
     {
         let selected = this.getSelectedResult();
 
-        if ( ! tipMessage && local.quickSearch)
+        if (tipMessage)
         {
-            var bindLabel = keybinds.getKeybindFromCommand("cmd_showCommando");
-            
-            if (bindLabel != "")
-                tipMessage = "TIP: Press " + bindLabel + " to quickly Go To Anything.";
+            // todo: Use localized database of tips
+            elem("tip").attr("tip-type", type);
+            elem("tip").text(tipMessage || "");
         }
-
-        if (!tipMessage && selected.allowExpand !== false) {
-            tipMessage = 'TIP: Hit the right arrow key to "expand" your selection';
-        }
-
-        // todo: Use localized database of tips
-        elem("tip").attr("tip-type", type);
-        elem("tip").text(tipMessage || "");
         
         c.reloadTip();
     }

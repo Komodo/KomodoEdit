@@ -1,12 +1,13 @@
-// komodo tool: until
-// ==================
-// auto_abbreviation: true
-// indent_relative: true
-// set_selection: false
-// treat_as_ejs: true
-// type: snippet
-// version: 1.0.12
-// ==================
+# komodo tool: until
+# ==================
+# auto_abbreviation: true
+# indent_relative: true
+# language: Ruby
+# set_selection: false
+# treat_as_ejs: true
+# type: snippet
+# version: 1.1.5
+# ==================
 <% if (ko.snippets.rightOfFirstKeyword()) {%>
 until [[%tabstop:test]]
 	[[%tabstop:#code]]
