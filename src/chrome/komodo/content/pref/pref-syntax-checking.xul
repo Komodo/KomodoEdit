@@ -147,6 +147,44 @@
                       </groupbox>
                     </vbox>
                 </groupbox>
+                <groupbox orient="vertical">
+                    <caption label="&eslintChecking.caption;"/>
+                    <description>
+                        &eslintChecking.description;
+                    </description>
+                    <hbox align="center">
+                         <checkbox id="lint_eslint_enabled"
+                            pref="true"
+                            preftype="boolean"
+                            label="&eslintChecking.checkbox;" />
+                    </hbox>
+                    <hbox>
+                        <description>
+                            &eslintChecking.binary;
+                        </description>
+                        <textbox id="eslint_binary"
+                                 flex="1"
+                                 placeholder="&eslintChecking.binaryPlaceholder;"
+                                 preftype="string"
+                                 pref="true"/>
+                        <button id='eslint_linter_browse'
+                                label="&browse.label;"
+                                oncommand="languageInfo.JavaScript.browseForESLinter();"/>
+                    </hbox>
+                    <hbox>
+                        <description>
+                            &eslintChecking.config;
+                        </description>
+                        <textbox id="eslint_config"
+                                 flex="1"
+                                 placeholder="&eslintChecking.configPlaceholder;"
+                                 preftype="string"
+                                 pref="true"/>
+                        <button id='eslint_config_browse'
+                                label="&browse.label;"
+                                oncommand="languageInfo.JavaScript.browseForESConfig();"/>
+                    </hbox>
+                </groupbox>
         
             </vbox>
             
