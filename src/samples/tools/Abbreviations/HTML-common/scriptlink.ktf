@@ -2,9 +2,10 @@
 // =======================
 // auto_abbreviation: false
 // indent_relative: true
+// language: HTML-common
 // set_selection: false
 // treat_as_ejs: false
 // type: snippet
-// version: 1.0.12
+// version: 1.1.5
 // =======================
 <script type="application/x-javascript" src="[[%tabstop:scriptname]]"></script>!@#_currentPos!@#_anchor

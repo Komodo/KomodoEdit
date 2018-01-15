@@ -60,44 +60,45 @@
     <![CDATA[
 
 function OnPreferencePageLoading(prefset) {
-    try {
-        matchingTag_toggle(document.getElementById("showMatchingTagsOnClick"));
-        const { classes: Cc, interfaces: Ci } = Components;
-        var catSvc = Cc["@activestate.com/koXMLCatalogService;1"]
-                       .getService(Ci.koIXMLCatalogService);
-        catSvc.getPublicIDList(function(result, idlist) {
-            try {
-                var decl = prefset.getStringPref("defaultHTMLDecl");
-                var popup = document.getElementById("doctypePopup");
-                var selected = null;
-                for (let id of idlist) {
-                    // is this an HTML decl?
-                    if (/DTD X?HTML/.test(id)) {
-                        var el = document.createElement("menuitem");
-                        el.setAttribute("label", id);
-                        popup.appendChild(el);
-                        if (id == decl) {
-                            selected = el;
-                        }
-                    }
-                }
-                popup.parentNode.selectedItem = selected;
-            } catch (e) {
-                log.exception(e);
-            }
-        });
-    } catch(e) {
-        log.exception(e);
-    }
+    log.debug("Loading HTML Prefs");
+    //try {
+    //    matchingTag_toggle(document.getElementById("showMatchingTagsOnClick"));
+    //    const { classes: Cc, interfaces: Ci } = Components;
+    //    var catSvc = Cc["@activestate.com/koXMLCatalogService;1"]
+    //                   .getService(Ci.koIXMLCatalogService);
+    //    catSvc.getPublicIDList(function(result, idlist) {
+    //        try {
+    //            var decl = prefset.getStringPref("defaultHTMLDecl");
+    //            var popup = document.getElementById("doctypePopup");
+    //            var selected = null;
+    //            for (let id of idlist) {
+    //                // is this an HTML decl?
+    //                if (/DTD X?HTML/.test(id)) {
+    //                    var el = document.createElement("menuitem");
+    //                    el.setAttribute("label", id);
+    //                    popup.appendChild(el);
+    //                    if (id == decl) {
+    //                        selected = el;
+    //                    }
+    //                }
+    //            }
+    //            popup.parentNode.selectedItem = selected;
+    //        } catch (e) {
+    //            log.exception(e);
+    //        }
+    //    });
+    //} catch(e) {
+    //    log.exception(e);
+    //}
 }
 
 function OnPreferencePageOK(prefset) {
-    var popup = document.getElementById("doctypePopup");
-    var decl = popup.parentNode.selectedItem;
-
-    if (decl) {
-        prefset.setStringPref("defaultHTMLDecl", decl.getAttribute("label"));
-    }
+    //var popup = document.getElementById("doctypePopup");
+    //var decl = popup.parentNode.selectedItem;
+    //
+    //if (decl) {
+    //    prefset.setStringPref("defaultHTMLDecl", decl.getAttribute("label"));
+    //}
     
     return true;
 }
@@ -117,13 +118,13 @@ function matchingTag_toggle(checkbox) {
          as it adds a scrollbar when the contents are too long. -->
     <vbox id="html-prefs-vbox" flex="1" class="autoscroll">
 
-        <groupbox orient="vertical">
+       <!-- <groupbox orient="vertical">
             <caption label="&defaultHTMLDocumentType.label;"/>
             <menulist id="doctypeList"
                       flex="1">
                 <menupopup id="doctypePopup"/>
             </menulist>
-        </groupbox>
+        </groupbox>-->
 
         <groupbox>
             <caption label="Tag Highlighting"/>

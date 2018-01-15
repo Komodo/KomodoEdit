@@ -1,12 +1,23 @@
+/**
+ * @copyright (c) ActiveState Software Inc.
+ * @license Mozilla Public License v. 2.0
+ * @author ActiveState
+ */
+
+/**
+ * Allows you to retrieve color scheme information and change the color scheme
+ *
+ * @module ko/colorscheme
+ */
 (function() {
-    
+
     const {Cc, Ci}  = require("chrome");
-    
+
     const schemeService = Cc['@activestate.com/koScintillaSchemeService;1'].getService();
     const koDirSvc = Cc["@activestate.com/koDirs;1"].getService();
     const koFile = require("ko/file");
     const prefs = require("ko/prefs");
-    
+
     const interfaceMapping = {
         'font': ['window', 'face'],
         'size': ['window', 'size'],
@@ -44,7 +55,7 @@
         'window-button-maximize': ['window button maximize', 'back'],
         'window-button-minimize': ['window button minimize', 'back']
     }
-        
+
     const interfaceMappingWidgets = {
         'widget': ['widget', 'back'],
         'foreground-widget': ['widget', 'fore'],
@@ -55,15 +66,15 @@
         'textbox-foreground-widget': ['textbox widget', 'fore'],
         'icons-widget': ['icons widget', 'fore'],
     }
-    
+
     var currentScheme = {
         'editor-scheme': null,
         'interface-scheme': null,
         'widget-scheme': null
     };
-    
+
     var colorCache = {};
-    
+
     var init = () =>
     {
         var observer = {observe: () =>
@@ -75,39 +86,72 @@
             };
             colorCache = {};
         }};
-        
+
         prefs.prefObserverService.addObserverForTopics(
             observer, [3], ['editor-scheme', 'interface-scheme', 'widget-scheme'], false
         );
     };
-    
+
+    /**
+     * Get the given color scheme
+     *
+     * @param   {string} One of editor-scheme, interface-scheme, widget-scheme
+     *
+     * @returns {koIScintillaScheme}
+     */
     this.get = (name) =>
     {
         if ( ! currentScheme[name])
             currentScheme[name] = schemeService.getScheme(prefs.getStringPref(name));
-        
+
         return currentScheme[name];
     };
-    
-    this.editor = this.get.bind(null, "editor-scheme");
-    this.interface = this.get.bind(null, "interface-scheme");
-    this.widget = this.get.bind(null, "widget-scheme");
-    
+
+    /**
+     * Shortcut for this.get('editor-scheme')
+     */
+    this.editor = () => this.get("editor-scheme");
+
+    /**
+     * Shortcut for this.get('interface-scheme')
+     */
+    this.interface = () => this.get("interface-scheme");
+
+    /**
+     * Shortcut for this.get('widget-scheme')
+     */
+    this.widget = () => this.get("widget-scheme");
+
+    /**
+     * Get the interface color for the given property
+     *
+     * @param   {String} property
+     * @param   {String=} [schemeName="interface"]  Defaults to the current interface scheme
+     *
+     * @returns {String} hex color
+     */
     this.getInterfaceColor = (property, schemeName = "interface") =>
     {
         if ( ! (schemeName in colorCache))
             colorCache[schemeName] = {};
-            
+
         if ( ! (property in colorCache[schemeName]))
         {
             var scheme = this[schemeName]();
             var mapping = interfaceMapping[property];
             colorCache[schemeName][property] = scheme.getInterfaceStyle(mapping[0], mapping[1]);
         }
-            
+
         return colorCache[schemeName][property];
     };
-    
+
+    /**
+     * Apply the given color scheme to the editor
+     *
+     * @param   {String} name    Color scheme name
+     *
+     * @returns {Void}
+     */
     this.applyEditor = (name) =>
     {
         prefs.setString("editor-scheme", name);
@@ -115,52 +159,68 @@
                             getService(Ci.nsIObserverService);
         observerSvc.notifyObservers(null, 'scheme-changed', name);
     }
-    
+
+    /**
+     * Apply the given color scheme to the interface
+     *
+     * @param   {String} name       Color scheme name
+     * @param   {Boolean} [noDelay=false]   Whether to delay applying the scheme by a few ms
+     *
+     * @returns {Void}
+     */
     this.applyInterface = (name, noDelay = false) =>
     {
         prefs.setString("interface-scheme", name);
-        
+
         var timers = require("sdk/timers");
         timers.clearTimeout(_applyInterface.timer);
-        
+
         if (noDelay)
             _applyInterface();
         else
             _applyInterface.timer = timers.setTimeout(_applyInterface, 50);
     }
-    
+
+    /**
+     * Apply the given color scheme to the widgets
+     *
+     * @param   {String} name       Color scheme name
+     * @param   {Boolean} [noDelay=false]   Whether to delay applying the scheme by a few ms
+     *
+     * @returns {Void}
+     */
     this.applyWidgets = (name, noDelay = false) =>
     {
         prefs.setString("widget-scheme", name);
-        
+
         var timers = require("sdk/timers");
         timers.clearTimeout(_applyInterface.timer);
-        
+
         if (noDelay)
             _applyInterface();
         else
             _applyInterface.timer = timers.setTimeout(_applyInterface, 50);
     }
-    
+
     var _applyInterface = () =>
     {
         var style = "";
-        
+
         var name = prefs.getString("interface-scheme");
         var scheme = schemeService.getScheme(name);
-        
+
         // Write interfaceChrome.less
         path = koFile.join(koDirSvc.userDataDir, "interfaceChrome.less");
         fp = koFile.open(path, "w");
         style = scheme.getInterfaceStyle("css", "code") || "";
         fp.write(style);
         fp.close();
-        
+
         var defer = prefs.getBoolean("interface-font-defer");
         var font = prefs.getString("interface-font");
         var fontEditor = prefs.getString("editor-font");
         var size = prefs.getString("interface-font-size");
-        
+
         // Write colors.less
         style = "";
         var path = koFile.join(koDirSvc.userDataDir, "colors.less");
@@ -175,7 +235,7 @@
                     style += `@${k}: ${font};` + "\n";
                     continue;
                 }
-                
+
                 // Defer editor-font to global pref
                 if (k == "editor-font")
                 {
@@ -185,38 +245,38 @@
                         style += `@${k}: ${scheme.getFont('default_fixed')};` + "\n";
                     continue;
                 }
-                
+
                 // Defer font size to global pref
                 if ( ! defer && k == "size")
                 {
                     style += `@${k}: ${size};` + "\n";
                     continue;
                 }
-                
+
                 let v = mapping[k];
                 let value = scheme.getInterfaceStyle(v[0], v[1]);
-                
+
                 if (value && value.length)
                     style += `@${k}: ${value};` + "\n";
             }
         };
-        
+
         _apply(scheme, interfaceMapping);
-        
+
         scheme = schemeService.getScheme(prefs.getString('widget-scheme'));
         _apply(scheme, interfaceMappingWidgets);
-        
+
         fp.write(style);
         fp.close();
-        
+
         require("ko/less").reload(true);
-        
+
         var observerSvc = Cc["@mozilla.org/observer-service;1"].
                             getService(Ci.nsIObserverService);
         observerSvc.notifyObservers(null, 'interface-scheme-changed', name);
     }
     _applyInterface.timer = null;
-    
+
     init();
-    
+
 }).apply(module.exports);

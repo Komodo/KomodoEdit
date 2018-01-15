@@ -1,20 +1,55 @@
-/**
- * @copyright (c) 2015 ActiveState Software Inc.
- * @license Mozilla Public License v. 2.0
- * @author ActiveState
- * @overview -
- */
+const w = require("ko/windows").getMain();
+const legacy = w.ko;
+const prefs = require("ko/prefs");
+const shell = require("ko/shell");
+const log = require("ko/logging").getLogger("sdk/editor");
+const system = require("sdk/system");
 
-const legacy = require("ko/windows").getMain().ko;
+var pixelRatio = null;
 
 /**
  * The editor SDK
  *
  * @module ko/editor
+ * @copyright (c) 2017 ActiveState Software Inc.
+ * @license Mozilla Public License v. 2.0
+ * @author ActiveState
  */
 var sdkEditor = function(_scintilla, _scimoz) {
+    var init = () =>
+    {
+        if (pixelRatio)
+            return;
 
-    /**
+        // We currently only translate the position according to pixelRatio on Linux,
+        // other platforms handle this at a lower level
+        pixelRatio = system.platform == "linux" ? w.devicePixelRatio : 1;
+        if (system.platform == "linux")
+        {
+            if (prefs.hasPref('pixelRatio'))
+            {
+                pixelRatio = parseFloat(prefs.getString('pixelRatio'));
+                log.debug("Using pixelRatio: " + pixelRatio);
+            }
+            else
+            {
+                var cmd = "gsettings get org.gnome.desktop.interface text-scaling-factor";
+                shell.exec(cmd, {}, (error, stdout) => {
+                    if (error)
+                    {
+                        log.error(error);
+                        return;
+                    }
+
+                    pixelRatio = parseFloat(stdout.trim().match(/\d(?:\.\d{1,2}|)/));
+
+                    log.debug("Using pixelRatio: " + pixelRatio);
+                });
+            }
+        }
+    }
+
+    /*
      * The editor module is loosely based on the CodeMirror(.net) API to make it
      * easier for developers who used that API and because their API has been proven
      * to work well for developers. It is not intended to be fully backwards or
@@ -24,8 +59,8 @@ var sdkEditor = function(_scintilla, _scimoz) {
     var scimoz = function()
     {
         if (_scimoz !== undefined) return _scimoz;
-        
-        var sc = scintilla(); 
+
+        var sc = scintilla();
         if ( ! sc) return undefined;
 
         return sc.scimoz;
@@ -34,18 +69,20 @@ var sdkEditor = function(_scintilla, _scimoz) {
     var scintilla = function()
     {
         if (_scintilla !== undefined) return _scintilla;
-        
+
         if ( ! legacy.views.manager.currentView) return undefined;
         return legacy.views.manager.currentView.scintilla;
     }
 
     /**
      * Returns the editor SDK for a custom scintilla instance
-     * 
+     *
+     * @method
+     * @memberof module:ko/editor
      * @param   {Object} sci Scintilla
      * @param   {Object} scm  Scimoz
-     * 
-     * @returns {sdkEditor} 
+     *
+     * @returns {sdkEditor}
      */
     this.editor = function(sci, scm) {
         return new sdkEditor(sci, scm);
@@ -53,8 +90,10 @@ var sdkEditor = function(_scintilla, _scimoz) {
 
     /**
      * Checks whether scintilla is available for the current editor
-     * 
-     * @returns {Boolean} 
+     *
+     * @method
+     * @memberof module:ko/editor
+     * @returns {Boolean}
      */
     this.available = function() {
         return ( !! scimoz() && !! scintilla() );
@@ -65,6 +104,8 @@ var sdkEditor = function(_scintilla, _scimoz) {
     /**
      * Empty the undo buffer.
      *
+     * @method
+     * @memberof module:ko/editor
      * @returns {Void}
      */
     this.emptyUndoBuffer = function() {
@@ -74,6 +115,8 @@ var sdkEditor = function(_scintilla, _scimoz) {
     /**
      * Undo the last action
      *
+     * @method
+     * @memberof module:ko/editor
      * @returns {Void}
      */
     this.undo = function() {
@@ -83,6 +126,8 @@ var sdkEditor = function(_scintilla, _scimoz) {
     /**
      * Cut current selection to clipboard
      *
+     * @method
+     * @memberof module:ko/editor
      * @returns {Void}
      */
     this.cut = function() {
@@ -92,6 +137,8 @@ var sdkEditor = function(_scintilla, _scimoz) {
     /**
      * Copy current selection to clipboard
      *
+     * @method
+     * @memberof module:ko/editor
      * @returns {Void}
      */
     this.copy = function() {
@@ -101,7 +148,9 @@ var sdkEditor = function(_scintilla, _scimoz) {
     /**
      * Replace current selection with the clipboard contents
      *
-     * @returns {Void} 
+     * @method
+     * @memberof module:ko/editor
+     * @returns {Void}
      */
     this.paste = function() {
         return scimoz().paste();
@@ -110,6 +159,8 @@ var sdkEditor = function(_scintilla, _scimoz) {
     /**
      * Select all the text in the buffer
      *
+     * @method
+     * @memberof module:ko/editor
      * @returns {Void}
      */
     this.selectAll = function()
@@ -119,6 +170,9 @@ var sdkEditor = function(_scintilla, _scimoz) {
 
     /**
      * Deletes the whole line under the cursor, including newline at the end
+     *
+     * @method
+     * @memberof module:ko/editor
      */
     this.deleteLine = function()
     {
@@ -127,6 +181,9 @@ var sdkEditor = function(_scintilla, _scimoz) {
 
     /**
      * Delete the part of the line before the cursor
+     *
+     * @method
+     * @memberof module:ko/editor
      */
     this.delLineLeft = function()
     {
@@ -135,6 +192,9 @@ var sdkEditor = function(_scintilla, _scimoz) {
 
     /**
      * Delete the part of the line after the cursor
+     *
+     * @method
+     * @memberof module:ko/editor
      */
     this.delLineRight = function()
     {
@@ -143,6 +203,9 @@ var sdkEditor = function(_scintilla, _scimoz) {
 
     /**
      * Move the cursor to the start of the document
+     *
+     * @method
+     * @memberof module:ko/editor
      */
     this.goDocStart = function()
     {
@@ -151,6 +214,9 @@ var sdkEditor = function(_scintilla, _scimoz) {
 
     /**
      * Move the cursor to the end of the document.
+     *
+     * @method
+     * @memberof module:ko/editor
      */
     this.goDocEnd = function()
     {
@@ -159,6 +225,9 @@ var sdkEditor = function(_scintilla, _scimoz) {
 
     /**
      * Move the cursor to the start of the line.
+     *
+     * @method
+     * @memberof module:ko/editor
      */
     this.goLineStart = function()
     {
@@ -167,12 +236,15 @@ var sdkEditor = function(_scintilla, _scimoz) {
 
     /**
      * Move to the start of the text on the line, or if we are already there, to the actual start of the line (including whitespace).
+     *
+     * @method
+     * @memberof module:ko/editor
      */
     this.goLineStartSmart = function()
     {
         var curPos = this.getCursorPosition();
         var lineText = this.getLine();
-        
+
         var firstChar = lineText.search(/\S/);
         if (firstChar == -1 || firstChar == curPos.ch)
             firstChar = 0;
@@ -182,6 +254,9 @@ var sdkEditor = function(_scintilla, _scimoz) {
 
     /**
      * Move the cursor to the end of the line.
+     *
+     * @method
+     * @memberof module:ko/editor
      */
     this.goLineEnd = function()
     {
@@ -190,6 +265,9 @@ var sdkEditor = function(_scintilla, _scimoz) {
 
     /**
      * Move the cursor to the left side of the visual line it is on. If this line is wrapped, that may not be the start of the line.
+     *
+     * @method
+     * @memberof module:ko/editor
      */
     this.goLineLeft = function()
     {
@@ -198,6 +276,9 @@ var sdkEditor = function(_scintilla, _scimoz) {
 
     /**
      * Move the cursor to the right side of the visual line it is on.
+     *
+     * @method
+     * @memberof module:ko/editor
      */
     this.goLineRight = function()
     {
@@ -206,6 +287,9 @@ var sdkEditor = function(_scintilla, _scimoz) {
 
     /**
      * Move the cursor up one line.
+     *
+     * @method
+     * @memberof module:ko/editor
      */
     this.goLineUp = function()
     {
@@ -214,6 +298,9 @@ var sdkEditor = function(_scintilla, _scimoz) {
 
     /**
      * Move down one line.
+     *
+     * @method
+     * @memberof module:ko/editor
      */
     this.goLineDown = function()
     {
@@ -222,6 +309,9 @@ var sdkEditor = function(_scintilla, _scimoz) {
 
     /**
      * Move the cursor up one screen, and scroll up by the same distance.
+     *
+     * @method
+     * @memberof module:ko/editor
      */
     this.goPageUp = function()
     {
@@ -230,6 +320,9 @@ var sdkEditor = function(_scintilla, _scimoz) {
 
     /**
      * Move the cursor down one screen, and scroll down by the same distance.
+     *
+     * @method
+     * @memberof module:ko/editor
      */
     this.goPageDown = function()
     {
@@ -238,6 +331,9 @@ var sdkEditor = function(_scintilla, _scimoz) {
 
     /**
      * Move the cursor one character left, going to the previous line when hitting the start of line.
+     *
+     * @method
+     * @memberof module:ko/editor
      */
     this.goCharLeft = function()
     {
@@ -246,6 +342,9 @@ var sdkEditor = function(_scintilla, _scimoz) {
 
     /**
      * Move the cursor one character right, going to the next line when hitting the end of line.
+     *
+     * @method
+     * @memberof module:ko/editor
      */
     this.goCharRight = function()
     {
@@ -254,6 +353,9 @@ var sdkEditor = function(_scintilla, _scimoz) {
 
     /**
      * Move the cursor one character left, but don't cross line boundaries.
+     *
+     * @method
+     * @memberof module:ko/editor
      */
     this.goColumnLeft = function()
     {
@@ -264,6 +366,9 @@ var sdkEditor = function(_scintilla, _scimoz) {
 
     /**
      * Move the cursor one character right, don't cross line boundaries.
+     *
+     * @method
+     * @memberof module:ko/editor
      */
     this.goColumnRight = function()
     {
@@ -274,6 +379,9 @@ var sdkEditor = function(_scintilla, _scimoz) {
 
     /**
      * Move the cursor to the start of the previous word.
+     *
+     * @method
+     * @memberof module:ko/editor
      */
     this.goWordLeft = function()
     {
@@ -282,6 +390,9 @@ var sdkEditor = function(_scintilla, _scimoz) {
 
     /**
      * Move the cursor to the end of the next word.
+     *
+     * @method
+     * @memberof module:ko/editor
      */
     this.goWordRight = function()
     {
@@ -290,17 +401,23 @@ var sdkEditor = function(_scintilla, _scimoz) {
 
     /**
      * Delete the character before the cursor.
+     *
+     * @method
+     * @memberof module:ko/editor
      */
     this.delCharBefore = function()
     {
         var pos = this.getCursorPosition("absolute");
         if ( ! pos) return;
-        
+
         this.deleteRange(pos-1, 1);
     };
 
     /**
      * Delete the character after the cursor.
+     *
+     * @method
+     * @memberof module:ko/editor
      */
     this.delCharAfter = function()
     {
@@ -312,6 +429,9 @@ var sdkEditor = function(_scintilla, _scimoz) {
 
     /**
      * Delete up to the start of the word before the cursor.
+     *
+     * @method
+     * @memberof module:ko/editor
      */
     this.delWordBefore = function()
     {
@@ -320,6 +440,9 @@ var sdkEditor = function(_scintilla, _scimoz) {
 
     /**
      * Delete up to the end of the word after the cursor.
+     *
+     * @method
+     * @memberof module:ko/editor
      */
     this.delWordAfter = function()
     {
@@ -331,16 +454,21 @@ var sdkEditor = function(_scintilla, _scimoz) {
     /**
      * Get the current buffer's content
      *
+     * @method
+     * @memberof module:ko/editor
+     *
      * @returns {String}
      */
     this.getValue = function()
     {
         return scimoz().text;
     };
-    
+
     /**
      * Get word to the left of the given position
      *
+     * @method
+     * @memberof module:ko/editor
      * @param   {Null|Int|Object|Regexp}    pos     Absolute or relative position, if value is regex then this will be used as the match. Leave empty to use current cursor position.
      * @param   {Null|RegExp}               match   The regex to match the word agains
      */
@@ -351,34 +479,36 @@ var sdkEditor = function(_scintilla, _scimoz) {
             match = pos;
             pos = undefined;
         }
-        
+
         if ( ! match)
             match = /[\w_\-]/;
-        
+
         if ( ! pos)
         {
             pos = scimoz().wordEndPosition(scimoz().currentPos, true);
         }
         else
             pos = this._posFormat(pos, 'absolute');
-            
+
         var lineNo = this.getLineNumber(pos);
         var word = "";
-        
+
         while (pos > 0 && this.getLineNumber(pos) == lineNo)
         {
             let letter = this.getRange(--pos, pos+1)
             if ( ! letter.match(match)) break;
             word = letter + word;
         }
-        
+
         return word.trim();
     };
 
     /**
      * Get the character length of the current buffer
      *
-     * @returns {Int} 
+     * @method
+     * @memberof module:ko/editor
+     * @returns {Int}
      */
     this.getLength = function()
     {
@@ -388,6 +518,8 @@ var sdkEditor = function(_scintilla, _scimoz) {
     /**
      * Retrieve the given range of text
      *
+     * @method
+     * @memberof module:ko/editor
      * @param   {Object|Int} from   Absolute or relative position
      * @param   {Object|Int} to     Absolute or relative position
      *
@@ -402,6 +534,8 @@ var sdkEditor = function(_scintilla, _scimoz) {
     /**
      * Get the contents of the given line
      *
+     * @method
+     * @memberof module:ko/editor
      * @param   {Int|Undefined} line
      *
      * @returns {String}
@@ -415,6 +549,8 @@ var sdkEditor = function(_scintilla, _scimoz) {
     /**
      * Get the position of the cursor
      *
+     * @method
+     * @memberof module:ko/editor
      * @param   {String} format  absolute | relative (default)
      *
      * @returns {Object|Int} Absolute: Int, Relative: {line, ch, absolute}
@@ -427,6 +563,8 @@ var sdkEditor = function(_scintilla, _scimoz) {
     /**
      * Get the position of the cursor relative to the Komodo window
      *
+     * @method
+     * @memberof module:ko/editor
      * @returns {Object} {x: .., y: ..}
      */
     this.getCursorWindowPosition = function(relativeToScreen = false)
@@ -434,16 +572,18 @@ var sdkEditor = function(_scintilla, _scimoz) {
         var _scimoz = scimoz();
         return this.getWindowPosition(_scimoz.currentPos, relativeToScreen);
     };
-    
+
     /**
-     * Get the window position of the given character 
+     * Get the window position of the given character
      *
+     * @method
+     * @memberof module:ko/editor
      * @returns {Object} {x: .., y: ..}
      */
     this.getWindowPosition = function(pos, relativeToScreen = false)
     {
         pos = this._posFormat(pos, "absolute");
-        
+
         var _scintilla = scintilla();
         var _scimoz = scimoz();
         if ( ! _scintilla || ! _scimoz) return {x: 0, y: 0};
@@ -460,8 +600,8 @@ var sdkEditor = function(_scintilla, _scimoz) {
             scy = _scintilla.boxObject.screenY;
         }
 
-        var curx = _scimoz.pointXFromPosition(pos);
-        var cury = _scimoz.pointYFromPosition(pos);
+        var curx = Math.round(_scimoz.pointXFromPosition(pos) / pixelRatio);
+        var cury = Math.round(_scimoz.pointYFromPosition(pos) / pixelRatio);
 
         return {x: (scx + curx), y: (scy + cury)};
     };
@@ -469,6 +609,8 @@ var sdkEditor = function(_scintilla, _scimoz) {
     /**
      * Get the line number from the given x/y position
      *
+     * @method
+     * @memberof module:ko/editor
      * @param   {int} x relative to scimoz view
      * @param   {int} y relative to scimoz view
      *
@@ -487,9 +629,11 @@ var sdkEditor = function(_scintilla, _scimoz) {
     /**
      * Get margin number relative to x/y position
      *
+     * @method
+     * @memberof module:ko/editor
      * @param   {int} x relative to scimoz view
      * @param   {int} y relative to scimoz view
-     * 
+     *
      * @returns {int} Margin number, see ISciMoz.template.idl
      */
     this.getMarginFromMousePosition = function(x,y)
@@ -516,11 +660,13 @@ var sdkEditor = function(_scintilla, _scimoz) {
     /**
      * Get the default line height (all lines are currently the same height)
      *
+     * @method
+     * @memberof module:ko/editor
      * @returns {Int} Height in pixels
      */
     this.defaultTextHeight = function()
     {
-        return scimoz().textHeight(0);
+        return Math.round(scimoz().textHeight(0) / pixelRatio);
     };
 
     /**
@@ -531,12 +677,14 @@ var sdkEditor = function(_scintilla, _scimoz) {
      */
     this.defaultTextWidth = function()
     {
-        return scimoz().textWidth(0,1);
+        return Math.round(scimoz().textWidth(0,1) / pixelRatio);
     };
 
     /**
      * Get the current line number
      *
+     * @method
+     * @memberof module:ko/editor
      * @param   {Null|Object|Int} position   relative/absolute position to look from, leave empty to use current cursor position.
      *
      * @returns {Int}
@@ -547,13 +695,15 @@ var sdkEditor = function(_scintilla, _scimoz) {
             pos = this.getCursorPosition("relative");
         else
             pos = this._posFormat(pos, "relative");
-            
+
         return pos.line;
     };
 
     /**
      * Get the given line start position
      *
+     * @method
+     * @memberof module:ko/editor
      * @returns {Int}
      */
     this.getLineStartPos = function(line, format ="absolute")
@@ -565,18 +715,22 @@ var sdkEditor = function(_scintilla, _scimoz) {
     /**
      * Get the given line end position
      *
+     * @method
+     * @memberof module:ko/editor
      * @returns {Int}
      */
     this.getLineEndPos = function(line, format = "absolute")
     {
         if ( ! line) line = this.getLineNumber();
-        
+
         return this._posFormat(scimoz().getLineEndPosition(line-1),format);
     };
 
     /**
      * Get the current column (character | ch) number
      *
+     * @method
+     * @memberof module:ko/editor
      * @returns {Int}
      */
     this.getColumnNumber = function()
@@ -588,6 +742,8 @@ var sdkEditor = function(_scintilla, _scimoz) {
     /**
      * Get the size of the line
      *
+     * @method
+     * @memberof module:ko/editor
      * @param   {Int} line
      *
      * @returns {Int}
@@ -601,6 +757,8 @@ var sdkEditor = function(_scintilla, _scimoz) {
     /**
      * Get the number of lines in the current buffer
      *
+     * @method
+     * @memberof module:ko/editor
      * @returns {Int}
      */
     this.lineCount = function()
@@ -613,9 +771,10 @@ var sdkEditor = function(_scintilla, _scimoz) {
     /**
      * Set the current buffer's content
      *
+     * @method
+     * @memberof module:ko/editor
      * @param   {String} value
-     *
-     * @returns {Void} 
+     * @returns {Void}
      */
     this.setValue = function(value)
     {
@@ -627,6 +786,8 @@ var sdkEditor = function(_scintilla, _scimoz) {
      *
      * Any existing selections will be replaced with the given text
      *
+     * @method
+     * @memberof module:ko/editor
      * @param   {String} text
      *
      * @returns {Void}
@@ -662,7 +823,9 @@ var sdkEditor = function(_scintilla, _scimoz) {
     /**
      * Move cursor to a specific line
      *
-     * @param   (number) line number 
+     * @method
+     * @memberof module:ko/editor
+     * @param   (number) line number
      */
     this.gotoLine = function(lineNum)
     {
@@ -672,6 +835,8 @@ var sdkEditor = function(_scintilla, _scimoz) {
     /**
      * Set the position of the cursor
      *
+     * @method
+     * @memberof module:ko/editor
      * @param   {Int|Object} pos  relative or absolute position
      *
      * @returns {Void}
@@ -685,10 +850,12 @@ var sdkEditor = function(_scintilla, _scimoz) {
     /**
      * Delete the given range of characters
      *
+     * @method
+     * @memberof module:ko/editor
      * @param   {Object|Int} start Position
      * @param   {Int} length
      *
-     * @returns {Void} 
+     * @returns {Void}
      */
     this.deleteRange = function(start, length)
     {
@@ -701,6 +868,8 @@ var sdkEditor = function(_scintilla, _scimoz) {
     /**
      * Get the currently selected text
      *
+     * @method
+     * @memberof module:ko/editor
      * @returns {String}
      */
     this.getSelection = function()
@@ -711,6 +880,8 @@ var sdkEditor = function(_scintilla, _scimoz) {
     /**
      * Set the selection
      *
+     * @method
+     * @memberof module:ko/editor
      * @param   {Object} start {line, ch}
      * @param   {Object} end   {line, ch}
      *
@@ -724,6 +895,8 @@ var sdkEditor = function(_scintilla, _scimoz) {
     /**
      * Get the current selection range
      *
+     * @method
+     * @memberof module:ko/editor
      * @param   {String} format  absolute | relative (default)
      *
      * @returns {Object} {start: formattedPost, end: formattedPos}
@@ -739,7 +912,9 @@ var sdkEditor = function(_scintilla, _scimoz) {
     /**
      * Clear the current selection
      *
-     * @returns {Void} 
+     * @method
+     * @memberof module:ko/editor
+     * @returns {Void}
      */
     this.clearSelection = function()
     {
@@ -749,6 +924,8 @@ var sdkEditor = function(_scintilla, _scimoz) {
     /**
      * Replace the current selection with the given text
      *
+     * @method
+     * @memberof module:ko/editor
      * @param   {String} replacement
      * @param   {Object} select      What to select after insertion
      *                                - around: select inserted text
@@ -776,6 +953,8 @@ var sdkEditor = function(_scintilla, _scimoz) {
     /**
      * Get the current programming language used
      *
+     * @method
+     * @memberof module:ko/editor
      * @returns {string}
      */
     this.getLanguage = function()
@@ -785,6 +964,9 @@ var sdkEditor = function(_scintilla, _scimoz) {
 
     /**
      * Set focus on the editor
+     *
+     * @method
+     * @memberof module:ko/editor
      */
     this.focus = function()
     {
@@ -795,9 +977,11 @@ var sdkEditor = function(_scintilla, _scimoz) {
 
     /**
      * Get all registered bookmarks
-     * 
+     *
+     * @method
+     * @memberof module:ko/editor
      * @param   {Long} type     See legacy.markers
-     * 
+     *
      * @returns {Array}
      */
     this.getAllMarks = function(type = legacy.markers.MARKNUM_BOOKMARK)
@@ -832,6 +1016,8 @@ var sdkEditor = function(_scintilla, _scimoz) {
     /**
      * Toggle a bookmark on a given line
      *
+     * @method
+     * @memberof module:ko/editor
      * @param {number} line number. default is current line
      * Line number is decremented by one if passed in to match scimoz lines
      * starting from 0.
@@ -851,10 +1037,11 @@ var sdkEditor = function(_scintilla, _scimoz) {
     /**
     * Retrieve the line a bookmark is at by handle
     *
-    * @param {number} markerid,  Default is current line.  
+    * @method
+    * @memberof module:ko/editor
+    * @param {number} markerid,  Default is current line.
     *
-    * @return {number} line number from scintilla perspective
-    * (eg, starting from 0)
+    * @return {number} line number
     */
     this.getBookmarkLineFromHandle = function(handle)
     {
@@ -864,6 +1051,8 @@ var sdkEditor = function(_scintilla, _scimoz) {
     /**
      * Create a bookmark at a given line if one doesn't exist.
      *
+     * @method
+     * @memberof module:ko/editor
      * @param {number} line number.  Default is current line.  Line is decremented
      *   when passed in.
      * @param {number} Optional type of bookmark. See legacy.markers.
@@ -896,7 +1085,9 @@ var sdkEditor = function(_scintilla, _scimoz) {
     /**
      * Unset breakpoint by Marker handle
      *
-     * param {number} A marker handle
+     * @method
+     * @memberof module:ko/editor
+     * @param {number} A marker handle
      */
     this.unsetBookmarkByHandle = function(handle)
     {
@@ -908,6 +1099,8 @@ var sdkEditor = function(_scintilla, _scimoz) {
     /**
      * Remove a bookmark at a given line
      *
+     * @method
+     * @memberof module:ko/editor
      * @param {number} line number. default is current line
      * Note, if using this
      */
@@ -921,11 +1114,11 @@ var sdkEditor = function(_scintilla, _scimoz) {
         {
             --lineNum;
         }
-        
+
         var bookMarknum = legacy.markers.MARKNUM_BOOKMARK;
         var data = {
                       'line': lineNum,
-                    }  
+                    }
         var mainWindow = require("ko/windows").getMain();
 
         scimoz().markerDelete(lineNum, bookMarknum);
@@ -939,6 +1132,8 @@ var sdkEditor = function(_scintilla, _scimoz) {
     /**
      * Check if there is already a bookmark set on a given line
      *
+     * @method
+     * @memberof module:ko/editor
      * @param {number} line number, defaults to current line
      */
     this.bookmarkExists = function(lineNum)
@@ -951,7 +1146,7 @@ var sdkEditor = function(_scintilla, _scimoz) {
         {
             --lineNum;
         }
-        
+
         var lineMarkerState = scimoz().markerGet(lineNum);
         var bookMarknum = legacy.markers.MARKNUM_BOOKMARK;
         var bookmarkMask = (1 << bookMarknum)
@@ -962,40 +1157,42 @@ var sdkEditor = function(_scintilla, _scimoz) {
         // using
         return(lineMarkerState & bookmarkMask)
     };
-    
+
     /**
      * Find a string in the current buffer
-     * 
+     *
+     * @method
+     * @memberof module:ko/editor
      * @param   {String} text           String of text to find
      * @param   {Object|Int} startPos   Start position (optional)
      * @param   {Int} maxResults        Maximum number of results, -1 for unlimited (optional)
-     * 
+     *
      * @returns {Array} Returns an array of relative positions
      */
     this.findString = function(text, startPos = 0, maxResults = -1)
     {
         startPos = this._posFormat(startPos, "absolute");
         var sc = scimoz();
-        
+
         if ( ! sc)
             return [];
-        
+
         var results = [];
         var pos;
-        
+
         while (startPos < sc.length && (results.length <= maxResults || maxResults == -1))
         {
             sc.setTargetRange(startPos, sc.length);
             pos = sc.searchInTarget(text.length, text);
-            
+
             if ( ! pos)
                 break;
-            
+
             results.push(this._posToRelative(pos));
-            
+
             startPos += pos + text.length;
         }
-        
+
         return results;
     };
 
@@ -1015,6 +1212,8 @@ var sdkEditor = function(_scintilla, _scimoz) {
      * Convert the given position(s) into the given format, regardless of what
      * format the input is in
      *
+     * @method
+     * @memberof module:ko/editor
      * @param   {Array|Object|Int} positions Either a single position or an array
      *                             of positions
      *
@@ -1069,6 +1268,8 @@ var sdkEditor = function(_scintilla, _scimoz) {
     /**
      * Converts an absolute position to a relative position
      *
+     * @method
+     * @memberof module:ko/editor
      * @param   {Int} abs
      *
      * @returns {Object} {line, ch}
@@ -1088,6 +1289,8 @@ var sdkEditor = function(_scintilla, _scimoz) {
     /**
      * Converts a relative position to an absolute position
      *
+     * @method
+     * @memberof module:ko/editor
      * @param   {Object} pos {line, ch}
      *
      * @returns {Int}
@@ -1100,6 +1303,15 @@ var sdkEditor = function(_scintilla, _scimoz) {
 
         return scimoz().positionFromLine(pos.line-1) + pos.ch;
     };
+
+    try
+    {
+        init();
+    }
+    catch (e)
+    {
+        log.exception(e, "init failed, continuing without");
+    }
 
 };
 

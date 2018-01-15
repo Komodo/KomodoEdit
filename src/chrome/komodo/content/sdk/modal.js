@@ -1,6 +1,30 @@
+/**
+ * The modal SDK
+ *
+ * @module ko/modal
+ */
 (function()
 {
+    const {Cc, Ci}  = require("chrome");
     
+    /**
+     * Open a modal dialog with the given contents
+     * 
+     * @param {string|object} title         title of the modal, if this is an object then it will be used as the fields value
+     * @param {object} fields               object of fields to use, eg:
+     * ```
+     * fieldName: {
+     *     label: "Say something",
+     *     type: "textbox",
+     *     value: "hello"
+     * }
+     * ```
+     * @param {function} onComplete         Completion callback
+     * @param {string|undefined} okLabel    The label for the OK button
+     * @param {string|undefined} cancelLabel The label for the Cancel button
+     * 
+     * @returns {object} Returns an object with key and value being the field key and the entered value, eg. ```{fieldName: "hello"}```
+     */
     this.open = (title, fields, onComplete, okLabel, cancelLabel) =>
     {
         var opts;
@@ -29,6 +53,8 @@
         var dialog = w.openDialog("chrome://komodo/content/empty.xul?name=" + opts.title.replace(/\s+/g, ''), opts.title, "modal=true");
         dialog.title = opts.title;
         dialog.addEventListener("load", () => doOpen(opts, dialog));
+
+        pinWindow(dialog);
 
         return dialog;
     };
@@ -76,7 +102,11 @@
             if (field.label !== undefined)
                 row.add(require("ko/ui/label").create({ attributes: { value: field.label + ":", tooltiptext: field.label, crop: "center" }}));
 
-            let elem = require("ko/ui/" + (field.type || "textbox")).create(field.options || field.attributes || undefined);
+            var attributes = field.attributes || {};
+            if (field.options)
+                attributes.options = field.options;
+
+            let elem = require("ko/ui/" + (field.type || "textbox")).create(attributes);
             mapping[key] = elem;
             row.add(elem);
             
@@ -155,7 +185,7 @@
         if (missing.length)
         {
             var error = "Please enter a value for: " + missing.join(", ");
-            panel.$element.find(".ui-error label").show().attr("value", error);
+            parent.$element.find(".ui-error label").show().attr("value", error);
             return;
         }
         
@@ -168,6 +198,25 @@
         else
         {
             opts.parent.close();}
+    };
+    
+    var pinWindow = (w) =>
+    {
+        function getXULWindowForDOMWindow(win) {
+            return win.QueryInterface(Ci.nsIInterfaceRequestor)
+               .getInterface(Ci.nsIWebNavigation)
+               .QueryInterface(Ci.nsIDocShellTreeItem)
+               .treeOwner
+               .QueryInterface(Ci.nsIInterfaceRequestor)
+               .getInterface(Ci.nsIXULWindow)
+        }
+
+        w = getXULWindowForDOMWindow(w);
+        let parentWin = getXULWindowForDOMWindow(require("ko/windows").getMain());
+
+        Cc["@activestate.com/koIWindowManagerUtils;1"]
+          .getService(Ci.koIWindowManagerUtils)
+          .setOnTop(w, parentWin, true);
     };
     
 }).apply(module.exports);

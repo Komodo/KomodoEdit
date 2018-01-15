@@ -21,7 +21,7 @@ class KoHandlebarsLanguage(KoUDLLanguage):
     _reg_categories_ = [("komodo-language", name)]
     _reg_clsid_ = "59f91e08-64c2-40e7-9c4b-730c231af7d3"
 
-    primary = 0  # Whether the language shows up in Komodo's first level language menus.
+    primary = 1  # Whether the language shows up in Komodo's first level language menus.
 
     # ------------ Sub-language Controls ------------ #
     lang_from_udl_family = {

@@ -465,7 +465,7 @@ treechildren::-moz-tree-image
 
 treechildren::-moz-tree-twisty {
     list-style-image: none !important;
-    background-image: url("koicon://ko-svg/chrome/komodo/skin/images/trees/twisty-right.svg?size=14&scheme-name=interface&scheme-color=contrast");
+    background-image: url("koicon://ko-svg/chrome/komodo/skin/images/trees/twisty-right.svg?size=14&scheme-name=interface&scheme-color=button");
     background-size: 14px;
     background-repeat: no-repeat;
 }
@@ -501,7 +501,11 @@ treecol[type="checkbox"]
 }
 
 treechildren::-moz-tree-checkbox {
-    list-style-image: url("koicon://ko-svg/chrome/fontawesome/skin/square.svg?size=16") !important;
+    background-image: url("koicon://ko-svg/chrome/fontawesome/skin/square.svg?size=16") !important;
+    background-size: 16px;
+    background-repeat: no-repeat;
+    background-position: center;
+    list-style: none !important;
     margin: 0;
     padding: 0;
     margin-left: -2px;
@@ -509,7 +513,7 @@ treechildren::-moz-tree-checkbox {
 }
 
 treechildren::-moz-tree-checkbox(checked) {
-    list-style-image: url("koicon://ko-svg/chrome/fontawesome/skin/check-square.svg?size=16") !important;
+    background-image: url("koicon://ko-svg/chrome/fontawesome/skin/check-square.svg?size=16") !important;
 }
 
 treechildren::-moz-tree-checkbox(disabled)
@@ -528,8 +532,6 @@ image.tab-icon
     height: 14px;
 }
 
-.breadcrumb.folder .breadcrumb-icon,
-.breadcrumb .folder-item > .menu-iconic-left,
 .folder-icon
 {
     .icon();

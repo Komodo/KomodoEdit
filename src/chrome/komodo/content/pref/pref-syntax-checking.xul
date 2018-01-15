@@ -609,46 +609,6 @@
                         </menulist>
                     </hbox>
                 </groupbox>
-                <groupbox orient="vertical">
-                    <caption label="&rubocopChecking.label;"/>
-                    <description>
-                        &rubocopChecking.description;
-                    </description>
-                    <hbox align="center">
-                         <checkbox id="lint_rubocop_enabled"
-                            pref="true"
-                            preftype="boolean"
-                            label="&rubocopChecking.checkbox;" />
-                    </hbox>
-                    <hbox>
-                        <description>
-                            &rubocopChecking.binary;
-                        </description>
-                        <textbox id="rubocop_binary"
-                                 flex="1"
-                                 value=''
-                                 pref="true"
-                                 placeholder="&rubocopChecking.binaryPlaceholder;"
-                                 preftype="string"/>
-                        <button id='rubocop_linter_browse'
-                                label="&browse.label;"
-                                oncommand="languageInfo.Ruby.browseForRubocopBinary();"/>
-                    </hbox>
-                    <hbox>
-                        <description>
-                            &rubocopChecking.config;
-                        </description>
-                        <textbox id="rubocop_config"
-                                 flex="1"
-                                 value=''
-                                 pref="true"
-                                 placeholder="&rubocopChecking.configPlaceholder;"
-                                 preftype="string"/>
-                        <button id='eslint_config_browse'
-                                label="&browse.label;"
-                                oncommand="languageInfo.Ruby.browseForRubocopConfig();"/>
-                    </hbox>
-                </groupbox>
             </vbox>
         
             <vbox id="langSyntaxCheck-Sass">

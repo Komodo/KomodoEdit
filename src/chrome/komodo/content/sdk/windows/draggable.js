@@ -1,7 +1,3 @@
-/* This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
 var sys = require("sdk/system");
 
 const {Cc, Ci} = require("chrome");
@@ -11,8 +7,16 @@ var draggable = function (elem) {
     this.init(elem);
 };
 
+/**
+ * Used to make windows draggable using custom handlers
+ *
+ * @module ko/windows/draggable
+ * @copyright (c) 2017 ActiveState Software Inc.
+ * @license Mozilla Public License v. 2.0
+ * @author NathanR
+ */
 (function () {
-    
+
     this.mouseDownCheck = function(e) {
         return "_draggable" in this ? this._draggable : true;
     },
@@ -27,14 +31,14 @@ var draggable = function (elem) {
             this._window.fullScreen || !this.mouseDownCheck.call(this._elem, aEvent) ||
             aEvent.defaultPrevented)
             return false;
-        
+
         let target = aEvent.originalTarget || aEvent.target;
         let parent = target;
 
         // The target may be inside an embedded iframe or browser. (bug 615152)
         //if (target.ownerDocument.defaultView != this._window)
         //    return false;
-        
+
         var inDragTags = false;
         var _target = target;
         while (_target.localName && _target != this._elem) {
@@ -45,7 +49,7 @@ var draggable = function (elem) {
             }
             _target = _target.parentNode;
         }
-        
+
         if (this._elem._tophandle && ! inDragTags) {
             if (aEvent.pageY > 30) return false;
         }
@@ -58,7 +62,7 @@ var draggable = function (elem) {
                 break;
             parent = parent.parentNode;
         }
-        
+
         while (target.localName && target != this._elem) {
             if (this.dragTags.indexOf(target.localName) == -1)
             {
@@ -70,7 +74,7 @@ var draggable = function (elem) {
             }
             target = target.parentNode;
         }
-        
+
         return true;
     };
 
@@ -129,22 +133,27 @@ var draggable = function (elem) {
     this.init = function(elem) {
         this._elem = elem;
         this._window = elem.ownerDocument.defaultView;
-        
+
         if (elem.ownerDocument.readyState != "complete")
         {
             this._window.addEventListener("load", this.init.bind(this, elem));
             return;
         }
-        
+
         if (USE_HITTEST && !this.isPanel())
             this._elem.addEventListener("MozMouseHittest", this.handleEvent.bind(this), false);
         else
             this._elem.addEventListener("mousedown", this.handleEvent.bind(this), false);
-            
+
     };
 
 }).apply(draggable.prototype);
 
+/**
+ * @constructor module:ko/windows/draggable
+ * 
+ * @param {Element} elem    The element to turn into a draggable
+ */
 module.exports = function(elem) {
     return new draggable(elem);
 };

@@ -73,6 +73,7 @@ this.addNewFileFromTemplate = function peFolder_addNewFileFromTemplate(/*koIPart
             try {
                 part = this_.addPartWithURLAndType(view.koDoc.file.URI, 'file', parent);
             } catch(ex) {
+                log.exception(ex, "Adding part failed");
                 part = null;
             }
             if (callback) {

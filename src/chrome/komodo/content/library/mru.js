@@ -446,7 +446,6 @@ this.getAll = function MRU_getAll(prefName, maxLength /* all */)
 this._prettyPrefNamePlural_From_PrefName = {
     mruProjectList: 'projects',
     mruFileList: 'files',
-    mruTemplateList: 'templates',
     __XXZZ__: null
 };
 

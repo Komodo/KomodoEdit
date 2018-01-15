@@ -27,13 +27,15 @@
             window.isActive = true;
             window.addEventListener("activate", () => window.isActive = true);
             window.addEventListener("deactivate", () => window.isActive = false);
+
+            require = this._getRequireMethod();
             
             if (typeof require == "undefined")
                 return;
             
             var w = require("ko/windows").getMain();
             if ( ! w) return;
-            
+
             w.require("ko/windows").init();
 
             var evt = new CustomEvent("window_opened", { detail: window });
@@ -83,7 +85,7 @@
       </method>
     </implementation>
     </binding>
-    
+
     <binding id="dialog"
              extends="chrome://global/content/bindings/dialog.xml#dialog">
     <implementation>
@@ -95,6 +97,8 @@
             var sysInfo = Components.classes["@mozilla.org/system-info;1"].getService(Components.interfaces.nsIPropertyBag2);
             document.documentElement.setAttribute("os-name", sysInfo.get("name"));
             
+            require = this._getRequireMethod();
+
             if (typeof require == "undefined")
                 return;
             
@@ -112,8 +116,6 @@
             {
               window.addEventListener("load", function() {
                 setTimeout(function() {
-                  window.sizeToContent();
-                  
                   // Force the window to respect its minimum width, (yet another XUL bug)
                   var width = window.innerWidth;
                   window.innerWidth = 1000;
@@ -122,15 +124,19 @@
               });
             }
     
-            var _sizeToContent = window.sizeToContent;
-            window.sizeToContent = function() {};
-            
-            _sizeToContent();
-            setTimeout(() =>
-            {
-              _sizeToContent();
-              window.sizeToContent = _sizeToContent;
-            }, 0);
+// #if PLATFORM == "win"
+          var borderFix = () =>
+          {
+            var h = window.innerHeight;
+            window.innerHeight = h+100;
+            window.innerHeight = h;
+          };
+          setTimeout(borderFix, 100);
+
+          window.addEventListener("load", function() {
+              setTimeout(borderFix, 100);
+          });
+// #endif
             
           }
           catch(e)
@@ -140,6 +146,21 @@
           }
         ]]>
       </constructor>
+      <method name="_getRequireMethod">
+        <body>
+          <![CDATA[
+            if (typeof require == "undefined")
+            {
+                var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator);
+                var w = wm.getMostRecentWindow("Komodo");
+                if ( ! w) return;
+                return w.require;
+            }
+            
+            return require;
+          ]]>
+        </body>
+      </method>
       <method name="loadVirtualStylesheets">
         <body>
         <![CDATA[
@@ -197,10 +218,16 @@
     <implementation>
       <field name="_draggable">true</field>
       <field name="_tophandle">true</field>
+      <field name="initialWidth">null</field>
+      <field name="initialHeight">null</field>
       <constructor>
         <![CDATA[
-        var require = this._getRequireMethod();
+        require = this._getRequireMethod();
         if ( ! require) return;
+
+        var d = document.documentElement;
+        this.initialWidth = d.getAttribute("width");
+        this.initialHeight = d.getAttribute("height");
             
         var hideChrome = require("ko/prefs").getBoolean("ui.hide.chrome");
         
@@ -225,68 +252,85 @@
             
             if (window.parent == window || window.arguments)
             {
-              window.addEventListener("load", () => { setTimeout(this.restorePosition.bind(this), 0); });
+              if (document.readyState == "complete")
+                setTimeout(this.restorePosition.bind(this), 0);
+              else
+                window.addEventListener("load", () => { setTimeout(this.restorePosition.bind(this), 0); });
               window.addEventListener("unload", this.savePosition.bind(this));
             }
         }
         
-<!-- #if PLATFORM == "win" -->
+// #if PLATFORM == "win"
         window.addEventListener("resize", this.onResizeConstraintChecker.bind(this));
         this.onResizeConstraintChecker();
         
         if ("maximize" in window) {
             window._maximize = window.maximize;
-            window.maximize = this.maximize;
+            window.maximize = this.maximize.bind(this);
         }
         
         if ("restore" in window) {
             window._restore = window.restore;
-            window.restore = this.restore;
+            window.restore = this.restore.bind(this);
         }
-<!-- #endif -->
+// #endif
 
           if (hideChrome)
           {
-            window.addEventListener("load", function() {
-              setTimeout(function() {
-                window.sizeToContent();
-                
-                // Force the window to respect its minimum width, (yet another XUL bug)
-                var width = window.innerWidth;
-                window.innerWidth = 1000;
-                window.innerWidth = width;
-              }, 100);
+            setTimeout(function() {
+              // Force the window to respect its minimum width, (yet another XUL bug)
+              var width = window.innerWidth;
+              window.innerWidth = 1000;
+              window.innerWidth = width;
             });
-          }
-  
-          var _sizeToContent = window.sizeToContent;
-          window.sizeToContent = function() {};
-          
-          _sizeToContent();
-          setTimeout(() =>
+
+// #if PLATFORM == "win"
+          var borderFix = () =>
           {
-            _sizeToContent();
-            window.sizeToContent = _sizeToContent;
-          }, 0);
+            var h = window.innerHeight;
+            window.innerHeight = h+100;
+            window.innerHeight = h;
+          };
+          setTimeout(borderFix, 100);
+
+          window.addEventListener("load", function() {
+              setTimeout(borderFix, 100);
+          });
+// #endif
+          }
+
         ]]>
       </constructor>
+      <method name="_getRequireMethod">
+        <body>
+          <![CDATA[
+            if (typeof require == "undefined")
+            {
+                var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator);
+                var w = wm.getMostRecentWindow("Komodo");
+                if ( ! w) return;
+                return w.require;
+            }
+
+            return require;
+          ]]>
+        </body>
+      </method>
 <!-- #if PLATFORM == "win" -->
       <method name="onResizeConstraintChecker">
         <body>
         <![CDATA[
-        var require = this._getRequireMethod();
-        
         if (typeof require == "undefined")
           return;
-        
+
         var hideChrome = require("ko/prefs").getBoolean("ui.hide.chrome");
         if ( ! hideChrome || document.documentElement.getAttribute("sizemode") != "maximized") return;
-        
+
         // If we didn't maximize store the state
         if (window.outerHeight < window.screen.availHeight &&
             window.outerWidth < window.screen.availWidth)
           this.restoreState = [window.outerWidth, window.outerHeight, window.screenX, window.screenY];
-        
+
         if (window.outerHeight > window.screen.availHeight)
           window.outerHeight = window.screen.availHeight;
         
@@ -390,15 +434,23 @@
           var _window = wm.getMostRecentWindow("Komodo");
           if (_window)
             _window = _window.require("ko/windows").getMain();
+
+          if ( ! _window)
+            return;
           
           var id = document.documentElement.id || window.location.href;
-          var dimensions =  _window ? _window.ko.prefs.getString("windowDimensions-" + id, "").split(",") : [];
+          var dimensions =  _window ? _window.ko.prefs.getString("windowDimensions-v2-" + id, "").split(",") : [];
           
-          var centerWindow = (w) =>  window.moveTo(w.screen.left + Math.round((w.screen.availWidth - w.outerWidth) / 2),
-                                                   w.screen.top + Math.round((w.screen.availHeight - w.outerHeight) / 2));
+          var centerWindow = (w) =>  window.moveTo(_window.screen.left + Math.round((w.screen.availWidth - w.outerWidth) / 2),
+                                                   _window.screen.top + Math.round((w.screen.availHeight - w.outerHeight) / 2));
           
           if (dimensions.length != 4)
           {
+            if (this.initialWidth)
+              window.outerWidth = parseInt(this.initialWidth);
+            if (this.initialHeight)
+              window.outerHeight = parseInt(this.initialHeight);
+
             // If no dimensions were stored just center the window
             centerWindow(window);
             return;
@@ -492,14 +544,8 @@
           return;
         }
         
-        if (typeof require == "undefined")
-        {
-            var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-                        .getService(Components.interfaces.nsIWindowMediator);
-            var w = wm.getMostRecentWindow("Komodo").require("ko/windows").getMain();
-            if ( ! w) return;
-            var require = w.require;
-        }
+        require = this._getRequireMethod();
+        if ( ! require) return;
         
         var hideChrome = require("ko/prefs").getBoolean("ui.hide.chrome");
         
@@ -522,8 +568,30 @@
             this.setAttribute("hidechrome", true);
 // #endif
 
+// #if PLATFORM == "win"
+          var borderFix = () =>
+          {
+            var h = window.innerHeight;
+            window.innerHeight = h+100;
+            window.innerHeight = h;
+          };
+          setTimeout(borderFix, 100);
+          
+          var _sizeToContent = window.sizeToContent;
+          window.sizeToContent = () =>
+          {
+            var maxWidth = document.documentElement.style.maxWidth;
+            document.documentElement.style.maxWidth = window.innerWidth + "px";
+            _sizeToContent();
+            document.documentElement.style.maxWidth = maxWidth;
+          };
+// #endif
+
           window.addEventListener("load", function() {
             setTimeout(function() {
+// #if PLATFORM == "win"
+              setTimeout(borderFix, 100);
+// #endif
               if (window.screenX !== 0 || window.screenY !== 0)
                 return;
               var x = window.screen.left + Math.round((window.screen.availWidth - window.outerWidth) / 2);
@@ -534,6 +602,21 @@
         }
         ]]>
       </constructor>
+      <method name="_getRequireMethod">
+        <body>
+          <![CDATA[
+            if (typeof require == "undefined")
+            {
+                var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator);
+                var w = wm.getMostRecentWindow("Komodo");
+                if ( ! w) return;
+                return w.require;
+            }
+
+            return require;
+          ]]>
+        </body>
+      </method>
     </implementation>
     </binding>
     

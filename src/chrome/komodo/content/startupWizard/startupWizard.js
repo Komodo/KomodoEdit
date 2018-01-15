@@ -4,7 +4,7 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
     var log = require("ko/logging").getLogger("startupWizard");
     //log.setLevel(10);
     
-    var $ = require("ko/dom");
+    var $ = require("ko/dom").window(window);
     var prefs = require("ko/prefs");
     var platform = require("sdk/system").platform;
     
@@ -30,7 +30,8 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
         // OSX in particular likes to hide our window, force it not to
         try
         {
-            this.pinWindow();
+            if("darwin" == platform)
+                this.pinWindow();
         }
         catch (e)
         {
@@ -41,7 +42,11 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
         // MAKE IT!
         window.addEventListener("focus", this.forcePaint);
         this.forcePaint();
-        window.sizeToContent();
+
+        setTimeout(() =>
+        {
+            window.sizeToContent();
+        }, 0);
     };
 
     this.forcePaint = (isRepaint) =>
@@ -119,7 +124,7 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
         fields.autofill.checked( prefs.getBoolean("codeintel_completion_auto_fillups_enabled") );
         
         fields.softchars = require("ko/ui/checkbox").create("Automatically insert ending delimiters and tags");
-        fields.softchars.checked( prefs.getBoolean("codeintelAutoInsertEndTag") );
+        fields.softchars.checked( prefs.getBoolean("editSmartSoftCharacters") );
         
         fields.showLineNumbers = require("ko/ui/checkbox").create("Show line numbers in Editor");
         fields.showLineNumbers.checked( prefs.getBoolean("showLineNumbers") );
@@ -162,7 +167,8 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
         {
             menulist.addMenuItem({ attributes: {
                 label: scheme,
-                selected: scheme == currentScheme
+                selected: scheme == currentScheme,
+                value: scheme
             } });
         }
         
@@ -187,7 +193,8 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
         {
             menulist.addMenuItem({ attributes: {
                 label: browser,
-                selected: browser == currentBrowser
+                selected: browser == currentBrowser,
+                value: browser
             } });
         }
         
@@ -219,7 +226,8 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
                         "background":   s.getCommon("default_fixed", "back")
                     },
                     isDark: s.isDarkBackground,
-                    selected: scheme == currentScheme
+                    selected: scheme == currentScheme,
+                    value: scheme
                 }
             });
         }
@@ -366,7 +374,7 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
         
         helpGroupbox.addRow([
             require("ko/ui/list").create([
-                require("ko/ui/link").create("Documentation", { attributes: { href: "http://docs.komodoide.com" }}),
+                require("ko/ui/link").create("Documentation", { attributes: { href: "http://docs.activestate.com/komodo" }}),
                 require("ko/ui/link").create("Forums", { attributes: { href: "https://community.komodoide.com/" }}),
                 require("ko/ui/link").create("Bug Tracker", { attributes: { href: "https://github.com/Komodo/KomodoEdit/issues" }})
             ])
@@ -438,7 +446,7 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
         var koCS = require("ko/colorscheme");
         
         prefs.setString("widget-scheme", fields.colorScheme.value());
-        
+
         koCS.applyEditor(fields.colorScheme.value());
         koCS.applyInterface(fields.colorScheme.value(), true);
         

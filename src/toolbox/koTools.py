@@ -395,7 +395,7 @@ class _KoTool(object):
             newVal = self._attributes[attr]
             if attr not in data or newVal != data[attr]:
                 data[attr] = self._attributes[attr]
-        fp = open(savePath, 'r+')
+        fp = open(savePath, 'w')
         koToolbox2.DataParser.writeData(fp, data)
         fp.close()
         if refreshParent:

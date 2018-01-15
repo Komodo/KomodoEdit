@@ -83,6 +83,8 @@ const [JetPack, require] = (function() {
         // Keep handle to the JetPack ko namespace... as some tests require
         // access to tweak this namespace.
         ko: ko,
+        
+        _cache_do_not_use_in_production_code: cache, // so we can debug it
 
         defineLazyProperty: (object, property, id) => {
             const JetPack_LazyProperty = () => {

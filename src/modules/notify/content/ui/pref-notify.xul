@@ -18,7 +18,7 @@
     <script src="chrome://komodo/content/pref/koPrefUtils.js" type="application/x-javascript;version=1.7" />
     <script src="chrome://notify/content/js/pref-notify.js" type="application/x-javascript;version=1.7" />
 
-    <vbox class="autoscroll">
+    <vbox flex="1" class="autoscroll">
         <groupbox orient="vertical" id="behaviour">
             <caption label="&behaviour.label;" />
             <checkbox id="notify_use_opacity"

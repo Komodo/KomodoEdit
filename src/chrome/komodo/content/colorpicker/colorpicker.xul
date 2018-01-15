@@ -4,12 +4,12 @@
 <window xmlns:html="http://www.w3.org/1999/xhtml"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         orient="vertical"
-        width="330"
-        height="540"
         title="Color Picker"
         class="dialog"
+        width="330"
+        height="540"
         buttons="">
     
-    <browser flex="1" src="chrome://komodo/content/colorpicker/colorpicker.html"/>
+    <browser flex="1" width="330" height="540" src="chrome://komodo/content/colorpicker/colorpicker.html"/>
     
 </window>

@@ -1730,11 +1730,6 @@
             disabled="true"
             desc="&generalSaveProjectAs.desc;"/>
         <command
-            id="cmd_saveProjectAsTemplate" key="key_cmd_saveProjectAsTemplate"
-            oncommand="ko.commands.doCommandAsync('cmd_saveProjectAsTemplate', event)"
-            disabled="true"
-            desc="&generalCreateTemplateFromProject.desc;"/>
-        <command
             id="cmd_closeAllProjects" key="key_cmd_closeAllProjects"
             oncommand="ko.commands.doCommandAsync('cmd_closeAllProjects', event)"
             disabled="true"

@@ -198,7 +198,7 @@ this.macroProperties = function macro_editProperties(item)
                imgsrc : 'chrome://komodo/skin/images/toolbox/macro.svg'};
     window.openDialog(
         "chrome://komodo/content/project/macroProperties.xul",
-        "Komodo:MacroProperties",
+        "Komodo:MacroProperties"+Date.now(),
         "chrome,centerscreen,close=yes,dependent=no,resizable=yes", obj);
 }
 

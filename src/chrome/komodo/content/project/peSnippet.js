@@ -117,7 +117,7 @@ this.snippetProperties = function snippet_editProperties (item)
     obj.task = 'edit';
     window.openDialog(
         "chrome://komodo/content/project/snippetProperties.xul",
-        "Komodo:SnippetProperties",
+        "Komodo:SnippetProperties"+Date.now(),
         "chrome,close=yes,dependent=no,resizable=yes,centerscreen",
         obj);
 }
@@ -385,14 +385,22 @@ this.snippetInsertImpl = function snippetInsertImpl(snippet, view /* =<curr view
         }
     }        
 
-    var istrings = ko.interpolate.interpolate(
+    try
+    {
+        var istrings = ko.interpolate.interpolate(
                         window,
                         [], // codes are not bracketed
                         [text], // codes are bracketed
                         snippet.getStringAttribute("name"),
                         viewData);
-    text = istrings[0];
-
+        text = istrings[0];
+    } catch(e)
+    {
+        let msg = "Could not perform interpolation";
+        require("notify/notify").send(msg+".  See logs for details.",{priority: "error"});
+        log.warn(msg +": "+e);
+    }
+    
     if (newLine) {
         scimoz.lineEnd();
         //scimoz.newLine();

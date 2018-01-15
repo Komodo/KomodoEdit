@@ -2,7 +2,6 @@
  * @copyright (c) ActiveState Software Inc.
  * @license Mozilla Public License v. 2.0
  * @author ActiveState, Mozilla
- * @overview Based on the mozilla SDK simple-storage module
  */
 
 const { Cc, Ci } = require("chrome");
@@ -16,17 +15,24 @@ var global = window.global;
 /**
  * simple-storage module which lets you store persistent data
  *
- * For storing preferences (user facing persistent data) use ko/prefs   
- *
+ * For storing preferences (user facing persistent data) use ko/prefs
+ * 
+ * For session data check out {@link module:ko/session-storage}
+ * 
+ * Based on the mozilla SDK simple-storage module
+ * 
  * @module ko/simple-storage
+ * @example
+ * var ss = require("ko/simple-storage").get("foo").storage;
+ * ss.foobar = "foo";
  */
 (function() {
-    
+
     if ( ! ("simpleStorage" in global))
         global.simpleStorage = {};
 
     var storages = global.simpleStorage;
-    
+
     // A generic JSON store backed by a file on disk.  This should be isolated
     // enough to move to its own module if need be...
     function JsonStore(options)
@@ -129,30 +135,24 @@ var global = window.global;
             }
         }
     };
-    
+
     /**
      * Get persistent data for the given name (will be created if it doesnt exist)
      *
      * Use the storage property to write and retrieve data.
      *
-     * eg:
-     * ```
-     * var ss = require("ko/simple-storage").get("foo");
-     * ss.storage.foobar = "foo";
-     * ```
-     * 
-     * @param   {String} name 
-     * 
-     * @returns {Object} {storage: {}, filename: "...", jsonStore: {}}
+     * @param   {String} name
+     *
+     * @returns {Object} `{storage: {}, filename: "...", jsonStore: {}}`
      */
     this.get = function(name)
     {
         if (name in storages)
             return storages[name];
-        
+
         storages[name] = {};
         var storage = storages[name];
-        
+
         // Set filename
         let storeFile = Cc["@mozilla.org/file/directory_service;1"].
                         getService(Ci.nsIProperties).
@@ -161,12 +161,12 @@ var global = window.global;
         file.mkpath(storeFile.path);
         storeFile.append(name + ".json");
         storage.filename = storeFile.path;
-        
+
         storage.jsonStore = new JsonStore({
             filename: storage.filename,
             writePeriod: prefs.getLong("simple-storage.write.period", 300000),
         });
-        
+
         Object.defineProperties(storages[name], {
             storage: {
                 enumerable: true,
@@ -180,16 +180,16 @@ var global = window.global;
                 }
             }
         });
-        
+
         return storages[name];
     };
-    
+
     /**
      * Remove/purge all persistent data for the given name
-     * 
-     * @param   {String} name 
-     * 
-     * @returns {Void} 
+     *
+     * @param   {String} name
+     *
+     * @returns {Void}
      */
     this.remove = function(name)
     {
@@ -197,7 +197,7 @@ var global = window.global;
         storages[name].jsonStore.purge();
         delete storages[name];
     };
-    
+
     var onShutdown = function()
     {
         for (let k in storages)
@@ -205,7 +205,7 @@ var global = window.global;
             storages[k].jsonStore.write();
         }
     };
-    
+
     ko.main.addWillCloseHandler(onShutdown, this);
-    
+
 }).apply(module.exports);

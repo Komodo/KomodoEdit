@@ -1,8 +1,15 @@
 /**
- * @copyright (c) 2015 ActiveState Software Inc.
+ * The prefs SDK allows you to access Komodo's preferences, it returns an
+ * instance of PreferenceSet
+ *
+ * @example
+ * var prefs = require("ko/prefs"); // returns global preference set.
+ *
+ * @module ko/prefs
+ *
+ * @copyright (c) 2017 ActiveState Software Inc.
  * @license Mozilla Public License v. 2.0
  * @author ActiveState
- * @overview -
  */
 
 const {Cc, Ci} = require("chrome");
@@ -10,8 +17,9 @@ const w = require("ko/windows").getMain();
 const log = require("ko/logging").getLogger("ko/prefs");
 const prefService = Cc["@activestate.com/koPrefService;1"].getService(Ci.koIPrefService).prefs;
 
-var storage = require("ko/session-storage").get("pref-catagories").storage;
 var prefsets = {};
+
+var categories = [];
 
 var PreferenceSet = function(prefset)
 {
@@ -20,7 +28,7 @@ var PreferenceSet = function(prefset)
     var init = () =>
     {
         log.debug(`Initializing ${prefset.id}`);
-        
+
         /**
          * Wrap the Komodo global preferences (XPCOM) object.
          */
@@ -308,7 +316,7 @@ var PreferenceSet = function(prefset)
      * @function removeOnChange
      *
      * @param {String}      name     The preference name
-     * @param {Function}    callback 
+     * @param {Function}    callback
      *
      * @returns {void}
      */
@@ -335,12 +343,7 @@ var PreferenceSet = function(prefset)
     init();
 };
 
-/**
- * The prefs SDK allows you to access Komodo's preferences, it returns an
- * instance of PreferenceSet
- *
- * @module ko/prefs
- */
+
 module.exports = new PreferenceSet(prefService);
 
 (function()
@@ -350,8 +353,9 @@ module.exports = new PreferenceSet(prefService);
      * Falls back to global if there is no project open
      *
      * @function project
+     * @memberof module:ko/prefs
      *
-     * @returns {PreferenceSet}
+     * @returns {module:ko/prefs}   Returns ko/prefs instance for the current project
      */
     this.project = () =>
     {
@@ -374,8 +378,9 @@ module.exports = new PreferenceSet(prefService);
      * Then Falls back to global level if there is no project open
      *
      * @function file
+     * @memberof module:ko/prefs
      *
-     * @returns {PreferenceSet}
+     * @returns {module:ko/prefs}   Returns ko/prefs instance for the current file
      */
     this.file = function()
     {
@@ -391,7 +396,7 @@ module.exports = new PreferenceSet(prefService);
             return this.project();
         }
     };
-        
+
     /**
      * Register a preference set to be displayed in the prefs window
      *
@@ -399,25 +404,16 @@ module.exports = new PreferenceSet(prefService);
      * @param {String}      path    The chrome path to your *.xul file
      * @param {String}      insertAfter     ID of the element to insert after
      */
-    this.registerCatagory = function(name, path, insertAfter=null )
+    this.registerCategory = function(name, path, insertAfter=null )
     {
         let id = name.replace(/\s/g,"_");
-        let prefCatagoryStorage = storage;
-        if ( ! prefCatagoryStorage.registered )
-        {
-            prefCatagoryStorage.registered = [];
-            prefCatagoryStorage.catagories = [];
-        }
-        if ( prefCatagoryStorage.registered.indexOf(path) < 0)
-        {
-            prefCatagoryStorage.registered.push(path);
-            prefCatagoryStorage.catagories.push({ name: name, path: path, id: id, insertAfter: insertAfter });
-        }
+        categories = categories.filter((c) => c.path != path);
+        categories.push({ name: name, path: path, id: id, insertAfter: insertAfter });
     };
-    
-    this.getRegisteredCatagories = function()
+
+    this.getRegisteredCategories = function()
     {
-        return storage.catagories;
+        return categories || [];
     };
 
 }).apply(module.exports);

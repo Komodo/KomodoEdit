@@ -1,10 +1,3 @@
-/**
- * @copyright (c) ActiveState Software Inc.
- * @license Mozilla Public License v. 2.0
- * @author NathanR, CareyH
- * @overview Row sub module for the ko/ui SDK
- */
-
 var $ = require("ko/dom");
 var parent = require("./listbox");
 var Module = Object.assign({}, parent);
@@ -12,17 +5,51 @@ var log = require("ko/logging").getLogger("sdk/ui/richlistbox");
 //log.setLevel(require("ko/logging").LOG_DEBUG);
 module.exports = Module;
 
-// Main module (module.exports)
+
+/**
+ * ko/ui richlistbox element
+ * 
+ * This module inherits methods and properties from the module it extends.
+ *
+ * @module ko/ui/richlistbox
+ * @extends module:ko/ui/listbox~Model
+ * @copyright (c) ActiveState Software Inc.
+ * @license Mozilla Public License v. 2.0
+ * @author NathanR, CareyH
+ * @example
+ * var richlistbox = require("ko/ui/richlistbox").create();
+ * richlistbox.addListItems(["True","Blue"]);
+ */
+
 (function() {
 
     this.Model = Object.assign({}, this.Model);
 
     this.listhead = null;
     this.listcols = null;
+    
+    /**
+     * The model for the row UI element, this is what {@link model:ko/ui/richlistbox.create} returns
+     * 
+     * @class Model
+     * @extends module:ko/ui/listbox~Model
+     * @property {string}       name        The node name of the element
+     * @property {Element}      element     A XUL [richlistbox]{@link https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XUL/richlistbox}
+     */
 
     (function() {
 
         this.name = "richlistbox";
+        
+        /**
+         * Create a new richlistbox UI element
+         * 
+         * @name create
+         * @method
+         * @param  {object}         [options]   An object containing attributes and options
+         * 
+         * @returns {module:ko/ui/richlistbox~Model}
+         */
 
         this.init = function(richlistitems = [], options = {})
         {
@@ -55,6 +82,13 @@ module.exports = Module;
             }
         };
 
+        /**
+         * Add items to the listbox
+        *
+        * @param {array} items     Array of items to add, this calls {@link addListItem()} for each item
+        *
+        * @memberof module:ko/ui/richlistbox~Model
+        */ 
         this.addListItems = function (entries)
         {
             for (let entry of entries) {
@@ -62,11 +96,13 @@ module.exports = Module;
             }
         };
 
-          /**
+        /**
          * Add an item to the container
          *
-         * @argument {ko/ui/obj | ko/dom/obj | DOM | Object} item item to be added
-         * to the container.
+         * @param {mixed} item  item to be added to the container.  Can be String (label), ko/ui/<elem>, ko/dom element, DOM element, option object.
+         *                      option object refers to an Options object used throughout this SDK. The options
+         *                      should contain an attributes property to assign a label at the very
+         *                      least: { label: "itemLabel" }
          *
          * Object refers to an Options object used through this SDK. The options
          * should contain an attributes property to assign a label at the very
@@ -75,10 +111,11 @@ module.exports = Module;
          *  {
          *      attributes:
          *      {
-         *          label:"itemLabel"
+         *          label:"itemLable"
          *      }
          *  }
-         */
+         *  @memberof module:ko/ui/richlistbox~Model
+         */ 
         this.addListItem = function (item)
         {
             var element;
@@ -111,26 +148,53 @@ module.exports = Module;
             }
         };
 
+        /**
+         * Get list of selected items
+         *
+         * @returns {array} an array of selected items
+         * @memberof module:ko/ui/richlistbox~Model
+         */
         this.getSelectedItems = function()
         {
             return this.element.selectedItems;
         };
-
+    
+        /**
+         * Get the selected item index in the lists
+         *
+         * @returns {element} the selected item
+         * @memberof module:ko/ui/richlistbox~Model
+         */
         this.getSelectedItem = function()
         {
             return this.element.selectedItem;
         };
-
+        
+        /**
+         * Remove all items from the list
+         *
+         * @memberof module:ko/ui/richlistbox~Model
+         */
         this.removeAllItems = function()
         {
             this.$element.empty();
         };
 
+        /**
+         * Move selection up one 
+         *
+         * @memberof module:ko/ui/richlistbox~Model
+         */
         this.moveSelectionUp = function()
         {
             this.element.moveByOffset(-1, true, false);
         };
 
+        /**
+         * Move selection down one 
+         *
+         * @memberof module:ko/ui/richlistbox~Model
+         */
         this.moveSelectionDown = function()
         {
             this.element.moveByOffset(1, true, false);
@@ -139,4 +203,3 @@ module.exports = Module;
     }).apply(this.Model);
 
 }).apply(Module);
-

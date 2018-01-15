@@ -433,7 +433,8 @@ projectManager.prototype.findOtherWindowProjectInstanceForUrl = function(project
         otherWindow = koWindowList[i];
         if (otherWindow != window
             && otherWindow.ko
-            && otherWindow.ko.projects) {
+            && otherWindow.ko.projects
+            && otherWindow.ko.projects.manager) {
             otherProject = otherWindow.ko.projects.manager.getProjectByURL(projectUrl);
             if (otherProject) {
                 return otherProject;
@@ -653,62 +654,6 @@ projectManager.prototype._getRemoteURIs = function (project) {
             filter(function(koFile) koFile.isRemoteFile).
             map(function(koFile) koFile.URI));
 };
-projectManager.prototype.saveProjectAsTemplate = function (project) {
-    try {
-        var remote_uris = this._getRemoteURIs(project);
-        if (remote_uris.length) {
-            const sep = ", ";
-            var uriList = remote_uris.join(sep);
-            if (uriList.length > 300) {
-                var lastSep = uriList.substring(0, 300).lastIndexof(sep);
-                var part1 = uriList.substring(0, lastSep);
-                var part2 = uriList.substring(lastSep + sep.length);
-                var remainingParts = part2.split(sep).length;
-                uriList = part1;
-                if (remainingParts.length == 1) {
-                    uriList += _bundle.GetStringFromName("and 1 other");
-                } else {
-                    uriList += _bundle.formatStringFromName("and X others",
-                                                        [remainingParts.length], 1);
-                }
-            }
-            uriList = (remote_uris.length == 1 ?
-                       _bundle.formatStringFromName("For URI X", [uriList], 1) :
-                       _bundle.formatStringFromName("For URIs X", [uriList], 1));
-                       
-            var msg = _bundle.GetStringFromName("Project templates with remote items arent supported");
-            ko.notifications.add(msg, ["projects"], "saveProjectAsTemplate", { details: uriList,
-                                 severity: Components.interfaces.koINotification.SEVERITY_INFO,} );
-            return;
-        }
-        if (project.isDirty) {
-            var strYes = "Yes";
-            var res = ko.dialogs.yesNo(
-                _bundle.GetStringFromName("saveTheProjectAndContinue.message"), //prompt
-                strYes, // default response
-                _bundle.GetStringFromName("projectsNeedToBeSavedBeforeExport.message") // text
-                );
-            if (res != strYes || !this.saveProject(project)) {
-                return;
-            }
-        }
-        var os = Components.classes["@activestate.com/koOs;1"].getService();
-        var templateSvc = Components.classes["@activestate.com/koTemplateService?type=project;1"].getService();
-        var dname = os.path.join(templateSvc.getUserTemplatesDir(),
-                _bundle.GetStringFromName("myTemplates.message"));
-
-        var name = this.projectBaseName(project);
-
-        var templatePath = ko.filepicker.saveFile(dname, name+".kpz");
-        if (!templatePath) return;
-        var packager = Components.classes["@activestate.com/koProjectPackageService;1"]
-                          .getService(Components.interfaces.koIProjectPackageService);
-        // save file dialog asked about overwrite, so if we got here, overwrite
-        packager.packageProject(templatePath, project, true);
-    } catch(ex) {
-        this.log.exception(ex, "Error saving the current view as a template.");
-    }
-}
 
 projectManager.prototype.revertProjectByURL = function(url) {
     var project = this.getProjectByURL(url)

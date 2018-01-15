@@ -1,12 +1,13 @@
-// komodo tool: proc
-// =================
-// auto_abbreviation: true
-// indent_relative: true
-// set_selection: false
-// treat_as_ejs: false
-// type: snippet
-// version: 1.0.12
-// =================
+# komodo tool: proc
+# =================
+# auto_abbreviation: true
+# indent_relative: true
+# language: Tcl
+# set_selection: false
+# treat_as_ejs: false
+# type: snippet
+# version: 1.1.5
+# =================
 proc [[%tabstop:NAME]][[%soft: {]][[%tabstop:ARGS]][[%soft:} {]]
 	[[%tabstop]]
 }!@#_currentPos!@#_anchor

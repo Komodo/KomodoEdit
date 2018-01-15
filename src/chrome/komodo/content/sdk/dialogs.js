@@ -1,8 +1,7 @@
 /**
- * @copyright (c) 2015 ActiveState Software Inc.
+ * @copyright (c) 2017 ActiveState Software Inc.
  * @license Mozilla Public License v. 2.0
  * @author ActiveState
- * @overview -
  */
 
 /**
@@ -14,40 +13,35 @@
 
     const log       = require("ko/logging").getLogger("sdk/dialogs");
     const _         = require('contrib/underscore');
-    const prefs     = require("ko/prefs");;
+    const prefs     = require("ko/prefs");
 
     /**
      * A dialog to query the user for a string in a textbox.
      *
-     * Possible opts properties:
-     *  "prompt" is text to place before the input textbox.
-     *  "label1" is a label to place on the first textbox.
-     *  "value1" is a default value for the first textbox.
-     *  "label2" is a label to place on the second textbox.
-     *  "value2" is a default value for the second textbox.
-     *  "title" is the dialog title.
-     *  "mruName1" can be specified (a string) to get an MRU on the first text box.
-     *      The value of the string is the namespace for the MRU.
-     *  "mruName2" can be specified (a string) to get an MRU on the second text box.
-     *      The value of the string is the namespace for the MRU.
-     *  "validator" is a callable object to validate the current value when the
-     *      user presses "OK". It is called with the current value as the only
-     *      argument.  If the function returns false the "OK" is ignored.
-     *  "multiline1" is a boolean indicating that the first textbox should be
-     *      multiline. "mruName1" and "multiline1" are mutually exclusive.
-     *  "multiline2" is a boolean indicating that the second textbox should be
-     *      multiline. "mruName2" and "multiline2" are mutually exclusive.
-     *  "screenX", "screenY" allow one to specify a dialog position other than
-     *      the alert position.
+     * @param {String}      [message]               The message
+     * @param {Object=}     [opts]                  Optional object with options
+     * @param {string}      [opts.prompt]           text to place before the input textbox.
+     * @param {string}      [opts.label1]           label to place on the first textbox.
+     * @param {string}      [opts.value1]           default value for the first textbox.
+     * @param {string}      [opts.label2]           label to place on the second textbox.
+     * @param {string}      [opts.value2]           default value for the second textbox.
+     * @param {string}      [opts.title]            dialog title.
+     * @param {string}      [opts.mruName1]         get an MRU on the first text box.The value of the
+                                                    string is the namespace for the MRU.
+     * @param {string}      [opts.mruName2]         get an MRU on the second text box. The value of the
+                                                    string is the namespace for the MRU.
+     * @param {function}    [opts.validator]        `function(value){}` is a callable object to validate
+                                                    the current value when the user presses "OK". It is called with the
+                                                    current value as the only argument. If the function returns false the
+                                                    "OK" is ignored.
+     * @param {boolean}     [opts.multiline1]       indicates that the first textbox should be multiline
+     * @param {boolean}     [opts.multiline2]       indicates that the second textbox should be multiline
+     * @param {integer}     [opts.screenX]          position to open the dialog at
+     * @param {integer}     [opts.screenY]          position to open the dialog at
      *
-     * It returns null if the dialog was cancelled. Otherwise it returns an array
-     * containing the two values entered by the user if label2 was provided,
-     * otherwise it just returns the first value.
-     *
-     * @param {String} message  The message
-     * @param {Object} opts     Optional object with options
-     *
-     * @returns {String|Null}
+     * @returns {Array|Null}    It returns null if the dialog was cancelled. Otherwise it returns an array
+     *                          containing the two values entered by the user if label2 was provided,
+     *                          otherwise it just returns the first value.
      */
     this.prompt = (message, opts = {}) =>
     {
@@ -68,7 +62,9 @@
             _opts.mruName = null;
         }
 
-        window.openDialog("chrome://komodo/content/dialogs/prompt.xul",
+        var w = opts.window || window;
+
+        w.openDialog("chrome://komodo/content/dialogs/prompt.xul",
                   "_blank",
                   opts.features || "chrome,modal,titlebar,centerscreen",
                   _opts);
@@ -93,25 +89,20 @@
     /**
      * Ask the user for confirmation
      *
-     * All opts can be left blank or specified as null to get a default value.
-     *  "response" is the default response. This button is shown as the default.
-     *      Must be one of "Yes" or "No". If left empty or null the default
-     *      response is "Yes".
-     *  "text" allows you to specify a string of text that will be display in a
-     *      non-edittable selectable text box. If "text" is null or no specified
-     *      then this textbox will no be shown.
-     *  "title" is the dialog title.
-     *  "doNotAskPref", uses/requires the following two prefs:
-     *      boolean donotask_`<doNotAskPref>`: whether to not show the dialog
-     *      string donotask_action_`<doNotAskPref>`: "Yes" or "No"
-     *  "helpTopic",  the help topic, to be passed to "ko.help.open()". If
-     *      not provided (or null) then no Help button will be shown.
-     *  "yes", override the label for the yes button (defaults to Ok)
-     *  "no", override the label for the no button (defaults to Cancel)
-     *
-     * @param {String} message  The message
-     * @param {Object} opts     Optional object with options
-     *
+     * @param {string}      message                 The message
+     * @param {object=}     [opts]                  Optional object with options
+     * @param {string}      [opts.response]         The default response. This button is shown as the default.
+     *                                              Must be one of "Yes" or "No". If left empty or null the default
+     *                                              response is "Yes".
+     * @param {string}      [opts.text]             Allows you to specify a string of text that will be display in a
+     *                                              non-edittable selectable text box. If "text" is null or no specified
+     *                                              then this textbox will no be shown.
+     * @param {string}      [opts.title]            dialog title
+     * @param {string}      [opts.doNotAskPref]     prefname to use that stores whether the user chose not to give this prompt
+     *                                              again. If no prefname is given the prompt will always be shown.
+     * @param {string}      [opts.yes]              override the label for the yes button (defaults to Ok)
+     * @param {string}      [opts.no]               override the label for the no button (defaults to Cancel)
+     * 
      * @returns {Boolean}
      */
     this.confirm = (message, opts = {}) =>
@@ -155,7 +146,9 @@
             }
         }
 
-        window.openDialog("chrome://komodo/content/dialogs/yesNo.xul",
+        w = opts.window || window;
+
+        w.openDialog("chrome://komodo/content/dialogs/yesNo.xul",
                           "_blank",
                           opts.features || "chrome,modal,titlebar,centerscreen",
                           _opts);
@@ -168,34 +161,31 @@
 
         return _opts.response == _opts.yes;
     }
-    
+
     /** Show the user some prompt and request one of a number of responses.
-     * 
-     * Options:
-     *  "prompt" is message to show.
-     *  "buttons" is either a list of strings, each a label of a button to show, or
-     *      a list of array items [label, accesskey, tooltiptext], where accesskey
-     *      and tooltiptext are both optional.
-     *      Currently this is limited to three buttons, plus an optional "Cancel"
-     *      button. For example to mimic (mostly) ko.dialogs.yesNo use ["Yes", "No"]
-     *      and to mimic ko.dialogs.yesNoCancel use ["Yes", "No", "Cancel"].
-     *  "response" is the default response. This button is shown as the default.
-     *      It must be one of the strings in "buttons" or empty, in which case the
-     *      first button is the default.
-     *  "text" allows you to specify a string of text that will be display in a
-     *      non-edittable selectable text box. If "text" is null or no specified
-     *      then this textbox will not be shown.
-     *  "title" is the dialog title.
-     *  "doNotAskPref", uses/requires the following two prefs:
-     *      boolean donotask_<doNotAskPref>: whether to not show the dialog
-     *      string donotask_action_<doNotAskPref>: the name of the button pressed
-     *  "className", the class attribute to be applied to the dialog icon.
      *
-     * @param {String} message  The message to be displayed to the user
-     * @param {Object} opts  The options object.  Attributes explained above.
+     * @param {String}      message                 The message to be displayed to the user
+     * @param {object=}     [opts]                  Optional object with options
+     * @param {string}      [opts.prompt]           Message to show as the prompt
+     * @param {string|array} [opts.buttons]         Either a list of strings, each a label of a button
+     *                                              to show, or a list of array items [label, accesskey, tooltiptext], 
+     *                                              where accesskey and tooltiptext are both optional. Currently this is
+     *                                              limited to three buttons, plus an optional "Cancel" button. For 
+     *                                              example to mimic (mostly) ko.dialogs.yesNo use ["Yes", "No"] and to mimic
+     *                                              ko.dialogs.yesNoCancel use ["Yes", "No", "Cancel"]. Note that the Cancel
+     *                                              button must always be last.
+     * @param {string}      [opts.response]         The default response. This button is shown as the default.
+     *                                              Must be one of "Yes" or "No". If left empty or null the default
+     *                                              response is "Yes".
+     * @param {string}      [opts.text]             Allows you to specify a string of text that will be display in a
+     *                                              non-edittable selectable text box. If "text" is null or no specified
+     *                                              then this textbox will no be shown.
+     * @param {string}      [opts.title]            dialog title
+     * @param {boolean}     [opts.doNotAskPref]     prefname to use that stores whether the user chose not to give this prompt 
+     *                                              again. If no prefname is given the prompt will always be shown.
+     * @param {string}      [opts.className]        the css class attribute to be applied to the dialog icon.
      *
      * @returns {String} returns the name of the button pressed.
-     * 
      */
     this.open = (message, opts = {}) =>
     {
@@ -205,7 +195,7 @@
         _.each(props, (prop) => { _opts[prop] = opts[prop] || null; });
         _opts.prompt = message;
         _opts.style = opts.className || "question-icon spaced";
-    
+
         // Break out early if "doNotAskPref" prefs so direct.
         var bpref = null, spref = null;
         if (_opts.doNotAskPref) {
@@ -215,12 +205,12 @@
                 return prefs.getStringPref(spref);
             }
         }
-    
+
         window.openDialog("chrome://komodo/content/dialogs/customButtons.xul",
                           "_blank",
                           "chrome,modal,titlebar,centerscreen",
                           _opts);
-    
+
         if (_opts.doNotAskPref && _opts.doNotAsk) {
             prefs.setBooleanPref(bpref, true);
             prefs.setStringPref(spref, _opts.response);
@@ -233,11 +223,10 @@
      *
      * All opts can be left blank or specified as null to get a default value.
      *  "title" is the dialog title.
-     * 
-     * @param {String} message  The message
-     * @param {Object} opts     Optional object with options
-     * 
-     * @returns {Void}
+     *
+     * @param {String}      message                 The message
+     * @param {Object=}     opts                    Optional object with options
+     * @param {string}      [opts.title]            dialog title
      */
     this.alert = (message, opts = {}) =>
     {
@@ -246,12 +235,24 @@
         _.each(props, (prop) => { _opts[prop] = opts[prop] || null });
         _opts.prompt = message;
 
-        window.openDialog("chrome://komodo/content/dialogs/alert.xul",
+        w = opts.window || window;
+
+        w.openDialog("chrome://komodo/content/dialogs/alert.xul",
                           "_blank",
                           opts.features || "chrome,modal,titlebar,centerscreen",
                           _opts);
     };
 
+    /**
+     * Pick a file or Folder from the file system.
+     *
+     * @param {String}      message                 The message
+     * @param {function}    callback                function to handle
+     * @param {Object=}     opts                    Optional object with options
+     * @param {string}      [opts.message]          The message
+     * @param {string}      [opts.path]             Location to open file picker at
+     * @param {string}      [opts.type=file|folder] Type of file system item we're looking for
+     */
     this.filepicker = (message, callback, opts) =>
     {
         var ss = require("ko/simple-storage").get("dialogs");
@@ -279,7 +280,7 @@
             {
                 path: {
                     type: "filepath",
-                    options: { type: opts.type },
+                    options: { filetype: opts.type },
                     value: opts.path
                 }
             },

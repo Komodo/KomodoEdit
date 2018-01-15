@@ -11,11 +11,16 @@ const ko = require("ko/windows").getMain().ko;
 var global = window.global;
 
 /**
- * simple-storage module which lets you store persistent data
+ * session-storage module which lets you store session data
  *
  * For storing preferences (user facing persistent data) use ko/prefs
+ * 
+ * For persistent data check out {@link module:ko/simple-storage}
  *
- * @module ko/simple-storage
+ * @module ko/session-storage
+ * @example
+ * var ss = require("ko/session-storage").get("foo").storage;
+ * ss.foobar = "foo";
  */
 (function() {
 
@@ -28,16 +33,10 @@ var global = window.global;
      * Get session data for the given name (will be created if it doesnt exist)
      *
      * Use the storage property to write and retrieve data.
-     *
-     * eg:
-     * ```
-     * var ss = require("ko/session-storage").get("foo");
-     * ss.storage.foobar = "foo";
-     * ```
-     *
+     * 
      * @param   {String} name
      *
-     * @returns {Object} {storage: {}}
+     * @returns {Object} `{storage: {}}`
      */
     this.get = function(name)
     {
@@ -51,8 +50,6 @@ var global = window.global;
      * Remove/purge all session data for the given name
      *
      * @param   {String} name
-     *
-     * @returns {Void}
      */
     this.remove = function(name)
     {

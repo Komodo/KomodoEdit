@@ -108,8 +108,8 @@
                              onkeyup="UpdateField('name');"/>
                     <spacer width="5"/>
                     <langlist id="languageList"
-                              default="Pick a Language,Python-common,JavaScript-common,HTML-common"
-                              default-value="-1,Python-common,JavaScript-common,HTML-common"/>
+                              default="Pick a Language,General,Python-common,JavaScript-common,HTML-common"
+                              default-value="-1,General,Python-common,JavaScript-common,HTML-common"/>
                 </hbox>
                 <separator class="groovy-thin"/>
                 <hbox flex="1">

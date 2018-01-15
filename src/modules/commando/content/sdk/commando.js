@@ -274,14 +274,14 @@
                 onNavUp(e);
                 prevDefault = true;
                 break;
-            case KeyEvent.DOM_VK_RIGHT: 
+            case KeyEvent.DOM_VK_RIGHT:
                 onExpandResult(e);
                 break;
             case KeyEvent.DOM_VK_ALT:
                 local.altPressed = true;
                 break;
         }
-        
+
         var numberNav = prefs.getBoolean('commando_navigate_by_number', true);
         numberNav = numberNav && ! local.prevSearchValue;
         if (numberNav || (local.altPressed && e.keyCode != KeyEvent.DOM_VK_ALT))
@@ -471,7 +471,8 @@
             c.renderResult({
                 id: "",
                 name: "No Results",
-                classList: "no-result-msg non-interact"
+                classList: "no-result-msg non-interact",
+                allowExpand: false
             }, uuid);
         }
 
@@ -516,13 +517,11 @@
                 var resultElem = elem('results').element();
                 resultElem.selectedItem = target;
             }
-
-            e.preventDefault();
-            e.stopPropagation();
         }
-        else
+
+        var textbox = elem("search").element();
+        if ( ! e || e.currentTarget == textbox)
         {
-            var textbox = elem("search").element();
 
             if (textbox.selectionEnd != textbox.selectionStart ||
                 textbox.selectionStart < textbox.value.length)
@@ -538,6 +537,12 @@
             return;
 
         c.expandResult(selected);
+
+        if (e)
+        {
+            e.preventDefault();
+            e.stopPropagation();
+        }
     }
 
     var onChangeScope = function(e)
@@ -580,7 +585,6 @@
         
         setTimeout(function() {
             c.show(undefined, true);
-            c.search();
         }, 100);
     }
     
@@ -1276,6 +1280,43 @@
     {
         if ( ! results.length) return;
         
+        if (local.searchingUuid != searchUuid && local.resultUuid == searchUuid)
+        {
+            log.debug(searchUuid + " - Skipping "+results.length+" results for old search uuid: " + searchUuid);
+            return;
+        }
+
+        if (local.searchingUuid == searchUuid && local.resultUuid != searchUuid)
+        {
+            local.resultCache = [];
+            local.resultsReceived = 0;
+            local.resultsRendered = 0;
+            local.resultsByScope = {};
+            local.resultUuid = searchUuid;
+        }
+
+        if ( ! cacheOrigin)
+            local.resultsReceived += results.length;
+
+        if ( ! noDelay)
+        {
+            local.resultCache = local.resultCache.concat(results);
+
+            if ( ! local.renderResultsTimer)
+            {
+                log.debug("Setting result timer");
+                window.clearTimeout(local.renderResultsTimer);
+                local.renderResultsTimer = window.setTimeout(function()
+                {
+                    log.debug("Triggering result timer");
+                    this.renderResults(local.resultCache, searchUuid, true, true);
+                    local.resultCache = [];
+                    local.renderResultsTimer = false;
+                }.bind(this), prefs.getLong("commando_result_render_delay"));
+            }
+            return;
+        }
+        
         // Prepare wordRx for highlighting matched words
         var searchValue = elem('search').value().trim();
         var wordRx;
@@ -1300,43 +1341,6 @@
             str = str.replace(wordReplacedRx, wordReplacedReplacement);
             return str;
         };
-
-        if (local.searchingUuid != searchUuid && local.resultUuid == searchUuid)
-        {
-            log.debug(searchUuid + " - Skipping "+results.length+" results for old search uuid: " + searchUuid);
-            return;
-        }
-
-        if (local.searchingUuid == searchUuid && local.resultUuid != searchUuid)
-        {
-            local.resultCache = [];
-            local.resultsReceived = 0;
-            local.resultsRendered = 0;
-            local.resultsByScope = {};
-            local.resultUuid = searchUuid;
-        }
-        
-        if ( ! cacheOrigin)
-            local.resultsReceived += results.length;
-        
-        if ( ! noDelay)
-        {
-            local.resultCache = local.resultCache.concat(results);
-    
-            if ( ! local.renderResultsTimer)
-            {
-                log.debug("Setting result timer");
-                window.clearTimeout(local.renderResultsTimer);
-                local.renderResultsTimer = window.setTimeout(function()
-                {
-                    log.debug("Triggering result timer");
-                    this.renderResults(local.resultCache, searchUuid, true, true);
-                    local.resultCache = [];
-                    local.renderResultsTimer = false;
-                }.bind(this), prefs.getLong("commando_result_render_delay"));
-            }
-            return;
-        }
 
         log.debug(searchUuid + " - Rendering "+results.length+" Results");
 
@@ -1414,8 +1418,6 @@
             {
                 log.exception(e, "Failed rendering result: " + result.name);
             }
-            
-            if (appended) this.sortResult(resultEntry);
 
             if (result.scope)
             {
@@ -1424,6 +1426,11 @@
                 local.resultsByScope[result.scope]++;
             }
         }
+
+        fragment.children().each(function()
+        {
+            c.sortResult(this);
+        });
 
         var counter = 1;
         fragment.find("label.number").each(function()
@@ -2055,18 +2062,14 @@
 
     this.tip = function(tipMessage, type = "normal")
     {
-        if ( ! tipMessage && local.quickSearch)
+        let selected = this.getSelectedResult();
+
+        if (tipMessage)
         {
-            var bindLabel = keybinds.getKeybindFromCommand("cmd_showCommando");
-            
-            if (bindLabel != "")
-                tipMessage = "TIP: Press " + bindLabel + " to quickly Go To Anything.";
+            // todo: Use localized database of tips
+            elem("tip").attr("tip-type", type);
+            elem("tip").text(tipMessage || "");
         }
-        
-        // todo: Use localized database of tips
-        elem("tip").attr("tip-type", type);
-        elem("tip").text(tipMessage ||
-                             'TIP: Hit the right arrow key to "expand" your selection');
         
         c.reloadTip();
     }

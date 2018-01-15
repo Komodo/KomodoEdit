@@ -126,7 +126,7 @@ peFile.prototype.supportsCommand = function(command, item) {
     case 'cmd_renameFile':
         return (items && items.length == 1 && items[0].type != 'project' && items[0].isLocal);
     case 'cmd_refreshStatus':
-        return ko.views.manager.currentView != null;
+        return true;
     case 'cmd_editProperties':
         return items && items.length > 0;
     case 'cmd_showUnsavedChanges':
@@ -362,7 +362,7 @@ this.fileProperties = function peFile_Properties(item, view, folder)
         try {
             window.openDialog(
                     "chrome://komodo/content/pref/project.xul",
-                    'Komodo:ProjectPrefs',
+                    'Komodo:ProjectPrefs'+Date.now(),
                     "chrome,dependent,resizable,close=yes,modal=yes",
                     resp);
         } catch(ex) {
