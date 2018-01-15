@@ -851,6 +851,13 @@ adding an additional caret at the clicked position.">
 <!ENTITY rubyDebuggerNotWorking.description "The Ruby debugger extension does not work with the version of Ruby selected or that is on your path. You need to use Ruby version 1.8.2 or later.  You can get Ruby from the Ruby home page at">
 <!ENTITY filePrefRubyUseThisInterpreter.label "Use this interpreter">
 <!ENTITY filePrefRubyLevelStricness.description "You can configure the level of strictness that is used when doing background syntax checks.">
+<!ENTITY rubocopChecking.label "Rubocop Linter Checking">
+<!ENTITY rubocopChecking.checkbox "Enable the Rubocop linter">
+<!ENTITY rubocopChecking.description "Use the Rubocop linter when doing background syntax checking.">
+<!ENTITY rubocopChecking.binary "Rubocop binary:">
+<!ENTITY rubocopChecking.binaryPlaceholder "Find on path...">
+<!ENTITY rubocopChecking.config "Rubocop config:">
+<!ENTITY rubocopChecking.configPlaceholder "Find in current working directory...">
 <!ENTITY filePrefRubyAdditionalDirectory.description "Specify any additional directories that you want Komodo to add to the Ruby path when debugging, syntax checking or in the interactive shell.">
 <!ENTITY filePrefRubyExcludeDirectory.description "Specify any directories you want to exclude from code autocompletion scans.">
 

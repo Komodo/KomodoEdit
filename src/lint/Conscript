@@ -66,6 +66,7 @@ if ($havePy2to3) {
 $cons->InstallXpcomComponent('koCSSExLinter.py');
 $cons->InstallXpcomComponent('koHTMLLinter.py');
 $cons->InstallXpcomComponent('koPHPLinter.py');
+$cons->InstallXpcomComponent('koRubocopLinter.py');
 $cons->InstallXpcomComponent('koEsLintLinter.py');
 $cons->InstallXpcomComponent('koJavaScriptLinter.py');
 $cons->InstallXpcomComponent('koLintService.py');
