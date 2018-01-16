@@ -118,8 +118,8 @@
      * @param   {Array} args        Arguments
      * @param   {Object} opts       cwd, env, ..
      *
-     * @returns {Process}
-     * @example:
+     * @returns {Process}   A [system/child_process]{@link https://developer.mozilla.org/en-US/docs/Archive/Add-ons/Add-on_SDK/Low-Level_APIs/system_child_process}
+     * @example
      * opts =
      * {
      *      cwd:"", // set current working dir. Default to Place Pane root
@@ -264,11 +264,11 @@
      *
      * @param   {String} command        The command to execute
      * @param   {Object} opts           Options object
-     * @param   {Function} callback     The callback function
+     * @param   {Function} callback     The callback function. When called it will have the following 3 arguments: `error` [Error]{@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error}, `stdout`[String]{@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type} | [Buffer]{@link https://nodejs.org/api/buffer.html#buffer_class_buffer}, `stderr` [String]{@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Data_structures#String_type} | [Buffer]{@link https://nodejs.org/api/buffer.html#buffer_class_buffer}.
      *
-     * @returns {Process}
+     * @returns {Process}    A [system/child_process]{@link https://developer.mozilla.org/en-US/docs/Archive/Add-ons/Add-on_SDK/Low-Level_APIs/system_child_process}
      *
-     * @example:
+     * @example
      * opts =
      * {
      *      cwd:"", // set current working dir. Default to Place Pane root
