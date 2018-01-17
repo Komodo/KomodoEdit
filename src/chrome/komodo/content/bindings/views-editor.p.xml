@@ -1778,7 +1778,7 @@
                 return;
             }
 
-            if (((updated & this.scimoz.SC_UPDATE_SELECTION) > 0 ||
+            if (((updated == this.scimoz.SC_UPDATE_SELECTION) ||
                   this.cancel_lite_multicaret_on_modify &&
                   (updated & this.scimoz.SC_UPDATE_CONTENT) > 0
                 ) &&
