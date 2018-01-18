@@ -2211,8 +2211,6 @@ class DataParser:
         langRegistry = components.classes["@activestate.com/koLanguageRegistryService;1"]\
                         .getService(components.interfaces.koILanguageRegistryService)
 
-        multiLineCommented = False
-
         # Detect namePrefix and metaPrefix
         if fp.mode == "r+":
             for num, line in enumerate(fp, 1):
@@ -2230,8 +2228,6 @@ class DataParser:
                     if line.lower().find(TOOL_META_START) != -1:
                         if not namePrefix:
                             namePrefix = ""
-                        else:
-                            multiLineCommented = True
 
                         namePrefix += line[0:(line.lower().find(TOOL_META_START) + len(TOOL_META_START))]
                         pastMetaStartPending = True
@@ -2262,30 +2258,24 @@ class DataParser:
                         if line.strip().endswith("="):
                             break
 
-        
-
         language = data.get("language", None)
         if not language:
             language = langRegistry.suggestLanguageForFile(fp.name)
 
-        if multiLineCommented and not metaPrefix:
-            metaPrefix = ""
-
         langInfo = langRegistry.getLanguage(language)
         lineComment = langInfo.getCommentDelimiter("line", 0)
         blockComment = langInfo.getCommentDelimiter("block", 0)
-
-        if metaPrefix == None:
-            if blockComment:
-                metaPrefix = ""
-                blockComment = json.loads(blockComment)
-                namePrefix = blockComment[0] + "\n" + TOOL_META_START
-                startPrefix = blockComment[0]
-                endSuffix = blockComment[1]
-            elif lineComment:
-                metaPrefix = json.loads(lineComment).strip() + " "
-            else:
-                metaPrefix = "// "
+        # set prefixes and suffixes
+        if blockComment:
+            metaPrefix = ""
+            blockComment = json.loads(blockComment)
+            namePrefix = blockComment[0] + "\n" + TOOL_META_START
+            startPrefix = blockComment[0]
+            endSuffix = blockComment[1]
+        elif lineComment:
+            metaPrefix = json.loads(lineComment).strip() + " "
+        else:
+            metaPrefix = "// "
 
         if not endSuffix:
             endSuffix = ""
