@@ -323,6 +323,24 @@ this.snippetInsertImpl = function snippetInsertImpl(snippet, view /* =<curr view
         eol_str = "\r";
         break;
     };
+    
+    var istrings = "";
+    try
+    {
+        istrings = ko.interpolate.interpolate(
+                        window,
+                        [], // codes are not bracketed
+                        [text], // codes are bracketed
+                        snippet.getStringAttribute("name"),
+                        viewData);
+        text = istrings[0];
+    } catch(e)
+    {
+        let msg = "Could not perform interpolation";
+        require("notify/notify").send(msg+".  See logs for details.",{priority: "error"});
+        log.warn(msg +": "+e);
+    }
+    
     if (treat_as_ejs && text.indexOf("<%") >= 0) {
         text = this._textFromEJSTemplate(text, eol, eol_str, snippet);
     } else {
@@ -383,29 +401,6 @@ this.snippetInsertImpl = function snippetInsertImpl(snippet, view /* =<curr view
                              + "The snippet expects a selection, but there is none.");
             return false;
         }
-    }        
-
-    try
-    {
-        var istrings = ko.interpolate.interpolate(
-                        window,
-                        [], // codes are not bracketed
-                        [text], // codes are bracketed
-                        snippet.getStringAttribute("name"),
-                        viewData);
-        text = istrings[0];
-    } catch(e)
-    {
-        let msg = "Could not perform interpolation";
-        require("notify/notify").send(msg+".  See logs for details.",{priority: "error"});
-        log.warn(msg +": "+e);
-    }
-    
-    if (newLine) {
-        scimoz.lineEnd();
-        //scimoz.newLine();
-        // cmd_newline auto calculates the indentation
-        ko.commands.doCommand("cmd_newline");
     }
 
     var oldInsertionPoint;
