@@ -69,7 +69,6 @@
     <script src="chrome://komodo/content/library/uriparse.js"             type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/filepickers.js"          type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/open.js"                 type="application/x-javascript;version=1.7"/>
-    <script src="chrome://komodo/content/library/open.js"                 type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/dialogs.js"              type="application/x-javascript;version=1.7"/>
 
     <!-- we still need PrintUtils imported globally because it creates XBL
@@ -80,13 +79,14 @@
     <script type="application/x-javascript;version=1.7">
     <![CDATA[
     function PrintPreviewOnLoad() {
-      try {
-      var view = window.arguments[0];
-      var preview = window.arguments[1];
-      var tofile = window.arguments[2];
-      var selectionOnly = window.arguments[3];
-      require("ko/printing").print(view, preview, tofile, selectionOnly);
-      } catch(e) { log.exception(e); }
+        try {
+              var view = window.arguments[0];
+              var preview = window.arguments[1];
+              var tofile = window.arguments[2];
+              var selectionOnly = window.arguments[3];
+              require("ko/printing").initWithWindow(window);
+              require("ko/printing").print(view, preview, tofile, selectionOnly);
+        } catch(e) { log.exception(e); }
     }
     
     ]]>

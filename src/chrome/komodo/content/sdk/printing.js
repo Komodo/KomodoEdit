@@ -19,14 +19,20 @@ const {Cc, Ci, Cu, Cr} = require("chrome");
 var _gBrowserLoadListener = null;
 
 const log = require("ko/logging").getLogger("printing");
-const PrintUtils = window.PrintUtils;
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 
 // Get window/KO
 var _window;
+var legacy; // alias for ko
+var _contextWindow;
+var _PrintUtils;
 try
 {
-    _window = winUtils.getToplevelWindow(window);
+    _window = require("ko/windows").getMain();
+    _contextWindow = _window;
+    legacy = _window.ko;
+    _document = _window.document;
+    _PrintUtils = _window.PrintUtils;
 }
 catch (e)
 {
@@ -39,17 +45,14 @@ catch (e)
     }
 }
 
-var ko = _window.ko;
-var document = _window.document;
-
 function _initPrintSettings() {
-    if (!PrintUtils._gOrigGetPrintSettings) {
-        // Replace the PrintUtils method with our own function, one that
+    if (!_PrintUtils._gOrigGetPrintSettings) {
+        // Replace the _PrintUtils method with our own function, one that
         // customizes the print settings according to the users preference.
-        PrintUtils._gOrigGetPrintSettings = PrintUtils.getPrintSettings;
-        PrintUtils.getPrintSettings = function() {
+        _PrintUtils._gOrigGetPrintSettings = _PrintUtils.getPrintSettings;
+        _PrintUtils.getPrintSettings = function() {
             /** @type {Components.interfaces.nsIPrintSettings} */
-            var settings = PrintUtils._gOrigGetPrintSettings();
+            var settings = _PrintUtils._gOrigGetPrintSettings();
             // Customize it.
             settings.headerStrRight = ""; // Never print the URL.
             var prefs = Cc['@activestate.com/koPrefService;1']
@@ -65,9 +68,28 @@ function _initPrintSettings() {
                 settings.footerStrRight = "";
             }
             return settings;
-        }
+        };
     }
 }
+
+/**
+ * Set a contextual window for any further commands with this module.
+ * If no window is passed in then the main window is used.
+ */
+exports.initWithWindow = (w) =>
+{
+    if( ! w)
+    {
+        _contextWindow = _window;
+    }
+    else
+    {
+        _contextWindow = w;
+    }
+    legacy = _contextWindow.ko;
+    _document = _contextWindow.document;
+    _PrintUtils = _contextWindow.PrintUtils;
+};
 
 /**
  * Open a print preview of the current file or selection
@@ -90,17 +112,18 @@ exports.printPreview = function(view, preview, tofile, selectionOnly)
 exports.browserPrintPreview = function(evt)
 {
     try {
-        var browser = document.getElementById("printSource");
+        var browser = _document.getElementById("printSource");
         browser.removeEventListener("load", _gBrowserLoadListener, true);
-        PrintUtils.printPreview({
-            getPrintPreviewBrowser: function() { return document.getElementById("printBrowser"); },
-            getSourceBrowser: function() { return browser },
-            getNavToolbox: function() { return document.getElementById("printPreviewDeck"); },
-            onEnter: function() {
-                document.getElementById("printPreviewDeck").setAttribute("selectedIndex",1);
-                window.sizeToContent();
+        _PrintUtils.printPreview({
+            getPrintPreviewBrowser: () => { return _document.getElementById("printBrowser"); },
+            getSourceBrowser: () => { return browser; },
+            getNavToolbox: () => { return _document.getElementById("printPreviewDeck"); },
+            onEnter: () => {
+                _document.getElementById("printPreviewDeck").setAttribute("selectedIndex",1);
+                _contextWindow.sizeToContent();
+                _contextWindow.setTimeout(()=>{_contextWindow.focus();},500);
             },
-            onExit: function() { window.close(); },
+            onExit: () => { _contextWindow.close(); },
         });
     } catch(e) { log.exception(e); }
 }
@@ -108,9 +131,9 @@ exports.browserPrintPreview = function(evt)
 exports.browserPrint = function()
 {
     try {
-        var browser = document.getElementById("printBrowser");
+        var browser = _document.getElementById("printBrowser");
         browser.removeEventListener("load", _gBrowserLoadListener, true);
-        PrintUtils.print();
+        _PrintUtils.print();
     } catch(e) { log.exception(e); }
 }
 
@@ -147,7 +170,7 @@ exports.print = function(view, preview, tofile, selectionOnly)
                 newname = os.path.realpath(os.path.join('.', newname));
             }
             newname = newname + '.html';
-            var fname = ko.filepicker.saveFile(
+            var fname = legacy.filepicker.saveFile(
                         os.path.dirname(newname), /* default directory */
                         newname, /* default name - knows about dirs */
                         "Save '"+os.path.basename(newname)+"' As...", "HTML");
@@ -172,24 +195,24 @@ exports.print = function(view, preview, tofile, selectionOnly)
                                  .getService(Ci.koILastErrorService);
             var errno = lastErrorSvc.getLastErrorCode();
             var errmsg = lastErrorSvc.getLastErrorMessage();
-            ko.dialogs.alert("There was an error creating the HTML file '" + fname + "'",
+            legacy.dialogs.alert("There was an error creating the HTML file '" + fname + "'",
                          errmsg);
             return false;
         }
-        var URI = ko.uriparse.localPathToURI(fname);
+        var URI = legacy.uriparse.localPathToURI(fname);
         if (tofile) {
-            ko.open.URI(URI);
+            legacy.open.URI(URI);
         } else {
             var browser = null;
             if (preview) {
-              browser = document.getElementById("printSource");
+              browser = _document.getElementById("printSource");
               log.debug("Setting up load listener...");
               _gBrowserLoadListener = (evt) =>
                 window.setTimeout(exports.browserPrintPreview, 0, evt);
             } else {
-              browser = document.getElementById("printBrowser");
+              browser = _document.getElementById("printBrowser");
               _gBrowserLoadListener = (evt) =>
-                window.setTimeout(exports.browserPrint, 0, evt);
+                _contextWindow.setTimeout(exports.browserPrint, 0, evt);
             }
             browser.addEventListener("load", _gBrowserLoadListener , true);
             browser.loadURI(URI, null);
@@ -205,7 +228,7 @@ exports.print = function(view, preview, tofile, selectionOnly)
  * Open the print configuration dialog
  */
 exports.showPageSetup = function() {
-    PrintUtils.showPageSetup();
+    _PrintUtils.showPageSetup();
 };
 
 var printBrowserListener = {
