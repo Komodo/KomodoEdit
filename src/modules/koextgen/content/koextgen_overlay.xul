@@ -30,14 +30,6 @@
                   class="menu-iconic-wide"
                   insertbefore="menu_project_builtin_templates_separator"
                   keep="true" />
-        <menuitem id="createFirefoxExtProject"
-                  label="&firefoxExtensionCreate.label;"
-                  oncommand="ko.koextgen.createExtGenProject('firefox');"
-                  accesskey="&firefoxExtension.accesskey;"
-                  class="menu-iconic-wide"
-                  insertbefore="menu_project_builtin_templates_separator"
-                  keep="true"
-                  />
       </menupopup>
   </menu>
     
