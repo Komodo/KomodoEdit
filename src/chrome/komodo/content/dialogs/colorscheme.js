@@ -592,13 +592,15 @@
         reset: {
             init: () => {
                 $("#reset").on("command", () => {
-                    this.ensureWriteable();
-                    var property = this.getSelectedProperty();
-                    parent = property.parent.name == "CommonStyles" ? "" : property.parent.name;
-                    selectedScheme.resetStyle(parent, property.name);
-                    this.onSelectProperty();
-                    setTimeout(this.onSelectProperty, 50);
-                    this.updateScintilla();
+                    if(this.ensureWriteable())
+                    {
+                        var property = this.getSelectedProperty();
+                        parent = property.parent.name == "CommonStyles" ? "" : property.parent.name;
+                        selectedScheme.resetStyle(parent, property.name);
+                        this.onSelectProperty();
+                        setTimeout(this.onSelectProperty, 50);
+                        this.updateScintilla();
+                    }
                 });
             },
             reset: () => {}
@@ -606,13 +608,15 @@
         face: {
             init: () => {
                 $("#fontlist").on("command", (e) => {
-                    this.ensureWriteable();
-                    var property = this.getSelectedProperty();
-                    var face = e.target.getAttribute("label");
-                    selectedScheme.setFont(property.name, face);
-                    $("#fontlist").attr("label", face);
-                    $("#fontlist").css("font-family", face);
-                    this.updateScintilla();
+                    if(this.ensureWriteable())
+                    {
+                        var property = this.getSelectedProperty();
+                        var face = e.target.getAttribute("label");
+                        selectedScheme.setFont(property.name, face);
+                        $("#fontlist").attr("label", face);
+                        $("#fontlist").css("font-family", face);
+                        this.updateScintilla();
+                    }
                 });
             },
             reset: () => {
@@ -625,11 +629,13 @@
         size: {
             init: () => {
                 $("#fontSize").on("command", () => {
-                    this.ensureWriteable();
-                    var property = this.getSelectedProperty();
-                    selectedScheme.setSize(this.getSelectedLanguage(), property.name,
-                                           $("#fontSize").element().selectedItem.getAttribute("value"));
-                    this.updateScintilla();
+                    if(this.ensureWriteable())
+                    {
+                        var property = this.getSelectedProperty();
+                        selectedScheme.setSize(this.getSelectedLanguage(), property.name,
+                            $("#fontSize").element().selectedItem.getAttribute("value"));
+                        this.updateScintilla();
+                    }
                 });
             },
             reset: () => {
@@ -641,11 +647,13 @@
         bold: {
             init: () => {
                 $("#fontBold").on("command", () => {
-                    this.ensureWriteable();
-                    var property = this.getSelectedProperty();
-                    selectedScheme.setBold(this.getSelectedLanguage(), property.name,
-                                           $("#fontBold").attr("checked") == "true");
-                    this.updateScintilla();
+                    if(this.ensureWriteable())
+                    {
+                        var property = this.getSelectedProperty();
+                        selectedScheme.setBold(this.getSelectedLanguage(), property.name,
+                            $("#fontBold").attr("checked") == "true");
+                        this.updateScintilla();
+                    }
                 });
             },
             reset: () => {
@@ -658,11 +666,13 @@
         italic: {
             init: () => {
                 $("#fontItalic").on("command", () => {
-                    this.ensureWriteable();
-                    var property = this.getSelectedProperty();
-                    selectedScheme.setItalic(this.getSelectedLanguage(), property.name,
-                                           $("#fontItalic").attr("checked") == "true");
-                    this.updateScintilla();
+                    if(this.ensureWriteable())
+                    {
+                        var property = this.getSelectedProperty();
+                        selectedScheme.setItalic(this.getSelectedLanguage(), property.name,
+                            $("#fontItalic").attr("checked") == "true");
+                        this.updateScintilla();
+                    }
                 });
             },
             reset: () => {
@@ -675,13 +685,15 @@
         fore: {
             init: () => {
                 $("#fontFore").on("command", () => {
-                    this.ensureWriteable();
-                    this.pickColor($("#fontFore"), (color) => {
-                        var property = this.getSelectedProperty();
-                        selectedScheme.setFore(this.getSelectedLanguage(), property.name, color);
-                        $(`#propertyList richlistitem[name="${property.name}"]`).css("color", color);
-                        this.updateScintilla();
-                    });
+                    if(this.ensureWriteable())
+                    {
+                        this.pickColor($("#fontFore"), (color) => {
+                            var property = this.getSelectedProperty();
+                            selectedScheme.setFore(this.getSelectedLanguage(), property.name, color);
+                            $(`#propertyList richlistitem[name="${property.name}"]`).css("color", color);
+                            this.updateScintilla();
+                        });
+                    }
                 });
             },
             reset: () => {
@@ -694,13 +706,15 @@
         back: {
             init: () => {
                 $("#fontBack").on("command", () => {
-                    this.ensureWriteable();
-                    this.pickColor($("#fontBack"), (color) => {
-                        var property = this.getSelectedProperty();
-                        selectedScheme.setBack(this.getSelectedLanguage(), property.name, color);
-                        $(`#propertyList richlistitem[name="${property.name}"]`).css("background", color);
-                        this.updateScintilla();
-                    });
+                    if(this.ensureWriteable())
+                    {
+                        this.pickColor($("#fontBack"), (color) => {
+                            var property = this.getSelectedProperty();
+                            selectedScheme.setBack(this.getSelectedLanguage(), property.name, color);
+                            $(`#propertyList richlistitem[name="${property.name}"]`).css("background", color);
+                            this.updateScintilla();
+                        });
+                    }
                 });
             },
             reset: () => {
@@ -713,13 +727,15 @@
         color: {
             init: () => {
                 $("#color").on("command", () => {
-                    this.ensureWriteable();
-                    this.pickColor($("#color"), (color) => {
-                        var property = this.getSelectedProperty();
-                        selectedScheme.setColor(property.name, color);
-                        $(`#propertyList richlistitem[name="${property.name}"]`).css("background", color);
-                        this.updateScintilla();
-                    });
+                    if(this.ensureWriteable())
+                    {
+                        this.pickColor($("#color"), (color) => {
+                            var property = this.getSelectedProperty();
+                            selectedScheme.setColor(property.name, color);
+                            $(`#propertyList richlistitem[name="${property.name}"]`).css("background", color);
+                            this.updateScintilla();
+                        });
+                    }
                 });
             },
             reset: () => {
@@ -732,10 +748,12 @@
         lineSpacing: {
             init: () => {
                 $("#fontLineSpacing").on("input", () => {
-                    this.ensureWriteable();
-                    var property = this.getSelectedProperty();
-                    selectedScheme.setLineSpacing(property.name, $("#fontLineSpacing").value());
-                    this.updateScintilla();
+                    if(this.ensureWriteable())
+                    {
+                        var property = this.getSelectedProperty();
+                        selectedScheme.setLineSpacing(property.name, $("#fontLineSpacing").value());
+                        this.updateScintilla();
+                    }
                 });
             },
             reset: () => {
@@ -747,15 +765,17 @@
         "indicator-style": {
             init: () => {
                 $("#indicator_style_menulist").on("command", () => {
-                    this.ensureWriteable();
-                    var property = this.getSelectedProperty();
-                    var values = {style: {}, color: {}, alpha: {}, draw_underneath: {}};
-                    selectedScheme.getIndicator(property.name, values.style, values.color,
-                                                               values.alpha, values.draw_underneath);
-                    values.style.value = $("#indicator_style_menulist").element().selectedItem.getAttribute("value");
-                    selectedScheme.setIndicator(property.name, values.style.value, values.color.value,
-                                                               values.alpha.value, values.draw_underneath.value);
-                    this.updateScintilla();
+                    if(this.ensureWriteable())
+                    {
+                        var property = this.getSelectedProperty();
+                        var values = {style: {}, color: {}, alpha: {}, draw_underneath: {}};
+                        selectedScheme.getIndicator(property.name, values.style, values.color,
+                            values.alpha, values.draw_underneath);
+                        values.style.value = $("#indicator_style_menulist").element().selectedItem.getAttribute("value");
+                        selectedScheme.setIndicator(property.name, values.style.value, values.color.value,
+                            values.alpha.value, values.draw_underneath.value);
+                        this.updateScintilla();
+                    }
                 });
             },
             reset: () => {
@@ -771,16 +791,18 @@
             init: () => {
                 $("#indicator-color").on("command", () => {
                     this.pickColor($("#indicator-color"), (color) => {
-                        this.ensureWriteable();
-                        var property = this.getSelectedProperty();
-                        var values = {style: {}, color: {}, alpha: {}, draw_underneath: {}};
-                        selectedScheme.getIndicator(property.name, values.style, values.color,
-                                                                   values.alpha, values.draw_underneath);
-                        values.color.value = color;
-                        selectedScheme.setIndicator(property.name, values.style.value, values.color.value,
-                                                                   values.alpha.value, values.draw_underneath.value);
-                        $(`#propertyList richlistitem[name="${property.name}"]`).css("background", color);
-                        this.updateScintilla();
+                        if(this.ensureWriteable())
+                        {
+                            var property = this.getSelectedProperty();
+                            var values = {style: {}, color: {}, alpha: {}, draw_underneath: {}};
+                            selectedScheme.getIndicator(property.name, values.style, values.color,
+                                values.alpha, values.draw_underneath);
+                            values.color.value = color;
+                            selectedScheme.setIndicator(property.name, values.style.value, values.color.value,
+                                values.alpha.value, values.draw_underneath.value);
+                            $(`#propertyList richlistitem[name="${property.name}"]`).css("background", color);
+                            this.updateScintilla();
+                        }
                     });
                 });
             },
@@ -796,17 +818,19 @@
         "indicator-alpha": {
             init: () => {
                 $("#indicator_alpha_textbox").on("input", () => {
-                    this.ensureWriteable();
-                    var property = this.getSelectedProperty();
-                    var values = {style: {}, color: {}, alpha: {}, draw_underneath: {}};
-                    selectedScheme.getIndicator(property.name, values.style, values.color,
-                                                               values.alpha, values.draw_underneath);
-                    values.alpha.value = $("#indicator_alpha_textbox").value();
-                    selectedScheme.setIndicator(property.name, values.style.value, values.color.value,
-                                                               values.alpha.value, values.draw_underneath.value);
-                    selectedScheme.getIndicator(property.name, values.style, values.color,
-                                                               values.alpha, values.draw_underneath);
-                    this.updateScintilla();
+                   if(this.ensureWriteable())
+                    {
+                        var property = this.getSelectedProperty();
+                        var values = {style: {}, color: {}, alpha: {}, draw_underneath: {}};
+                        selectedScheme.getIndicator(property.name, values.style, values.color,
+                            values.alpha, values.draw_underneath);
+                        values.alpha.value = $("#indicator_alpha_textbox").value();
+                        selectedScheme.setIndicator(property.name, values.style.value, values.color.value,
+                            values.alpha.value, values.draw_underneath.value);
+                        selectedScheme.getIndicator(property.name, values.style, values.color,
+                            values.alpha, values.draw_underneath);
+                        this.updateScintilla();
+                    }
                 });
             },
             reset: () => {
@@ -820,15 +844,17 @@
         "indicator-draw_underneath": {
             init: () => {
                 $("#indicator_draw_underneath_checkbox").on("command", () => {
-                    this.ensureWriteable();
-                    var property = this.getSelectedProperty();
-                    var values = {style: {}, color: {}, alpha: {}, draw_underneath: {}};
-                    selectedScheme.getIndicator(property.name, values.style, values.color,
-                                                               values.alpha, values.draw_underneath);
-                    values.draw_underneath.value = $("#indicator_draw_underneath_checkbox").attr("checked") == "true";
-                    selectedScheme.setIndicator(property.name, values.style.value, values.color.value,
-                                                               values.alpha.value, values.draw_underneath.value);
-                    this.updateScintilla();
+                    if(this.ensureWriteable())
+                    {
+                        var property = this.getSelectedProperty();
+                        var values = {style: {}, color: {}, alpha: {}, draw_underneath: {}};
+                        selectedScheme.getIndicator(property.name, values.style, values.color,
+                            values.alpha, values.draw_underneath);
+                        values.draw_underneath.value = $("#indicator_draw_underneath_checkbox").attr("checked") == "true";
+                        selectedScheme.setIndicator(property.name, values.style.value, values.color.value,
+                            values.alpha.value, values.draw_underneath.value);
+                        this.updateScintilla();
+                    }
                 });
             },
             reset: () => {
@@ -843,9 +869,11 @@
         useSelFore: {
             init: () => {
                 $("#useSelFore").on("command", () => {
-                    this.ensureWriteable();
-                    selectedScheme.useSelFore = $("#useSelFore").attr("checked") == "true";
-                    this.updateScintilla();
+                    if(this.ensureWriteable())
+                    {
+                        selectedScheme.useSelFore = $("#useSelFore").attr("checked") == "true";
+                        this.updateScintilla();
+                    }
                 });
             },
             reset: () => {
@@ -856,9 +884,11 @@
         caretLineVisible: {
             init: () => {
                 $("#caretLineVisible").on("command", () => {
-                    this.ensureWriteable();
-                    selectedScheme.caretLineVisible = $("#caretLineVisible").attr("checked") == "true";
-                    this.updateScintilla();
+                    if(this.ensureWriteable())
+                    {
+                        selectedScheme.caretLineVisible = $("#caretLineVisible").attr("checked") == "true";
+                        this.updateScintilla();
+                    }
                 });
             },
             reset: () => {
@@ -869,12 +899,14 @@
         "iface-face": {
             init: () => {
                 $("#iface-face").on("command", (e) => {
-                    this.ensureWriteable();
-                    var property = this.getSelectedProperty();
-                    var face = e.target.getAttribute("label");
-                    selectedScheme.setInterfaceStyle(property.name, "face", face);
-                    $("#iface-face").attr("label", face);
-                    $("#iface-face").css("font-family", face);
+                    if(this.ensureWriteable())
+                    {
+                        var property = this.getSelectedProperty();
+                        var face = e.target.getAttribute("label");
+                        selectedScheme.setInterfaceStyle(property.name, "face", face);
+                        $("#iface-face").attr("label", face);
+                        $("#iface-face").css("font-family", face);
+                    }
                 });
             },
             reset: () => {
@@ -887,9 +919,11 @@
         "iface-size": {
             init: () => {
                 $("#iface-size").on("input", () => {
-                    this.ensureWriteable();
-                    var property = this.getSelectedProperty();
-                    selectedScheme.setInterfaceStyle(property.name, "size", $("#iface-size").value());
+                    if(this.ensureWriteable())
+                    {
+                        var property = this.getSelectedProperty();
+                        selectedScheme.setInterfaceStyle(property.name, "size", $("#iface-size").value());
+                    }
                 });
             },
             reset: () => {
@@ -901,12 +935,14 @@
         "iface-fore": {
             init: () => {
                 $("#iface-fore").on("command", () => {
-                    this.ensureWriteable();
-                    this.pickColor($("#iface-fore"), (color) => {
-                        var property = this.getSelectedProperty();
-                        selectedScheme.setInterfaceStyle(property.name, "fore", color);
-                        $(`#propertyList richlistitem[name="${property.name}"]`).css("color", color);
-                    });
+                    if(this.ensureWriteable())
+                    {
+                        this.pickColor($("#iface-fore"), (color) => {
+                            var property = this.getSelectedProperty();
+                            selectedScheme.setInterfaceStyle(property.name, "fore", color);
+                            $(`#propertyList richlistitem[name="${property.name}"]`).css("color", color);
+                        });
+                    }
                 });
             },
             reset: () => {
@@ -919,12 +955,14 @@
         "iface-back": {
             init: () => {
                 $("#iface-back").on("command", () => {
-                    this.ensureWriteable();
-                    this.pickColor($("#iface-back"), (color) => {
-                        var property = this.getSelectedProperty();
-                        selectedScheme.setInterfaceStyle(property.name, "back", color);
-                        $(`#propertyList richlistitem[name="${property.name}"]`).css("background", color);
-                    });
+                    if(this.ensureWriteable())
+                    {
+                        this.pickColor($("#iface-back"), (color) => {
+                            var property = this.getSelectedProperty();
+                            selectedScheme.setInterfaceStyle(property.name, "back", color);
+                            $(`#propertyList richlistitem[name="${property.name}"]`).css("background", color);
+                        });
+                    }
                 });
             },
             reset: () => {
