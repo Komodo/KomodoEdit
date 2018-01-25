@@ -324,58 +324,6 @@ this.snippetInsertImpl = function snippetInsertImpl(snippet, view /* =<curr view
         break;
     };
     
-    var istrings = "";
-    try
-    {
-        istrings = ko.interpolate.interpolate(
-                        window,
-                        [], // codes are not bracketed
-                        [text], // codes are bracketed
-                        snippet.getStringAttribute("name"),
-                        viewData);
-        text = istrings[0];
-    } catch(e)
-    {
-        let msg = "Could not perform interpolation";
-        require("notify/notify").send(msg+".  See logs for details.",{priority: "error"});
-        log.warn(msg +": "+e);
-    }
-    
-    if (treat_as_ejs && text.indexOf("<%") >= 0) {
-        text = this._textFromEJSTemplate(text, eol, eol_str, snippet);
-    } else {
-        text = text.replace(/\r\n|\n|\r/g, eol_str);
-    }
-    
-    // detect if there are tabstops before we interpolate the snippet text
-    var hasTabStops = ko.tabstops.textHasTabstops(text);
-    if (hasTabStops) {
-        ko.tabstops.clearTabstopInfo(view);
-    }
-
-    if (scimoz.selText.length == 0 && text.match(/%\(?[wW]/) != null) {
-        // There is no selection but there is a '%w', '%W', '%(w', or
-        // '%(W' in the snippet. Special case: select the word.
-        //TODO: Can we not use ko.interpolate.getWordUnderCursor()?
-        if (ko.interpolate.isWordCharacter(
-                scimoz.getWCharAt(scimoz.currentPos-1))) {
-            // There is part of a word to our left
-            scimoz.wordLeft();
-        }
-        // Using several wordPartRights instead of one wordRight
-        // because the latter is whitespace swallowing.
-        while (ko.interpolate.isWordCharacter(
-                    scimoz.getWCharAt(scimoz.currentPos))) {
-            // There is part of a word to our right
-            scimoz.wordPartRightExtend();
-        }
-    }
-
-    // Do the interpolation of special codes.
-    // var snippetWrapsSelection = text.indexOf('[[%s') >= 0;
-    var snippetWrapsSelection = _wrapsSelectionRE.test(text);
-    text = text.replace('%%', '%', 'g');
-
     // Common variables...
     var leading_ws_re = /^(\s+)(.*)/;
     var startingLine = scimoz.lineFromPosition(scimoz.currentPos);
@@ -464,6 +412,58 @@ this.snippetInsertImpl = function snippetInsertImpl(snippet, view /* =<curr view
         scimoz.replaceSel("");
         oldInsertionPoint = scimoz.currentPos;
     }
+    
+    var istrings = "";
+    try
+    {
+        istrings = ko.interpolate.interpolate(
+                        window,
+                        [], // codes are not bracketed
+                        [text], // codes are bracketed
+                        snippet.getStringAttribute("name"),
+                        viewData);
+        text = istrings[0];
+    } catch(e)
+    {
+        let msg = "Could not perform interpolation";
+        require("notify/notify").send(msg+".  See logs for details.",{priority: "error"});
+        log.warn(msg +": "+e);
+    }
+    
+    if (treat_as_ejs && text.indexOf("<%") >= 0) {
+        text = this._textFromEJSTemplate(text, eol, eol_str, snippet);
+    } else {
+        text = text.replace(/\r\n|\n|\r/g, eol_str);
+    }
+    
+    // detect if there are tabstops before we interpolate the snippet text
+    var hasTabStops = ko.tabstops.textHasTabstops(text);
+    if (hasTabStops) {
+        ko.tabstops.clearTabstopInfo(view);
+    }
+
+    if (scimoz.selText.length == 0 && text.match(/%\(?[wW]/) != null) {
+        // There is no selection but there is a '%w', '%W', '%(w', or
+        // '%(W' in the snippet. Special case: select the word.
+        //TODO: Can we not use ko.interpolate.getWordUnderCursor()?
+        if (ko.interpolate.isWordCharacter(
+                scimoz.getWCharAt(scimoz.currentPos-1))) {
+            // There is part of a word to our left
+            scimoz.wordLeft();
+        }
+        // Using several wordPartRights instead of one wordRight
+        // because the latter is whitespace swallowing.
+        while (ko.interpolate.isWordCharacter(
+                    scimoz.getWCharAt(scimoz.currentPos))) {
+            // There is part of a word to our right
+            scimoz.wordPartRightExtend();
+        }
+    }
+
+    // Do the interpolation of special codes.
+    // var snippetWrapsSelection = text.indexOf('[[%s') >= 0;
+    var snippetWrapsSelection = _wrapsSelectionRE.test(text);
+    text = text.replace('%%', '%', 'g');
 
     // Determine and set the selection and cursor position.
     var anchor = text.indexOf(ANCHOR_MARKER);
