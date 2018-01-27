@@ -250,15 +250,18 @@ if (typeof(ko.widgets)=='undefined') {
                       data.browser.contentDocument.readyState + " @ " +
                       data.browser.currentURI.spec);
         }
-        // Get saved data if it exists for the current window
+        
         if(aForceLoad)
         {
-            var widgetMetaData = getWidgetMetaData(aID);
+            data.browser = null;
+            data._loadListenerAdded = falase;
         }
         
+        // Get saved data if it exists for the current window
+        var widgetMetaData = getWidgetMetaData(aID);
         // Get widget ID from data if it exists 
         // Add widget to Pane in the saved index
-        if (aForceLoad && (!data.browser || data.browser.currentURI.spec == "about:blank")) {
+        if (!data.browser || data.browser.currentURI.spec == "about:blank") {
             let pane = this.getPaneAt(widgetMetaData.paneID || data.defaultPane || this.panes[0]);
             if (!pane) {
                 log.debug("no pane: " + data.defaultPane + " / " + JSON.stringify(this.panes) +
@@ -1049,6 +1052,7 @@ if (typeof(ko.widgets)=='undefined') {
                 panes[id].innerHeight = pane.boxObject.height;
                 panes[id].type = pane.getAttribute("type");
                 panes[id].orient = pane.orient;
+                panes[id].floating = pane.floating;
             }
             // Save the widgets within one tab
             var tabs = pane.tabs.childNodes;
