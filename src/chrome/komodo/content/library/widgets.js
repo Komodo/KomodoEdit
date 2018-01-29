@@ -254,7 +254,7 @@ if (typeof(ko.widgets)=='undefined') {
         if(aForceLoad)
         {
             data.browser = null;
-            data._loadListenerAdded = falase;
+            data._loadListenerAdded = false;
         }
         
         // Get saved data if it exists for the current window
@@ -643,12 +643,12 @@ if (typeof(ko.widgets)=='undefined') {
             aCallback(pane);
         }).bind(this);
 
-        openDialog("chrome://komodo/content/dialogs/widgetFloating.xul",
+        let ww = openDialog("chrome://komodo/content/dialogs/widgetFloating.xul",
                    "",
                    [k + "=" + v for ([k, v] in Iterator(features))].join(","),
                    initializer,
                    loadHandler);
-
+        ww.moveTo(features.left, features.top);
     };
 
     Object.defineProperty(this, "panes", {
