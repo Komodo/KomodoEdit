@@ -250,18 +250,11 @@ if (typeof(ko.widgets)=='undefined') {
                       data.browser.contentDocument.readyState + " @ " +
                       data.browser.currentURI.spec);
         }
-        
-        if(aForceLoad)
-        {
-            data.browser = null;
-            data._loadListenerAdded = false;
-        }
-        
-        // Get saved data if it exists for the current window
-        var widgetMetaData = getWidgetMetaData(aID);
         // Get widget ID from data if it exists 
         // Add widget to Pane in the saved index
-        if (!data.browser || data.browser.currentURI.spec == "about:blank") {
+        if (aForceLoad && (!data.browser || data.browser.currentURI.spec == "about:blank")) {
+            // Get saved data if it exists for the current window
+            var widgetMetaData = getWidgetMetaData(aID);
             let pane = this.getPaneAt(widgetMetaData.paneID || data.defaultPane || this.panes[0]);
             if (!pane) {
                 log.debug("no pane: " + data.defaultPane + " / " + JSON.stringify(this.panes) +
