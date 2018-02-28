@@ -125,5 +125,55 @@
      * @function rotate
      */
     this.rotate = ko.commands.doCommandAsync.bind(ko.commands, 'cmd_rotateSplitter')
+    
+   /**
+     * Get left splitview panel
+     *
+     * @function getLeftSplit
+     */
+    this.getLeftSplit = () =>
+    {
+        return require("ko/dom")("#view-1").element();
+    };
+    
+    /**
+     * Get right splitview panel
+     *
+     * @function getRightSplit
+     */
+    this.getRightSplit = () =>
+    {
+        return require("ko/dom")("#view-2").element();
+    };
+    /**
+     * Get left file view
+     *
+     * @function getLeftView
+     */
+    
+    this.getLeftView = () =>
+    {
+        return this.getLeftSplit().currentView;
+    };
+    
+    /**
+     * Get right file view
+     *
+     * @function getRightView
+     */
+    this.getRightView = () =>
+    {
+        return this.getRightSplit().currentView;
+    };
+    
+    /**
+     * Is Komodo in splitview mode?
+     *
+     * @function isSplit
+     */
+    this.isSplit = () =>
+    {
+        return require("ko/dom")("#view-2").visible();
+    };
 
 }).apply(module.exports);
