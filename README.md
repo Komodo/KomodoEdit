@@ -304,7 +304,7 @@ You will also need to redo your build (distclean mozilla and komodo).
 #### Building Steps
 
 Once your image is prepared you can follow the building steps for linux as
-described below. You will be running these from the docker container, so ssh into
+described above. You will be running these from the docker container, so ssh into
 it using the command above and then run the commands from `/komodo/dev`
 
 #### Running
