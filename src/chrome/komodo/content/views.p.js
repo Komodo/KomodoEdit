@@ -931,9 +931,10 @@ viewManager.prototype.observe = function(subject, topic, data)
             }
             break;
         case 'file_status':
-            var urllist = data.split('\n');
+            var urllist = data.trim().split('\n');
             var views;
             for (var u=0; u < urllist.length; ++u) {
+                if (urllist[u] == null) continue;
                 views = this.topView.findViewsForURI(urllist[u]);
                 for (var i=0; i < views.length; ++i) {
                     // XXX optimize all this stuff
