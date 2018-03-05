@@ -146,6 +146,8 @@
             
             _items.push({
                 label: prefix + ":" + result.description,
+                crop: "end",
+                tooltiptext: prefix + ":" + result.description,
                 acceltext: severity,
                 command: function(result)
                 {
