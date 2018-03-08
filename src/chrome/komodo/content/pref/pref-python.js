@@ -75,6 +75,19 @@ function PrefPython_PopulatePythonInterps(prefExecutable)
     }
 }
 
+function OnPreferencePageSaved(prefset)
+{
+    var prefName = programmingLanguage.toLowerCase()+"ExtraPaths";
+     var extraPaths = document.getElementById(prefName);
+     var paths = extraPaths.getData();
+     if(paths == "")
+     {
+        prefset.deletePref(prefName);
+        // Force the prefs to be written to file.
+        Components.classes["@activestate.com/koPrefService;1"].getService(Components.interfaces.koIPrefService).saveState();
+     }
+}
+
 function checkValidPythonInterpreter(exe)
 {
     if (exe) {
