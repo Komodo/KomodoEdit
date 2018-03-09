@@ -63,14 +63,13 @@ module.exports = Module;
         {
             // Set the value attribute, because who likes logic, right XUL?
             var attr = "value";
-            if ("type" in this.attributes && this.attributes.type == "number")
+            if ("type" in this.attributes && this.attributes.type == "number" && "valueNumber" in this.element)
                 attr = "valueNumber";
                 
-            if (value)
+            if (typeof value != "undefined")
             {
                 this.$element.attr("value", value);
-                if ("valueNumber" in this.element)
-                    this.element[attr] = value;
+                this.element[attr] = value;
             }
             return this.element[attr];
         };
