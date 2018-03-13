@@ -378,18 +378,18 @@ if (typeof ko.openfiles == 'undefined')
         {
             var classList = koWindow.document.getElementById('topview').classList;
             var menuEntry = koWindow.document.getElementById('menu_toggleTabBar');
+            let broadcaster = koWindow.document.getElementById('cmd_toggleTabBar');
             
             if (show)
             {
-                
                 classList.add('showTabs');
-                menuEntry.setAttribute('checked', 'true');
+                broadcaster.setAttribute("checked", 'true');
                 menuEntry.setAttribute('toggled', 'true');
             }
             else
             {
                 classList.remove('showTabs');
-                menuEntry.removeAttribute('checked');
+                broadcaster.setAttribute("checked", 'false');
                 menuEntry.removeAttribute('toggled');
             }
             
