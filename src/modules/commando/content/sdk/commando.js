@@ -751,7 +751,7 @@
             c.tip();
         }
         
-        if (scopeChanged || local.firstShow)
+        if (scopeChanged || local.firstShow || c.execScopeHandler("isDirty") === true)
         {
             local.firstShow = false;
             c.search();
@@ -759,7 +759,7 @@
         
         elem('search').element().select();
         c.center();
-    }
+    };
     
     this.showSubscope = function()
     {

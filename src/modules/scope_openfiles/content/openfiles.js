@@ -1,11 +1,13 @@
 (function() {
-    const log       = require("ko/logging").getLogger("commando-scope-openfiles")
+    const log       = require("ko/logging").getLogger("commando-scope-openfiles");
     const commando  = require("commando/commando");
     const {Cc, Ci}  = require("chrome");
     const legacy    = require("ko/windows").getMain().ko;
     
     const partSvc   = Cc["@activestate.com/koPartService;1"].getService(Ci.koIPartService);
-
+    
+    this.isDirty = () => true;
+    
     //log.setLevel(require("ko/logging").LOG_DEBUG);
 
     this.onSearch = function(query, uuid, onComplete)
