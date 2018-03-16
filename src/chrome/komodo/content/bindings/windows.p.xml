@@ -137,7 +137,9 @@
               setTimeout(borderFix, 100);
           });
 // #endif
-            
+// #if PLATFORM == "darwin"
+          this._sizeToContent();
+// #endif
           }
           catch(e)
           {
@@ -146,6 +148,15 @@
           }
         ]]>
       </constructor>
+<!--#if PLATFORM == "darwin"-->
+      <method name="_sizeToContent">
+        <body>
+          <![CDATA[
+            setTimeout(() => window.sizeToContent(), 250);
+          ]]>
+        </body>
+      </method>
+<!--#endif-->
       <method name="_getRequireMethod">
         <body>
           <![CDATA[
@@ -298,9 +309,20 @@
           });
 // #endif
           }
-
+// #if PLATFORM == "darwin"
+          this._sizeToContent();
+// #endif
         ]]>
       </constructor>
+<!--#if PLATFORM == "darwin"-->
+      <method name="_sizeToContent">
+        <body>
+          <![CDATA[
+            setTimeout(() => window.sizeToContent(), 250);
+          ]]>
+        </body>
+      </method>
+<!--#endif-->
       <method name="_getRequireMethod">
         <body>
           <![CDATA[
@@ -600,8 +622,20 @@
             }, 0);
           });
         }
+// #if PLATFORM == "darwin"
+        this._sizeToContent();
+// #endif
         ]]>
       </constructor>
+<!--#if PLATFORM == "darwin"-->
+      <method name="_sizeToContent">
+        <body>
+          <![CDATA[
+            setTimeout(() => window.sizeToContent(), 250);
+          ]]>
+        </body>
+      </method>
+<!--#endif-->
       <method name="_getRequireMethod">
         <body>
           <![CDATA[
