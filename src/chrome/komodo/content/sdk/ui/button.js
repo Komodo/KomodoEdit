@@ -112,6 +112,8 @@ module.exports = Module;
          *                                                      for more information.
          *                                                      If this is a simple object then it will be used as the options param 
          * @memberof module:ko/ui/button~Model
+         *
+         * @returns {Element}   Returns {@link module:ko/dom~QueryObject}
          */ 
         this.addMenuItem = function (menuitem)
         {
@@ -132,6 +134,7 @@ module.exports = Module;
             {
                 this.element.selectedItem = element;
             }
+            return require("ko/dom")(element);
         };
         
         /**

@@ -103,7 +103,8 @@ module.exports = Module;
          *                      least: { label: "itemLabel" }
          * 
          * @memberof module:ko/ui/menu~Model
-         * 
+         *
+         * @returns {Element}   Returns {@link module:ko/dom~QueryObject}
          */ 
         this.addMenuItem = function (menuitem)
         {
@@ -153,6 +154,7 @@ module.exports = Module;
             {
                 this.element.selectedItem = element;
             }
+            return $element;
         };
 
     }).apply(this.Model);
