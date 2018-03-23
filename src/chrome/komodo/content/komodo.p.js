@@ -58,7 +58,6 @@ var _savedWorkspace = false;
 function saveWorkspaceIfNeeded(reason) {
     if (!_savedWorkspace) {
         ko.workspace.saveWorkspace(true);
-        ko.prefs.setBooleanPref("komodo_normal_shutdown", true);
         _savedWorkspace = true;
         // In the case of a regular quit-application, Komodo's prefs will
         // perform the necessary saveState() work.
@@ -86,6 +85,7 @@ this.quitApplication = function() {
         _log.exception(ex);
     }
     try {
+        ko.prefs.setBooleanPref("komodo_normal_shutdown", true);
         goQuitApplication();
     } catch(ex) {
         _log.exception(ex);
@@ -169,6 +169,7 @@ this.restartWithFlag = function(flag) {
 
     let appStartup = Cc["@mozilla.org/toolkit/app-startup;1"].
                      getService(Ci.nsIAppStartup);
+    ko.prefs.setBooleanPref("komodo_normal_shutdown", true);
     appStartup.quit(Ci.nsIAppStartup.eAttemptQuit |  Ci.nsIAppStartup.eRestart);
 }
 
