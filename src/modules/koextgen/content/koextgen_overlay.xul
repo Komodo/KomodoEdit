@@ -16,13 +16,6 @@
   
   <menu id="menu_project_templates">
       <menupopup id="popup_project_templates">
-        <menuitem id="createKoExtProject"
-                  label="&komodoExtensionCreate.label;"
-                  oncommand="ko.koextgen.createExtGenProject('komodo');"
-                  accesskey="&komodoExtension.accesskey;"
-                  class="menu-iconic-wide"
-                  insertbefore="menu_project_builtin_templates_separator"
-                  keep="true" />
         <menuitem id="createKoLangExtProject"
                   label="&komodoLanguageExtensionCreate.label;"
                   oncommand="ko.koextgen.createExtGenProject('komodolang');"
