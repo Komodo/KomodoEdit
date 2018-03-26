@@ -69,9 +69,11 @@ function checkValidPythonInterpreter(exe)
         } catch(ex) {
         }
         if (!isValid) {
-            ko.dialogs.alert("The chosen Python has version " + version +
-                             ", which will not work as a Python 3 interpreter.",
-                             exe, "Invalid Python 3 Interpreter")
+            var resp = require("ko/dialogs").confirm("The chosen Python has version " + version +
+                             ", which should not work as a Python 3 interpreter.  Do you still want to use it?",
+                             {"title":"Invalid Python Interpreter", window:require("ko/windows").getMostRecent()});
+            if(! resp)
+                document.getElementById("pythonDefaultInterpreter").selectedIndex = 0;
             return false;
         }
         return true;
