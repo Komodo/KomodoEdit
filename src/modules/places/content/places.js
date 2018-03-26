@@ -393,14 +393,21 @@ viewMgrClass.prototype = {
 
     addNewFile: function() {
         var index = ko.places.manager._clickedOnRoot() ? -1 : this.view.selection.currentIndex;
+        let kofile = require("ko/file");
         var name = ko.dialogs.prompt(_bundle.GetStringFromName("enterFileName"));
+        var parentURI = (index >= 0
+                         ? this.view.getURIForRow(index)
+                         : ko.places.manager.currentPlace);
+        while(kofile.exists(kofile.join(ko.uriparse.URIToLocalPath(parentURI), name)) &&
+              ! kofile.isDir(kofile.join(ko.uriparse.URIToLocalPath(parentURI), name)))
+        {
+            name = ko.dialogs.prompt(_bundle.GetStringFromName("enterFileName"));
+        }
         if (!name) return;
+        
         try {
             this.view.addNewFileAtParent(name, index);
             this.tree.treeBoxObject.invalidate();
-            var parentURI = (index >= 0
-                             ? this.view.getURIForRow(index)
-                             : ko.places.manager.currentPlace);
             var callback = function(view) {
                 if (ko.prefs.hasPref("fileDefaultNew") && view.koDoc.language == "Text") {
                     // Only set a language if it does not override the existing
