@@ -393,15 +393,19 @@ viewMgrClass.prototype = {
 
     addNewFile: function() {
         var index = ko.places.manager._clickedOnRoot() ? -1 : this.view.selection.currentIndex;
+        var parentURI = (index >= 0 ? this.view.getURIForRow(index) : ko.places.manager.currentPlace);
+        var placesPath = ko.uriparse.URIToLocalPath(parentURI);
         let kofile = require("ko/file");
         var name = ko.dialogs.prompt(_bundle.GetStringFromName("enterFileName"));
-        var parentURI = (index >= 0
-                         ? this.view.getURIForRow(index)
-                         : ko.places.manager.currentPlace);
-        while(kofile.exists(kofile.join(ko.uriparse.URIToLocalPath(parentURI), name)) &&
-              ! kofile.isDir(kofile.join(ko.uriparse.URIToLocalPath(parentURI), name)))
+        var path = kofile.join(placesPath, name);
+        var uri = ko.uriparse.pathToURI(path);
+        while(path && kofile.exists(path) &&
+              ! kofile.isDir(path))
         {
-            name = ko.dialogs.prompt(_bundle.GetStringFromName("enterFileName"));
+            ko.places.manager.showTreeItemByFile(uri);
+            name = ko.dialogs.prompt(_bundle.GetStringFromName("enterFileNameAlreadyExists"));
+            path = kofile.join(placesPath, name);
+            uri = ko.uriparse.pathToURI(path);
         }
         if (!name) return;
         
