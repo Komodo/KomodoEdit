@@ -96,7 +96,7 @@
                           oncommand="window.templateProperties.insertShortcut(this);"/>
                 <menuseparator/>
                 <menuitem label="&helpOnShortcuts.label;"
-                          oncommand="ko.help.open('interpolation_shortcuts');"/>
+                          oncommand="ko.help.open('shortcuts.html');"/>
               </menupopup>
           </button>
         </vbox>

@@ -67,7 +67,7 @@
         buttons="accept,extra1,cancel,help"
         ondialogaccept="return OK();"
         ondialogextra1="return Apply();"
-        ondialoghelp="ko.help.open('run#run-commands_storing-run-commands-in-a-toolbox_run-command-properties');"
+        ondialoghelp="ko.help.open('run.html');"
         ondialogcancel="return Cancel();">
 
     <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
@@ -208,7 +208,7 @@
                                           oncommand="InsertCommandShortcut(this);"/>
                                 <menuseparator/>
                                 <menuitem label="&helpOnShortcuts.label;"
-                                          oncommand="ko.help.open('interpolation_shortcuts');"/>
+                                          oncommand="ko.help.open('shortcuts.html');"/>
                             </menupopup>
                         </button>
                     </hbox>
@@ -261,7 +261,7 @@
                                   oncommand="InsertCwdShortcut(this);"/>
                         <menuseparator/>
                         <menuitem label="&helpOnShortcuts.label;"
-                                  oncommand="ko.help.open('interpolation_shortcuts');"/>
+                                  oncommand="ko.help.open('shortcuts.html');"/>
                     </menupopup>
                 </button>
                 <button id="cwd-browse-button" label="&browse.label;"

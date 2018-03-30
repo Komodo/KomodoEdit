@@ -60,7 +60,6 @@
     <![CDATA[
 
 function OnPreferencePageLoading(prefset) {
-    log.debug("Loading HTML Prefs");
     //try {
     //    matchingTag_toggle(document.getElementById("showMatchingTagsOnClick"));
     //    const { classes: Cc, interfaces: Ci } = Components;

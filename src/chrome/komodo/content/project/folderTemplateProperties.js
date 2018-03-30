@@ -240,10 +240,10 @@ function Help() {
     switch (gItemType) {
     case "url":
     case "URL":
-        ko.help.open("urls#url-shortcuts_url-shortcut-options");
+        ko.help.open("urls.html");
         break;
     case "template":
-        ko.help.open("templates#templates_storing-templates-in-a-toolbox_template-options");
+        ko.help.open("templates.html");
         break;
     default:
         log.error("cannot launch help: unknown part type: '"+gItemType+"'\n");

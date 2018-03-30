@@ -14,7 +14,7 @@
                 <treecell class="treecell-indent"
                           url="chrome://commando/content/ui/pref.xul"
                           label="&commando.label;"
-                          helptag="commando"/>
+                          helptag="commando.html"/>
             </treerow>
         </treeitem>
     </treechildren>

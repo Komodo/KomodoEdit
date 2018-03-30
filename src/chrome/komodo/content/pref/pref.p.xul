@@ -113,7 +113,7 @@
                                 <treecell class="treecell-indent"
                                           url="chrome://komodo/content/pref/pref-ui.xul"
                                           label="&appearance.label;"
-                                          helptag="appearance"/>
+                                          helptag="appearance-preferences"/>
                             </treerow>
                         </treeitem>
         
@@ -131,7 +131,7 @@
                                 <treecell class="treecell-indent"
                                           url="chrome://komodo/content/pref/pref-alllangfonts.xul"
                                           label="&fontsAndColors.label;"
-                                          helptag="fonts_and_colors"/>
+                                          helptag="color-scheme"/>
                             </treerow>
                         </treeitem>
 
@@ -149,7 +149,7 @@
                                 <treecell class="treecell-indent"
                                           url="chrome://komodo/content/pref/pref-editor.xul"
                                           label="&editor.label;"
-                                          helptag="editor"/>
+                                          helptag="editor-preferences"/>
                             </treerow>
                             <treechildren id="editorChildren">
                                 <treeitem container="false" id="indentItem">
@@ -157,7 +157,7 @@
                                         <treecell class="treecell-indent"
                                                   url="chrome://komodo/content/pref/pref-indentation.xul"
                                                   label="&indentation.label;"
-                                                  helptag="indentation"/>
+                                                  helptag="configuring-indentation"/>
                                     </treerow>
                                 </treeitem>
                                 <treeitem container="false" id="editsmartItem">
@@ -165,7 +165,7 @@
                                         <treecell class="treecell-indent"
                                                   url="chrome://komodo/content/pref/pref-editsmart.xul"
                                                   label="&smartEditing.label;"
-                                                  helptag="smart_editing"/>
+                                                  helptag="smart-editing"/>
                                     </treerow>
                                 </treeitem>
                             </treechildren>
@@ -193,7 +193,7 @@
                                 <treecell class="treecell-indent"
                                           url="chrome://komodo/content/pref/pref-newfiles.xul"
                                           label="&newFiles.label;"
-                                          helptag="new_files"/>
+                                          helptag="new-files-preferences"/>
                             </treerow>
                         </treeitem>
 
@@ -229,7 +229,7 @@
                                 <treecell class="treecell-indent"
                                           url="chrome://komodo/content/pref/pref-keys.xul"
                                           label="&keyBindings.label;"
-                                          helptag="key_bindings"/>
+                                          helptag="configuring-key-bindings"/>
                             </treerow>
                         </treeitem>
         
@@ -238,14 +238,14 @@
                                 <treecell class="treecell-indent"
                                           url="chrome://komodo/content/pref/pref-helplang.xul"
                                           label="&languageHelp.label;"
-                                          helptag="language_help_preferences"/>
+                                          helptag="language-help-settings"/>
                             </treerow>
                         </treeitem>
         
                         <treeitem container="true" id="languagesItem" persist="open">
                             <treerow>
                                 <treecell class="treecell-indent" label="&languages.label;"
-                                          helptag="language_configuration_preferences"
+                                          helptag="language-configuration"
                                           url="chrome://komodo/content/pref/pref-languages.xul" />
                             </treerow>
                             <treechildren id="languagesChildren">
@@ -254,7 +254,7 @@
                                         <treecell class="treecell-indent"
                                                   url="chrome://komodo/content/pref/pref-javascript.xul"
                                                   label="&javaScript.label;"
-                                                  helptag="javascript_configuration"/>
+                                                  helptag="configuring-javascript"/>
                                     </treerow>
                                 </treeitem>
                                 <treeitem container="false" id="nodejsItem">
@@ -262,7 +262,7 @@
                                         <treecell class="treecell-indent"
                                                   url="chrome://komodo/content/pref/pref-nodejs.xul"
                                                   label="&nodejs.label;"
-                                                  helptag="nodejs_configuration"/>
+                                                  helptag="configuring-javascript"/>
                                     </treerow>
                                 </treeitem>
                                 <treeitem container="false" id="perlItem">
@@ -270,7 +270,7 @@
                                         <treecell class="treecell-indent"
                                                   url="chrome://komodo/content/pref/pref-perl.xul"
                                                   label="&perl.label;"
-                                                  helptag="perl_configuration"/>
+                                                  helptag="configuring-perl"/>
                                     </treerow>
                                 </treeitem>
                                 <treeitem container="false" id="phpItem">
@@ -278,7 +278,7 @@
                                         <treecell class="treecell-indent"
                                                   url="chrome://komodo/content/pref/pref-php.xul"
                                                   label="&PHP.label;"
-                                                  helptag="php_configuration"/>
+                                                  helptag="configuring-php"/>
                                     </treerow>
                                 </treeitem>
                                 <treeitem container="false" id="pythonItem">
@@ -286,7 +286,7 @@
                                         <treecell class="treecell-indent"
                                                   url="chrome://komodo/content/pref/pref-python.xul"
                                                   label="&python.label;"
-                                                  helptag="python_configuration"/>
+                                                  helptag="configuring-python"/>
                                     </treerow>
                                 </treeitem>
                                 <treeitem container="false" id="python3Item">
@@ -294,7 +294,7 @@
                                         <treecell class="treecell-indent"
                                                   url="chrome://komodo/content/pref/pref-python3.xul"
                                                   label="&python3.label;"
-                                                  helptag="python_configuration"/>
+                                                  helptag="configuring-python"/>
                                     </treerow>
                                 </treeitem>
         <!-- ruby start -->
@@ -303,7 +303,7 @@
                                         <treecell class="treecell-indent"
                                                   url="chrome://komodo/content/pref/pref-ruby.xul"
                                                   label="&ruby.label;"
-                                                  helptag="ruby_configuration"/>
+                                                  helptag="configuring-ruby"/>
                                     </treerow>
                                 </treeitem>
         <!-- ruby end -->
@@ -312,7 +312,7 @@
                                         <treecell class="treecell-indent"
                                                   url="chrome://komodo/content/pref/pref-html.xul"
                                                   label="&HTML.label;"
-                                                  helptag="html_configuration"/>
+                                                  helptag="configuring-html"/>
                                     </treerow>
                                 </treeitem>
                                 <treeitem container="false" id="xmlCatalogsItem">
@@ -341,7 +341,7 @@
                                 <treecell class="treecell-indent"
                                           url="chrome://komodo/content/pref/pref-printing.xul"
                                           label="&printing.label;"
-                                          helptag="printing"/>
+                                          helptag="printing-preferences"/>
                             </treerow>
                         </treeitem>
         
@@ -350,7 +350,7 @@
                                 <treecell class="treecell-indent"
                                           url="chrome://komodo/content/pref/pref-servers.xul"
                                           label="&servers.label;"
-                                          helptag="server_configuration"/>
+                                          helptag="servers-preferences"/>
                             </treerow>
                         </treeitem>
                         <treeitem container="false" id="syntaxCheckingItem">
@@ -367,7 +367,7 @@
                                 <treecell class="treecell-indent"
                                           url="chrome://komodo/content/pref/pref-web.xul"
                                           label="&webAndBrowser.label;"
-                                          helptag="web_and_browser"/>
+                                          helptag="web-and-browser-preferences"/>
                             </treerow>
                         </treeitem>
 
@@ -376,7 +376,7 @@
                                 <treecell class="treecell-indent"
                                           url="chrome://komodo/content/pref/pref-projects.xul"
                                           label="&projectsAndWorkspace.label;"
-                                          helptag="projects_and_workspace"/>
+                                          helptag="projects-and-workspace-preferences"/>
                             </treerow>
                         </treeitem>
 
@@ -386,7 +386,7 @@
                                 <treecell class="treecell-indent"
                                           url="chrome://komodo/content/pref/pref-winInteg.xul"
                                           label="&windowsIntegration.label;"
-                                          helptag="windows_integration"/>
+                                          helptag="windows-integration-preferences"/>
                             </treerow>
                         </treeitem>
 <!-- #endif -->

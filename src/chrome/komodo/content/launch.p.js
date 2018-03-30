@@ -48,12 +48,17 @@ if (!("help" in ko)) {
 ko.help = {};
 (function () {
 var _log = ko.logging.getLogger("ko.help");
-
 /* XXX duplicated from help/content/contextHelp.js.  We do NOT want
    alwaysRaised attribute on the window, that's obnoxious! */
 
-function openHelp(topic, path = 'Manual/')
+function openHelp(topic, path = 'manual/')
 {
+    const {Cc, Ci} = require("chrome");
+    let version = Cc["@activestate.com/koInfoService;1"].getService(Ci.koIInfoService).version;
+    // get major version
+    version = version.substr(0,version.indexOf("."));
+    path = '/'+version+"/"+path;
+    
     var url = ko.prefs.getString('doc_site');
     if (topic) url += path + topic;
     ko.browse.openUrlInDefaultBrowser(url);

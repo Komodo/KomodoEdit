@@ -270,8 +270,15 @@
     
     function doHelp() {
         var tag = getHelpTag();
-        tag = "prefs#preferences_"+tag.replace(/\-/g,"_").toLowerCase();
-        ko.windowManager.getMainWindow().ko.help.open(tag);
+        if (tag.indexOf(".html") >= 0)
+        {
+            ko.windowManager.getMainWindow().ko.help.open(tag);
+        }
+        else
+        {
+            tag = "prefs.html#"+tag.replace(/\_/g,"-").toLowerCase();
+            ko.windowManager.getMainWindow().ko.help.open(tag);
+        }
     }
     
     function setupFilteredTree() {
@@ -379,7 +386,7 @@
                                         <treecell class="treecell-indent"
                                                   url="chrome://komodo/content/pref/pref-editor.xul"
                                                   label="&editor.label;"
-                                                  helptag="editor"/>
+                                                  helptag="editor-preferences"/>
                                     </treerow>
                                     <treechildren id="editingChildren">
                                         <treeitem container="false" id="indentationProperties">
@@ -387,7 +394,7 @@
                                                 <treecell class="treecell-indent"
                                                           url="chrome://komodo/content/pref/pref-indentation.xul"
                                                           label="&indentation.label;"
-                                                          helptag="indentation"/>
+                                                          helptag="configuring-indentation"/>
                                             </treerow>
                                         </treeitem>
                                         <treeitem container="false" id="editsmartItem">
@@ -425,7 +432,7 @@
                                     <treerow>
                                         <treecell class="treecell-indent" label="&languages.label;"
                                                   url="chrome://komodo/content/pref/pref-languages.xul"
-                                                  helptag="language_configuration_preferences"/>
+                                                  helptag="language-configuration"/>
                                     </treerow>
                                     <treechildren id="languagesChildren">
                                         <treeitem container="false" id="javascriptItem">
@@ -433,7 +440,7 @@
                                                 <treecell class="treecell-indent"
                                                           url="chrome://komodo/content/pref/pref-javascript.xul"
                                                           label="&javaScript.label;"
-                                                          helptag="javascript_configuration"/>
+                                                          helptag="configuring-javascript"/>
                                             </treerow>
                                         </treeitem>
                                         <treeitem container="false" id="nodejsItem">
@@ -441,7 +448,7 @@
                                                 <treecell class="treecell-indent"
                                                           url="chrome://komodo/content/pref/pref-nodejs.xul"
                                                           label="&nodejs.label;"
-                                                          helptag="nodejs_configuration"/>
+                                                          helptag="configuring-javascript"/>
                                             </treerow>
                                         </treeitem>
                                         <treeitem container="false" id="perlItem">
@@ -449,7 +456,7 @@
                                                 <treecell class="treecell-indent"
                                                           url="chrome://komodo/content/pref/pref-perl.xul"
                                                           label="&perl.label;"
-                                                          helptag="perl_configuration"/>
+                                                          helptag="configuring-perl"/>
                                             </treerow>
                                         </treeitem>
                                         <treeitem container="false" id="phpItem">
@@ -457,7 +464,7 @@
                                                 <treecell class="treecell-indent"
                                                           url="chrome://komodo/content/pref/pref-php.xul"
                                                           label="&PHP.label;"
-                                                          helptag="php_configuration"/>
+                                                          helptag="configuring-php"/>
                                             </treerow>
                                         </treeitem>
                                         <treeitem container="false" id="pythonItem">
@@ -465,7 +472,7 @@
                                                 <treecell class="treecell-indent"
                                                           url="chrome://komodo/content/pref/pref-python.xul"
                                                           label="&python.label;"
-                                                          helptag="python_configuration"/>
+                                                          helptag="configuring-python"/>
                                             </treerow>
                                         </treeitem>
                                         <treeitem container="false" id="python3Item">
@@ -473,7 +480,7 @@
                                                 <treecell class="treecell-indent"
                                                           url="chrome://komodo/content/pref/pref-python3.xul"
                                                           label="&python3.label;"
-                                                          helptag="python_configuration"/>
+                                                          helptag="configuring-python"/>
                                             </treerow>
                                         </treeitem>
                                         <treeitem container="false" id="rubyItem">
@@ -481,7 +488,7 @@
                                                 <treecell class="treecell-indent"
                                                           url="chrome://komodo/content/pref/pref-ruby.xul"
                                                           label="&ruby.label;"
-                                                          helptag="ruby_configuration"/>
+                                                          helptag="configuring-ruby"/>
                                             </treerow>
                                         </treeitem>
                                       </treechildren>
