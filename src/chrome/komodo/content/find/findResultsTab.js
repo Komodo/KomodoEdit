@@ -97,7 +97,6 @@ this.create = function _FindResultsTab_Create(id, searchAgain, callback)
     if (ko.prefs.getBoolean("find_in_view", false))
     {
         return this.createWithView(id, searchAgain, callback);
-        return;
     }
     
     var idstr = "findresults_tabpanel" + id;
@@ -108,36 +107,45 @@ this.create = function _FindResultsTab_Create(id, searchAgain, callback)
             iconURL: "koicon://ko-svg/chrome/icomoon/skin/binoculars.svg"
         });
     
-    ko.widgets.getWidgetAsync(idstr, function(widget) {
-        var panel = widget.parentNode;
-        var tab = panel.tab;
-        
-        var manager = new ko.findresults.FindResultsTabManager();
-        manager.initialize(id, searchAgain);
-        
-        ["mousedown", "focus"].forEach(function(eventName) {
-            tab.addEventListener(eventName, function() {
-                panel.tab.parentNode.selectedItem = tab;
-                panel.focus();
-                manager.doc.getElementById("findresults").focus();
-            }, false);
-        });
-        
-        tab.addEventListener("close-tab", function(e) {
-            var findSvc = Components.classes["@activestate.com/koFindService;1"].
-                      getService(Components.interfaces.koIFindService);
-            findSvc.stopfindreplaceinfiles(id);
+    var applyEventHandlers = () =>
+    {
+        ko.widgets.getWidgetAsync(idstr, function(widget) {
+            var panel = widget.parentNode;
+            var tab = panel.tab;
             
-            ko.widgets.unregisterWidget(widget);
-            delete this.managers[id];
+            var manager = new ko.findresults.FindResultsTabManager();
+            manager.initialize(id, searchAgain);
+
+            ["mousedown", "focus"].forEach(function(eventName) {
+                tab.addEventListener(eventName, function() {
+                    panel.tab.parentNode.selectedItem = tab;
+                    panel.focus();
+                    manager.doc.getElementById("findresults").focus();
+                }, false);
+            });
             
-            e.preventDefault();
-            return false;
+            tab.addEventListener("close-tab", function(e) {
+                var findSvc = Components.classes["@activestate.com/koFindService;1"].
+                          getService(Components.interfaces.koIFindService);
+                findSvc.stopfindreplaceinfiles(id);
+                
+                ko.widgets.unregisterWidget(widget);
+                delete this.managers[id];
+                
+                e.preventDefault();
+                return false;
+            }.bind(this));
+            callback(manager);
+            
+            window.removeEventListener("ko-widget-moved-completed", applyEventHandlers);
+            // Re-apply event listeners to the tab when the find results are popped
+            window.addEventListener("ko-widget-moved-completed", applyEventHandlers);
         }.bind(this));
         
-        callback(manager);
-    }.bind(this));
-}
+    };
+    
+    applyEventHandlers();
+};
 
 this.createWithView = function _FindResultsTab_CreateWithView(id, searchAgain, callback)
 {
@@ -453,43 +461,43 @@ this.FindResultsTabManager.prototype.undoReplace = function()
 
 
 // 'Close Tab' button not necessary with current Find Results tab policy.
-//this.FindResultsTabManager.prototype.closeTab = function()
-//{
-//    try {
-//        // Warn if the search is still in progress, offer to stop it and.
-//        if (this.isBusy()) {
-//            var answer = ko.dialogs.customButtons(
-//                "The search is still in progress. The search must be stopped "+
-//                "before the tab can be closed.",
-//                ["Stop and &Close Tab", "Cancel"],
-//                "Cancel",  // default button
-//                null, // text
-//                null, // title
-//                "stop_search_before_closing_tab");
-//            if (answer == "Stop and Close Tab") {
-//                this.stopSearch();
-//            } else { // answer == "Cancel"
-//                return;
-//            }
-//        }
-//
-//        // Remove the tab's XUL.
-//        var tabs = parent.document.getElementById("output_tabs");
-//        var tab = parent.document.getElementById(this._idprefix+"_tab");
-//        tabs.selectedItem = tab.previousSibling; // select preceding tab
-//        tabs.removeChild(tab);
-//        var tabpanels = parent.document.getElementById("output_tabpanels");
-//        var tabpanel = parent.document.getElementById(this._idprefix+"_tabpanel");
-//        tabpanels.removeChild(tabpanel);
-//
-//        // Reclaim the id number.
-//        //XXX Have to figure out our Find Results tab policy before working
-//        //    on this.
-//        //delete ko.findresults.managers[this.id];
-//    } catch(ex) {
-//        findResultsLog.exception(ex);
-//    }
-//}
+this.FindResultsTabManager.prototype.closeTab = function()
+{
+    try {
+        // Warn if the search is still in progress, offer to stop it and.
+        if (this.isBusy()) {
+            var answer = ko.dialogs.customButtons(
+                "The search is still in progress. The search must be stopped "+
+                "before the tab can be closed.",
+                ["Stop and &Close Tab", "Cancel"],
+                "Cancel",  // default button
+                null, // text
+                null, // title
+                "stop_search_before_closing_tab");
+            if (answer == "Stop and Close Tab") {
+                this.stopSearch();
+            } else { // answer == "Cancel"
+                return;
+            }
+        }
+
+        // Remove the tab's XUL.
+        var tabs = parent.document.getElementById("output_tabs");
+        var tab = parent.document.getElementById(this._idprefix+"_tab");
+        tabs.selectedItem = tab.previousSibling; // select preceding tab
+        tabs.removeChild(tab);
+        var tabpanels = parent.document.getElementById("output_tabpanels");
+        var tabpanel = parent.document.getElementById(this._idprefix+"_tabpanel");
+        tabpanels.removeChild(tabpanel);
+
+        // Reclaim the id number.
+        //XXX Have to figure out our Find Results tab policy before working
+        //    on this.
+        //delete ko.findresults.managers[this.id];
+    } catch(ex) {
+        findResultsLog.exception(ex);
+    }
+}
 
 
 this.FindResultsTabManager.prototype.setDescription = function(subDesc /* =null */,
