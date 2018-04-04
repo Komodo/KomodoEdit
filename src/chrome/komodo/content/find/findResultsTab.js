@@ -125,6 +125,7 @@ this.create = function _FindResultsTab_Create(id, searchAgain, callback)
             });
             
             tab.addEventListener("close-tab", function(e) {
+                window.removeEventListener("ko-widget-moved-completed", applyEventHandlers);
                 var findSvc = Components.classes["@activestate.com/koFindService;1"].
                           getService(Components.interfaces.koIFindService);
                 findSvc.stopfindreplaceinfiles(id);
@@ -458,47 +459,6 @@ this.FindResultsTabManager.prototype.undoReplace = function()
 //{
 //    alert('NYI redoSearch');
 //}
-
-
-// 'Close Tab' button not necessary with current Find Results tab policy.
-this.FindResultsTabManager.prototype.closeTab = function()
-{
-    try {
-        // Warn if the search is still in progress, offer to stop it and.
-        if (this.isBusy()) {
-            var answer = ko.dialogs.customButtons(
-                "The search is still in progress. The search must be stopped "+
-                "before the tab can be closed.",
-                ["Stop and &Close Tab", "Cancel"],
-                "Cancel",  // default button
-                null, // text
-                null, // title
-                "stop_search_before_closing_tab");
-            if (answer == "Stop and Close Tab") {
-                this.stopSearch();
-            } else { // answer == "Cancel"
-                return;
-            }
-        }
-
-        // Remove the tab's XUL.
-        var tabs = parent.document.getElementById("output_tabs");
-        var tab = parent.document.getElementById(this._idprefix+"_tab");
-        tabs.selectedItem = tab.previousSibling; // select preceding tab
-        tabs.removeChild(tab);
-        var tabpanels = parent.document.getElementById("output_tabpanels");
-        var tabpanel = parent.document.getElementById(this._idprefix+"_tabpanel");
-        tabpanels.removeChild(tabpanel);
-
-        // Reclaim the id number.
-        //XXX Have to figure out our Find Results tab policy before working
-        //    on this.
-        //delete ko.findresults.managers[this.id];
-    } catch(ex) {
-        findResultsLog.exception(ex);
-    }
-}
-
 
 this.FindResultsTabManager.prototype.setDescription = function(subDesc /* =null */,
                                                           important /* =false */)
