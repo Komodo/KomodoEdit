@@ -714,8 +714,11 @@ class koFTPS(koFTP):
         #conn.close()
         # Hack for python ssl, see bug:
         # http://bugs.activestate.com/show_bug.cgi?id=50217
-        conn._sock.shutdown(2)
-        del conn
+        try:
+            conn._sock.shutdown(2)
+            del conn
+        except Exception as e:
+            self.log.warn(e)
         #-- Hack end
         #print "Closed conn"
         return self.voidresp()
@@ -746,8 +749,11 @@ class koFTPS(koFTP):
         #conn.close()
         # Hack for python ssl, see bug:
         # http://bugs.activestate.com/show_bug.cgi?id=50217
-        conn._sock.shutdown(2)
-        del conn
+        try:
+            conn._sock.shutdown(2)
+            del conn
+        except Exception as e:
+            self.log.warn(e)
         #-- Hack end
         return self.voidresp()
 
@@ -767,8 +773,11 @@ class koFTPS(koFTP):
         #conn.close()
         # Hack for python ssl, see bug:
         # http://bugs.activestate.com/show_bug.cgi?id=50217
-        conn._sock.shutdown(2)
-        del conn
+        try:
+            conn._sock.shutdown(2)
+            del conn
+        except Exception as e:
+            self.log.warn(e)
         #-- Hack end
         #print "Closed conn"
         return self.voidresp()
