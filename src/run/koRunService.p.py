@@ -1244,7 +1244,10 @@ class KoRunService:
     
     def argvSplit(self, argvStr):
         import shlex
-        return shlex.split(argvStr)
+        if not sys.platform.startswith("win"):
+            return shlex.split(argvStr)
+        else:
+            return shlex.split(argvStr, posix=0)
 
 
 class KoRunEnvView(TreeView):
