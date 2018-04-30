@@ -53,6 +53,7 @@ function MacroRecorder() {
     this.mode = 'stopped';
     this._currentMacro = new Array();
     this._currentMacroText = '';
+    this._currentMacroPasteSentinels = 0; // only used in Linux
     this.log = ko.logging.getLogger('ko.macros.recorder');
 }
 
@@ -86,6 +87,11 @@ MacroRecorder.prototype.startRecording = function() {
 MacroRecorder.prototype.stopRecording = function(quiet /* false */) {
     this.mode = 'stopped';
     this._finishTextMacro();
+    for (let i = 0; i < this._currentMacroPasteSentinels; i++) {
+      // cmd_paste on Linux is asynchronous, so subsequent commands need to be
+      // run in a 'setTimeout()' function. Finish the call here at the end.
+      this._currentMacro.push("}, 100); // cmd_paste is async\n")
+    }
     if (typeof(quiet) == 'undefined') {
         quiet = false;
     }
@@ -138,6 +144,14 @@ MacroRecorder.prototype.appendCommand = function(command) {
         }
         this._finishTextMacro();
         this._currentMacro.push("ko.commands.doCommand('" + command +"')\n");
+        if (command == "cmd_paste" && Components.classes["@activestate.com/koInfoService;1"].
+            getService(Components.interfaces.koIInfoService).platform.indexOf("linux") === 0) {
+          // cmd_paste on Linux is asynchronous, so subsequent commands need to 
+          // be run in a 'setTimeout()' function. Start the call here. It will
+          // be finished when the macro is finished recording.
+          this._currentMacro.push("setTimeout(function() {\n");
+          this._currentMacroPasteSentinels++;
+        }
     } catch (e) {
         log.exception(e);
     }
