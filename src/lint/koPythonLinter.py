@@ -487,7 +487,7 @@ class KoPythonCommonPyflakesChecker(_GenericPythonLinter):
             warnLines = []
             errorLines = []
             if p.returncode and stderr and not stdout:
-                m = re.match("^(.*?):(\d+):(\d+): invalid syntax", stderr)
+                m = re.match("^(.*?):(\d+):(\d+): (invalid syntax|unexpected indent)", stderr)
                 if m is None:
                     _complainIfNeeded(stderr, "Error running pyflakes on file %r\n%s",
                                       request.koDoc.displayPath, stderr)
