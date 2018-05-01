@@ -1926,6 +1926,12 @@ this.findAllInFiles = function Find_FindAllInFiles(editor, context, pattern, pat
 {
     onStart = onStart || function() {};
     if (patternOverride) pattern = patternOverride;
+    if (context.type == Ci.koIFindContext.FCT_IN_FILES && context.encodedFolders) {
+      // Searching again calls this function, but when there are multiple tabs 
+      // open with different directories, use the correct directory for the
+      // current tab.
+      lazy.findSvc.options.encodedFolders = context.encodedFolders;
+    }
     if ( ! resultsMgr) {
         ko.findresults.getTab(this.findAllInFiles.bind(this, editor, context, pattern, patternAlias, msgHandler, onStart));
         return;
@@ -1967,6 +1973,7 @@ this.findAllInFolder = function Find_FindAllInFolder(pattern, folder)
     var context = Cc["@activestate.com/koFindInFilesContext;1"]
         .createInstance(Ci.koIFindInFilesContext);
     context.type = Ci.koIFindContext.FCT_IN_FILES;
+    context.encodedFolders = folder;
     
     return this.findAllInFiles(require("ko/windows").getMain(), context, pattern);
 }

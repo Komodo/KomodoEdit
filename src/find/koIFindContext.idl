@@ -66,6 +66,8 @@ interface koIRangeFindContext : koIFindContext {
 interface koIFindInFilesContext : koIFindContext {
     // A working directory from which to base relative paths.
     attribute wstring cwd;
+    // A pathsep-separated list of folders to search in.
+    attribute wstring encodedFolders;
 };
 
 

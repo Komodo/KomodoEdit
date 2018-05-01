@@ -98,6 +98,7 @@ class KoFindInFilesContext(KoFindContext):
     _reg_contractid_ = "@activestate.com/koFindInFilesContext;1"
 
     cwd = None
+    encodedFolders = None
 
 
 class KoCollectionFindContext(KoFindContext):

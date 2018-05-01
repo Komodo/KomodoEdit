@@ -623,6 +623,7 @@ function find_all() {
             if (widgets.excludes.value)
                 ko.mru.addFromACTextbox(widgets.excludes);
             gFindSvc.options.cwd = _g_find_context.cwd;
+            _g_find_context.encodedFolders = gFindSvc.options.encodedFolders; // user may have changed since reset
         }
         else if (_g_find_context.type != koIFindContext.FCT_IN_COLLECTION)
         {
@@ -782,6 +783,7 @@ function replace_all() {
             if (widgets.excludes.value)
                 ko.mru.addFromACTextbox(widgets.excludes);
             gFindSvc.options.cwd = _g_find_context.cwd;
+            _g_find_context.encodedFolders = gFindSvc.options.encodedFolders; // user may have changed since reset
 
             ko.find.replaceAllInFiles(opener, _g_find_context,
                                        pattern, repl,
