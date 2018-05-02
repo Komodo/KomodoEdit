@@ -270,18 +270,25 @@
         var props = ["type", "path", "callback"];
         _.each(props, (prop) => { _opts[prop] = opts[prop] || null; });
 
-        message = message || "Choose path";
+        message = message || "Please select the path you are interested in";
         opts.type = opts.type || "file";
         opts.path = opts.path || ss.storage.filepicker_path || legacy.uriparse.URIToLocalPath(legacy.places.getDirectory());
         opts.callback = callback || opts.callback || function() { log.error("callback not defined"); };
 
         require("ko/modal").open(
-            message,
+            "Choose path",
             {
+                prompt: {
+                    type: "description",
+                    value: message,
+                    attributes: { width: 550 },
+                    fullwidth: true,
+                },
                 path: {
                     type: "filepath",
                     options: { filetype: opts.type },
-                    value: opts.path
+                    value: opts.path,
+                    fullwidth: true,
                 }
             },
             (data) =>
