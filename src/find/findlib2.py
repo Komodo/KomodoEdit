@@ -129,7 +129,7 @@ def find(paths, includes=None, excludes=None, env=None):
 
 def grep(regex, paths, files_with_matches=False,
          treat_binary_files_as_text=False,
-         skip_unknown_lang_paths=False,
+         skip_binary_files=False,
          skip_filesizes_larger_than=None,
          first_on_line=False,
          includes=None, excludes=None,
@@ -144,8 +144,8 @@ def grep(regex, paths, files_with_matches=False,
         Default is false.
     @param treat_binary_files_as_text {boolean} indicates that binary files
         should be search. By default they are skipped.
-    @param skip_unknown_lang_paths {boolean} can be set True to skip
-        grepping in files for which the lang could not be determined.
+    @param skip_binary_files {boolean} can be set True to skip
+        grepping in binary files.
         This is useful when doing *replacements* to be safe about not
         wrecking havoc in binary files that happen to look like plain
         text.
@@ -188,8 +188,8 @@ def grep(regex, paths, files_with_matches=False,
             yield SkipPath(path, "error determining file info: %s" % ex)
             continue
 
-        if skip_unknown_lang_paths and ti.lang is None:
-            yield SkipUnknownLangPath(path)
+        if not ti.is_text and skip_binary_files:
+            yield SkipBinaryPath(path)
             continue
         if includes:
             unmatched_includes = [field for field, value in includes
@@ -292,7 +292,7 @@ def replace(regex, repl, paths,
 
     """
     journal = None
-    grepper = grep(regex, paths, skip_unknown_lang_paths=True,
+    grepper = grep(regex, paths, skip_binary_files=True,
                    skip_filesizes_larger_than=skip_filesizes_larger_than,
                    first_on_line=first_on_line,
                    includes=includes, excludes=excludes,
@@ -586,13 +586,6 @@ class SkipBinaryPath(SkipPath):
     """Event yielded when skipping a binary path during grep() or replace()."""
     def __init__(self, path):
         SkipPath.__init__(self, path, "binary")
-
-class SkipUnknownLangPath(SkipPath):
-    """Event yielded when skipping a path because its lang could not be
-    identified.
-    """
-    def __init__(self, path):
-        SkipPath.__init__(self, path, "unknown language")
 
 class SkipLargeFilePath(SkipPath):
     """Event yielded when skipping a path because its filesize is too large."""

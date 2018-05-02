@@ -314,10 +314,7 @@ class _FindReplaceInFilesThread(threading.Thread):
                 continue
             elif isinstance(event, findlib2.SkipPath):
                 self.num_paths_searched += 1
-                if isinstance(event, findlib2.SkipUnknownLangPath):
-                    self.num_paths_skipped += 1
-                    self._cache_skipped_path(event)
-                elif isinstance(event, findlib2.SkipBinaryPath):
+                if isinstance(event, findlib2.SkipBinaryPath):
                     #TODO: put these as warning rows in the UI?
                     log.debug("Skip `%s' (binary).", event.path)
             elif not isinstance(event, findlib2.Hit):
@@ -604,9 +601,7 @@ class _ConfirmReplacerInFiles(threading.Thread, TreeView):
                     continue
                 elif isinstance(event, findlib2.SkipPath):
                     self.num_paths_searched += 1
-                    if isinstance(event, findlib2.SkipUnknownLangPath):
-                        self._add_skipped_path(event)
-                    elif isinstance(event, findlib2.SkipLargeFilePath):
+                    if isinstance(event, findlib2.SkipLargeFilePath):
                         self._add_skipped_path(event)
                     elif isinstance(event, findlib2.SkipBinaryPath):
                         #TODO: put these as warning rows in the UI?
@@ -634,8 +629,6 @@ class _ConfirmReplacerInFiles(threading.Thread, TreeView):
             return components.interfaces.koIConfirmReplacerInFiles.SKIPPED_LARGE_FILE
         if isinstance(event, findlib2.SkipBinaryPath):
             return components.interfaces.koIConfirmReplacerInFiles.SKIPPED_BINARY_FILE
-        if isinstance(event, findlib2.SkipUnknownLangPath):
-            return components.interfaces.koIConfirmReplacerInFiles.SKIPPED_UNKNOWN_LANG
         return 0
 
     def toggle_mark(self, row_idx):

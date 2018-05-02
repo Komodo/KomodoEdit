@@ -76,7 +76,6 @@ interface koIConfirmReplacerInFiles : nsITreeView {
 
     const long SKIPPED_LARGE_FILE = 1;
     const long SKIPPED_BINARY_FILE = 2;
-    const long SKIPPED_UNKNOWN_LANG = 3;
 
     readonly attribute koIConfirmReplaceController controller;
 
