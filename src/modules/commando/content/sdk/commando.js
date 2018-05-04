@@ -57,7 +57,8 @@
         resultHeightTimer: null,
         lastSearch: 0,
         showing: false,
-        accesskeys: {}
+        accesskeys: {},
+        selectedScope: null
     };
 
     var elems = {
@@ -553,7 +554,6 @@
         if ( ! ("_scope" in scopeElem.element().selectedItem))
         {
             log.debug("Scope selection is not an actual scope, reverting active scope menuitem");
-            log.debug(local.selectedScope);
 
             if (local.selectedScope)
                 scopeElem.element().selectedItem = scopeElem.find("#scope-"+local.selectedScope).element();
@@ -1897,9 +1897,10 @@
         return elem('scope').element().selectedItem._scope;
     }
 
-    this.getScopeHandler = function()
+    this.getScopeHandler = function(scope)
     {
-        var scope = c.getScope();
+        if ( ! scope)
+            scope = c.getScope();
         return require(scope.handler);
     }
     
@@ -1913,13 +1914,14 @@
         return local.panelClone.clone();
     }
 
-    this.execScopeHandler = function(method, args)
+    this.execScopeHandler = function(method, args, scope = null)
     {
-        var scope = c.getScope().handler;
+        if ( ! scope)
+            scope = c.getScope();
         log.debug("Executing scope handler: " + method + " on " + scope);
 
         var result = false;
-        var scopeHandler = c.getScopeHandler();
+        var scopeHandler = c.getScopeHandler(scope);
         if (method in scopeHandler)
         {
             log.debug("Executing " + method + " on scope");
@@ -1931,12 +1933,12 @@
             log.debug(method + " not found in scope, skipping");
         }
 
-        if ((scope in local.handlers) && (method in local.handlers[scope]))
+        if ((scope.handler in local.handlers) && (method in local.handlers[scope.handler]))
         {
-            for (let id in local.handlers[scope][method])
+            for (let id in local.handlers[scope.handler][method])
             {
                 log.debug("Executing Custom Handler: " + id);
-                local.handlers[scope][method][id].apply(null, args);
+                local.handlers[scope.handler][method][id].apply(null, args);
             }
         }
 
@@ -2094,7 +2096,11 @@
     
     this.clearCache = function()
     {
-        c.execScopeHandler("clearCache");
+        var scopes = c.getRegisteredScopes();
+        for (let id in scopes)
+        {
+            c.execScopeHandler("clearCache", null, scopes[id]);
+        }
         c.tip("Cache Cleared");
 
         c.reSearch();
