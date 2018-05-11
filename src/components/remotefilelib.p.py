@@ -161,6 +161,8 @@ class koRFConnection:
         self.lastErrorSvc.setLastError(0, self._lasterror)
 
     def _raiseServerException(self, error_message, log_message=None):
+        # Clear this connection from the connection cache.
+        self._rfConnectionService.removeConnectionFromCache(self)
         self._setLastError(error_message)
         if log_message:
             self.log.error("%s %s ERROR: %s", self.protocol.upper(), log_message, self._lasterror)
@@ -978,7 +980,7 @@ class koRemoteSSH(koRFConnection):
                 # Connection lost, reconnect if possible (bug 85050).
                 self.log.info("Re-opening the SSH connection because it was closed")
                 self.open(self.server, self.port, self.username, self.password,
-                          "", self.passive)
+                          "", self.passive, self.privatekey)
 
     def runCommand(self, command, combineStdoutAndStderr):
         channel = self._connection.open_session()
