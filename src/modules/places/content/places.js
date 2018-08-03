@@ -394,18 +394,21 @@ viewMgrClass.prototype = {
     addNewFile: function() {
         var index = ko.places.manager._clickedOnRoot() ? -1 : this.view.selection.currentIndex;
         var parentURI = (index >= 0 ? this.view.getURIForRow(index) : ko.places.manager.currentPlace);
-        var placesPath = ko.uriparse.URIToLocalPath(parentURI);
-        let kofile = require("ko/file");
         var name = ko.dialogs.prompt(_bundle.GetStringFromName("enterFileName"));
-        var path = kofile.join(placesPath, name);
-        var uri = ko.uriparse.pathToURI(path);
-        while(path && kofile.exists(path) &&
-              ! kofile.isDir(path))
+        if (ko.places.manager.currentPlaceIsLocal)
         {
-            ko.places.manager.showTreeItemByFile(uri);
-            name = ko.dialogs.prompt(_bundle.GetStringFromName("enterFileNameAlreadyExists"));
-            path = kofile.join(placesPath, name);
-            uri = ko.uriparse.pathToURI(path);
+            var placesPath = ko.uriparse.URIToLocalPath(parentURI);
+            let kofile = require("ko/file");
+            var path = kofile.join(placesPath, name);
+            var uri = ko.uriparse.pathToURI(path);
+            while(path && kofile.exists(path) &&
+                  ! kofile.isDir(path))
+            {
+                ko.places.manager.showTreeItemByFile(uri);
+                name = ko.dialogs.prompt(_bundle.GetStringFromName("enterFileNameAlreadyExists"));
+                path = kofile.join(placesPath, name);
+                uri = ko.uriparse.pathToURI(path);
+            }
         }
         if (!name) return;
         
@@ -419,11 +422,12 @@ viewMgrClass.prototype = {
                     // extension).
                     view.koDoc.language = ko.prefs.getStringPref("fileDefaultNew");
                 }
-            }
+            };
             ko.views.manager.doFileOpenAsync(parentURI + "/" + name, "editor", null, -1, callback);
             this._openFolder(index);
         } catch(ex) {
-            ko.dialogs.alert(ex);
+            require("notify/notify").error("Could not create file.  See logs for more information.", "Places");
+            log.exception(ex);
         } finally {
             var sdkFile = require("ko/file");
             require("ko/dom")(window.parent).trigger("folder_touched",

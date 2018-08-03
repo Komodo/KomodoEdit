@@ -35,6 +35,7 @@
     const system        = require("sdk/system");
     const shell         = require("ko/shell");
     const w             = require("ko/windows").getMain();
+    const legacy        = w.ko;
     //log.setLevel(require("ko/logging").LOG_DEBUG);
 
     var self = this, icons = this;
@@ -714,7 +715,7 @@
     var readFile = (filePointer, callback) =>
     {
         if ((typeof filePointer) == "string" && ! filePointer.match(/^[a-z_\-]+:\/\//))
-            filePointer = "file://" + filePointer;
+            filePointer = legacy.uriparse.pathToURI(filePointer);
         var path = (typeof filePointer) == "string" ? filePointer : filePointer.path;
 
         log.debug("Reading file: " + path);
