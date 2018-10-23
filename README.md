@@ -45,7 +45,7 @@ Mailing Lists: [komodo-discuss](http://code.activestate.com/lists/komodo-discuss
 ## Building Komodo
 
 Note that these are simplified steps of the building process, for a more in-depth
-guide check <BUILD.txt>.
+guide check [BUILD.txt](BUILD.txt).
 
 ### Building on Windows
 
