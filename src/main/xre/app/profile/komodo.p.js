@@ -214,3 +214,9 @@ pref("gfx.direct2d.force-enabled", true);
 pref("gfx.font_rendering.cleartype.always_use_for_content", true);
 pref("gfx.font_rendering.directwrite.enabled", true);
 #endif
+
+#ifdef XP_MACOSX
+// Work around the login dialog (and potentially other dialogs) loading up black and having weird graphical artifacts when
+// resizing. Possibly related to Retina + non-retina external monitor being attached.
+user_pref("layers.acceleration.disabled", true);
+#endif
