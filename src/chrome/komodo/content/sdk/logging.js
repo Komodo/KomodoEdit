@@ -484,7 +484,7 @@ Logger.prototype.report = function(e, message, level = "EXCEPTION") {
     if (typeof require == "undefined") return;
     var prefs = require("ko/prefs");
 
-    if ( ! prefs.getBooleanPref("analytics_enabled", false)) {
+    if ( ! prefs.getBooleanPref("bugsnag_enabled", false)) {
         return;
     }
 

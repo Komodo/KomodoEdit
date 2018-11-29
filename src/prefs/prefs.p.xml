@@ -1094,6 +1094,7 @@
   <!-- #endif -->
   <boolean id="notify_use_animations">1</boolean>
 
+  <boolean id="bugsnag_enabled">0</boolean>
   <string id="bugsnag_key">a0ffb67a805253227e906fb6ec1a1cde</string>
 
   <string id="package_api_endpoint">https://community.komodoide.com/json/packages/v10/</string>

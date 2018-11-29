@@ -577,7 +577,7 @@ class KoInitService(object):
         i = components.classes["@activestate.com/koInfoService;1"]\
                 .getService(components.interfaces.koIInfoService);
         
-        if not prefs.getBooleanPref("analytics_enabled"):
+        if not prefs.getBooleanPref("bugsnag_enabled"):
             return
         
         try:
