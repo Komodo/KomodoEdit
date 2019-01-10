@@ -2091,6 +2091,12 @@ def target_src(argv=["src"]):
                 return True
             except:
                 return False
+        
+        def getMozURL():
+            log.info("retrieving available bundles from hg.cdn.mozilla.net")
+            hg_data = json.load(urllib2.urlopen('https://hg.cdn.mozilla.net/bundles.json'))['releases/%s' % (treeName,)]["gzip-v2"]
+            relativebundleURL = hg_data['path']
+            return"https://hg.cdn.mozilla.net/%s" % (relativebundleURL,)
 
         if inside_activestate_network():
             try:
@@ -2103,11 +2109,9 @@ def target_src(argv=["src"]):
                 # access to the local mirror; use the canonical mozilla.org server
                 log.info("Failed to reach ActiveState internal mercurial mirror, "
                          "using Mozilla canonical server")
+                bundleURL = getMozURL()
         else:
-            log.info("retrieving available bundles from hg.cdn.mozilla.net")
-            hg_data = json.load(urllib2.urlopen('https://hg.cdn.mozilla.net/bundles.json'))['releases/%s' % (treeName,)]["gzip-v2"]
-            relativebundleURL = hg_data['path']
-            bundleURL = "https://hg.cdn.mozilla.net/%s" % (relativebundleURL,)
+            bundleURL = getMozURL()
 
         _run("wget -t 5 -T 30 --progress=dot:mega -O %s %s" % (bundleFile, bundleURL), log.info)
         _run("hg init %s" % (hgRepo,), log.info)
