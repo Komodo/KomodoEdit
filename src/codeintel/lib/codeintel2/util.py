@@ -117,7 +117,7 @@ def guess_lang_from_path(path):
 
 
 def gen_dirs_under_dirs(dirs, max_depth, interesting_file_patterns=None,
-                        skip_scc_control_dirs=True, exclude_dirs=[]):
+                        skip_scc_control_dirs=True, exclude_dirs=[], excluded_dir_names=[]):
     """Generate all dirs under the given dirs (including the given dirs
     themselves).
     
@@ -129,19 +129,22 @@ def gen_dirs_under_dirs(dirs, max_depth, interesting_file_patterns=None,
         "skip_scc_control_dirs" is a boolean (default True) indicating if
             svn and cvs control dirs should be skipped.
         "exclude_dirs" is a set of directories to exclude.
+        "excluded_dir_names" is a set of directory names to exclude.
     """
     from os.path import normpath, abspath, expanduser, join
     from fnmatch import fnmatch
 
     dirs_to_skip = (skip_scc_control_dirs
         and ["CVS", ".svn", ".hg", ".git", ".bzr"] or [])
+    for excluded_dir_name in excluded_dir_names:
+        dirs_to_skip.append(excluded_dir_name)
     # We must keep track of the directories we have walked, as the list of dirs
     # can overlap - bug 90289.
     walked_these_dirs = {}
     for dir in dirs:
         norm_dir = normpath(abspath(expanduser(dir)))
         LEN_DIR = len(norm_dir)
-        for dirpath, dirnames, filenames in walk2(norm_dir):
+        for dirpath, dirnames, filenames in walk2(norm_dir, exclude_dirs=exclude_dirs, dir_names_to_skip=dirs_to_skip):
             if dirpath in walked_these_dirs:
                 dirnames[:] = []  # Already walked - no need to do it again.
                 continue
@@ -149,12 +152,6 @@ def gen_dirs_under_dirs(dirs, max_depth, interesting_file_patterns=None,
                 dirnames[:] = []  # hit max_depth
             else:
                 walked_these_dirs[dirpath] = True
-                for dir_to_skip in dirs_to_skip:
-                    if dir_to_skip in dirnames:
-                        dirnames.remove(dir_to_skip)
-                for dirname in dirnames[:]:
-                    if join(dirpath, dirname) in exclude_dirs:
-                        dirnames.remove(dirname)
             if interesting_file_patterns:
                 for pat, filename in (
                     (p,f) for p in interesting_file_patterns
@@ -632,7 +629,7 @@ def indent(s, width=4, skip_first_line=False):
         return indentstr + indentstr.join(lines)
 
 def walk2(top, topdown=True, onerror=None, followlinks=False,
-        ondecodeerror=None):
+        ondecodeerror=None, exclude_dirs=[], dir_names_to_skip=[]):
     """A version of `os.walk` that adds support for handling errors for
     files that cannot be decoded with the default encoding. (See bug 82268.)
 
@@ -643,6 +640,12 @@ def walk2(top, topdown=True, onerror=None, followlinks=False,
     raise the exception to abort the walk.
     """
     from os.path import join, isdir, islink
+
+    # Check if root directory is skipped
+    if top in exclude_dirs:
+        return
+    if basename(top) in dir_names_to_skip:
+        return
 
     # We may not have read permission for top, in which case we can't
     # get a list of the files the directory contains.  os.path.walk
@@ -673,8 +676,18 @@ def walk2(top, topdown=True, onerror=None, followlinks=False,
         yield top, dirs, nondirs
     for name in dirs:
         path = join(top, name)
+
+        # Check if directory is skipped
+        if path in exclude_dirs:
+            dirs.remove(name)
+            continue
+        if name in dir_names_to_skip:
+            dirs.remove(name)
+            continue
+
+        # Walk this directory
         if followlinks or not islink(path):
-            for x in walk2(path, topdown, onerror, followlinks):
+            for x in walk2(path, topdown, onerror, followlinks, ondecodeerror, exclude_dirs, dir_names_to_skip):
                 yield x
     if not topdown:
         yield top, dirs, nondirs

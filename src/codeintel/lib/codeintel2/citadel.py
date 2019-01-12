@@ -479,7 +479,7 @@ class ImportHandler:
     # (use Foo::Bar;), '/' for Ruby, etc. Must be set for each language.
     sep = None
     
-    def find_importables_in_dir(self, dir):
+    def find_importables_in_dir(self, dir, env=None):
         """Return a mapping of
             import-name -> (path, subdir-import-name, is-dir-import)
         for all possible importable "things" in the given dir. Each part

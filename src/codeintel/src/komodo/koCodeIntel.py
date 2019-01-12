@@ -1936,6 +1936,7 @@ class KoCodeIntelEnvironment(object):
             "codeintel_scan_files_in_project": T(getter=get_bool),
             "codeintel_max_recursive_dir_depth": T(getter=get_int),
             "codeintel_selected_catalogs": T(getter=get_json_or_eval),
+            "import_exclude_matches": T(),
             "defaultHTMLDecl": T(),
             "defaultHTMLNamespace": T(),
             "defaultHTML5Decl": T(),

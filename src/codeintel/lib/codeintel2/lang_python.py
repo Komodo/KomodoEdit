@@ -1146,7 +1146,7 @@ class PythonImportHandler(ImportHandler):
                 if suffix[0] == '.' and mod_type  == imp.C_EXTENSION:
                     yield suffix
 
-    def find_importables_in_dir(self, imp_dir):
+    def find_importables_in_dir(self, imp_dir, env=None):
         """See citadel.py::ImportHandler.find_importables_in_dir() for
         details.
 
