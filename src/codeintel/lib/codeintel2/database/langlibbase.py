@@ -41,8 +41,9 @@ class LangDirsLibBase(object):
             # TODO: i18n w/ PluralForms
             msg = "Scanning %r directories" % (len(dirs),)
             if len(dirs) == 1:
-                for single_dir in dirs:
-                    msg = "Scanning one directory: %s" % single_dir;
+                msg = "Scanning one directory"
+                # for single_dir in dirs:
+                #     msg = "Scanning one directory: %s" % single_dir;
             reporter.onScanStarted(msg, dirs)
 
         log.debug("ensure_all_dirs_scanned: scanning %r directories",
