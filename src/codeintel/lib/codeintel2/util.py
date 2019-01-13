@@ -672,18 +672,19 @@ def walk2(top, topdown=True, onerror=None, followlinks=False,
             if ondecodeerror is not None:
                 ondecodeerror(err)
 
+    # Check for skipped directories
+    for name in dirs:
+        if name in dir_names_to_skip:
+            dirs.remove(name)
+            continue
+        if join(top, name) in exclude_dirs:
+            dirs.remove(name)
+            continue
+
     if topdown:
         yield top, dirs, nondirs
     for name in dirs:
         path = join(top, name)
-
-        # Check if directory is skipped
-        if path in exclude_dirs:
-            dirs.remove(name)
-            continue
-        if name in dir_names_to_skip:
-            dirs.remove(name)
-            continue
 
         # Walk this directory
         if followlinks or not islink(path):
