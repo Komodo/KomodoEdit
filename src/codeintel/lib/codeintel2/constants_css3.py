@@ -36,6 +36,23 @@ CSS_PSEUDO_CLASS_NAMES = """
     before
     after
     not(
+    default
+    any-link
+    fullscreen
+    indeterminate
+    in-range
+    invalid
+    left
+    optional
+    out-of-range
+    read-only
+    read-write
+    required
+    right
+    scope
+    valid
+    is(
+    dir(
 """.split()
 
 
