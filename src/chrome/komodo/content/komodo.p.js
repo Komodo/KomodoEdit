@@ -474,7 +474,8 @@ function onloadDelay() {
             xtk.domutils.fireEvent(window, "komodo-post-startup");
             require("ko/profiler").save("event-post-startup");
             require("ko/profiler").stop("event-post-startup");
-            authenticateUser(); 
+            // Seems to a leftover from IDE.  There is no such function.
+            // authenticateUser();
         }, 2500);
 
 // #if BUILD_FLAVOUR == "dev"
