@@ -1137,6 +1137,11 @@
         <variable citdl="DOMString" doc="Language code defined in RFC 1766. See the lang attribute&#xA;definition in HTML 4.01." name="lang" />
         <variable citdl="DOMString" doc="Specifies the base direction of directionally neutral text&#xA;and the directionality of tables. See the dir attribute&#xA;definition in HTML 4.01." name="dir" />
         <variable citdl="DOMString" doc="The class attribute of the element. This attribute has been&#xA;renamed due to conflicts with the &quot;class&quot; keyword exposed by&#xA;many languages." name="className" />
+        <variable citdl="DOMString" doc="Is a DOMString, where a value of &quot;true&quot; means the element is editable and a value of &quot;false&quot; means it isn't." name="contentEditable" />
+        <variable citdl="Boolean" doc="Returns a Boolean that indicates whether or not the content of the element can be edited." name="isContentEditable" />
+        <variable citdl="DOMStringMap" doc="Returns a DOMStringMap with which script can read and write the element's custom data attributes (data-*)." name="dataset" />
+        <variable citdl="DOMString" doc="Is a DOMString, reflecting the dir global attribute, representing the directionality of the element. Possible values are &quot;ltr&quot;, &quot;rtl&quot;, and &quot;auto&quot;." name="dir" />
+        <variable citdl="Boolean" doc="Is a Boolean indicating if the element is hidden or not." name="hidden" />
       </scope>
       <scope classrefs="HTMLElement" doc="Root of an HTML document. See the HTML element definition in&#xA;HTML 4.01." ilk="class" name="HTMLHtmlElement">
         <variable citdl="DOMString" doc="Version information about the document&apos;s DTD. See the&#xA;version attribute definition in HTML 4.01." name="version" />
