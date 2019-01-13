@@ -86,6 +86,9 @@
 
 <!ENTITY % Boolean "(true|false)">
 
+<!ENTITY % OlType "(1 | a | A | i | I)">
+    <!-- ol type attribute -->
+
 <!-- these are used for image maps -->
 
 <!ENTITY % Shape "(rect|circle|poly|default)">
@@ -542,6 +545,7 @@
 <!ELEMENT ol (li)+>
 <!ATTLIST ol
   %attrs;
+  type        %OlType;        #IMPLIED
   start       %Number;       #IMPLIED
   <!-- HTML 5 attributes -->
   reversed    (reversed)     #IMPLIED
