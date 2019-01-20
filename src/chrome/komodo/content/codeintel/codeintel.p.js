@@ -1341,7 +1341,9 @@ ko.codeintel = {};
                 scimoz.colourise(scimoz.endStyled, endPos);
             }
             let text = scimoz.getTextRange(startPos, endPos);
+            // New option set that does NOT sync to preferences
             var opts = Cc["@activestate.com/koFindOptions;1"].createInstance();
+            opts.usePrefSvc = false;
             opts.patternType = Ci.koIFindOptions.FOT_SIMPLE;
             opts.matchWord = false;
             opts.searchBackward = false;
