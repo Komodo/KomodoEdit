@@ -582,7 +582,7 @@ if (typeof ko.openfiles == 'undefined')
             var dirtyIndicator  = listbox.querySelector(
                 'richlistitem[id="'+editorView.uid.number+'"] .file-dirty');
 
-            var item = listbox.querySelector('richlistitem[id="'+view.uid.number+'"]');
+            var item = listbox.querySelector('richlistitem[id="'+editorView.uid.number+'"]');
             if (!item) {
                 return;
             }
