@@ -1415,7 +1415,8 @@ function updateWrapperHeight(repeat=true)
 {
     var elem = opener.document.getElementById("findReplaceWrap");
     var bo = document.getElementById('find-box-wrap').boxObject;
-    elem.setAttribute("height", bo.height + 6);
+    if (bo.height)
+        elem.setAttribute("height", bo.height + 6);
     
     if (repeat) setTimeout(updateWrapperHeight.bind(null, false), 100);
 }
