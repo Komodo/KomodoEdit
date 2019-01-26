@@ -898,7 +898,12 @@ class MultiLangZone(LangZone):
                         try:
                             new_res_data[lang][blobname]
                         except KeyError:
-                            dbfile_changes.append(("remove", lang, blobname, None))
+                            try:
+                                removed_blob = self.get_lib(buf.path, [dir], lang).get_blob(blobname)
+                                dbfile_changes.append(("remove", lang, blobname, removed_blob))
+                            except:
+                                log.error("Failed to look up removed blob for %s %r %s", blobname, [dir], lang)
+                                dbfile_changes.append(("remove", lang, blobname, None))
 
                 dhash = self.dhash_from_dir(dir)
                 conn = self._get_symbols_db_conn()
