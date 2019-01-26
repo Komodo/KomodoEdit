@@ -425,6 +425,10 @@ class CullMemRequest(_Request):
     id = "cull memory request"
     priority = PRIORITY_BACKGROUND
 
+class SaveDatabaseRequest(_Request):
+    id = "save database request"
+    priority = PRIORITY_BACKGROUND
+
 
 class IndexerStopRequest(_Request):
     id = "indexer stop request"
@@ -631,6 +635,11 @@ class Indexer(threading.Thread):
                 log.debug("cull memory requested")
                 self.mgr.db.cull_mem()
 
+            # Save database
+            elif isinstance(request, SaveDatabaseRequest):
+                log.debug("save database requested")
+                self.mgr.db.save()
+
             # Currently these two are somewhat of a DB zone-specific hack.
             #TODO: The standard DB "lib" iface should grow a
             #      .preload() (and perhaps .can_preload()) with a
@@ -645,10 +654,12 @@ class Indexer(threading.Thread):
                 assert isinstance(lib, (LangDirsLib, MultiLangDirsLib))
                 lib.ensure_all_dirs_scanned()
 
-            if not isinstance(request, CullMemRequest) and self.mode == self.MODE_DAEMON:
+            if not isinstance(request, CullMemRequest) and not isinstance(request, SaveDatabaseRequest) and self.mode == self.MODE_DAEMON:
                 # we did something; ask for a memory cull after 5 minutes
                 log.debug("staging new cull mem request")
                 self.stage_request(CullMemRequest(), 300, True)
+                # Also, save the database every 5 minutes
+                self.stage_request(SaveDatabaseRequest(), 300, True)
             self.mgr.db.report_event(None)
 
         finally:
