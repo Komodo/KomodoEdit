@@ -997,8 +997,10 @@ class LangZone(object):
         
         # Delete any symbols in the blob's file.
         if action == "update" or action == "remove":
-            cursor.execute("DELETE FROM symbols WHERE filepath=?",
-                           (blob.get("src"),))
+            # Check for null see GitHub issue #3659
+            if blob is not None:
+                cursor.execute("DELETE FROM symbols WHERE filepath=?",
+                               (blob.get("src"),))
         
         # Add all of blob's symbols recursively.
         if action == "add" or action == "update":
