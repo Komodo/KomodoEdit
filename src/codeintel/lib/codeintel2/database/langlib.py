@@ -1344,11 +1344,13 @@ class LangZone(object):
             now = time.time()
             for dbsubpath, (index, atime) \
                     in self._index_and_atime_from_dbsubpath.items():
+                # Don't delete if recently accessed
                 if now - atime > TIME_SINCE_ACCESS:
                     if dbsubpath in self._is_index_dirty_from_dbsubpath:
                         self.save_index(dbsubpath, index)
                         del self._is_index_dirty_from_dbsubpath[dbsubpath]
                     del self._index_and_atime_from_dbsubpath[dbsubpath]
+                # Note: Dirty indexes that are recently accessed are intentionally not written to disk.
         except:
             log.exception("Exception culling memory")
         finally:
