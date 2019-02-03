@@ -103,11 +103,12 @@
 
         <property name="scintilla">
             <getter><![CDATA[
-            if (typeof require == "undefined")
-                return document.getAnonymousElementByAttribute(this, 'anonid', 'scintilla');
-
             if ( ! this._scintilla)
+            {
+                if (typeof require == "undefined")
+                    return document.getAnonymousElementByAttribute(this, 'anonid', 'scintilla');
                 this._scintilla = require("ko/dom")(this).findAnonymous('anonid', "scintilla").element();
+            }
             return this._scintilla;
             ]]></getter>
         </property>
@@ -147,6 +148,7 @@
             onget="return this.scintilla;"/>
 
         <field name="lastCharAdded">null</field>
+        <field name="lastPosition">null</field>
 
         <field name="textChangeUndoPending">false</field>
 
@@ -155,11 +157,12 @@
         <property name="findbar">
             <getter>
                 <![CDATA[
-                if (typeof require == "undefined")
-                    return document.getAnonymousElementByAttribute(this, 'anonid', 'findbar');
-
                 if ( ! this._findbar)
+                {
+                    if (typeof require == "undefined")
+                        return document.getAnonymousElementByAttribute(this, 'anonid', 'findbar');
                     this._findbar = require("ko/dom")(this).findAnonymous('anonid', "findbar").element();
+                }
                 return this._findbar;
                 ]]>
             </getter>
@@ -1177,19 +1180,18 @@
                 this.textChangeUndoPending = false;
             }
 
-            // Forward the call to the languageObj so it can provide language
-            // specific features (smart indent, electric bracers, .. )
+            // Do we have a last char added?
             if (this.lastCharAdded) {
+                // Forward the call to the languageObj so it can provide language
+                // specific features (smart indent, electric bracers, .. )
                 if (this.languageObj &&
                     this.prefs.getBooleanPref("editElectricBrace")) {
                     // "keyPressed" is the poorly named mechanism to initiate
                     // auto-indenting functionality.
                     this.languageObj.keyPressed(this.lastCharAdded, this.scimoz);
                 }
-            }
 
-            // Trigger CodeIntel completions
-            if (this.lastCharAdded) {
+                // Trigger CodeIntel completions
                 this.doCommandCompletion();
                 if (this.isCICplnEnabled && this._isCITriggeringEnabled) {
                     // Trigger completions or calltip.
@@ -1442,6 +1444,7 @@
         </method>
 
         <field name="codeintel_scan_timeout">-1</field>
+        <field name="codeintel_scan_timeout_cancelable">-1</field>
 
         <method name="_onModifiedHandler">
         <parameter name="position"/>
@@ -1494,11 +1497,17 @@
                 {
                     // Get codeintel to re-scan the document - but delay the
                     // scan for repeated typing - bug 101502.
-                    if (linesAdded) {
-                        ko.codeintel.scan_document(koDoc, linesAdded, true /* forcedScan */);
-                    } else {
+                    // Only run if current timeout can be cancelled.  When a new line is added, we'll mark it to not be cancelled.
+                    if (this.codeintel_scan_timeout_cancelable)
+                    {
+                        // Don't allow cancelling if lines were added or removed
+                        this.codeintel_scan_timeout_cancelable = (linesAdded != 0);
+
+                        // Clear previous timeout and schedule new one
+                        var that = this;
                         clearTimeout(this.codeintel_scan_timeout);
                         this.codeintel_scan_timeout = setTimeout(function() {
+                            that.codeintel_scan_timeout_cancelable = true;
                             ko.codeintel.scan_document(koDoc, linesAdded, true /* forcedScan */);
                         }, 500);
                     }
