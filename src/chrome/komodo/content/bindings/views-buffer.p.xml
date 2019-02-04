@@ -1501,7 +1501,7 @@
                     if (this.codeintel_scan_timeout_cancelable)
                     {
                         // Don't allow cancelling if lines were added or removed
-                        this.codeintel_scan_timeout_cancelable = (linesAdded != 0);
+                        this.codeintel_scan_timeout_cancelable = (linesAdded == 0);
 
                         // Clear previous timeout and schedule new one
                         var that = this;
