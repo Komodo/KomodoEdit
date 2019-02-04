@@ -353,6 +353,21 @@ this.kill = function RunOutput_Kill(retval)
     }
 }
 
+/** Clear */
+this.clearOutput = function RunOutput_ClearOutput()
+{
+    var descWidget = document.getElementById("runoutput-desc");
+    var cmdWidget = document.getElementById("runoutput-command");
+    descWidget.setAttribute("value", "");
+    cmdWidget.setAttribute("value", "");
+
+    // Clear session
+    if (_gTerminalView && !_gTerminalHandler.active)
+    {
+        _gTerminalView.startSession(true);
+        _gTerminalView.endSession();
+    }
+}
 
 function _SetView(editor, showParsedOutputList)
 {

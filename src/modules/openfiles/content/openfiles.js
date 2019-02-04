@@ -39,6 +39,13 @@ if (typeof ko.openfiles == 'undefined')
     var groupOptions        = {};
     var sortOptions         = {};
 
+    /** Filters.  Array of arrays.  First dimension is an AND.  Second is an OR. */
+    var filters = [];
+
+    /** File separator */
+    const system = require("sdk/system");
+    const sep = system.platform == "winnt" ? "\\" : "/";
+
     /* Keep track of listeners so we can remove them if needed */
     var listeners            = {};
 
@@ -90,6 +97,9 @@ if (typeof ko.openfiles == 'undefined')
             template.groupItem.removeAttribute('collapsed');
             template.groupItem.removeAttribute('id')
             tpl.parentNode.removeChild(tpl);
+
+            // Disables select handler
+            this._disableSelectHandler = false;
 
             // Register built in sorting options
             this.registerSortOption(
@@ -449,7 +459,7 @@ if (typeof ko.openfiles == 'undefined')
             
             /**** OpenFiles Events ******/
             listbox.addEventListener('select', function(e) {
-                if (e.target == listbox && e.target.selectedItem)
+                if (e.target == listbox && e.target.selectedItem && !this._disableSelectHandler)
                 {
                     this.selectItem(e.target.selectedItem, true /*sendEditorTabClick*/ );
                     ko.commands.doCommandAsync('cmd_focusEditor')
@@ -658,6 +668,8 @@ if (typeof ko.openfiles == 'undefined')
          */
         drawList: function openfiles_drawList(noDelay = false)
         {
+            var hasRemovedItems = false;
+
             // Prevent multiple calls in a short amount of time (10ms)
             if ( ! noDelay) {
                 clearTimeout(timers.drawList || {});
@@ -671,14 +683,58 @@ if (typeof ko.openfiles == 'undefined')
             // Iterate through open views and append them to the list 
             for (let uid of Object.keys(openViews))
             {
-                // Skip items that are already in the list
-                if (listbox.querySelector('richlistitem[id="'+uid+'"]'))
+                // Get view
+                var editorView  = openViews[uid];
+
+                // Check filters
+                var foundInFilter = true;
+                if (filters.length > 0)
                 {
+                    var dirName = editorView.koDoc.file ? editorView.koDoc.file.dirName : '';
+                    var file = dirName + sep + editorView.title;
+                    file = file.toLowerCase();
+
+                    // Check AND filters
+                    for (var filterIdx = 0; filterIdx < filters.length; filterIdx++)
+                    {
+                        // Check OR filters
+                        var orFilters = filters[filterIdx];
+                        var foundInOr = false;
+                        for (var orFiltersIdx = 0; orFiltersIdx < orFilters.length; orFiltersIdx++)
+                        {
+                            if (file.indexOf(orFilters[orFiltersIdx]) !== -1)
+                            {
+                                foundInOr = true;
+                                break;
+                            }
+                        }
+                        if (!foundInOr)
+                        {
+                            foundInFilter = false;
+                            break;
+                        }
+                    }
+                }
+
+                // Skip items that are already in the list
+                var existingItem = listbox.querySelector('richlistitem[id="'+uid+'"]');
+                if (existingItem !== null)
+                {
+                    // Remove if shouldn't be in list
+                    if (!foundInFilter)
+                    {
+                        hasRemovedItems = true;
+                        existingItem.parentNode.removeChild(existingItem);
+                    }
+
                     continue;
                 }
-                
+
+                // Skip if not found in filters
+                if (!foundInFilter)
+                    continue;
+
                 // Append the item
-                var editorView  = openViews[uid];
                 var listItem    = listbox.appendChild(
                                     this.createListItem(editorView));
                 
@@ -691,7 +747,11 @@ if (typeof ko.openfiles == 'undefined')
                     this.selectItem(editorView);
                 }
             }
-            
+
+            // Remove empty groups caused by removed items
+            if (hasRemovedItems)
+                this.removeEmptyGroups();
+
             // Render the groups and splits
             this.drawGroups();
             this.updateLabelCounter();
@@ -1906,8 +1966,25 @@ if (typeof ko.openfiles == 'undefined')
         {
             var groupOption = ko.prefs.getString(PREF_GROUPING_TYPE, 'byLanguage');
             return groupOptions[groupOption];
+        },
+
+        /** Update filters */
+        updateFilters: function openfiles_updateFilters()
+        {
+            filters = [];
+            var textSearch = document.getElementById("filter-search").value.toLowerCase().trim();
+            if (textSearch.length > 0)
+            {
+                for (var word of textSearch.split(/\s+/))
+                    filters.push(word.split("|"));
+            }
+
+            // Redraw list
+            var orig_disableSelectHandler = this._disableSelectHandler;
+            this._disableSelectHandler = true;
+            this.drawList(true);
+            this._disableSelectHandler = orig_disableSelectHandler;
         }
-    
     };
     
     ko.openfiles = new ko.openfiles();

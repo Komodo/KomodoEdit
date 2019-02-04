@@ -2,4 +2,5 @@
 <!ENTITY filterWarningTooltip  "Toggle whether warnings are shown">
 <!ENTITY filterInfoTooltip     "Toggle whether informational messages are shown">
 <!ENTITY filterProgressTooltip "Toggle whether to limit to in-progress tasks">
+<!ENTITY notificationsClearTooltip "Clear all messages">
 <!ENTITY filterSearchEmpty     "Filter messages">
