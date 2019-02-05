@@ -170,6 +170,15 @@ this.updateFilters = (function NWC_updateFilters() {
 }).bind(this);
 
 /**
+ * Clear all notifications
+ */
+this.clearMessages = (function NWC_clearMessages() {
+  while (this.container.firstChild)
+    this.container.removeChild(this.container.firstChild);
+  this._map = {};
+}).bind(this);
+
+/**
  * Determine whether a given item should be shown
  * @param aElem {richlistitem} The item to check
  * @returns true if the item should be displayed
