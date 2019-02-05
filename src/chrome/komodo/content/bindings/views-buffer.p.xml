@@ -1444,7 +1444,7 @@
         </method>
 
         <field name="codeintel_scan_timeout">-1</field>
-        <field name="codeintel_scan_timeout_cancelable">-1</field>
+        <field name="codeintel_scan_timeout_cancelable">true</field>
 
         <method name="_onModifiedHandler">
         <parameter name="position"/>
