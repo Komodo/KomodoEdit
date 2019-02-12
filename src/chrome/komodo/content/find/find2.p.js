@@ -718,8 +718,8 @@ function replace() {
             widgets.repl.value = widgets.curr_repl.value;
         }
         ko.mru.addFromACTextbox(widgets.pattern);
-        if (repl)
-            ko.mru.addFromACTextbox(widgets.repl);
+        // Save MRU, allowing blanks
+        ko.mru.addFromACTextbox(widgets.repl, true);
     
         gFindSvc.options.searchBackward = false;
         var found_one = ko.find.replace(opener, _g_find_context,
