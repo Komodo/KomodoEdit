@@ -1763,7 +1763,8 @@ this.replaceAll = function Find_ReplaceAll(editor, context, pattern, replacement
                          resultsMgr, patternOverride)
 {
     if (patternOverride) pattern = patternOverride;
-    if ( ! resultsMgr) {
+    if (typeof(showReplaceResults) == "undefined") showReplaceResults = false;
+    if (showReplaceResults && !resultsMgr) {
         ko.findresults.getTab(this.replaceAll.bind(
                                             this, editor, context, pattern,
                                             replacement, showReplaceResults,
@@ -1771,7 +1772,6 @@ this.replaceAll = function Find_ReplaceAll(editor, context, pattern, replacement
         return;
     }
     
-    if (typeof(showReplaceResults) == "undefined") showReplaceResults = false;
     if (typeof(firstOnLine) == "undefined" || firstOnLine == null) {
         firstOnLine = false;
     }
