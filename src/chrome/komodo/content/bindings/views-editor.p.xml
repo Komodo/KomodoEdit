@@ -1507,6 +1507,13 @@
         <body>
         <![CDATA[
         try {
+            // Don't allow save as for split view files.  Cheap fix to prevent changes from being applied to both old and new files.
+            if (this.koDoc.numScintillas > 1)
+            {
+                ko.dialogs.alert("You cannot use Save As on split view files.");
+                return false;
+            }
+
             if (typeof(directory)=='undefined') directory = null;
             this.makeCurrent();
             if (!this._validateEncoding()) return false;
