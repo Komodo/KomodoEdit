@@ -761,8 +761,8 @@ function replace_all() {
             widgets.repl.value = widgets.curr_repl.value;
         }
         ko.mru.addFromACTextbox(widgets.pattern);
-        if (repl)
-            ko.mru.addFromACTextbox(widgets.repl);
+        // Save MRU, allowing blanks
+        ko.mru.addFromACTextbox(widgets.repl, true);
 
         // Always reset the find session for replace all
         var findSessionSvc = Components.classes["@activestate.com/koFindSession;1"].
