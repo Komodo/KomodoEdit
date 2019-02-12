@@ -303,7 +303,7 @@ this.removeURL = function MRU_removeURL(prefName, url)
 }
 
 
-this.addFromACTextbox = function MRU_addFromACTextbox(widget, allowBlank)
+this.addFromACTextbox = function MRU_addFromACTextbox(widget)
 {
     var searchType = widget.getAttribute("autocompletesearch");
     var searchParam = widget.searchParam;
@@ -326,7 +326,7 @@ this.addFromACTextbox = function MRU_addFromACTextbox(widget, allowBlank)
         _log.warn(errmsg);
         return;
     }
-    if (!widget.value && !allowBlank) {
+    if (!widget.value) {
         return;
     }
 
