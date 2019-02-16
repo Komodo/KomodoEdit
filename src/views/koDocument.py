@@ -175,7 +175,7 @@ class koDocumentBase(object):
         self._isDirty = 0     # boolean
         self.isUntitled = 1  # boolean
         self._views = [] # scintilla widget instances
-        self._updatedDocPointerViews = [] # scintilla widget instances where the docPointer was checked (e.g. for split-view)
+        self._updatedDocPointerViews = [] # scintilla widget instances where the docPointer was changed (e.g. for split-view)
         self._docPointer = None # scimoz.docPointer
         #XXX should get eol from prefs and/or from document content
         self._eol = eollib.EOL_PLATFORM
