@@ -312,7 +312,6 @@
             <field name="_ime">document.getAnonymousElementByAttribute(this, 'anonid', 'ime-input')</field>
 
             <field name="__scimoz_wrapper">null</field>
-            <field name="_scimoz">null</field>
             <property name="scimoz">
                 <getter><![CDATA[
                 if (!this.__scimoz_wrapper) {
@@ -752,7 +751,7 @@
                 // made to this instance. Bug 81293.
                 // Note: There should be no more calls to scimoz after this!
                 this.scimoz.markClosed();
-                this._scimoz = null;
+                this.__scimoz_wrapper = null;
             ]]></body>
             </method>
 
