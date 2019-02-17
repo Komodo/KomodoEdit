@@ -401,39 +401,48 @@
                 
                 <row id="dirs-row" align="center">
                     <!--labels -->
-                    <label value="&directories.label;" control="dirs"
-                            accesskey="&directories.accesskey;"/>
+                    <deck selectedIndex="0">
+                        <label value="&directories.label;" control="dirs"
+                                accesskey="&directories.accesskey;"/>
+                        <box/>
+                    </deck>
                     
                     <!--label-options -->
-                    <checkbox id="search-in-subdirs"
-                                class="unstyled"
-                                label="&searchInSubDir.label;"
-                                tooltiptext="&searchInSubDir.label;"
-                                accesskey="&searchInSubDir.accesskey;"
-                                oncommand="update('search-in-subdirs');"/>
+                    <deck selectedIndex="0">
+                        <checkbox id="search-in-subdirs"
+                                    class="unstyled"
+                                    label="&searchInSubDir.label;"
+                                    tooltiptext="&searchInSubDir.label;"
+                                    accesskey="&searchInSubDir.accesskey;"
+                                    oncommand="update('search-in-subdirs');"/>
+                        <box/>
+                    </deck>
                     
                     <!--fields -->
-                    <hbox>
-                        <textbox id="dirs"
-                               flex="1"
-                               tooltiptext="&enterDirectoriesUnix.tooltiptext;"
-                               type="autocomplete"
-                               maxrows="10"
-                               autocompletesearch="mru_and_dirpath"
-                               autocompletesearchparam="mru: find-foldersMru; maxmru: 5; multipaths: true"
-                               autocompletepopup="popupTextboxAutoComplete"
-                               enablehistory="true"
-                               tabscrolling="true"
-                               completeselectedindex="true"
-                               onfocus="dirs_on_focus(this, event);"
-                               oninput="update('dirs');"
-                               tabindex="100"/>
-                        <button label="&threeFullStop.label;" accesskey="&threeFullStop.accesskey;"
-                              style="min-width: 0px;"
-                              tooltiptext="&editListDirToSearch.tooltiptext;"
-                              oncommand="browse_for_dirs();"
-                              tabindex="100"/>
-                    </hbox>
+                    <deck selectedIndex="0">
+                        <hbox>
+                            <textbox id="dirs"
+                                   flex="1"
+                                   tooltiptext="&enterDirectoriesUnix.tooltiptext;"
+                                   type="autocomplete"
+                                   maxrows="10"
+                                   autocompletesearch="mru_and_dirpath"
+                                   autocompletesearchparam="mru: find-foldersMru; maxmru: 5; multipaths: true"
+                                   autocompletepopup="popupTextboxAutoComplete"
+                                   enablehistory="true"
+                                   tabscrolling="true"
+                                   completeselectedindex="true"
+                                   onfocus="dirs_on_focus(this, event);"
+                                   oninput="update('dirs');"
+                                   tabindex="100"/>
+                            <button label="&threeFullStop.label;" accesskey="&threeFullStop.accesskey;"
+                                  style="min-width: 0px;"
+                                  tooltiptext="&editListDirToSearch.tooltiptext;"
+                                  oncommand="browse_for_dirs();"
+                                  tabindex="100"/>
+                        </hbox>
+                        <box/>
+                    </deck>
                     
                     <!--field-options -->
                     <label value="&exclude.label;" control="excludes"
