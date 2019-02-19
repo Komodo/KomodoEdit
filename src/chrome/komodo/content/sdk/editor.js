@@ -1121,7 +1121,10 @@ var sdkEditor = function(_scintilla, _scimoz) {
                     }
         var mainWindow = require("ko/windows").getMain();
 
-        scimoz().markerDelete(lineNum, bookMarknum);
+        // Try multiple times. See issue #3687
+        do {
+            scimoz().markerDelete(lineNum, bookMarknum);
+        } while (scimoz().markerGet(lineNum) & (1 << bookMarknum));
         for (let i = 0; i < 10; i++) {
             scimoz().markerDelete(lineNum, legacy.markers['MARKNUM_BOOKMARK' + i]);
         }
