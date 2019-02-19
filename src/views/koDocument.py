@@ -175,6 +175,7 @@ class koDocumentBase(object):
         self._isDirty = 0     # boolean
         self.isUntitled = 1  # boolean
         self._views = [] # scintilla widget instances
+        self._updatedDocPointerViews = [] # scintilla widget instances where the docPointer was changed (e.g. for split-view)
         self._docPointer = None # scimoz.docPointer
         #XXX should get eol from prefs and/or from document content
         self._eol = eollib.EOL_PLATFORM
@@ -1796,6 +1797,7 @@ class koDocumentBase(object):
             self._docPointer = scimoz.docPointer
             scimoz.addRefDocument(self._docPointer)
         else:
+            self._updatedDocPointerViews.append(scintilla);
             scimoz.addRefDocument(self._docPointer)
             scimoz.docPointer = self._docPointer
             self.docSettingsMgr.register(xpself, scintilla)
@@ -1839,6 +1841,13 @@ class koDocumentBase(object):
             self._views.remove(scintilla)
             #if not self._views:
             #    self.docSettingsMgr = None
+
+            # Revert doc pointer if needed.  Resolves issue #231 where Save As on a split view updates both files.
+            if scintilla in self._updatedDocPointerViews:
+                self._updatedDocPointerViews.remove(scintilla);
+                newDocPointer = scimoz.createDocument()
+                scimoz.docPointer = newDocPointer
+                scimoz.releaseDocument(newDocPointer)
         except Exception, e:
             log.exception(e)
             raise
