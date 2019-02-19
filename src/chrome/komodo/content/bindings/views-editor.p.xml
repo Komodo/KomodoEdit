@@ -1572,6 +1572,7 @@
             return false;
         }
         try {
+            var oldPerms = this.koDoc.file ? this.koDoc.file.permissions : null;
             var oldLargeDocument = (this.koDoc.isLargeDocument
                                     && (!this.koDoc.prefs.hasPrefHere("originalLanguage")
                                         || this.koDoc.prefs.getStringPref("originalLanguage") != "Text"));
@@ -1632,6 +1633,23 @@
                 this.koDoc.isDirty = oldKoDocIsDirty;
                 return false;
             }
+
+            // Update file permissions
+            if (oldPerms !== null && this.koDoc.file.permissions != oldPerms)
+            {
+                try
+                {
+                    this.koDoc.file.chmod(oldPerms);
+                } catch (ex) {
+                    var lastErrorSvc = Components.classes["@activestate.com/koLastErrorService;1"].
+                                       getService(Components.interfaces.koILastErrorService);
+                    var msg = lastErrorSvc.getLastErrorMessage();
+                    if (!msg)
+                        msg = ex.toString();
+                    ko.dialogs.alert("Failed to update file permissions: " + msg);
+                }
+            }
+
             this.koDoc.docSettingsMgr.applyDocumentSettingsToView(this);
             if (oldDocLanguage == newdocument.language) {
                 this.restoreFoldedLines(locationInfo);
