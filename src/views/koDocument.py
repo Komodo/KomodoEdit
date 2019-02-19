@@ -254,7 +254,7 @@ class koDocumentBase(object):
         log.debug('refcount = %d', self._refcount)
 
     #def resetPrefs(self):
-    #    docStateMRU = self._globalPrefSvc.getPrefs("docStateMRU");
+    #    docStateMRU = self._globalPrefSvc.getPrefs("docStateMRU")
     #    if not self.isUntitled and docStateMRU.hasPref(self.file.URI):
     #        docStateMRU.deletePref(self.file.URI)
     #    if self.prefs:
@@ -777,7 +777,7 @@ class koDocumentBase(object):
         return self._language
     
     def set_language(self,language):
-        log.info("setting language to " + language);
+        log.info("setting language to " + language)
         self._language = language
         
         if language == '':
@@ -810,13 +810,13 @@ class koDocumentBase(object):
         self.prefs.setLongPref('kodoc_file_last_accessed', time.time())
 
     def get_fileLastOpened(self):
-        return self.prefs.getLong('kodoc_file_last_opened', 0);
+        return self.prefs.getLong('kodoc_file_last_opened', 0)
 
     def get_fileAccessNo(self):
-        return self.prefs.getLong('kodoc_file_access_no', 0);
+        return self.prefs.getLong('kodoc_file_access_no', 0)
 
     def get_fileLastAccessed(self):
-        return self.prefs.getLong('kodoc_file_last_accessed', 0);
+        return self.prefs.getLong('kodoc_file_last_accessed', 0)
 
     # Note: The "get_subLanguage" and "languageForPosition" methods could also
     #       use the koIDocument.ciBuf.lang_from_pos() code, instead of their
@@ -1038,7 +1038,7 @@ class koDocumentBase(object):
         # Two cases -- either there's a selection in which case we
         # want to do the operation only on the selection, or there
         # isn't, in which case we want to do it on the whole document
-        scimoz = self._views[0].scimoz;
+        scimoz = self._views[0].scimoz
         if (scimoz.currentPos != scimoz.anchor):
             # Replacing newlines within a selection is tricky because line
             # markers (e.g. breakpoints and bookmarks) have a tendency to shift
@@ -1797,7 +1797,7 @@ class koDocumentBase(object):
             self._docPointer = scimoz.docPointer
             scimoz.addRefDocument(self._docPointer)
         else:
-            self._updatedDocPointerViews.append(scintilla);
+            self._updatedDocPointerViews.append(scintilla)
             scimoz.addRefDocument(self._docPointer)
             scimoz.docPointer = self._docPointer
             self.docSettingsMgr.register(xpself, scintilla)
@@ -1816,7 +1816,7 @@ class koDocumentBase(object):
         # We could have done this in JavaScript, but it makes more sense
         # to do it here.
         try:
-            scimoz.releaseDocument(scimoz.docPointer);
+            scimoz.releaseDocument(scimoz.docPointer)
         except:
             log.exception("releaseScimoz failed")
 
@@ -1829,7 +1829,7 @@ class koDocumentBase(object):
                 raise ServerException(nsError.NS_ERROR_FAILURE,'SciMoz does not reference.')
             self.docSettingsMgr.unregister(scintilla)
             scimoz = scintilla.scimoz
-            scimoz.releaseDocument(self._docPointer);
+            scimoz.releaseDocument(self._docPointer)
             if len(self._views) == 1:
                 buffer = self.get_buffer()
                 self._docPointer = None
@@ -1844,7 +1844,7 @@ class koDocumentBase(object):
 
             # Revert doc pointer if needed.  Resolves issue #231 where Save As on a split view updates both files.
             if scintilla in self._updatedDocPointerViews:
-                self._updatedDocPointerViews.remove(scintilla);
+                self._updatedDocPointerViews.remove(scintilla)
                 newDocPointer = scimoz.createDocument()
                 scimoz.docPointer = newDocPointer
                 scimoz.releaseDocument(newDocPointer)
@@ -2154,7 +2154,7 @@ class koDocumentBase(object):
         if autoSaveFile.exists:
             if autoSaveFile.lastModifiedTime >= self.file.lastModifiedTime:
                 #print "tmpfile is newer than original"
-                return 1;
+                return 1
             else:
                 # we have an autosave file, but it's old, delete it
                 #print "removing old temporary auto save file ", autoSaveFile.path
@@ -2183,7 +2183,7 @@ class koDocumentBase(object):
             try:
                 # failed to get encoded text, save it using utf-8 to avoid
                 # data loss (bug 40857)
-                data = self.utf8Text;
+                data = self.utf8Text
                 self._statusBarMessage("Using UTF-8 to autosave '%s'" %
                               self.baseName)
             except Exception, e:
