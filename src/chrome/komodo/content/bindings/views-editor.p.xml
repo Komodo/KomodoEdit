@@ -187,7 +187,7 @@
         <field name="_view_pref_observer_topics">
             [
                 'codeintel_enabled',
-                'colorizing_enabled',
+                'colorizing_enabled'
             ]
         </field>
 
@@ -329,7 +329,10 @@
                 'wrapSelectionOnlyPlainText',
                 'wrapSelectionDelimiters',
                 'enableAutoAbbreviations',
-                'autoAbbreviationTriggerCharacters'
+                'autoAbbreviationTriggerCharacters',
+                'codeintel_completion_triggering_enabled',
+                'codeintel_calltip_triggering_enabled',
+                'editElectricBrace'
             ]
         </field>
         <field name="_doc_pref_observer_topics">
@@ -433,6 +436,10 @@
             if (!this.prefs.getBooleanPref('colorizing_enabled')) {
                 this._turnColourizingOff();
             }
+            this._doAutoComplete = this.__globalPrefs.getBooleanPref('codeintel_completion_triggering_enabled');
+            this._doStartCallTip = this.__globalPrefs.getBooleanPref('codeintel_calltip_triggering_enabled');
+            this._editElectricBrace = this.prefs.getBooleanPref("editElectricBrace");
+            this._isCITriggeringEnabled = this._doAutoComplete || this._doStartCallTip;
             ko.lint.initializeGenericPrefs(this.prefs);
             var editShowMinimap = this.prefs.getBooleanPref("editShowMinimap");
             if (editShowMinimap) {
@@ -881,7 +888,18 @@
                 xtk.domutils.fireEvent(this, "document_codeintel_pref_changed");
                 
                 break;
-                
+
+            case 'codeintel_completion_triggering_enabled':
+            case 'codeintel_calltip_triggering_enabled':
+                this._doAutoComplete = this.__globalPrefs.getBooleanPref('codeintel_completion_triggering_enabled');
+                this._doStartCallTip = this.__globalPrefs.getBooleanPref('codeintel_calltip_triggering_enabled');
+                this._isCITriggeringEnabled = this._doAutoComplete || this._doStartCallTip;
+                break;
+
+            case 'editElectricBrace':
+                this._editElectricBrace = this.prefs.getBooleanPref('editElectricBrace');
+                break;
+
             case 'colorizing_enabled':
                 var locationInfo = {};
                 this.saveLocation(locationInfo);
