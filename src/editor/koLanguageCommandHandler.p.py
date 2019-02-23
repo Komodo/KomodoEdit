@@ -50,6 +50,8 @@ jumplog = logging.getLogger('koLanguageCommandHandler.jump')
 
 from zope.cachedescriptors.property import Lazy as LazyProperty
 
+from SilverCity.ScintillaConstants import (SCE_UDL_SSL_COMMENTBLOCK)
+
 """
 The generic command handler is appropriate for all languages.
 
@@ -589,7 +591,9 @@ class GenericCommandHandler:
 
         # let's find out what indents we're going to count as being part of
         # the last relevant paragraph.
-        para = reflow.Para(reflow.Line(getLine(scin, endLineNo)))
+        reflowLine = getReflowLine(scin, endLineNo, self._view)
+        para = reflow.Para(reflowLine)
+        isBlockComment = isinstance(reflowLine, reflow.BlockCommentLine)
         
         if scin.selectionEnd == scin.selectionStart:
             # We're going to reflow including lines that are part of the
@@ -620,9 +624,9 @@ class GenericCommandHandler:
                     break
                 # if the next line doesn't fit in to the current paragraph,
                 # then stop.
-                if not para.accept(reflow.Line(getLine(scin, endLineNo+1))):
+                if not para.accept(getReflowLine(scin, endLineNo+1, self._view)):
                     break
-                para.append(reflow.Line(getLine(scin, endLineNo+1)))
+                para.append(getReflowLine(scin, endLineNo+1, self._view))
                 endLineNo += 1
         scin.targetEnd = scin.getLineEndPosition(endLineNo)
         start = scin.positionFromLine(startLineNo)
@@ -649,7 +653,7 @@ class GenericCommandHandler:
         # reflow doesn't know how to deal with tabs of non-8-space width
         # so we'll do a conversion here, then convert back after
         text = text.expandtabs(scin.tabWidth)
-        reflowed = reflow.reflow(text, scin.edgeColumn, eol)
+        reflowed = reflow.reflow(text, scin.edgeColumn, eol, isBlockComment=isBlockComment)
         if scin.useTabs:
             lines = reflowed.splitlines(1)
             for pos in range(len(lines)):
@@ -2186,4 +2190,14 @@ def getLine(scin, lineNo):
     lineStart = scin.positionFromLine(lineNo)
     lineEnd = scin.getLineEndPosition(lineNo)
     line = scin.getTextRange(lineStart, lineEnd)
+    return line
+
+def getReflowLine(scin, lineNo, view):
+    import reflow
+    line = reflow.Line(getLine(scin, lineNo));
+    # Check if this is in a block comment
+    lineStart = scin.positionFromLine(lineNo)
+    style = scin.getStyleAt(lineStart)
+    if style in view.languageObj.getCommentStyles() and style == SCE_UDL_SSL_COMMENTBLOCK:
+        line = reflow.BlockCommentLine(line)
     return line
