@@ -1,0 +1,139 @@
+# HG changeset patch
+# User Ting-Yu Lin <tlin@mozilla.com>
+
+Bug 1105090 - Update ccache parser against version 3.2. r=gps
+
+ccache version 3.2 adds primary config and secondary config in the
+statistic report. Update the ccache stats parser to support that.
+
+diff --git a/python/mozbuild/mozbuild/controller/building.py b/python/mozbuild/mozbuild/controller/building.py
+index c3294e8..f948403 100644
+--- a/python/mozbuild/mozbuild/controller/building.py
++++ b/python/mozbuild/mozbuild/controller/building.py
+@@ -485,48 +485,57 @@ class CCacheStats(object):
+         ('no_input', 'no input file'),
+         ('bad_extra_file', 'error hashing extra file'),
+         ('cache_files', 'files in cache'),
+         ('cache_size', 'cache size'),
+         ('cache_max_size', 'max cache size'),
+     ]
+ 
+     DIRECTORY_DESCRIPTION = "cache directory"
++    PRIMARY_CONFIG_DESCRIPTION = "primary config"
++    SECONDARY_CONFIG_DESCRIPTION = "secondary config      (readonly)"
+     ABSOLUTE_KEYS = {'cache_max_size'}
+     FORMAT_KEYS = {'cache_size', 'cache_max_size'}
+ 
+     GiB = 1024 ** 3
+     MiB = 1024 ** 2
+     KiB = 1024
+ 
+     def __init__(self, output=None):
+         """Construct an instance from the output of ccache -s."""
+         self._values = {}
+         self.cache_dir = ""
++        self.primary_config = ""
++        self.secondary_config = ""
+ 
+         if not output:
+             return
+ 
+         for line in output.splitlines():
+             line = line.strip()
+             if line:
+                 self._parse_line(line)
+ 
+     def _parse_line(self, line):
+         if line.startswith(self.DIRECTORY_DESCRIPTION):
+             self.cache_dir = self._strip_prefix(line, self.DIRECTORY_DESCRIPTION)
+-            return
+-
+-        for stat_key, stat_description in self.STATS_KEYS:
+-            if line.startswith(stat_description):
+-                raw_value = self._strip_prefix(line, stat_description)
+-                self._values[stat_key] = self._parse_value(raw_value)
+-                break
++        elif line.startswith(self.PRIMARY_CONFIG_DESCRIPTION):
++            self.primary_config = self._strip_prefix(
++                line, self.PRIMARY_CONFIG_DESCRIPTION)
++        elif line.startswith(self.SECONDARY_CONFIG_DESCRIPTION):
++            self.secondary_config = self._strip_prefix(
++                line, self.SECONDARY_CONFIG_DESCRIPTION)
+         else:
+-            raise ValueError('Failed to parse ccache stats output: %s' % line)
++            for stat_key, stat_description in self.STATS_KEYS:
++                if line.startswith(stat_description):
++                    raw_value = self._strip_prefix(line, stat_description)
++                    self._values[stat_key] = self._parse_value(raw_value)
++                    break
++            else:
++                raise ValueError('Failed to parse ccache stats output: %s' % line)
+ 
+     @staticmethod
+     def _strip_prefix(line, prefix):
+         return line[len(prefix):].strip() if line.startswith(prefix) else line
+ 
+     @staticmethod
+     def _parse_value(raw_value):
+         value = raw_value.split()
+diff --git a/python/mozbuild/mozbuild/test/controller/test_ccachestats.py b/python/mozbuild/mozbuild/test/controller/test_ccachestats.py
+index 6678977..3b49f6e 100644
+--- a/python/mozbuild/mozbuild/test/controller/test_ccachestats.py
++++ b/python/mozbuild/mozbuild/test/controller/test_ccachestats.py
+@@ -54,16 +54,37 @@ class TestCcacheStats(unittest.TestCase):
+     unsupported source language           18
+     autoconf compile/link                120
+     unsupported compiler option            4
+     no input file                         48
+     files in cache                      7392
+     cache size                           2.0 Gbytes
+     max cache size                      16.0 Gbytes"""
+ 
++    STAT3 = """
++    cache directory                     /Users/tlin/.ccache
++    primary config                      /Users/tlin/.ccache/ccache.conf
++    secondary config      (readonly)    /usr/local/Cellar/ccache/3.2/etc/ccache.conf
++    cache hit (direct)                 12004
++    cache hit (preprocessed)            1786
++    cache miss                         26348
++    called for link                     2338
++    called for preprocessing            6313
++    compile failed                       399
++    preprocessor error                   390
++    bad compiler arguments                86
++    unsupported source language           66
++    autoconf compile/link               2439
++    unsupported compiler option          187
++    no input file                       1068
++    files in cache                     18044
++    cache size                           7.5 GB
++    max cache size                       8.6 GB
++    """
++
+     def test_parse_garbage_stats_message(self):
+         self.assertRaises(ValueError, CCacheStats, self.STAT_GARBAGE)
+ 
+     def test_parse_zero_stats_message(self):
+         stats = CCacheStats(self.STAT0)
+         self.assertEqual(stats.cache_dir, "/home/tlin/.ccache")
+         self.assertEqual(stats.hit_rates(), (0, 0, 0))
+ 
+@@ -83,11 +104,18 @@ class TestCcacheStats(unittest.TestCase):
+ 
+         self.assertFalse(stats0)
+         self.assertTrue(stats1)
+         self.assertTrue(stats2)
+         self.assertFalse(stats_diff_zero)
+         self.assertFalse(stats_diff_negative1)
+         self.assertFalse(stats_diff_negative2)
+ 
++    def test_stats_version32(self):
++        stat2 = CCacheStats(self.STAT2)
++        stat3 = CCacheStats(self.STAT3)
++        stats_diff = stat3 - stat2
++        self.assertTrue(stat3)
++        self.assertTrue(stats_diff)
++
+ 
+ if __name__ == '__main__':
+     main()
