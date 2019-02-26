@@ -110,6 +110,8 @@ class KoCollectionFindContext(KoFindContext):
     def __init__(self):
         self.type = FCT_IN_COLLECTION
         self.items = []
+        self.extraIncludes = None
+        self.extraExcludes = None
 
     @property
     def desc(self):
@@ -138,6 +140,9 @@ class KoCollectionFindContext(KoFindContext):
         self.items.append(("file", file))
     def add_path(self, path):
         self.items.append(("path", path))
+    def set_koIContainerExtraIncludesAndExcludes(self, extraIncludes=None, extraExcludes=None):
+        self.extraIncludes = extraIncludes
+        self.extraExcludes = extraExcludes
 
     @property
     def paths(self):
@@ -151,7 +156,7 @@ class KoCollectionFindContext(KoFindContext):
                     yield path
             elif type == "container":
                 container = UnwrapObject(item)
-                for path in container.genLocalPaths():
+                for path in container.genLocalPaths(extraIncludes=self.extraIncludes, extraExcludes=self.extraExcludes):
                     yield path                
 
 

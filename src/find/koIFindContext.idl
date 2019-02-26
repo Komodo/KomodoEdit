@@ -97,6 +97,8 @@ interface koICollectionFindContext : koIFindContext {
     void add_koIContainer(in koIContainer container);
     void add_file(in koIPart_file file);
     void add_path(in wstring path);
+    // Method to set extra includes and excludes
+    void set_koIContainerExtraIncludesAndExcludes(in wstring extraIncludes, in wstring extraExcludes);
     
     // Generate the paths for this collection. This is a generator so
     // you need to UnwrapObject and use this from Python.

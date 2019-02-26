@@ -240,6 +240,13 @@ function update(changed /* =null */) {
         switch (search_in) {
         case "files":
             _collapse_widget(widgets.dirs_row, false);
+            _update_desks_selection(widgets.dirs_row.querySelectorAll("deck"), 0);
+            _hide_widget(widgets.includes_label, false);
+            _hide_widget(widgets.includes, false);
+            break;
+        case "curr-project":
+            _collapse_widget(widgets.dirs_row, false);
+            _update_desks_selection(widgets.dirs_row.querySelectorAll("deck"), 1);
             _hide_widget(widgets.includes_label, false);
             _hide_widget(widgets.includes, false);
             break;
@@ -625,7 +632,14 @@ function find_all() {
             gFindSvc.options.cwd = _g_find_context.cwd;
             _g_find_context.encodedFolders = gFindSvc.options.encodedFolders; // user may have changed since reset
         }
-        else if (_g_find_context.type != koIFindContext.FCT_IN_COLLECTION)
+        else if (_g_find_context.type == koIFindContext.FCT_IN_COLLECTION)
+        {
+            // Set up extra include and exclude filters
+            ko.mru.addFromACTextbox(widgets.includes, true);
+            ko.mru.addFromACTextbox(widgets.excludes, true);
+            _g_find_context.set_koIContainerExtraIncludesAndExcludes(widgets.includes.value, widgets.excludes.value);
+        }
+        else
         {
             findFn = "findAll";
         }
@@ -770,6 +784,11 @@ function replace_all() {
         findSessionSvc.Reset();
 
         if (_g_find_context.type == koIFindContext.FCT_IN_COLLECTION) {
+            // Set up extra include and exclude filters
+            ko.mru.addFromACTextbox(widgets.includes, true);
+            ko.mru.addFromACTextbox(widgets.excludes, true);
+            _g_find_context.set_koIContainerExtraIncludesAndExcludes(widgets.includes.value, widgets.excludes.value);
+            // Do replacements
             ko.find.replaceAllInFiles(opener, _g_find_context,
                                        pattern, repl,
                                        gFindSvc.options.confirmReplacementsInFiles,
@@ -1409,6 +1428,11 @@ function _enable_widget(widget) {
         widget.removeAttribute("disabled");
     }
     updateWrapperHeight();
+}
+
+function _update_desks_selection(decks, selectedIndex) {
+    for (var i = 0; i < decks.length; i++)
+        decks[i].selectedIndex = selectedIndex;
 }
 
 function updateWrapperHeight(repeat=true)
