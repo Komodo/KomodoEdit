@@ -240,13 +240,13 @@ function update(changed /* =null */) {
         switch (search_in) {
         case "files":
             _collapse_widget(widgets.dirs_row, false);
-            _update_desks_selection(widgets.dirs_row.querySelectorAll("deck"), 0);
+            _update_decks_selection(widgets.dirs_row.querySelectorAll("deck"), 0);
             _hide_widget(widgets.includes_label, false);
             _hide_widget(widgets.includes, false);
             break;
         case "curr-project":
             _collapse_widget(widgets.dirs_row, false);
-            _update_desks_selection(widgets.dirs_row.querySelectorAll("deck"), 1);
+            _update_decks_selection(widgets.dirs_row.querySelectorAll("deck"), 1);
             _hide_widget(widgets.includes_label, false);
             _hide_widget(widgets.includes, false);
             break;
@@ -1430,7 +1430,7 @@ function _enable_widget(widget) {
     updateWrapperHeight();
 }
 
-function _update_desks_selection(decks, selectedIndex) {
+function _update_decks_selection(decks, selectedIndex) {
     for (var i = 0; i < decks.length; i++)
         decks[i].selectedIndex = selectedIndex;
 }
