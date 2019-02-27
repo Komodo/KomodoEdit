@@ -108,6 +108,8 @@ def _walk_php_symbols(elem, _prefix=None):
 class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
                    ProgLangTriggerIntelMixin):
     lang = lang
+    importExcludeMatchesPrefName = "import_exclude_matches"
+    excludePathsPrefName = "phpExcludePaths"
 
     # Used by ProgLangTriggerIntelMixin.preceding_trg_from_pos()
     trg_chars = tuple('$>:(,@"\' \\')
@@ -1011,14 +1013,14 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
             if not pref: continue
             extra_dirs.update(d.strip() for d in pref.split(os.pathsep)
                               if exists(d.strip()))
-        for pref in env.get_all_prefs("phpExcludePaths"):
+        for pref in env.get_all_prefs(self.excludePathsPrefName):
             if not pref: continue
             exclude_dirs.update(d.strip() for d in pref.split(os.pathsep)
                                 if exists(d.strip()))
 
         # Get excluded names
         excluded_dir_names = [];
-        for excludes_pref in env.get_all_prefs("import_exclude_matches"):
+        for excludes_pref in env.get_all_prefs(self.importExcludeMatchesPrefName):
             if excludes_pref:
                 for exclude_item in excludes_pref.split(";"):
                     # Exclude anything with a star or a dot (likely a file)
@@ -1048,9 +1050,9 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
             env.add_pref_observer("php", self._invalidate_cache)
             env.add_pref_observer("phpExtraPaths",
                 self._invalidate_cache_and_rescan_extra_dirs)
-            env.add_pref_observer("phpExcludePaths",
+            env.add_pref_observer(self.excludePathsPrefName,
                 self._invalidate_cache_and_rescan_extra_dirs)
-            env.add_pref_observer("import_exclude_matches",
+            env.add_pref_observer(self.importExcludeMatchesPrefName,
                 self._invalidate_cache_and_rescan_extra_dirs)
             env.add_pref_observer("phpConfigFile",
                                   self._invalidate_cache)
@@ -1103,14 +1105,14 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
 
                 # Check for excludes
                 exclude_dirs = set()
-                for pref in env.get_all_prefs("phpExcludePaths"):
+                for pref in env.get_all_prefs(self.excludePathsPrefName):
                     if not pref: continue
                     exclude_dirs.update(d.strip() for d in pref.split(os.pathsep)
                         if exists(d.strip()))
 
                 # Get excluded names
                 excluded_dir_names = set()
-                for excludes_pref in env.get_all_prefs("import_exclude_matches"):
+                for excludes_pref in env.get_all_prefs(self.importExcludeMatchesPrefName):
                     if excludes_pref:
                         for exclude_item in excludes_pref.split(";"):
                             # Exclude anything with a star or a dot (likely a file)
