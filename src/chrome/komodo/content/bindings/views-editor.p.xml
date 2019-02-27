@@ -332,7 +332,7 @@
                 'autoAbbreviationTriggerCharacters',
                 'codeintel_completion_triggering_enabled',
                 'codeintel_calltip_triggering_enabled',
-                'editElectricBrace'
+                'editElectricBrace',
             ]
         </field>
         <field name="_doc_pref_observer_topics">
