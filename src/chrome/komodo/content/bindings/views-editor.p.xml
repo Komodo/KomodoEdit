@@ -187,7 +187,7 @@
         <field name="_view_pref_observer_topics">
             [
                 'codeintel_enabled',
-                'colorizing_enabled'
+                'colorizing_enabled',
             ]
         </field>
 
