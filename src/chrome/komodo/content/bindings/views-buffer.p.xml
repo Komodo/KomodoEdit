@@ -268,12 +268,11 @@
         <field name="_isCIRescanningEnabled">true</field>
         
         <!-- Is CodeIntel-based implicit triggering enabled for this buffer?
-             The 'codeintel_completion_triggering_enabled' pref for this
-             buffer.
-             
-             XXX:PERF Cache this and use pref observer. -->
-        <property name="_isCITriggeringEnabled"
-                  onget="return this.__globalPrefs.getBooleanPref('codeintel_completion_triggering_enabled') || this.__globalPrefs.getBooleanPref('codeintel_calltip_triggering_enabled');"/>
+             The 'codeintel_completion_triggering_enabled' or
+             'codeintel_calltip_triggering_enabled' pref for this buffer.
+             (_doAutoComplete || _doStartCallTip)
+             views-editor will set this and use pref observer. -->
+        <field name="_isCITriggeringEnabled">false</field>
 
         <property name="ciCompletionUIHandler">
             <getter><![CDATA[
@@ -289,10 +288,10 @@
 
         <field name="_ciLastTrg">null</field>
 
-        <property name="_doAutoComplete"
-            onget="return this.__globalPrefs.getBooleanPref('codeintel_completion_triggering_enabled')"/>
-        <property name="_doStartCallTip"
-            onget="return this.__globalPrefs.getBooleanPref('codeintel_calltip_triggering_enabled')"/>
+        <!-- views-editor will set the next 3 and use pref observer. -->
+        <field name="_doAutoComplete">false</field>
+        <field name="_doStartCallTip">false</field>
+        <field name="_editElectricBrace">false</field>
 
         <field name="_transientMarkRingSize">16</field>
         <field name="_transientMarkRing">[]</field>
@@ -1185,7 +1184,7 @@
                 // Forward the call to the languageObj so it can provide language
                 // specific features (smart indent, electric bracers, .. )
                 if (this.languageObj &&
-                    this.prefs.getBooleanPref("editElectricBrace")) {
+                    this._editElectricBrace) {
                     // "keyPressed" is the poorly named mechanism to initiate
                     // auto-indenting functionality.
                     this.languageObj.keyPressed(this.lastCharAdded, this.scimoz);
