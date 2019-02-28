@@ -1394,7 +1394,7 @@ class PerlImportHandler(ImportHandler):
                 #    extension: need to grow filetype-from-content smarts.
                 files.append(path)
 
-    def find_importables_in_dir(self, dir):
+    def find_importables_in_dir(self, dir, env=None):
         """See citadel.py::ImportHandler.find_importables_in_dir() for
         details.
 

@@ -680,7 +680,8 @@ class MultiLangZone(LangZone):
                 except KeyError, ex:
                     self.db.corruption("MultiLangZone.get_buf_data",
                         "could not find lang `%s' or blob `%s' for buffer `%s'"\
-                            % (lang, blobname, buf.path))
+                            % (lang, blobname, buf.path),
+                        "recover")
                     self.remove_buf_data(buf)
                     raise NotFoundInDatabase(
                         "`%s' buffer %s `%s' blob not found in database"

@@ -696,6 +696,18 @@ class JavaScriptLangIntel(CitadelLangIntel,
             if not pref: continue
             exclude_dirs.update(d.strip() for d in pref.split(os.pathsep)
                                 if exists(d.strip()))
+
+        # Get excluded names
+        excluded_dir_names = set()
+        for excludes_pref in env.get_all_prefs("import_exclude_matches"):
+            if excludes_pref:
+                for exclude_item in excludes_pref.split(";"):
+                    # Exclude anything with a star or a dot (likely a file)
+                    if not re.search("[.*]", exclude_item):
+                        if exclude_item not in excluded_dir_names:
+                            excluded_dir_names.add(exclude_item)
+
+
         if extra_dirs:
             log.debug("%s extra lib dirs: %r minus %r", self.lang, extra_dirs, exclude_dirs)
             max_depth = env.get_pref("codeintel_max_recursive_dir_depth", 10)
@@ -710,7 +722,8 @@ class JavaScriptLangIntel(CitadelLangIntel,
                 util.gen_dirs_under_dirs(extra_dirs,
                     max_depth=max_depth,
                     interesting_file_patterns=js_assocs,
-                    exclude_dirs=exclude_dirs)
+                    exclude_dirs=exclude_dirs,
+                    excluded_dir_names=excluded_dir_names)
             )
         else:
             extra_dirs = () # ensure retval is a tuple
@@ -929,7 +942,7 @@ class JavaScriptImportHandler(ImportHandler):
                 #    extension: need to grow filetype-from-content smarts.
                 files.append(path)
 
-    def find_importables_in_dir(self, dir):
+    def find_importables_in_dir(self, dir, env=None):
         """See citadel.py::ImportHandler.find_importables_in_dir() for
         details.
 
