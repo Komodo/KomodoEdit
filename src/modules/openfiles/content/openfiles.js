@@ -841,10 +841,20 @@ if (typeof ko.openfiles == 'undefined')
                                 ".file-title[value='"+editorView.title.replace(/'/g, "\\'")+"']");
             if (duplicates.length > 0)
             {
-                listItem.classList.add('duplicate-name');
+                // Ignore duplicates that are the exact same file (e.g. split view)
+                let nonExactDuplicates = [];
                 for (let dupe of duplicates)
                 {
-                    dupe.parentNode.classList.add('duplicate-name');
+                    if (dupe.parentNode.querySelector('.file-path').getAttribute('value') !== dirName)
+                        nonExactDuplicates.push(dupe);
+                }
+                if (nonExactDuplicates.length > 0)
+                {
+                    listItem.classList.add('duplicate-name');
+                    for (let dupe of nonExactDuplicates)
+                    {
+                        dupe.parentNode.classList.add('duplicate-name');
+                    }
                 }
             }
             
