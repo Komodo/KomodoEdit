@@ -180,8 +180,12 @@ function _updateSelectionInformation(view) {
             for (var i=lineStart; i <= lineEnd; i++) {
                 selectionStart = scimoz.getLineSelStartPosition(i);
                 selectionEnd = scimoz.getLineSelEndPosition(i);
-                count += (selectionEnd - selectionStart);
-                selection.push(scimoz.getTextRange(selectionStart, selectionEnd));
+                // Make sure it's a valid selection
+                if (selectionStart >= 0 && selectionEnd >= selectionStart)
+                {
+                    count += (selectionEnd - selectionStart);
+                    selection.push(scimoz.getTextRange(selectionStart, selectionEnd));
+                }
             }
             selection = selection.join("");
             if (count) {
