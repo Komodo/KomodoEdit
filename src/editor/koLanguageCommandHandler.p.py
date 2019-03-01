@@ -50,7 +50,7 @@ jumplog = logging.getLogger('koLanguageCommandHandler.jump')
 
 from zope.cachedescriptors.property import Lazy as LazyProperty
 
-from SilverCity.ScintillaConstants import (SCE_UDL_SSL_COMMENTBLOCK)
+from SilverCity.ScintillaConstants import (SCE_UDL_SSL_COMMENTBLOCK, SCE_C_COMMENTDOC, SCE_CSS_COMMENT)
 
 """
 The generic command handler is appropriate for all languages.
@@ -2198,6 +2198,9 @@ def getReflowLine(scin, lineNo, view):
     # Check if this is in a block comment
     lineStart = scin.positionFromLine(lineNo)
     style = scin.getStyleAt(lineStart)
-    if style in view.languageObj.getCommentStyles() and style == SCE_UDL_SSL_COMMENTBLOCK:
-        line = reflow.BlockCommentLine(line)
+    bulletBCLangs = ["javascript", "css", "php"]
+    blockStyles = [SCE_UDL_SSL_COMMENTBLOCK, SCE_C_COMMENTDOC, SCE_CSS_COMMENT]
+    if view.languageObj.name.lower() in bulletBCLangs:
+        if style in view.languageObj.getCommentStyles() and style in blockStyles:
+            line = reflow.BlockCommentLine(line)
     return line
