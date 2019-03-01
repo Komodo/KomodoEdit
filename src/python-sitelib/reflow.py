@@ -149,6 +149,7 @@ class Line(unicode):
         if self.iscode:
             self.iscomment = False
             self.bulleted = False
+        self.isBlockComment = False
         self.iscomment, self.commentIndent = findcomment(line)
         if self.iscomment:
             self.bulleted, self.bullet = findbullet(line[len(self.commentIndent):])
@@ -260,6 +261,7 @@ commentLineIndentRe = re.compile("(\s*?(?:\*)\s*)(.*)")
 class BlockCommentLine(Line):
     def __init__(self, line):
         Line.__init__(self, line)
+        self.isBlockComment = True
         # If not already detected as a comment
         if not self.iscomment:
             self.indentWidths = []

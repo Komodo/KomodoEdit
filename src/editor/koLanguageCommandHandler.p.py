@@ -593,8 +593,8 @@ class GenericCommandHandler:
         # the last relevant paragraph.
         reflowLine = getReflowLine(scin, endLineNo, self._view)
         para = reflow.Para(reflowLine)
-        isBlockComment = isinstance(reflowLine, reflow.BlockCommentLine)
-        
+        isBlockComment = reflowLine.isBlockComment
+
         if scin.selectionEnd == scin.selectionStart:
             # We're going to reflow including lines that are part of the
             # paragraph being considered.  To figure that out, we look for
