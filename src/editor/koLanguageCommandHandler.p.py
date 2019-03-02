@@ -2194,7 +2194,7 @@ def getLine(scin, lineNo):
 
 def getReflowLine(scin, lineNo, view):
     import reflow
-    line = reflow.Line(getLine(scin, lineNo));
+    line = reflow.Line(getLine(scin, lineNo))
     # Check if this is in a block comment
     lineStart = scin.positionFromLine(lineNo)
     style = scin.getStyleAt(lineStart)
