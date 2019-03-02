@@ -50,8 +50,6 @@ jumplog = logging.getLogger('koLanguageCommandHandler.jump')
 
 from zope.cachedescriptors.property import Lazy as LazyProperty
 
-from SilverCity.ScintillaConstants import (SCE_UDL_SSL_COMMENTBLOCK, SCE_C_COMMENTDOC, SCE_CSS_COMMENT)
-
 """
 The generic command handler is appropriate for all languages.
 
@@ -591,7 +589,7 @@ class GenericCommandHandler:
 
         # let's find out what indents we're going to count as being part of
         # the last relevant paragraph.
-        reflowLine = getReflowLine(scin, endLineNo, self._view)
+        reflowLine = reflow.getLine(endLineNo, self._view)
         para = reflow.Para(reflowLine)
         isBlockComment = reflowLine.isBlockComment
 
@@ -624,9 +622,9 @@ class GenericCommandHandler:
                     break
                 # if the next line doesn't fit in to the current paragraph,
                 # then stop.
-                if not para.accept(getReflowLine(scin, endLineNo+1, self._view)):
+                if not para.accept(reflow.getLine(endLineNo+1, self._view)):
                     break
-                para.append(getReflowLine(scin, endLineNo+1, self._view))
+                para.append(reflow.getLine(endLineNo+1, self._view))
                 endLineNo += 1
         scin.targetEnd = scin.getLineEndPosition(endLineNo)
         start = scin.positionFromLine(startLineNo)
@@ -2192,15 +2190,3 @@ def getLine(scin, lineNo):
     line = scin.getTextRange(lineStart, lineEnd)
     return line
 
-def getReflowLine(scin, lineNo, view):
-    import reflow
-    line = reflow.Line(getLine(scin, lineNo))
-    # Check if this is in a block comment
-    lineStart = scin.positionFromLine(lineNo)
-    style = scin.getStyleAt(lineStart)
-    bulletBCLangs = ["javascript", "css", "php"]
-    blockStyles = [SCE_UDL_SSL_COMMENTBLOCK, SCE_C_COMMENTDOC, SCE_CSS_COMMENT]
-    if view.languageObj.name.lower() in bulletBCLangs:
-        if style in view.languageObj.getCommentStyles() and style in blockStyles:
-            line = reflow.BlockCommentLine(line)
-    return line

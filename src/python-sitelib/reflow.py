@@ -99,6 +99,28 @@ import sys
 
 TABWIDTH = 8
 
+from SilverCity.ScintillaConstants import (SCE_UDL_SSL_COMMENTBLOCK, SCE_C_COMMENTDOC, SCE_CSS_COMMENT)
+
+def getLine(lineNo, view):
+    import reflow
+    scimoz = view.scimoz
+    line = reflow.Line(_getLine(scimoz, lineNo))
+    # Check if this is in a block comment
+    lineStart = scimoz.positionFromLine(lineNo)
+    style = scimoz.getStyleAt(lineStart)
+    bulletBCLangs = ["javascript", "css", "php"]
+    blockStyles = [SCE_UDL_SSL_COMMENTBLOCK, SCE_C_COMMENTDOC, SCE_CSS_COMMENT]
+    if view.languageObj.name.lower() in bulletBCLangs:
+        if style in view.languageObj.getCommentStyles() and style in blockStyles:
+            line = reflow.BlockCommentLine(line)
+    return line
+
+def _getLine(scimoz, lineNo):
+    lineStart = scimoz.positionFromLine(lineNo)
+    lineEnd = scimoz.getLineEndPosition(lineNo)
+    line = scimoz.getTextRange(lineStart, lineEnd)
+    return line
+
 class Line(unicode):
     r"""Line objects are "smart" wrappers around lines.  They know about
     all of the indentation-related semantics of the line, such as:
