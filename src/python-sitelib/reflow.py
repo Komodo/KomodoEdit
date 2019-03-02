@@ -149,6 +149,7 @@ class Line(unicode):
         if self.iscode:
             self.iscomment = False
             self.bulleted = False
+        self.isBlockComment = False
         self.iscomment, self.commentIndent = findcomment(line)
         if self.iscomment:
             self.bulleted, self.bullet = findbullet(line[len(self.commentIndent):])
@@ -255,6 +256,27 @@ def findcode(line):
         return True, match.groups(1)[0]
     else:
         return False, line
+
+commentLineIndentRe = re.compile("(\s*?(?:\*)\s*)(.*)")
+class BlockCommentLine(Line):
+    def __init__(self, line):
+        Line.__init__(self, line)
+        self.isBlockComment = True
+        # If not already detected as a comment
+        if not self.iscomment:
+            self.indentWidths = []
+            self.iscomment = True
+            match = commentLineIndentRe.match(line)
+            if match:
+                self.commentIndent = match.groups(1)[0]
+            self.bulleted, self.bullet = findbullet(line[len(self.commentIndent):])
+            self.leadingIndent = self.commentIndent
+            self.leadingIndentWidth = len(self.leadingIndent)
+            if self.bulleted:
+                if self.iscomment:
+                    self.indentWidths = [self.leadingIndentWidth, len(self.commentIndent) + len(self.bullet)]
+            else:
+                self.indentWidths = [self.leadingIndentWidth]
 
 class Para(list):
     r"""
@@ -421,7 +443,7 @@ class Para(list):
             htmlbuffer.write('</li>')
 
 class Paragraphize(list):
-    def __init__(self, text):
+    def __init__(self, text, isBlockComment=False):
         r"""Given a text, return 1 or more paragraph objects, where
         a paragraph is defined for 'reflow' purposes, thus:
           - a line consisting only of whitespace is its own
@@ -520,7 +542,10 @@ class Paragraphize(list):
         list.__init__(self)
         # convert to Line objects (they know all we need to know about themselves
         lines = text.expandtabs(TABWIDTH).splitlines(1)
-        lines = [Line(line) for line in lines]
+        if isBlockComment:
+            lines = [BlockCommentLine(line) for line in lines]
+        else:
+            lines = [Line(line) for line in lines]
         if not lines: return # no text
         currentPara = Para(lines[0])
         self.append(currentPara)
@@ -533,8 +558,8 @@ class Paragraphize(list):
                 currentPara = Para(line)
                 self.append(currentPara)
 
-def reflow(text, width, eol):
-    paragraphs = Paragraphize(text)
+def reflow(text, width, eol, isBlockComment=False):
+    paragraphs = Paragraphize(text, isBlockComment=isBlockComment)
     [para.reflow(width, eol) for para in paragraphs]
     reflowed = ''.join([''.join(para) for para in paragraphs])
     return reflowed
