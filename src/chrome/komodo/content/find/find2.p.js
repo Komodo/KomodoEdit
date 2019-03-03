@@ -78,15 +78,10 @@ var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
 if ( ! opener) opener = require("ko/windows").getMain();
 var ko = opener.ko;
 
-var innerHTML;
 var firstInit = true;
 function on_load() {
     try {
         var wrap = document.getElementById('find-box-wrap');
-        if (innerHTML)
-            wrap.innerHTML = innerHTML;
-        else
-            innerHTML = wrap.innerHTML;
         
         _g_prefs = Components.classes["@activestate.com/koPrefService;1"]
             .getService(Components.interfaces.koIPrefService).prefs;
@@ -130,12 +125,33 @@ function on_unload() {
     }
 }
 
+var _tmp_disabled_accesskey_elems = null;
 function on_focus(event) {
+    // Enable access keys
+    if (_tmp_disabled_accesskey_elems !== null)
+    {
+        for (var elem of _tmp_disabled_accesskey_elems)
+        {
+            elem.setAttribute("accesskey", elem.getAttribute("_blurred-accesskey"));
+            elem.removeAttribute("_blurred-accesskey");
+        }
+        _tmp_disabled_accesskey_elems = null;
+    }
     //TODO: Change to only do this for one phase. Currently this is
     //      calling reset_find_context() for AT_TARGET and BUBBLING_PHASE
     //      phases.
     if (event.target == document) {  // focus of the *Window*
         reset_find_context("on_focus");
+    }
+}
+
+function on_blur() {
+    // Disable access keys
+    _tmp_disabled_accesskey_elems = document.querySelectorAll("[accesskey]");
+    for (var elem of _tmp_disabled_accesskey_elems)
+    {
+        elem.setAttribute("_blurred-accesskey", elem.getAttribute("accesskey"));
+        elem.removeAttribute("accesskey");
     }
 }
 
@@ -1455,3 +1471,26 @@ function closeFindFrame()
 }
 
 window.addEventListener("resize", updateWrapperHeight);
+
+/** Handle Enter key for reverse find */
+function handleReverseFindEnterKey()
+{
+    // Swap default key if it was "find next"
+    var prev_default_btn = _g_curr_default_btn;
+    if (prev_default_btn == widgets.find_next_btn)
+    {
+        _g_curr_default_btn.removeAttribute("default");
+        _g_curr_default_btn = widgets.find_prev_btn;
+        _g_curr_default_btn.setAttribute("default", "true");
+    }
+
+    ko.dialogs.handleEnterKey();
+
+    // Reset default key
+    if (prev_default_btn == widgets.find_next_btn)
+    {
+        _g_curr_default_btn.removeAttribute("default");
+        _g_curr_default_btn = widgets.find_next_btn;
+        _g_curr_default_btn.setAttribute("default", "true");
+    }
+}

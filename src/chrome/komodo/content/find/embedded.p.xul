@@ -33,6 +33,7 @@
         onload="on_load()"
         onunload="on_unload()"
         onfocus="on_focus(event);"
+        onblur="on_blur();"
         orient="vertical">
 
     <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
@@ -49,6 +50,7 @@
       
     <keyset id="findKeys">
         <key keycode="VK_ESCAPE" modifiers="" oncommand="window.close();"/>
+        <key keycode="VK_RETURN" modifiers="shift" oncommand="handleReverseFindEnterKey();"/>
         <key keycode="VK_RETURN" oncommand="ko.dialogs.handleEnterKey();"/>
 <!-- #if PLATFORM != "darwin" -->
         <key key="d" modifiers="control" oncommand="search_in('document')" />
