@@ -923,7 +923,7 @@ class MultiLangZone(LangZone):
                             blob.set("src", buf.path)   # for defns_from_pos() support
                         ET.ElementTree(blob).write(join(dbdir, dbfile+".blob"))
                         # Add to cache
-                        self.cache_blob(join(dhash, dbfile), blob);
+                        self.cache_blob(join(dhash, dbfile), blob)
                     elif action == "remove":
                         dbfile = blob_index[lang][blobname]
                         del blob_index[lang][blobname]
@@ -939,7 +939,7 @@ class MultiLangZone(LangZone):
                                     % (blobname, ex),
                                 "ignore")
                         # Remove from cache
-                        self.cache_blob(join(dhash, dbfile), None);
+                        self.cache_blob(join(dhash, dbfile), None)
                     elif action == "update":
                         # Try to only change the dbfile on disk if it is
                         # different.
@@ -951,7 +951,7 @@ class MultiLangZone(LangZone):
                         dbfile = blob_index[lang][blobname]
                         dbpath = join(self.base_dir, dhash, dbfile+".blob")
                         # Add to cache and check if we got the old contents
-                        old_dbfile_content = self.cache_blob(join(dhash, dbfile), blob);
+                        old_dbfile_content = self.cache_blob(join(dhash, dbfile), blob)
                         if old_dbfile_content == None:
                             try:
                                 fin = open(dbpath, 'r')

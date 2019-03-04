@@ -738,7 +738,9 @@ class LangZone(object):
         self._dhash_from_dir_cache = {}
         self._dirslib_cache = {}
 
-        self._blob_cache_max_bytes = 10485760 # 10MB
+        self._blob_cache_max_bytes = mgr.env.get_pref("codeintel_blob_cache_max_bytes", 10485760)
+        self._blob_cache_inactive_ttl = mgr.env.get_pref("codeintel_blob_cache_inactive_ttl", 60)
+        self._blob_cache_panic_ttl_delta = mgr.env.get_pref("codeintel_blob_cache_panic_ttl_delta", 15)
         self._blob_cache_usage = 0
         self._blob_cache = {}
         self._blob_cache_atime = {}
@@ -1165,7 +1167,7 @@ class LangZone(object):
                             blob.set("src", buf.path)   # for defns_from_pos() support
                         ET.ElementTree(blob).write(join(dbdir, dbfile+".blob"))
                         # Add to cache
-                        self.cache_blob(join(dhash, dbfile), blob);
+                        self.cache_blob(join(dhash, dbfile), blob)
                     elif action == "remove":
                         dbfile = blob_index[blobname]
                         del blob_index[blobname]
@@ -1175,7 +1177,7 @@ class LangZone(object):
                                   self.lang, dhash, dbfile)
                         os.remove(join(self.base_dir, dhash, dbfile+".blob"))
                         # Remove from cache
-                        self.cache_blob(join(dhash, dbfile), None);
+                        self.cache_blob(join(dhash, dbfile), None)
                     elif action == "update":
                         # Try to only change the dbfile on disk if it is
                         # different.
@@ -1187,7 +1189,7 @@ class LangZone(object):
                         dbfile = blob_index[blobname]
                         dbpath = join(self.base_dir, dhash, dbfile+".blob")
                         # Add to cache and check if we got the old contents
-                        old_dbfile_content = self.cache_blob(join(dhash, dbfile), blob);
+                        old_dbfile_content = self.cache_blob(join(dhash, dbfile), blob)
                         if old_dbfile_content == None:
                             try:
                                 fin = open(dbpath, 'r')
@@ -1269,19 +1271,17 @@ class LangZone(object):
             # Make sure not to use up too much memory
             self._blob_cache_usage += delta_size
             if self._blob_cache_usage > self._blob_cache_max_bytes:
-                log.warning("cache_blob: Over memory limit (%sKB)", self._blob_cache_usage/1024)
-                # Try to free some memory by only caching those accessed in the past 60 seconds
-                self._cull_cached_blobs(60, dbsubpath)
-                # Still over, just start freeing up any
+                log.warning("cache_blob: Over memory limit (%sKB/%sKB)", self._blob_cache_usage/1024.0, self._blob_cache_max_bytes/1024.0)
+                # Try to free some memory
+                ttl = self._blob_cache_inactive_ttl - self._blob_cache_panic_ttl_delta
+                while ttl > 0 and self._blob_cache_usage > self._blob_cache_max_bytes:
+                    self._cull_cached_blobs(ttl, dbsubpath)
+                    ttl = ttl - self._blob_cache_panic_ttl_delta
+                # Still over?  Show warning and flush everything but current blob
                 if self._blob_cache_usage > self._blob_cache_max_bytes:
-                    log.warning("cache_blob: Still over memory limit (%sKB)", self._blob_cache_usage/1024)
-                    for other_dbsubpath in self._blob_cache_atime.keys():
-                        if other_dbsubpath != dbsubpath:
-                            self._blob_cache_usage -= sys.getsizeof(self._blob_cache[other_dbsubpath])
-                            del self._blob_cache[other_dbsubpath]
-                            del self._blob_cache_atime[other_dbsubpath]
-                            if self._blob_cache_usage < self._blob_cache_max_bytes:
-                                break
+                    log.error("cache_blob: Over memory limit and evictions failed (%sKB/%sKB)", self._blob_cache_usage/1024.0, self._blob_cache_max_bytes/1024.0)
+                    self._cull_cached_blobs(0, dbsubpath)
+
             # Add to cache
             self._blob_cache[dbsubpath] = blob
             self._blob_cache_atime[dbsubpath] = time.time()
@@ -1289,7 +1289,6 @@ class LangZone(object):
 
     def load_blob(self, dbsubpath):
         """This must be called with the lock held."""
-        log.debug("TODO: LangZone.load_blob: add blob caching!")
         log.debug("fs-read: load %s blob '%s'", self.lang, dbsubpath)
 
         # Check if in cache
@@ -1405,7 +1404,7 @@ class LangZone(object):
                 # Note: Dirty indexes that are recently accessed are intentionally not written to disk.
 
             # Free cached blobs
-            self._cull_cached_blobs(TIME_SINCE_ACCESS)
+            self._cull_cached_blobs(self._blob_cache_inactive_ttl)
         except:
             log.exception("Exception culling memory")
         finally:
