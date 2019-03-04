@@ -1289,13 +1289,14 @@ class LangZone(object):
 
     def load_blob(self, dbsubpath):
         """This must be called with the lock held."""
-        log.debug("fs-read: load %s blob '%s'", self.lang, dbsubpath)
 
         # Check if in cache
         if dbsubpath in self._blob_cache:
             log.debug("cache-read: loading cached %s blob '%s'", self.lang, dbsubpath)
             self._blob_cache_atime[dbsubpath] = time.time()
             return self._blob_cache[dbsubpath]
+
+        log.debug("fs-read: load %s blob '%s'", self.lang, dbsubpath)
 
         dbpath = join(self.base_dir, dbsubpath+".blob")
         blob = ET.parse(dbpath).getroot()
