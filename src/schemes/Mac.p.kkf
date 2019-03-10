@@ -139,6 +139,7 @@ binding cmd_undo Meta+Z
 binding cmd_redo Meta+Shift+Z
 binding cmd_convertLowerCase Meta+Shift+U
 binding cmd_convertUpperCase Meta+U
+binding cmd_convertTitleCase Meta+Alt+U
 binding cmd_cancel Escape 
 binding cmd_editPrefs Meta+,
 binding cmd_editProperties Alt+Return
