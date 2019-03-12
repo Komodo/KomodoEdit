@@ -220,7 +220,7 @@
         // If not absolute path, see if there's a "/templates/" parent of current file.
         if (filepath[0] != "/")
         {
-            var view_filepath = ko.views.manager.currentView.koDoc.file.path;
+            var view_filepath = require("ko/views").current().filePath;
             var smartyTemplatePathMatch = /^(.*[\/\\]templates[\/\\])/.exec(view_filepath);
             if (smartyTemplatePathMatch !== null)
                 filepath = smartyTemplatePathMatch[1] + filepath;
