@@ -1268,6 +1268,13 @@ class GenericCommandHandler:
         else:
             self._do_cmd_convertCaseByLine("lower")
 
+    def _do_cmd_convertTitleCase(self):
+        scimoz = self._view.scimoz
+        if scimoz.selectionMode == scimoz.SC_SEL_RECTANGLE:
+            self._convertCaseOfRectangularBlock(scimoz, str_to_title_case)
+        else:
+            self._do_cmd_convertCaseByLine(str_to_title_case)
+
     def _do_cmd_convertFromHex(self):
         from binascii import unhexlify
         scimoz = self._view.scimoz
@@ -2190,3 +2197,9 @@ def getLine(scin, lineNo):
     line = scin.getTextRange(lineStart, lineEnd)
     return line
 
+def str_to_title_case(str):
+    rtn = "";
+    for match in re.finditer("(\s*)([^\s]+)", str):
+        word = match.group(2)
+        rtn += match.group(1) + word[0].upper() + word[1:]
+    return rtn
