@@ -219,4 +219,8 @@ pref("gfx.font_rendering.directwrite.enabled", true);
 // Work around the login dialog (and potentially other dialogs) loading up black and having weird graphical artifacts when
 // resizing. Possibly related to Retina + non-retina external monitor being attached.
 user_pref("layers.acceleration.disabled", true);
+
+// See https://developer.mozilla.org/en-US/docs/Mozilla/Preferences/Preference_reference/accessibility.tabfocus
+// On Mac, the default Full Keyboard Access setting in System Preferences > Keyboard causes dropdowns, buttons, etc. to be skipped when tabbing through inputs. This ignores that setting.
+pref("accessibility.tabfocus", 3);
 #endif
