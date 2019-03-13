@@ -305,10 +305,9 @@ class UDLBuffer(CitadelBuffer):
             for token in self.accessor.gen_tokens():
                 if in_chunk:
                     if not (min_style <= token["style"] <= max_style):
-                        # SilverCity indeces are inclusive at the end.
-                        end_index = token["end_index"] + 1
+                        # Yield up to, but NOT including this token
                         yield (pos_offset,
-                               self.accessor.text_range(pos_offset, end_index))
+                               self.accessor.text_range(pos_offset, token["start_index"]))
                         in_chunk = False
                 else:
                     if min_style <= token["style"] <= max_style:
