@@ -738,6 +738,13 @@ class LangZone(object):
         self._dhash_from_dir_cache = {}
         self._dirslib_cache = {}
 
+        self._blob_cache_max_bytes = mgr.env.get_pref("codeintel_blob_cache_max_bytes", 10485760)
+        self._blob_cache_inactive_ttl = mgr.env.get_pref("codeintel_blob_cache_inactive_ttl", 60)
+        self._blob_cache_panic_ttl_delta = mgr.env.get_pref("codeintel_blob_cache_panic_ttl_delta", 15)
+        self._blob_cache_usage = 0
+        self._blob_cache = {}
+        self._blob_cache_atime = {}
+
         # We cache the set of recent indeces and blobs in memory.
         #   {db-subpath: [index-object, <atime>]),
         #    ...}
@@ -748,8 +755,6 @@ class LangZone(object):
         self._index_and_atime_from_dbsubpath = {}
         #TODO-PERF: Use set() object for this? Compare perf.
         self._is_index_dirty_from_dbsubpath = {} # set of dirty indeces
-        ##TODO: blob caching and *use* this
-        #self._blob_and_atime_from_dbsubpath = {}
 
         #XXX Need a 'dirty-set' for blobs? No, because currently
         #    .update_buf_data() saves blob changes to disk immediately. Not
@@ -1161,6 +1166,8 @@ class LangZone(object):
                         if blob.get("src") is None:
                             blob.set("src", buf.path)   # for defns_from_pos() support
                         ET.ElementTree(blob).write(join(dbdir, dbfile+".blob"))
+                        # Add to cache
+                        self.cache_blob(join(dhash, dbfile), blob)
                     elif action == "remove":
                         dbfile = blob_index[blobname]
                         del blob_index[blobname]
@@ -1169,6 +1176,8 @@ class LangZone(object):
                         log.debug("fs-write: remove %s blob '%s/%s'",
                                   self.lang, dhash, dbfile)
                         os.remove(join(self.base_dir, dhash, dbfile+".blob"))
+                        # Remove from cache
+                        self.cache_blob(join(dhash, dbfile), None)
                     elif action == "update":
                         # Try to only change the dbfile on disk if it is
                         # different.
@@ -1179,23 +1188,22 @@ class LangZone(object):
                         new_dbfile_content = s.getvalue()
                         dbfile = blob_index[blobname]
                         dbpath = join(self.base_dir, dhash, dbfile+".blob")
-                        # PERF: Might be nice to cache the new dbfile
-                        #       content for the next time this resource is
-                        #       updated. For files under edit this will be
-                        #       common. I.e. just for the "editset".
-                        try:
-                            fin = open(dbpath, 'r')
-                        except (OSError, IOError), ex:
-                            # Technically if the dbfile doesn't exist, this
-                            # is a sign of database corruption. No matter
-                            # though (for this blob anyway), we are about to
-                            # replace it.
-                            old_dbfile_content = None
-                        else:
+                        # Add to cache and check if we got the old contents
+                        old_dbfile_content = self.cache_blob(join(dhash, dbfile), blob)
+                        if old_dbfile_content == None:
                             try:
-                                old_dbfile_content = fin.read()
-                            finally:
-                                fin.close()
+                                fin = open(dbpath, 'r')
+                            except (OSError, IOError), ex:
+                                # Technically if the dbfile doesn't exist, this
+                                # is a sign of database corruption. No matter
+                                # though (for this blob anyway), we are about to
+                                # replace it.
+                                old_dbfile_content = None
+                            else:
+                                try:
+                                    old_dbfile_content = fin.read()
+                                finally:
+                                    fin.close()
                         if new_dbfile_content != old_dbfile_content:
                             if not exists(dirname(dbpath)):
                                 self._mk_dbdir(dirname(dbpath), dir)
@@ -1243,10 +1251,53 @@ class LangZone(object):
         finally:
             fout.close()
 
+    def cache_blob(self, dbsubpath, blob):
+        """
+        Cache a blob and return the original blob string if previously cached
+        """
+        rtn = None
+        if blob == None:
+            if dbsubpath in self._blob_cache:
+                del self._blob_cache[dbsubpath]
+                del self._blob_cache_atime[dbsubpath]
+        else:
+            delta_size = sys.getsizeof(blob)
+            if dbsubpath in self._blob_cache:
+                old_blob = self._blob_cache[dbsubpath]
+                delta_size -= sys.getsizeof(old_blob)
+                s = StringIO()
+                ET.ElementTree(old_blob).write(s)
+                rtn = s.getvalue()
+            # Make sure not to use up too much memory
+            self._blob_cache_usage += delta_size
+            if self._blob_cache_usage > self._blob_cache_max_bytes:
+                log.warning("cache_blob: Over memory limit (%sKB/%sKB)", self._blob_cache_usage/1024.0, self._blob_cache_max_bytes/1024.0)
+                # Try to free some memory
+                ttl = self._blob_cache_inactive_ttl - self._blob_cache_panic_ttl_delta
+                while ttl > 0 and self._blob_cache_usage > self._blob_cache_max_bytes:
+                    self._cull_cached_blobs(ttl, dbsubpath)
+                    ttl = ttl - self._blob_cache_panic_ttl_delta
+                # Still over?  Show warning and flush everything but current blob
+                if self._blob_cache_usage > self._blob_cache_max_bytes:
+                    log.error("cache_blob: Over memory limit and evictions failed (%sKB/%sKB)", self._blob_cache_usage/1024.0, self._blob_cache_max_bytes/1024.0)
+                    self._cull_cached_blobs(0, dbsubpath)
+
+            # Add to cache
+            self._blob_cache[dbsubpath] = blob
+            self._blob_cache_atime[dbsubpath] = time.time()
+        return rtn
+
     def load_blob(self, dbsubpath):
         """This must be called with the lock held."""
-        log.debug("TODO: LangZone.load_blob: add blob caching!")
+
+        # Check if in cache
+        if dbsubpath in self._blob_cache:
+            log.debug("cache-read: loading cached %s blob '%s'", self.lang, dbsubpath)
+            self._blob_cache_atime[dbsubpath] = time.time()
+            return self._blob_cache[dbsubpath]
+
         log.debug("fs-read: load %s blob '%s'", self.lang, dbsubpath)
+
         dbpath = join(self.base_dir, dbsubpath+".blob")
         blob = ET.parse(dbpath).getroot()
         for hook_handler in self._hook_handlers:
@@ -1255,6 +1306,7 @@ class LangZone(object):
             except:
                 log.exception("error running hook: %r.post_db_load_blob(%r)",
                               hook_handler, blob)
+        self.cache_blob(dbsubpath, blob)
         return blob
 
     def load_index(self, dir, index_name, default=None):
@@ -1351,6 +1403,9 @@ class LangZone(object):
                         del self._is_index_dirty_from_dbsubpath[dbsubpath]
                     del self._index_and_atime_from_dbsubpath[dbsubpath]
                 # Note: Dirty indexes that are recently accessed are intentionally not written to disk.
+
+            # Free cached blobs
+            self._cull_cached_blobs(self._blob_cache_inactive_ttl)
         except:
             log.exception("Exception culling memory")
         finally:
@@ -1364,6 +1419,19 @@ class LangZone(object):
         #XXX Database.check(): Shouldn't have too many cached indeces in
         #    memory. How old is the oldest one? Estimate memory size
         #    used by all loaded indeces?
+
+    def _cull_cached_blobs(self, min_access_seconds, retain_dbsubpath=None):
+        """
+        Clean up old cached blobs and optionally retain a specific subpath
+
+        Assumes that caller has called _acquire_lock
+        """
+        now = time.time()
+        for dbsubpath, atime in self._blob_cache_atime.items():
+            if dbsubpath != retain_dbsubpath and now - atime > min_access_seconds:
+                self._blob_cache_usage -= sys.getsizeof(self._blob_cache[dbsubpath])
+                del self._blob_cache[dbsubpath]
+                del self._blob_cache_atime[dbsubpath]
 
     # TODO: When a directory no longer exists on the filesystem - should we
     #          1) remove the db data, or
