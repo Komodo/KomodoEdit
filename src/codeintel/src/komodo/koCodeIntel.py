@@ -1939,6 +1939,7 @@ class KoCodeIntelEnvironment(object):
             "codeintel_blob_cache_max_bytes": T(getter=get_int),
             "codeintel_blob_cache_inactive_ttl": T(getter=get_int),
             "codeintel_blob_cache_panic_ttl_delta": T(getter=get_int),
+            "import_exclude_matches": T(),
             "defaultHTMLDecl": T(),
             "defaultHTMLNamespace": T(),
             "defaultHTML5Decl": T(),

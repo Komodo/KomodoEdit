@@ -108,6 +108,8 @@ def _walk_php_symbols(elem, _prefix=None):
 class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
                    ProgLangTriggerIntelMixin):
     lang = lang
+    importExcludeMatchesPrefName = "import_exclude_matches"
+    excludePathsPrefName = "phpExcludePaths"
 
     # Used by ProgLangTriggerIntelMixin.preceding_trg_from_pos()
     trg_chars = tuple('$>:(,@"\' \\')
@@ -1011,10 +1013,21 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
             if not pref: continue
             extra_dirs.update(d.strip() for d in pref.split(os.pathsep)
                               if exists(d.strip()))
-        for pref in env.get_all_prefs("phpExcludePaths"):
+        for pref in env.get_all_prefs(self.excludePathsPrefName):
             if not pref: continue
             exclude_dirs.update(d.strip() for d in pref.split(os.pathsep)
                                 if exists(d.strip()))
+
+        # Get excluded names
+        excluded_dir_names = [];
+        for excludes_pref in env.get_all_prefs(self.importExcludeMatchesPrefName):
+            if excludes_pref:
+                for exclude_item in excludes_pref.split(";"):
+                    # Exclude anything with a star or a dot (likely a file)
+                    if not re.search("[.*]", exclude_item):
+                        if exclude_item not in excluded_dir_names:
+                            excluded_dir_names.append(exclude_item)
+
         if extra_dirs:
             log.debug("PHP extra lib dirs: %r minus %r", extra_dirs, exclude_dirs)
             max_depth = env.get_pref("codeintel_max_recursive_dir_depth", 10)
@@ -1023,7 +1036,8 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
                 util.gen_dirs_under_dirs(extra_dirs,
                     max_depth=max_depth,
                     interesting_file_patterns=php_assocs,
-                    exclude_dirs=exclude_dirs)
+                    exclude_dirs=exclude_dirs,
+                    excluded_dir_names=excluded_dir_names)
             )
         else:
             extra_dirs = () # ensure retval is a tuple
@@ -1036,7 +1050,9 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
             env.add_pref_observer("php", self._invalidate_cache)
             env.add_pref_observer("phpExtraPaths",
                 self._invalidate_cache_and_rescan_extra_dirs)
-            env.add_pref_observer("phpExcludePaths",
+            env.add_pref_observer(self.excludePathsPrefName,
+                self._invalidate_cache_and_rescan_extra_dirs)
+            env.add_pref_observer(self.importExcludeMatchesPrefName,
                 self._invalidate_cache_and_rescan_extra_dirs)
             env.add_pref_observer("phpConfigFile",
                                   self._invalidate_cache)
@@ -1086,10 +1102,30 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
             if include_dirs:
                 max_depth = env.get_pref("codeintel_max_recursive_dir_depth", 10)
                 php_assocs = env.assoc_patterns_from_lang("PHP")
+
+                # Check for excludes
+                exclude_dirs = set()
+                for pref in env.get_all_prefs(self.excludePathsPrefName):
+                    if not pref: continue
+                    exclude_dirs.update(d.strip() for d in pref.split(os.pathsep)
+                        if exists(d.strip()))
+
+                # Get excluded names
+                excluded_dir_names = set()
+                for excludes_pref in env.get_all_prefs(self.importExcludeMatchesPrefName):
+                    if excludes_pref:
+                        for exclude_item in excludes_pref.split(";"):
+                            # Exclude anything with a star or a dot (likely a file)
+                            if not re.search("[.*]", exclude_item):
+                                if exclude_item not in excluded_dir_names:
+                                    excluded_dir_names.add(exclude_item)
+
                 include_dirs = tuple(
                     util.gen_dirs_under_dirs(include_dirs,
                         max_depth=max_depth,
-                        interesting_file_patterns=php_assocs)
+                        interesting_file_patterns=php_assocs,
+                        exclude_dirs=exclude_dirs,
+                        excluded_dir_names=excluded_dir_names)
                 )
                 if include_dirs:
                     libs.append( db.get_lang_lib("PHP", "inilib",
@@ -1231,7 +1267,7 @@ class PHPImportHandler(ImportHandler):
                 #    extension: need to grow filetype-from-content smarts.
                 files.append(path)
 
-    def find_importables_in_dir(self, dir):
+    def find_importables_in_dir(self, dir, env=None):
         """See citadel.py::ImportHandler.find_importables_in_dir() for
         details.
 
@@ -1248,6 +1284,10 @@ class PHPImportHandler(ImportHandler):
         if dir == "<Unsaved>":
             #TODO: stop these getting in here.
             return {}
+
+        # Update environment if null
+        if not env:
+            env = self.mgr.env
 
         try:
             names = os.listdir(dir)
@@ -1266,7 +1306,7 @@ class PHPImportHandler(ImportHandler):
                 pass
 
         importables = {}
-        patterns = self.mgr.env.assoc_patterns_from_lang("PHP")
+        patterns = env.assoc_patterns_from_lang("PHP")
         for name in nondirs:
             for pattern in patterns:
                 if fnmatch(name, pattern):

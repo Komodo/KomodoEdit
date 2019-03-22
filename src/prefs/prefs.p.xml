@@ -511,7 +511,7 @@
        restore that when doing a new find/replace in files. Bug 81579.
        Valid values are: files, open-files, and curr-project
        (the same as the `<menuitem value="VALUE">` values in
-       `<menulist id="search-in-menu">` of "find2.xul").
+       `<menulist id="search-in-menu">` of "embedded.xul").
        -->
   <string id="find-lastInFilesContext">files</string>
   <boolean id="find-skipLargeFilesEnabled">1</boolean>

@@ -212,7 +212,7 @@ var _log = ko.logging.getLogger("ko.launch");
 this.findBrowser = function(args = {})
 {
     // Transfer focus to the hidden input buffer to capture keystrokes
-    // from the user while find2.xul is loading. The find dialog will
+    // from the user while embedded.xul is loading. The find dialog will
     // retrieve these contents when it is ready.
     ko.inputBuffer.start();
     

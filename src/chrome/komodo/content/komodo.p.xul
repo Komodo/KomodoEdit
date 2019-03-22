@@ -1062,6 +1062,10 @@
                                               id="menu_convertLowerCase"
                                               observes="cmd_convertLowerCase"
                                               />
+                                    <menuitem label="&makeTitleCase.label;"
+                                              id="menu_convertTitleCase"
+                                              observes="cmd_convertTitleCase"
+                                              />
 
                                     <menuseparator id="codeConvertHex_menuseparator"/>
 
