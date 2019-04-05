@@ -2098,7 +2098,9 @@ viewManager.prototype.do_cmd_reloadBrowserPreview = function() {
 }
 
 viewManager.prototype.is_cmd_showHideMinimap_enabled = function () {
-   return this.currentView.minimap;
+    if (this.currentView.minimap)
+        return this.currentView.minimap;
+    return false;
 };
 
 viewManager.prototype.do_cmd_showHideMinimap = function () {
