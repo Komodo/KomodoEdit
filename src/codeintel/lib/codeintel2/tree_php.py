@@ -1185,6 +1185,10 @@ class PHPTreeEvaluator(TreeEvaluator):
                          first_token, scoperef)
                 return ([(elem, scoperef)], 1)
 
+        # Ignore keywords
+        if first_token in self.langintel.langinfo.keywords:
+            return (None, 1)
+
         while 1:
             self.log("_hits_from_first_part:: scoperef now %s:", scoperef)
             elem = self._elem_from_scoperef(scoperef)

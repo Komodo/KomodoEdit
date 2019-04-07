@@ -198,8 +198,8 @@
     
             var currentPos = hyperlink.endPos;
             var style = scimoz.getStyleAt(currentPos);
-            var displayPath = view.koDoc.displayPath;
-            var wordUnderCursor = ko.interpolate.getWordUnderCursor(scimoz);
+            //var displayPath = view.koDoc.displayPath;
+            //var wordUnderCursor = ko.interpolate.getWordUnderCursor(scimoz);
     
             // We've told to update, but we may not need to:
             // If the position has not changed much and the the word under the
