@@ -1619,7 +1619,7 @@ class PHPFunction:
                     if len(info) > 2:
                         description = " - " + " ".join(info[3:])
                     # <param_type> param_name - param_description (if exists)
-                    docblock_parsed += '<%s> %s %s\n' % (param_type.lower(), param_name, description, )
+                    docblock_parsed += '<%s> %s %s\n' % (param_type, param_name, description, )
                     
                 # @return entries
                 elif docstr.startswith("@return"):
@@ -1628,7 +1628,7 @@ class PHPFunction:
                     description = ""
                     if len(info) > 2: 
                         description = " - " + " ".join(info[2:])
-                    docblock_parsed += "Returns %s %s\n" % (return_type.lower(), description)
+                    docblock_parsed += "Returns %s %s\n" % (return_type, description)
                 
                 # Misc @ prefixed entries
                 elif docstr.startswith("@"):
