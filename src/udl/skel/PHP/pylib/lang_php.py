@@ -2453,8 +2453,15 @@ class PHPParser:
                     name = self._removeDollarSymbolFromVariableName(text[pos])
                 elif styles[pos] in (self.PHP_IDENTIFIER, self.PHP_WORD):
                     # Statically typed argument.
-                    citdl = text[pos]
+                    if citdl is None:
+                        citdl = ""
+                    citdl += text[pos]
                     sig_parts.append(" ")
+                # Namespace separator
+                elif text[pos] == '\\':
+                    if citdl is None:
+                        citdl = ""
+                    citdl += text[pos]
                 elif text[pos] == '&':
                     sig_parts.append(" ")
             elif not citdl:
