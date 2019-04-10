@@ -631,9 +631,13 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
                 ctlr.error(str(ex))
                 ctlr.done("error")
                 return
-            line = buf.accessor.line_from_pos(pos)
-            evalr = PHPTreeEvaluator(ctlr, buf, trg, citdl_expr, line)
-            buf.mgr.request_eval(evalr)
+            # Don't try to find array members on empty string
+            if citdl_expr == "" and trg.form == TRG_FORM_CPLN and trg.type == "array-members":
+                ctlr.done("success")
+            else:
+                line = buf.accessor.line_from_pos(pos)
+                evalr = PHPTreeEvaluator(ctlr, buf, trg, citdl_expr, line)
+                buf.mgr.request_eval(evalr)
 
     def _citdl_expr_from_pos(self, trg, buf, pos, implicit=True,
                              include_forwards=False, DEBUG=False):
