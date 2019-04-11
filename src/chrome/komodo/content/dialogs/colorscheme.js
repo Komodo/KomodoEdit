@@ -96,11 +96,9 @@
         'Indicators': {
             fields: ['indicator-alpha', 'indicator-color', 'indicator-draw_underneath', 'indicator-style'],
             properties: [
-                'collab_local_change','collab_remote_change','collab_remote_cursor_1',
-                'collab_remote_cursor_2','collab_remote_cursor_3','collab_remote_cursor_4',
-                'collab_remote_cursor_5','find_highlighting','linter_error',
+                'find_highlighting','linter_error',
                 'linter_warning','soft_characters','tabstop_current','tabstop_pending',
-                'tag_matching','spelling_error'
+                'tag_matching'
             ]
         }
 
