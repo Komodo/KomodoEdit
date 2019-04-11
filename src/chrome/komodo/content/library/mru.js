@@ -186,11 +186,6 @@ this.add = function MRU_add(prefName, entry, caseSensitive)
         _log.error(errmsg);
         throw(errmsg);
     }
-    if (!entry) {
-        errmsg = "MRU_add: warning: no entry: prefName='"+prefName+
-                 "', entry='"+entry+"'";
-        _log.warn(errmsg)
-    }
 
     var mruList = null;
     if (prefSvc.prefs.hasPref(prefName)) {
