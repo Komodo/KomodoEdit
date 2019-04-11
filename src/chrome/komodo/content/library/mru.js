@@ -167,10 +167,10 @@ this.maxEntries = function MRU_maxEntries(listPrefName)
 }
 
 
-this.add = function MRU_add(prefName, entry, caseSensitive)
+this.add = function MRU_add(prefName, entry, caseSensitive, allowBlank)
 {
     _log.info("MRU_add(prefName="+prefName+", entry="+entry+
-                ", caseSensitive="+caseSensitive+")");
+                ", caseSensitive="+caseSensitive+", allowBlank="+allowBlank+")");
 
     // Add the given "entry" (a string) to the given MRU (indentified by
     // the name of pref, "prefName", with which it is associated).
@@ -185,6 +185,11 @@ this.add = function MRU_add(prefName, entry, caseSensitive)
         errmsg = "MRU_add: invalid argument: prefName='"+prefName+"'";
         _log.error(errmsg);
         throw(errmsg);
+    }
+    if (!allowBlank && !entry) {
+        errmsg = "MRU_add: warning: no entry: prefName='"+prefName+
+                 "', entry='"+entry+"'";
+        _log.warn(errmsg)
     }
 
     var mruList = null;
@@ -327,7 +332,7 @@ this.addFromACTextbox = function MRU_addFromACTextbox(widget, allowBlank)
 
     _log.info("MRU_addFromACTextbox(widget): widget.value='"+widget.value+
                 "', prefName="+prefName);
-    ko.mru.add(prefName, widget.value, true);
+    ko.mru.add(prefName, widget.value, true, allowBlank);
 }
 
 
