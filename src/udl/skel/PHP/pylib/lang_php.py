@@ -642,7 +642,7 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
         WHITESPACE = tuple(" \t\n\r\v\f")
         EOL = tuple("\r\n")
         BLOCKCLOSES = tuple(")}]")
-        STOPOPS = tuple("({[,&$+=^|%/<;:->!.@?")
+        STOPOPS = tuple("({[,&$+=^|%/<;:->!.@?~")
         EXTRA_STOPOPS_PRECEDING_IDENT = BLOCKCLOSES # Might be others.
 
         #TODO: This style picking is a problem for the LangIntel move.
