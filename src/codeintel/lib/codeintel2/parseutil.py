@@ -112,8 +112,9 @@ _javadoc1 = re.compile(r'\s*\/\*(.*)\*\/', re.S)
 _javadoc2 = re.compile(r'^(\s*\*)', re.M)
 _linedoc = re.compile(r'^(\s*#|\s*\/\/)', re.M)
 _indent = re.compile(r'^([ \t]*)', re.M)
-_param = re.compile(r'^\s*@param\s+(?P<type>[\w\\]+(?:\[\])*)\s+\$(?P<name>\w+)(?:\s+?(?P<doc>.*?))?', re.M|re.U)
-_return = re.compile(r'^\s*@return\s+(?P<type>[\w\\]+(?:\[\])*)(?:\s+(?P<doc>.*))?', re.M|re.U)
+# Be very permissive with <type>.  We'll do better parsing in _resolveDocStringTypeToType
+_param = re.compile(r'^\s*@param\s+(?P<type>[^\s]+)\s+\$(?P<name>\w+)(?:\s+?(?P<doc>.*?))?', re.M|re.U)
+_return = re.compile(r'^\s*@return\s+(?P<type>[^\s]+)(?:\s+(?P<doc>.*))?', re.M|re.U)
 
 def uncommentDocString(doc):
     # remove block style leading and end comments
@@ -150,12 +151,37 @@ def uncommentDocString(doc):
     d = re.sub(dedent, '', d)
     return d
 
+_docTypeParenRe = re.compile(r'\(([^()|]+)(?:\|[^()]+)*\)', re.U)
+_docTypeOrRe = re.compile(r'\|.*$', re.U)
+
+def _resolveDocStringTypeToType(docTypeStr):
+    # Resolve doc to type.
+    # Type1|Type2|null resolves to Type1
+    # (Type1|Type2|null)[] resolves to Type1[]
+    oldDocTypeStr = None
+    while docTypeStr != oldDocTypeStr:
+        oldDocTypeStr = docTypeStr
+        docTypeStr = re.sub(_docTypeParenRe, r'\1', docTypeStr)
+    return re.sub(_docTypeOrRe, "", docTypeStr)
+
 def parseDocString(doc):
     d = uncommentDocString(doc)
-    params = re.findall(_param, d)
+    # Get @param
+    params = []
+    for param in re.findall(_param, d):
+        # Resolve type
+        resolvedType = _resolveDocStringTypeToType(param[0])
+        if resolvedType == param[0]:
+            params.append(param)
+        elif resolvedType != "":
+            params.append((resolvedType, param[1], param[2]))
+    # Get @return
     result = re.findall(_return, d)
     if result:
+        # Get first match
         result = result[0]
+        # Resolve type
+        result = (_resolveDocStringTypeToType(result[0]), result[1])
     return (d, params, result)
 
 
