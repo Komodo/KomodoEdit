@@ -112,8 +112,8 @@ _javadoc1 = re.compile(r'\s*\/\*(.*)\*\/', re.S)
 _javadoc2 = re.compile(r'^(\s*\*)', re.M)
 _linedoc = re.compile(r'^(\s*#|\s*\/\/)', re.M)
 _indent = re.compile(r'^([ \t]*)', re.M)
-# Be very permissive with <type>.  We'll do better parsing in _resolveDocStringTypeToType
-_param = re.compile(r'^\s*@param\s+(?P<type>[^\s]+)\s+\$(?P<name>\w+)(?:\s+?(?P<doc>.*?))?', re.M|re.U)
+# Be very permissive with <type>.  We'll do better parsing in resolveDocStringTypeToType
+_param = re.compile(r'^\s*@param\s+(?P<type>[^\s]+)\s+&?\$(?P<name>\w+)(?:\s+?(?P<doc>.*?))?', re.M|re.U)
 _return = re.compile(r'^\s*@return\s+(?P<type>[^\s]+)(?:\s+(?P<doc>.*))?', re.M|re.U)
 
 def uncommentDocString(doc):
@@ -154,7 +154,7 @@ def uncommentDocString(doc):
 _docTypeParenRe = re.compile(r'\(([^()|]+)(?:\|[^()]+)*\)', re.U)
 _docTypeOrRe = re.compile(r'\|.*$', re.U)
 
-def _resolveDocStringTypeToType(docTypeStr):
+def resolveDocStringTypeToType(docTypeStr):
     # Resolve doc to type.
     # Type1|Type2|null resolves to Type1
     # (Type1|Type2|null)[] resolves to Type1[]
@@ -170,7 +170,7 @@ def parseDocString(doc):
     params = []
     for param in re.findall(_param, d):
         # Resolve type
-        resolvedType = _resolveDocStringTypeToType(param[0])
+        resolvedType = resolveDocStringTypeToType(param[0])
         if resolvedType == param[0]:
             params.append(param)
         elif resolvedType != "":
@@ -181,7 +181,7 @@ def parseDocString(doc):
         # Get first match
         result = result[0]
         # Resolve type
-        result = (_resolveDocStringTypeToType(result[0]), result[1])
+        result = (resolveDocStringTypeToType(result[0]), result[1])
     return (d, params, result)
 
 

@@ -1766,8 +1766,8 @@ class PHPClass:
 
     cixtype = "CLASS"
     # PHPDoc magic property sniffer.
-    _re_magic_property = re.compile(r'^\s*@property(-(?P<type>read|write))?\s+((?P<citdl>[\w\\]+)\s+)?(?P<name>\$\w+)(?:\s+(?P<doc>.*?))?', re.M|re.U)
-    _re_magic_method = re.compile(r'^\s*@method\s+((?P<citdl>[\w\\]+)\s+)?(?P<name>\w+)(\(\))?(?P<doc>.*?)$', re.M|re.U)
+    _re_magic_property = re.compile(r'^\s*@property(-(?P<type>read|write))?\s+((?P<citdl>[\w\\()|\[\]]+)\s+)?(?P<name>\$\w+)(?:\s+(?P<doc>.*?))?', re.M|re.U)
+    _re_magic_method = re.compile(r'^\s*@method\s+((?P<citdl>[\w\\()|\[\]]+)\s+)?(?P<name>\w+)(\(\))?(?P<doc>.*?)$', re.M|re.U)
 
     def __init__(self, name, extends, lineno, depth, attributes=None,
                  interfaces=None, doc=None):
@@ -1799,12 +1799,14 @@ class PHPClass:
                 all_matches = re.findall(self._re_magic_property, self.doc)
                 for match in all_matches:
                     varname = match[4][1:]  # skip "$" in the name.
-                    v = PHPVariable(varname, lineno, match[3], doc=match[5])
+                    v = PHPVariable(varname, lineno, resolveDocStringTypeToType(match[3]), doc=match[5])
                     self.members[varname] = v
             if self.doc.find("@method") >= 0:
                 all_matches = re.findall(self._re_magic_method, self.doc)
                 for match in all_matches:
-                    citdl = match[1] or None
+                    citdl = None
+                    if match[1]:
+                        citdl = resolveDocStringTypeToType(match[1]);
                     fnname = match[2]
                     fndoc = match[4]
                     phpArgs = []
