@@ -1452,7 +1452,7 @@ class PHPArg:
 class PHPVariable:
 
     # PHPDoc variable type sniffer.
-    _re_var = re.compile(r'^\s*@var\s+(\$(?P<variable>\w+)\s+)?(?P<type>[\w\\]+)(\s+\$(?P<variable2>\w+)\s+)?(?:\s+(?P<doc>.*?))?', re.M|re.U)
+    _re_var = re.compile(r'^\s*@var\s+(\$(?P<variable>\w+)\s+)?(?P<type>[\w\\()|\[\]]+)(\s+\$(?P<variable2>\w+)\s+)?(?:\s+(?P<doc>.*?))?', re.M|re.U)
     _ignored_php_types = ("object", "mixed")
 
     def __init__(self, name, line, vartype='', attributes='', doc=None,
@@ -1494,7 +1494,7 @@ class PHPVariable:
                 # declarations, look for the matching name.
                 for match in re.finditer(self._re_var, doc):
                     groups = match.groupdict()
-                    vartype = groups['type']
+                    vartype = resolveDocStringTypeToType(groups['type'])
                     if vartype and (groups['variable'] and self.name != groups['variable'] or
                                     groups['variable2'] and self.name != groups['variable2']):
                         vartype = None # wrong variable
@@ -2846,7 +2846,7 @@ class PHPParser:
             if len(all_matches) >= 1:
                 #print all_matches[0]
                 varname = all_matches[0][1]
-                vartype = all_matches[0][2]
+                vartype = resolveDocStringTypeToType(all_matches[0][2])
                 php_variable = None
                 if varname:
                     # Optional, defines the variable this is applied to.
