@@ -641,10 +641,8 @@ function find_all() {
         var findFn = "findAllInFiles";
         if (_g_find_context.type == koIFindContext.FCT_IN_FILES) {
             ko.mru.addFromACTextbox(widgets.dirs);
-            if (widgets.includes.value)
-                ko.mru.addFromACTextbox(widgets.includes);
-            if (widgets.excludes.value)
-                ko.mru.addFromACTextbox(widgets.excludes);
+            ko.mru.addFromACTextbox(widgets.includes, true);
+            ko.mru.addFromACTextbox(widgets.excludes, true);
             gFindSvc.options.cwd = _g_find_context.cwd;
             _g_find_context.encodedFolders = gFindSvc.options.encodedFolders; // user may have changed since reset
         }
