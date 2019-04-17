@@ -699,6 +699,7 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
             ac.resetToPosition(i)
 
         ch = None
+        lastSkippedParenBlockPos = None
         try:
             while i >= 0:
                 if ch == None and include_forwards:
@@ -773,6 +774,9 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
                     if DEBUG:
                         print "found block at %d: %r" % (i, ch)
                     citdl_expr.append(ch)
+                    # Is this the end of a parenthesis block?
+                    if ch == ")":
+                        lastSkippedParenBlockPos = i
         
                     BLOCKS = { # map block close char to block open char
                         ')': '(',
@@ -822,6 +826,9 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
             citdl_expr.pop()
         citdl_expr.reverse()
         citdl_expr = ''.join(citdl_expr)
+        # If we wound up with (), it was probably something like (new MyClass())->
+        if citdl_expr == "()" and lastSkippedParenBlockPos is not None:
+            citdl_expr = self._citdl_expr_from_pos(trg, buf, lastSkippedParenBlockPos, implicit, include_forwards, DEBUG)
         if DEBUG:
             print "return: %r" % citdl_expr
             print util.banner("done")
@@ -848,6 +855,7 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
             Foo\bar:<|>:                    Foo\bar
             Foo\bar::bam-<|>>               Foo\bar.bam
             Foo\bar(arg1, arg2)::bam-<|>>   Foo\bar().bam
+            (new Foo())-<|>>                  Foo
         """
         #DEBUG = True
         DEBUG = False
