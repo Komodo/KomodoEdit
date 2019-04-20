@@ -1548,7 +1548,7 @@ class GenericCommandHandler:
         Jumps to the previous fold at the same level
         """
         sm = self._view.scimoz
-        initial_lineno = sm.lineFromPosition(sm.currentPos);
+        initial_lineno = sm.lineFromPosition(sm.currentPos)
         lineno = self._get_closest_fold_line(initial_lineno)
         if lineno is None:
             return
@@ -1572,7 +1572,7 @@ class GenericCommandHandler:
         Jumps to the next fold at the same level
         """
         sm = self._view.scimoz
-        initial_lineno = sm.lineFromPosition(sm.currentPos);
+        initial_lineno = sm.lineFromPosition(sm.currentPos)
         lineno = self._get_closest_fold_line(initial_lineno)
         if lineno is None:
             return
@@ -1594,7 +1594,7 @@ class GenericCommandHandler:
 
     def _do_cmd_jumpToParentFold(self):
         sm = self._view.scimoz
-        lineno = sm.lineFromPosition(sm.currentPos);
+        lineno = sm.lineFromPosition(sm.currentPos)
         fold_level = _fold_level(sm, lineno)
         if fold_level == sm.SC_FOLDLEVELBASE:
             return
