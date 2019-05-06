@@ -905,8 +905,9 @@ class PHPTreeEvaluator(TreeEvaluator):
                 # assigned to a variable that is already an array. In that case,
                 # no hits will be found and a search on "x" will need to be
                 # performed, yielding the correct hit.
-                tokens[0] = tokens[0][:-2]
-                hits, nconsumed = self._hits_from_first_part(tokens, scoperef)
+                while not hits and tokens[0][-2:] == '[]': # Handle deeply nested foreach
+                    tokens[0] = tokens[0][:-2]
+                    hits, nconsumed = self._hits_from_first_part(tokens, scoperef)
             elif self.attemptingPSR4Autoloading:
                 # When attempting to autocomplete classes that have not
                 # specifically been imported, codeintel uses PSR-4
