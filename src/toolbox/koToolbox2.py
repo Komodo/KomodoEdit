@@ -700,7 +700,7 @@ class Database(object):
                 try:
                     fp = open(metadataPath, 'r')
                     try:
-                        data = json.load(fp, encoding="utf-8")
+                        data = DataParser.readData(fp)    
                     except:
                         log.exception("Couldn't load json data for path %s", path)
                         data = {}
@@ -2079,9 +2079,14 @@ class DataParser:
             return json.load(fp, encoding="utf-8")
         except ValueError:
             # For some reason some .komodotool files have an extra closing
-            # bracket at the end, no idea why, not wasting cycles on finding out
+            # bracket at the end, no idea why, not wasting cycles on finding out.
+            # There also might be a newline
             fp.seek(0)
-            return json.loads(fp.read()[0:-1], encoding="utf-8")
+            s = fp.read()
+            offset = -1
+            if s[-1] == "\n":
+                offset -= 1
+            return json.loads(s[:offset], encoding="utf-8")
 
     @staticmethod
     def writeJsonData(fp, data):
