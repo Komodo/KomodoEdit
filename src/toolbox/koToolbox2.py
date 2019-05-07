@@ -2136,9 +2136,8 @@ class DataParser:
             # Parse simple key/val meta info
             if inMeta:
                 try:
-                    language = data["language"]
-                    langInfo = langRegistry.getLanguage(language)
-                    blockComment = langInfo.getCommentDelimiter("block", 0)
+                    langInfo = DataParser.get_lang_comments_delims(data["language"])
+                    blockComment = langInfo[1]
                     if blockComment:
                         blockComment = json.loads(blockComment)
                         endSuffix = blockComment[1]
@@ -2198,6 +2197,16 @@ class DataParser:
         return data
     
     @staticmethod
+    def get_lang_comments_delims(langname):
+        langRegistry = components.classes["@activestate.com/koLanguageRegistryService;1"]\
+            .getService(components.interfaces.koILanguageRegistryService)
+        common = "-common"
+        if common in langname:
+            langname = langname[:langname.find(common)]
+        langinfo = langRegistry.getLanguage(langname)
+        return [langinfo.getCommentDelimiter("line", 0), langinfo.getCommentDelimiter("block", 0)]
+
+    @staticmethod
     def writeCleanData(fp, data):
         endRx = re.compile(r"===+(.*)\n")
         inMeta = True
@@ -2242,9 +2251,8 @@ class DataParser:
                 # Detect regular meta info
                 else:
                     try:
-                        language = data["language"]
-                        langInfo = langRegistry.getLanguage(language)
-                        blockComment = langInfo.getCommentDelimiter("block", 0)
+                        langInfo = DataParser.get_lang_comments_delims(data["language"])
+                        blockComment = langInfo[1]
                         if blockComment:
                             blockComment = json.loads(blockComment)
                             endSuffix = blockComment[1]
@@ -2262,9 +2270,9 @@ class DataParser:
         if not language:
             language = langRegistry.suggestLanguageForFile(fp.name)
 
-        langInfo = langRegistry.getLanguage(language)
-        lineComment = langInfo.getCommentDelimiter("line", 0)
-        blockComment = langInfo.getCommentDelimiter("block", 0)
+        langInfo = DataParser.get_lang_comments_delims(language)
+        lineComment = langInfo[0]
+        blockComment = langInfo[1]
         # set prefixes and suffixes
         if blockComment:
             metaPrefix = ""
