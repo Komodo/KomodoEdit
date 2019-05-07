@@ -348,6 +348,27 @@ this.snippetInsertImpl = function snippetInsertImpl(snippet, view /* =<curr view
       }
     }
     
+    var istrings = "";
+    try {
+      istrings = ko.interpolate.interpolate(
+        window,
+        [], // codes are not bracketed
+        [text], // codes are bracketed
+        snippet.getStringAttribute("name"),
+        viewData);
+      text = istrings[0];
+    } catch (e) {
+      let msg = "Could not perform interpolation";
+      require("notify/notify").send(msg + ".  See logs for details.", { priority: "error" });
+      log.warn(msg + ": " + e);
+    }
+
+    if (treat_as_ejs && text.indexOf("<%") >= 0) {
+      text = this._textFromEJSTemplate(text, eol, eol_str, snippet);
+    } else {
+      text = text.replace(/\r\n|\n|\r/g, eol_str);
+    }
+
     // Do the interpolation of special codes.
     // var snippetWrapsSelection = text.indexOf('[[%s') >= 0;
     var snippetWrapsSelection = _wrapsSelectionRE.test(text);
@@ -440,29 +461,6 @@ this.snippetInsertImpl = function snippetInsertImpl(snippet, view /* =<curr view
     } else {
         scimoz.replaceSel("");
         oldInsertionPoint = scimoz.currentPos;
-    }
-    
-    var istrings = "";
-    try
-    {
-        istrings = ko.interpolate.interpolate(
-                        window,
-                        [], // codes are not bracketed
-                        [text], // codes are bracketed
-                        snippet.getStringAttribute("name"),
-                        viewData);
-        text = istrings[0];
-    } catch(e)
-    {
-        let msg = "Could not perform interpolation";
-        require("notify/notify").send(msg+".  See logs for details.",{priority: "error"});
-        log.warn(msg +": "+e);
-    }
-    
-    if (treat_as_ejs && text.indexOf("<%") >= 0) {
-        text = this._textFromEJSTemplate(text, eol, eol_str, snippet);
-    } else {
-        text = text.replace(/\r\n|\n|\r/g, eol_str);
     }
     
     // Determine and set the selection and cursor position.
