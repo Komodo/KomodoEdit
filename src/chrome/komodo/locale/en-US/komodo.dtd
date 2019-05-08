@@ -54,6 +54,7 @@
 <!ENTITY checkForUpdates.label "Check for Updates...">
 <!ENTITY checkSyntaxNow.label "Check syntax now">
 <!ENTITY cleanLineEndings.label "Clean Line Endings">
+<!ENTITY clearOutput.tooltiptext "Clear Output">
 <!ENTITY clearSearchHighlighting.label "Clear Highlighting">
 <!ENTITY clearWarningErrorSquigglies.label "Clear warning/error squigglies">
 <!ENTITY close.label "Close">
