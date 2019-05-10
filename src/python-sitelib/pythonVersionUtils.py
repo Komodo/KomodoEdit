@@ -268,6 +268,7 @@ class JavaScriptDistinguisher(object):
     # Things that indicate JS:
     # document....(...)
     # alert....(...)
+    # $( or jQuery(
     
     # Things that indicate node.js:
     # hashbang: #!/usr/bin/env node
@@ -281,6 +282,8 @@ class JavaScriptDistinguisher(object):
         0: [
             (ST_IN_NAME, 'document', 101),
             (ST_IN_NAME, 'alert', 201),
+            (ST_IN_NAME, '$', 201),
+            (ST_IN_NAME, 'jQuery', 201),
             (ST_IN_NAME, 'require', 301),
             (ST_IN_NAME, 'module', 401),
             (ST_IN_NAME, None, 501),
@@ -380,7 +383,7 @@ class JavaScriptDistinguisher(object):
                     state = self.ST_IN_STRING
                     strStart = c
                     bufStart = i + 1
-                elif c.isalpha() or c == "_":
+                elif c.isalpha() or c == "_" or c == "$":
                     if not c_next.isalnum():
                         # Handle one-char names here
                         self._transitionState(self.ST_IN_NAME, c)
