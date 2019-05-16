@@ -28,6 +28,9 @@
             curPrefix = _basename(curPath);
         }
 
+        // Convert query to lowercase words
+        let words = query.toLowerCase().split(/\s+/);
+
         var editorViews = legacy.views.manager.getAllViews();
         for (let editorView of editorViews)
         {
@@ -40,23 +43,39 @@
                 descriptionPrefix = curPrefix;
             }
 
-            if (path.toLowerCase().indexOf(query.toLowerCase()) == -1 &&
-                editorView.title.toLowerCase().indexOf(query.toLowerCase()) == -1)
-                continue;
-            
+            // Lowercase path and title
+            let pathLower = path.toLowerCase();
+            let titleLower = editorView.title.toLowerCase();
+
+            // Find the trailing slash
+            let pathSlashPos = pathLower.lastIndexOf("/");
+
             // weight can't be more than this
             // we want to leave 100 for more relevant scopes
             var totalWeight = 80;
             
             var weight = 0;
-            var words = query.split(/\s+/);
-            var weightPerHit = totalWeight / words.length;
-            
+            var weightPerFilenameHit = totalWeight / words.length;
+            var weightPerHit = 0.9 * weightPerFilenameHit;
+            var noMatch = false;
             for (let word of words)
             {
-                if (path.indexOf(word) != -1)
+                let pathIdx = pathLower.indexOf(word);
+                if (pathIdx != -1)
+                {
+                    // Weight after the final slash more
+                    weight += (pathIdx > pathSlashPos) ? weightPerFilenameHit : weightPerHit;
+                }
+                else if (titleLower.indexOf(word) != -1)
                     weight += weightPerHit;
+                else
+                {
+                    noMatch = true;
+                    break;
+                }
             }
+            if (noMatch)
+                continue;
 
             commando.renderResult({
                 id: editorView.uid.number,
