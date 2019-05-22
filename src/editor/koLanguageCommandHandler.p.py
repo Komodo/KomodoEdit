@@ -1530,16 +1530,28 @@ class GenericCommandHandler:
     _is_cmd_jumpToNextFold_enabled = _is_cmd_folding_enabled
     _is_cmd_jumpToParentFold_enabled = _is_cmd_folding_enabled
 
-    def _get_closest_fold_line(self, lineno):
+    def _get_closest_fold_line(self, lineno, ancestor_fold_level=0):
         """
-        Get the closest fold line number (going up)
+        Get the closest fold line number (prefer up) that is at the same level
+        as a line without going to up the hierarchy
+        Set ancestor_fold_level to 1 to search for the closest fold level 1
+        above current line fold number, etc.
         """
         sm = self._view.scimoz
-        if _fold_level(sm, lineno) == sm.SC_FOLDLEVELBASE:
+        initial_lineno = lineno
+        fold_level = _fold_level(sm, lineno) - ancestor_fold_level
+        if fold_level == sm.SC_FOLDLEVELBASE:
             return None
-        while not _is_header_line(sm, lineno):
-            if lineno == 0:
-                return None
+        while not _is_header_line(sm, lineno) or _fold_level(sm, lineno) != fold_level:
+            if lineno == 0 or _fold_level(sm, lineno) < fold_level:
+                # Try going down
+                lineno = initial_lineno
+                line_count = sm.lineCount
+                while not _is_header_line(sm, lineno) or _fold_level(sm, lineno) != fold_level:
+                    if lineno > line_count or _fold_level(sm, lineno) < fold_level:
+                        return self._get_closest_fold_line(initial_lineno, ancestor_fold_level + 1)
+                    lineno += 1
+                return lineno
             lineno -= 1
         return lineno
 
@@ -1578,8 +1590,8 @@ class GenericCommandHandler:
             return
         desired_fold_level = _fold_level(sm, lineno)
         # Don't want the same fold
-        if lineno == initial_lineno:
-            lineno += 1
+        if lineno <= initial_lineno:
+            lineno = initial_lineno + 1
 
         # Search for next fold at the same level
         line_count = sm.lineCount
