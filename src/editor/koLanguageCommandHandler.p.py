@@ -1555,54 +1555,53 @@ class GenericCommandHandler:
             lineno -= 1
         return lineno
 
-    def _do_cmd_jumpToPreviousFold(self):
+    def _get_closest_fold_line_level(self, lineno):
         """
-        Jumps to the previous fold at the same level
+        Get the fold level of the closest fold line per _get_closest_fold_line
+        """
+        lineno = self._get_closest_fold_line(lineno)
+        if lineno is None:
+            return None
+        return _fold_level(self._view.scimoz, lineno)
+
+    def _jump_to_sibling_fold(self, delta, end_lineno):
+        """
+        Jumps to the sibling fold at the same level
+        delta: -1 for prev; 1 for next
+        end_lineno: end line number
         """
         sm = self._view.scimoz
-        initial_lineno = sm.lineFromPosition(sm.currentPos)
-        lineno = self._get_closest_fold_line(initial_lineno)
-        if lineno is None:
+        lineno = sm.lineFromPosition(sm.currentPos)
+        if lineno == end_lineno:
             return
-        desired_fold_level = _fold_level(sm, lineno)
-        # Don't want the same fold
-        if lineno == initial_lineno:
-            lineno -= 1
+        desired_fold_level = self._get_closest_fold_line_level(lineno)
+        if desired_fold_level is None:
+            sm.gotoLine(end_lineno)
+            return
+        lineno += delta
 
-        # Search for previous fold at the same level
+        # Search for sibling fold at the same level
         while not _is_header_line(sm, lineno) or _fold_level(sm, lineno) > desired_fold_level:
-            if lineno == 0:
+            if lineno == end_lineno:
                 return
-            lineno -= 1
+            lineno += delta
 
         # If the current line is at the same fold level, go to it
         if _fold_level(sm, lineno) == desired_fold_level:
             sm.gotoLine(lineno)
+
+    def _do_cmd_jumpToPreviousFold(self):
+        """
+        Jumps to the previous fold at the same level
+        """
+        self._jump_to_sibling_fold(-1, 0)
 
     def _do_cmd_jumpToNextFold(self):
         """
         Jumps to the next fold at the same level
         """
         sm = self._view.scimoz
-        initial_lineno = sm.lineFromPosition(sm.currentPos)
-        lineno = self._get_closest_fold_line(initial_lineno)
-        if lineno is None:
-            return
-        desired_fold_level = _fold_level(sm, lineno)
-        # Don't want the same fold
-        if lineno <= initial_lineno:
-            lineno = initial_lineno + 1
-
-        # Search for next fold at the same level
-        line_count = sm.lineCount
-        while not _is_header_line(sm, lineno) or _fold_level(sm, lineno) > desired_fold_level:
-            if lineno > line_count:
-                return
-            lineno += 1
-
-        # If the current line is at the same fold level, go to it
-        if _fold_level(sm, lineno) == desired_fold_level:
-            sm.gotoLine(lineno)
+        self._jump_to_sibling_fold(1, sm.lineCount)
 
     def _do_cmd_jumpToParentFold(self):
         sm = self._view.scimoz
