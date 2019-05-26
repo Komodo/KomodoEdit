@@ -40,6 +40,7 @@
 import logging
 
 from codeintel2.common import *
+from codeintel2.langintel import LangIntel
 from codeintel2.udl import UDLLexer, UDLBuffer, UDLCILEDriver, XMLParsingBufferMixin
 
 #---- globals
@@ -48,6 +49,54 @@ lang = "Smarty"
 log = logging.getLogger("codeintel.smarty")
 
 
+
+smarty_tags = [
+    "capture",
+    "config_load",
+    "foreach",
+    "foreachelse",
+    "if",
+    "elseif",
+    "else",
+    "include",
+    "include_php",
+    "insert",
+    "ldelim",
+    "rdelim",
+    "literal",
+    "php",
+    "section",
+    "sectionelse",
+    "string"
+]
+
+smarty_default_modifier_names = [
+    "capitalize",
+    "cat",
+    "count_characters",
+    "count_paragraphs",
+    "count_sentences",
+    "count_words",
+    "date_format",
+    "default",
+    "escape",
+    "htmlspecialchars",
+    "indent",
+    "json_encode",
+    "lower",
+    "nl2br",
+    "print_r",
+    "regex_replace",
+    "replace",
+    "spacify",
+    "string_format",
+    "strip",
+    "strip_tags",
+    "truncate",
+    "upper",
+    "var_dump",
+    "wordwrap"
+]
 
 #---- language support
 
@@ -75,6 +124,57 @@ class SmartyBuffer(UDLBuffer, XMLParsingBufferMixin):
     cpln_stop_chars = "'\" (;},~`@#%^&*()=+{}]|\\;,.<>?/"
 
 
+class SmartyLangIntel(LangIntel):
+    lang = lang
+
+    # Used by ProgLangTriggerIntelMixin.preceding_trg_from_pos()
+    trg_chars = tuple('|{/')
+    calltip_trg_chars = tuple()
+
+    def trg_from_pos(self, buf, pos, implicit=True, DEBUG=False):
+        """
+            CODE       CONTEXT      RESULT
+            '{<|>'     anywhere     tag names, i.e. {if}
+            '{/<|>'     anywhere    tag names, i.e. {/if}
+            '$foo|<|>'  modifiers      modifier names, i.e. {$foo|modifier} or {$foo|@modifier}
+        """
+        if pos < 1:
+            return None
+        accessor = buf.accessor
+        last_pos = pos - 1
+        last_char = accessor.char_at_pos(last_pos)
+
+        # Functions/tags
+        if last_char == "{" or (last_char == "/" and last_pos > 0 and accessor.char_at_pos(last_pos - 1) == "{"):
+            return Trigger(lang, TRG_FORM_CPLN, "complete-tags", pos, implicit)
+
+        # Modifiers
+        if last_char == "|" or (last_char == "@" and last_pos > 0 and accessor.char_at_pos(last_pos - 1) == "|"):
+            return Trigger(lang, TRG_FORM_CPLN, "complete-modifiers", pos, implicit)
+
+    _smartytag_cplns =    [ ("element", t) for t in sorted(smarty_tags) ]
+    _smartymodifier_cplns = [ ("function", t) for t in sorted(smarty_default_modifier_names) ]
+
+    def async_eval_at_trg(self, buf, trg, ctlr):
+        if _xpcom_:
+            trg = UnwrapObject(trg)
+            ctlr = UnwrapObject(ctlr)
+
+        ctlr.start(buf, trg)
+
+        # Smarty tag completions
+        if trg.id == (lang, TRG_FORM_CPLN, "complete-tags"):
+            ctlr.set_cplns(self._smartytag_cplns)
+            ctlr.done("success")
+            return
+        if trg.id == (lang, TRG_FORM_CPLN, "complete-modifiers"):
+            ctlr.set_cplns(self._smartymodifier_cplns)
+            ctlr.done("success")
+            return
+
+        ctlr.done("success")
+
+
 class SmartyCILEDriver(UDLCILEDriver):
     lang = lang
     csl_lang = "JavaScript"
@@ -90,6 +190,7 @@ def register(mgr):
     mgr.set_lang_info(lang,
                       silvercity_lexer=SmartyLexer(),
                       buf_class=SmartyBuffer,
+                      langintel_class=SmartyLangIntel,
                       import_handler_class=None,
                       cile_driver_class=SmartyCILEDriver,
                       is_cpln_lang=True)
