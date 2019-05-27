@@ -85,6 +85,7 @@ smarty_default_modifier_names = [
     "json_encode",
     "lower",
     "nl2br",
+    "number_format",
     "print_r",
     "regex_replace",
     "replace",
