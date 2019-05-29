@@ -232,16 +232,16 @@ class SmartyLangIntel(LangIntel):
         ctlr.done("success")
 
     # Variable in form {assign name="..."
-    _re_assign_var = re.compile(r'{assign\s+(?:[^}]+\s)?name=[\'"](?P<variable>\w+)[\'"]', re.M|re.U)
+    _re_assign_var = re.compile(r'\{assign\s+(?:[^}]+\s)?name=[\'"](?P<variable>\w+)[\'"]', re.M|re.U)
     # Variable in form {... assign="..."
-    _re_assign_attr_var = re.compile(r'{(?:[^}]+\s)+assign=[\'"](?P<variable>\w+)[\'"]', re.M|re.U)
+    _re_assign_attr_var = re.compile(r'\{[^}]+\sassign=[\'"](?P<variable>\w+)[\'"]', re.M|re.U)
     # Any variable used
     _re_used_var = re.compile(r'{[^}]*(?P<variable>\$\w+)', re.M|re.U)
     def _get_smarty_vars(self, buf):
         """ Get Smarty variables from this file """
         smarty_vars = ["$smarty"]
         # Add any vars assigned in this file
-        for regex  in [self._re_assign_var, self._re_assign_attr_var]:
+        for regex in [self._re_assign_var, self._re_assign_attr_var]:
             for match in re.finditer(regex, buf.accessor.text):
                 groups = match.groupdict()
                 this_var = "$" + groups['variable']
