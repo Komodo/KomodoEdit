@@ -244,13 +244,13 @@ class SmartyLangIntel(LangIntel):
         for regex  in [self._re_assign_var, self._re_assign_attr_var]:
             for match in re.finditer(regex, buf.accessor.text):
                 groups = match.groupdict()
-                this_var = "$" + groups['variable'];
+                this_var = "$" + groups['variable']
                 if this_var not in smarty_vars:
                     smarty_vars.append(this_var)
         # Add any vars used in this file
         for match in re.finditer(self._re_used_var, buf.accessor.text):
             groups = match.groupdict()
-            this_var = groups['variable'];
+            this_var = groups['variable']
             if this_var not in smarty_vars:
                 smarty_vars.append(this_var)
         return sorted(smarty_vars)
