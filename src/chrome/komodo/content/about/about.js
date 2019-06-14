@@ -36,6 +36,8 @@
 
 /* Komodo's About dialog */
 
+const w = require("ko/windows").getMain();
+var ko = w.ko;
 var log = ko.logging.getLogger("about");
 var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
         .getService(Components.interfaces.nsIStringBundleService)

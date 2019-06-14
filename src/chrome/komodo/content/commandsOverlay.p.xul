@@ -1587,6 +1587,11 @@
             disabled="true"
             desc="&sourceCodeConvertSelectionToLowerCase.desc;"/>
         <command
+            id="cmd_convertTitleCase" key="key_cmd_convertTitleCase"
+            oncommand="ko.commands.doCommand('cmd_convertTitleCase')"
+            disabled="true"
+            desc="&sourceCodeConvertSelectionToTitleCase.desc;"/>
+        <command
             id="cmd_convertFromHex" key="key_cmd_convertFromHex"
             oncommand="ko.commands.doCommand('cmd_convertFromHex')"
             disabled="true"
@@ -1729,11 +1734,6 @@
             oncommand="ko.commands.doCommandAsync('cmd_saveProjectAs', event)"
             disabled="true"
             desc="&generalSaveProjectAs.desc;"/>
-        <command
-            id="cmd_saveProjectAsTemplate" key="key_cmd_saveProjectAsTemplate"
-            oncommand="ko.commands.doCommandAsync('cmd_saveProjectAsTemplate', event)"
-            disabled="true"
-            desc="&generalCreateTemplateFromProject.desc;"/>
         <command
             id="cmd_closeAllProjects" key="key_cmd_closeAllProjects"
             oncommand="ko.commands.doCommandAsync('cmd_closeAllProjects', event)"

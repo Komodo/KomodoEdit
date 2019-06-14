@@ -1020,14 +1020,22 @@ class koLiveFolderPart(koFolderPart):
     def getChildren(self):
         return self.children
 
-    def genLocalPaths(self, gatherDirs=False, follow_symlinks=True):
+    def genLocalPaths(self, gatherDirs=False, follow_symlinks=True, extraIncludes=None, extraExcludes=None):
         """Generate all contained local paths."""
         from os.path import join
         
         prefset = self.get_prefset()
         base_dir = self.get_liveDirectory()
         excludes = [p for p in prefset.getStringPref("import_exclude_matches").split(';') if p]
+        if extraExcludes != None:
+            for extraPattern in extraExcludes.split(';'):
+                if extraPattern:
+                    excludes.append(extraPattern)
         includes = [p for p in prefset.getStringPref("import_include_matches").split(';') if p]
+        if extraIncludes != None:
+            for extraPattern in extraIncludes.split(';'):
+                if extraPattern:
+                    includes.append(extraPattern)
         excludes.append("*.kpf")  # Live folders always exclude .kpf files.
         excludes.append("*.komodoproject")  # Live folders always exclude .komodoproject files.
         path_patterns = [join(base_dir, "*"), join(base_dir, ".*")]

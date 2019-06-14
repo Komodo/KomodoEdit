@@ -26,7 +26,7 @@ the entire project.
 
 ## Download
 
-You can [download Komodo Edit here](http://komodoide.com).
+You can [download Komodo Edit here](https://www.activestate.com/komodo-ide/downloads/edit).
 
 ## Feedback
 
@@ -45,7 +45,7 @@ Mailing Lists: [komodo-discuss](http://code.activestate.com/lists/komodo-discuss
 ## Building Komodo
 
 Note that these are simplified steps of the building process, for a more in-depth
-guide check <BUILD.txt>.
+guide check [BUILD.txt](BUILD.txt).
 
 ### Building on Windows
 
@@ -62,7 +62,12 @@ guide check <BUILD.txt>.
  * Install [version 1.9.0 of "MozillaBuild-$ver.exe"](http://ftp.mozilla.org/pub/mozilla.org/mozilla/libraries/win32/) package into *the default dir*
    (i.e. "C:\mozilla-build").
 
+   * Once installed remove the wget and hg directories
+   * Download version 2.2.0 and install it to a temp directory, then copy the wget directory from 2.2 to the 1.9 install directory
+
  * Install the [latest ActivePerl](http://downloads.activestate.com/ActivePerl/releases/).
+
+ * Install Mercurial
 
 See <http://developer.mozilla.org/en/docs/Windows_Build_Prerequisites> for
 more details on Windows build prerequisites. However, following the above
@@ -77,7 +82,7 @@ steps is *meant to be sufficient* to get Komodo building.
    ```
     cd mozilla
     setenv-moz-msvc11.bat
-    python build.py configure -k 10.10
+    python build.py configure -k 11.10
     python build.py distclean all
    ```
 
@@ -91,7 +96,7 @@ steps is *meant to be sufficient* to get Komodo building.
    ```
     cd ..
     set PATH=util\black;%PATH%
-    bk configure -V 10.10.0-devel
+    bk configure -V 11.10.0-devel # --without-binary-dbgp-clients
     bk build
    ```
 
@@ -119,9 +124,10 @@ should be a lot faster as much of the compiled data is cached.
 
    If you prefer the Python builds from python.org should be sufficient as well.
 
- * Xcode 6.4. For 8.0 see below. You can get version 6.4 from [the developer downloads site](https://developer.apple.com/downloads/).
+ * Xcode 6.4(SDK 10.9 & 10.10). For 8.0 see below. You can get version 6.4 from [the developer downloads site](https://developer.apple.com/downloads/).
   
-  * MacOSX10.10.sdk or older
+  * MacOSX10.10.sdk or older  
+  * *IDE ONLY* SDK 10.8 for Code Intel. Can be found in Xcode 5.1.1
   * If you have/need other versions of Xcode installed then you can use `xcode-select` to change the active Xcode:
   
      `$ xcode-select -s /Path/To/Xcode\ 6.4.app/`
@@ -298,7 +304,7 @@ You will also need to redo your build (distclean mozilla and komodo).
 #### Building Steps
 
 Once your image is prepared you can follow the building steps for linux as
-described below. You will be running these from the docker container, so ssh into
+described above. You will be running these from the docker container, so ssh into
 it using the command above and then run the commands from `/komodo/dev`
 
 #### Running

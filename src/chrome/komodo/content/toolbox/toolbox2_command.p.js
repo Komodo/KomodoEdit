@@ -1326,7 +1326,7 @@ this._handleDroppedURLs = function(index, koDropDataList, copying) {
             }
         } else if (koDropData.isKomodoToolURL || koDropData.isZipURL) {
             url = koDropData.value;
-            if (/\.komodotool$/.test(url)) {
+            if (/\.komodotool$/.test(url) || /\.ktf$/.test(url)) {
                 urls.push(url);
             }
             try {

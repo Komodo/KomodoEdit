@@ -73,7 +73,7 @@ koColorPicker.prototype = {
         var win = Components.classes['@mozilla.org/appshell/window-mediator;1']
                       .getService(Components.interfaces.nsIWindowMediator)
                       .getMostRecentWindow(null);
-        var windowFeatures = 'modal,,resizable=no';
+        var windowFeatures = ['modal','resizable=no'].join(",");
         if (screenX >= 0)
             windowFeatures += ",left=" + screenX;
         if (screenY >= 0)

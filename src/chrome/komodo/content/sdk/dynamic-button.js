@@ -1,5 +1,22 @@
+/**
+ * @copyright (c) ActiveState Software Inc.
+ * @license Mozilla Public License v. 2.0
+ * @author ActiveState
+ */
+
+/**
+ * Register a dynamic button which shows in the side toolbar
+ *
+ * Dynamic buttons are buttons that only show when they are relevant
+ *
+ * For more information read this excellent guide by Defman:
+ *
+ * [Dynamic buttons in Komodo](https://defman.me/blog/dynamic-buttons-in-komodo/)
+ *
+ * @module ko/dynamic-button
+ */
 (function() {
-    
+
     var {Cc, Ci}  = require("chrome");
     var _ = require("contrib/underscore");
     var buttons = {};
@@ -8,17 +25,46 @@
     var w = require("ko/windows").getMain();
     var prefs = require("ko/prefs");
     var obsvc = Cc["@mozilla.org/observer-service;1"].getService(Ci.nsIObserverService);
-    
+
     var ss = require("ko/simple-storage").get("dynamic-button");
-    
+
+    /**
+     * This is NOT a method you can call, our API parser doesn't seem to allow
+     * for this type of data representation so we have to hamfist it in.
+     *
+     * dynamicButton option structure
+     *
+     * The options of a dynamicButton are as follows:
+     *
+     * ```
+     * {
+     *   id: "foo",
+     *   tooltiptext: "tooltip",
+     *   classList: "additional-class",
+     *   command: function() {},
+     *   icon: "icon-name",
+     *   label: "Foo!"
+     *   ordinal: 1
+     *   menuitems: function() {} // function that returns menu items
+     *   group: "fooGroup" // group this belongs to
+     *   groupOrdinal: 1
+     *   isEnabled: function() {},
+     *   events: ["current_place_opened", "project_opened", "workspace_restored"] // what events to listen to for updating the isEnabled status
+     * }
+     * ```
+     *
+     * All keys are optional, but realistically you should at least provide
+     * command and isEnabled.
+     *
+     */
     var dynamicButton = function(opts)
     {
         var button;
         var menupopup;
         var self = this;
-        
+
         this.opts = opts;
-        
+
         var observer =
         {
             observe: function()
@@ -26,7 +72,7 @@
                 self.update();
             }
         };
-        
+
         this.init = function()
         {
             button = $("<toolbarbutton>");
@@ -38,7 +84,7 @@
                 class: "dynamic-button " + opts.classList
             });
             button.element()._dynamicButton = this;
-            
+
             if (typeof opts.command == "string")
             {
                 button.attr("oncommand", "ko.commands.doCommandAsync('"+opts.command+"', event)");
@@ -46,20 +92,20 @@
             }
             else if (opts.command)
                 button.on("command", opts.command);
-                
+
             if (opts.icon)
             {
                 button.addClass("icon-" + opts.icon);
             }
             else if (opts.image)
                 button.attr("image", opts.image);
-            
+
             if (opts.label)
                 button.attr("label", opts.label);
-                
+
             if (opts.ordinal)
                 button.attr("ordinal", opts.ordinal);
-                
+
             if (opts.menuitems)
             {
                 button.attr("type", opts.command ? "menu-button" : "menu");
@@ -74,7 +120,7 @@
                 });
                 button.append(menupopup);
             }
-            
+
             var groupItem = tb.find("#dynamicBtnGrp-" + opts.group);
             if ( ! groupItem.length)
             {
@@ -84,7 +130,7 @@
                     groupItem.attr("ordinal", opts.groupOrdinal);
                 tb.append(groupItem);
             }
-            
+
             if ( ! opts.isEnabled)
             {
                 if (typeof opts.command == "string")
@@ -98,16 +144,16 @@
                         }
                     }
                 }
-                
+
                 if ( ! opts.isEnabled)
                     opts.isEnabled = () => false;
             }
-            
+
             if (ss.storage.buttons[opts.id].hide)
                 this.hide();
-            
+
             groupItem.append(button);
-            
+
             for (let event of opts.events)
             {
                 if (event.indexOf("observe:") === 0)
@@ -123,24 +169,24 @@
                     w.addEventListener(event, this.update.bind(this, false));
                 }
             }
-            
+
             w.addEventListener("update_dynamic_buttons", this.update.bind(this, false));
-            
+
             this.update();
         }
-        
+
         this.hide = function()
         {
             ss.storage.buttons[opts.id].hide = true;
             button.attr("kohidden", "true");
         }
-        
+
         this.show = function()
         {
             ss.storage.buttons[opts.id].hide = false;
             button.removeAttr("kohidden");
         }
-        
+
         this.update = function(now = false)
         {
             var w = require("ko/windows").getMain();
@@ -153,7 +199,7 @@
 
             var enabled = opts.isEnabled(this);
             button.attr("disabled", enabled ? "false" : "true");
-            
+
             var visibleChildren;
             if (button.element().parentNode.childNodes.length === 1)
                 visibleChildren = enabled;
@@ -162,7 +208,7 @@
                 var sel = '.dynamic-button[disabled="false"], .dynamic-button:not([disabled])';
                 visibleChildren = button.parent().find(sel).length;
             }
-                
+
             button.parent().attr("collapsed", visibleChildren ? "false" : "true");
             
             // On Komodo Edit we also need to hide the toolbar element, because
@@ -175,14 +221,14 @@
             parent.parent().attr("collapsed", visibleChildren ? "false" : "true");
         };
         this.update._timer = null;
-        
+
         this.updateMenu = (menuitems, _menupopup) =>
         {
             _menupopup = _menupopup || menupopup;
 
             _menupopup.empty();
             menuitems = menuitems || opts.menuitems;
-            
+
             if (typeof menuitems == "function")
             {
                 menuitems = menuitems((menuitems) =>
@@ -200,7 +246,7 @@
                     return; // using callback
                 }
             }
-            
+
             if (menuitems instanceof window.XULElement)
             {
                 for (let childNode of Array.slice(menuitems.childNodes)) {
@@ -215,25 +261,25 @@
                     if (type)
                     {
                         let cmd = childNode.getAttribute(type);
-                        
+
                         // Wrap with doCommand if this is just a word (command name)
                         if (cmd.match(/^[\w-]*$/))
                             cmd = "ko.commands.doCommandAsync('"+cmd+"', event)";
-                            
+
                         childNode.setAttribute(type, cmd.replace(/[\s;]*$/g,'') + "; event.stopPropagation();");
                         childNode.removeAttribute("observes"); // observes overrides oncommand
                     }
-                    
+
                     _menupopup.append(childNode);
                 }
                 return;
             }
-            
+
             if ( ! Array.isArray(menuitems))
             {
                 throw new Error("menuitems are not in the form of an array");
             }
-            
+
             for (let menuitem of menuitems)
             {
                 if (menuitem === null)
@@ -241,14 +287,14 @@
                     _menupopup.append($("<menuseparator>"));
                     continue;
                 }
-                
+
                 if (menuitem instanceof window.XULElement ||
                     menuitem.koDom)
                 {
                     _menupopup.append(menuitem);
                     continue;
                 }
-                
+
                 menuitem = _.extend({
                     label: "unnamed",
                     name: "",
@@ -264,7 +310,7 @@
                     value: -1,
                     menuitems: null
                 }, menuitem);
-                    
+
                 if ( ! menuitem.isEnabled)
                 {
                     if (typeof menuitem.command == "string")
@@ -278,11 +324,11 @@
                             }
                         }
                     }
-                    
+
                     if ( ! menuitem.isEnabled)
                         menuitem.isEnabled = () => true;
                 }
-                
+
                 let elem;
                 if (menuitem.menuitems)
                 {
@@ -298,7 +344,7 @@
                 else
                 {
                     elem = $("<menuitem>");
-                
+
                     elem.attr({
                         label: menuitem.label,
                         class: menuitem.classList,
@@ -308,46 +354,46 @@
                         value: menuitem.value,
                     });
                 }
-                
+
                 if (menuitem.type)
                     elem.attr("type", menuitem.type);
-                    
+
                 if (menuitem.menuitems)
                 {
                     var popup = $("<menupopup>");
                     this.updateMenu(menuitem.menuitems, popup);
                     elem.append(popup);
                 }
-                
+
                 if (menuitem.name)
                     elem.attr("name", menuitem.name);
-                    
+
                 if (menuitem.disabled)
                     elem.attr("disabled", "true");
-                    
+
                 if (menuitem.observes)
                     elem.attr("observes", menuitem.observes);
-                    
+
                 if (menuitem.checked)
                     elem.attr("checked", menuitem.checked);
-                    
+
                 if (typeof menuitem.command == "string")
                 {
                     let cmd = menuitem.command;
-                    
+
                     // Wrap with doCommand if this is just a word (command name)
                     if (cmd.match(/^[\w-]*$/))
                         cmd = "ko.commands.doCommandAsync('"+menuitem.command+"', event)";
-                        
+
                     elem.attr("oncommand", cmd.replace(/[\s;]*$/g,'') + "; event.stopPropagation();");
                 }
                 else
                     elem.on("command", function(m, event) { m.command(); event.stopPropagation(); }.bind(null, menuitem));
-                
+
                 _menupopup.append(elem);
             }
         }
-        
+
         this.setLabel = function(value)
         {
             if (value === undefined)
@@ -355,7 +401,7 @@
             else
             button.attr("label", value);
         }
-        
+
         this.setCounter = function(value)
         {
             if (value === undefined)
@@ -363,28 +409,26 @@
             else
                 button.attr("counter", value);
         }
-        
+
         this.unregister = function ()
         {
             button.remove();
         }
-        
+
         this.element = function ()
         {
             return button;
         }
-        
+
         this.init();
     }
-    
+
 
     var init = () =>
     {
         if ( ! ss.storage.buttons)
             ss.storage.buttons = {};
-        console.log(ss.storage.buttons);
-    }
-    
+    };
     this.register = function(label, opts)
     {
         if ((typeof label) == "object")
@@ -392,18 +436,18 @@
             opts = label;
             label = opts.label || opts.id;
         }
-        
+
         var id = (opts.id || label).replace(/\W+/g, "");
-        
+
         if (id in buttons)
         {
             throw new Error("A dynamic button with id " + id + " already exists");
         }
-        
+
         var icon = null;
         if ( ! opts.image)
             icon = opts.icon || "question4";
-            
+
         opts = _.extend({
             id: id,
             group: id,
@@ -417,10 +461,10 @@
             classList: "",
             events: ["current_place_opened", "project_opened", "workspace_restored"]
         }, opts);
-        
+
         if ( ! ss.storage.buttons[id])
             ss.storage.buttons[id] = {};
-        
+
         buttons[id] = new dynamicButton(opts);
         return buttons[id];
     }
@@ -431,10 +475,10 @@
         {
             throw new Error("A dynamic button with id " + id + " does not exist");
         }
-        
+
         buttons[id].unregister();
     }
-    
+
     init();
-    
+
 }).apply(module.exports);

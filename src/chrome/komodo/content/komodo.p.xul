@@ -215,7 +215,6 @@
     </popupset>
     
     <panel id="hidden-placeholder" collapsed="true">
-        <html:canvas id="canvas-proxy" style="display: none"/>
     </panel>
 
     <popupset id="extensionPopupSet"/>
@@ -551,14 +550,23 @@
     <!-- name note: this is not a Komodo toolbox, but the top-level
       toolbar
       -->
-
     <toolbox id="toolbox_main"
              context="context-toolbox-menu"
              persist="mode"
              mode="icons"
              class="chromeclass-toolbar toolbox-top">
-        <resizer dir="top" flex="1"/>
-        
+
+        <hbox class="resizer-box top">
+          <resizer dir="topleft"/>
+          <resizer dir="top" flex="1"   />
+          <resizer dir="topright"/>
+        </hbox>
+
+        <hbox flex="1" id="toolbox_main_inner">
+
+            <resizer dir="left"/>
+            <vbox id="toolbox_main_inner_vbox" flex="1">
+
         <hbox id="titlebar" pack="center" align="center">
             <spacer id="windowButtonsSpacer"/>
             
@@ -604,8 +612,7 @@
                         <menupopup id="popup_file">
                             <menu id="menu_file_new" label="&new.label;"
                                   accesskey="&menuFileNew.accesskey;">
-                                <menupopup id="popup_filenew"
-                                           onpopupshowing="ko.uilayout.updateMRUMenuIfNecessary('template');">
+                                <menupopup id="popup_filenew">
                                     <menuitem id="menu_file_newTab"
                                               label="&newTab.label;"
                                               class="menuitem-iconic newtab-icon"
@@ -629,9 +636,6 @@
                                               class="menuitem-iconic new-window-icon"
                                               observes="cmd_newWindow"
                                               />
-                                    <menuseparator id="separator_mruTemplates"/>
-                                    <!-- menuitems are added dynamically for each
-                                         entry in the file MRU -->
                                 </menupopup>
                             </menu>
                             <menu id="menu_file_open" label="&open.label;"
@@ -1058,6 +1062,10 @@
                                               id="menu_convertLowerCase"
                                               observes="cmd_convertLowerCase"
                                               />
+                                    <menuitem label="&makeTitleCase.label;"
+                                              id="menu_convertTitleCase"
+                                              observes="cmd_convertTitleCase"
+                                              />
 
                                     <menuseparator id="codeConvertHex_menuseparator"/>
 
@@ -1393,13 +1401,7 @@
                                   accesskey="&templates.accesskey;">
                                 <menupopup id="popup_project_templates"
                                           onpopupshowing="ko.projects.manager.loadTemplateMenuItems(event, this)">
-                                    <menuseparator id="menu_project_builtin_templates_separator"/>
-                                    <menuitem label="&createTemplateFromProject.label;"
-                                              id="menu_saveProjectAsTemplate"
-                                              accesskey="&createTemplateFromProject.accesskey;"
-                                              observes="cmd_saveProjectAsTemplate"
-                                              disableIfCurrentProjectIsClosed="true"
-                                              />
+                                    <menuseparator id="menu_project_builtin_templates_separator" collapsed="true"/>
                                 </menupopup>
                             </menu>
 
@@ -2078,6 +2080,12 @@
 
         <toolbarpalette id="komodo-toolbarpalette"/>
         <toolbarset id="customToolbars" context="context-toolbox-menu"/>
+        
+            </vbox>
+
+            <resizer dir="right"/>
+        
+        </hbox>
 
     </toolbox>
 
@@ -2086,10 +2094,7 @@
     <deck id="komodo-box" selectedIndex="0" flex="1">
     <vbox id="komodo-vbox" flex="1">
         <hbox id="komodo-hbox" flex="1">
-            <vbox class="resizer-box">
-              <resizer dir="left" flex="1"   />
-              <resizer dir="bottomleft"/>
-            </vbox>
+            <resizer dir="left" />
             <ko-pane id="workspace_left_area"
                      width="200"
                      rotation="270"
@@ -2191,7 +2196,7 @@
         </hbox>
         
         <hbox class="resizer-box bottom">
-          <spacer></spacer>
+          <resizer dir="bottomleft"/>
           <resizer dir="bottom" flex="1"   />
           <resizer dir="bottomright"/>
         </hbox>

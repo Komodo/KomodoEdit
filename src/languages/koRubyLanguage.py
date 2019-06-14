@@ -99,6 +99,8 @@ class KoRubyLanguage(KoLanguageKeywordBase):
     styleStdin = sci_constants.SCE_RB_STDIN
     styleStdout = sci_constants.SCE_RB_STDOUT
     styleStderr = sci_constants.SCE_RB_STDERR
+
+    importPref = "rubyExtraPaths"
     
     def __init__(self):
         KoLanguageKeywordBase.__init__(self)
@@ -278,9 +280,6 @@ end section
                        or style > sci_constants.SCE_UDL_SSL_VARIABLE)):
                 return False
         return False
-
-    def guessIndentation(self, scimoz, tabWidth, defaultUsesTabs):
-        return self.guessIndentationByFoldLevels(scimoz, tabWidth, defaultUsesTabs, minIndentLevel=2)
 
     def _is_special_variable(self, scimoz, pos, opStyle):
         if pos == 0:

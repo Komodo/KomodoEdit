@@ -88,9 +88,9 @@
                                        />
                                 <button class="help-icon button-toolbar-a"
                                         tooltiptext="&helpOnBackgroundSyntaxChecking.tooltiptext;"
-                                        oncommand="LaunchHelp('background_syntax_checking');"/>
+                                        oncommand="LaunchHelp('editor.html#Linting');"/>
                                 <separator flex="1"/>
-                                <button class="configure-icon button-toolbar-a"
+                                <button class="icon-cog button-toolbar-a"
                                         tooltiptext="&configureNodeJS.tooltiptext;"
                                         oncommand="LaunchPrefs('nodejsItem')"/>
                             </hbox>
@@ -107,9 +107,9 @@
                                        />
                                 <button class="help-icon button-toolbar-a"
                                         tooltiptext="&helpOnBackgroundSyntaxChecking.tooltiptext;"
-                                        oncommand="LaunchHelp('background_syntax_checking');"/>
+                                        oncommand="LaunchHelp('editor.html#Linting');"/>
                                 <separator flex="1"/>
-                                <button class="configure-icon button-toolbar-a"
+                                <button class="icon-cog button-toolbar-a"
                                         tooltiptext="&configurePerl.tooltiptext;"
                                         oncommand="LaunchPrefs('perlItem')"/>
                             </hbox>
@@ -126,9 +126,9 @@
                                        />
                                 <button class="help-icon button-toolbar-a"
                                         tooltiptext="&helpOnBackgroundSyntaxChecking.tooltiptext;"
-                                        oncommand="LaunchHelp('background_syntax_checking');"/>
+                                        oncommand="LaunchHelp('editor.html#Linting');"/>
                                 <separator flex="1"/>
-                                <button class="configure-icon button-toolbar-a"
+                                <button class="icon-cog button-toolbar-a"
                                         tooltiptext="&configurePHP.tooltiptext;"
                                         oncommand="LaunchPrefs('phpItem')"/>
                             </hbox>
@@ -145,9 +145,9 @@
                                        />
                                 <button class="help-icon button-toolbar-a"
                                         tooltiptext="&helpOnBackgroundSyntaxChecking.tooltiptext;"
-                                        oncommand="LaunchHelp('background_syntax_checking');"/>
+                                        oncommand="LaunchHelp('editor.html#Linting');"/>
                                 <separator flex="1"/>
-                                <button class="configure-icon button-toolbar-a"
+                                <button class="icon-cog button-toolbar-a"
                                         tooltiptext="&configurePython.tooltiptext;"
                                         oncommand="LaunchPrefs('pythonItem')"/>
                             </hbox>
@@ -164,9 +164,9 @@
                                        />
                                 <button class="help-icon button-toolbar-a"
                                         tooltiptext="&helpOnBackgroundSyntaxChecking.tooltiptext;"
-                                        oncommand="LaunchHelp('background_syntax_checking');"/>
+                                        oncommand="LaunchHelp('editor.html#Linting');"/>
                                 <separator flex="1"/>
-                                <button class="configure-icon button-toolbar-a"
+                                <button class="icon-cog button-toolbar-a"
                                         tooltiptext="&configurePython3.tooltiptext;"
                                         oncommand="LaunchPrefs('python3Item')"/>
                             </hbox>
@@ -183,9 +183,9 @@
                                        />
                                 <button class="help-icon button-toolbar-a"
                                         tooltiptext="&helpOnBackgroundSyntaxChecking.tooltiptext;"
-                                        oncommand="LaunchHelp('background_syntax_checking');"/>
+                                        oncommand="LaunchHelp('editor.html#Linting');"/>
                                 <separator flex="1"/>
-                                <button class="configure-icon button-toolbar-a"
+                                <button class="icon-cog button-toolbar-a"
                                         tooltiptext="&configureRuby.tooltiptext;"
                                         oncommand="LaunchPrefs('rubyItem')"/>
                             </hbox>
@@ -201,7 +201,7 @@
                                        />
                                 <button class="help-icon button-toolbar-a"
                                             tooltiptext="&helpOnBackgroundSyntaxChecking.tooltiptext;"
-                                            oncommand="LaunchHelp('background_syntax_checking');"/>
+                                            oncommand="LaunchHelp('editor.html#Linting');"/>
                             </hbox>
                         </row>
                         <row id="other-languages-feature-row">
@@ -215,7 +215,7 @@
                                        />
                                 <button class="help-icon button-toolbar-a"
                                             tooltiptext="&helpOnBackgroundSyntaxChecking.tooltiptext;"
-                                            oncommand="LaunchHelp('background_syntax_checking');"/>
+                                            oncommand="LaunchHelp('editor.html#Linting');"/>
                             </hbox>
                         </row>
                     </rows>

@@ -54,7 +54,7 @@ this.commandProperties = function command_editProperties(item)
     obj.part = item;
     window.openDialog(
         "chrome://komodo/content/run/commandproperties.xul",
-        "Komodo:CommandProperties",
+        "Komodo:CommandProperties"+Date.now(),
         "chrome,close=yes,dependent=yes,modal=yes,centerscreen",
         obj);
 }

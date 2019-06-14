@@ -68,6 +68,7 @@
                 <menulist id="interface-scheme"
                           pref="true"
                           preftype="string"
+                          prefdefault="Default"
                           width="300">
                     <menupopup/>
                 </menulist>
@@ -78,6 +79,7 @@
                 <menulist id="widget-scheme"
                           pref="true"
                           preftype="string"
+                          prefdefault="Default"
                           width="300">
                     <menupopup/>
                 </menulist>
@@ -88,6 +90,7 @@
                 <menulist id="editor-scheme"
                           pref="true"
                           preftype="string"
+                          prefdefault="Default"
                           width="300">
                     <menupopup/>
                 </menulist>

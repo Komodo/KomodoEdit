@@ -421,7 +421,7 @@
         this.bindActions(notif, panel);
         
         if (notif.opts.from != "widget")
-            panel.focusedElement = document.commandDispatcher.focusedElement;
+            panel.focusedElement = _document.commandDispatcher.focusedElement;
 
         queue[notif.opts.from].activeId = notif.opts.id;
         queue[notif.opts.from].activePanel = panel;
@@ -512,7 +512,8 @@
             
             // First one sometimes doesn't take
             timers.setTimeout(function() {
-                panel.element().moveTo(pos.x, pos.y);
+                if (panel.exists())
+                    panel.element().moveTo(pos.x, pos.y);
             }, 50);
         }
         else
@@ -619,7 +620,6 @@
     
     this.hideNotification = (notif, animate) =>
     {
-        log.debug("Hiding Notification: " + notif.opts.id);
         
         if ( ! notif)
         {
@@ -632,6 +632,8 @@
             }
             return;
         }
+        
+        log.debug("Hiding Notification: " + notif.opts.id);
         
         var panel = queue[notif.opts.from].activePanel;
         if (panel && queue[notif.opts.from].timeout) timers.clearTimeout(queue[notif.opts.from].timeout);
@@ -751,8 +753,8 @@
         else
         {
             // Center horizontally on the window
-            var bo = document.getElementById('komodo-editor-vbox');
-            bo = bo ? bo.boxObject : document.documentElement.boxObject;
+            var bo = _document.getElementById('komodo-editor-vbox');
+            bo = bo ? bo.boxObject : _document.documentElement.boxObject;
             var wx = bo.screenX,
                 wy = bo.screenY,
                 ww = bo.width,

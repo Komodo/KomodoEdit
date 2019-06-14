@@ -1,7 +1,8 @@
-/* This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/. 
- * Based on the mozilla SDK simple-storage module */
+/**
+ * @copyright (c) ActiveState Software Inc.
+ * @license Mozilla Public License v. 2.0
+ * @author ActiveState, Mozilla
+ */
 
 const { Cc, Ci } = require("chrome");
 const file = require("sdk/io/file");
@@ -9,10 +10,29 @@ const timer = require("sdk/timers");
 const prefs = require("ko/prefs");
 const ko = require("ko/windows").getMain().ko;
 
+var global = window.global;
+
+/**
+ * simple-storage module which lets you store persistent data
+ *
+ * For storing preferences (user facing persistent data) use ko/prefs
+ * 
+ * For session data check out {@link module:ko/session-storage}
+ * 
+ * Based on the mozilla SDK simple-storage module
+ * 
+ * @module ko/simple-storage
+ * @example
+ * var ss = require("ko/simple-storage").get("foo").storage;
+ * ss.foobar = "foo";
+ */
 (function() {
-    
-    var storages = {};
-    
+
+    if ( ! ("simpleStorage" in global))
+        global.simpleStorage = {};
+
+    var storages = global.simpleStorage;
+
     // A generic JSON store backed by a file on disk.  This should be isolated
     // enough to move to its own module if need be...
     function JsonStore(options)
@@ -115,15 +135,24 @@ const ko = require("ko/windows").getMain().ko;
             }
         }
     };
-  
+
+    /**
+     * Get persistent data for the given name (will be created if it doesnt exist)
+     *
+     * Use the storage property to write and retrieve data.
+     *
+     * @param   {String} name
+     *
+     * @returns {Object} `{storage: {}, filename: "...", jsonStore: {}}`
+     */
     this.get = function(name)
     {
         if (name in storages)
             return storages[name];
-        
+
         storages[name] = {};
         var storage = storages[name];
-        
+
         // Set filename
         let storeFile = Cc["@mozilla.org/file/directory_service;1"].
                         getService(Ci.nsIProperties).
@@ -132,12 +161,12 @@ const ko = require("ko/windows").getMain().ko;
         file.mkpath(storeFile.path);
         storeFile.append(name + ".json");
         storage.filename = storeFile.path;
-        
+
         storage.jsonStore = new JsonStore({
             filename: storage.filename,
             writePeriod: prefs.getLong("simple-storage.write.period", 300000),
         });
-        
+
         Object.defineProperties(storages[name], {
             storage: {
                 enumerable: true,
@@ -151,17 +180,24 @@ const ko = require("ko/windows").getMain().ko;
                 }
             }
         });
-        
+
         return storages[name];
     };
-    
+
+    /**
+     * Remove/purge all persistent data for the given name
+     *
+     * @param   {String} name
+     *
+     * @returns {Void}
+     */
     this.remove = function(name)
     {
         this.get(name); // ensure it exists
         storages[name].jsonStore.purge();
         delete storages[name];
     };
-    
+
     var onShutdown = function()
     {
         for (let k in storages)
@@ -169,7 +205,7 @@ const ko = require("ko/windows").getMain().ko;
             storages[k].jsonStore.write();
         }
     };
-    
+
     ko.main.addWillCloseHandler(onShutdown, this);
-    
+
 }).apply(module.exports);

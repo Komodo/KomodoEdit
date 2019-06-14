@@ -65,7 +65,7 @@
         var results = [];
         for (let id in scopes)
         {
-            if (id.indexOf("scope-combined") != -1) continue;
+            if (id.indexOf("scope-combined") != -1 || "invisible" in scopes[id]) continue;
             _scopes.push(scopes[id]);
         }
         
@@ -82,6 +82,7 @@
                 accesskey: scope.accesskey,
                 description: scope.description || "",
                 icon: icon,
+                allowExpand: false,
                 scope: "scope-combined",
                 data: {
                     isScope: true

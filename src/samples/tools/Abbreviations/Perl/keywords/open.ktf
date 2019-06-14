@@ -1,10 +1,11 @@
-// komodo tool: open
-// =================
-// auto_abbreviation: true
-// indent_relative: true
-// set_selection: false
-// treat_as_ejs: false
-// type: snippet
-// version: 1.0.12
-// =================
+# komodo tool: open
+# =================
+# auto_abbreviation: true
+# indent_relative: true
+# language: Perl
+# set_selection: false
+# treat_as_ejs: false
+# type: snippet
+# version: 1.1.5
+# =================
 open([[%tabstop:FILEHANDLE]][[%tabstop:, [[%tabstop:MODE|EXPR]]]][[%tabstop:, [[%tabstop:LIST]]]])[[%tabstop: or die [[%tabstop:EXPR]]]][[%soft:;]][[%tabstop]]!@#_currentPos!@#_anchor

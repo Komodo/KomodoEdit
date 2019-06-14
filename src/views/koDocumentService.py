@@ -308,7 +308,11 @@ class KoDocumentService:
         # Determine the document base name.
         koLanguage = self.langRegistrySvc.getLanguage(language)
         try:
-            ext = koLanguage.defaultExtension
+            if koLanguage.defaultExtension is None:
+                ext = ""
+            else:
+                ext = koLanguage.defaultExtension
+                
         except:
             ext = '.txt'
         return "%s-%d%s" % (language, self._docCounterFromPrefix(language), ext)

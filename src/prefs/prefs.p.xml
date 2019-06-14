@@ -5,7 +5,7 @@
   <!-- This version field is used by Komodo to upgrade preferences.
        The value should be kept in sync with "../components/koInitService.p.py"
   -->
-  <long id="version">23</long>
+  <long id="version">50</long>
 
   <!-- "uilayout_version" is used by Komodo to upgrade ui layouts.
        Must keep in sync with "../chrome/komodo/content/library/uilayout.p.js"
@@ -236,9 +236,6 @@
   <!-- TypeScript linting options -->
   <boolean id="lint_typescript">1</boolean>
   <string id="tslintConfigFile"></string>
-
-  <!-- JSX linting options -->
-  <boolean id="lint_jsx">1</boolean>
 
   <!-- HTML linters -->
   <boolean id="lintHTMLTidy">true</boolean>
@@ -514,7 +511,7 @@
        restore that when doing a new find/replace in files. Bug 81579.
        Valid values are: files, open-files, and curr-project
        (the same as the `<menuitem value="VALUE">` values in
-       `<menulist id="search-in-menu">` of "find2.xul").
+       `<menulist id="search-in-menu">` of "embedded.xul").
        -->
   <string id="find-lastInFilesContext">files</string>
   <boolean id="find-skipLargeFilesEnabled">1</boolean>
@@ -931,6 +928,16 @@
         "codeintel_max_recursive_dir_depth" is an integer indicating the
             maximum number of sub-directories deep the system will look
             under configured PHP and JavaScript import dirs.
+        "codeintel_blob_cache_max_bytes" is an integer indicating the
+            maximum size in bytes per language that should be used for blob
+            caching.
+        "codeintel_blob_cache_inactive_ttl" is an integer indicating the
+            number of seconds an inactive blob will be kept in cache before
+            being removed (lazily).
+        "codeintel_blob_cache_panic_ttl_delta" is a positive integer indicating
+            the number of seconds we should decrease
+            codeintel_blob_cache_inactive_ttl by in a loop when
+            codeintel_blob_cache_max_bytes is exceeded.
     -->
   <boolean id="codeintel_enabled">1</boolean>
   <string id="codeintel_sort_codebrowser_by">file-order</string>
@@ -951,6 +958,9 @@
 <!-- #endif -->
   <long id="codeintel_max_recursive_dir_depth">10</long>
   <boolean id="codeintel_scan_files_in_project">1</boolean>
+  <long id="codeintel_blob_cache_max_bytes">10485760</long>
+  <long id="codeintel_blob_cache_inactive_ttl">60</long>
+  <long id="codeintel_blob_cache_panic_ttl_delta">15</long>
 
   <!-- The maximum number of rows to display in autocomplete popups -->
   <long id="codeintel_autocomplete_max_rows">5</long>
@@ -1097,16 +1107,17 @@
   <!-- #endif -->
   <boolean id="notify_use_animations">1</boolean>
 
+  <boolean id="bugsnag_enabled">0</boolean>
   <string id="bugsnag_key">a0ffb67a805253227e906fb6ec1a1cde</string>
 
-  <string id="package_api_endpoint">http://komodoide.com/json/packages/v10/</string>
+  <string id="package_api_endpoint">https://community.komodoide.com/json/packages/v10/</string>
   
   <boolean id="pin_find_frame">0</boolean>
   
   <boolean id="find_in_view">0</boolean>
   
-  <string id="doc_site">http://docs.komodoide.com/</string>
-  <string id="doc_site_reset">http://docs.komodoide.com/Troubleshooting/How-do-I-Start-Komodo-with-Default-Settings#how-do-i-start-komodo-with-default-settings_completely-reset-your-settings</string>
+  <string id="doc_site">http://docs.activestate.com/komodo</string>
+  <string id="doc_site_reset">http://docs.activestate.com/komodo/11/manual/trouble.html#ko_default</string>
   
   <!-- Do NOT remove OR change the preservation status of this pref, stuff will break -->
   <ordered-preference id="preservedNonDefaultPrefs" preserve="true">
@@ -1130,11 +1141,17 @@
     <string>spellCheck</string>
     <string>testPlans</string>
     <string>publishing</string>
+    <string>mru</string>
+    <string>Association</string>
   </ordered-preference>
   
   <string id="virtualStyles" nonvital="true">less://resource/profile/interfaceChrome.less,less://resource/profile/userChrome.less</string>
   
   <long id="unittest_throttle_volume">100</long>
   <long id="unittest_throttle_time">250</long>
+
+  <string id="versioncheck.url">http://docs.komodoide.com/changelog/%s</string>
+  <string id="versioncheck.moreinfo.url">https://www.activestate.com/komodo-ide</string>
+  <string id="versioncheck.valid.domains">komodoide.com,activestate.com</string>
 
 </preference-set>

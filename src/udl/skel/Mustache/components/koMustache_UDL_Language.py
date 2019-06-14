@@ -21,7 +21,7 @@ class KoMustacheLanguage(KoUDLLanguage):
     _reg_categories_ = [("komodo-language", name)]
     _reg_clsid_ = "ff35a478-6e4e-4daf-a608-a3837c157fbe"
 
-    primary = 0  # Whether the language shows up in Komodo's first level language menus.
+    primary = 1  # Whether the language shows up in Komodo's first level language menus.
 
     # ------------ Sub-language Controls ------------ #
     lang_from_udl_family = {

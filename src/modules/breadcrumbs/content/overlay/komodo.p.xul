@@ -19,7 +19,7 @@
             type="application/x-javascript;version=1.7"/>
 
     <panel id="hidden-placeholder">
-        <hbox id="breadcrumbBarWrap" anonid="breadcrumbBarWrap" flex="1">
+        <hbox id="breadcrumbBarWrap" anonid="breadcrumbBarWrap">
             <toolbar
                 anonid="breadcrumbBar"
                 class="native-icons"

@@ -1,10 +1,13 @@
 (function() {
-    const log       = require("ko/logging").getLogger("commando-scope-openfiles")
+    const log       = require("ko/logging").getLogger("commando-scope-openfiles");
     const commando  = require("commando/commando");
     const {Cc, Ci}  = require("chrome");
+    const legacy    = require("ko/windows").getMain().ko;
     
     const partSvc   = Cc["@activestate.com/koPartService;1"].getService(Ci.koIPartService);
-
+    
+    this.isDirty = () => true;
+    
     //log.setLevel(require("ko/logging").LOG_DEBUG);
 
     this.onSearch = function(query, uuid, onComplete)
@@ -21,11 +24,11 @@
         }
         else
         {
-            curPath = ko.uriparse.URIToPath(ko.places.getDirectory());
+            curPath = legacy.uriparse.URIToPath(legacy.places.getDirectory());
             curPrefix = _basename(curPath);
         }
 
-        var editorViews = ko.views.manager.getAllViews();
+        var editorViews = legacy.views.manager.getAllViews();
         for (let editorView of editorViews)
         {
             let descriptionPrefix = false;

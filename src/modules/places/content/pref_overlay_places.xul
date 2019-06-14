@@ -17,7 +17,7 @@
                 <treecell class="treecell-indent"
                           url="chrome://komodo-places/content/pref_places.xul"
                           label="&Places.label;"
-                          helptag="places"/>
+                          helptag="places.html"/>
             </treerow>
         </treeitem>
     </treechildren>

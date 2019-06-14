@@ -56,6 +56,40 @@ scrollbar
     }
 }
 
+
+.native-scrollbars
+{
+    scrollbar
+    {
+        -moz-appearance: scrollbar !important;
+        margin: inherit !important;
+        min-width: inherit !important;
+        min-height: inherit !important;
+
+        slider
+        {
+            -moz-appearance: scrollbartrack-horizontal !important;
+        }
+
+        slider[orient="vertical"]
+        {
+            -moz-appearance: scrollbartrack-vertical !important;
+        }
+
+
+        thumb
+        {
+            -moz-appearance: scrollbarthumb-horizontal !important;
+            background: inherit !important;
+        }
+
+        thumb[orient="vertical"]
+        {
+            -moz-appearance: scrollbarthumb-vertical !important;
+        }
+    }
+}
+
 /* Modals */
 
 dialog, :root.dialog, :root.pref-window, .widgetToolbarWrap

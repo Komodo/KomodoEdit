@@ -110,7 +110,7 @@ class Scheme(SchemeBase):
         self._loadSchemeSettings(namespace, upgradeSettings=(not unsaved))
         return True
 
-    _current_scheme_version = 15
+    _current_scheme_version = 16
 
     def _execfile(self, fname):
         try:
@@ -144,6 +144,7 @@ class Scheme(SchemeBase):
         self.defaultStyle = {}
 
         version = namespace.get('Version', 1)
+
         # Scheme upgrade handling.
         if upgradeSettings and version < self._current_scheme_version:
             orig_version = version
@@ -321,6 +322,16 @@ class Scheme(SchemeBase):
             if version == 14:
                 if 'multiple_caret_area' in self._indicators:
                     del self._indicators['multiple_caret_area']
+                version += 1
+            if version == 15:
+                # Remove options not supported by Edit version
+                for indic in [
+                    'spelling_error', 'collab_local_change', 'collab_remote_change',
+                    'collab_remote_cursor_1', 'collab_remote_cursor_2', 'collab_remote_cursor_3',
+                    'collab_remote_cursor_4', 'collab_remote_cursor_5'
+                ]:
+                    if indic in self._indicators:
+                        del self._indicators[indic]
                 version += 1
 
             try:

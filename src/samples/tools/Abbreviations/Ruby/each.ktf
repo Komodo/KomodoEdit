@@ -1,10 +1,11 @@
-// komodo tool: each
-// =================
-// auto_abbreviation: true
-// indent_relative: true
-// set_selection: false
-// treat_as_ejs: false
-// type: snippet
-// version: 1.0.12
-// =================
+# komodo tool: each
+# =================
+# auto_abbreviation: true
+# indent_relative: true
+# language: Ruby
+# set_selection: false
+# treat_as_ejs: false
+# type: snippet
+# version: 1.1.5
+# =================
 each {|[[%tabstop:e]]| [[%tabstop]] }[[%tabstop]]!@#_currentPos!@#_anchor

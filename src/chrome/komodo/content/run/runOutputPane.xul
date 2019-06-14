@@ -78,6 +78,10 @@
                         tooltiptext="&terminateProcess.tooltiptext;"
                         oncommand="ko.run.output.kill(-1);"
                         disabled="true"/>
+                <toolbarbutton id="runoutput-clear-button"
+                        class="icon-close"
+                        tooltiptext="&clearOutput.tooltiptext;"
+                        oncommand="ko.run.output.clearOutput();" />
             </toolbar>
         </box>
 

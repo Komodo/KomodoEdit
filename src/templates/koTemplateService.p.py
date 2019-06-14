@@ -135,61 +135,13 @@ You can create your own templates with any content you wish.
 See "Custom Templates" in Komodo's on-line help for more details.
 """
     readmeText = """
-        Komodo User File Templates Directory
-
-Place template files in the "My Templates" folder to have them appear
-in Komodo's "New File" dialog.  Your custom templates will appear along
-with Komodo's standard set of template files.
-
-To create your own templates files, create a file in Komodo and select
-"File | Save As Template..." or simply copy files into the "My Templates"
-folder.
-
-See "Custom Templates" in Komodo's on-line help for more information.
+        This feature is deprecated. Please use folder templates instead.
 """
 
     def __init__(self):
         self.koDirSvc = components.classes["@activestate.com/koDirs;1"].getService()
         self.rootTemplateNode = None
         self.loaded = 0
-        self.initializeUserTemplateTree()
-
-    def initializeUserTemplateTree(self):
-        """Create an empty personal templates tree if there isn't one.
-        
-        <AppDataDir>/
-            templates/
-                ReadMe.txt
-                My Templates/
-                    Sample Custom Template.txt
-        """
-        try:
-            templatesDir = self.getUserTemplatesDir()
-            if os.path.exists(templatesDir):
-                return
-            mytemplatesDir = os.path.join(templatesDir, "My Templates")
-            os.makedirs(mytemplatesDir)
-            
-            readmeTxt = os.path.join(templatesDir, "ReadMe.txt")
-            freadme = open(readmeTxt, 'w')
-            freadme.write(self.readmeText)
-            freadme.close()
-            
-            sampleTxt = os.path.join(mytemplatesDir, self.sampleTemplateName)
-            fsample = open(sampleTxt, "w")
-            fsample.write((self.sampleTemplate % sampleTxt).encode('utf8'))
-            fsample.close()
-
-        except EnvironmentError, ex:
-            log.exception(ex)
-            prompt = components.classes["@mozilla.org/embedcomp/prompt-service;1"]\
-                 .getService(components.interfaces.nsIPromptService)
-            prompt.alert(None, "Template Service Error",
-                         """There was an error initializing your Komodo user 
-settings directory with %s template information: %s. 
-This may mean that you will not be able to create 
-your own custom %s templates. You will still be able 
-to use Komodo's numerous standard %s templates.""" % (self.type, str(ex), self.type, self.type));
 
     def _load_walk(self, dname, node):
         log.debug("load templates from `%s'", dname)
@@ -360,17 +312,7 @@ This is a sample custom template for Komodo. The actual template file is:\\n    
 </preference-set>
 </project>"""
     readmeText = """
-        Komodo User Project Templates Directory
-
-Place template files in the "My Templates" folder to have them appear
-in Komodo's "New Project" dialog.  Your custom templates will appear along
-with Komodo's standard set of templates.
-
-To create your own templates files, create a file in Komodo and select
-"Projects | Save As Template..." or simply copy files into the "My Templates"
-folder.
-
-See "Custom Templates" in Komodo's on-line help for more information.
+        This feature is deprecated. Please use folder templates instead.
 """
 
     def __init__(self):

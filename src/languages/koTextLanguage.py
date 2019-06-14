@@ -62,35 +62,6 @@ class koTextLanguage(KoLanguageBase):
     def getEncodingWarning(self, encoding):
             return ''
         
-    def guessIndentation(self, scimoz, tabWidth, defaultUsesTabs):
-        guess = 0
-        usesTabs = 0
-        N = min(scimoz.lineCount, 100)
-        for lineNo in range(N):
-            lineStartPos = scimoz.positionFromLine(lineNo)
-            lineEndPos = scimoz.getLineEndPosition(lineNo)
-            line = scimoz.getTextRange(lineStartPos, lineEndPos)
-            blackPos = len(line) - len(line.lstrip())
-            if blackPos:
-                guess = scimoz.getColumn(lineStartPos + blackPos)
-                break
-        if not guess:
-            return 0, defaultUsesTabs
-        # investigate whether tabs are used
-        sawSufficientWhiteSpace = False
-        for lineNo in range(lineNo, N):
-            lineStartPos = scimoz.positionFromLine(lineNo)
-            lineEndPos = scimoz.getLineEndPosition(lineNo)
-            line = scimoz.getTextRange(lineStartPos, lineEndPos)
-            blackPos = len(line) - len(line.lstrip())
-            front = line[:blackPos]
-            if '\t' in front or u'\t' in front:
-                usesTabs = 1
-                break
-            elif scimoz.getColumn(lineStartPos + blackPos) >= tabWidth:
-                sawSufficientWhiteSpace = True
-        return guess, usesTabs or (not sawSufficientWhiteSpace and defaultUsesTabs)
-
     def get_commenter(self):
         if self._commenter is None:
             self._commenter = KoTextCommenterLanguageService()

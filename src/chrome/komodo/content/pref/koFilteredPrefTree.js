@@ -658,6 +658,11 @@ this.loadPrefsFullText = function() {
                 return;
             }
         }
+
+        if (this.urlIndex >= this.urlCount) {
+            return;
+        }
+
         var url = urls[this.urlIndex];
         
         var req = new XMLHttpRequest();

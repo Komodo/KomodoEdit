@@ -210,6 +210,35 @@
     // Limit to JavaScript string styles.
     ko.hyperlinks.handlers.jsGetElementByIdHandler.limitToTheseStyles([Components.interfaces.ISciMoz.SCE_UDL_CSL_STRING]);
 
+    /**
+     * A Smarty include file handler - to help in opening files. Examples:
+     *    {include file="path/to/file.tpl"}
+     */
+    function smarty_jump_handler(match) {
+        var filepath = match[2];
+
+        // If not absolute path, see if there's a "/templates/" parent of current file.
+        if (filepath[0] != "/")
+        {
+            var view_filepath = require("ko/views").current().filePath;
+            var smartyTemplatePathMatch = /^(.*[\/\\]templates[\/\\])/.exec(view_filepath);
+            if (smartyTemplatePathMatch !== null)
+                filepath = smartyTemplatePathMatch[1] + filepath;
+        }
+
+        // Open file
+        filename_jump_handler(filepath);
+    }
+    ko.hyperlinks.handlers.smartyIncludeHandler =
+        new ko.hyperlinks.RegexHandler(
+            "Smarty include handler",
+            new RegExp("{include\\s+(.*\\s)?file=[\"']([^'\"}]+)[\"']", "i"),
+            smarty_jump_handler,
+            null,  /* Use the found string instead of a replacement. */
+            ["Smarty"],
+            Components.interfaces.ISciMoz.INDIC_PLAIN,
+            color.RGBToBGR(0x60,0x90,0xff));
+    ko.hyperlinks.addHandler(ko.hyperlinks.handlers.smartyIncludeHandler);
 
     /**
      * A PHP include file handler - to help in opening files. Examples:

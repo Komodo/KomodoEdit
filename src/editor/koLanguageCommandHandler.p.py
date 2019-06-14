@@ -589,8 +589,10 @@ class GenericCommandHandler:
 
         # let's find out what indents we're going to count as being part of
         # the last relevant paragraph.
-        para = reflow.Para(reflow.Line(getLine(scin, endLineNo)))
-        
+        reflowLine = reflow.getLine(endLineNo, self._view)
+        para = reflow.Para(reflowLine)
+        isBlockComment = reflowLine.isBlockComment
+
         if scin.selectionEnd == scin.selectionStart:
             # We're going to reflow including lines that are part of the
             # paragraph being considered.  To figure that out, we look for
@@ -620,9 +622,9 @@ class GenericCommandHandler:
                     break
                 # if the next line doesn't fit in to the current paragraph,
                 # then stop.
-                if not para.accept(reflow.Line(getLine(scin, endLineNo+1))):
+                if not para.accept(reflow.getLine(endLineNo+1, self._view)):
                     break
-                para.append(reflow.Line(getLine(scin, endLineNo+1)))
+                para.append(reflow.getLine(endLineNo+1, self._view))
                 endLineNo += 1
         scin.targetEnd = scin.getLineEndPosition(endLineNo)
         start = scin.positionFromLine(startLineNo)
@@ -649,7 +651,7 @@ class GenericCommandHandler:
         # reflow doesn't know how to deal with tabs of non-8-space width
         # so we'll do a conversion here, then convert back after
         text = text.expandtabs(scin.tabWidth)
-        reflowed = reflow.reflow(text, scin.edgeColumn, eol)
+        reflowed = reflow.reflow(text, scin.edgeColumn, eol, isBlockComment=isBlockComment)
         if scin.useTabs:
             lines = reflowed.splitlines(1)
             for pos in range(len(lines)):
@@ -1265,6 +1267,13 @@ class GenericCommandHandler:
             self._convertCaseOfRectangularBlock(scimoz, "lower")
         else:
             self._do_cmd_convertCaseByLine("lower")
+
+    def _do_cmd_convertTitleCase(self):
+        scimoz = self._view.scimoz
+        if scimoz.selectionMode == scimoz.SC_SEL_RECTANGLE:
+            self._convertCaseOfRectangularBlock(scimoz, str_to_title_case)
+        else:
+            self._do_cmd_convertCaseByLine(str_to_title_case)
 
     def _do_cmd_convertFromHex(self):
         from binascii import unhexlify
@@ -2187,3 +2196,10 @@ def getLine(scin, lineNo):
     lineEnd = scin.getLineEndPosition(lineNo)
     line = scin.getTextRange(lineStart, lineEnd)
     return line
+
+def str_to_title_case(str):
+    rtn = "";
+    for match in re.finditer("(\s*)([^\s]+)", str):
+        word = match.group(2)
+        rtn += match.group(1) + word[0].upper() + word[1:]
+    return rtn

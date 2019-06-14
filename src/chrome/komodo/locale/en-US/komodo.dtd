@@ -54,6 +54,7 @@
 <!ENTITY checkForUpdates.label "Check for Updates...">
 <!ENTITY checkSyntaxNow.label "Check syntax now">
 <!ENTITY cleanLineEndings.label "Clean Line Endings">
+<!ENTITY clearOutput.tooltiptext "Clear Output">
 <!ENTITY clearSearchHighlighting.label "Clear Highlighting">
 <!ENTITY clearWarningErrorSquigglies.label "Clear warning/error squigglies">
 <!ENTITY close.label "Close">
@@ -460,6 +461,7 @@
 <!ENTITY mailLists.label "Mail Lists">
 <!ENTITY makeLowercase.label "Make Lowercase">
 <!ENTITY makeUppercase.label "Make Uppercase">
+<!ENTITY makeTitleCase.label "Make Title Case">
 <!ENTITY menu.tooltiptext "Menu">
 <!ENTITY menuBlockSelect.accesskey "B">
 <!ENTITY menuDelimitedBlockSelect.accesskey "D">
@@ -731,6 +733,7 @@
 <!ENTITY sourceCodeCompleteWordBackwards.desc "Code: Complete Word (backwards)">
 <!ENTITY sourceCodeConvertSelectionToLowerCase.desc "Code: Convert Selection to Lower Case">
 <!ENTITY sourceCodeConvertSelectionToUpperCase.desc "Code: Convert Selection to Upper Case">
+<!ENTITY sourceCodeConvertSelectionToTitleCase.desc "Code: Convert Selection to Title Case">
 <!ENTITY sourceCodeExpandAllFolds.desc "Code: Expand All Folds">
 <!ENTITY sourceCodeExpandFold.desc "Code: Expand Fold">
 <!ENTITY sourceCodeExpandFoldRecursively.desc "Code: Expand Fold Recursively">

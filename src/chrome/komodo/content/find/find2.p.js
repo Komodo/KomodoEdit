@@ -78,15 +78,10 @@ var _bundle = Components.classes["@mozilla.org/intl/stringbundle;1"]
 if ( ! opener) opener = require("ko/windows").getMain();
 var ko = opener.ko;
 
-var innerHTML;
 var firstInit = true;
 function on_load() {
     try {
         var wrap = document.getElementById('find-box-wrap');
-        if (innerHTML)
-            wrap.innerHTML = innerHTML;
-        else
-            innerHTML = wrap.innerHTML;
         
         _g_prefs = Components.classes["@activestate.com/koPrefService;1"]
             .getService(Components.interfaces.koIPrefService).prefs;
@@ -130,12 +125,33 @@ function on_unload() {
     }
 }
 
+var _tmp_disabled_accesskey_elems = null;
 function on_focus(event) {
+    // Enable access keys
+    if (_tmp_disabled_accesskey_elems !== null)
+    {
+        for (var elem of _tmp_disabled_accesskey_elems)
+        {
+            elem.setAttribute("accesskey", elem.getAttribute("_blurred-accesskey"));
+            elem.removeAttribute("_blurred-accesskey");
+        }
+        _tmp_disabled_accesskey_elems = null;
+    }
     //TODO: Change to only do this for one phase. Currently this is
     //      calling reset_find_context() for AT_TARGET and BUBBLING_PHASE
     //      phases.
     if (event.target == document) {  // focus of the *Window*
         reset_find_context("on_focus");
+    }
+}
+
+function on_blur() {
+    // Disable access keys
+    _tmp_disabled_accesskey_elems = document.querySelectorAll("[accesskey]");
+    for (var elem of _tmp_disabled_accesskey_elems)
+    {
+        elem.setAttribute("_blurred-accesskey", elem.getAttribute("accesskey"));
+        elem.removeAttribute("accesskey");
     }
 }
 
@@ -240,6 +256,13 @@ function update(changed /* =null */) {
         switch (search_in) {
         case "files":
             _collapse_widget(widgets.dirs_row, false);
+            _update_decks_selection(widgets.dirs_row.querySelectorAll("deck"), 0);
+            _hide_widget(widgets.includes_label, false);
+            _hide_widget(widgets.includes, false);
+            break;
+        case "curr-project":
+            _collapse_widget(widgets.dirs_row, false);
+            _update_decks_selection(widgets.dirs_row.querySelectorAll("deck"), 1);
             _hide_widget(widgets.includes_label, false);
             _hide_widget(widgets.includes, false);
             break;
@@ -618,13 +641,19 @@ function find_all() {
         var findFn = "findAllInFiles";
         if (_g_find_context.type == koIFindContext.FCT_IN_FILES) {
             ko.mru.addFromACTextbox(widgets.dirs);
-            if (widgets.includes.value)
-                ko.mru.addFromACTextbox(widgets.includes);
-            if (widgets.excludes.value)
-                ko.mru.addFromACTextbox(widgets.excludes);
+            ko.mru.addFromACTextbox(widgets.includes, true);
+            ko.mru.addFromACTextbox(widgets.excludes, true);
             gFindSvc.options.cwd = _g_find_context.cwd;
+            _g_find_context.encodedFolders = gFindSvc.options.encodedFolders; // user may have changed since reset
         }
-        else if (_g_find_context.type != koIFindContext.FCT_IN_COLLECTION)
+        else if (_g_find_context.type == koIFindContext.FCT_IN_COLLECTION)
+        {
+            // Set up extra include and exclude filters
+            ko.mru.addFromACTextbox(widgets.includes, true);
+            ko.mru.addFromACTextbox(widgets.excludes, true);
+            _g_find_context.set_koIContainerExtraIncludesAndExcludes(widgets.includes.value, widgets.excludes.value);
+        }
+        else
         {
             findFn = "findAll";
         }
@@ -717,8 +746,8 @@ function replace() {
             widgets.repl.value = widgets.curr_repl.value;
         }
         ko.mru.addFromACTextbox(widgets.pattern);
-        if (repl)
-            ko.mru.addFromACTextbox(widgets.repl);
+        // Save MRU, allowing blanks
+        ko.mru.addFromACTextbox(widgets.repl, true);
     
         gFindSvc.options.searchBackward = false;
         var found_one = ko.find.replace(opener, _g_find_context,
@@ -760,8 +789,8 @@ function replace_all() {
             widgets.repl.value = widgets.curr_repl.value;
         }
         ko.mru.addFromACTextbox(widgets.pattern);
-        if (repl)
-            ko.mru.addFromACTextbox(widgets.repl);
+        // Save MRU, allowing blanks
+        ko.mru.addFromACTextbox(widgets.repl, true);
 
         // Always reset the find session for replace all
         var findSessionSvc = Components.classes["@activestate.com/koFindSession;1"].
@@ -769,6 +798,11 @@ function replace_all() {
         findSessionSvc.Reset();
 
         if (_g_find_context.type == koIFindContext.FCT_IN_COLLECTION) {
+            // Set up extra include and exclude filters
+            ko.mru.addFromACTextbox(widgets.includes, true);
+            ko.mru.addFromACTextbox(widgets.excludes, true);
+            _g_find_context.set_koIContainerExtraIncludesAndExcludes(widgets.includes.value, widgets.excludes.value);
+            // Do replacements
             ko.find.replaceAllInFiles(opener, _g_find_context,
                                        pattern, repl,
                                        gFindSvc.options.confirmReplacementsInFiles,
@@ -782,6 +816,7 @@ function replace_all() {
             if (widgets.excludes.value)
                 ko.mru.addFromACTextbox(widgets.excludes);
             gFindSvc.options.cwd = _g_find_context.cwd;
+            _g_find_context.encodedFolders = gFindSvc.options.encodedFolders; // user may have changed since reset
 
             ko.find.replaceAllInFiles(opener, _g_find_context,
                                        pattern, repl,
@@ -1409,11 +1444,17 @@ function _enable_widget(widget) {
     updateWrapperHeight();
 }
 
+function _update_decks_selection(decks, selectedIndex) {
+    for (var i = 0; i < decks.length; i++)
+        decks[i].selectedIndex = selectedIndex;
+}
+
 function updateWrapperHeight(repeat=true)
 {
     var elem = opener.document.getElementById("findReplaceWrap");
     var bo = document.getElementById('find-box-wrap').boxObject;
-    elem.setAttribute("height", bo.height + 6);
+    if (bo.height)
+        elem.setAttribute("height", bo.height + 6);
     
     if (repeat) setTimeout(updateWrapperHeight.bind(null, false), 100);
 }
@@ -1429,3 +1470,26 @@ function closeFindFrame()
 }
 
 window.addEventListener("resize", updateWrapperHeight);
+
+/** Handle Enter key for reverse find */
+function handleReverseFindEnterKey()
+{
+    // Swap default key if it was "find next"
+    var prev_default_btn = _g_curr_default_btn;
+    if (prev_default_btn == widgets.find_next_btn)
+    {
+        _g_curr_default_btn.removeAttribute("default");
+        _g_curr_default_btn = widgets.find_prev_btn;
+        _g_curr_default_btn.setAttribute("default", "true");
+    }
+
+    ko.dialogs.handleEnterKey();
+
+    // Reset default key
+    if (prev_default_btn == widgets.find_next_btn)
+    {
+        _g_curr_default_btn.removeAttribute("default");
+        _g_curr_default_btn = widgets.find_next_btn;
+        _g_curr_default_btn.setAttribute("default", "true");
+    }
+}

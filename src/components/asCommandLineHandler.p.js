@@ -44,6 +44,7 @@ var winOptions =
 
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
+Cu.import("chrome://komodo/content/global.js");
 
 
 function shouldLoadURI(aURI) {

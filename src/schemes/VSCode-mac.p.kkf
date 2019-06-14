@@ -166,7 +166,7 @@ binding cmd_newWindow Meta+Shift+N
 binding cmd_splittab Meta+\
 binding cmd_closeAll Meta+K Meta+W
 binding cmd_moveTabToNewWindow Meta+K O
-binding cmd_markdownPreview Meta+Shift+V
+binding cmd_preview Meta+Shift+V
 
 #Help
 binding cmd_helpHelp Ctrl+/

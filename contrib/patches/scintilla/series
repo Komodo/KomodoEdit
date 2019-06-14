@@ -16,6 +16,7 @@ cocoa_ScintillaView_mm.patch
 cocoa_scrollbar_notifications.patch
 cocoa_tab_close_crash.patch
 cocoa_dealloc_crash_fix.patch
+cocoa_scrolling_10_12.patch
 coffeescript_instance_props.patch
 coffeescript_ranges.patch
 coffeescript_regex.patch
@@ -46,6 +47,7 @@ win32.patch
 win32_drag_end.patch
 win32_export.patch
 win32_build_stdvector.patch
+win32_ignore_deprecated_wm_em_messages.patch
 wordList_cxx.patch
 expose_dpi.patch
 cocoa_perf_no_abandon_paint.patch
@@ -57,3 +59,4 @@ expose_addCharUTF.patch
 gtk_wrap_gtk.patch
 gtk_clipboard_persist.patch
 powershell_escapes.patch
+fold_lines_style.patch

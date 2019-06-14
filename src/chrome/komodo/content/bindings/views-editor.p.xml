@@ -49,69 +49,71 @@
 <binding id="view-editor"
     extends="chrome://komodo/content/bindings/views-buffer.xml#view-buffer-base">
     <content orient="vertical" flex="6">
-        <xul:vbox anonid="wrapper" flex="1">
-            <xul:statusbar orient="horizontal">
-                
-                <xul:statusbarpanel anonid="statusbar-message-panel" flex="1">
-                    <xul:deck anonid="statusbar-message-deck" class="for-vi-mode" selectedIndex="0" flex="1">
-                        <xul:hbox anonid="statusbar-message-deck-default">
-                        </xul:hbox>
-                    </xul:deck>
-                </xul:statusbarpanel>
-                
-                <xul:statusbarpanel anonid="statusbar-pos-info"
-                                tooltiptext="&filePosition.tooltiptext;"
-                                align="center"
-                                pack="end">
+        <xul:box anonid="outer" flex="1">
+            <xul:vbox anonid="wrapper" flex="1">
+                <xul:statusbar orient="horizontal">
 
-                    <xul:label anonid="statusbar-selection"/>
-                    <xul:label anonid="statusbar-line-col"/>
+                    <xul:statusbarpanel anonid="statusbar-message-panel" flex="1">
+                        <xul:deck anonid="statusbar-message-deck" class="for-vi-mode" selectedIndex="0" flex="1">
+                            <xul:hbox anonid="statusbar-message-deck-default">
+                            </xul:hbox>
+                        </xul:deck>
+                    </xul:statusbarpanel>
 
-                </xul:statusbarpanel>
+                    <xul:statusbarpanel anonid="statusbar-pos-info"
+                                    tooltiptext="&filePosition.tooltiptext;"
+                                    align="center"
+                                    pack="end">
 
-                <xul:statusbarpanel anonid="statusbar-encoding"
-                                    style="min-width: 5rem"
-                                tooltiptext="&fileEncoding.tooltiptext;"
-                                >
-                    <xul:toolbarbutton class="statusbar-label"
-                          anonid="statusbar-encoding-label"
-                          flex="1"
-                          orient="horizontal"
-                          type="menu"
-                          persist="buttonstyle"
-                          label="--"
-                          buttonstyle="text">
-                        <xul:menupopup anonid="statusbar-encoding-menupopup"
-                                   onpopupshowing="ko.statusBar.setupEncodingMenu(this);" />
-                    </xul:toolbarbutton>
-                </xul:statusbarpanel>
+                        <xul:label anonid="statusbar-selection"/>
+                        <xul:label anonid="statusbar-line-col"/>
 
-                <xul:statusbarpanel anonid="statusbar-language"
-                                    style="min-width: 5rem"
-                                pack="end"
-                                >
-                    <xul:toolbarbutton class="statusbar-label languageicon"
-                          anonid="statusbar-language-menu"
-                          tooltiptext="&fileType.tooltiptext;"
-                          flex="1"
-                          orient="horizontal"
-                          type="menu"
-                          persist="buttonstyle"
-                          label="--"
-                          buttonstyle="text">
-                        <xul:menupopup anonid="statusbar-filetype-menu"
-                                   position="before_end"
-                                   onpopupshowing="ko.uilayout.updateViewAsLanguageMenu(this);" />
-                    </xul:toolbarbutton>
-                </xul:statusbarpanel>
+                    </xul:statusbarpanel>
 
-            </xul:statusbar>
-            <xul:scintilla xbl:inherits="flex,focused,context,mozcontext" flex="1"
-                           anonid="scintilla"
-                           allowIME="true"
-                           mozcontext="editorContextMenu"/>
-            <xul:ko-findbar class="hud" anonid="findbar"/>
-        </xul:vbox>
+                    <xul:statusbarpanel anonid="statusbar-encoding"
+                                        style="min-width: 5rem"
+                                    tooltiptext="&fileEncoding.tooltiptext;"
+                                    >
+                        <xul:toolbarbutton class="statusbar-label"
+                              anonid="statusbar-encoding-label"
+                              flex="1"
+                              orient="horizontal"
+                              type="menu"
+                              persist="buttonstyle"
+                              label="--"
+                              buttonstyle="text">
+                            <xul:menupopup anonid="statusbar-encoding-menupopup"
+                                       onpopupshowing="ko.statusBar.setupEncodingMenu(this);" />
+                        </xul:toolbarbutton>
+                    </xul:statusbarpanel>
+
+                    <xul:statusbarpanel anonid="statusbar-language"
+                                        style="min-width: 5rem"
+                                    pack="end"
+                                    >
+                        <xul:toolbarbutton class="statusbar-label languageicon"
+                              anonid="statusbar-language-menu"
+                              tooltiptext="&fileType.tooltiptext;"
+                              flex="1"
+                              orient="horizontal"
+                              type="menu"
+                              persist="buttonstyle"
+                              label="--"
+                              buttonstyle="text">
+                            <xul:menupopup anonid="statusbar-filetype-menu"
+                                       position="before_end"
+                                       onpopupshowing="ko.uilayout.updateViewAsLanguageMenu(this);" />
+                        </xul:toolbarbutton>
+                    </xul:statusbarpanel>
+
+                </xul:statusbar>
+                <xul:scintilla xbl:inherits="flex,focused,context,mozcontext" flex="1"
+                               anonid="scintilla"
+                               allowIME="true"
+                               mozcontext="editorContextMenu"/>
+                <xul:ko-findbar class="hud" anonid="findbar"/>
+            </xul:vbox>
+        </xul:box>
         <children/>
     </content>
 
@@ -219,6 +221,18 @@
                 this._koDoc.observerService.removeObserverForTopics(this,
                                                                     this._koDoc_observer_topics.length,
                                                                     this._koDoc_observer_topics);
+                // Remove old doc pref observer
+                if (this.prefs)
+                {
+                    if (this.initializedOwnDocPrefs)
+                    {
+                        this.initializedOwnDocPrefs = false;
+                        this.prefs.prefObserverService.removeObserverForTopics(this,
+                                                                    this._doc_pref_observer_topics.length,
+                                                                    this._doc_pref_observer_topics,
+                                                                    false);
+                    }
+                }
                 this._koDoc.releaseView(this);
                 if (minimap) {
                     minimap.releaseKoDoc();
@@ -293,6 +307,19 @@
                 let language = val.language;
                 this._setLanguage(language);
                 xtk.domutils.fireEvent(this, 'view_document_attached');
+
+                // Add new doc pref observer
+                if (hadKoDoc && this.prefs)
+                {
+                    if (!this.initializedOwnDocPrefs)
+                    {
+                        this.initializedOwnDocPrefs = true;
+                        this.prefs.prefObserverService.addObserverForTopics(this,
+                                                                    this._doc_pref_observer_topics.length,
+                                                                    this._doc_pref_observer_topics,
+                                                                    false);
+                    }
+                }
             }
         ]]>
         </setter>
@@ -327,7 +354,10 @@
                 'wrapSelectionOnlyPlainText',
                 'wrapSelectionDelimiters',
                 'enableAutoAbbreviations',
-                'autoAbbreviationTriggerCharacters'
+                'autoAbbreviationTriggerCharacters',
+                'codeintel_completion_triggering_enabled',
+                'codeintel_calltip_triggering_enabled',
+                'editElectricBrace',
             ]
         </field>
         <field name="_doc_pref_observer_topics">
@@ -431,6 +461,10 @@
             if (!this.prefs.getBooleanPref('colorizing_enabled')) {
                 this._turnColourizingOff();
             }
+            this._doAutoComplete = this.__globalPrefs.getBooleanPref('codeintel_completion_triggering_enabled');
+            this._doStartCallTip = this.__globalPrefs.getBooleanPref('codeintel_calltip_triggering_enabled');
+            this._editElectricBrace = this.prefs.getBooleanPref("editElectricBrace");
+            this._isCITriggeringEnabled = this._doAutoComplete || this._doStartCallTip;
             ko.lint.initializeGenericPrefs(this.prefs);
             var editShowMinimap = this.prefs.getBooleanPref("editShowMinimap");
             if (editShowMinimap) {
@@ -457,6 +491,8 @@
         ]]>
         </body>
         </method>
+
+        <field name="minimap">null</field>
         
         <method name="createMinimap">
         <body><![CDATA[
@@ -877,7 +913,18 @@
                 xtk.domutils.fireEvent(this, "document_codeintel_pref_changed");
                 
                 break;
-                
+
+            case 'codeintel_completion_triggering_enabled':
+            case 'codeintel_calltip_triggering_enabled':
+                this._doAutoComplete = this.__globalPrefs.getBooleanPref('codeintel_completion_triggering_enabled');
+                this._doStartCallTip = this.__globalPrefs.getBooleanPref('codeintel_calltip_triggering_enabled');
+                this._isCITriggeringEnabled = this._doAutoComplete || this._doStartCallTip;
+                break;
+
+            case 'editElectricBrace':
+                this._editElectricBrace = this.prefs.getBooleanPref('editElectricBrace');
+                break;
+
             case 'colorizing_enabled':
                 var locationInfo = {};
                 this.saveLocation(locationInfo);
@@ -1178,6 +1225,10 @@
         <body>
         <![CDATA[
             this.koDoc.revert();
+            if (this.koDoc && this.koDoc.file)
+            {
+                require("ko/dom")(window).trigger("folder_touched", {path: this.koDoc.file.dirName});
+            }
         ]]>
         </body>
         </method>
@@ -1256,6 +1307,7 @@
         <body>
         <![CDATA[
             if (typeof(forceSave) == 'undefined') forceSave = false;
+            window.dispatchEvent(new CustomEvent('file_saving', { bubbles: true, detail: {view: this} }));
             try {
                 this.koDoc.save(forceSave);
             } catch (ex) {
@@ -1563,6 +1615,7 @@
             return false;
         }
         try {
+            var oldPerms = this.koDoc.file ? this.koDoc.file.permissions : null;
             var oldLargeDocument = (this.koDoc.isLargeDocument
                                     && (!this.koDoc.prefs.hasPrefHere("originalLanguage")
                                         || this.koDoc.prefs.getStringPref("originalLanguage") != "Text"));
@@ -1623,6 +1676,23 @@
                 this.koDoc.isDirty = oldKoDocIsDirty;
                 return false;
             }
+
+            // Update file permissions
+            if (oldPerms !== null && this.koDoc.file.permissions != oldPerms)
+            {
+                try
+                {
+                    this.koDoc.file.chmod(oldPerms);
+                } catch (ex) {
+                    var lastErrorSvc = Components.classes["@activestate.com/koLastErrorService;1"].
+                                       getService(Components.interfaces.koILastErrorService);
+                    var msg = lastErrorSvc.getLastErrorMessage();
+                    if (!msg)
+                        msg = ex.toString();
+                    ko.dialogs.alert("Failed to update file permissions: " + msg);
+                }
+            }
+
             this.koDoc.docSettingsMgr.applyDocumentSettingsToView(this);
             if (oldDocLanguage == newdocument.language) {
                 this.restoreFoldedLines(locationInfo);
@@ -1749,13 +1819,27 @@
             if (this.in_updateui)
                 return;
 
+            this.in_updateui = true;
+
+            if (this.minimap && this.showMinimap && !this.minimap.in_updateui) {
+                var firstDocLine, lastDocLineOnScreen;
+                [firstDocLine, lastDocLineOnScreen] = this.getEditorViewBoundaries();
+                var updateMinimap = this._needsUpdate(firstDocLine, lastDocLineOnScreen);
+                if (updateMinimap) {
+                    this.minimap.syncMinimapFromBuffer();
+                    this.updateEditorViewBoundaries(firstDocLine, lastDocLineOnScreen);
+                    this.minimap.updateEditorViewBoundaries();
+                }
+            }
+
             var keepGoing = this.__proto__.__proto__.onUpdateUI.call(this, updated);
             if (keepGoing === false)
             {
+                this.in_updateui = false;
                 return;
             }
 
-            if (((updated & this.scimoz.SC_UPDATE_SELECTION) > 0 ||
+            if (((updated == this.scimoz.SC_UPDATE_SELECTION) ||
                   this.cancel_lite_multicaret_on_modify &&
                   (updated & this.scimoz.SC_UPDATE_CONTENT) > 0
                 ) &&
@@ -1774,28 +1858,11 @@
                 this.in_lite_multicaret = false;
                 this.cancel_lite_multicaret_on_modify = false;
             }
-
-            this.in_updateui = true;
             
             this.onEditMatchingTags(updated);
             this.onEditMatchingDelim(updated);
-
-            try {
-                //TODO: Minimap pref
-                //dump(">> views-editor.p.xml: onUpdateUI\n");
-                if (this.minimap && this.showMinimap && !this.minimap.in_updateui) {
-                    var firstDocLine, lastDocLineOnScreen;
-                    [firstDocLine, lastDocLineOnScreen] = this.getEditorViewBoundaries();
-                    var updateMinimap = this._needsUpdate(firstDocLine, lastDocLineOnScreen);
-                    if (updateMinimap) {
-                        this.minimap.syncMinimapFromBuffer();
-                        this.updateEditorViewBoundaries(firstDocLine, lastDocLineOnScreen);
-                        this.minimap.updateEditorViewBoundaries();
-                    }
-                }
-            } finally {
-                this.in_updateui = false;
-            }
+            
+            this.in_updateui = false;
         ]]>
         </body>
         </method>
@@ -1920,6 +1987,11 @@
             }
 
             var style = scimoz.getStyleAt(pos);
+            if (this.koDoc.languageObj
+                && this.koDoc.languageObj.getNamedStyles("operators").indexOf(style) != -1)
+            {
+                return; // ignore unbroken operator sequences like "==="
+            }
             if (pos > 0 && scimoz.getStyleAt(pos - 1) != style) {
                 // At a boundary like ["]foo"
                 var end_pos = pos + 1;
@@ -2567,7 +2639,7 @@
                     cmdkey = cmdkey || event.shiftKey;
                 }
                 if (!cmdkey) {
-                    if (ko.abbrev.expandAutoAbbreviation(this)) {
+                    if (ko.abbrev.expandAbbrev()) {
                        return false;
                    }
                 }
@@ -2586,8 +2658,11 @@
         
         <handler event="mouseup" phase="bubbling">
         <![CDATA[
-            this.onEditMatchingTags(-1);
-            this.onEditMatchingDelim(-1);
+            // run on timeout so as not to conflict with scintilla mouseup events
+            setTimeout(function() {
+                this.onEditMatchingTags(-1);
+                this.onEditMatchingDelim(-1);
+            }.bind(this), 50);
         ]]>
         </handler>
 

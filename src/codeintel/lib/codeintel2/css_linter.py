@@ -235,6 +235,8 @@ class _CSSParser(object):
             "nth-last-child",
             "nth-of-type",
             "nth-last-of-type",
+            "is",
+            "dir"
             ]
         self._structural_pseudo_classes_no_args = [
             "root",
@@ -245,6 +247,21 @@ class _CSSParser(object):
             "first-of-type",
             "last-of-type",
             "only-of-type",
+            "default",
+            "any-link",
+            "fullscreen",
+            "indeterminate",
+            "in-range",
+            "invalid",
+            "left",
+            "optional",
+            "out-of-range",
+            "read-only",
+            "read-write",
+            "required",
+            "right",
+            "scope",
+            "valid",
             ]
         self._structural_pseudo_classes_other = [
             "not",

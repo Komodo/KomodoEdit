@@ -1,8 +1,7 @@
 /**
- * @copyright (c) 2015 ActiveState Software Inc.
+ * @copyright (c) 2017 ActiveState Software Inc.
  * @license Mozilla Public License v. 2.0
  * @author ActiveState
- * @overview -
  */
 
 /**
@@ -61,11 +60,19 @@
      *
      * @param {string}      commandName     Name of the command
      * @param {function}    command         The callback
-     * @param {object}      opts            {defaultBind: "Ctrl+U", isEnabled: fn, forceBind: false}
+     * @param {object}      opts            label, defaultBind, forceBind
      *
-     * Can throw:
-     *  - keybindings.exceptionInvalidCommandName
-     *  - keybindings.exceptionAlreadyUsed
+     * @example
+     * opts = {
+     *      label:"",
+     *      defaultBind:"CTRL+META+B", 
+     *      forceBind:boolean, // override any existing bindings
+     *   }
+     *
+     * @throws keybindings.exceptionInvalidCommandName
+     * @throws keybindings.exceptionAlreadyUsed
+     *  
+     *
      */
     this.register = (commandName, command, opts = {}) =>
     {
@@ -118,7 +125,7 @@
 
         var opts = local.registered[commandName].opts;
         var label = local.registered[commandName].opts.label || commandName;
-        
+
         var keybinds = require("ko/keybindings");
         keybinds.unregister(commandName,label);
 

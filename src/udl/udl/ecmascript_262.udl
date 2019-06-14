@@ -94,6 +94,7 @@ state IN_CSL_DEFAULT:
 
 '"' : paint(upto, CSL_DEFAULT), => IN_CSL_DSTRING
 '\'' : paint(upto, CSL_DEFAULT), => IN_CSL_SSTRING
+'`': paint(upto, CSL_DEFAULT), => IN_CSL_TSTRING
 
 # Conditional check to see if it's preferred
 '/' token_check : paint(upto, CSL_DEFAULT), => IN_CSL_REGEX
@@ -151,6 +152,9 @@ state IN_CSL_SSTRING_LINECONT:
 "'" : paint(include, CSL_STRING), => IN_CSL_DEFAULT
 /./ : => IN_CSL_SSTRING
 /^$/ : paint(upto, CSL_STRING), => IN_CSL_DEFAULT # End empty lines here
+
+state IN_CSL_TSTRING:
+'`' : paint(include, CSL_STRING), => IN_CSL_DEFAULT
 
 ################ Numbers ################
 

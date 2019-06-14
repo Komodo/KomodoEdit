@@ -680,7 +680,8 @@ class MultiLangZone(LangZone):
                 except KeyError, ex:
                     self.db.corruption("MultiLangZone.get_buf_data",
                         "could not find lang `%s' or blob `%s' for buffer `%s'"\
-                            % (lang, blobname, buf.path))
+                            % (lang, blobname, buf.path),
+                        "recover")
                     self.remove_buf_data(buf)
                     raise NotFoundInDatabase(
                         "`%s' buffer %s `%s' blob not found in database"
@@ -898,7 +899,12 @@ class MultiLangZone(LangZone):
                         try:
                             new_res_data[lang][blobname]
                         except KeyError:
-                            dbfile_changes.append(("remove", lang, blobname, None))
+                            try:
+                                removed_blob = self.get_lib(buf.path, [dir], lang).get_blob(blobname)
+                                dbfile_changes.append(("remove", lang, blobname, removed_blob))
+                            except:
+                                log.error("Failed to look up removed blob for %s %r %s", blobname, [dir], lang)
+                                dbfile_changes.append(("remove", lang, blobname, None))
 
                 dhash = self.dhash_from_dir(dir)
                 conn = self._get_symbols_db_conn()
@@ -917,6 +923,8 @@ class MultiLangZone(LangZone):
                         if blob.get("src") is None:
                             blob.set("src", buf.path)   # for defns_from_pos() support
                         ET.ElementTree(blob).write(join(dbdir, dbfile+".blob"))
+                        # Add to cache
+                        self.cache_blob(join(dhash, dbfile), blob)
                     elif action == "remove":
                         dbfile = blob_index[lang][blobname]
                         del blob_index[lang][blobname]
@@ -931,6 +939,8 @@ class MultiLangZone(LangZone):
                                 "could not remove dbfile for '%s' blob: %s"\
                                     % (blobname, ex),
                                 "ignore")
+                        # Remove from cache
+                        self.cache_blob(join(dhash, dbfile), None)
                     elif action == "update":
                         # Try to only change the dbfile on disk if it is
                         # different.
@@ -941,23 +951,22 @@ class MultiLangZone(LangZone):
                         new_dbfile_content = s.getvalue()
                         dbfile = blob_index[lang][blobname]
                         dbpath = join(self.base_dir, dhash, dbfile+".blob")
-                        # PERF: Might be nice to cache the new dbfile
-                        #       content for the next time this resource is
-                        #       updated. For files under edit this will be
-                        #       common. I.e. just for the "editset".
-                        try:
-                            fin = open(dbpath, 'r')
-                        except (OSError, IOError), ex:
-                            # Technically if the dbfile doesn't exist, this
-                            # is a sign of database corruption. No matter
-                            # though (for this blob anyway), we are about to
-                            # replace it.
-                            old_dbfile_content = None
-                        else:
+                        # Add to cache and check if we got the old contents
+                        old_dbfile_content = self.cache_blob(join(dhash, dbfile), blob)
+                        if old_dbfile_content == None:
                             try:
-                                old_dbfile_content = fin.read()
-                            finally:
-                                fin.close()
+                                fin = open(dbpath, 'r')
+                            except (OSError, IOError), ex:
+                                # Technically if the dbfile doesn't exist, this
+                                # is a sign of database corruption. No matter
+                                # though (for this blob anyway), we are about to
+                                # replace it.
+                                old_dbfile_content = None
+                            else:
+                                try:
+                                    old_dbfile_content = fin.read()
+                                finally:
+                                    fin.close()
                         if new_dbfile_content != old_dbfile_content:
                             if not exists(dirname(dbpath)):
                                 self._mk_dbdir(dirname(dbpath), dir)

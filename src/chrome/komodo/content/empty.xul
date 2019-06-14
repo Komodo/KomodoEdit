@@ -5,7 +5,7 @@
         windowtype="Komodo:Empty"
         xmlns:html="http://www.w3.org/1999/xhtml"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-        width="450">
+        width="550">
 
     <script src="chrome://komodo/content/library/logging.js"              type="application/x-javascript;version=1.7"/>
 </window>

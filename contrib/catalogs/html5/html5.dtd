@@ -86,6 +86,9 @@
 
 <!ENTITY % Boolean "(true|false)">
 
+<!ENTITY % OlType "(1 | a | A | i | I)">
+    <!-- ol type attribute -->
+
 <!-- these are used for image maps -->
 
 <!ENTITY % Shape "(rect|circle|poly|default)">
@@ -542,6 +545,7 @@
 <!ELEMENT ol (li)+>
 <!ATTLIST ol
   %attrs;
+  type        %OlType;        #IMPLIED
   start       %Number;       #IMPLIED
   <!-- HTML 5 attributes -->
   reversed    (reversed)     #IMPLIED
@@ -878,7 +882,7 @@
   onchange    %Script;       #IMPLIED
   accept      %ContentTypes; #IMPLIED
   <!-- HTML 5 attributes -->
-  autocomplete  (on|off)          #IMPLIED
+  autocomplete  (on|off|name|honorific-prefix|given-name|additional-name|family-name|honorific-suffix|nickname|email|username|new-password|current-password|organization-title|organization|street-address|address-line1|address-line2|address-line3|address-level4|address-level3|address-level2|address-level1|country|country-name|postal-code|cc-name|cc-given-name|cc-additional-name|cc-family-name|cc-number|cc-exp|cc-exp-month|cc-exp-year|cc-csc|cc-type|transaction-currency|transaction-amount|language|bday|bday-day|bday-month|bday-year|sex|tel|tel-country-code|tel-national|tel-area-code|tel-local|tel-extension|impp|url|photo)          #IMPLIED
   autofocus     CDATA          #IMPLIED
   form          CDATA          #IMPLIED
   formaction    %URI;          #IMPLIED

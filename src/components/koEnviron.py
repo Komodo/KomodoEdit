@@ -428,6 +428,35 @@ class KoUserEnviron:
     def keys(self):
         return self._userEnviron.keys()
 
+    def getEnvVar(self, name, prefs):
+        envStr = ""
+
+        try:
+            envStr = prefs.getString("userEnvironmentStartupOverride", "")
+        except Exception:
+            # XPCOM bug that happens when the pref doesnt exist, no time to dig
+            pass
+
+        envList = envStr.split('\n')
+
+        for entry in envList:
+            try:
+                entry = entry.split("=", 1)
+                if len(entry) != 2:
+                    continue
+                key, value = entry
+                if key == name:
+                    return value
+            except ValueError:
+                log.error("error on value %s" % entry)
+
+        for piece in self.GetEnvironmentStrings():
+            equalSign = piece.find('=')
+            if piece[:equalSign] == name:
+                return piece[equalSign+1:]
+
+        return ""
+
     def GetEnvironmentStrings(self):
         self._initialize()
         return ["%s=%s" % (item[0], item[1])\
@@ -473,7 +502,7 @@ class KoUserEnviron:
         ]
         basename = os.path.basename(shell)
         type = None
-        for name, pattern in patterns:  
+        for name, pattern in patterns:
             if pattern.search(basename):
                 type = name
                 break
@@ -498,7 +527,7 @@ class KoUserEnviron:
             cmd = "%s -l" % shell
             stdin = "printenv"
 
-        # all other shell man pages I looked at say 
+        # all other shell man pages I looked at say
         # first char of arg 0 is - means login shell, so -c printenv should
         # be fine.
         else:
@@ -591,7 +620,7 @@ class KoEnvironUtils:
                 replacements[envRefMatch.group("envRef")] = envDict[envName]
         for old, new in replacements.items():
             interpolated = interpolated.replace(old, new)
-            
+
         #print "_Interpolate: interpolate '%s' -> '%s'" % (envValue, interpolated)
         return interpolated
 
@@ -611,4 +640,3 @@ class KoEnvironUtils:
         finally:
             fin.close()
         return shells
-

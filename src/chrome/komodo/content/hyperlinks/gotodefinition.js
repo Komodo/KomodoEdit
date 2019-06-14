@@ -184,6 +184,11 @@
         }
     }
 
+    this.GotoDefinitionHandler.prototype._lastDisplayPath = null;
+    this.GotoDefinitionHandler.prototype._lastCurrentPos = null;
+    this.GotoDefinitionHandler.prototype._lastWordUnderCursor = null;
+    this.GotoDefinitionHandler.prototype._lastStyle = null;
+
     /**
      * Function used to update the definiton information
      * @param hyperlink {ko.hyperlinks.Hyperlink} The hyperlink
@@ -205,19 +210,20 @@
             // If the position has not changed much and the the word under the
             // current position is the same as last time, if it is, do not
             // bother to update.
-            //if ((this._lastDisplayPath == displayPath) &&
-            //    (this._lastStyle == style) &&
-            //    ((currentPos <= (this._lastCurrentPos + 20)) &&
-            //     (currentPos >= (this._lastCurrentPos - 20)) &&
-            //     (wordUnderCursor == this._lastWordUnderCursor))) {
-            //    // The same place as current info, so nothing to update
-            //    return;
-            //}
+            if ((this._lastDisplayPath == displayPath) &&
+                (this._lastStyle == style) &&
+                ((currentPos <= (this._lastCurrentPos + 20)) &&
+                 (currentPos >= (this._lastCurrentPos - 20)) &&
+                 (wordUnderCursor == this._lastWordUnderCursor))) {
+                // The same place as current info, so nothing to update
+                return;
+            }
             //dump("Updating codehelper\n");
             // Remember this filename, position and style
-            //this._lastDisplayPath = displayPath;
-            //this._lastCurrentPos = currentPos;
-            //this._lastWordUnderCursor = wordUnderCursor;
+            this._lastDisplayPath = displayPath;
+            this._lastCurrentPos = currentPos;
+            this._lastWordUnderCursor = wordUnderCursor;
+            this._lastStyle = style;
     
             var langObj = view.koDoc.languageObj;
             var styleCount = new Object();

@@ -9,93 +9,56 @@
 
 const [JetPack, require] = (function() {
     var ko = this.ko || {};
+    var cache = {};
     const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
     const { Services } = Cu.import("resource://gre/modules/Services.jsm", {});
     const { main, Loader, resolve, resolveURI } =
         Cu.import('resource://gre/modules/commonjs/toolkit/loader.js', {}).Loader;
-        
-    var topHref = "chrome://komodo/content/komodo.xul";
-    var topWindow = null;
-    if (typeof window != 'undefined' && window)
-    {
-        topWindow = window;
-        
-        var assignWindow = function(w, k)
-        {
-            while (w.location.href != topHref && w[k] && w[k] != w)
-                w = w[k];
-            return w;
-        };
-        
-        var prevWindow = null;
-        while (prevWindow != topWindow)
-        {
-            prevWindow = topWindow;
-            topWindow = assignWindow(topWindow, "opener");
-            topWindow = assignWindow(topWindow, "parent");
-            topWindow = assignWindow(topWindow, "top");
-        }
-        
-        if (topWindow.location.href != topHref)
-            topWindow = null;
-    }
     
     /* Populate requirePaths with category entries */
     const catMan = Cc["@mozilla.org/categorymanager;1"]
                         .getService(Ci.nsICategoryManager);
+    const reserved = ["chrome"];
+
+    var log;
     var requirePaths = {};
     var setRequirePaths = function() {
+
+        // Set requirePaths manually
         
-        // Attempt to get the main komodo window to inherit require paths from it
-        var _window = window;
-        var wm = Cc["@mozilla.org/appshell/window-mediator;1"].getService(Ci.nsIWindowMediator);
-        let windows = wm.getEnumerator("Komodo");
-        while (windows.hasMoreElements()) {
-            let __window = windows.getNext().QueryInterface(Ci.nsIDOMWindow);
-            if ("require" in __window && __window.require && __window != window) {
-                _window = __window;
-            }
-        }
+        // Komodo API fallback...
+        requirePaths["ko/"] = "chrome://komodo/content/sdk/";
+        // Komodo API fallback...
+        requirePaths["contrib/"] = "chrome://komodo/content/contrib/commonjs/";
+        // Default path
+        requirePaths[''] = 'resource://gre/modules/commonjs/';
         
-        if (_window && "require" in _window && _window.require) {
-            // Inherit requirePaths
-            requirePaths = _window.require.getRequirePaths();
-        } else {
-            // Set requirePaths manually
-            
-            // Komodo API fallback...
-            requirePaths["ko/"] = "chrome://komodo/content/sdk/";
-            // Komodo API fallback...
-            requirePaths["contrib/"] = "chrome://komodo/content/contrib/commonjs/";
-            // Default path
-            requirePaths[''] = 'resource://gre/modules/commonjs/';
-            
-            Components.utils.import("resource://gre/modules/osfile.jsm")
-            var tmpPath = Cc["@mozilla.org/file/directory_service;1"]
-             .getService(Ci.nsIProperties).get("TmpD", Ci.nsIFile).path;
-            requirePaths['tmp'] = OS.Path.toFileURI(tmpPath);
-            
-            var entries = catMan.enumerateCategory('require-path');
-            while (entries.hasMoreElements()) {
-                let entry = entries.getNext().QueryInterface(Ci.nsISupportsCString);
-                let uri = catMan.getCategoryEntry('require-path', entry);
-                // Stringafy entry - in order to get the nice JS string functions.
-                entry = entry.toString();
-                if (entry && !entry.endsWith("/")) {
-                    // Needs a trailing slash in order to map correctly.
-                    entry += "/";
-                }
-                requirePaths[entry] = uri;
+        Components.utils.import("resource://gre/modules/osfile.jsm")
+        var tmpPath = Cc["@mozilla.org/file/directory_service;1"]
+         .getService(Ci.nsIProperties).get("TmpD", Ci.nsIFile).path;
+        requirePaths['tmp'] = OS.Path.toFileURI(tmpPath);
+        
+        var entries = catMan.enumerateCategory('require-path');
+        while (entries.hasMoreElements()) {
+            let entry = entries.getNext().QueryInterface(Ci.nsISupportsCString);
+            let uri = catMan.getCategoryEntry('require-path', entry);
+            // Stringafy entry - in order to get the nice JS string functions.
+            entry = entry.toString();
+            if (entry && !entry.endsWith("/")) {
+                // Needs a trailing slash in order to map correctly.
+                entry += "/";
             }
+            requirePaths[entry] = uri;
         }
     }
     setRequirePaths();
+    
     /* Reload require paths on addon install */
     Components.utils.import("resource://gre/modules/AddonManager.jsm");
     AddonManager.addInstallListener({onInstallEnded: setRequirePaths});
     // TODO: May need to reset "loader.modules" when the add-on is loaded?
 
-    var globals = { ko: ko, topWindow: topWindow };
+    var globals = { ko: ko };
     if (String(this).contains("Window")) {
         // Have a window scope available
         globals.window = window;
@@ -120,6 +83,8 @@ const [JetPack, require] = (function() {
         // Keep handle to the JetPack ko namespace... as some tests require
         // access to tweak this namespace.
         ko: ko,
+        
+        _cache_do_not_use_in_production_code: cache, // so we can debug it
 
         defineLazyProperty: (object, property, id) => {
             const JetPack_LazyProperty = () => {
@@ -165,26 +130,43 @@ const [JetPack, require] = (function() {
     };
 
     const require = function(id) {
-        if (id.indexOf("/") == -1) {
-            // Automatically resolve module namespaces
-            id = id + "/" + id;
+        if (id in cache)
+        {
+            // Why have our own cache in addition to the loader.modules one below?
+            // because loader.modules depends on resolveURI, which is still very slow
+            return cache[id];
         }
-            
+
+        var _id = id;
+        if (id.indexOf("/") == -1 && reserved.indexOf(id) == -1) {
+            // Automatically resolve module namespaces
+            _id = id + "/" + id;
+        }
+
         try {
-            let uri = resolveURI(id, loader.mapping)
+            let uri = resolveURI(_id, loader.mapping);
             if (uri in loader.modules) {
                 // Module already loaded; don't load it again
-                return loader.modules[uri].exports;
+                cache[id] = loader.modules[uri].exports;
+                return cache[id];
             }
             // Load the module for the first time
-            return main(loader, id);
+            cache[id] = main(loader, _id);
+            return cache[id];
         } catch (ex) {
-            Cu.reportError('While trying to require("' + id + '"):');
-            Cu.reportError(ex);
+            var msg = 'While trying to require("' + id + '"):';
 
-            if (typeof(ex) == 'object' && 'stack' in ex && ex.stack)
-                Cu.reportError(ex.stack);
-                
+            if (log)
+                log.exception(ex, msg);
+            else
+            {
+                Cu.reportError(msg);
+                Cu.reportError(ex);
+
+                if (typeof(ex) == 'object' && 'stack' in ex && ex.stack)
+                    Cu.reportError(ex.stack);
+            }
+
             throw ex;
         }
         return null;
@@ -246,8 +228,18 @@ const [JetPack, require] = (function() {
         if (loader.mapping.length <= mapping_length) {
             throw new Error("setRequirePath didn't succeed in adding a mapping");
         }
+        
+        cache = {};
     }
     
+    require.unsetRequirePath = function(namespace) {
+        if ( ! (namespace in requirePaths))
+            return;
+        delete requirePaths[namespace];
+        loader.mapping = loader.mapping.filter((a) => a[0] != namespace);
+        cache = {};
+    }
+
     require.getRequirePaths = function() {
         return requirePaths;
     }
@@ -268,6 +260,18 @@ const [JetPack, require] = (function() {
                 break
             }
         }
+        
+        cache = {};
+    }
+
+    try
+    {
+        log = require("ko/logging").getLogger("jetpack");
+    }
+    catch (e)
+    {
+        Cu.reportError('Failed starting jetpack logger');
+        Cu.reportError(ex);
     }
 
     return [JetPack, require];

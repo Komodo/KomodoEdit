@@ -77,6 +77,7 @@ XPCOMUtils.defineLazyGetter(locals, "fileContext",
         let ctx = Cc["@activestate.com/koFindInFilesContext;1"].createInstance(Ci.koIFindInFilesContext);
         ctx.type = Ci.koIFindContext.FCT_IN_FILES;
         ctx.cwd = null;
+        ctx.encodedFolders = null;
         return ctx;
     }
 );

@@ -286,6 +286,15 @@ this.doCommand = function command_doCommand(command, options) {
                 }
             }
         }
+
+        var w = require("ko/windows").getMain();
+        var evt = new w.CustomEvent("after_command",
+        {
+            bubbles: true,
+            cancelable: true,
+            detail: command
+        });
+        w.dispatchEvent(evt);
     } catch (e) {
         if (!suppressExceptions) {
             _log.exception(e,"An error occurred executing the "+command+" command");
