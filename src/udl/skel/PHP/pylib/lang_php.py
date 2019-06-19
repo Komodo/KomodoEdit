@@ -133,14 +133,39 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
             print "Arg separater found, looking for start of function"
         # Move back to the open paren of the function
         paren_count = 0
-        p = pos
-        min_p = max(0, p - 200) # look back max 200 chars
-        while p > min_p:
-            p, c, style = ac.getPrecedingPosCharStyle(ignore_styles=self.comment_styles)
-            if style == self.operator_style:
+        # Account for parenthesis at current position
+        p, c, style = ac.getCurrentPosCharStyle()
+        if style == self.operator_style and c == ")":
+            # Swallow all parenthesis
+            p, prev_text = ac.getTextBackWithStyle()
+            for c in prev_text:
                 if c == ")":
                     paren_count += 1
                 elif c == "(":
+                    paren_count -= 1
+        min_p = max(0, p - 200) # look back max 200 chars (we max add some more later)
+        while p > min_p:
+            p, c, style = ac.getPrecedingPosCharStyle(ignore_styles=self.comment_styles)
+            if style == self.operator_style:
+                if c == ")" or c == ",":
+                    # Grant more characters whenever we see a comma
+                    if c == ",":
+                        min_p = max(0, p - 200)
+
+                    # Swallow all parenthesis
+                    p, prev_text = ac.getTextBackWithStyle()
+                    for c in prev_text:
+                        if c == ")":
+                            paren_count += 1
+                        elif c == "(":
+                            paren_count -= 1
+                    # Set new value of c and continue processing. style is still the same and p is already updated
+                    c = prev_text[0]
+                    # If the new character is a (, we don't want to double close it
+                    if c == "(":
+                        paren_count += 1
+
+                if c == "(":
                     if paren_count == 0:
                         # We found the open brace of the func
                         trg_from_pos = p+1
