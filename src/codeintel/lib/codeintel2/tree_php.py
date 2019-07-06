@@ -40,6 +40,7 @@
 from codeintel2.common import *
 from codeintel2.tree import TreeEvaluator
 from codeintel2.util import make_short_name_dict, banner
+from os import sep as os_sep
 
 
 php_magic_global_method_data = {
@@ -558,7 +559,7 @@ class PHPTreeEvaluator(TreeEvaluator):
                                 class_name = subelem.get("name")
                                 file_name = scope[0].get("name")
                                 if file_name.endswith(".php") \
-                                   and class_name == file_name[:-4] \
+                                   and file_name.startswith(class_name + ".") \
                                    and class_name not in classes:
                                     classes.append(('class', class_name))
                                 break # PSR-4 allows only one class per file
@@ -1121,11 +1122,33 @@ class PHPTreeEvaluator(TreeEvaluator):
 
         lpath = (fqn, )
         libs = [self.buf.stdlib] + self.libs
+        # If not doing a PSR4 lookup, filter libs to those matching expected path
+        expectedPath = None
+        if self.attemptingPSR4Autoloading:
+            try:
+                fqnPaths = fqn.split("\\")
+                if len(fqnPaths) > 2: # We only want to do this if there's a namespace
+                    fqnPaths.pop() # Get just namespace
+                    expectedPath = os_sep.join(fqnPaths)
+            except:
+                self.error("Failed to setup expected PSR4 path")
         for lib in libs:
-            lib_hits = lib.hits_from_lpath(lpath)
-            if lib_hits:
-                self.log("_hits_from_namespace:: found in lib: %r", lib)
-                hits += lib_hits
+            # Skip if PSR4 lookup
+            psr4Skip = False
+            if expectedPath:
+                try:
+                    for libDir in lib.dirs:
+                        if libDir.find(expectedPath) != -1:
+                            break
+                    else:
+                        psr4Skip = True
+                except AttributeError:
+                    pass
+            if not psr4Skip:
+                lib_hits = lib.hits_from_lpath(lpath)
+                if lib_hits:
+                    self.log("_hits_from_namespace:: found in lib: %r", lib)
+                    hits += lib_hits
 
         return hits
 
@@ -1219,6 +1242,7 @@ class PHPTreeEvaluator(TreeEvaluator):
             if elem.tag == "scope":
                 self.log("_hits_from_first_part:: checking namespace aliases")
                 imports = [child for child in elem if child.tag == "import"]
+                attempted_psr4_exprs = {}
                 for child in imports:
                     module = child.get("module")
                     symbol = child.get("symbol")
@@ -1242,21 +1266,23 @@ class PHPTreeEvaluator(TreeEvaluator):
                         # For a given class name, search through all imported
                         # namespaces for that class, then double-check the
                         # class' filename matches the class name.
-                        expr = "%s\\%s\\%s" % (module, symbol, first_token)
-                        self.attemptingPSR4Autoloading = True
-                        hit = self._hit_from_citdl(expr, scoperef)
-                        self.attemptingPSR4Autoloading = False
-                        found_elem, scope = hit
-                        if found_elem and scope and \
-                           found_elem.get("ilk") == "class":
-                            # TODO: technically PSR-4 requires only one class
-                            # per file. Ideally we'd check for that here, but
-                            # that's a bit more work that may not be worth it.
-                            class_name = found_elem.get("name")
-                            file_name = scope[0].get("name")
-                            if file_name.endswith(".php") \
-                               and class_name == file_name[:-4]:
-                                return ([hit], 1)
+                        expr = "%s\\%s" % (module, first_token)
+                        if expr not in attempted_psr4_exprs:
+                            attempted_psr4_exprs[expr] = True
+                            self.attemptingPSR4Autoloading = True
+                            hit = self._hit_from_citdl(expr, scoperef)
+                            self.attemptingPSR4Autoloading = False
+                            found_elem, scope = hit
+                            if found_elem and scope and \
+                               found_elem.get("ilk") == "class":
+                                # TODO: technically PSR-4 requires only one class
+                                # per file. Ideally we'd check for that here, but
+                                # that's a bit more work that may not be worth it.
+                                class_name = found_elem.get("name")
+                                file_name = scope[0].get("name")
+                                if file_name.endswith(".php") \
+                                   and file_name.startswith(class_name + "."):
+                                    return ([hit], 1)
                 else:
                     if "\\" not in first_token and elem.get("ilk") == "namespace":
                         self.log("_hits_from_first_part:: checking for a FQN hit")
@@ -1282,12 +1308,13 @@ class PHPTreeEvaluator(TreeEvaluator):
                 break
 
         # elem and scoperef *are* for the global level
-        hit, nconsumed = self._hit_from_elem_imports(tokens, elem)
-        if hit is not None and self._return_with_hit(hit, nconsumed):
-            self.log("_hits_from_first_part:: pt4: is '%s' accessible on %s? yes, "
-                     "imported: %s",
-                     '.'.join(tokens[:nconsumed]), scoperef, hit[0])
-            return ([hit], nconsumed)
+        if not self.attemptingPSR4Autoloading:
+            hit, nconsumed = self._hit_from_elem_imports(tokens, elem)
+            if hit is not None and self._return_with_hit(hit, nconsumed):
+                self.log("_hits_from_first_part:: pt4: is '%s' accessible on %s? yes, "
+                         "imported: %s",
+                         '.'.join(tokens[:nconsumed]), scoperef, hit[0])
+                return ([hit], nconsumed)
         return None, None
 
 
