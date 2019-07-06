@@ -1504,7 +1504,7 @@ def _getFQNForType(varType, fileinfo, namespace):
     if varType.startswith("(") and varType.endswith(")"):
         return _getFQNForTypePiece(varType[1:-1], fileinfo, namespace)
     # Handle int|null
-    varTypes = varType.split("|");
+    varTypes = varType.split("|")
     rtn = ""
     for varTypePiece in varTypes:
         if rtn != "":
@@ -1529,7 +1529,7 @@ def _getFQNForTypePiece(varType, fileinfo, namespace):
                     varType = use_import.name + "\\" + use_import.symbol
                     if varType[0] != "\\":
                         varType = "\\" + varType
-                    break;
+                    break
             else:
                 # Add namespace if not found
                 if namespace:
