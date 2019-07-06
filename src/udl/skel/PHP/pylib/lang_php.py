@@ -79,6 +79,12 @@ from codeintel2.accessor import AccessorCache
 if _xpcom_:
     from xpcom.server import UnwrapObject
 
+# Get scandir
+scandir = None
+try:
+    from scandir import scandir
+except ImportError:
+    pass
 
 
 #---- global data
@@ -1337,21 +1343,33 @@ class PHPImportHandler(ImportHandler):
         if not env:
             env = self.mgr.env
 
+        dirs, nondirs = set(), set()
         try:
-            names = os.listdir(dir)
+            if scandir:
+                for dirEntry in scandir(dir):
+                    try:
+                        if dirEntry.is_dir():
+                            dirs.add(dirEntry.name)
+                        else:
+                            nondirs.add(dirEntry.name)
+                    except UnicodeDecodeError:
+                        # Hit a filename that cannot be encoded in the default encoding.
+                        # Just skip it. (Bug 82268)
+                        pass
+            else:
+                names = os.listdir(dir)
+                for name in names:
+                    try:
+                        if isdir(join(dir, name)):
+                            dirs.add(name)
+                        else:
+                            nondirs.add(name)
+                    except UnicodeDecodeError:
+                        # Hit a filename that cannot be encoded in the default encoding.
+                        # Just skip it. (Bug 82268)
+                        pass
         except OSError, ex:
             return {}
-        dirs, nondirs = set(), set()
-        for name in names:
-            try:
-                if isdir(join(dir, name)):
-                    dirs.add(name)
-                else:
-                    nondirs.add(name)
-            except UnicodeDecodeError:
-                # Hit a filename that cannot be encoded in the default encoding.
-                # Just skip it. (Bug 82268)
-                pass
 
         importables = {}
         patterns = env.assoc_patterns_from_lang("PHP")
