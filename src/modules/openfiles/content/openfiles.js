@@ -822,7 +822,7 @@ if (typeof ko.openfiles == 'undefined')
             // Clone the template
             var listItem = template.fileItem.cloneNode(true);
             
-            var dirName = editorView.koDoc.file ? editorView.koDoc.file.dirName : '';
+            var dirName = editorView.koDoc && editorView.koDoc.file ? editorView.koDoc.file.dirName : '';
             var tooltip = "";
             if (["editor", "browser"].indexOf(editorView.getAttribute("type")) != -1)
                 tooltip = dirName == '' ? editorView.title : dirName;
