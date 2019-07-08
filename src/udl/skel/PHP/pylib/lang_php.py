@@ -829,6 +829,10 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
         # If we wound up with (), it was probably something like (new MyClass())->
         if citdl_expr == "()" and lastSkippedParenBlockPos is not None:
             citdl_expr = self._citdl_expr_from_pos(trg, buf, lastSkippedParenBlockPos, implicit, include_forwards, DEBUG)
+        elif citdl_expr[0:3] == "()." and lastSkippedParenBlockPos is not None:
+            sub_citdl_expr = self._citdl_expr_from_pos(trg, buf, lastSkippedParenBlockPos, implicit, include_forwards, DEBUG)
+            if sub_citdl_expr:
+                citdl_expr = sub_citdl_expr + citdl_expr[2:]
         if DEBUG:
             print "return: %r" % citdl_expr
             print util.banner("done")
