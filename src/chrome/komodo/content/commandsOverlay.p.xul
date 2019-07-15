@@ -703,6 +703,18 @@
             id="cmd_jumpToMatchingBrace" key="key_cmd_jumpToMatchingBrace"
             oncommand="ko.commands.doCommand('cmd_jumpToMatchingBrace')"
             desc="&sourceCodeJumpToMatchingBrace.desc;"/>
+        <command
+            id="cmd_jumpToParentFold" key="key_cmd_jumpToParentFold"
+            oncommand="ko.commands.doCommand('cmd_jumpToParentFold')"
+            desc="&sourceCodeJumpToParentFold.desc;"/>
+        <command
+            id="cmd_jumpToPreviousFold" key="key_cmd_jumpToPreviousFold"
+            oncommand="ko.commands.doCommand('cmd_jumpToPreviousFold')"
+            desc="&sourceCodeJumpToPreviousFold.desc;"/>
+        <command
+            id="cmd_jumpToNextFold" key="key_cmd_jumpToNextFold"
+            oncommand="ko.commands.doCommand('cmd_jumpToNextFold')"
+            desc="&sourceCodeJumpToNextFold.desc;"/>
 
 	<!-- emacs commands -->
         <command

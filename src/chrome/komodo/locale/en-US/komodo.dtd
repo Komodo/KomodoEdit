@@ -421,6 +421,9 @@
 <!ENTITY jumpToCorrespondingLine.label "Jump to corresponding line">
 <!ENTITY jumpToCorrespondingLineForDiffMode.label "Jump to Corresponding Line (for Diff mode)">
 <!ENTITY jumpToMatchingBrace.label "Jump to Matching Brace">
+<!ENTITY jumpToParentFold.label "Jump to Parent Fold">
+<!ENTITY jumpToPreviousFold.label "Jump to Previous Fold">
+<!ENTITY jumpToNextFold.label "Jump to Next Fold">
 <!ENTITY jumpToNextResult.label "Jump to next result">
 <!ENTITY jumpToNextResult.tooltiptext "Jump To Next Result">
 <!ENTITY jumpToPreviousResult.tooltiptext "Jump To Previous Result">
@@ -743,6 +746,9 @@
 <!ENTITY sourceCodeGoToDefinition.desc "Code: Go to Definition">
 <!ENTITY sourceCodeJumpToCorrespondingLine.desc "Code: Jump to corresponding line">
 <!ENTITY sourceCodeJumpToMatchingBrace.desc "Code: Jump to Matching Brace">
+<!ENTITY sourceCodeJumpToParentFold.desc "Code: Jump to Parent Fold">
+<!ENTITY sourceCodeJumpToPreviousFold.desc "Code: Jump to Previous Fold At the Same Level">
+<!ENTITY sourceCodeJumpToNextFold.desc "Code: Jump to Next Fold At the Same Level">
 <!ENTITY sourceCodeNextSyntaxErrorWarning.desc "Code: Next Syntax Error/Warning">
 <!ENTITY sourceCodeRunSyntaxCheck.desc "Code: Run Syntax Check">
 <!ENTITY sourceCodeSelectBlock.desc "Code: Select Block">

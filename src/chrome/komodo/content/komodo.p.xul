@@ -1141,6 +1141,18 @@
                                       id="menu_jumpToMatchingBrace"
                                       observes="cmd_jumpToMatchingBrace"
                                       />
+                            <menuitem label="&jumpToParentFold.label;"
+                                      id="menu_jumpToParentFold"
+                                      observes="cmd_jumpToParentFold"
+                                      />
+                            <menuitem label="&jumpToPreviousFold.label;"
+                                      id="menu_jumpToPreviousFold"
+                                      observes="cmd_jumpToPreviousFold"
+                                      />
+                            <menuitem label="&jumpToNextFold.label;"
+                                      id="menu_jumpToNextFold"
+                                      observes="cmd_jumpToNextFold"
+                                      />
                             <menuitem id="editor-jump-corresponding"
                                       label="&jumpToCorrespondingLineForDiffMode.label;"
                                       observes="cmd_jumpToCorrespondingLine"/>
