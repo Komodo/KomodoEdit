@@ -322,7 +322,9 @@
 
         if (local.altPressed)
         {
-            prevDefault = true;
+            // Prevent default if alt press unless it's an arrow key to jump words
+            if (e.keyCode != KeyEvent.DOM_VK_LEFT && e.keyCode != KeyEvent.DOM_VK_RIGHT)
+                prevDefault = true;
         }
 
         local.prevKeyCode = e.keyCode;
