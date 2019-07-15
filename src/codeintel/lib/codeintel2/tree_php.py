@@ -1186,13 +1186,15 @@ class PHPTreeEvaluator(TreeEvaluator):
                          first_token, scoperef)
                 return ([(elem, scoperef)], 1)
 
-        # Ignore keywords
-        if first_token in self.langintel.langinfo.keywords:
-            return (None, 1)
+        # Check if a keyword
+        is_keyword = (first_token in self.langintel.langinfo.keywords)
 
         while 1:
             self.log("_hits_from_first_part:: scoperef now %s:", scoperef)
             elem = self._elem_from_scoperef(scoperef)
+            # Stop processing if a keyword
+            if is_keyword:
+                break
             if first_token in elem.names:
                 first_token_elem = elem.names[first_token]
                 if not (first_token_elem.tag == "variable" and self.trg.form == TRG_FORM_CALLTIP and len(tokens) == 1):
