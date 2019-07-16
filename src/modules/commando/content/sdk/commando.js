@@ -1699,9 +1699,16 @@
             {
                 resultElem.addItemToSelection(sibling);
                 resultElem.ensureElementIsVisible(sibling);
+                c.tip("Selected " + resultElem.selectedCount + " items");
+            } else if (!selItem.resultData.allowMultiSelect) {
+                c.tip("Cannot expand selection to item meant for single selection only");
+            } else if (sibling || !sibling.resultData.allowMultiSelect) {
+                let tip = 'Cannot expand selection to item meant for single selection only';
+                if (resultElem.selectedCount > 1) {
+                    tip += `, selected ${resultElem.selectedCount} items`;
+                }
+                c.tip(tip);
             }
-
-            c.tip("Selected " + resultElem.selectedCount + " items");
         }
         else
         {
@@ -1770,9 +1777,16 @@
             {
                 resultElem.addItemToSelection(sibling);
                 resultElem.ensureElementIsVisible(sibling);
+                c.tip("Selected " + resultElem.selectedCount + " items");
+            } else if (!selItem.resultData.allowMultiSelect) {
+                c.tip("Cannot expand selection to item meant for single selection only");
+            } else if (sibling || !sibling.resultData.allowMultiSelect) {
+                let tip = 'Cannot expand selection to item meant for single selection only';
+                if (resultElem.selectedCount > 1) {
+                    tip += `, selected ${resultElem.selectedCount} items`;
+                }
+                c.tip(tip);
             }
-
-            c.tip("Selected " + resultElem.selectedCount + " items");
         }
         else
         {
