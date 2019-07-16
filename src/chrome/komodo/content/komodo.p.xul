@@ -437,6 +437,10 @@
                   observes="cmd_bufferCloseOthers"
                   accesskey="&menuCloseOtherBuffers.accesskey;"
                   label="&menuCloseOtherBuffers.label;"/>
+        <menuitem id="buffertab-context-close-all"
+                  observes="cmd_closeAll"
+                  accesskey="&menuCloseAll.accesskey;"
+                  label="&menuCloseAll.label;"/>
 
         <menuseparator id="tabContextMenu_separator_1" />
 
