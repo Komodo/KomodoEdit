@@ -134,61 +134,61 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
         # Move back to the open paren of the function
         paren_count = 0
         # Account for parenthesis at current position
-        p, c, style = ac.getCurrentPosCharStyle()
-        if style == self.operator_style and c == ")":
+        pos, char, style = ac.getCurrentPosCharStyle()
+        if style == self.operator_style and char == ")":
             # Swallow all parenthesis
-            p, prev_text = ac.getTextBackWithStyle()
-            for c in prev_text:
-                if c == ")":
+            pos, prev_text = ac.getTextBackWithStyle()
+            for char in prev_text:
+                if char == ")":
                     paren_count += 1
-                elif c == "(":
+                elif char == "(":
                     paren_count -= 1
-        min_p = max(0, p - 200) # look back max 200 chars (we max add some more later)
-        while p > min_p:
-            p, c, style = ac.getPrecedingPosCharStyle(ignore_styles=self.comment_styles)
+        min_pos = max(0, pos - 200) # look back max 200 chars (we max add some more later)
+        while pos > min_pos:
+            pos, char, style = ac.getPrecedingPosCharStyle(ignore_styles=self.comment_styles)
             if style == self.operator_style:
-                if c == ")" or c == ",":
+                if char == ")" or char == ",":
                     # Grant more characters whenever we see a comma
-                    if c == ",":
-                        min_p = max(0, p - 200)
+                    if char == ",":
+                        min_pos = max(0, pos - 200)
 
                     # Swallow all parenthesis
-                    p, prev_text = ac.getTextBackWithStyle()
-                    for c in prev_text:
-                        if c == ")":
+                    pos, prev_text = ac.getTextBackWithStyle()
+                    for char in prev_text:
+                        if char == ")":
                             paren_count += 1
-                        elif c == "(":
+                        elif char == "(":
                             paren_count -= 1
-                    # Set new value of c and continue processing. style is still the same and p is already updated
-                    c = prev_text[0]
+                    # Set new value of char and continue processing. style is still the same and p is already updated
+                    char = prev_text[0]
                     # If the new character is a (, we don't want to double close it
-                    if c == "(":
+                    if char == "(":
                         paren_count += 1
 
-                if c == "(":
+                if char == "(":
                     if paren_count == 0:
                         # We found the open brace of the func
-                        trg_from_pos = p+1
-                        p, ch, style = ac.getPrevPosCharStyle()
+                        trg_from_pos = pos+1
+                        pos, ch, style = ac.getPrevPosCharStyle()
                         if DEBUG:
-                            print "Function start found, pos: %d" % (p, )
+                            print "Function start found, pos: %d" % (pos, )
                         if style in self.comment_styles_or_whitespace:
                             # Find previous non-ignored style then
-                            p, c, style = ac.getPrecedingPosCharStyle(style, self.comment_styles_or_whitespace)
+                            pos, char, style = ac.getPrecedingPosCharStyle(style, self.comment_styles_or_whitespace)
                         if style in (self.identifier_style, self.keyword_style):
                             return Trigger(lang, TRG_FORM_CALLTIP,
                                            "call-signature",
                                            trg_from_pos, implicit=True)
                     else:
                         paren_count -= 1
-                elif c in ";{}":
+                elif char in ";{}":
                     # Gone too far and noting was found
                     if DEBUG:
-                        print "No function found, hit stop char: %s at p: %d" % (c, p)
+                        print "No function found, hit stop char: %s at pos: %d" % (char, pos)
                     return None
         # Did not find the function open paren
         if DEBUG:
-            print "No function found, ran out of chars to look at, p: %d" % (p,)
+            print "No function found, ran out of chars to look at, pos: %d" % (pos,)
         return None
 
     #@util.hotshotit
