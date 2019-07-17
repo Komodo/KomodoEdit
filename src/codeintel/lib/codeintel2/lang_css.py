@@ -68,7 +68,7 @@ from codeintel2.citadel import CitadelBuffer, CitadelLangIntel, ImportHandler
 from codeintel2.common import *
 from codeintel2.buffer import Buffer
 from codeintel2.util import (OrdPunctLast, make_short_name_dict,
-                             makePerformantLogger, walk2)
+                             makePerformantLogger, gen_dirs_under_dirs)
 from codeintel2.langintel import ParenStyleCalltipIntelMixin
 from codeintel2.gencix_utils import *
 from codeintel2.udl import UDLBuffer, is_udl_css_style
@@ -840,7 +840,7 @@ class CSSLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin):
                 if cwd != "<Unsaved>":
                     import_handler = \
                         self.mgr.citadel.import_handler_from_lang(trg.lang)
-                    importables = import_handler.find_importables_in_dir(cwd)
+                    importables = import_handler.find_importables_in_dir(cwd, buf.env)
                     files = [i[0] for i in importables.values()]
                     for file in files:
                         try:
@@ -1190,7 +1190,7 @@ class CSSImportHandler(ImportHandler):
     """
     sep = '/'
 
-    def find_importables_in_dir(self, dir):
+    def find_importables_in_dir(self, dir, env=None):
         """
         Returns all CSS files in the given directory and its sub-directories.
         The return value is a dictionary of the form:
@@ -1204,12 +1204,54 @@ class CSSImportHandler(ImportHandler):
         if dir == "<Unsaved>":
             return {}
 
+        # Update environment if null
+        if not env:
+            env = self.mgr.env
+
         importables = {}
-        patterns = self.mgr.env.assoc_patterns_from_lang("CSS")
-        for dirpath, _, filenames in walk2(dir):
-            for name in filenames:
+        patterns = env.assoc_patterns_from_lang("CSS")
+
+        # Get excludes
+        excluded_dir_names = set()
+        excluded_names = set()
+        for excludes_pref in env.get_all_prefs("import_exclude_matches"):
+            if excludes_pref:
+                for exclude_item in excludes_pref.split(";"):
+                    # Add to main exclude list
+                    if exclude_item not in excluded_names:
+                            excluded_names.add(exclude_item)
+                    # Exclude anything with a star or a dot (likely a file)
+                    if not re.search("[.*]", exclude_item):
+                        if exclude_item not in excluded_dir_names:
+                            excluded_dir_names.add(exclude_item)
+
+        # Get depth
+        max_depth = env.get_pref("codeintel_max_recursive_dir_depth", 10)
+        if not max_depth:
+            max_depth = 10
+
+        # Get directories
+        dirs = gen_dirs_under_dirs([dir],
+            max_depth=max_depth,
+            interesting_file_patterns=["*"],
+            exclude_dirs=[],
+            excluded_dir_names=excluded_dir_names
+        )
+        for dirpath in dirs:
+            for name in os.listdir(dirpath):
+                # Does it look like a CSS filename?
                 for pattern in patterns:
                     if fnmatch(name, pattern):
+                        # Check if excluded
+                        excluded = False
+                        for excluded_name in excluded_names:
+                            if fnmatch(name, excluded_name):
+                                excluded = True
+                                break
+                        if excluded:
+                            break
+
+                        # Add to list
                         name = join(dirpath, name)
                         importables[name] = (name, None, False)
                         break

@@ -2,10 +2,11 @@
 // ===============
 // auto_abbreviation: true
 // indent_relative: true
+// language: HTML-common
 // set_selection: false
 // treat_as_ejs: true
 // type: snippet
-// version: 1.0.12
+// version: 1.1.5
 // ===============
 <%= ko.snippets.HTML_emitLessThanIfNeeded()
 %>ul>

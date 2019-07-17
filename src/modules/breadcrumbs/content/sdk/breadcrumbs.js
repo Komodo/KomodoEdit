@@ -7,6 +7,9 @@ var breadcrumbs = function(view) {
     /* Dependant interfaces */
     const {Cc, Ci} = require("chrome");
     const { NetUtil } =   window.Cu.import("resource://gre/modules/NetUtil.jsm", {});
+    const w = require("ko/windows").getMain();
+    const document = w.document;
+    const legacy = w.ko;
 
     var RCService   = Cc["@activestate.com/koRemoteConnectionService;1"]
                         .getService(Ci.koIRemoteConnectionService);
@@ -17,8 +20,8 @@ var breadcrumbs = function(view) {
     var Iterator    = window.Iterator;
 
     /* Logging */
-    var log = ko.logging.getLogger('koBreadcrumbs');
-    //log.setLevel(ko.logging.LOG_DEBUG);
+    var log = legacy.logging.getLogger('koBreadcrumbs');
+    //log.setLevel(legacy.logging.LOG_DEBUG);
 
     /* Element References */
     var breadcrumbBar, overflowBtn, wrapper;
@@ -45,16 +48,13 @@ var breadcrumbs = function(view) {
     var pathSeparator = window.navigator.platform.toLowerCase()
                             .indexOf("win32") !== -1 ? '\\' : '/';
 
-    /* Class Pointer */
-    var self;
-    
     var xv;
 
 
     /**
      * "Class" constructor
      * 
-     * @returns {Void} 
+     * @returns {Void}
      */
     this.init = function breadcrumbs_init()
     {
@@ -63,15 +63,13 @@ var breadcrumbs = function(view) {
         if ( ! view || view.getAttribute("type") != "editor") return;
         
         crumbView = view;
-        
+
         var $ = require("ko/dom");
         xv = $(view);
 
-        self = this;
-
         var breadcrumbBarWrap = $('#breadcrumbBarWrap').clone();
         breadcrumbBarWrap.removeAttr("id");
-        
+
         breadcrumbBar           = breadcrumbBarWrap.find('[anonid="breadcrumbBar"]').element();
         template.crumbFile      = breadcrumbBarWrap.find('[anonid="breadcrumbTemplateFile"]').element();
         template.crumbFolder    = breadcrumbBarWrap.find('[anonid="breadcrumbTemplateFolder"]').element();
@@ -99,6 +97,7 @@ var breadcrumbs = function(view) {
     this.reload = function breadcrumbs_reload()
     {
         this.load();
+        this.checkOverflow();
     };
 
     /**
@@ -210,7 +209,7 @@ var breadcrumbs = function(view) {
     {
         if (e.originalTarget != crumbView)
             return;
-        
+
         window.removeEventListener('file_saved', this._onLoadBound);
         window.removeEventListener('current_place_opened', this._onLoadBound);
         window.removeEventListener('workspace_restored', this._onLoadBound);
@@ -580,7 +579,7 @@ var breadcrumbs = function(view) {
     {
         if ( ! popupmenu.file || popupmenu.file.isRemote()) return;
         
-        ko.launch.findInFiles(null, [popupmenu.file.getPath()]);
+        legacy.launch.findInFiles(null, [popupmenu.file.getPath()]);
     };
 
     /**
@@ -602,12 +601,12 @@ var breadcrumbs = function(view) {
             URI = URI.substr(0, URI.length-1);
         }
 
-        if ( ! ko.uilayout.isTabShown('placesViewbox'))
+        if ( ! legacy.uilayout.isTabShown('placesViewbox'))
         {
-            ko.commands.doCommandAsync('cmd_viewPlaces');
+            legacy.commands.doCommandAsync('cmd_viewPlaces');
         }
 
-        ko.places.manager.showTreeItemByFile(URI);
+        legacy.places.manager.showTreeItemByFile(URI);
     };
 
     /**
@@ -777,7 +776,7 @@ var breadcrumbs = function(view) {
         }
 
         // Ensure editor has focus
-        ko.commands.doCommandAsync('cmd_focusEditor');
+        legacy.commands.doCommandAsync('cmd_focusEditor');
     };
 
     /**
@@ -792,7 +791,7 @@ var breadcrumbs = function(view) {
      */
     this.onCrumbMenuKeypress = function breadcrumb_onCrumbMenuKeypress(e)
     {
-        if (ko.views.manager.currentView != crumbView)
+        if (legacy.views.manager.currentView != crumbView)
             return;
         
         // Ensure we don't process rogue events due to shady focussing
@@ -1042,9 +1041,9 @@ var breadcrumbs = function(view) {
 
             // Get project path so we can exclude it from the crumbs
             var projectPath;
-            if (ko.projects.manager.currentProject)
+            if (legacy.projects.manager.currentProject)
             {
-                projectPath = ko.projects.manager.currentProject.liveDirectory;
+                projectPath = legacy.projects.manager.currentProject.liveDirectory;
             }
 
             // Iterate through files in reverse and queue them to be drawn
@@ -1136,7 +1135,7 @@ var breadcrumbs = function(view) {
 
         // Load in the native file icon if available
         if (file && file.isFile() &&
-            ko.prefs.getBoolean("native_mozicons_available", false))
+            legacy.prefs.getBoolean("native_mozicons_available", false))
         {
             crumb.setAttribute(
                 'image', "koicon://" + file.getFilename() + "?size=14"
@@ -1145,8 +1144,8 @@ var breadcrumbs = function(view) {
 
         // Check whether this crumb holds the root project folder and
         // indicate it as such
-        if (ko.projects.manager.currentProject && file &&
-            ko.projects.manager.currentProject.liveDirectory == file.getPath())
+        if (legacy.projects.manager.currentProject && file &&
+            legacy.projects.manager.currentProject.liveDirectory == file.getPath())
         {
             crumb.classList.add("project-folder");
         }
@@ -1258,7 +1257,7 @@ var breadcrumbs = function(view) {
      */
     this.checkOverflow = function breadcrumbs_checkOverflow(noDelay = false)
     {
-        if (ko.views.manager.currentView != crumbView)
+        if (legacy.views.manager.currentView != crumbView)
             return;
         
         if ( ! noDelay)
@@ -1421,7 +1420,7 @@ var breadcrumbs = function(view) {
 
         this.open = function()
         {
-            ko.open.URI(path);
+            legacy.open.URI(path);
         };
 
         this.getChild = function(name)
@@ -1544,7 +1543,7 @@ var breadcrumbs = function(view) {
 
         this.open = function()
         {
-            ko.open.URI(this.getUri());
+            legacy.open.URI(this.getUri());
         };
 
         this.getChild = function(name)

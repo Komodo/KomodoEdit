@@ -174,7 +174,7 @@
     <CustomAction Id="LaunchProduct" FileKey="KomodoExe"
         ExeCommand="" Return="asyncNoWait" />
     <CustomAction Id="OpenDocs" BinaryKey="startw.exe"
-        ExeCommand='"http://docs.komodoide.com/manual"' Return="asyncNoWait" />
+        ExeCommand='"http://docs.activestate.com/komodo"' Return="asyncNoWait" />
     <!-- XXX CustomAction to set ARPINSTALLLOCATION? -->
 
     <!-- Quote INSTALLDIR because it likely contains spaces. Add '.' suffix

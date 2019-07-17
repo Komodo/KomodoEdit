@@ -76,7 +76,6 @@ interface koIConfirmReplacerInFiles : nsITreeView {
 
     const long SKIPPED_LARGE_FILE = 1;
     const long SKIPPED_BINARY_FILE = 2;
-    const long SKIPPED_UNKNOWN_LANG = 3;
 
     readonly attribute koIConfirmReplaceController controller;
 
@@ -194,6 +193,7 @@ interface koIFindOptions: nsISupports {
     const long FOT_WILDCARD = 1;     // use shell-like filename matching of the search pattern
     const long FOT_REGEX_PYTHON = 2; // the search pattern is a regex (Python syntax)
 
+    attribute boolean usePrefSvc;
     attribute boolean matchWord;    // whether to match whole words
     attribute boolean searchBackward;
 

@@ -108,6 +108,8 @@ def _walk_php_symbols(elem, _prefix=None):
 class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
                    ProgLangTriggerIntelMixin):
     lang = lang
+    importExcludeMatchesPrefName = "import_exclude_matches"
+    excludePathsPrefName = "phpExcludePaths"
 
     # Used by ProgLangTriggerIntelMixin.preceding_trg_from_pos()
     trg_chars = tuple('$>:(,@"\' \\')
@@ -629,9 +631,13 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
                 ctlr.error(str(ex))
                 ctlr.done("error")
                 return
-            line = buf.accessor.line_from_pos(pos)
-            evalr = PHPTreeEvaluator(ctlr, buf, trg, citdl_expr, line)
-            buf.mgr.request_eval(evalr)
+            # Don't try to find array members on empty string
+            if citdl_expr == "" and trg.form == TRG_FORM_CPLN and trg.type == "array-members":
+                ctlr.done("success")
+            else:
+                line = buf.accessor.line_from_pos(pos)
+                evalr = PHPTreeEvaluator(ctlr, buf, trg, citdl_expr, line)
+                buf.mgr.request_eval(evalr)
 
     def _citdl_expr_from_pos(self, trg, buf, pos, implicit=True,
                              include_forwards=False, DEBUG=False):
@@ -640,7 +646,7 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
         WHITESPACE = tuple(" \t\n\r\v\f")
         EOL = tuple("\r\n")
         BLOCKCLOSES = tuple(")}]")
-        STOPOPS = tuple("({[,&$+=^|%/<;:->!.@?")
+        STOPOPS = tuple("({[,&$+=^|%/<;:->!.@?~")
         EXTRA_STOPOPS_PRECEDING_IDENT = BLOCKCLOSES # Might be others.
 
         #TODO: This style picking is a problem for the LangIntel move.
@@ -693,6 +699,7 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
             ac.resetToPosition(i)
 
         ch = None
+        lastSkippedParenBlockPos = None
         try:
             while i >= 0:
                 if ch == None and include_forwards:
@@ -767,6 +774,9 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
                     if DEBUG:
                         print "found block at %d: %r" % (i, ch)
                     citdl_expr.append(ch)
+                    # Is this the end of a parenthesis block?
+                    if ch == ")":
+                        lastSkippedParenBlockPos = i
         
                     BLOCKS = { # map block close char to block open char
                         ')': '(',
@@ -816,6 +826,13 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
             citdl_expr.pop()
         citdl_expr.reverse()
         citdl_expr = ''.join(citdl_expr)
+        # If we wound up with (), it was probably something like (new MyClass())->
+        if citdl_expr == "()" and lastSkippedParenBlockPos is not None:
+            citdl_expr = self._citdl_expr_from_pos(trg, buf, lastSkippedParenBlockPos, implicit, include_forwards, DEBUG)
+        elif citdl_expr[0:3] == "()." and lastSkippedParenBlockPos is not None:
+            sub_citdl_expr = self._citdl_expr_from_pos(trg, buf, lastSkippedParenBlockPos, implicit, include_forwards, DEBUG)
+            if sub_citdl_expr:
+                citdl_expr = sub_citdl_expr + citdl_expr[2:]
         if DEBUG:
             print "return: %r" % citdl_expr
             print util.banner("done")
@@ -842,6 +859,7 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
             Foo\bar:<|>:                    Foo\bar
             Foo\bar::bam-<|>>               Foo\bar.bam
             Foo\bar(arg1, arg2)::bam-<|>>   Foo\bar().bam
+            (new Foo())-<|>>                  Foo
         """
         #DEBUG = True
         DEBUG = False
@@ -1011,10 +1029,21 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
             if not pref: continue
             extra_dirs.update(d.strip() for d in pref.split(os.pathsep)
                               if exists(d.strip()))
-        for pref in env.get_all_prefs("phpExcludePaths"):
+        for pref in env.get_all_prefs(self.excludePathsPrefName):
             if not pref: continue
             exclude_dirs.update(d.strip() for d in pref.split(os.pathsep)
                                 if exists(d.strip()))
+
+        # Get excluded names
+        excluded_dir_names = [];
+        for excludes_pref in env.get_all_prefs(self.importExcludeMatchesPrefName):
+            if excludes_pref:
+                for exclude_item in excludes_pref.split(";"):
+                    # Exclude anything with a star or a dot (likely a file)
+                    if not re.search("[.*]", exclude_item):
+                        if exclude_item not in excluded_dir_names:
+                            excluded_dir_names.append(exclude_item)
+
         if extra_dirs:
             log.debug("PHP extra lib dirs: %r minus %r", extra_dirs, exclude_dirs)
             max_depth = env.get_pref("codeintel_max_recursive_dir_depth", 10)
@@ -1023,7 +1052,8 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
                 util.gen_dirs_under_dirs(extra_dirs,
                     max_depth=max_depth,
                     interesting_file_patterns=php_assocs,
-                    exclude_dirs=exclude_dirs)
+                    exclude_dirs=exclude_dirs,
+                    excluded_dir_names=excluded_dir_names)
             )
         else:
             extra_dirs = () # ensure retval is a tuple
@@ -1036,7 +1066,9 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
             env.add_pref_observer("php", self._invalidate_cache)
             env.add_pref_observer("phpExtraPaths",
                 self._invalidate_cache_and_rescan_extra_dirs)
-            env.add_pref_observer("phpExcludePaths",
+            env.add_pref_observer(self.excludePathsPrefName,
+                self._invalidate_cache_and_rescan_extra_dirs)
+            env.add_pref_observer(self.importExcludeMatchesPrefName,
                 self._invalidate_cache_and_rescan_extra_dirs)
             env.add_pref_observer("phpConfigFile",
                                   self._invalidate_cache)
@@ -1086,10 +1118,30 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
             if include_dirs:
                 max_depth = env.get_pref("codeintel_max_recursive_dir_depth", 10)
                 php_assocs = env.assoc_patterns_from_lang("PHP")
+
+                # Check for excludes
+                exclude_dirs = set()
+                for pref in env.get_all_prefs(self.excludePathsPrefName):
+                    if not pref: continue
+                    exclude_dirs.update(d.strip() for d in pref.split(os.pathsep)
+                        if exists(d.strip()))
+
+                # Get excluded names
+                excluded_dir_names = set()
+                for excludes_pref in env.get_all_prefs(self.importExcludeMatchesPrefName):
+                    if excludes_pref:
+                        for exclude_item in excludes_pref.split(";"):
+                            # Exclude anything with a star or a dot (likely a file)
+                            if not re.search("[.*]", exclude_item):
+                                if exclude_item not in excluded_dir_names:
+                                    excluded_dir_names.add(exclude_item)
+
                 include_dirs = tuple(
                     util.gen_dirs_under_dirs(include_dirs,
                         max_depth=max_depth,
-                        interesting_file_patterns=php_assocs)
+                        interesting_file_patterns=php_assocs,
+                        exclude_dirs=exclude_dirs,
+                        excluded_dir_names=excluded_dir_names)
                 )
                 if include_dirs:
                     libs.append( db.get_lang_lib("PHP", "inilib",
@@ -1231,7 +1283,7 @@ class PHPImportHandler(ImportHandler):
                 #    extension: need to grow filetype-from-content smarts.
                 files.append(path)
 
-    def find_importables_in_dir(self, dir):
+    def find_importables_in_dir(self, dir, env=None):
         """See citadel.py::ImportHandler.find_importables_in_dir() for
         details.
 
@@ -1248,6 +1300,10 @@ class PHPImportHandler(ImportHandler):
         if dir == "<Unsaved>":
             #TODO: stop these getting in here.
             return {}
+
+        # Update environment if null
+        if not env:
+            env = self.mgr.env
 
         try:
             names = os.listdir(dir)
@@ -1266,7 +1322,7 @@ class PHPImportHandler(ImportHandler):
                 pass
 
         importables = {}
-        patterns = self.mgr.env.assoc_patterns_from_lang("PHP")
+        patterns = env.assoc_patterns_from_lang("PHP")
         for name in nondirs:
             for pattern in patterns:
                 if fnmatch(name, pattern):
@@ -1412,7 +1468,7 @@ class PHPArg:
 class PHPVariable:
 
     # PHPDoc variable type sniffer.
-    _re_var = re.compile(r'^\s*@var\s+(\$(?P<variable>\w+)\s+)?(?P<type>[\w\\]+)(\s+\$(?P<variable2>\w+)\s+)?(?:\s+(?P<doc>.*?))?', re.M|re.U)
+    _re_var = re.compile(r'^\s*@var\s+(\$(?P<variable>\w+)\s+)?(?P<type>[\w\\()|\[\]]+)(\s+\$(?P<variable2>\w+)\s+)?(?:\s+(?P<doc>.*?))?', re.M|re.U)
     _ignored_php_types = ("object", "mixed")
 
     def __init__(self, name, line, vartype='', attributes='', doc=None,
@@ -1454,7 +1510,7 @@ class PHPVariable:
                 # declarations, look for the matching name.
                 for match in re.finditer(self._re_var, doc):
                     groups = match.groupdict()
-                    vartype = groups['type']
+                    vartype = resolveDocStringTypeToType(groups['type'])
                     if vartype and (groups['variable'] and self.name != groups['variable'] or
                                     groups['variable2'] and self.name != groups['variable2']):
                         vartype = None # wrong variable
@@ -1579,7 +1635,7 @@ class PHPFunction:
                     if len(info) > 2:
                         description = " - " + " ".join(info[3:])
                     # <param_type> param_name - param_description (if exists)
-                    docblock_parsed += '<%s> %s %s\n' % (param_type.lower(), param_name, description, )
+                    docblock_parsed += '<%s> %s %s\n' % (param_type, param_name, description, )
                     
                 # @return entries
                 elif docstr.startswith("@return"):
@@ -1588,7 +1644,7 @@ class PHPFunction:
                     description = ""
                     if len(info) > 2: 
                         description = " - " + " ".join(info[2:])
-                    docblock_parsed += "Returns %s %s\n" % (return_type.lower(), description)
+                    docblock_parsed += "Returns %s %s\n" % (return_type, description)
                 
                 # Misc @ prefixed entries
                 elif docstr.startswith("@"):
@@ -1726,8 +1782,8 @@ class PHPClass:
 
     cixtype = "CLASS"
     # PHPDoc magic property sniffer.
-    _re_magic_property = re.compile(r'^\s*@property(-(?P<type>read|write))?\s+((?P<citdl>[\w\\]+)\s+)?(?P<name>\$\w+)(?:\s+(?P<doc>.*?))?', re.M|re.U)
-    _re_magic_method = re.compile(r'^\s*@method\s+((?P<citdl>[\w\\]+)\s+)?(?P<name>\w+)(\(\))?(?P<doc>.*?)$', re.M|re.U)
+    _re_magic_property = re.compile(r'^\s*@property(-(?P<type>read|write))?\s+((?P<citdl>[\w\\()|\[\]]+)\s+)?(?P<name>\$\w+)(?:\s+(?P<doc>.*?))?', re.M|re.U)
+    _re_magic_method = re.compile(r'^\s*@method\s+((?P<citdl>[\w\\()|\[\]]+)\s+)?(?P<name>\w+)(\(\))?(?P<doc>.*?)$', re.M|re.U)
 
     def __init__(self, name, extends, lineno, depth, attributes=None,
                  interfaces=None, doc=None):
@@ -1759,12 +1815,14 @@ class PHPClass:
                 all_matches = re.findall(self._re_magic_property, self.doc)
                 for match in all_matches:
                     varname = match[4][1:]  # skip "$" in the name.
-                    v = PHPVariable(varname, lineno, match[3], doc=match[5])
+                    v = PHPVariable(varname, lineno, resolveDocStringTypeToType(match[3]), doc=match[5])
                     self.members[varname] = v
             if self.doc.find("@method") >= 0:
                 all_matches = re.findall(self._re_magic_method, self.doc)
                 for match in all_matches:
-                    citdl = match[1] or None
+                    citdl = None
+                    if match[1]:
+                        citdl = resolveDocStringTypeToType(match[1]);
                     fnname = match[2]
                     fndoc = match[4]
                     phpArgs = []
@@ -2413,8 +2471,15 @@ class PHPParser:
                     name = self._removeDollarSymbolFromVariableName(text[pos])
                 elif styles[pos] in (self.PHP_IDENTIFIER, self.PHP_WORD):
                     # Statically typed argument.
-                    citdl = text[pos]
+                    if citdl is None:
+                        citdl = ""
+                    citdl += text[pos]
                     sig_parts.append(" ")
+                # Namespace separator
+                elif text[pos] == '\\':
+                    if citdl is None:
+                        citdl = ""
+                    citdl += text[pos]
                 elif text[pos] == '&':
                     sig_parts.append(" ")
             elif not citdl:
@@ -2804,7 +2869,7 @@ class PHPParser:
             if len(all_matches) >= 1:
                 #print all_matches[0]
                 varname = all_matches[0][1]
-                vartype = all_matches[0][2]
+                vartype = resolveDocStringTypeToType(all_matches[0][2])
                 php_variable = None
                 if varname:
                     # Optional, defines the variable this is applied to.

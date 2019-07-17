@@ -2,6 +2,7 @@
     const log       = require("ko/logging").getLogger("commando-scope-bookmarks")
     const commando  = require("commando/commando");
     const {Cc, Ci}  = require("chrome");
+    const legacy    = require("ko/windows").getMain().ko;
 
     var local = {};
 
@@ -18,7 +19,7 @@
     {
         log.debug(uuid + " - Starting Scoped Search");
 
-        var view = ko.views.manager.currentView;
+        var view = legacy.views.manager.currentView;
         var bookmarks = editor().getAllMarks();
         var results = [];
 
@@ -58,7 +59,7 @@
         e.setCursor(e.getLineEndPos(line));
 
         commando.hide();
-        ko.commands.doCommandAsync('cmd_focusEditor');
+        legacy.commands.doCommandAsync('cmd_focusEditor');
     }
 
 }).apply(module.exports);

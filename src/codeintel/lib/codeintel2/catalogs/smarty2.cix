@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<codeintel description="PHP Smarty 2 template handler" name="Smarty 2" version="2.0">
+  <file lang="PHP" mtime="1555108718" path="smarty2.cix">
+    <scope ilk="blob" lang="PHP" name="smarty2" id="global">
+      <scope ilk="class" name="Smarty">
+        <scope name="__construct" signature="__construct()" doc="Initialize new Smarty object" ilk="function" returns="void"/>
+        <scope name="assign" signature="assign(array|string $tpl_var, mixed &amp;$value)" doc="Assigns values to template variables" ilk="function" returns="void"/>
+        <scope name="assign_by_ref" signature="assign_by_ref(array|string $tpl_var, mixed $value)" doc="Assigns values to template variables by reference" ilk="function" returns="void" />
+        <scope name="append" signature="append(array|string $tpl_var, mixed $value, bool $merge = false)" doc="Appends values to template variables" ilk="function" returns="void" />
+        <scope name="append_by_ref" signature="append_by_ref(array|string $tpl_var, mixed &amp;$value, bool $merge = false)" doc="Appends values to template variables by reference" ilk="function" returns="void" />
+        <scope name="clear_assign" signature="clear_assign(string $tpl_var)" doc="Clear the given assigned template variable" ilk="function" returns="void" />
+        <scope name="register_function" signature="register_function(string $function, string $function_impl, $cacheable=true, $cache_attrs=null)" doc="Registers custom function to be used in templates" ilk="function" returns="void" />
+        <scope name="unregister_function" signature="unregister_function(string $function)" doc="Unregisters custom function" ilk="function" returns="void" />
+        <scope name="register_object" signature="register_object(string $object, &amp;$object_impl, $allowed = array(), $smarty_args = true, $block_methods = array())" doc="Registers object to be used in templates" ilk="function" returns="void" />
+        <scope name="unregister_object" signature="unregister_object(string $object)" doc="Unregisters object" ilk="function" returns="void" />
+        <scope name="register_block" signature="register_block(string $block, string $block_impl, $cacheable=true, $cache_attrs=null)" doc="Registers block function to be used in templates" ilk="function" returns="void" />
+        <scope name="unregister_block" signature="unregister_block(string $block)" doc="Unregisters block function" ilk="function" returns="void" />
+        <scope name="register_compiler_function" signature="register_compiler_function(string $function, string $function_impl)" doc="Registers compiler function" ilk="function" returns="void" />
+        <scope name="unregister_compiler_function" signature="unregister_compiler_function(string $function)" doc="Unregisters compiler function" ilk="function" returns="void" />
+        <scope name="register_modifier" signature="register_modifier(string $modifier, string $modifier_impl)" doc="Registers modifier to be used in templates" ilk="function" returns="void" />
+        <scope name="unregister_modifier" signature="unregister_modifier(string $modifier)" doc="Unregisters modifier" ilk="function" returns="void" />
+        <scope name="register_resource" signature="register_resource(string $type, array $functions)" doc="Registers a resource to fetch a template" ilk="function" returns="void" />
+        <scope name="unregister_resource" signature="unregister_resource(string $type)" doc="Unregisters a resource" ilk="function" returns="void" />
+        <scope name="register_prefilter" signature="register_resource(string $type, array $functions)" doc="Registers a prefilter function to apply to a template before compiling" ilk="function" returns="void" />
+        <scope name="unregister_prefilter" signature="unregister_prefilter(callback $function)" doc="Unregisters a prefilter function" ilk="function" returns="void" />
+        <scope name="register_postfilter" signature="register_postfilter(string $type, array $functions)" doc="Registers a postfilter function to apply to a compiled template after compilation" ilk="function" returns="void" />
+        <scope name="unregister_postfilter" signature="unregister_postfilter(callback $function)" doc="Unregisters a postfilter function" ilk="function" returns="void" />
+        <scope name="register_outputfilter" signature="register_outputfilter(string $type, array $functions)" doc="Registers an output filter function to apply to a template output" ilk="function" returns="void" />
+        <scope name="unregister_outputfilter" signature="unregister_outputfilter(callback $function)" doc="Unregisters an outputfilter function" ilk="function" returns="void" />
+        <scope name="load_filter" signature="load_filter(string $type, string $name)" doc="Load a filter of specified type and name" ilk="function" returns="void" />
+        <scope name="clear_cache" signature="clear_cache(string $tpl_file, string $cache_id, string $compile_id, string $exp_time)" doc="Clear cached content for the given template and cache id" ilk="function" returns="bool" />
+        <scope name="clear_all_cache" signature="clear_all_cache(string $exp_time)" doc="Clear cached content for the given template and cache id" ilk="function" returns="bool" />
+        <scope name="is_cached" signature="is_cached(string $tpl_file, string $cache_id, string $compile_id)" doc="Test to see if valid cache exists for this template" ilk="function" returns="string|bool" />
+        <scope name="clear_all_assign" signature="clear_all_assign()" doc="clear all the assigned template variables" ilk="function" returns="void" />
+        <scope name="clear_compiled_tpl" signature="clear_compiled_tpl(string $tpl_file, string $compile_id, string $exp_time)" doc="Clears compiled version of specified template resource, or all compiled template files if one is not specified. This function is for advanced use only, not normally needed" ilk="function" returns="bool" />
+        <scope name="template_exists" signature="template_exists(string $tpl_file)" doc="Checks whether requested template exists" ilk="function" returns="bool" />
+        <scope name="get_template_vars" signature="&amp;get_template_vars(string $name, string $type)" doc="Returns an array containing template variables" ilk="function" returns="array" />
+        <scope name="get_config_vars" signature="&amp;get_config_vars(string $name, string $type)" doc="Returns an array containing config variables" ilk="function" returns="array" />
+        <scope name="trigger_error" signature="trigger_error(string $error_msg, int $error_type)" doc="Trigger Smarty error" ilk="function" returns="void" />
+        <scope name="display" signature="display(string $resource_name, string $cache_id, string $compile_id)" doc="Executes &amp; displays the template results" ilk="function" returns="void" />
+        <scope name="fetch" signature="fetch(string $resource_name, string $cache_id, string $compile_id, boolean $display)" doc="Executes &amp; returns or displays the template results" ilk="function" returns="void" />
+        <scope name="config_load" signature="config_load(string $file, string $section, string $scope)" doc="Load configuration values" ilk="function" returns="void" />
+        <scope name="get_registered_object" signature="get_registered_object(string $name)" doc="Return a reference to a registered object" ilk="function" returns="object" />
+        <scope name="clear_config" signature="clear_config(string $var)" doc="Clear configuration values" ilk="function" returns="void" />
+      </scope>
+    </scope>
+  </file>
+</codeintel>

@@ -34,7 +34,7 @@
             <broadcaster
                 id="cmd_toggleTabBar"
                 key="key_cmd_toggleTabBar"
-                type="checkbox"
+                checked=""
                 desc="&viewEditorTabs.label;"
                 oncommand="ko.openfiles.toggleTabBar()"/>
             <broadcaster

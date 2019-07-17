@@ -238,7 +238,11 @@ class _StagingRequestQueue(_UniqueRequestPriorityQueue):
             # up to self._stagingDelay while the staging thread shuts down.
             #self._stager.join()
 
-    def stage(self, item, delay=None):
+    def stage(self, item, delay=None, doNotReschedule=False):
+        """
+        Stage a request.  If there is an existing request with the same id,
+        it will be rescheduled unless doNotReschedule is true.
+        """
         if delay is None:
             delay = self._stagingDelay
         with self.mutex:
@@ -246,9 +250,14 @@ class _StagingRequestQueue(_UniqueRequestPriorityQueue):
             wasEmpty = not self._onDeck
             old = self._onDeck.get(request.id)
             if old is None or old[1] != PRIORITY_IMMEDIATE:
-                self._onDeck[request.id] = (timestamp + delay, priority, item)
-                if wasEmpty:
-                    self._nothingOnDeck.release()
+                # Check if we should NOT reschedule
+                if old is not None and doNotReschedule:
+                    log.debug("Will not reschedule %s", request.id)
+                # Ok to reschedule
+                else:
+                    self._onDeck[request.id] = (timestamp + delay, priority, item)
+                    if wasEmpty:
+                        self._nothingOnDeck.release()
             else:
                 # Clear the new request, as we already have an old request that
                 # is IMMEDIATE.
@@ -416,6 +425,10 @@ class CullMemRequest(_Request):
     id = "cull memory request"
     priority = PRIORITY_BACKGROUND
 
+class SaveDatabaseRequest(_Request):
+    id = "save database request"
+    priority = PRIORITY_BACKGROUND
+
 
 class IndexerStopRequest(_Request):
     id = "indexer stop request"
@@ -524,13 +537,13 @@ class Indexer(threading.Thread):
             self._resumeEvent = None
         log.debug("indexer: resumed")
 
-    def stage_request(self, request, delay=None):
+    def stage_request(self, request, delay=None, doNotReschedule=False):
         log.debug("stage %r", request)
         if self.mode == self.MODE_ONE_SHOT:
             raise CodeIntelError("cannot call stage requests on a "
                                  "MODE_ONE_SHOT indexer")
         #self._abortMatchingRunner(request.buf.path, request.buf.lang)
-        self._requests.stage( (request.priority, time.time(), request), delay )
+        self._requests.stage( (request.priority, time.time(), request), delay, doNotReschedule )
     def add_request(self, request):
         log.debug("add %r", request)
         #self._abortMatchingRunner(request.buf.path, request.buf.lang)
@@ -622,6 +635,11 @@ class Indexer(threading.Thread):
                 log.debug("cull memory requested")
                 self.mgr.db.cull_mem()
 
+            # Save database
+            elif isinstance(request, SaveDatabaseRequest):
+                log.debug("save database requested")
+                self.mgr.db.save()
+
             # Currently these two are somewhat of a DB zone-specific hack.
             #TODO: The standard DB "lib" iface should grow a
             #      .preload() (and perhaps .can_preload()) with a
@@ -636,10 +654,12 @@ class Indexer(threading.Thread):
                 assert isinstance(lib, (LangDirsLib, MultiLangDirsLib))
                 lib.ensure_all_dirs_scanned()
 
-            if not isinstance(request, CullMemRequest) and self.mode == self.MODE_DAEMON:
+            if not isinstance(request, CullMemRequest) and not isinstance(request, SaveDatabaseRequest) and self.mode == self.MODE_DAEMON:
                 # we did something; ask for a memory cull after 5 minutes
                 log.debug("staging new cull mem request")
-                self.stage_request(CullMemRequest(), 300)
+                self.stage_request(CullMemRequest(), 300, True)
+                # Also, save the database every 5 minutes
+                self.stage_request(SaveDatabaseRequest(), 300, True)
             self.mgr.db.report_event(None)
 
         finally:

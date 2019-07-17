@@ -128,17 +128,17 @@ function initDocumentType(prefset) {
         var catSvc = Components.classes["@activestate.com/koXMLCatalogService;1"].
                            getService(Components.interfaces.koIXMLCatalogService);
 
-        catSvc.getPublicIDList(function (result, idlist) {
-            try {
-                var decl = null;
-                if (prefset.hasPrefHere(data.declPrefName)) {
-                    decl = prefset.getStringPref(data.declPrefName);
-                }
-                _initTypePopup(idlist, "doctypePopup", decl, /\/\/DTD/);
-            } catch(e) {
-                log.exception(e);
-            }
-        });
+        //catSvc.getPublicIDList(function (result, idlist) {
+        //    try {
+        //        var decl = null;
+        //        if (prefset.hasPrefHere(data.declPrefName)) {
+        //            decl = prefset.getStringPref(data.declPrefName);
+        //        }
+        //        _initTypePopup(idlist, "doctypePopup", decl, /\/\/DTD/);
+        //    } catch(e) {
+        //        log.exception(e);
+        //    }
+        //});
 
         catSvc.getNamespaceList(function (result, idlist) {
             try {
@@ -311,29 +311,29 @@ function OnPreferencePageClosing(prefset, ok) {
             }
         }
 
-        var popup = document.getElementById("doctypePopup");
-        if (popup) {
-            var decl;
-            if (popup.parentNode.selectedItem != popup.firstChild) {
-                decl = popup.parentNode.selectedItem.getAttribute("label");
-                prefset.setStringPref(data.declPrefName, decl);
-            } else if (prefset.hasPrefHere(data.declPrefName)) {
-                prefset.deletePref(data.declPrefName);
-                if (parent.view.prefs.hasPrefHere(parent.view.prefs))
-                    parent.view.prefs.deletePref(data.declPrefName);
-            }
-        }
-        popup = document.getElementById("namespacePopup");
-        if (popup) {
-            if (popup.parentNode.selectedItem != popup.firstChild) {
-                decl = popup.parentNode.selectedItem.getAttribute("label");
-                prefset.setStringPref(data.nsPrefName, decl);
-            } else if (prefset.hasPrefHere(data.nsPrefName)) {
-                prefset.deletePref(data.nsPrefName);
-                if (parent.view.prefs.hasPrefHere(parent.view.prefs))
-                    parent.view.prefs.deletePref(data.nsPrefName);
-            }
-        }
+        //var popup = document.getElementById("doctypePopup");
+        //if (popup) {
+        //    var decl;
+        //    if (popup.parentNode.selectedItem != popup.firstChild) {
+        //        decl = popup.parentNode.selectedItem.getAttribute("label");
+        //        prefset.setStringPref(data.declPrefName, decl);
+        //    } else if (prefset.hasPrefHere(data.declPrefName)) {
+        //        prefset.deletePref(data.declPrefName);
+        //        if (parent.view.prefs.hasPrefHere(parent.view.prefs))
+        //            parent.view.prefs.deletePref(data.declPrefName);
+        //    }
+        //}
+        //popup = document.getElementById("namespacePopup");
+        //if (popup) {
+        //    if (popup.parentNode.selectedItem != popup.firstChild) {
+        //        decl = popup.parentNode.selectedItem.getAttribute("label");
+        //        prefset.setStringPref(data.nsPrefName, decl);
+        //    } else if (prefset.hasPrefHere(data.nsPrefName)) {
+        //        prefset.deletePref(data.nsPrefName);
+        //        if (parent.view.prefs.hasPrefHere(parent.view.prefs))
+        //            parent.view.prefs.deletePref(data.nsPrefName);
+        //    }
+        //}
     } catch (ex) {
         log.exception(ex, "Error OnPreferencePageClosing.");
     }

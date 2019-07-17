@@ -267,7 +267,7 @@ class Shell(tmCmd.AugmentedListCmd):
             e.g.
                 bk build --conf-a-conf-arg -- --conf-not-a-conf-arg
 
-            "build args" are all passed to the underlieing build process.
+            "build args" are all passed to the underlying build process.
         """
         global blackFile, blackFileName
         # die if there is no project configuration

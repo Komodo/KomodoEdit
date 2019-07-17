@@ -432,6 +432,21 @@ $consLocal->InstallAs("$mozChromeDir/komodo/content/contrib/commonjs/dot.js", "c
 $consLocal->InstallAs("$mozChromeDir/komodo/content/contrib/commonjs/randomColor.js", "commonjs/randomColor.js");
 $consLocal->InstallAs("$mozChromeDir/komodo/content/contrib/commonjs/underscore.js", "commonjs/underscore.js");
 $consLocal->InstallAs("$mozChromeDir/komodo/content/contrib/commonjs/marked.js", "commonjs/marked.js");
+$consLocal->InstallAs("$mozChromeDir/komodo/content/contrib/commonjs/buffer.js", "commonjs/buffer.js");
+$consLocal->InstallAs("$mozChromeDir/komodo/content/contrib/commonjs/ieee754.js", "commonjs/ieee754.js");
+
+# vscode-jsonrpc
+$consLocal->InstallAs("$mozChromeDir/komodo/content/contrib/commonjs/vscode-jsonrpc/cancellation.js", "vscode-jsonrpc/cancellation.js");
+$consLocal->InstallAs("$mozChromeDir/komodo/content/contrib/commonjs/vscode-jsonrpc/events.js", "vscode-jsonrpc/events.js");
+$consLocal->InstallAs("$mozChromeDir/komodo/content/contrib/commonjs/vscode-jsonrpc/is.js", "vscode-jsonrpc/is.js");
+$consLocal->InstallAs("$mozChromeDir/komodo/content/contrib/commonjs/vscode-jsonrpc/linkedMap.js", "vscode-jsonrpc/linkedMap.js");
+$consLocal->InstallAs("$mozChromeDir/komodo/content/contrib/commonjs/vscode-jsonrpc/main.js", "vscode-jsonrpc/main.js");
+$consLocal->InstallAs("$mozChromeDir/komodo/content/contrib/commonjs/vscode-jsonrpc/messageReader.js", "vscode-jsonrpc/messageReader.js");
+$consLocal->InstallAs("$mozChromeDir/komodo/content/contrib/commonjs/vscode-jsonrpc/messages.js", "vscode-jsonrpc/messages.js");
+$consLocal->InstallAs("$mozChromeDir/komodo/content/contrib/commonjs/vscode-jsonrpc/messageWriter.js", "vscode-jsonrpc/messageWriter.js");
+$consLocal->InstallAs("$mozChromeDir/komodo/content/contrib/commonjs/vscode-jsonrpc/thenable.js", "vscode-jsonrpc/thenable.js");
+$consLocal->InstallAs("$mozChromeDir/komodo/content/contrib/commonjs/vscode-jsonrpc/License.txt", "vscode-jsonrpc/License.txt");
+
 
 #----  Watchdog for file notifcations
 if ($withWatchdogFSNotifications) {

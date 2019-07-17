@@ -102,6 +102,7 @@ body {
 
 class koCSSLanguage(koCSSCommonLanguage):
     name = "CSS"
+    defaultExtension = ".css"
     _reg_desc_ = "%s Language" % name
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
                        % (name)
@@ -112,6 +113,7 @@ class koCSSLanguage(koCSSCommonLanguage):
 
 class koLessLanguage(koCSSCommonLanguage):
     name = "Less"
+    defaultExtension = ".less"
     _reg_desc_ = "%s Language" % name
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
                        % (name)
@@ -136,6 +138,7 @@ class koLessLanguage(koCSSCommonLanguage):
 
 class koSCSSLanguage(koCSSCommonLanguage):
     name = "SCSS"
+    defaultExtension = ".scss"
     _reg_desc_ = "%s Language" % name
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
                        % (name)
@@ -161,6 +164,7 @@ class koSCSSLanguage(koCSSCommonLanguage):
       
 class koSassLanguage(koCSSCommonLanguage):
     name = "Sass"
+    defaultExtension = ".sass"
     _reg_desc_ = "%s Language" % name
     _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
                        % (name)

@@ -703,6 +703,18 @@
             id="cmd_jumpToMatchingBrace" key="key_cmd_jumpToMatchingBrace"
             oncommand="ko.commands.doCommand('cmd_jumpToMatchingBrace')"
             desc="&sourceCodeJumpToMatchingBrace.desc;"/>
+        <command
+            id="cmd_jumpToParentFold" key="key_cmd_jumpToParentFold"
+            oncommand="ko.commands.doCommand('cmd_jumpToParentFold')"
+            desc="&sourceCodeJumpToParentFold.desc;"/>
+        <command
+            id="cmd_jumpToPreviousFold" key="key_cmd_jumpToPreviousFold"
+            oncommand="ko.commands.doCommand('cmd_jumpToPreviousFold')"
+            desc="&sourceCodeJumpToPreviousFold.desc;"/>
+        <command
+            id="cmd_jumpToNextFold" key="key_cmd_jumpToNextFold"
+            oncommand="ko.commands.doCommand('cmd_jumpToNextFold')"
+            desc="&sourceCodeJumpToNextFold.desc;"/>
 
 	<!-- emacs commands -->
         <command
@@ -1587,6 +1599,11 @@
             disabled="true"
             desc="&sourceCodeConvertSelectionToLowerCase.desc;"/>
         <command
+            id="cmd_convertTitleCase" key="key_cmd_convertTitleCase"
+            oncommand="ko.commands.doCommand('cmd_convertTitleCase')"
+            disabled="true"
+            desc="&sourceCodeConvertSelectionToTitleCase.desc;"/>
+        <command
             id="cmd_convertFromHex" key="key_cmd_convertFromHex"
             oncommand="ko.commands.doCommand('cmd_convertFromHex')"
             disabled="true"
@@ -1729,11 +1746,6 @@
             oncommand="ko.commands.doCommandAsync('cmd_saveProjectAs', event)"
             disabled="true"
             desc="&generalSaveProjectAs.desc;"/>
-        <command
-            id="cmd_saveProjectAsTemplate" key="key_cmd_saveProjectAsTemplate"
-            oncommand="ko.commands.doCommandAsync('cmd_saveProjectAsTemplate', event)"
-            disabled="true"
-            desc="&generalCreateTemplateFromProject.desc;"/>
         <command
             id="cmd_closeAllProjects" key="key_cmd_closeAllProjects"
             oncommand="ko.commands.doCommandAsync('cmd_closeAllProjects', event)"

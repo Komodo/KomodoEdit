@@ -63,7 +63,7 @@
         ondialogaccept="return OK()"
         ondialogcancel="return Cancel()"
         ondialogextra1="return Apply()"
-        ondialoghelp="ko.help.open('snippets#snippets_snippet-options');">
+        ondialoghelp="ko.help.open('snippets.html');">
 
     <script src="chrome://xtk/content/xtk.js"                          type="application/x-javascript;version=1.7"/>
     <script src="chrome://global/content/fullScreen.js"                type="application/x-javascript;version=1.7"/>
@@ -108,8 +108,8 @@
                              onkeyup="UpdateField('name');"/>
                     <spacer width="5"/>
                     <langlist id="languageList"
-                              default="Pick a Language,Python-common,JavaScript-common,HTML-common"
-                              default-value="-1,Python-common,JavaScript-common,HTML-common"/>
+                              default="Pick a Language,General,Python-common,JavaScript-common,HTML-common"
+                              default-value="-1,General,Python-common,JavaScript-common,HTML-common"/>
                 </hbox>
                 <separator class="groovy-thin"/>
                 <hbox flex="1">
@@ -198,7 +198,7 @@
                                       oncommand="InsertShortcut(this);"/>
                             <menuseparator/>
                             <menuitem label="&helpOnShortcuts.label;"
-                                      oncommand="ko.help.open('interpolation_shortcuts');"/>
+                                      oncommand="ko.help.open('shortcuts.html');"/>
                         </menupopup>
                     </button>
                     </vbox>

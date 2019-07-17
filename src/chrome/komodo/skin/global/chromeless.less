@@ -16,6 +16,11 @@
 dialog:root[_hidechrome="true"]:not(.embedded)
 {
     overflow: -moz-hidden-unscrollable !important;
+
+    &:not(.dialog)
+    {
+        border: 2px solid @border;
+    }
     
     .window-wrapper,
     .dialog-content-box,
@@ -56,6 +61,11 @@ dialog:root[_hidechrome="true"]:not(.embedded)
         {
             visibility: collapse;
         }
+    }
+
+    resizer
+    {
+        background: @border !important;
     }
 }
 
@@ -131,6 +141,11 @@ dialog:not([_hidechrome="true"]):not(.embedded)
     }
     
     /* Main window resizers */
+
+    resizer
+    {
+        background: @border !important;
+    }
     
     &[_sizemode="maximized"],
     &[sizemode="maximized"]
@@ -148,37 +163,21 @@ dialog:not([_hidechrome="true"]):not(.embedded)
     {
         resizer
         {
+            &[dir="top"], &[dir="topleft"], &[dir="topright"]
+            {
+                height: 4px;
+            }
+
             background: @special !important;
-            height: 4px;
         }
     }
     
-    /**
-     * Left and bottom left resizer.
-     */
-    resizer[dir="left"], resizer[dir="bottomleft"]
-    {
-        background: @contrast !important;
-    }
     
     /* account for resizer taking up space */
-    #toolbox_side 
+    #toolbox_side
     {
         width: 46px;
         padding-right: 2px;
-    }
-    
-    /**
-     * Bottom and bottom right resizer
-     */
-    .resizer-box.bottom > spacer
-    {
-        width: 46px;
-    }
-    
-    resizer[dir="bottom"], resizer[dir="bottomright"], resizer[dir="right"]
-    {
-        background: @background !important;
     }
 }
 

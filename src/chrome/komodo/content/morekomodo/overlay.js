@@ -431,13 +431,9 @@ var moreKomodo = {
     },
 
     onMoveFile : function() {
-        try {
-            var viewDoc = this._getView().koDoc;
-            var file = viewDoc.file;
-            MoreKomodoCommon.moveFile(file.path);
-        } catch (err) {
-            alert("Unable to move file: " + err);
-        }
+        var viewDoc = this._getView().koDoc;
+        var file = viewDoc.file;
+        MoreKomodoCommon.moveFile(file.path);
     },
 
     // update title and other stuff

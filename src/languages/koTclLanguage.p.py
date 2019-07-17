@@ -80,6 +80,8 @@ class koTclLanguage(KoLanguageBase):
     supportsSmartIndent = "brace"
     _dedenting_statements = [u'error', u'return', u'break', u'continue']
 
+    importPref = "tclExtraPaths"
+
     sample = """proc loadFile { } {
     # a simple comment
     global f

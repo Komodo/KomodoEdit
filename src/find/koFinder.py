@@ -314,10 +314,7 @@ class _FindReplaceInFilesThread(threading.Thread):
                 continue
             elif isinstance(event, findlib2.SkipPath):
                 self.num_paths_searched += 1
-                if isinstance(event, findlib2.SkipUnknownLangPath):
-                    self.num_paths_skipped += 1
-                    self._cache_skipped_path(event)
-                elif isinstance(event, findlib2.SkipBinaryPath):
+                if isinstance(event, findlib2.SkipBinaryPath):
                     #TODO: put these as warning rows in the UI?
                     log.debug("Skip `%s' (binary).", event.path)
             elif not isinstance(event, findlib2.Hit):
@@ -604,9 +601,7 @@ class _ConfirmReplacerInFiles(threading.Thread, TreeView):
                     continue
                 elif isinstance(event, findlib2.SkipPath):
                     self.num_paths_searched += 1
-                    if isinstance(event, findlib2.SkipUnknownLangPath):
-                        self._add_skipped_path(event)
-                    elif isinstance(event, findlib2.SkipLargeFilePath):
+                    if isinstance(event, findlib2.SkipLargeFilePath):
                         self._add_skipped_path(event)
                     elif isinstance(event, findlib2.SkipBinaryPath):
                         #TODO: put these as warning rows in the UI?
@@ -634,8 +629,6 @@ class _ConfirmReplacerInFiles(threading.Thread, TreeView):
             return components.interfaces.koIConfirmReplacerInFiles.SKIPPED_LARGE_FILE
         if isinstance(event, findlib2.SkipBinaryPath):
             return components.interfaces.koIConfirmReplacerInFiles.SKIPPED_BINARY_FILE
-        if isinstance(event, findlib2.SkipUnknownLangPath):
-            return components.interfaces.koIConfirmReplacerInFiles.SKIPPED_UNKNOWN_LANG
         return 0
 
     def toggle_mark(self, row_idx):
@@ -1245,7 +1238,7 @@ class KoFindOptions:
     _reg_clsid_ = "{3C4AC462-638E-4fa5-A264-3540FEFA558D}"
     _reg_contractid_ = "@activestate.com/koFindOptions;1"
 
-    def __init__(self):
+    def __init__(self, usePrefSvc=True):
         self.patternTypePrefName = "find-patternType"
         self.caseSensitivityPrefName = "find-caseSensitivity"
         self.matchWordPrefName = "find-matchWord"
@@ -1261,43 +1254,48 @@ class KoFindOptions:
         self.multilinePrefName = "find-multiline"
         self.confirmReplacementsInFilesPrefName = "find-confirmReplacementsInFiles"
 
-        global gPrefSvc
-        if gPrefSvc is None:
-            gPrefSvc = components.classes["@activestate.com/koPrefService;1"]\
-                       .getService(components.interfaces.koIPrefService)
-        self.patternType = gPrefSvc.prefs.getLongPref(self.patternTypePrefName)
-        self.caseSensitivity = gPrefSvc.prefs.getLongPref(self.caseSensitivityPrefName)
-        self.matchWord = gPrefSvc.prefs.getBooleanPref(self.matchWordPrefName)
-        self.searchBackward = gPrefSvc.prefs.getBooleanPref(self.searchBackwardPrefName)
-        self.preferredContextType = gPrefSvc.prefs.getLongPref(self.preferredContextTypePrefName)
-        self.displayInFindResults2 = gPrefSvc.prefs.getBooleanPref(self.displayInFindResults2PrefName)
-        self.showReplaceAllResults = gPrefSvc.prefs.getBooleanPref(self.showReplaceAllResultsPrefName)
-        self.cwd = gPrefSvc.prefs.getStringPref(self.cwdPrefName)
-        self.multiline = gPrefSvc.prefs.getBooleanPref(self.multilinePrefName)
-        self.confirmReplacementsInFiles = gPrefSvc.prefs.getBooleanPref(self.confirmReplacementsInFilesPrefName)
+        self.usePrefSvc = usePrefSvc
+        if usePrefSvc:
+            global gPrefSvc
+            if gPrefSvc is None:
+                gPrefSvc = components.classes["@activestate.com/koPrefService;1"]\
+                           .getService(components.interfaces.koIPrefService)
+            self.patternType = gPrefSvc.prefs.getLongPref(self.patternTypePrefName)
+            self.caseSensitivity = gPrefSvc.prefs.getLongPref(self.caseSensitivityPrefName)
+            self.matchWord = gPrefSvc.prefs.getBooleanPref(self.matchWordPrefName)
+            self.searchBackward = gPrefSvc.prefs.getBooleanPref(self.searchBackwardPrefName)
+            self.preferredContextType = gPrefSvc.prefs.getLongPref(self.preferredContextTypePrefName)
+            self.displayInFindResults2 = gPrefSvc.prefs.getBooleanPref(self.displayInFindResults2PrefName)
+            self.showReplaceAllResults = gPrefSvc.prefs.getBooleanPref(self.showReplaceAllResultsPrefName)
+            self.cwd = gPrefSvc.prefs.getStringPref(self.cwdPrefName)
+            self.multiline = gPrefSvc.prefs.getBooleanPref(self.multilinePrefName)
+            self.confirmReplacementsInFiles = gPrefSvc.prefs.getBooleanPref(self.confirmReplacementsInFilesPrefName)
 
         # In case we run into some alternate dimension where
         #   os.pathsep not in ';:'
         self._patternExtensionSep = re.compile('[,;:%s ]+' % os.pathsep)
         try:
             self._folders = []
-            foldersPref = gPrefSvc.prefs.getPref(self.foldersPrefName)
-            for i in range(foldersPref.length):
-                self._folders.append(foldersPref.getStringPref(i))
+            if usePrefSvc:
+                foldersPref = gPrefSvc.prefs.getPref(self.foldersPrefName)
+                for i in range(foldersPref.length):
+                    self._folders.append(foldersPref.getStringPref(i))
         except COMException, ex:
             log.exception(ex, "Error retrieving 'File in Files' folders "
                               "preference. Some folders may have been lost.")
         self.encodedFolders = os.pathsep.join(self._folders)
-        
-        self.searchInSubfolders = gPrefSvc.prefs.getBooleanPref(self.searchInSubfoldersPrefName)
+
+        if usePrefSvc:
+            self.searchInSubfolders = gPrefSvc.prefs.getBooleanPref(self.searchInSubfoldersPrefName)
 
         try:
             self._includeFiletypes = []
-            includeFiletypesPref = gPrefSvc.prefs.getPref(self.includeFiletypesPrefName)
-            for i in range(includeFiletypesPref.length):
-                s = includeFiletypesPref.getStringPref(i)
-                if s.strip():
-                    self._includeFiletypes.append(s.strip())
+            if usePrefSvc:
+                includeFiletypesPref = gPrefSvc.prefs.getPref(self.includeFiletypesPrefName)
+                for i in range(includeFiletypesPref.length):
+                    s = includeFiletypesPref.getStringPref(i)
+                    if s.strip():
+                        self._includeFiletypes.append(s.strip())
         except COMException, ex:
             log.exception(ex, "Error retrieving 'File in Files' include "
                               "filetypes preference. Some filetypes may have "
@@ -1305,52 +1303,74 @@ class KoFindOptions:
         self.encodedIncludeFiletypes = os.pathsep.join(self._includeFiletypes)
         try:
             self._excludeFiletypes = []
-            excludeFiletypesPref = gPrefSvc.prefs.getPref(self.excludeFiletypesPrefName)
-            for i in range(excludeFiletypesPref.length):
-                s = excludeFiletypesPref.getStringPref(i)
-                if s.strip():
-                    self._excludeFiletypes.append(s.strip())
+            if usePrefSvc:
+                excludeFiletypesPref = gPrefSvc.prefs.getPref(self.excludeFiletypesPrefName)
+                for i in range(excludeFiletypesPref.length):
+                    s = excludeFiletypesPref.getStringPref(i)
+                    if s.strip():
+                        self._excludeFiletypes.append(s.strip())
         except COMException, ex:
             log.exception(ex, "Error retrieving 'File in Files' exclude "
                               "filetypes preference. Some filetypes may have "
                               "been lost.")
         self.encodedExcludeFiletypes = os.pathsep.join(self._excludeFiletypes)
 
+    def set_usePrefSvc(self, value):
+        self.usePrefSvc = value
+
     def set_patternType(self, value):
         self.patternType = value
+        if not self.usePrefSvc:
+            return
         return gPrefSvc.prefs.setLongPref(self.patternTypePrefName, value)
 
     def set_caseSensitivity(self, value):
         self.caseSensitivity = value
+        if not self.usePrefSvc:
+            return
         return gPrefSvc.prefs.setLongPref(self.caseSensitivityPrefName, value)
 
     def set_matchWord(self, value):
         self.matchWord = value
+        if not self.usePrefSvc:
+            return
         return gPrefSvc.prefs.setBooleanPref(self.matchWordPrefName, value)
 
     def set_searchBackward(self, value):
         self.searchBackward = value
+        if not self.usePrefSvc:
+            return
         return gPrefSvc.prefs.setBooleanPref(self.searchBackwardPrefName, value)
 
     def set_preferredContextType(self, value):
         self.preferredContextType = value
+        if not self.usePrefSvc:
+            return
         return gPrefSvc.prefs.setLongPref(self.preferredContextTypePrefName, value)
 
     def set_displayInFindResults2(self, value):
         self.displayInFindResults2 = value
+        if not self.usePrefSvc:
+            return
         return gPrefSvc.prefs.setBooleanPref(self.displayInFindResults2PrefName, value)
 
     def set_cwd(self, value):
         self.cwd = value
+        if not self.usePrefSvc:
+            return
         return gPrefSvc.prefs.setStringPref(self.cwdPrefName, value)
 
     def set_showReplaceAllResults(self, value):
         self.showReplaceAllResults = value
+        if not self.usePrefSvc:
+            return
         return gPrefSvc.prefs.setBooleanPref(self.showReplaceAllResultsPrefName, value)
 
     def set_encodedFolders(self, value):
         self.encodedFolders = value
         self._folders = value.split(os.pathsep)
+        if not self.usePrefSvc:
+            return
         foldersPref = gPrefSvc.prefs.getPref(self.foldersPrefName)
         foldersPref.reset()
         for folder in self._folders:
@@ -1362,6 +1382,8 @@ class KoFindOptions:
 
     def set_searchInSubfolders(self, value):
         self.searchInSubfolders = value
+        if not self.usePrefSvc:
+            return
         return gPrefSvc.prefs.setBooleanPref(self.searchInSubfoldersPrefName, value)
 
     def _split_extensions(self, value):
@@ -1371,6 +1393,8 @@ class KoFindOptions:
     def set_encodedIncludeFiletypes(self, value):
         self.encodedIncludeFiletypes = value
         self._includeFiletypes = self._split_extensions(value)
+        if not self.usePrefSvc:
+            return
         includeFiletypesPref = gPrefSvc.prefs.getPref(self.includeFiletypesPrefName)
         includeFiletypesPref.reset()
         for includeFiletype in self._includeFiletypes:
@@ -1384,6 +1408,8 @@ class KoFindOptions:
     def set_encodedExcludeFiletypes(self, value):
         self.encodedExcludeFiletypes = value
         self._excludeFiletypes = self._split_extensions(value)
+        if not self.usePrefSvc:
+            return
         excludeFiletypesPref = gPrefSvc.prefs.getPref(self.excludeFiletypesPrefName)
         excludeFiletypesPref.reset()
         for excludeFiletype in self._excludeFiletypes:
@@ -1396,10 +1422,14 @@ class KoFindOptions:
 
     def set_multiline(self, value):
         self.multiline = value
+        if not self.usePrefSvc:
+            return
         return gPrefSvc.prefs.setBooleanPref(self.multilinePrefName, value)
 
     def set_confirmReplacementsInFiles(self, value):
         self.confirmReplacementsInFiles = value
+        if not self.usePrefSvc:
+            return
         return gPrefSvc.prefs.setBooleanPref(self.confirmReplacementsInFilesPrefName, value)
 
     def searchDescFromPattern(self, pattern):

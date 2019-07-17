@@ -37,6 +37,7 @@ class OOPEvalController(EvalController):
         if not loggerClass:
             loggerClass = logging.getLoggerClass()
         self.log = loggerClass("codeintel.evaluator")
+        self.log.setLevel(logging.WARN) # Only log warnings and worse
         self.log.manager = logging.Logger.manager
         self.log.propagate = False
         self.log.addHandler(self.log_hndlr)

@@ -185,7 +185,7 @@
                                       oncommand="InsertCommandShortcut(this);"/>
                             <menuseparator/>
                             <menuitem label="&helpOnShortcuts.label;"
-                                      oncommand="ko.help.open('interpolation_shortcuts');"/>
+                                      oncommand="ko.help.open('shortcuts.html');"/>
                         </menupopup>
                     </button>
                 </hbox>
@@ -209,7 +209,7 @@
                   <button id="close" label="&close.label;" accesskey="&close.accesskey;"
                           oncommand="window.close();"/>
                   <button id="help" label="&help.label;" accesskey="&help.accesskey;"
-                          oncommand="ko.help.open('run_command_properties');"/>
+                          oncommand="ko.help.open('run.html#run-command-properties');"/>
                 </vbox>
                 <spacer flex="1"/>
                 <button id="more-options-button"
@@ -261,7 +261,7 @@
                                       oncommand="InsertCwdShortcut(this);"/>
                             <menuseparator/>
                             <menuitem label="&helpOnShortcuts.label;"
-                                      oncommand="ko.help.open('interpolation_shortcuts');"/>
+                                      oncommand="ko.help.open('shortcuts.html');"/>
                         </menupopup>
                     </button>
                     <button id="cwd-browse-button" label="&browse.label;"

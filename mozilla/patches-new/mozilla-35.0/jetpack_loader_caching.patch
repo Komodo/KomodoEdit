@@ -1,0 +1,28 @@
+Index: /home/nathan/Projects/komodo-dev/src/chrome/komodo/content/jetpack/loader.js
+--- a/addon-sdk/source/lib/toolkit/loader.js
++++ b/addon-sdk/source/lib/toolkit/loader.js
+@@ -545,10 +545,16 @@
+     modules, mapping, resolve: loaderResolve, load, manifest, rootURI, isNative, requireMap
+   } = loader;
+ 
++  let cache = {};
++
+   function require(id) {
+     if (!id) // Throw if `id` is not passed.
+       throw Error('you must provide a module name when calling require() from '
+                   + requirer.id, requirer.uri);
++
++    if (id in cache) {
++      return cache[id];
++    }
+ 
+     let { uri, requirement } = getRequirements(id);
+     let module = null;
+@@ -602,6 +608,7 @@
+       }
+     }
+ 
++    cache[id] = module.exports;
+     return module.exports;
+   }
+ 

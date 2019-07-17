@@ -5,15 +5,11 @@
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   preserveAspectRatio="xMidYMid"
-   height="16"
-   width="16"
-   id="svg2"
+   id="svg4"
    version="1.1"
-   inkscape:version="0.91 r13725"
-   sodipodi:docname="ruby.svg">
+   viewBox="0 0 14 14"
+   height="14"
+   width="14">
   <metadata
      id="metadata10">
     <rdf:RDF>
@@ -22,34 +18,14 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
   <defs
      id="defs8" />
-  <sodipodi:namedview
-     pagecolor="#ffffff"
-     bordercolor="#666666"
-     borderopacity="1"
-     objecttolerance="10"
-     gridtolerance="10"
-     guidetolerance="10"
-     inkscape:pageopacity="0"
-     inkscape:pageshadow="2"
-     inkscape:window-width="1920"
-     inkscape:window-height="1030"
-     id="namedview6"
-     showgrid="false"
-     inkscape:zoom="14.75"
-     inkscape:cx="-12.271186"
-     inkscape:cy="8"
-     inkscape:window-x="0"
-     inkscape:window-y="25"
-     inkscape:window-maximized="1"
-     inkscape:current-layer="svg2" />
   <path
-     d="m 4.6,14.55 0,0 0,0 0.1,0 0,0 9,0.4 -12.3,0 z m 6.4,-4.9 3.7,5 -9.6,-0.4 z m 4,4.9 -3.8,-5.2 3.3,-6.1 z M 1.1,13.35 1.5,9.15 2.2,9.85 1,13.55 Z m 1.4,-3 1.9,3.8 -3.2,0.4 z m 1.9,2.9 -1.8,-3.5 2.5,-1.6 z m 6.2,-4 -5.9,4.7 0.8,-5.7 z m -2.3,-4.5 2.2,4.2 -5,-1.1 z m 0.4,0 5.2,-1.4 -3,5.6 z m -0.2,-0.4 0.7,-1.8 4.1,0.6 z m 6,-1.4 -4.4,-0.7 3.5,-1.2 z M 12.2,1.05 8.9,2.15 8.3,1.95 Z M 8,4.35 5.1,7.65 2.4,9.35 1.7,8.75 l 1,-2 2.5,-2.8 2.4,-1.7 1.1,0.3 z"
-     id="path4"
-     inkscape:connector-curvature="0"
-     style="fill:#f44336;fill-opacity:1" />
+     style="color:#000000;fill:#cc0000;stroke-width:2"
+     id="path2"
+     d="M 5,1 V 3 H 6 V 1 Z M 8,1 V 3 H 9 V 1 Z M 11.877,1.994 10.984,3.5 11.859,4 12.752,2.463 Z m -9.764,0.068 -0.844,0.5 0.926,1.506 0.844,-0.5 z M 3,4 1,6 7,13 13,6 11,4 Z M 3.438,5 H 6.501 V 6 H 2.438 Z m 4.063,0 h 3.063 l 1,1 H 7.501 Z M 3.157,7 h 3.344 v 3.887 z m 4.344,0 h 3.344 l -3.344,3.887 z" />
 </svg>

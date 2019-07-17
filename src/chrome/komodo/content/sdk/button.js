@@ -1,8 +1,7 @@
 /**
- * @copyright (c) 2015 ActiveState Software Inc.
+ * @copyright (c) 2017 ActiveState Software Inc.
  * @license Mozilla Public License v. 2.0
  * @author ActiveState
- * @overview -
  */
 
 /**
@@ -21,11 +20,20 @@
 
     /**
      * Register a new button
-     * 
+     *
      * @param   {String|Object} label       Optionally this can hold the entire opts object, with a label and command entry
      * @param   {Function}      command     The callback function
      * @param   {Object}        opts        Options
-     * 
+     *
+     * @example
+     * opts = {
+     *      id:"",
+     *      label:"",
+     *      command:function(){},
+     *      toolbar: boolean,
+     *      classlist: [""]
+     *   }
+     *
      * @returns {Void}
      */
     this.register = (label, command, opts) =>
@@ -68,10 +76,10 @@
 
     /**
      * Unregister given button
-     * 
+     *
      * @param   {String} id         Command ID
      * @param   {Object} opts       context, id
-     * 
+     *
      * @returns {Void}
      */
     this.unregister = (id, opts) =>
@@ -109,7 +117,7 @@
         button.setAttribute("label", opts.label);
         button.setAttribute("tooltiptext", opts.tooltip || opts.label);
         button.setAttribute("class", opts.classList);
-        
+
         if (typeof opts.command == "string")
         {
             button.setAttribute("oncommand", "ko.commands.doCommandAsync('"+opts.command+"', event)");
@@ -117,7 +125,7 @@
         }
         else
             button.addEventListener("command", opts.command);
-        
+
         button.classList.add("sdk-button");
 
         button.sdkOpts = opts;

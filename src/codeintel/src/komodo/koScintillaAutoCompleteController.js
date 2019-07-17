@@ -746,7 +746,10 @@ KoScintillaAutoCompleteController.prototype = {
           focusedIndex = parseInt(this._focusedItem.getAttribute("index"), 10);
         switch(event.keyCode) {
           case Ci.nsIDOMKeyEvent.DOM_VK_UP: {
-            if (this._selectedItem) {
+            // With control or meta key, go to first one
+            if (event.ctrlKey || event.metaKey)
+              this._updateDisplay(0);
+            else if (this._selectedItem) {
               // something is selected, select the one before that
               let top = Math.min(this._firstVisibleIndex,
                                  this.selectedIndex - 1);
@@ -760,7 +763,10 @@ KoScintillaAutoCompleteController.prototype = {
             break;
           }
           case Ci.nsIDOMKeyEvent.DOM_VK_DOWN: {
-            if (this._selectedItem) {
+            // With control or meta key, go to last one
+            if (event.ctrlKey || event.metaKey)
+              this._updateDisplay(this.itemCount - 1);
+            else if (this._selectedItem) {
               // something is selected, select the one after that
               let top = Math.max(this._firstVisibleIndex,
                                  this.selectedIndex - this._visibleCount + 2);

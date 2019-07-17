@@ -13,7 +13,7 @@ function loadIntoWindow(window) {
         
         var timer;
         var updater = function(now, showNotifications) {
-            if (now !== true)
+            if (now !== true || ! window.ko)
             {
                 window.clearTimeout(timer);
                 timer = window.setTimeout(updater.bind(null,true,showNotifications), 100);

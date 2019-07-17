@@ -190,7 +190,7 @@ class _kplBase(object):
 
 
 class _kplFolder(_kplBase):
-    image_icon = 'places_folder'
+    image_icon = 'folder'
     isContainer = True
     def __init__(self, level, uri):
         _kplBase.__init__(self, level, uri)

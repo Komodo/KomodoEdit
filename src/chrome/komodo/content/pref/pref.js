@@ -6,6 +6,7 @@ var prefInvokeType = "global";
 var prefs = Components.classes["@activestate.com/koPrefService;1"].
     getService(Components.interfaces.koIPrefService).prefs;
 var lastFilter = "";
+var preflog = ko.logging.getLogger('prefs');
 
 var koFilterBox;
 
@@ -101,8 +102,15 @@ function canHelp() {
 
 function doHelp() {
     var tag = getHelpTag();
-    tag = "prefs#preferences_"+tag.replace(/\-/g,"_").toLowerCase();
-    ko.windowManager.getMainWindow().ko.help.open(tag);
+    if (tag.indexOf(".html") >= 0)
+    {
+        ko.windowManager.getMainWindow().ko.help.open(tag);
+    }
+    else
+    {
+        tag = "prefs.html#"+tag.replace(/\_/g,"-").toLowerCase();
+        ko.windowManager.getMainWindow().ko.help.open(tag);
+    }
 }
 
 function setupFilteredTree() {
@@ -132,7 +140,7 @@ function onFilterKeypress(event) {
             return;
         }
     } catch (e) {
-        log.exception(e);
+        preflog.exception(e);
     }
 }
 

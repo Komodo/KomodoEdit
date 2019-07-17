@@ -265,7 +265,7 @@
                       label="&editRaw.label;"
                       class="menuitem-iconic"
                       oncommand="ko.toolbox2.invoke_editRaw()"
-                      hideIf="standardToolbox"
+                      hideIf="standardToolbox folder"
                       testDisableIf="t:multipleSelection"
                       />
             <menuitem id="toolbox2ContextMenu_runCommand"

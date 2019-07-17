@@ -2,9 +2,10 @@
 // ================
 // auto_abbreviation: true
 // indent_relative: true
+// language: JavaScript
 // set_selection: false
 // treat_as_ejs: false
 // type: snippet
-// version: 1.0.12
+// version: 1.1.5
 // ================
 document.getElementById("[[%tabstop:id]][[%soft:"]][[%soft:)]][[%tabstop0]]!@#_currentPos!@#_anchor

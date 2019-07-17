@@ -6,9 +6,10 @@ window.templateProperties = {};
             .getService(Components.interfaces.nsIStringBundleService)
             .createBundle("chrome://komodo/locale/project/macro.properties");
 
-    var $ = require("ko/dom");
+    var $ = require("ko/dom").window(window);
     var prefs = require("ko/prefs");
     var log = require("ko/logging").getLogger("templateProperties");
+    var legacy = require("ko/windows").getMain().ko;
 
     var elems = {
         dialog: () => $('#dialog-templateproperties'),
@@ -36,7 +37,10 @@ window.templateProperties = {};
         elems.applyButton().attr('accesskey', bundle.GetStringFromName("applyAccessKey"));
 
         if (window.arguments[0].task == 'new')
+        {
             elems.name().focus();
+            elems.applyButton().attr('collapsed', 'true');
+        }
         else
             elems.name().attr("value", tool.getStringAttribute('name'));
         this.updateTitle();
@@ -95,6 +99,13 @@ window.templateProperties = {};
             language = "Text";
         tool.setStringAttribute("language", language);
 
+        var currentDefault = legacy.toolbox2.getDefaultTemplateForLanguage(language);
+        if (elems.default().element().checked && currentDefault)
+        {
+            currentDefault.setStringAttribute("lang_default", false);
+            currentDefault.save();
+        }
+
         // If it's not new then just save
         if (window.arguments[0].task != 'new')
         {
@@ -120,6 +131,23 @@ window.templateProperties = {};
         window.arguments[0].res = true;
         
         return true;
+    };
+    
+    this.insertShortcut = (shortcutItem) =>
+    {
+        // Get the shortcut string from the menuitem widget and insert it into
+        // the current snippet text. Also, if the menuitem has a "select"
+        // attribute select the identified part of the inserted snippet.
+        var shortcutText = shortcutItem.getAttribute("shortcut");
+        var select = shortcutItem.getAttribute("select");
+        elems.scimoz().replaceSel(shortcutText);
+        if (select && shortcutText.indexOf(select) != -1) {
+            // Current position will be at the end of the inserted shortcutText.
+            var offset = shortcutText.indexOf(select);
+            elems.scimoz().anchor = elems.scimoz().currentPos - shortcutText.length + offset;
+            elems.scimoz().currentPos = elems.scimoz().anchor + select.length;
+        }
+        elems.scimoz().setFocus();
     };
     
     this.cancel = () => true;

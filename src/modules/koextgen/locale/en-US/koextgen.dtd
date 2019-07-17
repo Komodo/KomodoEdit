@@ -2,5 +2,3 @@
 <!ENTITY komodoExtension.accesskey "k">
 <!ENTITY komodoLanguageExtensionCreate.label "Create Komodo Language">
 <!ENTITY komodoLanguageExtension.accesskey "L">
-<!ENTITY firefoxExtensionCreate.label "Create Firefox Extension">
-<!ENTITY firefoxExtension.accesskey "f">

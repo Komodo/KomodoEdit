@@ -191,10 +191,16 @@ class koFileNotificationService:
                                       "The path for a WATCH_DIR type, must be a directory.")
 
         # Try using os file notifications, if that fails, then use polling
-        if not self.os_notifications_available or \
-           not self.__os_file_service.addObserver(observer, nsIFile.path, watch_type, flags):
-            if self.__polling_service:
-                self.__polling_service.addObserver(observer, nsIFile.path, watch_type, flags)
+        try:
+            if not self.os_notifications_available or \
+               not self.__os_file_service.addObserver(observer, nsIFile.path, watch_type, flags):
+                if self.__polling_service:
+                    self.__polling_service.addObserver(observer, nsIFile.path, watch_type, flags)
+        except OSError as message:
+            if ("%s" % message) == "Too many open files":
+                log.debug(message)
+            else:
+                raise OSError(message)
         #self.dump()
 
     # Stop watching this location for the given observer.

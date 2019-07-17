@@ -1234,6 +1234,7 @@
                               newWidget.contentDocument,
                               {"from-pane": oldPane,
                                "to-pane": this});
+          require("ko/windows").getMain().dispatchEvent(new Event("ko-widget-moved-completed"));
 
           return newWidget;
         ]]>

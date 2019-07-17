@@ -13,8 +13,7 @@
             <treerow>
                 <treecell class="treecell-indent"
                           url="chrome://notify/content/ui/pref-notify.xul"
-                          label="&notify.label;"
-                          helptag="notifications"/>
+                          label="&notify.label;"/>
             </treerow>
         </treeitem>
     </treechildren>

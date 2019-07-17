@@ -303,7 +303,7 @@ PlacesController.prototype.is_cmd_places_singleClickExpand_enabled = function() 
 }
 
 PlacesController.prototype.do_cmd_places_singleClickExpand = function() {
-    var value = ko.prefs.getBoolean('pref_places_singleClickExpand', true);
+    var value = ko.prefs.getBoolean('pref_places_singleClickExpand', false);
 
     if (value) {
         ko.prefs.setBooleanPref('pref_places_singleClickExpand', false);

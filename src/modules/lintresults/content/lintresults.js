@@ -1,13 +1,14 @@
 (function() {
     const log       = require("ko/logging").getLogger("lintresults");
+    const legacy    = require("ko/windows").getMain().ko;
     const {Cc, Ci}  = require("chrome");
-    const prefs     = ko.prefs;
+    const prefs     = legacy.prefs;
     const views     = require("ko/views");
     const dynamicb  = require("ko/dynamic-button");
     const editor    = require("ko/editor");
     
     var button;
-    
+
     this.init = function()
     {
         button = dynamicb.register("Syntax Checking Result", {
@@ -103,15 +104,15 @@
         var items = [
             {
                 label: "Check Syntax Now",
-                command: function() { ko.commands.doCommandAsync("cmd_lintNow") }
+                command: function() { legacy.commands.doCommandAsync("cmd_lintNow") }
             },
             {
                 label: "Jump to Next Result",
-                command: function() { ko.commands.doCommandAsync("cmd_nextLintResult") }
+                command: function() { legacy.commands.doCommandAsync("cmd_nextLintResult") }
             },
             {
                 label: "Clear Results",
-                command: function() { ko.commands.doCommandAsync("cmd_lintClearResults") }
+                command: function() { legacy.commands.doCommandAsync("cmd_lintClearResults") }
             }
         ];
         
@@ -145,6 +146,8 @@
             
             _items.push({
                 label: prefix + ":" + result.description,
+                crop: "end",
+                tooltiptext: prefix + ":" + result.description,
                 acceltext: severity,
                 command: function(result)
                 {
@@ -164,7 +167,7 @@
             return 0;
         });
         
-        var maxLength = ko.prefs.getLong("linter-popup-max-length", 10);
+        var maxLength = legacy.prefs.getLong("linter-popup-max-length", 10);
         if (_items.length > maxLength)
         {
             _items = _items.slice(0, maxLength);
@@ -220,11 +223,13 @@
             require("notify/notify").send(
                 prefix + ", " + topResult.description + " (" + severity + ")",
                 "lint",
-                {command: function(topResult)
                 {
-                    var editor = require("ko/editor");
-                    editor.setCursor({line: topResult.lineStart, ch: topResult.columnStart});
-                }.bind(this, topResult)
+                    command: function(topResult)
+                    {
+                        var editor = require("ko/editor");
+                        editor.setCursor({line: topResult.lineStart, ch: topResult.columnStart});
+                    }.bind(this, topResult),
+                    panel: false
             });
         }
     }

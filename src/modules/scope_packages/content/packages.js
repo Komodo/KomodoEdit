@@ -399,7 +399,7 @@
      * for installing.
      * Keys are package names and values are package metadata. Package metadata
      * comes from Komodo's website:
-     *     http://www.komodoide.com/json/*.json
+     *     https://community.komodoide.com/json/packages/v10/*.json
      * where * is a kind, as described below.
      * This kind of package metadata can be passed to `_installPackage()` for
      * installing/upgrading. Useful fields are `name` and `description`.
@@ -608,7 +608,7 @@
      * Retrieves a dictionary of upgradable packages of the given kind.
      * Keys are package IDs and values are package metadata. Package metadata
      * comes from Komodo's website:
-     *     http://www.komodoide.com/json/*.json
+     *     https://community.komodoide.com/json/packages/v10/*.json
      * where * is a kind, as described below.
      * This kind of package metadata can be passed to `_installPackage()` for
      * installing/upgrading.
@@ -1036,8 +1036,10 @@
             //XPIProvider.updateAddonDisabledState(addon, ! addon.userDisabled, ! addon.userDisabled);
             addon.userDisabled = ! addon.userDisabled;
             this.clearCaches();
+            commando.navBack();
 
             require("sdk/timers").setTimeout(() => {
+
                 if ((addon.pendingOperations & AddonManager.PENDING_DISABLE) ||
                     (addon.pendingOperations & AddonManager.PENDING_ENABLE))
                 {
@@ -1154,7 +1156,7 @@
      */
     this._downloadFile = function(url, callback, errorCallback, dir)
     {
-        var filename = url.match(/[^\/\\]+$/);
+        var filename = url.match(/[^\/\\]+$/)[0];
         var target = OS.Path.join(dir || OS.Constants.Path.tmpDir, filename);
         Task.spawn(function*()
         {
