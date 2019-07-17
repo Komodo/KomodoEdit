@@ -48,12 +48,17 @@ if (!("help" in ko)) {
 ko.help = {};
 (function () {
 var _log = ko.logging.getLogger("ko.help");
-
 /* XXX duplicated from help/content/contextHelp.js.  We do NOT want
    alwaysRaised attribute on the window, that's obnoxious! */
 
-function openHelp(topic, path = 'Manual/')
+function openHelp(topic, path = 'manual/')
 {
+    const {Cc, Ci} = require("chrome");
+    let version = Cc["@activestate.com/koInfoService;1"].getService(Ci.koIInfoService).version;
+    // get major version
+    version = version.substr(0,version.indexOf("."));
+    path = '/'+version+"/"+path;
+    
     var url = ko.prefs.getString('doc_site');
     if (topic) url += path + topic;
     ko.browse.openUrlInDefaultBrowser(url);
@@ -158,6 +163,12 @@ this.alternate = function() {
  * Open the Komodo error log for viewing.
  */
 this.viewErrorLog = function() {
+    var tailWindows = require("ko/windows").getWindows("komodo_tail");
+    if (tailWindows.length > 0)
+    {
+        tailWindows[0].focus();
+        return;
+    }
     var osSvc = Components.classes['@activestate.com/koOs;1'].getService(Components.interfaces.koIOs);
     var dirsSvc = Components.classes['@activestate.com/koDirs;1'].getService(Components.interfaces.koIDirs);
     var sysUtilsSvc = Components.classes['@activestate.com/koSysUtils;1'].getService(Components.interfaces.koISysUtils);
@@ -201,7 +212,7 @@ var _log = ko.logging.getLogger("ko.launch");
 this.findBrowser = function(args = {})
 {
     // Transfer focus to the hidden input buffer to capture keystrokes
-    // from the user while find2.xul is loading. The find dialog will
+    // from the user while embedded.xul is loading. The find dialog will
     // retrieve these contents when it is ready.
     ko.inputBuffer.start();
     
@@ -499,7 +510,7 @@ this.checkForUpdates = function checkForUpdates()
  */
 this.newWindow = function newWindow(uris /* =null */)
 {
-    var args = {};
+    var args = {mainWindow: true};
     if (typeof(uris) != "undefined"){
         if (typeof(uris) == "string"){
             _log.deprecated("ko.launch.newWindow now takes an Array of URIs as of \
@@ -519,7 +530,7 @@ this.newWindowFromWorkspace = function newWindow(workspaceIndex)
     ko.windowManager.openWindow("chrome://komodo/content",
                                 "_blank",
                                 "chrome,all,dialog=no",
-                                {workspaceIndex: workspaceIndex});
+                                {workspaceIndex: workspaceIndex, mainWindow: true});
 }
 
 this.newWindowForIndex = function newWindowForIndex(workspaceIndex)
@@ -528,9 +539,119 @@ this.newWindowForIndex = function newWindowForIndex(workspaceIndex)
                                 "_blank",
                                 "chrome,all,dialog=no",
                                 {workspaceIndex: workspaceIndex,
-                                 thisIndexOnly:true});
+                                 thisIndexOnly:true, mainWindow: true});
 }
 
+
+this.newVersionCheck = function(includeMinor=false)
+{
+    var infoSvc = Cc["@activestate.com/koInfoService;1"].getService(Ci.koIInfoService);
+    var [major, minor] = infoSvc.version.split(".");
+    var versionStr = major + "";
+    if (includeMinor)
+        versionStr += minor;
+
+    var dontBotherPref = "versioncheck.dontask." + versionStr;
+
+    if (ko.prefs.getBoolean(dontBotherPref, false))
+        return;
+
+    var url = ko.prefs.getString("versioncheck.url");
+    url = url.replace("%s", versionStr);
+
+    var validDomains = ko.prefs.getString("versioncheck.valid.domains").split(",");
+
+    _log.debug("versioncheck on " + url);
+
+    var ajax = require("ko/ajax");
+    ajax.request({url: url, method: 'HEAD'}, function(code, responseText, req)
+    {
+        var responseURL = req.responseURL;
+        responseURL = require("sdk/url").URL(responseURL);
+        var domain = responseURL.host.replace(/.*?(\w+\.\w+)$/, "$1");
+
+        _log.debug("Response: " + responseURL + " (" + code + ")");
+
+        if (validDomains.indexOf(domain) == -1 || (code != 200 && code != 301))
+        {
+            if ( ! includeMinor)
+                this.newVersionCheck(true);
+            return;
+        }
+
+        var w = require("ko/windows").getMain();
+        var dialog = w.openDialog("chrome://komodo/content/empty.xul?name=versioncheck", "Komodo Just Got Better!", "modal=true,width=600,height=800,resizable=0");
+        var $ = require("ko/dom");
+
+        dialog.addEventListener("DOMContentLoaded", function (e)
+        {
+            if (e.target != dialog.document)
+                return;
+
+            dialog.document.documentElement.setAttribute("id", "versioncheck");
+
+            var de = $(dialog.document.documentElement);
+            var browser = $("<browser>").attr({src: url, flex: 1, type: "content"});
+            var hbox = $("<hbox>").attr({ align: "center", pack: "center" });
+            var ok = $("<button>").attr({ label: "Find out More", class: "primary" });
+            var cancel = $("<button>").attr({ label: "Not Interested" });
+            de.append(browser);
+            de.append(hbox);
+            hbox.append(ok);
+            hbox.append(cancel);
+
+            ok.on("command", function()
+            {
+                var moreInfoUrl = ko.prefs.getString("versioncheck.moreinfo.url");
+                ko.browse.openUrlInDefaultBrowser(moreInfoUrl);
+                dialog.close();
+            });
+
+            cancel.on("command", function()
+            {
+                ko.prefs.setBoolean(dontBotherPref, true);
+                dialog.close();
+            });
+
+            browser.on("DOMContentLoaded", function (e)
+            {
+                browser.element().contentDocument.documentElement.classList.add("native-scrollbars");
+                var bde = browser.element().contentDocument;
+
+                var nav = bde.querySelector("NAV");
+                var bc = bde.querySelector(".breadcrumbs");
+                var bcu = bde.querySelector("#under-breadcrumb-actions");
+
+                if (nav)
+                    nav.style.display = "none";
+                if (bc)
+                    bc.style.display = "none";
+                if (bcu)
+                    bcu.style.display = "none";
+
+                var links = $(browser.element().contentDocument).find("a[href]");
+                links.on("click", function (e)
+                {
+                    ko.browse.openUrlInDefaultBrowser(e.target.href);
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return false;
+                });
+
+                browser.element().contentWindow.wrappedJSObject.open = (url) =>
+                {
+                    if ( ! url)
+                        return;
+
+                    window.setTimeout(() =>
+                    {
+                        ko.browse.openUrlInDefaultBrowser(url);
+                    }, 0);
+                };
+            });
+        }.bind(this));
+    }.bind(this));
+}
 
 }).apply(ko.launch);
 }

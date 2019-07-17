@@ -1,4 +1,8 @@
 @import url("chrome://komodo/skin/global/icons/style.less");
+@import url("chrome://komodo/skin/global/colors.less");
+@import url("resource://profile/colors.less");
+
+@twisty-color: escape("@{foreground-widget}");
 
 .icon, [class^="icon-"], [class*=" icon-"], [class$="-icon"], [class*="-icon "],
 {
@@ -137,11 +141,12 @@ button, toolbarbutton, menuitem, dropmarker, tab,
 .komodo-button-bugs { .icon(); .icon-bug(); }
 .native-print-icon { .icon-printer3(); }
 .help-icon { .icon-question4(); }
-.newfolder-icon{.icon(); .icon-folder-plus(); margin-right: 6px; }
-.refresh-icon{.icon(); .icon-refresh(); margin-right: 6px; }
-.upfolder-icon{.icon(); .icon-folder-upload(); margin-right: 6px; }
-.goback-icon{.icon(); .icon-arrow-left(); margin-right: 6px; }
-.goforward-icon{.icon(); .icon-arrow-right(); margin-right: 6px; }
+.newfolder-icon{.icon(); .icon-folder-plus(); }
+.refresh-icon{.icon(); .icon-refresh(); }
+.upfolder-icon{.icon(); .icon-folder-upload(); }
+.goback-icon{.icon(); .icon-arrow-left(); }
+.goforward-icon{.icon(); .icon-arrow-right(); }
+.gohome-icon { .icon(); .icon-home(); }
 .columns-icon { .icon(); .icon-columns(); }
 .find-copy-icon{ .icon(); .icon-files-empty2();}
 .warning-icon{ .icon(); .icon-warning();}
@@ -464,13 +469,23 @@ treechildren::-moz-tree-image
 
 treechildren::-moz-tree-twisty {
     list-style-image: none !important;
-    background-image: url("koicon://ko-svg/chrome/komodo/skin/images/trees/twisty-right.svg?size=14");
+    opacity: 0.6;
+    background-image: url("koicon://ko-svg/chrome/komodo/skin/images/trees/twisty-right.svg?size=14&scheme-name=interface&scheme-color=button&color=@{twisty-color}");
     background-size: 14px;
     background-repeat: no-repeat;
 }
 
 treechildren::-moz-tree-twisty(open) {
-    background-image: url("koicon://ko-svg/chrome/komodo/skin/images/trees/twisty-down.svg?size=14");
+    background-image: url("koicon://ko-svg/chrome/komodo/skin/images/trees/twisty-down.svg?size=14&scheme-name=interface&scheme-color=button&color=@{twisty-color}");
+}
+
+tree:not(.twisty-only) treechildren::-moz-tree-image(folder_open) {
+    list-style-image: url("koicon://ko-svg/chrome/komodo/skin/images/folder_open.svg?size=14&scheme-name=interface&scheme-color=icons");
+    opacity: 0.6;
+}
+tree:not(.twisty-only) treechildren::-moz-tree-image(folder_closed) {
+    list-style-image: url("koicon://ko-svg/chrome/komodo/skin/images/folder_closed.svg?size=14&scheme-name=interface&scheme-color=icons");
+    opacity: 0.6;
 }
 
 treecol[type="checkbox"]
@@ -491,7 +506,11 @@ treecol[type="checkbox"]
 }
 
 treechildren::-moz-tree-checkbox {
-    list-style-image: url("koicon://ko-svg/chrome/fontawesome/skin/square.svg?size=16") !important;
+    background-image: url("koicon://ko-svg/chrome/fontawesome/skin/square.svg?size=16") !important;
+    background-size: 16px;
+    background-repeat: no-repeat;
+    background-position: center;
+    list-style: none !important;
     margin: 0;
     padding: 0;
     margin-left: -2px;
@@ -499,7 +518,7 @@ treechildren::-moz-tree-checkbox {
 }
 
 treechildren::-moz-tree-checkbox(checked) {
-    list-style-image: url("koicon://ko-svg/chrome/fontawesome/skin/check-square.svg?size=16") !important;
+    background-image: url("koicon://ko-svg/chrome/fontawesome/skin/check-square.svg?size=16") !important;
 }
 
 treechildren::-moz-tree-checkbox(disabled)
@@ -518,8 +537,6 @@ image.tab-icon
     height: 14px;
 }
 
-.breadcrumb.folder .breadcrumb-icon,
-.breadcrumb .folder-item > .menu-iconic-left,
 .folder-icon
 {
     .icon();
@@ -621,6 +638,11 @@ checkbox#opt-regex .checkbox-spacer-box,
 checkbox#opt-repl .checkbox-spacer-box
 {
     .icon-refresh();
+}
+
+checkbox#show-replace-all-results .checkbox-spacer-box
+{
+    .icon-eye3();
 }
 
 checkbox#search-in-subdirs .checkbox-spacer-box

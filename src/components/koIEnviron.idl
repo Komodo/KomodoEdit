@@ -35,6 +35,7 @@
  * ***** END LICENSE BLOCK ***** */
 
 #include "nsISupports.idl"
+#include "koIPrefs.idl"
 
 // Interface to the Komodo process' environment variables.
 [scriptable, uuid(30537776-473C-4ad6-9A2D-3320B3B5517D)]
@@ -68,6 +69,8 @@ interface koIUserEnviron : nsISupports {
      */
     void keys([optional] out unsigned long count,
               [retval, array, size_is(count)] out wstring keys);
+
+    AString getEnvVar(in AString name, in koIPreferenceContainer pref);
 
     // return all the env vars as "<name>=<value>" strings
     //  - this is a convenience function for passing to process creation

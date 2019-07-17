@@ -121,7 +121,7 @@
 <!ENTITY context_menu_ignore.accesskey "E">
 <!ENTITY context_menu_ignore.label "Exclude path">
 
-<!--find2.xul-->
+<!--embedded.xul-->
 <!ENTITY findWhat.label "Find:">
 <!ENTITY findWhat.accesskey "n">
 <!ENTITY regExpShortcut.tooltiptext "Regular Expression Shortcuts">

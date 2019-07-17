@@ -1,0 +1,24 @@
+Index: /home/nathan/Projects/komodo-dev/mozilla/build/moz3500-ko11.10/mozilla/ko-rel/dist/bin/chrome/komodo/content/contrib/commonjs/buffer.js
+--- /home/nathan/Projects/komodo-dev/mozilla/build/moz3500-ko11.10/mozilla/ko-rel/dist/bin/chrome/komodo/content/contrib/commonjs/buffer.js
++++ /home/nathan/Projects/komodo-dev/mozilla/build/moz3500-ko11.10/mozilla/ko-rel/dist/bin/chrome/komodo/content/contrib/commonjs/buffer.js (unsaved)
+@@ -1,4 +1,3 @@
+-
+ /*!
+  * The buffer module from node.js, for the browser.
+  *
+@@ -9,8 +8,13 @@
+
+ 'use strict'
+
+-var base64 = require('base64-js')
+-var ieee754 = require('ieee754')
++//var base64 = require('base64-js')
++var b64 = require("sdk/base64");
++var base64 = {
++    fromByteArray: b64.decode,
++    toByteArray: b64.encode
++}
++var ieee754 = require('contrib/ieee754')
+
+ exports.Buffer = Buffer
+ exports.SlowBuffer = SlowBuffer

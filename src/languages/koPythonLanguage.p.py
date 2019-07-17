@@ -138,6 +138,7 @@ class KoPythonCommonLanguage(KoLanguageBase):
     _lineup_close_chars = ")]}"
     _dedenting_statements = [u'raise', u'return', u'pass', u'break', u'continue']
     supportsSmartIndent = "python"
+    importPref = "pythonExtraPaths"
     sample = """import math
 class Class:
     \"\"\" this is a docstring \"\"\"
@@ -353,6 +354,8 @@ class KoPython3Language(KoPythonCommonLanguage):
     shebangPatterns = [
         re.compile(ur'\A#!.*python3.*$', re.IGNORECASE | re.MULTILINE),
     ]
+
+    importPref = "python3ExtraPaths"
 
     def get_lexer(self):
         if self._lexer is None:

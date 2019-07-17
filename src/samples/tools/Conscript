@@ -23,7 +23,7 @@ for my $dir ('Abbreviations', 'HTML', 'Sample_Macros', 'File Templates') {
                             ('\.consign', '\.svn'));
 }
 for my $file (qw/
-                http_slashdot_org_.ktf
+                http_stackoverflow_com_.ktf
                 Open_New_Window.ktf
                 Sample_Snippet_-_Double_Click_to_Insert.ktf
                 toggle-word-wrap-edit.ktf

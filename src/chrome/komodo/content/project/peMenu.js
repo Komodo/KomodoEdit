@@ -650,7 +650,7 @@ this.menuProperties = function peMenu_editProperties(item) {
     }
     window.openDialog(
         "chrome://komodo/content/project/customMenuProperties.xul",
-        "Komodo:CustomMenuProperties",
+        "Komodo:CustomMenuProperties"+Date.now(),
         "chrome,close=yes,dependent=yes,modal=yes,resizable=yes", obj);
 }
 

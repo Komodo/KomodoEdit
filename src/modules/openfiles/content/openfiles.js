@@ -378,18 +378,18 @@ if (typeof ko.openfiles == 'undefined')
         {
             var classList = koWindow.document.getElementById('topview').classList;
             var menuEntry = koWindow.document.getElementById('menu_toggleTabBar');
+            let broadcaster = koWindow.document.getElementById('cmd_toggleTabBar');
             
             if (show)
             {
-                
                 classList.add('showTabs');
-                menuEntry.setAttribute('checked', 'true');
+                broadcaster.setAttribute("checked", 'true');
                 menuEntry.setAttribute('toggled', 'true');
             }
             else
             {
                 classList.remove('showTabs');
-                menuEntry.removeAttribute('checked');
+                broadcaster.setAttribute("checked", 'false');
                 menuEntry.removeAttribute('toggled');
             }
             
@@ -582,7 +582,7 @@ if (typeof ko.openfiles == 'undefined')
             var dirtyIndicator  = listbox.querySelector(
                 'richlistitem[id="'+editorView.uid.number+'"] .file-dirty');
 
-            var item = listbox.querySelector('richlistitem[id="'+view.uid.number+'"]');
+            var item = listbox.querySelector('richlistitem[id="'+editorView.uid.number+'"]');
             if (!item) {
                 return;
             }
@@ -822,7 +822,7 @@ if (typeof ko.openfiles == 'undefined')
             // Clone the template
             var listItem = template.fileItem.cloneNode(true);
             
-            var dirName = editorView.koDoc.file ? editorView.koDoc.file.dirName : '';
+            var dirName = editorView.koDoc && editorView.koDoc.file ? editorView.koDoc.file.dirName : '';
             var tooltip = "";
             if (["editor", "browser"].indexOf(editorView.getAttribute("type")) != -1)
                 tooltip = dirName == '' ? editorView.title : dirName;
@@ -841,10 +841,20 @@ if (typeof ko.openfiles == 'undefined')
                                 ".file-title[value='"+editorView.title.replace(/'/g, "\\'")+"']");
             if (duplicates.length > 0)
             {
-                listItem.classList.add('duplicate-name');
+                // Ignore duplicates that are the exact same file (e.g. split view)
+                let nonExactDuplicates = [];
                 for (let dupe of duplicates)
                 {
-                    dupe.parentNode.classList.add('duplicate-name');
+                    if (dupe.parentNode.querySelector('.file-path').getAttribute('value') !== dirName)
+                        nonExactDuplicates.push(dupe);
+                }
+                if (nonExactDuplicates.length > 0)
+                {
+                    listItem.classList.add('duplicate-name');
+                    for (let dupe of nonExactDuplicates)
+                    {
+                        dupe.parentNode.classList.add('duplicate-name');
+                    }
                 }
             }
             
@@ -1453,6 +1463,7 @@ if (typeof ko.openfiles == 'undefined')
                     return {
                         name: language,
                         classlist: ['languageicon'],
+                        style: `list-style-image: url("koicon://ko-language/${escape(language)}")`,
                         attributes: {language: language}
                     };
                 }

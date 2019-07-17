@@ -1,8 +1,7 @@
 /**
- * @copyright (c) 2015 ActiveState Software Inc.
+ * @copyright (c) 2017 ActiveState Software Inc.
  * @license Mozilla Public License v. 2.0
  * @author ActiveState
- * @overview -
  */
 
 /**
@@ -30,7 +29,7 @@
     }
 
     Cu.import("resource://gre/modules/Services.jsm");
-    
+
     const {ConsoleAPI}  = Cu.import("resource://gre/modules/devtools/Console.jsm");
     const console       = new ConsoleAPI({innerID: "koConsoleWrapper"});
     const {logging}     = Cu.import("chrome://komodo/content/library/logging.js", {});
@@ -39,42 +38,42 @@
     log.setLevel(logging.LOG_DEBUG);
 
     /**
-     * Alias for mozilla's [console.debug](https://developer.mozilla.org/en-US/Add-ons/SDK/Tools/console#console.debug(...))
+     * Alias for mozilla's [console.debug](https://developer.mozilla.org/en-US/Add-ons/SDK/Tools/console#console.debug).
      */
     this.debug = () => console.debug.apply(console, arguments);
-    
+
     /**
-     * Alias for mozilla's [console.error](https://developer.mozilla.org/en-US/Add-ons/SDK/Tools/console#console.error(...))
+     * Alias for mozilla's [console.error](https://developer.mozilla.org/en-US/Add-ons/SDK/Tools/console#console.error).
      */
     this.error = () => console.error.apply(console, arguments);
-    
+
     /**
-     * Alias for mozilla's [console.exception](https://developer.mozilla.org/en-US/Add-ons/SDK/Tools/console#console.exception(...))
+     * Alias for mozilla's [console.exception](https://developer.mozilla.org/en-US/Add-ons/SDK/Tools/console#console.exception).
      */
     this.exception = () => console.exception.apply(console, arguments);
-    
+
     /**
-     * Alias for mozilla's [console.info](https://developer.mozilla.org/en-US/Add-ons/SDK/Tools/console#console.info(...))
+     * Alias for mozilla's [console.info](https://developer.mozilla.org/en-US/Add-ons/SDK/Tools/console#console.info).
      */
     this.info = () => console.info.apply(console, arguments);
-    
+
     /**
-     * Alias for mozilla's [console.time](https://developer.mozilla.org/en-US/Add-ons/SDK/Tools/console#console.time(...))
+     * Alias for mozilla's [console.time](https://developer.mozilla.org/en-US/Add-ons/SDK/Tools/console#console.time).
      */
     this.time = () => console.time.apply(console, arguments);
-    
+
     /**
-     * Alias for mozilla's [console.timeEnd](https://developer.mozilla.org/en-US/Add-ons/SDK/Tools/console#console.timeEnd(...))
+     * Alias for mozilla's [console.timeEnd](https://developer.mozilla.org/en-US/Add-ons/SDK/Tools/console#console.timeEnd).
      */
     this.timeEnd = () => console.timeEnd.apply(console, arguments);
-    
+
     /**
-     * Alias for mozilla's [console.trace](https://developer.mozilla.org/en-US/Add-ons/SDK/Tools/console#console.trace(...))
+     * Alias for mozilla's [console.trace](https://developer.mozilla.org/en-US/Add-ons/SDK/Tools/console#console.trace).
      */
     this.trace = () => console.trace.apply(console, arguments);
-    
+
     /**
-     * Alias for mozilla's [console.warn](https://developer.mozilla.org/en-US/Add-ons/SDK/Tools/console#console.warn(...))
+     * Alias for mozilla's [console.warn](https://developer.mozilla.org/en-US/Add-ons/SDK/Tools/console#console.warn).
      */
     this.warn = () => console.warn.apply(console, arguments);
 
@@ -85,17 +84,17 @@
             observe: function(aMessage, aTopic)
             {
                 aMessage = aMessage.wrappedJSObject;
-                
+
                 // This causes logs not to work from a component context
                 //if (aMessage.innerID != console.innerID)
                 //    return;
-    
+
                 var args = aMessage.arguments;
                 var data = args.map(function(arg)
                 {
                     return stringify(arg, true);
                 }).join(" ");
-                
+
                 var details = null;
                 if (aMessage.level == "timeEnd")
                     details = "'" + aMessage.timer.name + "' " + aMessage.timer.duration + "ms";
@@ -111,7 +110,7 @@
     }
 
     /**
-     * Alias for mozilla's [console.log](https://developer.mozilla.org/en-US/Add-ons/SDK/Tools/console#console.log(...))
+     * Alias for mozilla's [console.log](https://developer.mozilla.org/en-US/Add-ons/SDK/Tools/console#console.log).
      */
     this.log = () =>
     {
@@ -124,7 +123,7 @@
                 null, "Info on Console Messages", "consoleMessages"
             );
         }
-        
+
         var data = Array.slice(arguments).map(function(arg)
         {
             return stringify(arg, true);
@@ -182,7 +181,7 @@
         return str;
     }
     this._stringify = stringify;
-    
+
     /**
      * Utility to extract the constructor name of an object.
      * Object.toString gives: "[object ?????]"; we want the "?????".
@@ -207,7 +206,7 @@
         {
             return aObj.constructor.name;
         }
-        
+
         // If that fails, use Objects toString which sometimes gives something
         // better than 'Object', and at least defaults to Object if nothing better
         return Object.prototype.toString.call(aObj).slice(8, -1);
@@ -291,7 +290,7 @@
         return aStr;
     }
     this._fmt = fmt;
-    
+
     /**
      * Create a simple debug representation of a given element.
      *
@@ -312,7 +311,7 @@
             ">";
     }
     this._debugElement = debugElement;
-    
+
     /**
      * parseUri helper, taken from https://github.com/mozilla/addon-sdk/blob/master/lib/toolkit/loader.js
      * This is also accessible under `require("toolkit/loader")`, but this
@@ -328,17 +327,17 @@
      * parseStack helper, based on https://github.com/errwischt/stacktrace-parser/blob/master/lib/stacktrace-parser.js
      * License: https://github.com/errwischt/stacktrace-parser/blob/master/README.md#license
      * The version available in the mozilla SDK doesnt properly parse filenames
-     * 
+     *
      */
     function parseStack(stackString)
     {
         var UNKNOWN_FUNCTION = '<unknown>';
-        
+
         var rx = /^(?:\s*(\S*)(?:\((.*?)\))?@)?((?:\w).*?):(\d+)(?::(\d+))?\s*$/i,
             lines = stackString.split('\n'),
             stack = [],
             parts;
-        
+
         for (var i = 0, j = lines.length; i < j; ++i)
         {
             if ((parts = rx.exec(lines[i])))
@@ -361,7 +360,7 @@
                 continue;
             }
         }
-        
+
         return stack;
     }
     this._parseStack = parseStack;

@@ -1,10 +1,12 @@
-// komodo tool: liai
-// =================
-// auto_abbreviation: false
-// indent_relative: false
-// set_selection: false
-// treat_as_ejs: false
-// type: snippet
-// version: 1.0.12
-// =================
+<!--
+komodo tool: liai
+=================
+auto_abbreviation: false
+indent_relative: false
+language: RHTML
+set_selection: false
+treat_as_ejs: false
+type: snippet
+version: 1.1.5
+=================-->
 <% link_to("[[%tabstop:text]]", :action => "[[%tabstop:edit]]", :id => [[%tabstop:@item]] %>!@#_currentPos!@#_anchor

@@ -22,12 +22,6 @@ image {
     margin-left: 4px;
 }
 
-/* Hide help icons, as the links are currently broken */
-/* TODO: Fix links */
-.help-icon {
-    visibility: collapse;
-}
-
 label {
     padding-left: 0 !important;
     padding-right: 0 !important;

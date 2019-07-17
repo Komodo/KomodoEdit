@@ -54,6 +54,7 @@
 <!ENTITY checkForUpdates.label "Check for Updates...">
 <!ENTITY checkSyntaxNow.label "Check syntax now">
 <!ENTITY cleanLineEndings.label "Clean Line Endings">
+<!ENTITY clearOutput.tooltiptext "Clear Output">
 <!ENTITY clearSearchHighlighting.label "Clear Highlighting">
 <!ENTITY clearWarningErrorSquigglies.label "Clear warning/error squigglies">
 <!ENTITY close.label "Close">
@@ -421,8 +422,11 @@
 <!ENTITY jumpToCorrespondingLineForDiffMode.label "Go to Corresponding Line (for Diff mode)">
 <!ENTITY jumpToMatchingBrace.label "Go to Matching Brace">
 <!ENTITY jumpToNextResult.label "Go to next result">
-<!ENTITY jumpToNextResult.tooltiptext "Jump To Next Result">
-<!ENTITY jumpToPreviousResult.tooltiptext "Jump To Previous Result">
+<!ENTITY jumpToParentFold.label "Go to Parent Fold">
+<!ENTITY jumpToPreviousFold.label "Go to Previous Fold">
+<!ENTITY jumpToNextFold.label "Go to Next Fold">
+<!ENTITY jumpToNextResult.tooltiptext "Go To Next Result">
+<!ENTITY jumpToPreviousResult.tooltiptext "Go To Previous Result">
 <!ENTITY historyBack.accesskey "B">
 <!ENTITY historyBack.label "Back">
 <!ENTITY historyForward.accesskey "F">
@@ -460,6 +464,7 @@
 <!ENTITY mailLists.label "Mail Lists">
 <!ENTITY makeLowercase.label "Make Lowercase">
 <!ENTITY makeUppercase.label "Make Uppercase">
+<!ENTITY makeTitleCase.label "Make Title Case">
 <!ENTITY menu.tooltiptext "Menu">
 <!ENTITY menuBlockSelect.accesskey "B">
 <!ENTITY menuDelimitedBlockSelect.accesskey "D">
@@ -731,6 +736,7 @@
 <!ENTITY sourceCodeCompleteWordBackwards.desc "Code: Complete Word (backwards)">
 <!ENTITY sourceCodeConvertSelectionToLowerCase.desc "Code: Convert Selection to Lower Case">
 <!ENTITY sourceCodeConvertSelectionToUpperCase.desc "Code: Convert Selection to Upper Case">
+<!ENTITY sourceCodeConvertSelectionToTitleCase.desc "Code: Convert Selection to Title Case">
 <!ENTITY sourceCodeExpandAllFolds.desc "Code: Expand All Folds">
 <!ENTITY sourceCodeExpandFold.desc "Code: Expand Fold">
 <!ENTITY sourceCodeExpandFoldRecursively.desc "Code: Expand Fold Recursively">
@@ -740,6 +746,9 @@
 <!ENTITY sourceCodeGoToDefinition.desc "Code: Go to Definition">
 <!ENTITY sourceCodeJumpToCorrespondingLine.desc "Code: Go to corresponding line">
 <!ENTITY sourceCodeJumpToMatchingBrace.desc "Code: Go to Matching Brace">
+<!ENTITY sourceCodeJumpToParentFold.desc "Code: Go to Parent Fold">
+<!ENTITY sourceCodeJumpToPreviousFold.desc "Code: Go to Previous Fold At the Same Level">
+<!ENTITY sourceCodeJumpToNextFold.desc "Code: Go to Next Fold At the Same Level">
 <!ENTITY sourceCodeNextSyntaxErrorWarning.desc "Code: Next Syntax Error/Warning">
 <!ENTITY sourceCodeRunSyntaxCheck.desc "Code: Run Syntax Check">
 <!ENTITY sourceCodeSelectBlock.desc "Code: Select Block">
@@ -931,4 +940,5 @@
 <!ENTITY contributePackages.label "Contribute Packages">
 <!ENTITY shareTool.label "Share this Tool">
 
-
+<!ENTITY menuCloseAll.label "Close All">
+<!ENTITY menuCloseAll.accesskey "A">

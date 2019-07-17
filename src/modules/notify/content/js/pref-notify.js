@@ -8,7 +8,7 @@
     ko = pwin.ko;
 
     var notify  = require("notify/notify");
-    var $       = require("ko/dom");
+    var $       = require("ko/dom").window(window);
     var log     = require("ko/logging").getLogger("pref-notify");
     const _     = require("contrib/underscore");
 

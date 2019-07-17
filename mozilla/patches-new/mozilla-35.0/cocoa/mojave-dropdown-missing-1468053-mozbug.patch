@@ -1,0 +1,97 @@
+diff --git a/widget/cocoa/nsCocoaWindow.mm b/widget/cocoa/nsCocoaWindow.mm
+--- a/widget/cocoa/nsCocoaWindow.mm
++++ b/widget/cocoa/nsCocoaWindow.mm
+@@ -744,15 +744,17 @@
+       }
+     }
+     else if (mWindowType == eWindowType_popup) {
+-      // If a popup window is shown after being hidden, it needs to be "reset"
+-      // for it to receive any mouse events aside from mouse-moved events
+-      // (because it was removed from the "window cache" when it was hidden
+-      // -- see below).  Setting the window number to -1 and then back to its
+-      // original value seems to accomplish this.  The idea was "borrowed"
+-      // from the Java Embedding Plugin.
+-      NSInteger windowNumber = [mWindow windowNumber];
+-      [mWindow _setWindowNumber:-1];
+-      [mWindow _setWindowNumber:windowNumber];
++      if (!nsCocoaFeatures::OnMojaveOrLater()) {
++        // If a popup window is shown after being hidden, it needs to be "reset"
++        // for it to receive any mouse events aside from mouse-moved events
++        // (because it was removed from the "window cache" when it was hidden
++        // -- see below).  Setting the window number to -1 and then back to its
++        // original value seems to accomplish this.  The idea was "borrowed"
++        // from the Java Embedding Plugin.
++        NSInteger windowNumber = [mWindow windowNumber];
++        [mWindow _setWindowNumber:-1];
++        [mWindow _setWindowNumber:windowNumber];
++      }
+       // For reasons that aren't yet clear, calls to [NSWindow orderFront:] or
+       // [NSWindow makeKeyAndOrderFront:] can sometimes trigger "Error (1000)
+       // creating CGSWindow", which in turn triggers an internal inconsistency
+@@ -884,17 +886,21 @@
+         [nativeParentWindow removeChildWindow:mWindow];
+
+       [mWindow orderOut:nil];
+-      // Unless it's explicitly removed from NSApp's "window cache", a popup
+-      // window will keep receiving mouse-moved events even after it's been
+-      // "ordered out" (instead of the browser window that was underneath it,
+-      // until you click on that window).  This is bmo bug 378645, but it's
+-      // surely an Apple bug.  The "window cache" is an undocumented subsystem,
+-      // all of whose methods are included in the NSWindowCache category of
+-      // the NSApplication class (in header files generated using class-dump).
+-      // This workaround was "borrowed" from the Java Embedding Plugin (which
+-      // uses it for a different purpose).
+-      if (mWindowType == eWindowType_popup)
+-        [NSApp _removeWindowFromCache:mWindow];
++
++      if (!nsCocoaFeatures::OnMojaveOrLater()) {
++        // Unless it's explicitly removed from NSApp's "window cache", a popup
++        // window will keep receiving mouse-moved events even after it's been
++        // "ordered out" (instead of the browser window that was underneath it,
++        // until you click on that window).  This is bmo bug 378645, but it's
++        // surely an Apple bug.  The "window cache" is an undocumented subsystem,
++        // all of whose methods are included in the NSWindowCache category of
++        // the NSApplication class (in header files generated using class-dump).
++        // This workaround was "borrowed" from the Java Embedding Plugin (which
++        // uses it for a different purpose).
++        if (mWindowType == eWindowType_popup) {
++          [NSApp _removeWindowFromCache:mWindow];
++        }
++      }
+
+       // If our popup window is a non-native context menu, tell the OS (and
+       // other programs) that a menu has closed.
+
+--- a/widget/cocoa/nsCocoaFeatures.h
++++ b/widget/cocoa/nsCocoaFeatures.h
+@@ -18,6 +18,7 @@
+   static bool OnMountainLionOrLater();
+   static bool OnMavericksOrLater();
+   static bool OnYosemiteOrLater();
++  static bool OnMojaveOrLater();
+   static bool SupportCoreAnimationPlugins();
+   static bool AccelerateByDefault();
+
+--- a/widget/cocoa/nsCocoaFeatures.mm
++++ b/widget/cocoa/nsCocoaFeatures.mm
+@@ -9,6 +9,7 @@
+ #define MAC_OS_X_VERSION_10_8_HEX  0x00001080
+ #define MAC_OS_X_VERSION_10_9_HEX  0x00001090
+ #define MAC_OS_X_VERSION_10_10_HEX 0x000010A0
++#define MAC_OS_X_VERSION_10_14_HEX 0x000010E0
+
+ #include "nsCocoaFeatures.h"
+ #include "nsCocoaUtils.h"
+@@ -149,6 +150,12 @@
+ }
+
+ /* static */ bool
++nsCocoaFeatures::OnMojaveOrLater()
++{
++    return (OSXVersion() >= MAC_OS_X_VERSION_10_14_HEX);
++}
++
++/* static */ bool
+ nsCocoaFeatures::AccelerateByDefault()
+ {
+     return !(OSXVersionMajor() == 10 &&

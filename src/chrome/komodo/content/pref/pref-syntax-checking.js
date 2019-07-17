@@ -86,7 +86,8 @@ function OnPreferencePageOK(prefset) {
 var _mappedNames = {
     "HTML5": "HTML",
     "Node.js": "JavaScript",
-    "AngularJS": "HTML"
+    "AngularJS": "HTML",
+    "JSX": "JavaScript"
 };
 function getMappedName(languageName) {
     return (languageName in _mappedNames
@@ -320,7 +321,9 @@ function javaScript_setup(languageName) {
          "lintWithJSHint",
          "jshint_linter_specific",
          "jshint_linter_chooser",
-         "jshint_linter_specific_version"
+         "jshint_linter_specific_version",
+         "eslint_binary",
+         "eslint_config"
          ].forEach(function(name) {
             djs[name] = document.getElementById(name);
         });
@@ -414,6 +417,24 @@ function javaScriptInfo(languageName) {
                                                          djs['jshint_linter_specific_version']);
             }
         },
+        browseForESLinter: function() {
+            var djs = dialog[languageName];
+            var eslint_binary = djs['eslint_binary'];
+            var currentPath = eslint_binary.value;
+            var path = ko.filepicker.browseForExeFile(null, currentPath || "");
+            if (path) {
+                eslint_binary.value = path;
+            }
+        },
+        browseForESConfig: function() {
+            var djs = dialog[languageName];
+            var eslint_config = djs['eslint_config'];
+            var currentPath = eslint_config.value;
+            var path = ko.filepicker.browseForFile(null, currentPath || "");
+            if (path) {
+                eslint_config.value = path;
+            }
+        },
         
         handleChangedJSLinter: function() {
             var djs = dialog[languageName];
@@ -486,50 +507,6 @@ function TypeScriptInfo() {
       }
     }
   };
-}
-
-
-function jsx_setup() {
-    if (!('JSX' in dialog)) {
-        dialog.JSX = {};
-        [
-         "lint_jsx",
-         "lint_jsx_failure"].forEach(function(name) {
-            dialog.JSX[name] = document.getElementById(name);
-        });
-        languageInfo.JSX = JSXInfo();
-    }
-    languageInfo.JSX.updateUI();
-}
-
-languageSetup.JSX = jsx_setup;
-function JSXInfo() {
-    return {
-      hasJSX: null,
-      
-      updateUI: function() {
-            if (this.hasJSX === null) {
-                var koSysUtils = Components.classes["@activestate.com/koSysUtils;1"].getService(Components.interfaces.koISysUtils);
-                var jsx = koSysUtils.Which("jsxhint");
-                this.hasJSX = !!jsx;
-            }
-            var checkbox = dialog.JSX.lint_jsx;
-            var failureNode = dialog.JSX.lint_jsx_failure;
-            if (this.hasJSX) {
-                failureNode.setAttribute("class", "pref_hide");
-                checkbox.disabled = false;
-            } else {
-                checkbox.checked = false;
-                checkbox.disabled = true;
-                if (!failureNode.firstChild) {
-                    var text = bundleLang.GetStringFromName("Cant find jsxhint, update the PATH to include it, and restart Komodo");
-                    var textNode = document.createTextNode(text);
-                    failureNode.appendChild(textNode);
-                }
-                failureNode.setAttribute("class", "pref_show");
-            }
-        }
-    };
 }
 
 

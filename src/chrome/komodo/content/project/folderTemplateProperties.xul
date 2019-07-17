@@ -21,11 +21,10 @@
         persist="screenX screenY"
         orient="vertical"
         onload="onLoad()"
-        buttons="accept,extra1,cancel,help"
+        buttons="accept,extra1,cancel"
         ondialogaccept="return OK()"
         ondialogextra1="return Apply()"
-        ondialogcancel="return Cancel()"
-        ondialoghelp="Help()">
+        ondialogcancel="return Cancel()">
 
     <script src="chrome://xtk/content/xtk.js" type="application/x-javascript;version=1.7"/>
     <script src="chrome://komodo/content/library/logging.js"

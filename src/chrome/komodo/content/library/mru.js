@@ -167,10 +167,10 @@ this.maxEntries = function MRU_maxEntries(listPrefName)
 }
 
 
-this.add = function MRU_add(prefName, entry, caseSensitive)
+this.add = function MRU_add(prefName, entry, caseSensitive, allowBlank)
 {
     _log.info("MRU_add(prefName="+prefName+", entry="+entry+
-                ", caseSensitive="+caseSensitive+")");
+                ", caseSensitive="+caseSensitive+", allowBlank="+allowBlank+")");
 
     // Add the given "entry" (a string) to the given MRU (indentified by
     // the name of pref, "prefName", with which it is associated).
@@ -186,7 +186,7 @@ this.add = function MRU_add(prefName, entry, caseSensitive)
         _log.error(errmsg);
         throw(errmsg);
     }
-    if (!entry) {
+    if (!allowBlank && !entry) {
         errmsg = "MRU_add: warning: no entry: prefName='"+prefName+
                  "', entry='"+entry+"'";
         _log.warn(errmsg)
@@ -303,7 +303,7 @@ this.removeURL = function MRU_removeURL(prefName, url)
 }
 
 
-this.addFromACTextbox = function MRU_addFromACTextbox(widget)
+this.addFromACTextbox = function MRU_addFromACTextbox(widget, allowBlank)
 {
     var searchType = widget.getAttribute("autocompletesearch");
     var searchParam = widget.searchParam;
@@ -326,13 +326,13 @@ this.addFromACTextbox = function MRU_addFromACTextbox(widget)
         _log.warn(errmsg);
         return;
     }
-    if (!widget.value) {
+    if (!widget.value && !allowBlank) {
         return;
     }
 
     _log.info("MRU_addFromACTextbox(widget): widget.value='"+widget.value+
                 "', prefName="+prefName);
-    ko.mru.add(prefName, widget.value, true);
+    ko.mru.add(prefName, widget.value, true, allowBlank);
 }
 
 
@@ -446,7 +446,6 @@ this.getAll = function MRU_getAll(prefName, maxLength /* all */)
 this._prettyPrefNamePlural_From_PrefName = {
     mruProjectList: 'projects',
     mruFileList: 'files',
-    mruTemplateList: 'templates',
     __XXZZ__: null
 };
 

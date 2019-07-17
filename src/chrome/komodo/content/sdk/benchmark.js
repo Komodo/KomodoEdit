@@ -1,8 +1,7 @@
 /**
- * @copyright (c) 2015 ActiveState Software Inc.
+ * @copyright (c) 2017 ActiveState Software Inc.
  * @license Mozilla Public License v. 2.0
  * @author ActiveState
- * @overview -
  */
 
 /**
@@ -13,8 +12,8 @@ const {Cc, Ci} = require("chrome");
 var koBenchmark = Cc["@activestate.com/koBenchmark;1"].getService(Ci.koIBenchmark);
 
 /**
- * Benchmarking methods helpful for debugging, this library is mostly
- * succeeded by the [console] SDK
+ * Benchmarking methods helpful for debugging. This library is mostly
+ * succeeded by the [console]{@link console.js} SDK
  *
  * @module ko/benchmark
  */

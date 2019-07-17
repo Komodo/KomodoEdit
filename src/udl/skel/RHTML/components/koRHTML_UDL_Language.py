@@ -65,6 +65,8 @@ class KoRHTMLLanguage(koHTMLLanguageBase):
     _reg_categories_ = [("komodo-language", name)]
     defaultExtension = '.rhtml'
 
+    primary = 1  # Whether the language shows up in Komodo's first level language menus.
+
     lang_from_udl_family = {'CSL': 'JavaScript', 'TPL': 'RHTML', 'M': 'HTML', 'CSS': 'CSS', 'SSL': 'Ruby'}
 
     sample = """<ul>

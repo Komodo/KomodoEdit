@@ -54,7 +54,7 @@ this.URLProperties = function peURL_editProperties(/*koIPart*/ item)
     obj.prettytype = 'URL';
     window.openDialog(
         "chrome://komodo/content/project/simplePartProperties.xul",
-        "Komodo:URLProperties",
+        "Komodo:URLProperties"+Date.now(),
         "chrome,centerscreen,close=yes,dependent=yes,modal=yes,resizable=yes", obj);
 }
 
@@ -97,7 +97,7 @@ this.addURL = function peURL_newURL(/*koIPart|koITool*/ parent,
     obj.parent = parent;
     window.openDialog(
         "chrome://komodo/content/project/simplePartProperties.xul",
-        "Komodo:URLProperties",
+        "Komodo:URLProperties"+Date.now(),
         "chrome,centerscreen,close=yes,modal=yes,resizable=yes", obj);
 }
 

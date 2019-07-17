@@ -103,11 +103,12 @@
 
         <property name="scintilla">
             <getter><![CDATA[
-            if (typeof require == "undefined")
-                return document.getAnonymousElementByAttribute(this, 'anonid', 'scintilla');
-
             if ( ! this._scintilla)
+            {
+                if (typeof require == "undefined")
+                    return document.getAnonymousElementByAttribute(this, 'anonid', 'scintilla');
                 this._scintilla = require("ko/dom")(this).findAnonymous('anonid', "scintilla").element();
+            }
             return this._scintilla;
             ]]></getter>
         </property>
@@ -147,6 +148,7 @@
             onget="return this.scintilla;"/>
 
         <field name="lastCharAdded">null</field>
+        <field name="lastPosition">null</field>
 
         <field name="textChangeUndoPending">false</field>
 
@@ -155,11 +157,12 @@
         <property name="findbar">
             <getter>
                 <![CDATA[
-                if (typeof require == "undefined")
-                    return document.getAnonymousElementByAttribute(this, 'anonid', 'findbar');
-
                 if ( ! this._findbar)
+                {
+                    if (typeof require == "undefined")
+                        return document.getAnonymousElementByAttribute(this, 'anonid', 'findbar');
                     this._findbar = require("ko/dom")(this).findAnonymous('anonid', "findbar").element();
+                }
                 return this._findbar;
                 ]]>
             </getter>
@@ -265,12 +268,11 @@
         <field name="_isCIRescanningEnabled">true</field>
         
         <!-- Is CodeIntel-based implicit triggering enabled for this buffer?
-             The 'codeintel_completion_triggering_enabled' pref for this
-             buffer.
-             
-             XXX:PERF Cache this and use pref observer. -->
-        <property name="_isCITriggeringEnabled"
-                  onget="return this.__globalPrefs.getBooleanPref('codeintel_completion_triggering_enabled') || this.__globalPrefs.getBooleanPref('codeintel_calltip_triggering_enabled');"/>
+             The 'codeintel_completion_triggering_enabled' or
+             'codeintel_calltip_triggering_enabled' pref for this buffer.
+             (_doAutoComplete || _doStartCallTip)
+             views-editor will set this and use pref observer. -->
+        <field name="_isCITriggeringEnabled">false</field>
 
         <property name="ciCompletionUIHandler">
             <getter><![CDATA[
@@ -286,10 +288,10 @@
 
         <field name="_ciLastTrg">null</field>
 
-        <property name="_doAutoComplete"
-            onget="return this.__globalPrefs.getBooleanPref('codeintel_completion_triggering_enabled')"/>
-        <property name="_doStartCallTip"
-            onget="return this.__globalPrefs.getBooleanPref('codeintel_calltip_triggering_enabled')"/>
+        <!-- views-editor will set the next 3 and use pref observer. -->
+        <field name="_doAutoComplete">false</field>
+        <field name="_doStartCallTip">false</field>
+        <field name="_editElectricBrace">false</field>
 
         <field name="_transientMarkRingSize">16</field>
         <field name="_transientMarkRing">[]</field>
@@ -927,6 +929,20 @@
             [x,y] = this._last_mousemove_xy;
 /* #endif */
 
+            if (typeof require == 'undefined')
+                return;
+
+            var w = require("ko/windows").getMain();
+            if ( ! w || ! w.ko || ! w.ko.uilayout)
+                return;
+
+            var legacy = w.ko;
+            var bo = this.boxObject;
+            var [parentX, parentY] = legacy.uilayout.mousepos;
+            if (parentX < bo.x || parentY < bo.y || // left, top
+                parentX > bo.x + bo.width || parentY > bo.y + bo.height) // right, bottom
+                return;
+
             // Send event.
             if (this._dispatch_events) {
                 var data = { view: this, position: position, x: x, y: y };
@@ -1163,19 +1179,18 @@
                 this.textChangeUndoPending = false;
             }
 
-            // Forward the call to the languageObj so it can provide language
-            // specific features (smart indent, electric bracers, .. )
+            // Do we have a last char added?
             if (this.lastCharAdded) {
+                // Forward the call to the languageObj so it can provide language
+                // specific features (smart indent, electric bracers, .. )
                 if (this.languageObj &&
-                    this.prefs.getBooleanPref("editElectricBrace")) {
+                    this._editElectricBrace) {
                     // "keyPressed" is the poorly named mechanism to initiate
                     // auto-indenting functionality.
                     this.languageObj.keyPressed(this.lastCharAdded, this.scimoz);
                 }
-            }
 
-            // Trigger CodeIntel completions
-            if (this.lastCharAdded) {
+                // Trigger CodeIntel completions
                 this.doCommandCompletion();
                 if (this.isCICplnEnabled && this._isCITriggeringEnabled) {
                     // Trigger completions or calltip.
@@ -1189,7 +1204,8 @@
             }
 
             if (this.lastPosition !== null && currentPos != this.lastPosition) {
-                this.dispatchEvent(new CustomEvent('buffer_pos_changed', { bubbles: true, detail: currentPos - this.lastPosition }));
+                var char = this.charModified ? this.lastCharAdded : null;
+                this.dispatchEvent(new CustomEvent('buffer_pos_changed', { bubbles: true, detail: { offset: currentPos - this.lastPosition, char: char } }));
             }
 
             this.lastCharAdded = null;
@@ -1427,6 +1443,7 @@
         </method>
 
         <field name="codeintel_scan_timeout">-1</field>
+        <field name="codeintel_scan_timeout_cancelable">true</field>
 
         <method name="_onModifiedHandler">
         <parameter name="position"/>
@@ -1479,11 +1496,17 @@
                 {
                     // Get codeintel to re-scan the document - but delay the
                     // scan for repeated typing - bug 101502.
-                    if (linesAdded) {
-                        ko.codeintel.scan_document(koDoc, linesAdded, true /* forcedScan */);
-                    } else {
+                    // Only run if current timeout can be cancelled.  When a new line is added, we'll mark it to not be cancelled.
+                    if (this.codeintel_scan_timeout_cancelable)
+                    {
+                        // Don't allow cancelling if lines were added or removed
+                        this.codeintel_scan_timeout_cancelable = (linesAdded == 0);
+
+                        // Clear previous timeout and schedule new one
+                        var that = this;
                         clearTimeout(this.codeintel_scan_timeout);
                         this.codeintel_scan_timeout = setTimeout(function() {
+                            that.codeintel_scan_timeout_cancelable = true;
                             ko.codeintel.scan_document(koDoc, linesAdded, true /* forcedScan */);
                         }, 500);
                     }
@@ -1566,7 +1589,26 @@
         <field name="_matchedTagUnhighlighter">0</field>
         <field name="_mouseButton">-1</field>
 
+        <field name="_marginClickPending">false</field>
         <method name="onMarginClick">
+        <parameter name="modifiers"/>
+        <parameter name="position"/>
+        <parameter name="margin"/>
+        <body>
+        <![CDATA[
+           if(require("sdk/system").platform == "winnt")
+           {
+               this._onMarginClick.apply(this, arguments);
+           }
+           else
+           {
+               this._marginClickPending = arguments;
+           }
+        ]]>
+        </body>
+        </method>
+
+        <method name="_onMarginClick">
         <parameter name="modifiers"/>
         <parameter name="position"/>
         <parameter name="margin"/>
@@ -1615,6 +1657,7 @@
 
 
             this._mouseButton = -1;
+            this._marginClickPending = false;
         ]]>
         </body>
         </method>
@@ -1984,12 +2027,18 @@
         <handler event="mousedown" phase="capturing">
             <![CDATA[
             this._mouseButton = event.button;
+            if (this._marginClickPending)
+            {
+                this._onMarginClick.apply(this, this._marginClickPending);
+                this._marginClickPending = false;
+            }
             ]]>
         </handler>
         <handler event="mouseup" phase="capturing">
             <![CDATA[
             setTimeout(function() {
                 this._mouseButton = -1;
+                this._marginClickPending = false;
             }.bind(this), 0);
             ]]>
         </handler>

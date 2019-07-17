@@ -1,8 +1,7 @@
 /**
- * @copyright (c) 2015 ActiveState Software Inc.
+ * @copyright (c) 2017 ActiveState Software Inc.
  * @license Mozilla Public License v. 2.0
  * @author ActiveState
- * @overview -
  */
 
 /**
@@ -10,16 +9,16 @@
  */
 
 /**
- * The color SDK offers various useful helper methods to convert color formats
+ * The color SDK offers various useful helper methods to convert color formats.
  *
  * @module ko/color
  */
 
 /**
  * Parses hex string to a consistent format
- * 
+ *
  * @param   {String} hexstring
- * 
+ *
  * @returns {String}
  */
 function StandardizeHexString(hexstring) {
@@ -41,7 +40,7 @@ function StandardizeHexString(hexstring) {
  * Convert separate r,g,b values into a long int.
  *
  * @deprecated since Komodo 9
- * 
+ *
  * @param {Long} red
  * @param {Long} green
  * @param {Long} blue
@@ -88,8 +87,8 @@ exports.BGRToLong = function(b, g, r) {
  * Convert rgb color value (a long, hex string, or separate r,g,b arguments) into a bgr long int.
  *
  * @param {Long|String} color value, hex string, or red component if using r,g,b arguments
- * @param {Long} green
- * @param {Long} blue
+ * @param {Long=} green
+ * @param {Long=} blue
  *
  * @return {Long} color value
  */
@@ -109,13 +108,13 @@ exports.RGBToBGR = function(value)
 /**
  * Convert bgr color value (a long, hex string, or separate r,g,b arguments) into a rgb long int.
  *
- * @param {Long|String} color value, hex string, or red component if using r,g,b arguments
- * @param {Long} green
- * @param {Long} blue
+ * @param {Long|String} value - hex string, or red component if using r,g,b arguments
+ * @param {Long=} green
+ * @param {Long=} blue
  *
  * @return {Long} color value
  */
-exports.BGRToRGB = exports.RGBToBGR
+exports.BGRToRGB = function(){};
 
 /**
  * Converts a hexadecimal string color of the form #ffaabb to a long
@@ -223,14 +222,14 @@ exports.scaler.prototype.NanometerToRGB = function(nanoMetres) {
     var Green = 0.0;
     var Blue = 0.0;
     var factor = 0.0;
-            
+
     if (nanoMetres < 510) {
         if (nanoMetres >= 490) {
             // Cyan to green
             Green = 1.0;
             Blue  = (510.0 - nanoMetres) / (510.0 - 490.0);
         } else {
-            Blue = 1.0;            
+            Blue = 1.0;
             if (nanoMetres >= 440) {
                 // Blue to cyan
                 Green = (nanoMetres - 440.0) / (490.0 - 440.0);
@@ -249,7 +248,7 @@ exports.scaler.prototype.NanometerToRGB = function(nanoMetres) {
         Green = (nanoMetres < 644 ?
                  (645.0 - nanoMetres) / (645.0 - 580.0) : 0.0);
     }
-    
+
     // Condition RGB according to limits of vision
     if (nanoMetres <= 700) {
         factor = ((nanoMetres >= 420) ? 1.0 :
@@ -399,7 +398,7 @@ exports.hsv2rgb = function(h, s, v) {
 /**
  * Returns an array of n distinct (and optionally random) colors in integer
  * format: 0x0AF088
- * 
+ *
  * The colors generated will be random, if you want the colors to be a
  * consistent order, pass in a 'rand' float between [0..1].
  *

@@ -93,7 +93,8 @@ class KoConsoleLogger:
         'Unknown property \'speak\'',
         'Unknown property \'-moz-osx-font-smoothing\'',
         'element contained an inline _moz_generated_content_before child',
-        'Unknown pseudo-class or pseudo-element \'moz-tree-cell\''
+        'Unknown pseudo-class or pseudo-element \'moz-tree-cell\'',
+        'Key event not available on some keyboard layouts'
     ]
     def _handleScriptError(self, error):
         try:

@@ -332,8 +332,7 @@ class _KoTool(object):
 
         fp.close()
 
-        if data.get('name', self.name) != self.name or \
-           data.get('language', self._attributes['language']) != self._attributes['language']:
+        if data.get('name', self.name) != self.name:
             refreshParent = True
             # bug 88228: we're renaming a tool by saving its properties, so do the
             # rename separately.  This updates the DB correctly.
@@ -396,7 +395,7 @@ class _KoTool(object):
             newVal = self._attributes[attr]
             if attr not in data or newVal != data[attr]:
                 data[attr] = self._attributes[attr]
-        fp = open(savePath, 'r+')
+        fp = open(savePath, 'w')
         koToolbox2.DataParser.writeData(fp, data)
         fp.close()
         if refreshParent:

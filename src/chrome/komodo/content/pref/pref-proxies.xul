@@ -48,10 +48,11 @@
             xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
             title="&connectionsDialog.title;"
             dlgbuttons="accept,cancel,help"
+            ondialoghelp="doHelp();"
             onbeforeaccept="return gConnectionsDialog.beforeAccept();">
 
   <prefpane id="ConnectionsDialogPane"
-            helpTopic="prefs-connection-settings" helpURI="chrome://komododoc/locale/komodohelp.rdf">
+            helpTopic="prefs.html#http-inspector-preferences">
 
     <preferences>
       <preference id="network.proxy.type"         name="network.proxy.type"         type="int" onchange="gConnectionsDialog.proxyTypeChanged();"/>

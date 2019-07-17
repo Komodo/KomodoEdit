@@ -52,9 +52,6 @@ var _resetMRU = false;
 function OnPreferencePageOK(prefset) {
     prefset.setStringPref("fileDefaultNew",
                           document.getElementById("fileDefaultNew").selection);
-    if (_resetMRU) {
-        ko.mru.reset("mruTemplateList");
-    }
     return true;
 }
 

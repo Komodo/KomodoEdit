@@ -1,6 +1,30 @@
+/**
+ * The modal SDK
+ *
+ * @module ko/modal
+ */
 (function()
 {
+    const {Cc, Ci}  = require("chrome");
     
+    /**
+     * Open a modal dialog with the given contents
+     * 
+     * @param {string|object} title         title of the modal, if this is an object then it will be used as the fields value
+     * @param {object} fields               object of fields to use, eg:
+     * ```
+     * fieldName: {
+     *     label: "Say something",
+     *     type: "textbox",
+     *     value: "hello"
+     * }
+     * ```
+     * @param {function} onComplete         Completion callback
+     * @param {string|undefined} okLabel    The label for the OK button
+     * @param {string|undefined} cancelLabel The label for the Cancel button
+     * 
+     * @returns {object} Returns an object with key and value being the field key and the entered value, eg. ```{fieldName: "hello"}```
+     */
     this.open = (title, fields, onComplete, okLabel, cancelLabel) =>
     {
         var opts;
@@ -30,12 +54,14 @@
         dialog.title = opts.title;
         dialog.addEventListener("load", () => doOpen(opts, dialog));
 
+        pinWindow(dialog);
+
         return dialog;
     };
 
     var doOpen = (opts, parent) =>
     {
-        var wrapper = require("ko/ui/column").create();
+        var wrapper = require("ko/ui/column").create({ class: "modal-ui-inner" });
         parent.document.documentElement.appendChild(wrapper.element);
         parent.document.documentElement.classList.add("modal-ui");
         parent.document.documentElement.setAttribute("title", opts.title);
@@ -73,15 +99,30 @@
 
             let row = groupParent.addRow();
             
-            if (field.label)
+            if (field.label !== undefined)
                 row.add(require("ko/ui/label").create({ attributes: { value: field.label + ":", tooltiptext: field.label, crop: "center" }}));
 
-            let elem = require("ko/ui/" + (field.type || "textbox")).create(field.options || undefined);
+            var attributes = field.attributes || {};
+            if (field.options)
+                attributes.options = field.options;
+
+            let elem = require("ko/ui/" + (field.type || "textbox")).create(attributes);
             mapping[key] = elem;
             row.add(elem);
             
             field.elem = elem;
             
+            if (field.fullwidth)
+            {
+                row.addClass("fullwidth");
+                elem.addClass("fullwidth");
+            }
+
+            if (field.centered)
+            {
+                row.addClass("centered");
+            }
+
             if (field.entries && elem.entries)
                 elem.entries(field.entries);
             
@@ -144,7 +185,7 @@
         if (missing.length)
         {
             var error = "Please enter a value for: " + missing.join(", ");
-            panel.$element.find(".ui-error label").show().attr("value", error);
+            parent.$element.find(".ui-error label").show().attr("value", error);
             return;
         }
         
@@ -157,6 +198,25 @@
         else
         {
             opts.parent.close();}
+    };
+    
+    var pinWindow = (w) =>
+    {
+        function getXULWindowForDOMWindow(win) {
+            return win.QueryInterface(Ci.nsIInterfaceRequestor)
+               .getInterface(Ci.nsIWebNavigation)
+               .QueryInterface(Ci.nsIDocShellTreeItem)
+               .treeOwner
+               .QueryInterface(Ci.nsIInterfaceRequestor)
+               .getInterface(Ci.nsIXULWindow)
+        }
+
+        w = getXULWindowForDOMWindow(w);
+        let parentWin = getXULWindowForDOMWindow(require("ko/windows").getMain());
+
+        Cc["@activestate.com/koIWindowManagerUtils;1"]
+          .getService(Ci.koIWindowManagerUtils)
+          .setOnTop(w, parentWin, true);
     };
     
 }).apply(module.exports);

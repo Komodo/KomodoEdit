@@ -3,7 +3,7 @@ Components.utils.import("resource://gre/modules/Services.jsm");
 
 var schemeService = Cc['@activestate.com/koScintillaSchemeService;1'].getService();
 
-var $ = require("ko/dom");
+var $ = require("ko/dom").window(window);
 var originalValues = {};
 
 function OnPreferencePageOK(prefset)

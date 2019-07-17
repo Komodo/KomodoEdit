@@ -1,0 +1,20 @@
+diff --git a/contrib/scintilla/win32/ScintillaWin.cxx b/contrib/scintilla/win32/ScintillaWin.cxx
+index d9a1c88a0..265f51c42 100644
+--- win32/ScintillaWin.cxx
++++ win32/ScintillaWin.cxx
+@@ -1569,6 +1569,7 @@ sptr_t ScintillaWin::WndProc(unsigned int iMessage, uptr_t wParam, sptr_t lParam
+ 		case WM_WINDOWPOSCHANGED:
+ 			return ::DefWindowProc(MainHWND(), iMessage, wParam, lParam);
+ 
++#if 0
+ 		case WM_GETTEXTLENGTH:
+ 			return GetTextLength();
+ 
+@@ -1635,6 +1636,7 @@ sptr_t ScintillaWin::WndProc(unsigned int iMessage, uptr_t wParam, sptr_t lParam
+ 				EnsureCaretVisible();
+ 				return pdoc->LineFromPosition(SelectionStart().Position());
+ 			}
++#endif
+ 
+ 		case SCI_GETDIRECTFUNCTION:
+ 			return reinterpret_cast<sptr_t>(DirectFunction);

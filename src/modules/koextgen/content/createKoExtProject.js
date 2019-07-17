@@ -177,10 +177,10 @@ this._createExtGenProject = function(targetName, project) {
             if (targetName.substr(0, 6) == "komodo") {
 
                 macroInfo.push([fromFile, "buildandinstall.js", "Build and Install", "chrome://fugue/skin/icons/building--arrow.png"]);
-                macroInfo.push([fromString, "ko.help.open('komodo_extensions');", "Docs - Extensions", "chrome://fugue/skin/icons/information-white.png"]);
+                macroInfo.push([fromString, "ko.help.open('extensions.html');", "Docs - Extensions", "chrome://fugue/skin/icons/information-white.png"]);
             }
             if (targetName == "komodolang") {
-                macroInfo.push([fromString, "ko.help.open('user-defined_languages');", "Docs - UDL", "chrome://fugue/skin/icons/information-white.png"]);
+                macroInfo.push([fromString, "ko.help.open('udl.html','sdk/');", "Docs - UDL", "chrome://fugue/skin/icons/information-white.png"]);
                 macroInfo.push([fromFile, "udl_visualize.py", "UDL Visualization", "chrome://fugue/skin/icons/magnifier-zoom-actual-equal.png"]);
             }
             macroInfo.forEach(function(parts) {

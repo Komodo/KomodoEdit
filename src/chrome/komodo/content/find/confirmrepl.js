@@ -240,14 +240,6 @@ function onTreeContextMenuShowing()
         var ignore_menuitem = document.getElementById("context_menu_ignore");
         assoc_menuitem.setAttribute("disabled", "true");
         ignore_menuitem.setAttribute("disabled", "true");
-        var selected_indeces = _get_selected_indeces();
-        if (selected_indeces.length == 1) {
-            var idx = selected_indeces[0];
-            if (_g_replacer.getSkippedReason(idx) == Components.interfaces.koIConfirmReplacerInFiles.SKIPPED_UNKNOWN_LANG) {
-                assoc_menuitem.removeAttribute("disabled");
-                ignore_menuitem.removeAttribute("disabled");
-            }
-        }
     } catch(ex) {
         log.exception(ex);
     }

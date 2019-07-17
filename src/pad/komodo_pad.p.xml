@@ -77,8 +77,8 @@
 	</Program_Descriptions>
 	<Web_Info>
 		<Application_URLs>
-			<Application_Info_URL>http://www.komodoide.com/</Application_Info_URL>
-			<Application_Order_URL>http://www.komodoide.com/</Application_Order_URL>
+			<Application_Info_URL>https://www.activestate.com/komodo-edit/</Application_Info_URL>
+			<Application_Order_URL>https://www.activestate.com/komodo-edit/</Application_Order_URL>
 			<Application_Screenshot_URL>http://www.activestate.com/padfiles/images/$PAD_SCREENSHOT_BASENAME</Application_Screenshot_URL>
 			<Application_Icon_URL>http://www.activestate.com/padfiles/images/$PAD_ICON_BASENAME</Application_Icon_URL>
 			<Application_XML_File_URL>http://www.activestate.com/padfiles/komodo_edit/$PAD_PAD_BASENAME</Application_XML_File_URL>
