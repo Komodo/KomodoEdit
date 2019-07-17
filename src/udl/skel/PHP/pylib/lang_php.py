@@ -110,6 +110,8 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
     lang = lang
     importExcludeMatchesPrefName = "import_exclude_matches"
     excludePathsPrefName = "phpExcludePaths"
+    calltipLookbackLimitPrefName = "php_calltip_lookback_limit"
+    calltip_lookback_limit = 200
 
     # Used by ProgLangTriggerIntelMixin.preceding_trg_from_pos()
     trg_chars = tuple('$>:(,@"\' \\')
@@ -143,14 +145,14 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
                     paren_count += 1
                 elif char == "(":
                     paren_count -= 1
-        min_pos = max(0, pos - 200) # look back max 200 chars (we max add some more later)
+        min_pos = max(0, pos - self.calltip_lookback_limit) # look back max calltip_lookback_limit chars (we may add some more later)
         while pos > min_pos:
             pos, char, style = ac.getPrecedingPosCharStyle(ignore_styles=self.comment_styles)
             if style == self.operator_style:
                 if char == ")" or char == ",":
                     # Grant more characters whenever we see a comma
                     if char == ",":
-                        min_pos = max(0, pos - 200)
+                        min_pos = max(0, pos - self.calltip_lookback_limit)
 
                     # Swallow all parenthesis
                     pos, prev_text = ac.getTextBackWithStyle()
@@ -1091,6 +1093,9 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
                 self._invalidate_cache_and_rescan_extra_dirs)
             env.add_pref_observer(self.importExcludeMatchesPrefName,
                 self._invalidate_cache_and_rescan_extra_dirs)
+            self._get_lookback_prefs(env)
+            env.add_pref_observer(self.calltipLookbackLimitPrefName,
+                self._get_lookback_prefs)
             env.add_pref_observer("phpConfigFile",
                                   self._invalidate_cache)
             env.add_pref_observer("codeintel_selected_catalogs",
@@ -1202,6 +1207,9 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
                 "PHP", "extradirslib", extra_dirs, "PHP")
             request = PreloadLibRequest(extradirslib)
             self.mgr.idxr.stage_request(request, 1.0)
+
+    def _get_lookback_prefs(self, env):
+        self.calltip_lookback_limit = env.get_pref(self.calltipLookbackLimitPrefName, 200)
 
     #---- code browser integration
     cb_import_group_title = "Includes and Requires"   
