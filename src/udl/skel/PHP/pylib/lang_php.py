@@ -271,7 +271,8 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
                     if prev_char == "-":
                         p, c, style = ac.getPrevPosCharStyle(ignore_styles=self.comment_styles_or_whitespace)
                         if style in (self.variable_style, self.identifier_style) or \
-                           (style == self.operator_style and c == ')'):
+                           (style == self.operator_style and c == ')') or \
+                           (style == self.operator_style and c == ']'):
                             return Trigger(lang, TRG_FORM_CPLN, "object-members",
                                            pos, implicit)
                         elif DEBUG:
@@ -758,7 +759,7 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
                             print "stop at special stop-operator %d: %r" % (i, ch)
                         break
                 elif (ch in STOPOPS or ch in EXTRA_STOPOPS_PRECEDING_IDENT) and \
-                     (ch != ")" or (citdl_expr and citdl_expr[-1] != ".")):
+                     (ch not in ")]" or (citdl_expr and citdl_expr[-1] != "." and not (citdl_expr[-1] == "[" and citdl_expr[-2] == "]"))):
                     if ch == '$':
                         # This may not be the end of the road, given static
                         # variables are accessed through "Class::$static".
