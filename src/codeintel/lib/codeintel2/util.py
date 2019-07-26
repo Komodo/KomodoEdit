@@ -678,33 +678,26 @@ def _walk2_via_scandir(top, topdown=True, onerror=None, followlinks=False,
             onerror(err)
         return
 
-    dirs, walkable_dirs, nondirs = [], [], []
+    dirs, walkable_paths, nondirs = [], [], []
     for dirEntry in dirEntries:
         try:
             if dirEntry.is_dir():
-                dirs.append(dirEntry.name)
-                if followlinks or not dirEntry.is_symlink():
-                    walkable_dirs.append(dirEntry.name)
+                # Check for skipped directories
+                if dirEntry.name not in dir_names_to_skip:
+                    path = join(top, dirEntry.name)
+                    if path not in exclude_dirs:
+                        dirs.append(dirEntry.name)
+                        if followlinks or not dirEntry.is_symlink():
+                            walkable_paths.append(path)
             else:
                 nondirs.append(dirEntry.name)
         except UnicodeDecodeError, err:
             if ondecodeerror is not None:
                 ondecodeerror(err)
 
-    # Check for skipped directories
-    for name in dirs:
-        if name in dir_names_to_skip:
-            dirs.remove(name)
-            continue
-        if join(top, name) in exclude_dirs:
-            dirs.remove(name)
-            continue
-
     if topdown:
         yield top, dirs, nondirs
-    for name in walkable_dirs:
-        path = join(top, name)
-
+    for path in walkable_paths:
         # Walk this directory
         for x in _walk2_via_scandir(path, topdown, onerror, followlinks, ondecodeerror, exclude_dirs, dir_names_to_skip):
             yield x
@@ -747,22 +740,16 @@ def _walk2_wo_scandir(top, topdown=True, onerror=None, followlinks=False,
     dirs, nondirs = [], []
     for name in names:
         try:
-            if isdir(join(top, name)):
-                dirs.append(name)
+            path = join(top, name)
+            if isdir(path):
+                # Check for skipped directories
+                if name not in dir_names_to_skip and path not in exclude_dirs:
+                    dirs.append(name)
             else:
                 nondirs.append(name)
         except UnicodeDecodeError, err:
             if ondecodeerror is not None:
                 ondecodeerror(err)
-
-    # Check for skipped directories
-    for name in dirs:
-        if name in dir_names_to_skip:
-            dirs.remove(name)
-            continue
-        if join(top, name) in exclude_dirs:
-            dirs.remove(name)
-            continue
 
     if topdown:
         yield top, dirs, nondirs
