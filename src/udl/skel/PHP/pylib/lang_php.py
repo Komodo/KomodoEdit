@@ -1209,7 +1209,7 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
             self.mgr.idxr.stage_request(request, 1.0)
 
     def _get_lookback_prefs(self, env):
-        self.calltip_lookback_limit = env.get_pref(self.calltipLookbackLimitPrefName, 200)
+        self.calltip_lookback_limit = env.get_pref(self.calltipLookbackLimitPrefName, self.calltip_lookback_limit)
 
     #---- code browser integration
     cb_import_group_title = "Includes and Requires"   
