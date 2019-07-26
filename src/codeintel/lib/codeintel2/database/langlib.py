@@ -1396,8 +1396,8 @@ class LangZone(object):
             now = time.time()
             for dbsubpath, (index, atime) \
                     in self._index_and_atime_from_dbsubpath.items():
-                # Don't delete if recently accessed
-                if now - atime > TIME_SINCE_ACCESS:
+                # Don't delete if recently accessed unless it's a res_index
+                if now - atime > TIME_SINCE_ACCESS or dbsubpath.endswith("/res_index"):
                     if dbsubpath in self._is_index_dirty_from_dbsubpath:
                         self.save_index(dbsubpath, index)
                         del self._is_index_dirty_from_dbsubpath[dbsubpath]
