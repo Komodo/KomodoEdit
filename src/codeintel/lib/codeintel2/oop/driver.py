@@ -105,6 +105,31 @@ class LoggingHandler(logging.Handler):
         except:
             self.handleError(record)
 
+class DriverBufferCache(collections.OrderedDict):
+    """
+    Cache of buffers
+    See https://docs.python.org/3/library/collections.html#collections.OrderedDict
+    """
+    def __init__(self, maxsize=20):
+        self.maxsize = maxsize
+        collections.OrderedDict.__init__(self)
+
+    def __getitem__(self, key):
+        value = collections.OrderedDict.__getitem__(self, key)
+        del self[key]
+        collections.OrderedDict.__setitem__(self, key, value)
+        return value
+
+    def __setitem__(self, key, value):
+        if key in self:
+            del self[key]
+        # Not key, see if we need space
+        else:
+            if len(self) + 1 > self.maxsize:
+                oldest = next(iter(self))
+                del self[oldest]
+        collections.OrderedDict.__setitem__(self, key, value)
+
 class Driver(threading.Thread):
     """
     Out-of-process codeintel2 driver
@@ -134,10 +159,7 @@ class Driver(threading.Thread):
         self.fd_out = fd_out
         self.abort = None
         self.quit = False
-        self.current_buffer = None
-        self.current_buffer_path = None
-        self.last_buffer = None
-        self.last_buffer_path = None
+        self.buffers = DriverBufferCache()
         self.next_buffer = 0
         self.active_request = None
 
@@ -345,12 +367,11 @@ class Driver(threading.Thread):
                 raise RequestFailure(message="No path given to locate buffer")
             path = request.path
         path = self.normpath(path)
-        buf = None
-        if self.current_buffer_path == path:
-            buf = self.current_buffer
-        elif self.last_buffer_path == path:
-            buf = self.last_buffer
-        if buf:
+        try:
+            buf = self.buffers[path]
+        except KeyError:
+            buf = None
+        else:
             if "language" in request and buf.lang != request.language:
                 buf = None # language changed, re-scan
 
@@ -388,11 +409,7 @@ class Driver(threading.Thread):
         log.debug("Got buffer %r", buf)
 
         # Update cached buffer
-        if path != self.current_buffer_path:
-            self.last_buffer_path = self.current_buffer_path
-            self.last_buffer = self.current_buffer
-            self.current_buffer_path = path
-        self.current_buffer = buf
+        self.buffers[path] = buf
 
         return buf
 
