@@ -134,7 +134,10 @@ class Driver(threading.Thread):
         self.fd_out = fd_out
         self.abort = None
         self.quit = False
-        self.buffers = {} # path to Buffer objects
+        self.current_buffer = None
+        self.current_buffer_path = None
+        self.last_buffer = None
+        self.last_buffer_path = None
         self.next_buffer = 0
         self.active_request = None
 
@@ -342,11 +345,12 @@ class Driver(threading.Thread):
                 raise RequestFailure(message="No path given to locate buffer")
             path = request.path
         path = self.normpath(path)
-        try:
-            buf = self.buffers[path]
-        except KeyError:
-            buf = None
-        else:
+        buf = None
+        if self.current_buffer_path == path:
+            buf = self.current_buffer
+        elif self.last_buffer_path == path:
+            buf = self.last_buffer
+        if buf:
             if "language" in request and buf.lang != request.language:
                 buf = None # language changed, re-scan
 
@@ -383,7 +387,13 @@ class Driver(threading.Thread):
         #log.debug("Got buffer %r: [%s]", buf, buf.accessor.content)
         log.debug("Got buffer %r", buf)
 
-        self.buffers[path] = buf
+        # Update cached buffer
+        if path != self.current_buffer_path:
+            self.last_buffer_path = self.current_buffer_path
+            self.last_buffer = self.current_buffer
+            self.current_buffer_path = path
+        self.current_buffer = buf
+
         return buf
 
     def do_abort(self, request):
