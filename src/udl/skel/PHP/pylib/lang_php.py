@@ -110,6 +110,8 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
     lang = lang
     importExcludeMatchesPrefName = "import_exclude_matches"
     excludePathsPrefName = "phpExcludePaths"
+    calltipLookbackLimitPrefName = "php_calltip_lookback_limit"
+    calltip_lookback_limit = 200
 
     # Used by ProgLangTriggerIntelMixin.preceding_trg_from_pos()
     trg_chars = tuple('$>:(,@"\' \\')
@@ -133,37 +135,62 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
             print "Arg separater found, looking for start of function"
         # Move back to the open paren of the function
         paren_count = 0
-        p = pos
-        min_p = max(0, p - 200) # look back max 200 chars
-        while p > min_p:
-            p, c, style = ac.getPrecedingPosCharStyle(ignore_styles=self.comment_styles)
-            if style == self.operator_style:
-                if c == ")":
+        # Account for parenthesis at current position
+        pos, char, style = ac.getCurrentPosCharStyle()
+        if style == self.operator_style and char == ")":
+            # Swallow all parenthesis
+            pos, prev_text = ac.getTextBackWithStyle()
+            for char in prev_text:
+                if char == ")":
                     paren_count += 1
-                elif c == "(":
+                elif char == "(":
+                    paren_count -= 1
+        min_pos = max(0, pos - self.calltip_lookback_limit) # look back max calltip_lookback_limit chars (we may add some more later)
+        while pos > min_pos:
+            pos, char, style = ac.getPrecedingPosCharStyle(ignore_styles=self.comment_styles)
+            if style == self.operator_style:
+                if char == ")" or char == ",":
+                    # Grant more characters whenever we see a comma
+                    if char == ",":
+                        min_pos = max(0, pos - self.calltip_lookback_limit)
+
+                    # Swallow all parenthesis
+                    pos, prev_text = ac.getTextBackWithStyle()
+                    for char in prev_text:
+                        if char == ")":
+                            paren_count += 1
+                        elif char == "(":
+                            paren_count -= 1
+                    # Set new value of char and continue processing. style is still the same and p is already updated
+                    char = prev_text[0]
+                    # If the new character is a (, we don't want to double close it
+                    if char == "(":
+                        paren_count += 1
+
+                if char == "(":
                     if paren_count == 0:
                         # We found the open brace of the func
-                        trg_from_pos = p+1
-                        p, ch, style = ac.getPrevPosCharStyle()
+                        trg_from_pos = pos+1
+                        pos, ch, style = ac.getPrevPosCharStyle()
                         if DEBUG:
-                            print "Function start found, pos: %d" % (p, )
+                            print "Function start found, pos: %d" % (pos, )
                         if style in self.comment_styles_or_whitespace:
                             # Find previous non-ignored style then
-                            p, c, style = ac.getPrecedingPosCharStyle(style, self.comment_styles_or_whitespace)
+                            pos, char, style = ac.getPrecedingPosCharStyle(style, self.comment_styles_or_whitespace)
                         if style in (self.identifier_style, self.keyword_style):
                             return Trigger(lang, TRG_FORM_CALLTIP,
                                            "call-signature",
                                            trg_from_pos, implicit=True)
                     else:
                         paren_count -= 1
-                elif c in ";{}":
+                elif char in ";{}":
                     # Gone too far and noting was found
                     if DEBUG:
-                        print "No function found, hit stop char: %s at p: %d" % (c, p)
+                        print "No function found, hit stop char: %s at pos: %d" % (char, pos)
                     return None
         # Did not find the function open paren
         if DEBUG:
-            print "No function found, ran out of chars to look at, p: %d" % (p,)
+            print "No function found, ran out of chars to look at, pos: %d" % (pos,)
         return None
 
     #@util.hotshotit
@@ -1070,6 +1097,9 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
                 self._invalidate_cache_and_rescan_extra_dirs)
             env.add_pref_observer(self.importExcludeMatchesPrefName,
                 self._invalidate_cache_and_rescan_extra_dirs)
+            self._get_lookback_prefs(env)
+            env.add_pref_observer(self.calltipLookbackLimitPrefName,
+                self._get_lookback_prefs)
             env.add_pref_observer("phpConfigFile",
                                   self._invalidate_cache)
             env.add_pref_observer("codeintel_selected_catalogs",
@@ -1181,6 +1211,9 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
                 "PHP", "extradirslib", extra_dirs, "PHP")
             request = PreloadLibRequest(extradirslib)
             self.mgr.idxr.stage_request(request, 1.0)
+
+    def _get_lookback_prefs(self, env):
+        self.calltip_lookback_limit = env.get_pref(self.calltipLookbackLimitPrefName, self.calltip_lookback_limit)
 
     #---- code browser integration
     cb_import_group_title = "Includes and Requires"   
