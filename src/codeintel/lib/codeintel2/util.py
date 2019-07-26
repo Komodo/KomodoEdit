@@ -639,6 +639,82 @@ def walk2(top, topdown=True, onerror=None, followlinks=False,
     instance. It can report the error to continue with the walk, or
     raise the exception to abort the walk.
     """
+    try:
+        from scandir import scandir
+        return _walk2_via_scandir(top, topdown, onerror, followlinks, ondecodeerror, exclude_dirs, dir_names_to_skip)
+    except (ImportError, IOError):
+        return _walk2_wo_scandir(top, topdown, onerror, followlinks, ondecodeerror, exclude_dirs, dir_names_to_skip)
+
+def _walk2_via_scandir(top, topdown=True, onerror=None, followlinks=False,
+        ondecodeerror=None, exclude_dirs=[], dir_names_to_skip=[]):
+    """A version of `os.walk` that adds support for handling errors for
+    files that cannot be decoded with the default encoding. (See bug 82268.)
+
+    By default `UnicodeDecodeError`s from the os.listdir() call are
+    ignored.  If optional arg 'ondecodeerror' is specified, it should be a
+    function; it will be called with one argument, the `UnicodeDecodeError`
+    instance. It can report the error to continue with the walk, or
+    raise the exception to abort the walk.
+    """
+    from os.path import join
+    from scandir import scandir
+
+    # Check if root directory is skipped
+    if top in exclude_dirs:
+        return
+    if basename(top) in dir_names_to_skip:
+        return
+
+    # We may not have read permission for top, in which case we can't
+    # get a list of the files the directory contains.  os.path.walk
+    # always suppressed the exception then, rather than blow up for a
+    # minor reason when (say) a thousand readable directories are still
+    # left to visit.  That logic is copied here.
+    try:
+        # Note that error is global in this module due to earlier import-*.
+        dirEntries = scandir(top)
+    except os.error, err:
+        if onerror is not None:
+            onerror(err)
+        return
+
+    dirs, walkable_paths, nondirs = [], [], []
+    for dirEntry in dirEntries:
+        try:
+            if dirEntry.is_dir():
+                # Check for skipped directories
+                if dirEntry.name not in dir_names_to_skip:
+                    path = join(top, dirEntry.name)
+                    if path not in exclude_dirs:
+                        dirs.append(dirEntry.name)
+                        if followlinks or not dirEntry.is_symlink():
+                            walkable_paths.append(path)
+            else:
+                nondirs.append(dirEntry.name)
+        except UnicodeDecodeError, err:
+            if ondecodeerror is not None:
+                ondecodeerror(err)
+
+    if topdown:
+        yield top, dirs, nondirs
+    for path in walkable_paths:
+        # Walk this directory
+        for x in _walk2_via_scandir(path, topdown, onerror, followlinks, ondecodeerror, exclude_dirs, dir_names_to_skip):
+            yield x
+    if not topdown:
+        yield top, dirs, nondirs
+
+def _walk2_wo_scandir(top, topdown=True, onerror=None, followlinks=False,
+        ondecodeerror=None, exclude_dirs=[], dir_names_to_skip=[]):
+    """A version of `os.walk` that adds support for handling errors for
+    files that cannot be decoded with the default encoding. (See bug 82268.)
+
+    By default `UnicodeDecodeError`s from the os.listdir() call are
+    ignored.  If optional arg 'ondecodeerror' is specified, it should be a
+    function; it will be called with one argument, the `UnicodeDecodeError`
+    instance. It can report the error to continue with the walk, or
+    raise the exception to abort the walk.
+    """
     from os.path import join, isdir, islink
 
     # Check if root directory is skipped
@@ -664,22 +740,16 @@ def walk2(top, topdown=True, onerror=None, followlinks=False,
     dirs, nondirs = [], []
     for name in names:
         try:
-            if isdir(join(top, name)):
-                dirs.append(name)
+            path = join(top, name)
+            if isdir(path):
+                # Check for skipped directories
+                if name not in dir_names_to_skip and path not in exclude_dirs:
+                    dirs.append(name)
             else:
                 nondirs.append(name)
         except UnicodeDecodeError, err:
             if ondecodeerror is not None:
                 ondecodeerror(err)
-
-    # Check for skipped directories
-    for name in dirs:
-        if name in dir_names_to_skip:
-            dirs.remove(name)
-            continue
-        if join(top, name) in exclude_dirs:
-            dirs.remove(name)
-            continue
 
     if topdown:
         yield top, dirs, nondirs
@@ -688,7 +758,7 @@ def walk2(top, topdown=True, onerror=None, followlinks=False,
 
         # Walk this directory
         if followlinks or not islink(path):
-            for x in walk2(path, topdown, onerror, followlinks, ondecodeerror, exclude_dirs, dir_names_to_skip):
+            for x in _walk2_wo_scandir(path, topdown, onerror, followlinks, ondecodeerror, exclude_dirs, dir_names_to_skip):
                 yield x
     if not topdown:
         yield top, dirs, nondirs
