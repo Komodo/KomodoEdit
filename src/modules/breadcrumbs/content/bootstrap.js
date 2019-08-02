@@ -8,10 +8,16 @@ require.setRequirePath("breadcrumbs/", "chrome://breadcrumbs/content/sdk/");
         if ( ! view && view._breadcrumbsInit) return;
         view._breadcrumbsInit = true;
         view._breadcrumbs = require("breadcrumbs/breadcrumbs").init(view);
-    }
-    
+    };
     window.addEventListener('editor_view_opened', viewChanged);
-    
+
+    var viewClosed = function()
+    {
+        view._breadcrumbsInit = false;
+        view._breadcrumbs = null;
+    };
+    window.addEventListener('view_closed', viewClosed);
+
     var observer = (subject) =>
     {
         var info = subject.wrappedJSObject;
@@ -29,5 +35,4 @@ require.setRequirePath("breadcrumbs/", "chrome://breadcrumbs/content/sdk/");
 
     var obs = Components.classes["@mozilla.org/observer-service;1"].getService(Components.interfaces.nsIObserverService);
     obs.addObserver(observer, "morekomodo_command", false);
-
 })();
