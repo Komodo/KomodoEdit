@@ -232,6 +232,7 @@ var breadcrumbs = function(view) {
         breadcrumbBarWrap = breadcrumbBar = overflowBtn = wrapper = null;
         template = {};
         view = null;
+        xv = null;
     };
 
 
@@ -349,7 +350,9 @@ var breadcrumbs = function(view) {
         breadcrumbBar.addEventListener("mousemove", popupMousemove);
 
         // Set up unbinds
-        let unbinder = function() {
+        let unbinder = function(e) {
+            if (e.originalTarget != crumbView)
+                return;
             breadcrumbBar.removeEventListener("mousedown", crumbMousedown);
             breadcrumbBar.removeEventListener("keyup", filterFunc);
             breadcrumbBar.removeEventListener("popupshowing", showingFunc);

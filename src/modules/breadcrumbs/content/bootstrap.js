@@ -11,12 +11,16 @@ require.setRequirePath("breadcrumbs/", "chrome://breadcrumbs/content/sdk/");
     };
     window.addEventListener('editor_view_opened', viewChanged);
 
-    var viewClosed = function()
+    var viewClosed = function(e)
     {
-        view._breadcrumbsInit = false;
-        view._breadcrumbs = null;
+        var view = e.detail.view;
+        if (view && view._breadcrumbsInit)
+        {
+            view._breadcrumbsInit = false;
+            view._breadcrumbs = null;
+        }
     };
-    window.addEventListener('view_closed', viewClosed);
+    window.addEventListener('editor_view_closed', viewClosed);
 
     var observer = (subject) =>
     {
