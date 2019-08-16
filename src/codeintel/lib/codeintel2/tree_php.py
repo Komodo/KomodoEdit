@@ -922,39 +922,8 @@ class PHPTreeEvaluator(TreeEvaluator):
                    tokens[:nconsumed], hits)
 
         # ...the remainder.
-        remaining_tokens = tokens[nconsumed:]
-        while remaining_tokens:
-            new_hits = []
-            for hit in hits:
-                new_hit = None
-                try:
-                    self.debug("_hit_from_citdl:: resolve %r on %r in %r",
-                               remaining_tokens, *hit)
-                    if remaining_tokens[0] == "()":
-                        #TODO: impl this function
-                        # _hit_from_call(elem, scoperef) -> hit or raise
-                        #   CodeIntelError("could resolve call on %r: %s", hit[0], ex)
-                        new_hit = self._hit_from_call(*hit)
-                        nconsumed = 1
-                    else:
-                        new_hit, nconsumed \
-                            = self._hit_from_getattr(remaining_tokens, *hit)
-                        ## if is function and return is in (this, ) return initial class
-                        if new_hit[0].get("ilk") == "function" and new_hit[0].get("returns") in ("this",):
-                            nconsumed = 2
-                            new_hit = hit
-                            if self.trg.form == TRG_FORM_CALLTIP and len(remaining_tokens) <= 1:
-                                #now get the resolve the calltip on the last hit class directly!
-                                remaining_tokens = [remaining_tokens[-1]]
-                                new_hit, nconsumed = self._hit_from_getattr(remaining_tokens, *hit)
-                    remaining_tokens = remaining_tokens[nconsumed:]
-                except CodeIntelError, ex:
-                    self.debug("error %s", ex)
-                if new_hit:
-                    new_hits.append(new_hit)
-            if not new_hits:
-                break
-            hits = new_hits
+        first_part_hits = hits
+        hits = self._hit_from_citdl_remainining_tokens_hits(tokens[nconsumed:], first_part_hits, False)
 
         if not hits:
             raise CodeIntelError("could not resolve first part of '%s'" % expr)
@@ -966,10 +935,61 @@ class PHPTreeEvaluator(TreeEvaluator):
         #TODO: Need to *recursively* resolve hits.
         elem, scoperef = hit
         if elem.tag == "variable" and not self.defn_request:
-            elem, scoperef = self._hit_from_variable_type_inference(elem, scoperef)
+            try:
+                elem, scoperef = self._hit_from_variable_type_inference(elem, scoperef)
+            except CodeIntelError, ex:
+                # If lookup failed, try parent classes (See https://github.com/Komodo/KomodoEdit/issues/3780)
+                hits = self._hit_from_citdl_remainining_tokens_hits(tokens[nconsumed:], first_part_hits, True)
+                if not hits:
+                    raise CodeIntelError("could not resolve first part of '%s'" % expr)
+                if len(hits) > 2:
+                    self.debug("_hit_from_citdl:: multiple hits found, returning the first hit")
+                hit = hits[0]
+                elem, scoperef = hit
+                if elem.tag == "variable" and not self.defn_request:
+                    elem, scoperef = self._hit_from_variable_type_inference(elem, scoperef)
 
         self.info("_hit_from_citdl:: found '%s' => %s on %s", expr, elem, scoperef)
         return (elem, scoperef)
+
+    def _hit_from_citdl_remainining_tokens_hits(self, remaining_tokens, hits, parent_lookup):
+        """ Get hits from remaining tokens """
+        while remaining_tokens:
+            new_hits = []
+            for hit in hits:
+                new_hit = None
+                try:
+                    self.debug("_hit_from_citdl:: resolve %r on %r in %r",
+                               remaining_tokens, *hit)
+                    if remaining_tokens[0] == "()":
+                        if not parent_lookup:
+                            #TODO: impl this function
+                            # _hit_from_call(elem, scoperef) -> hit or raise
+                            #   CodeIntelError("could resolve call on %r: %s", hit[0], ex)
+                            new_hit = self._hit_from_call(*hit)
+                            nconsumed = 1
+                    else:
+                        elem, scoperef = hit
+                        if not parent_lookup or (elem.tag == "scope" and elem.get("ilk") in ("class" , "trait", "interface")):
+                            new_hit, nconsumed \
+                                = self._hit_from_getattr(remaining_tokens, elem, scoperef, ignore_attrs=parent_lookup)
+                            ## if is function and return is in (this, ) return initial class
+                            if new_hit[0].get("ilk") == "function" and new_hit[0].get("returns") in ("this",):
+                                nconsumed = 2
+                                new_hit = hit
+                                if self.trg.form == TRG_FORM_CALLTIP and len(remaining_tokens) <= 1:
+                                    #now get the resolve the calltip on the last hit class directly!
+                                    remaining_tokens = [remaining_tokens[-1]]
+                                    new_hit, nconsumed = self._hit_from_getattr(remaining_tokens, *hit)
+                    remaining_tokens = remaining_tokens[nconsumed:]
+                except CodeIntelError, ex:
+                    self.debug("error %s", ex)
+                if new_hit:
+                    new_hits.append(new_hit)
+            if not new_hits:
+                break
+            hits = new_hits
+        return hits
 
     def _alternative_elem_from_scoperef(self, traversed_items):
         """Find an alternative named element for the given traversal items"""
@@ -1388,7 +1408,7 @@ class PHPTreeEvaluator(TreeEvaluator):
 
         return None, None
 
-    def _hit_from_getattr(self, tokens, elem, scoperef):
+    def _hit_from_getattr(self, tokens, elem, scoperef, ignore_attrs=False):
         """Return a hit for a getattr on the given element.
 
         Returns (<hit>, <num-tokens-consumed>) or raises an EvalError.
@@ -1424,7 +1444,9 @@ class PHPTreeEvaluator(TreeEvaluator):
                 # may not exist if `$foo->bar` is annotated as an array via
                 # `@var`. If so, strip '[]' for proper detection.
                 first_token = first_token[0:-2]
-            attr = elem.names.get(first_token)
+            attr = None
+            if not ignore_attrs:
+                attr = elem.names.get(first_token)
             if attr is not None:
                 self.log("_hit_from_getattr:: attr is %r in %r", attr, elem)
                 if static_member and "static" not in attr.get("attributes", "").split():
