@@ -551,7 +551,10 @@ class PHPTreeEvaluator(TreeEvaluator):
                    and child.get("symbol"):
                     module = "\\%s\\%s" % (child.get("module"), child.get("symbol"))
                     self.attemptingPSR4Autoloading = True
-                    elem, scope = self._hit_from_citdl(module, scoperef)
+                    try:
+                        elem, scope = self._hit_from_citdl(module, scoperef)
+                    except CodeIntelError:
+                        elem = None
                     self.attemptingPSR4Autoloading = False
                     if elem and scope:
                         for subelem in elem:
@@ -1270,19 +1273,23 @@ class PHPTreeEvaluator(TreeEvaluator):
                         if expr not in attempted_psr4_exprs:
                             attempted_psr4_exprs[expr] = True
                             self.attemptingPSR4Autoloading = True
-                            hit = self._hit_from_citdl(expr, scoperef)
+                            try:
+                                hit = self._hit_from_citdl(expr, scoperef)
+                            except CodeIntelError:
+                                hit = None
                             self.attemptingPSR4Autoloading = False
-                            found_elem, scope = hit
-                            if found_elem and scope and \
-                               found_elem.get("ilk") == "class":
-                                # TODO: technically PSR-4 requires only one class
-                                # per file. Ideally we'd check for that here, but
-                                # that's a bit more work that may not be worth it.
-                                class_name = found_elem.get("name")
-                                file_name = scope[0].get("name")
-                                if file_name.endswith(".php") \
-                                   and file_name.startswith(class_name + "."):
-                                    return ([hit], 1)
+                            if hit:
+                                found_elem, scope = hit
+                                if found_elem and scope and \
+                                   found_elem.get("ilk") == "class":
+                                    # TODO: technically PSR-4 requires only one class
+                                    # per file. Ideally we'd check for that here, but
+                                    # that's a bit more work that may not be worth it.
+                                    class_name = found_elem.get("name")
+                                    file_name = scope[0].get("name")
+                                    if file_name.endswith(".php") \
+                                       and file_name.startswith(class_name + "."):
+                                        return ([hit], 1)
                 else:
                     if "\\" not in first_token and elem.get("ilk") == "namespace":
                         self.log("_hits_from_first_part:: checking for a FQN hit")
