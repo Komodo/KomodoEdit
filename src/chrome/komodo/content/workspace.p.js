@@ -625,7 +625,7 @@ this.saveWorkspaceDeferred = function view_saveWorkspaceDeferred()
     if (ko.workspace.saveWorkspaceDeferred.timer !== null)
         return;
     
-    // For deffered calls we only want to save the workspace at most once every X seconds
+    // For deferred calls we only want to save the workspace at most once every X seconds
     ko.workspace.saveWorkspaceDeferred.timer = setTimeout(ko.workspace.saveWorkspace, ko.prefs.getLong('workspace_deferred_save_delay', 60000));
 };
 this.saveWorkspaceDeferred.timer = null;
@@ -649,6 +649,10 @@ this.saveWorkspace = function view_saveWorkspace(saveNow)
                                           thisWindow, mainWindow,
                                           windowWorkspace, saveCoordinates);
         }
+        // Save current project settings
+        var currentProject = ko.projects.manager.currentProject;
+        if (currentProject)
+            ko.projects.manager.saveProjectViewState(currentProject);
         // Use the current window's layout as the default for new windows
         // Use the last window to close to save the default window state
         // Don't run this everytime saveWorkspace is run (eg. on every file
