@@ -3240,6 +3240,11 @@ class PHPParser:
                 pos += 1
                 firstStyle = styles[pos]
                 likelyAttribute = True
+            # Make sure it's not a keyword
+            if likelyAttribute and firstStyle == self.PHP_WORD:
+                keyword = text[pos].lower()
+                if keyword == "const" or keyword == "function":
+                    likelyAttribute = False
             attributeType = None
             if likelyAttribute:
                 # Eat optional type hint
