@@ -650,9 +650,12 @@ this.saveWorkspace = function view_saveWorkspace(saveNow)
                                           windowWorkspace, saveCoordinates);
         }
         // Save current project settings
-        var currentProject = ko.projects.manager.currentProject;
-        if (currentProject)
-            ko.projects.manager.saveProjectViewState(currentProject);
+        if (ko.projects.manager)
+        {
+            var currentProject = ko.projects.manager.currentProject;
+            if (currentProject)
+                ko.projects.manager.saveProjectViewState(currentProject);
+        }
         // Use the current window's layout as the default for new windows
         // Use the last window to close to save the default window state
         // Don't run this everytime saveWorkspace is run (eg. on every file
