@@ -1571,7 +1571,6 @@ class koGlobalPrefService(object):
                     getService(components.interfaces.nsIObserverService)
         obsvc.addObserver(self, 'xpcom-shutdown', False)
         obsvc.addObserver(self, 'profile-before-change', False)
-        obsvc.addObserver(self, 'idle', False)
         log.debug("koPrefService started")
 
     @LazyClassAttribute
