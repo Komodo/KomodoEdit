@@ -280,7 +280,13 @@
     this.onSelectResult = function()
     {
         var result = commando.getSelectedResult();
-        require("./manage").installPackage(result.data.package, function()
+        var pkg = null;
+        if (result.data && result.data.package)
+            pkg = result.data.package;
+        // Handle "Open" option when viewing a package
+        else if (result.subscope && result.subscope.data && result.subscope.data.package)
+            pkg = result.subscope.data.package;
+        require("./manage").installPackage(pkg, function()
         {
             commando.refresh();
             commando.hide.bind(commando);
@@ -587,7 +593,7 @@
     this.isSystemAddon = function(id)
     {
         var addon = _cache.addons[id] || null;
-        if (addon && addon.scope == AddonManager.SCOPE_APPLICATION || addon.scope == AddonManager.SCOPE_SYSTEM)
+        if (addon && (addon.scope == AddonManager.SCOPE_APPLICATION || addon.scope == AddonManager.SCOPE_SYSTEM))
             return true;
         return false;
     }
