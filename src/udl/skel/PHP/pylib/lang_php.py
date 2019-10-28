@@ -2233,6 +2233,7 @@ class PHPParser:
             self.currentFunction = None
 
     def addFunction(self, name, phpArgs=None, attributes=None, doc=None,
+                    returnType=None,
                     returnByRef=False):
         log.debug("FUNC: %s(%r) on line %d", name, phpArgs, self.lineno)
         classname = ''
@@ -2248,6 +2249,7 @@ class PHPParser:
                                            doc=doc,
                                            classname=classname,
                                            classparent=extendsName,
+                                           returnType=returnType,
                                            returnByRef=returnByRef)
         if self.currentClass:
             self.currentClass.functions[self.currentFunction.name] = self.currentFunction
@@ -2566,6 +2568,39 @@ class PHPParser:
                 if phpArg:
                     phpArgs.append(phpArg)
         return phpArgs, p
+
+    def _getFuncTypeHintFromPos(self, styles, text, pos):
+        """Return function type hint"""
+
+        p = pos
+        citdl = None
+        if p < len(styles) and styles[p] == self.PHP_OPERATOR and text[p] == ":":
+            p += 1
+            citdl, p = self._getCidtlFromPos(styles, text, p)
+
+        return citdl, p
+
+    def _getCidtlFromPos(self, styles, text, pos):
+        """Return type from position"""
+
+        p = pos
+        citdl = None
+        while p < len(styles):
+            if styles[p] in (self.PHP_IDENTIFIER, self.PHP_WORD):
+                if citdl is None:
+                    citdl = ""
+                citdl += text[p]
+            # Namespace separator
+            elif text[p] == '\\':
+                if citdl is None:
+                    citdl = ""
+                citdl += text[p]
+            elif styles[p] == self.PHP_OPERATOR and text[p] == "?" and citdl is None:
+                pass
+            else:
+                break
+            p += 1
+        return citdl, p
 
     def _getOneIdentifierFromPos(self, styles, text, pos, identifierStyle=None):
         if identifierStyle is None:
@@ -2918,6 +2953,7 @@ class PHPParser:
         return False
 
     def _variableHandler(self, styles, text, p, attributes, doc=None,
+                         typeHint=None,
                          style="variable"):
         log.debug("_variableHandler:: style: %r, text: %r, attributes: %r",
                   style, text[p:], attributes)
@@ -3009,6 +3045,8 @@ class PHPParser:
                 if typeNames and p < len(styles) and \
                    styles[p] == self.PHP_OPERATOR and text[p] == "(":
                     p = self._skipPastParenArguments(styles, text, p+1)
+            if typeHint is not None:
+                typeNames.append(typeHint)
 
             # Create the variable cix information.
             if mustCreateVariable or (not thisVar and p < len(styles) and
@@ -3194,11 +3232,26 @@ class PHPParser:
                 self.comment = None
 
             # Eat special attribute keywords
+            likelyAttribute = False
             while firstStyle == self.PHP_WORD and \
                   text[pos] in ("var", "public", "protected", "private",
                                 "final", "static", "abstract"):
                 attributes.append(text[pos])
                 pos += 1
+                firstStyle = styles[pos]
+                likelyAttribute = True
+            # Make sure it's not a keyword
+            if likelyAttribute and firstStyle == self.PHP_WORD:
+                keyword = text[pos].lower()
+                if keyword == "const" or keyword == "function":
+                    likelyAttribute = False
+            attributeType = None
+            if likelyAttribute:
+                # Eat optional type hint
+                if firstStyle == self.PHP_OPERATOR and text[pos] == "?":
+                    pos += 1
+                    firstStyle = styles[pos]
+                attributeType, pos = self._getCidtlFromPos(styles, text, pos)
                 firstStyle = styles[pos]
     
             if firstStyle == self.PHP_WORD:
@@ -3250,8 +3303,10 @@ class PHPParser:
                                      "%r, line: %d in file: %r", namelist,
                                      self.lineno, self.filename)
                             return
+                        returnType, p = self._getFuncTypeHintFromPos(styles, text, p + 1) # +1 to skip ending parenthesis
                         self.addFunction(namelist[0], phpArgs, attributes,
                                          doc=self.comment,
+                                         returnType=returnType,
                                          returnByRef=returnByRef)
                 elif keyword == "class" or keyword == "trait":
                     # Examples:
@@ -3366,6 +3421,7 @@ class PHPParser:
             elif firstStyle == self.PHP_VARIABLE:
                 # Defining scope for action
                 self._variableHandler(styles, text, pos, attributes,
+                                      typeHint=attributeType,
                                       doc=self.comment)
             else:
                 log.debug("Unhandled first style:%d", firstStyle)
