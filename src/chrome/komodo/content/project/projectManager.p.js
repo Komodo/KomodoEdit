@@ -197,7 +197,7 @@ projectManager.prototype.forceCloseAllViewsForURL = function(url) {
 }
 
 
-projectManager.prototype._saveProjectViewState = function(project) {
+projectManager.prototype.saveProjectViewState = function(project) {
     // This function goes through all of the URLs in a project,
     // finds out if any of them are "open", and saves the
     // list in a viewState Pref for the Project's KPF file.
@@ -332,7 +332,7 @@ projectManager.prototype.closeProject = function(project /*=this.currentProject*
             }
         }
     }
-    this._saveProjectViewState(project);
+    this.saveProjectViewState(project);
     if ( ! ko.main.windowIsTryingToClose)
     {
         var urls = this._getOpenURLsInProject(project);
