@@ -105,6 +105,31 @@ class LoggingHandler(logging.Handler):
         except:
             self.handleError(record)
 
+class DriverBufferCache(collections.OrderedDict):
+    """
+    Cache of buffers
+    See https://docs.python.org/3/library/collections.html#collections.OrderedDict
+    """
+    def __init__(self, maxsize=20):
+        self.maxsize = maxsize
+        collections.OrderedDict.__init__(self)
+
+    def __getitem__(self, key):
+        value = collections.OrderedDict.__getitem__(self, key)
+        del self[key]
+        collections.OrderedDict.__setitem__(self, key, value)
+        return value
+
+    def __setitem__(self, key, value):
+        if key in self:
+            del self[key]
+        # Not key, see if we need space
+        else:
+            if len(self) + 1 > self.maxsize:
+                oldest = next(iter(self))
+                del self[oldest]
+        collections.OrderedDict.__setitem__(self, key, value)
+
 class Driver(threading.Thread):
     """
     Out-of-process codeintel2 driver
@@ -134,7 +159,7 @@ class Driver(threading.Thread):
         self.fd_out = fd_out
         self.abort = None
         self.quit = False
-        self.buffers = {} # path to Buffer objects
+        self.buffers = DriverBufferCache()
         self.next_buffer = 0
         self.active_request = None
 
@@ -383,7 +408,9 @@ class Driver(threading.Thread):
         #log.debug("Got buffer %r: [%s]", buf, buf.accessor.content)
         log.debug("Got buffer %r", buf)
 
+        # Update cached buffer
         self.buffers[path] = buf
+
         return buf
 
     def do_abort(self, request):
