@@ -148,7 +148,8 @@ class Driver(threading.Thread):
     _builtin_commands = {}
     """Built-in commands that cannot be overridden"""
 
-    def __init__(self, db_base_dir=None, fd_in=sys.stdin, fd_out=sys.stdout):
+    def __init__(self, db_base_dir=None, fd_in=sys.stdin, fd_out=sys.stdout,
+                 buffer_max=20):
         threading.Thread.__init__(self, name="CodeIntel OOP Driver")
         assert Driver._instance is None, "Driver should be a singleton"
         Driver._instance = self
@@ -159,7 +160,7 @@ class Driver(threading.Thread):
         self.fd_out = fd_out
         self.abort = None
         self.quit = False
-        self.buffers = DriverBufferCache()
+        self.buffers = DriverBufferCache(buffer_max)
         self.next_buffer = 0
         self.active_request = None
 

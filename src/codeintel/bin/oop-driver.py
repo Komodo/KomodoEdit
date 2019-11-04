@@ -34,6 +34,8 @@ def main(argv=[]):
     parser.description = "Komodo out-of-process codeintel driver"
     parser.add_argument("--database-dir", default=os.path.expanduser("~/.codeintel"),
                         help="The base directory for the codeintel database.")
+    parser.add_argument("--buffer-max", default=20,
+                        help="The number of buffers code intel will keep in memory")
     parser.add_argument("--log-level", action="append", default=[],
                         help="<log name>:<level> Set log level")
     parser.add_argument("--log-file", default=None,
@@ -122,7 +124,7 @@ def main(argv=[]):
         log.exception("Failed to connect to Komodo: %s", ex)
         raise
     driver = Driver(db_base_dir=args.database_dir,
-                    fd_in=fd_in, fd_out=fd_out)
+                    fd_in=fd_in, fd_out=fd_out, buffer_max=args.buffer_max)
     driver.start()
 
 def set_idle_priority():
