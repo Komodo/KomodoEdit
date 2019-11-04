@@ -158,18 +158,18 @@
 <!ENTITY editorInsertSnippetByName.desc "Editor: Insert Abbreviation Snippet by Name">
 <!ENTITY editorJoinCurrentAndNextLines.desc "Editor: Join current and next lines">
 <!ENTITY editorLaunchColorPicker.desc "Editor: Launch the Color Picker">
-<!ENTITY editorMoveBackPartOfWord.desc "Editor: Move Back Part of Word">
-<!ENTITY editorMoveBackPartOfWordSameLine.desc "Editor: Move Back Part of Word (Prefer Current Line)">
-<!ENTITY editorMoveForwardPartOfWord.desc "Editor: Move Forward Part of Word">
-<!ENTITY editorMoveForwardPartOfWordSameLine.desc "Editor: Move Forward Part of Word (Prefer Current Line)">
-<!ENTITY editorMoveLeftOneCharacter.desc "Editor: Move Left One Character">
-<!ENTITY editorMoveOneCharacterRight.desc "Editor: Move One Character Right">
-<!ENTITY editorMoveOneWordLeft.desc "Editor: Move One Word Left">
-<!ENTITY editorMoveOneWordLeftSameLine.desc "Editor: Move One Word Left (Prefer Current Line)">
-<!ENTITY editorMoveOneWordRight.desc "Editor: Move One Word Right">
-<!ENTITY editorMoveOneWordRightSameLine.desc "Editor: Move One Word Right (Prefer Current Line)">
-<!ENTITY editorMoveToEndOfWordToLeft.desc "Editor: Move To End Of Word To Left">
-<!ENTITY editorMoveToPreviousMarkInMarkRing.desc "Editor: Move to previous mark in mark ring">
+<!ENTITY editorMoveBackPartOfWord.desc "Editor: Go Back Part of Word">
+<!ENTITY editorMoveBackPartOfWordSameLine.desc "Editor: Go Back Part of Word (Prefer Current Line)">
+<!ENTITY editorMoveForwardPartOfWord.desc "Editor: Go Forward Part of Word">
+<!ENTITY editorMoveForwardPartOfWordSameLine.desc "Editor: Go Forward Part of Word (Prefer Current Line)">
+<!ENTITY editorMoveLeftOneCharacter.desc "Editor: Go Left One Character">
+<!ENTITY editorMoveOneCharacterRight.desc "Editor: Go One Character Right">
+<!ENTITY editorMoveOneWordLeft.desc "Editor: Go One Word Left">
+<!ENTITY editorMoveOneWordLeftSameLine.desc "Editor: Go One Word Left (Prefer Current Line)">
+<!ENTITY editorMoveOneWordRight.desc "Editor: Go One Word Right">
+<!ENTITY editorMoveOneWordRightSameLine.desc "Editor: Go One Word Right (Prefer Current Line)">
+<!ENTITY editorMoveToEndOfWordToLeft.desc "Editor: Go To End Of Word To Left">
+<!ENTITY editorMoveToPreviousMarkInMarkRing.desc "Editor: Go to previous mark in mark ring">
 <!ENTITY editorPageDown.desc "Editor: Page Down">
 <!ENTITY editorPageUp.desc "Editor: Page Up">
 <!ENTITY editorParaUp.desc "Editor: Paragraph Up">
@@ -418,15 +418,15 @@
 <!ENTITY editTemplate.label "Edit Template">
 <!ENTITY insertSnippet.label "Insert Snippet">
 <!ENTITY joinLines.label "Join Lines">
-<!ENTITY jumpToParentFold.label "Jump to Parent Fold">
-<!ENTITY jumpToPreviousFold.label "Jump to Previous Fold">
-<!ENTITY jumpToNextFold.label "Jump to Next Fold">
+<!ENTITY jumpToParentFold.label "Go to Parent Fold">
+<!ENTITY jumpToPreviousFold.label "Go to Previous Fold">
+<!ENTITY jumpToNextFold.label "Go to Next Fold">
 <!ENTITY jumpToCorrespondingLine.label "Go to corresponding line">
 <!ENTITY jumpToCorrespondingLineForDiffMode.label "Go to Corresponding Line (for Diff mode)">
 <!ENTITY jumpToMatchingBrace.label "Go to Matching Brace">
 <!ENTITY jumpToNextResult.label "Go to next result">
-<!ENTITY jumpToNextResult.tooltiptext "Jump To Next Result">
-<!ENTITY jumpToPreviousResult.tooltiptext "Jump To Previous Result">
+<!ENTITY jumpToNextResult.tooltiptext "Go To Next Result">
+<!ENTITY jumpToPreviousResult.tooltiptext "Go To Previous Result">
 <!ENTITY historyBack.accesskey "B">
 <!ENTITY historyBack.label "Back">
 <!ENTITY historyForward.accesskey "F">
@@ -744,9 +744,9 @@
 <!ENTITY sourceCodeFindNextFunction.desc "Code: Find Next Function">
 <!ENTITY sourceCodeFindPreviousFunction.desc "Code: Find Previous Function">
 <!ENTITY sourceCodeGoToDefinition.desc "Code: Go to Definition">
-<!ENTITY sourceCodeJumpToParentFold.desc "Code: Jump to Parent Fold">
-<!ENTITY sourceCodeJumpToPreviousFold.desc "Code: Jump to Previous Fold At the Same Level">
-<!ENTITY sourceCodeJumpToNextFold.desc "Code: Jump to Next Fold At the Same Level">
+<!ENTITY sourceCodeJumpToParentFold.desc "Code: Go to Parent Fold">
+<!ENTITY sourceCodeJumpToPreviousFold.desc "Code: Go to Previous Fold At the Same Level">
+<!ENTITY sourceCodeJumpToNextFold.desc "Code: Go to Next Fold At the Same Level">
 <!ENTITY sourceCodeJumpToCorrespondingLine.desc "Code: Go to corresponding line">
 <!ENTITY sourceCodeJumpToMatchingBrace.desc "Code: Go to Matching Brace">
 <!ENTITY sourceCodeNextSyntaxErrorWarning.desc "Code: Next Syntax Error/Warning">
