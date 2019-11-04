@@ -11,7 +11,7 @@
        Must keep in sync with "../chrome/komodo/content/library/uilayout.p.js"
   -->
   <long id="uilayout_version">2</long>
-
+  <long id="codeintel_buffer_max">10</long>
   <boolean id="startupMaximized" nonvital="true">0</boolean>
   <boolean id="startupFullScreen" nonvital="true">0</boolean>
   <long id="tabWidth" validate="value > 0">4</long>
