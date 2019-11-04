@@ -58,6 +58,7 @@
         lastSearch: 0,
         showing: false,
         accesskeys: {},
+        tipMessage: null,
         selectedScope: null
     };
 
@@ -2109,6 +2110,14 @@
         elem("search").removeAttr("disabled");
         local.blocked = false;
     }
+    
+    this.unpinTip = () => {
+        local.tipMessage = null;
+    }
+
+    this.pinTip = (tipMessage) => {
+        local.tipMessage = tipMessage;
+    }
 
     this.tip = function(tipMessage, type = "normal")
     {
@@ -2120,6 +2129,13 @@
             elem("tip").attr("tip-type", type);
             elem("tip").text(tipMessage || "");
         }
+        
+        if (local.tipMessage) tipMessage = local.tipMessage;
+
+        // todo: Use localized database of tips
+        elem("tip").attr("tip-type", type);
+        elem("tip").text(tipMessage ||
+                             'TIP: Hit the right arrow key to "expand" your selection');
         
         c.reloadTip();
     }
