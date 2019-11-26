@@ -79,6 +79,12 @@ from codeintel2.accessor import AccessorCache
 if _xpcom_:
     from xpcom.server import UnwrapObject
 
+# Get scandir
+scandir = None
+try:
+    from scandir import scandir
+except ImportError:
+    pass
 
 
 #---- global data
@@ -1179,13 +1185,12 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
 
             # Warn the user if there is a huge number of import dirs that
             # might slow down completion.
-            all_dirs = list(extra_dirs) + list(include_dirs)
-            num_import_dirs = len(all_dirs)
+            num_import_dirs = len(extra_dirs) + len(include_dirs)
             if num_import_dirs > 100:
                 msg = "This buffer is configured with %d %s import dirs: " \
                       "this may result in poor completion performance" % \
                       (num_import_dirs, self.lang)
-                self.mgr.report_message(msg, "\n".join(all_dirs))
+                self.mgr.report_message(msg, "\n".join(list(extra_dirs) + list(include_dirs)))
 
             # - cataloglib, stdlib
             catalog_selections = env.get_pref("codeintel_selected_catalogs")
@@ -1338,21 +1343,33 @@ class PHPImportHandler(ImportHandler):
         if not env:
             env = self.mgr.env
 
+        dirs, nondirs = set(), set()
         try:
-            names = os.listdir(dir)
+            if scandir:
+                for dirEntry in scandir(dir):
+                    try:
+                        if dirEntry.is_dir():
+                            dirs.add(dirEntry.name)
+                        else:
+                            nondirs.add(dirEntry.name)
+                    except UnicodeDecodeError:
+                        # Hit a filename that cannot be encoded in the default encoding.
+                        # Just skip it. (Bug 82268)
+                        pass
+            else:
+                names = os.listdir(dir)
+                for name in names:
+                    try:
+                        if isdir(join(dir, name)):
+                            dirs.add(name)
+                        else:
+                            nondirs.add(name)
+                    except UnicodeDecodeError:
+                        # Hit a filename that cannot be encoded in the default encoding.
+                        # Just skip it. (Bug 82268)
+                        pass
         except OSError, ex:
             return {}
-        dirs, nondirs = set(), set()
-        for name in names:
-            try:
-                if isdir(join(dir, name)):
-                    dirs.add(name)
-                else:
-                    nondirs.add(name)
-            except UnicodeDecodeError:
-                # Hit a filename that cannot be encoded in the default encoding.
-                # Just skip it. (Bug 82268)
-                pass
 
         importables = {}
         patterns = env.assoc_patterns_from_lang("PHP")
@@ -1465,8 +1482,64 @@ def sortByLine(seq):
     return seq
 
 
+_phpdoc_primitive_types = [
+    "null",
+    "int", "integer",
+    "bool", "boolean",
+    "float", "double",
+    "string",
+    "array", "object",
+    "callable", "iterable",
+    "resource",
+    "mixed"
+]
+def _getFQNForType(varType, fileinfo, namespace):
+    """
+    Convert variable type (PHPDoc style) to FQN
+    """
+    # Handle int[]
+    if varType.endswith("[]"):
+        return _getFQNForTypePiece(varType[:-2], fileinfo, namespace) + "[]"
+    # Handle (...)
+    if varType.startswith("(") and varType.endswith(")"):
+        return _getFQNForTypePiece(varType[1:-1], fileinfo, namespace)
+    # Handle int|null
+    varTypes = varType.split("|")
+    rtn = ""
+    for varTypePiece in varTypes:
+        if rtn != "":
+            rtn += "|"
+        rtn += _getFQNForTypePiece(varTypePiece, fileinfo, namespace)
+    return rtn
+
+def _getFQNForTypePiece(varType, fileinfo, namespace):
+    """
+    Convert variable type (PHPDoc style) to FQN
+    """
+    if not "\\" in varType and not varType in _phpdoc_primitive_types:
+        imports_to_check = None
+        if namespace:
+            imports_to_check = namespace.includes
+        elif fileinfo:
+            imports_to_check = fileinfo.includes
+        if imports_to_check:
+            # Check for use statements
+            for use_import in imports_to_check:
+                if use_import.alias == varType or use_import.symbol == varType:
+                    varType = use_import.name + "\\" + use_import.symbol
+                    if varType[0] != "\\":
+                        varType = "\\" + varType
+                    break
+            else:
+                # Add namespace if not found
+                if namespace:
+                    varType = namespace.name + "\\" + varType
+                    if varType[0] != "\\":
+                        varType = "\\" + varType
+    return varType
+
 class PHPArg:
-    def __init__(self, name, citdl=None, signature=None, default=None):
+    def __init__(self, name, citdl=None, signature=None, default=None, namespace=None, fileinfo=None):
         """Set details for a function argument"""
         self.name = name
         self.citdl = citdl
@@ -1478,6 +1551,8 @@ class PHPArg:
             else:
                 self.signature = "$%s" % (name, )
         self.default = default
+        self.namespace = namespace
+        self.fileinfo = fileinfo
 
     def __repr__(self):
         return self.signature
@@ -1491,7 +1566,10 @@ class PHPArg:
             self.signature = "%s %s" % (citdl, self.signature.split(" ", 1)[1])
 
     def toElementTree(self, cixelement, linestart=None):
-        cixarg = addCixArgument(cixelement, self.name, argtype=self.citdl)
+        argtype = self.citdl
+        if argtype:
+            argtype = _getFQNForType(argtype, self.fileinfo, self.namespace)
+        cixarg = addCixArgument(cixelement, self.name, argtype=argtype)
         if self.default:
             cixarg.attrib["default"] = self.default
         if linestart is not None:
@@ -1505,7 +1583,7 @@ class PHPVariable:
     _ignored_php_types = ("object", "mixed")
 
     def __init__(self, name, line, vartype='', attributes='', doc=None,
-                 fromPHPDoc=False, namespace=None):
+                 fromPHPDoc=False, namespace=None, fileinfo=None):
         self.name = name
         self.types = [(line, vartype, fromPHPDoc)]
         self.linestart = line
@@ -1516,6 +1594,8 @@ class PHPVariable:
         else:
             self.attributes = None
         self.doc = doc
+        self.fileinfo = fileinfo
+        self.namespace = namespace
         self.created_namespace = None
         if namespace:
             self.created_namespace = namespace.name
@@ -1554,6 +1634,8 @@ class PHPVariable:
                         vartype = None
                     break # only consider the first @var if name not given
 
+        if vartype:
+            vartype = _getFQNForType(vartype, self.fileinfo, self.namespace)
         if not vartype and self.types:
             d = {}
             max_count = 0
@@ -1584,8 +1666,8 @@ class PHPVariable:
         return cixelement
 
 class PHPConstant(PHPVariable):
-    def __init__(self, name, line, vartype=''):
-        PHPVariable.__init__(self, name, line, vartype)
+    def __init__(self, name, line, vartype='', fileinfo=None):
+        PHPVariable.__init__(self, name, line, vartype, fileinfo=fileinfo)
 
     def __repr__(self):
         return "constant %s line %s type %s\n"\
@@ -1599,7 +1681,8 @@ class PHPConstant(PHPVariable):
 class PHPFunction:
     def __init__(self, funcname, phpArgs, lineno, depth=0,
                  attributes=None, doc=None, classname='', classparent='',
-                 returnType=None, returnByRef=False):
+                 returnType=None, returnByRef=False,
+                 fileinfo=None, namespace=None):
         self.name = funcname
         self.args = phpArgs
         self.linestart = lineno
@@ -1607,6 +1690,8 @@ class PHPFunction:
         self.depth = depth
         self.classname = classname
         self.classparent = classparent
+        self.namespace = namespace
+        self.fileinfo = fileinfo
         self.returnType = returnType
         self.returnByRef = returnByRef
         self.variables = {} # all variables used in class
@@ -1643,10 +1728,11 @@ class PHPFunction:
                             phpArg.updateCitdl(argInfo[0])
                             break
                     else:
-                        self.args.append(PHPArg(argInfo[1], citdl=argInfo[0]))
+                        self.args.append(PHPArg(argInfo[1], citdl=argInfo[0], namespace=namespace, fileinfo=fileinfo))
             if docinfo[2]:
                 self.returnType = docinfo[2][0]
         if self.returnType:
+            # Update signature
             self.signature = '%s %s' % (self.returnType.lower(), self.signature, )
         self.signature += "("
         if self.args:
@@ -1733,7 +1819,7 @@ class PHPFunction:
             for phpArg in self.args:
                 phpArg.toElementTree(cixelement, self.linestart)
         if self.returnType:
-            addCixReturns(cixelement, self.returnType)
+            addCixReturns(cixelement, _getFQNForType(self.returnType, self.fileinfo, self.namespace))
         # Add a "this" and "self" member for class functions
         #if self.classname:
         #    createCixVariable(cixelement, "this", vartype=self.classname)
@@ -1819,7 +1905,7 @@ class PHPClass:
     _re_magic_method = re.compile(r'^\s*@method\s+((?P<citdl>[\w\\()|\[\]]+)\s+)?(?P<name>\w+)(\(\))?(?P<doc>.*?)$', re.M|re.U)
 
     def __init__(self, name, extends, lineno, depth, attributes=None,
-                 interfaces=None, doc=None):
+                 interfaces=None, doc=None, namespace=None, fileinfo=None):
         self.name = name
         self.extends = extends
         self.linestart = lineno
@@ -1848,7 +1934,7 @@ class PHPClass:
                 all_matches = re.findall(self._re_magic_property, self.doc)
                 for match in all_matches:
                     varname = match[4][1:]  # skip "$" in the name.
-                    v = PHPVariable(varname, lineno, resolveDocStringTypeToType(match[3]), doc=match[5])
+                    v = PHPVariable(varname, lineno, resolveDocStringTypeToType(match[3]), doc=match[5], fileinfo=fileinfo)
                     self.members[varname] = v
             if self.doc.find("@method") >= 0:
                 all_matches = re.findall(self._re_magic_method, self.doc)
@@ -1860,7 +1946,8 @@ class PHPClass:
                     fndoc = match[4]
                     phpArgs = []
                     fn = PHPFunction(fnname, phpArgs, lineno, depth=self.depth+1,
-                                     doc=fndoc, returnType=citdl)
+                                     doc=fndoc, returnType=citdl,
+                                     fileinfo=fileinfo, namespace=namespace)
                     self.functions[fnname] = fn
 
     def __repr__(self):
@@ -2250,7 +2337,9 @@ class PHPParser:
                                            classname=classname,
                                            classparent=extendsName,
                                            returnType=returnType,
-                                           returnByRef=returnByRef)
+                                           returnByRef=returnByRef,
+                                           fileinfo=self.fileinfo,
+                                           namespace=self.currentNamespace)
         if self.currentClass:
             self.currentClass.functions[self.currentFunction.name] = self.currentFunction
         elif self.currentNamespace:
@@ -2281,7 +2370,9 @@ class PHPParser:
                                          self.depth,
                                          attributes,
                                          interfaces,
-                                         doc=doc)
+                                         doc=doc,
+                                         fileinfo=self.fileinfo,
+                                         namespace=self.currentNamespace)
             toScope.classes[self.currentClass.name] = self.currentClass
             log.debug("%s: %s extends %s interfaces %s attributes %s on line %d in %s at depth %d\nDOCS: %s",
                      self.currentClass.cixtype,
@@ -2302,7 +2393,8 @@ class PHPParser:
                     self.currentFunction.variables[name] = PHPVariable(name,
                                                                        self.lineno,
                                                                        vartype,
-                                                                       doc=doc)
+                                                                       doc=doc,
+                                                                       fileinfo=self.fileinfo)
                 elif vartype:
                     log.debug("Adding type information for VAR: %r, vartype: %r",
                               name, vartype)
@@ -2314,7 +2406,8 @@ class PHPParser:
                 self.currentClass.members[name] = PHPVariable(name, self.lineno,
                                                               vartype,
                                                               attributes,
-                                                              doc=doc)
+                                                              doc=doc,
+                                                              fileinfo=self.fileinfo)
             elif vartype:
                 log.debug("Adding type information for CLASSMBR: %r, vartype: %r",
                           name, vartype)
@@ -2327,7 +2420,7 @@ class PHPParser:
             if phpConstant is None:
                 log.debug("CLASS CONST: %r", name)
                 self.currentClass.constants[name] = PHPConstant(name, self.lineno,
-                                                              vartype)
+                                                              vartype, fileinfo=self.fileinfo)
             elif vartype:
                 log.debug("Adding type information for CLASS CONST: %r, "
                           "vartype: %r", name, vartype)
@@ -2401,7 +2494,8 @@ class PHPParser:
                not self.currentFunction.hasArgumentWithName(name):
                 phpVariable = PHPVariable(name, self.lineno, vartype,
                                           attributes, doc=doc,
-                                          fromPHPDoc=fromPHPDoc)
+                                          fromPHPDoc=fromPHPDoc,
+                                          fileinfo=self.fileinfo)
                 self.currentFunction.variables[name] = phpVariable
                 already_existed = False
         elif self.currentClass and \
@@ -2420,7 +2514,8 @@ class PHPParser:
                 phpVariable = PHPVariable(name, self.lineno, vartype,
                                           attributes, doc=doc,
                                           fromPHPDoc=fromPHPDoc,
-                                          namespace=self.currentNamespace)
+                                          namespace=self.currentNamespace,
+                                          fileinfo=self.fileinfo)
                 self.fileinfo.variables[name] = phpVariable
                 already_existed = False
 
@@ -2446,7 +2541,7 @@ class PHPParser:
         if phpConstant is None:
             if vartype and isinstance(vartype, (list, tuple)):
                 vartype = ".".join(vartype)
-            toScope.constants[name] = PHPConstant(name, self.lineno, vartype)
+            toScope.constants[name] = PHPConstant(name, self.lineno, vartype, fileinfo=self.fileinfo)
 
     def addDefine(self, name, vartype='', doc=None):
         """Add a define at the global or namelisted scope level."""
@@ -2475,7 +2570,7 @@ class PHPParser:
         if phpConstant is None:
             if vartype and isinstance(vartype, (list, tuple)):
                 vartype = ".".join(vartype)
-            toScope.constants[const_name] = PHPConstant(const_name, self.lineno, vartype)
+            toScope.constants[const_name] = PHPConstant(const_name, self.lineno, vartype, fileinfo=self.fileinfo)
 
     def _parseOneArgument(self, styles, text):
         """Create a PHPArg object from the given text"""
@@ -2533,7 +2628,7 @@ class PHPParser:
         sig_parts += text[pos:]
         if name is not None:
             return PHPArg(name, citdl=citdl, signature="".join(sig_parts),
-                          default=default)
+                          default=default, namespace=self.currentNamespace, fileinfo=self.fileinfo)
 
     def _getArgumentsFromPos(self, styles, text, pos):
         """Return a list of PHPArg objects"""

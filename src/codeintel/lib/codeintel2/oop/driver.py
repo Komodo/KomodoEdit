@@ -172,6 +172,7 @@ class Driver(threading.Thread):
 
         self.queue = collections.deque()
         self.queue_cv = threading.Condition()
+        self.pending_trg_from_pos_cnts = {}
         self.env = Environment(name="global",
                                send_fn=functools.partial(self.send, request=None))
 
@@ -532,6 +533,11 @@ class Driver(threading.Thread):
                 else:
                     log.debug("queuing request %r", request)
                     with self.queue_cv:
+                        if request.get("command") == "trg-from-pos" and request.path:
+                            if request.path in self.pending_trg_from_pos_cnts:
+                                self.pending_trg_from_pos_cnts[request.path] += 1
+                            else:
+                                self.pending_trg_from_pos_cnts[request.path] = 1
                         self.queue.appendleft(request)
                         self.queue_cv.notify()
             elif ch in "0123456789":
@@ -878,6 +884,20 @@ class CoreHandler(CommandHandler):
         except AttributeError:
             raise RequestFailure(message="No position given for trigger")
         buf = driver.get_buffer(request)
+
+        # If there's more than 1 pending requests, ignore until we get to the
+        # latest one. The others aren't important anymore
+        try:
+            if request.path in driver.pending_trg_from_pos_cnts:
+                if driver.pending_trg_from_pos_cnts[request.path] == 1:
+                    del driver.pending_trg_from_pos_cnts[request.path]
+                else:
+                    driver.pending_trg_from_pos_cnts[request.path] -= 1
+                    driver.send(trg=None)
+                    return
+        except:
+            log.error("Failed to check for pending requests")
+
         if "curr-pos" in request:
             trg = buf.preceding_trg_from_pos(pos, int(request["curr-pos"]))
         elif request.get("type", None) == "defn":
