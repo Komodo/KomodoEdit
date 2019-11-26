@@ -135,7 +135,7 @@ class Driver(threading.Thread):
         self.fd_out = fd_out
         self.abort = None
         self.quit = False
-        self.buffers = DriverBufferCache(buffer_max)
+        self.buffers = {} # path to Buffer objects
         self.next_buffer = 0
         self.active_request = None
 
