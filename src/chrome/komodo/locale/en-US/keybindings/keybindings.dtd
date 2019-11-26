@@ -74,26 +74,26 @@
 <!ENTITY editorViMoveOneWordLeftPastAnyPunctuation.desc "Editor: Vi: Move one word left, past any punctuation">
 <!ENTITY editorViMoveOneWordRightPastAnyPunctuation.desc "Editor: Vi: Move one word right, past any punctuation">
 <!ENTITY editorViMoveRightOneCharacter.desc "Editor: Vi: Move Right One Character">
-<!ENTITY editorViMoveToBeginningOfLineFirstVisibleCharFirstColumn.desc "Editor: Vi: Move to Beginning of Line (first visible char/first column)">
-<!ENTITY editorViMoveToBeginningOfTheCurrentLine.desc "Editor: Vi: Move to Beginning of the Current Line">
-<!ENTITY editorViMoveToBeginningOfTheNextLine.desc "Editor: Vi: Move to Beginning of the Next Line">
-<!ENTITY editorViMoveToBeginningOfThePreviousLine.desc "Editor: Vi: Move to Beginning of the Previous Line">
-<!ENTITY editorViMoveToEndOfCurrentLine.desc "Editor: Vi: Move to End of Current Line">
-<!ENTITY editorViMoveToEndOfWordToLeft.desc "Editor: Vi: Move To End of Word To Left">
-<!ENTITY editorViMoveToEndOfWordToRight.desc "Editor: Vi: Move To End of Word To Right">
-<!ENTITY editorViMoveToEndOfWordToTheRightPastAnyPunctuation.desc "Editor: Vi: Move to end of word to the right, past any punctuation">
-<!ENTITY editorViMoveToStartOfWordToRight.desc "Editor: Vi: Move To Start of Word To Right">
-<!ENTITY editorViMoveToTheBeginningOfTheParagraph.desc "Editor: Vi: Move to the Beginning of the Paragraph">
-<!ENTITY editorViMoveToTheBeginningOfTheSection.desc "Editor: Vi: Move to the Beginning of the Section">
-<!ENTITY editorViMoveToTheBeginningOfTheSentence.desc "Editor: Vi: Move to the Beginning of the Sentence">
-<!ENTITY editorViMoveToTheBottomOfTheScreen.desc "Editor: Vi: Move to the Bottom of the Screen">
-<!ENTITY editorViMoveToTheCenterOfTheScreen.desc "Editor: Vi: Move to the Center of the Screen">
-<!ENTITY editorViMoveToTheEndOfTheParagraph.desc "Editor: Vi: Move to the End of the Paragraph">
-<!ENTITY editorViMoveToTheEndOfTheSection.desc "Editor: Vi: Move to the End of the Section">
-<!ENTITY editorViMoveToTheEndOfTheSentence.desc "Editor: Vi: Move to the End of the Sentence">
-<!ENTITY editorViMoveToTheTopOfTheScreen.desc "Editor: Vi: Move to the Top of the Screen">
-<!ENTITY editorViJumpToLineBeforeLastJump.desc "Editor: Vi: Jump to the Line before the Last Jump">
-<!ENTITY editorViJumpToLocBeforeLastJump.desc "Editor: Vi: Jump to the Position before the Last Jump">
+<!ENTITY editorViMoveToBeginningOfLineFirstVisibleCharFirstColumn.desc "Editor: Vi: Go to Beginning of Line (first visible char/first column)">
+<!ENTITY editorViMoveToBeginningOfTheCurrentLine.desc "Editor: Vi: Go to Beginning of the Current Line">
+<!ENTITY editorViMoveToBeginningOfTheNextLine.desc "Editor: Vi: Go to Beginning of the Next Line">
+<!ENTITY editorViMoveToBeginningOfThePreviousLine.desc "Editor: Vi: Go to Beginning of the Previous Line">
+<!ENTITY editorViMoveToEndOfCurrentLine.desc "Editor: Vi: Go to End of Current Line">
+<!ENTITY editorViMoveToEndOfWordToLeft.desc "Editor: Vi: Go To End of Word To Left">
+<!ENTITY editorViMoveToEndOfWordToRight.desc "Editor: Vi: Go To End of Word To Right">
+<!ENTITY editorViMoveToEndOfWordToTheRightPastAnyPunctuation.desc "Editor: Vi: Go to end of word to the right, past any punctuation">
+<!ENTITY editorViMoveToStartOfWordToRight.desc "Editor: Vi: Go To Start of Word To Right">
+<!ENTITY editorViMoveToTheBeginningOfTheParagraph.desc "Editor: Vi: Go to the Beginning of the Paragraph">
+<!ENTITY editorViMoveToTheBeginningOfTheSection.desc "Editor: Vi: Go to the Beginning of the Section">
+<!ENTITY editorViMoveToTheBeginningOfTheSentence.desc "Editor: Vi: Go to the Beginning of the Sentence">
+<!ENTITY editorViMoveToTheBottomOfTheScreen.desc "Editor: Vi: Go to the Bottom of the Screen">
+<!ENTITY editorViMoveToTheCenterOfTheScreen.desc "Editor: Vi: Go to the Center of the Screen">
+<!ENTITY editorViMoveToTheEndOfTheParagraph.desc "Editor: Vi: Go to the End of the Paragraph">
+<!ENTITY editorViMoveToTheEndOfTheSection.desc "Editor: Vi: Go to the End of the Section">
+<!ENTITY editorViMoveToTheEndOfTheSentence.desc "Editor: Vi: Go to the End of the Sentence">
+<!ENTITY editorViMoveToTheTopOfTheScreen.desc "Editor: Vi: Go to the Top of the Screen">
+<!ENTITY editorViJumpToLineBeforeLastJump.desc "Editor: Vi: Go to the Line before the Last Go">
+<!ENTITY editorViJumpToLocBeforeLastJump.desc "Editor: Vi: Go to the Position before the Last Go">
 <!ENTITY editorViNewLineStartingAfterTheCurrentLine.desc "Editor: Vi: New Line Starting After the Current Line">
 <!ENTITY editorViNewLineStartingBeforeTheCurrentLine.desc "Editor: Vi: New Line Starting Before the Current Line">
 <!ENTITY editorViPaste.desc "Editor: Vi: Paste">
@@ -144,7 +144,7 @@
 <!ENTITY ready.label "Ready">
 <!ENTITY sourceCodeViDecreaseLineIndent.desc "Source Code: Vi: Decrease Line Indent">
 <!ENTITY sourceCodeViIncreaseLineIndent.desc "Source Code: Vi: Increase Line Indent">
-<!ENTITY sourceCodeViJumpToMatchingBrace.desc "Source Code: Vi: Jump to Matching Brace">
+<!ENTITY sourceCodeViJumpToMatchingBrace.desc "Source Code: Vi: Go to Matching Brace">
 <!ENTITY viEmulationMode.tooltiptext "Vi emulation mode">
 
 <!--keybindings.xml-->

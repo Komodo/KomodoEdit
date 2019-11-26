@@ -784,11 +784,15 @@ class KoCodeIntelManager(threading.Thread):
         conn = None
         try:
             koDirSvc = Cc["@activestate.com/koDirs;1"].getService(Ci.koIDirs)
+            buf_max = (Cc["@activestate.com/koPrefService;1"]
+                      .getService().prefs
+                      .getLong("codeintel_buffer_max", 20))
             # We need to use -O for python to disable asserts, because we rely
             # on the lack of asserts in some places (see bug 99976).
             cmd = [koDirSvc.pythonExe, "-O",
                    join(koDirSvc.supportDir, "codeintel", "oop-driver.py"),
                    "--import-path", koDirSvc.komodoPythonLibDir,
+                   "--buffer-max", str(buf_max),
                    "--database-dir", join(koDirSvc.userDataDir, "codeintel")]
             # Ensure OOP codeintel has access to user extensions' Python library
             # paths so custom language codeintel drivers can be found.

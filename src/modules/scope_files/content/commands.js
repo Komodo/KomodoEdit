@@ -192,6 +192,8 @@
         item.isExpanded = false;
         commando.clear();
 
+        commando.unpinTip();
+
         if (local.cut)
         {
             commando.tip('Moved "'+local.cut.name+'" here');
@@ -209,7 +211,7 @@
         local.copy = null;
         local.cut = commando.getSubscope();
 
-        commando.tip('Moving: "'+local.cut.name+'", expand a folder to paste it');
+        commando.pinTip('Moving: "'+local.cut.name+'", expand a folder to paste it');
         commando.navBack();
     }
 
@@ -218,7 +220,7 @@
         local.cut = null;
         local.copy = commando.getSubscope();
 
-        commando.tip('Copying: "'+local.copy.name+'", expand a folder to paste it');
+        commando.pinTip('Copying: "'+local.copy.name+'", expand a folder to paste it');
         commando.navBack();
     }
 
