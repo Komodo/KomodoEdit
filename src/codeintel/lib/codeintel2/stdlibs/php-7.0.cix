@@ -1076,7 +1076,161 @@
         <scope doc="Creates a persistence helper object usually associated&#xA;with a com object" ilk="function" name="__construct" returns="int" signature="__construct([object com_object])" src="com_persist.c" />
       </scope>
       <scope ilk="class" name="mysqli">
-        <scope doc="Initialize mysqli and return a resource for use with&#xA;mysql real connect" ilk="function" name="init" returns="resource" signature="init(void)" src="mysqli_api.c" />
+        <scope doc="Turns on or off auto-commit mode on queries for the database connection." ilk="function" name="autocommit" signature="autocommit ( bool $mode  )" />
+        <scope ilk="function" name="change_user" signature="change_user()" />
+        <scope ilk="function" name="character_set_name" signature="character_set_name()" />
+        <scope ilk="function" name="client_encoding" signature="client_encoding()" />
+        <scope doc="Closes a previously opened database connection." ilk="function" name="close" signature="close ( void  )" />
+        <scope doc="Commits the current transaction for the database connection." ilk="function" name="commit" signature="commit ( void  )" />
+        <scope ilk="function" name="connect" signature="connect()" />
+        <scope ilk="function" name="dump_debug_info" signature="dump_debug_info()" />
+        <scope doc="Performs debugging operations using the Fred Fish debugging library." ilk="function" name="debug" signature="debug ( string $message  )" />
+        <scope ilk="function" name="get_charset" signature="get_charset()" />
+        <scope ilk="function" name="get_client_info" signature="get_client_info()" />
+        <scope ilk="function" name="get_server_info" signature="get_server_info()" />
+        <scope ilk="function" name="get_warnings" signature="get_warnings()" />
+        <scope ilk="function" name="init" signature="init()" />
+        <scope doc="This function is used to ask the server to kill a MySQL thread specified by the processid parameter. This value must be retrieved by calling the mysqli_thread_id() function." ilk="function" name="kill" signature="kill ( int $processid  )" />
+        <scope ilk="function" name="set_local_infile_default" signature="set_local_infile_default()" />
+        <scope ilk="function" name="set_local_infile_handler" signature="set_local_infile_handler()" />
+        <scope ilk="function" name="multi_query" signature="multi_query()" />
+        <scope ilk="function" name="mysqli" signature="mysqli()" />
+        <scope ilk="function" name="more_results" signature="more_results()" />
+        <scope ilk="function" name="next_result" signature="next_result()" />
+        <scope doc="Used to set extra connect options and affect behavior for a connection." ilk="function" name="options" signature="options ( int $option  , mixed $value  )" />
+        <scope doc="Checks whether the connection to the server is working. If it has gone down, and global option mysqli.reconnect is enabled an automatic reconnection is attempted." ilk="function" name="ping" signature="ping ( void  )" />
+        <scope doc="Prepares the SQL query pointed to by the null-terminated string query, and returns a statement handle to be used for further operations on the statement. The query must consist of a single SQL statement." ilk="function" name="prepare" signature="prepare ( string $query  )" />
+        <scope doc="Performs a query against the database." ilk="function" name="query" signature="query ( string $query  [, int $resultmode ] )" />
+        <scope ilk="function" name="real_connect" signature="real_connect()" />
+        <scope ilk="function" name="real_escape_string" signature="real_escape_string()" />
+        <scope ilk="function" name="escape_string" signature="escape_string()" />
+        <scope ilk="function" name="real_query" signature="real_query()" />
+        <scope doc="Rollbacks the current transaction for the database." ilk="function" name="rollback" signature="rollback ( void  )" />
+        <scope ilk="function" name="select_db" signature="select_db()" />
+        <scope ilk="function" name="set_charset" signature="set_charset()" />
+        <scope ilk="function" name="set_opt" signature="set_opt()" />
+        <scope ilk="function" name="ssl_set" signature="ssl_set()" />
+        <scope doc="mysqli_stat() returns a string containing information similar to that provided by the &amp;#039;mysqladmin status&amp;#039; command. This includes uptime in seconds and the number of running threads, questions, reloads, and open tables." ilk="function" name="stat" signature="stat ( void  )" />
+        <scope ilk="function" name="stmt_init" signature="stmt_init()" />
+        <scope ilk="function" name="store_result" signature="store_result()" />
+        <scope ilk="function" name="thread_safe" signature="thread_safe()" />
+        <scope ilk="function" name="use_result" signature="use_result()" />
+        <scope ilk="function" name="refresh" signature="refresh()" />
+        <variable name="affected_rows" />
+        <variable name="client_info" />
+        <variable name="client_version" />
+        <variable name="connect_errno" />
+        <variable name="connect_error" />
+        <variable name="errno" />
+        <variable name="error" />
+        <variable name="field_count" />
+        <variable name="host_info" />
+        <variable name="info" />
+        <variable name="insert_id" />
+        <variable name="server_info" />
+        <variable name="server_version" />
+        <variable name="sqlstate" />
+        <variable name="protocol_version" />
+        <variable name="thread_id" />
+        <variable name="warning_count" />
+      </scope>
+      <scope doc="U Returns statistics about the zval cache" ilk="function" name="mysqli_cache_stats" returns="array" signature="mysqli_cache_stats(void)" src="mysqli_nonapi.c" />
+      <scope ilk="function" name="mysqli_client_encoding" signature="mysqli_client_encoding()" />
+      <scope ilk="class" name="mysqli_driver">
+        <variable name="client_info" />
+        <variable name="client_version" />
+        <variable name="driver_version" />
+        <variable name="embedded" />
+        <variable name="reconnect" />
+        <variable name="report_mode" />
+      </scope>
+      <scope ilk="function" name="mysqli_escape_string" signature="mysqli_escape_string()" />
+      <scope ilk="function" name="mysqli_execute" signature="mysqli_execute()" />
+      <scope ilk="function" name="mysqli_fetch_array" signature="mysqli_fetch_array()" />
+      <scope ilk="function" name="mysqli_fetch_assoc" signature="mysqli_fetch_assoc()" />
+      <scope ilk="function" name="mysqli_fetch_field" signature="mysqli_fetch_field()" />
+      <scope ilk="function" name="mysqli_fetch_field_direct" signature="mysqli_fetch_field_direct()" />
+      <scope ilk="function" name="mysqli_fetch_fields" signature="mysqli_fetch_fields()" />
+      <scope ilk="function" name="mysqli_fetch_lengths" signature="mysqli_fetch_lengths()" />
+      <scope ilk="function" name="mysqli_fetch_object" signature="mysqli_fetch_object()" />
+      <scope ilk="function" name="mysqli_fetch_row" signature="mysqli_fetch_row()" />
+      <scope ilk="function" name="mysqli_get_host_info" signature="mysqli_get_host_info()" />
+      <scope ilk="function" name="mysqli_get_metadata" signature="mysqli_get_metadata()" />
+      <scope ilk="class" name="mysqli_result">
+        <scope ilk="function" name="__construct" signature="__construct()" />
+        <scope doc="Frees the memory associated with the result." ilk="function" name="close" signature="close ( void  )" />
+        <scope doc="Frees the memory associated with the result." ilk="function" name="free" signature="free ( void  )" />
+        <scope ilk="function" name="data_seek" signature="data_seek()" />
+        <scope ilk="function" name="fetch_field" signature="fetch_field()" />
+        <scope ilk="function" name="fetch_fields" signature="fetch_fields()" />
+        <scope ilk="function" name="fetch_field_direct" signature="fetch_field_direct()" />
+        <scope ilk="function" name="fetch_array" signature="fetch_array()" />
+        <scope ilk="function" name="fetch_assoc" signature="fetch_assoc()" />
+        <scope ilk="function" name="fetch_object" signature="fetch_object()" />
+        <scope ilk="function" name="fetch_row" signature="fetch_row()" />
+        <scope ilk="function" name="field_seek" signature="field_seek()" />
+        <scope ilk="function" name="free_result" signature="free_result()" />
+        <variable name="current_field" />
+        <variable name="field_count" />
+        <variable name="lengths" />
+        <variable name="num_rows" />
+        <variable name="type" />
+      </scope>
+      <scope doc="unsets user defined handler for load local infile&#xA;command" ilk="function" name="mysqli_set_local_infile_default" returns="void" signature="mysqli_set_local_infile_default(object link)" src="mysqli_api.c" />
+      <scope doc="Set callback functions for LOAD DATA LOCAL INFILE" ilk="function" name="mysqli_set_local_infile_handler" returns="bool" signature="mysqli_set_local_infile_handler(object link, callback read_func)" src="mysqli_api.c" />
+      <scope ilk="function" name="mysqli_set_opt" signature="mysqli_set_opt()" />
+      <scope classrefs="RuntimeException" ilk="class" name="mysqli_sql_exception">
+        <scope ilk="function" name="__clone" signature="__clone()" />
+        <scope ilk="function" name="__construct" signature="__construct()" />
+        <scope ilk="function" name="getMessage" signature="getMessage()" />
+        <scope ilk="function" name="getCode" signature="getCode()" />
+        <scope ilk="function" name="getFile" signature="getFile()" />
+        <scope ilk="function" name="getLine" signature="getLine()" />
+        <scope ilk="function" name="getTrace" signature="getTrace()" />
+        <scope ilk="function" name="getPrevious" signature="getPrevious()" />
+        <scope ilk="function" name="getTraceAsString" signature="getTraceAsString()" />
+        <scope ilk="function" name="__toString" signature="__toString()" />
+        <variable name="message" />
+        <variable name="code" />
+        <variable name="file" />
+        <variable name="line" />
+        <variable name="sqlstate" />
+      </scope>
+      <scope ilk="class" name="mysqli_stmt">
+        <scope ilk="function" name="__construct" signature="__construct()" />
+        <scope ilk="function" name="attr_get" signature="attr_get()" />
+        <scope ilk="function" name="attr_set" signature="attr_set()" />
+        <scope ilk="function" name="bind_param" signature="bind_param()" />
+        <scope ilk="function" name="bind_result" signature="bind_result()" />
+        <scope doc="Closes a prepared statement. mysqli_stmt_close() also deallocates the statement handle. If the current statement has pending or unread results, this function cancels them so that the next query can be executed." ilk="function" name="close" signature="close ( void  )" />
+        <scope ilk="function" name="data_seek" signature="data_seek()" />
+        <scope doc="Executes a query that has been previously prepared using the mysqli_prepare() function. When executed any parameter markers which exist will automatically be replaced with the appropiate data." ilk="function" name="execute" signature="execute ( void  )" />
+        <scope doc="Fetch the result from a prepared statement into the variables bound by mysqli_stmt_bind_result()." ilk="function" name="fetch" signature="fetch ( void  )" />
+        <scope ilk="function" name="get_warnings" signature="get_warnings()" />
+        <scope ilk="function" name="result_metadata" signature="result_metadata()" />
+        <scope ilk="function" name="num_rows" signature="num_rows()" />
+        <scope ilk="function" name="send_long_data" signature="send_long_data()" />
+        <scope ilk="function" name="stmt" signature="stmt()" />
+        <scope ilk="function" name="free_result" signature="free_result()" />
+        <scope doc="Resets a prepared statement on client and server to state after prepare." ilk="function" name="reset" signature="reset ( void  )" />
+        <scope doc="Prepares the SQL query pointed to by the null-terminated string query." ilk="function" name="prepare" signature="prepare ( string $query  )" />
+        <scope ilk="function" name="store_result" signature="store_result()" />
+        <variable name="affected_rows" />
+        <variable name="insert_id" />
+        <variable name="num_rows" />
+        <variable name="param_count" />
+        <variable name="field_count" />
+        <variable name="errno" />
+        <variable name="error" />
+        <variable name="sqlstate" />
+        <variable name="id" />
+      </scope>
+      <scope ilk="class" name="mysqli_warning">
+        <scope ilk="function" name="__construct" signature="__construct()" />
+        <scope ilk="function" name="next" signature="next()" />
+        <variable name="message" />
+        <variable name="sqlstate" />
+        <variable name="errno" />
       </scope>
       <scope ilk="class" name="ZipArchive">
         <scope doc="Create new zip using source uri for output return TRUE&#xA;on success or the error code" ilk="function" name="open" returns="mixed" signature="open(string source [, int flags])" src="php_zip.c" />
