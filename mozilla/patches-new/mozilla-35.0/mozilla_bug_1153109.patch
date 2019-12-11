@@ -1,0 +1,21 @@
+--- a/configure.in
++++ b/configure.in
+@@ -7380,16 +7380,18 @@ STDCXX_COMPAT=
+ MOZ_ARG_ENABLE_BOOL(stdcxx-compat,
+ [  --enable-stdcxx-compat  Enable compatibility with older libstdc++],
+     STDCXX_COMPAT=1)
+ 
+ if test -n "$STDCXX_COMPAT"; then
+    eval $(CXX="$CXX" HOST_CXX="$HOST_CXX" $PYTHON -m mozbuild.configure.libstdcxx)
+    AC_SUBST(MOZ_LIBSTDCXX_TARGET_VERSION)
+    AC_SUBST(MOZ_LIBSTDCXX_HOST_VERSION)
++   CXXFLAGS="$CXXFLAGS -D_GLIBCXX_USE_CXX11_ABI=0"
++   HOST_CXXFLAGS="$HOST_CXXFLAGS -D_GLIBCXX_USE_CXX11_ABI=0"
+ fi
+ 
+ dnl ========================================================
+ dnl =
+ dnl = Profiling and Instrumenting
+ dnl =
+ dnl ========================================================
+ MOZ_ARG_HEADER(Profiling and Instrumenting)
