@@ -3339,7 +3339,7 @@ class PHPParser:
             # Make sure it's not a keyword
             if likelyAttribute and firstStyle == self.PHP_WORD:
                 keyword = text[pos].lower()
-                if keyword == "const" or keyword == "function":
+                if keyword == "const" or keyword == "function" or keyword == "class":
                     likelyAttribute = False
             attributeType = None
             if likelyAttribute:
