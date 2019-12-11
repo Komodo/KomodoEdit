@@ -2,17 +2,16 @@
 
 # Default docker image to use.
 if [ -z "$DOCKER_IMAGE_NAME" ]; then
-    DOCKER_IMAGE_NAME="komodoedit"
+    DOCKER_IMAGE_NAME="komodo"
 fi
 
 # local name for the container
 if [ -z "$DOCKER_CONTAINER_NAME" ]; then
-    DOCKER_CONTAINER_NAME="${DOCKER_IMAGE_NAME}-container"
+    DOCKER_CONTAINER_NAME="${DOCKER_IMAGE_NAME}-edit-container"
 fi
 
-# our current dirname
-DIRNAME="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-KODIRNAME="$DIRNAME/../../"
+DOCKLETPATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+KOPATH="$( cd $DOCKLETPATH/../../ && pwd)"
 
 if [ "$(id -u)" != "0" ]; then
     USERNAME=$(whoami)
@@ -23,6 +22,10 @@ else
         USERNAME=$(whoami)
     fi
 fi
+
+CONTAINER_CMD="docker exec ${DOCKER_CONTAINER_NAME} /bin/sh -c "
+CONTAINER_USER_CMD="docker exec --user ${USERNAME} ${DOCKER_CONTAINER_NAME} /bin/sh -c "
+REALHOME="/home/${USERNAME}"
 
 function retrieveContainerStatus {
     # check if container already present
@@ -63,7 +66,7 @@ function start {
 
     else
         echo -n "container '${DOCKER_CONTAINER_NAME}' not found, creating..."
-        TMP=$(docker run -d -P --name ${DOCKER_CONTAINER_NAME} -v ${KODIRNAME}:/komodo/dev -v /home/${USERNAME}/.ActiveState:/komodo/.ActiveState -v /home/${USERNAME}/.komodoide:/komodo/.komodoide -v /home/${USERNAME}/.komodo-dev-docker:/komodo/.komodo-dev ${DOCKER_IMAGE_NAME})
+        TMP=$(docker run -d -P --name ${DOCKER_CONTAINER_NAME} -v ${KOPATH}:${KOPATH} -v /home/${USERNAME}/.ActiveState:${REALHOME}/.ActiveState -v /home/${USERNAME}/.komodoedit:${REALHOME}/.komodoedit -v /home/${USERNAME}/.komodo-dev-docker:${REALHOME}/.komodo-dev ${DOCKER_IMAGE_NAME})
 
         sleep 2
 
@@ -74,13 +77,12 @@ function start {
         setSshCmd
         local PASSWORD=$(perl -e'print crypt("komodo", "aa")')
         local _UID=$(id -u ${USERNAME})
-        ${SSH_CMD_ROOT} "useradd -d /komodo -u ${_UID} -g 100 -p ${PASSWORD} -s /bin/bash komodo && \
-                        usermod -a -G sudo komodo && \
-                        cp -R /root/.ssh /komodo/.ssh && \
-                        chown ${_UID}:100 /komodo && chown -R ${_UID}:100 /komodo/.ssh && \
-                        echo \"PATH=/komodo/dev/util/black:\$PATH\" >> /komodo/.profile && \
-                        echo \"include \\\"/usr/share/themes/Radiance/gtk-2.0/gtkrc\\\"\" > /komodo/.gtkrc-2.0 && \
-                        chown ${_UID}:100 /komodo/.profile && chown ${_UID}:100 /komodo/.gtkrc-2.0"
+        ${CONTAINER_CMD} "useradd -d ${REALHOME} -u ${_UID} -g 100 -p ${PASSWORD} -s /bin/bash ${USERNAME} && \
+                        usermod -a -G sudo ${USERNAME} && \
+                        chown ${_UID}:100 ${REALHOME} && chown -R ${_UID}:100 ${REALHOME}/.komodo-dev && \
+                        cp -R /root/.ssh ${REALHOME}/.ssh && chown -R ${_UID}:100 ${REALHOME}/.ssh && \
+                        echo \"PATH=${KOPATH}/util/black:/opt/ActivePerl/site/bin:/opt/ActivePerl/bin:\\\$PATH\" >> ${REALHOME}/.bash_profile && \
+                        chown ${_UID}:100 ${REALHOME}/.bash_profile"
 
     fi
 
@@ -123,8 +125,8 @@ function setSshCmd {
         exit 0
     fi
     retrieveSshInfo
-    SSH_CMD=$(echo ssh -i "${DIRNAME}/id_rsa" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -Y -X komodo@${SSH_INTERFACE} -p ${SSH_PORT})
-    SSH_CMD_ROOT=$(echo ssh -i "${DIRNAME}/id_rsa" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -Y -X root@${SSH_INTERFACE} -p ${SSH_PORT})
+    SSH_CMD=$(echo ssh -4 -i "${DOCKLETPATH}/id_rsa" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -Y ${USERNAME}@${SSH_INTERFACE} -p ${SSH_PORT})
+    SSH_CMD_ROOT=$(echo ssh -4 -i "${DOCKLETPATH}/id_rsa" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -Y root@${SSH_INTERFACE} -p ${SSH_PORT})
 }
 
 function _ssh {
@@ -139,23 +141,23 @@ function _sshroot {
 }
 
 function clean {
-    setSshCmd
-    ${SSH_CMD} "PATH=/komodo/dev/util/black:\$PATH && cd /komodo/dev && bk distclean"
+    ${CONTAINER_USER_CMD} "PATH=${KOPATH}/util/black:\$PATH && cd ${KOPATH} && bk distclean"
 }
 
 function build {
-    setSshCmd
-    ${SSH_CMD} "PATH=/komodo/dev/util/black:\$PATH && cd /komodo/dev && bk build"
+    ${CONTAINER_USER_CMD} "PATH=${KOPATH}/util/black:\$PATH && cd ${KOPATH} && bk build"
 }
 
 function build-quick {
-    setSshCmd
-    ${SSH_CMD} "PATH=/komodo/dev/util/black:\$PATH && cd /komodo/dev && bk build quick"
+    ${CONTAINER_USER_CMD} "PATH=${KOPATH}/util/black:\$PATH && cd ${KOPATH} && bk build quick"
 }
 
 function run {
-    cd $KODIRNAME
-    ./mozilla/build/moz3500-ko11.10/mozilla/ko-rel/dist/bin/komodo # Todo: auto-detect path
+    cd $KOPATH
+    # https://askubuntu.com/questions/1184774/some-applications-on-ubuntu-19-10-very-slow-to-start
+    dbus-launch --exit-with-session ./mozilla/build/moz3500-ko12.10/mozilla/ko-rel/dist/bin/komodo # Todo: auto-detect path
+    pkill -f "dbus-daemon --syslog --fork"
+    pkill -f "dbus-launch --exit-with-session"
 }
 
 function image {
@@ -163,7 +165,7 @@ function image {
     if [ -z "${flavour}" ]; then
         flavour="."
     fi
-    cd ${DIRNAME}
+    cd ${DOCKLETPATH}
     docker build -t ${DOCKER_IMAGE_NAME} $flavour
 }
 
@@ -257,5 +259,3 @@ while true; do
         break
     fi
 done;
-
-
