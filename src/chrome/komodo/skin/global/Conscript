@@ -60,6 +60,7 @@ $cons->InstallInChrome('mixins.less');
 $cons->InstallInChrome('wizard.less');
 $cons->InstallInChrome('classic.less');
 $cons->InstallInChrome('classic.toolbar.less');
+$cons->InstallInChrome('html.less');
 
 $cons->InstallInChrome('components/buttons.less');
 $cons->InstallInChrome('components/languages.less');

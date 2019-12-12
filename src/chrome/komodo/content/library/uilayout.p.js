@@ -1720,6 +1720,15 @@ this.onload = function uilayout_onload()
     {
         log.exception(e, "newVersionCheck failed");
     }
+
+    try
+    {
+        ko.launch.promptKomodoUpgrade();
+    }
+    catch (e)
+    {
+        log.exception(e, "promptKomodoUpgrade failed");
+    }
 }
 
 this.updateWindowButtons = function (w) {
