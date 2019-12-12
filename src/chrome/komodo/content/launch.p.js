@@ -654,7 +654,74 @@ this.newVersionCheck = function(includeMinor=false)
             });
         }.bind(this));
     }.bind(this));
-}
+};
+
+this.promptKomodoUpgrade = () => 
+{
+    var dontBotherPref = "upgradeKomodo.dontask";
+    if (ko.prefs.getBoolean(dontBotherPref, false))
+        return;
+
+    var w = require("ko/windows").getMain();
+    var dialog = w.openDialog("chrome://komodo/content/empty.xul?name=versioncheck", "Komodo IDE now FREE!", "modal=true,width=600,height=800,resizable=0");
+    var $ = require("ko/dom");
+
+    dialog.addEventListener("DOMContentLoaded", (e) =>
+    {
+        if (e.target != dialog.document)
+            return;
+
+        dialog.document.documentElement.setAttribute("id", "upgradeKomodo");
+
+        var de = $(dialog.document.documentElement);
+        var browser = $("<browser>").attr({src: "chrome://komodo/content/upgrade.html", flex: 1, type: "content"});
+        var hbox = $("<hbox>").attr({ align: "center", pack: "center" });
+        var ok = $("<button>").attr({ label: "Get Your Copy", class: "primary" });
+        var cancel = $("<button>").attr({ label: "Not Interested" });
+        de.append(browser);
+        de.append(hbox);
+        hbox.append(ok);
+        hbox.append(cancel);
+
+        ok.on("command", () =>
+        {
+            var moreInfoUrl = ko.prefs.getString("upgrade.ide.url");
+            ko.browse.openUrlInDefaultBrowser(moreInfoUrl);
+            dialog.close();
+        });
+
+        cancel.on("command", () =>
+        {
+            ko.prefs.setBoolean(dontBotherPref, true);
+            dialog.close();
+        });
+
+        browser.on("DOMContentLoaded", () =>
+        {
+            browser.element().contentDocument.documentElement.classList.add("native-scrollbars");
+
+            var links = $(browser.element().contentDocument).find("a[href]");
+            links.on("click", (e) =>
+            {
+                ko.browse.openUrlInDefaultBrowser(e.target.href);
+                e.preventDefault();
+                e.stopPropagation();
+                return false;
+            });
+
+            browser.element().contentWindow.wrappedJSObject.open = (url) =>
+            {
+                if ( ! url)
+                    return;
+
+                window.setTimeout(() =>
+                {
+                    ko.browse.openUrlInDefaultBrowser(url);
+                }, 0);
+            };
+        });
+    });
+};
 
 }).apply(ko.launch);
 }
