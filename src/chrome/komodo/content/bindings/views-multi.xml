@@ -339,22 +339,6 @@
         <parameter name="view"/>
         <body>
         <![CDATA[
-            // Don't allow multiple splits
-            if (view.koDoc.numScintillas > 1)
-            {
-                // Find existing view in other split view
-                var views = this.otherView.getViews();
-                for (var i = 0; i < views.length; i++)
-                {
-                    if (views[i].koDoc === view.koDoc)
-                    {
-                        this.lastFocused = this.otherView;
-                        this.setCurrentViewIndex(i);
-                        return;
-                    }
-                }
-                return;
-            }
             this.lastFocused = this.otherView;
             var item = view.item;
             // We save the state of the view
