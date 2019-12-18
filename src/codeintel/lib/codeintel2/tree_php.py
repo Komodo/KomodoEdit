@@ -965,6 +965,7 @@ class PHPTreeEvaluator(TreeEvaluator):
                 try:
                     self.debug("_hit_from_citdl:: resolve %r on %r in %r",
                                remaining_tokens, *hit)
+                    nconsumed = 1
                     if remaining_tokens[0] == "()":
                         if not parent_lookup:
                             #TODO: impl this function
