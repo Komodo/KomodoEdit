@@ -1127,6 +1127,7 @@ def ImageKomodo(cfg, argv):
         ("rm", iimozbinpath("xpidl"+EXE)),
         ("rm", iimozbinpath("xpt_dump"+EXE)),
         ("rm", iimozbinpath("xpt_link"+EXE)),
+        ("rmdir", iimozbinpath("*.dSYM")),  # just in case debug symbols sneak into the App dir again
         #TODO: might be able to drop regxpcom as well (it is in sdk/bin).
     ]
     if sys.platform == "win32" and cfg.jarring:
