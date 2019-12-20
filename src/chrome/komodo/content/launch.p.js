@@ -72,7 +72,10 @@ function openHelp(topic, path = 'manual/')
  * @param {String} page A page tag as defined in toc.xml
  */
 this.open = function(page, path) {
-    openHelp(page, path);
+    if (page && page.search(/http(?:s*)/i) != -1)
+        ko.browse.openUrlInDefaultBrowser(page);
+    else
+        openHelp(page, path);
 }
 
 /**
