@@ -614,8 +614,8 @@ else:
             import tempfile
             self._dir = tempfile.mkdtemp(prefix="komodo-codeintel-",
                                          suffix="-oop-pipes")
-            os.mkfifo(join(self._dir, "in"), 0600)
-            os.mkfifo(join(self._dir, "out"), 0600)
+            os.mkfifo(join(self._dir, "in"), 0o600)
+            os.mkfifo(join(self._dir, "out"), 0o600)
             return ["--connect", "pipe:%s" % (self._dir,)]
         def get_stream(self):
             # Open the write end first, so that the child doesn't hang

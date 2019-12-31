@@ -81,7 +81,7 @@ class KoFindAvailableDirsView(TreeView):
         preLength = len(self._dirs)
         try:
             basenames = os.listdir(self.currentDir)
-        except EnvironmentError, ex:
+        except EnvironmentError as ex:
             log.debug("'%s' does not exist, emptying available dirs view")
             self._dirs = []
         else:
@@ -107,7 +107,7 @@ class KoFindAvailableDirsView(TreeView):
     def getIndexOfDir(self, baseName):
         try:
             return self._dirs.index(baseName)
-        except ValueError, ex:
+        except ValueError as ex:
             return -1
 
     def get_rowCount(self):
@@ -125,7 +125,7 @@ class KoFindAvailableDirsView(TreeView):
             # c.f. http://bugs.activestate.com/show_bug.cgi?id=27487
             #log.error("no %sth item" % row)
             return ""
-        if type(cell) not in (types.StringType, types.UnicodeType):
+        if type(cell) not in (bytes, str):
             cell = str(cell)
         return cell
 
@@ -238,7 +238,7 @@ class KoFindSelectedDirsView(TreeView):
             # c.f. http://bugs.activestate.com/show_bug.cgi?id=27487
             #log.error("no %sth item" % row)
             return ""
-        if type(cell) not in (types.StringType, types.UnicodeType):
+        if type(cell) not in (bytes, str):
             cell = str(cell)
         return cell
 

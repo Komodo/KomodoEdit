@@ -1,3 +1,4 @@
+from __future__ import print_function
 # ***** BEGIN LICENSE BLOCK *****
 # Version: MPL 1.1/GPL 2.0/LGPL 2.1
 # 
@@ -113,8 +114,8 @@ class KoRubyLanguage(KoLanguageKeywordBase):
         log.debug("Ruby indent style: %s", self._indent_style)
         try:
             self._prefs.prefObserverService.addObserver(self, "editAutoIndentStyle", 0)
-        except Exception, e:
-            print e
+        except Exception as e:
+            print(e)
         
         self._keyword_letters = string.ascii_letters
              
@@ -835,13 +836,13 @@ class KoRubyCompileLinter:
                 fout = open(tmpFileName, 'wb')
                 fout.write(text)
                 fout.close()
-            except (OSError, IOError), ex:
+            except (OSError, IOError) as ex:
                 tmpFileName = None
         if not tmpFileName:
             # Fallback to using a tmp dir if cannot write in cwd.
             try:
                 tmpFileName = str(tempfile.mktemp())
-            except OSError, ex:
+            except OSError as ex:
                 # Sometimes get this error but don't know why:
                 # OSError: [Errno 13] Permission denied: 'C:\\DOCUME~1\\trentm\\LOCALS~1\\Temp\\~1324-test'
                 errmsg = "error determining temporary filename for "\
@@ -911,7 +912,7 @@ class KoRubyCompileLinter:
 
     def _add_if_new(self, results, result, reported, err_hash):
         k = "%s:%s" % (err_hash['file'], err_hash['line'])
-        if not reported.has_key(k):
+        if k not in reported:
             results.addResult(result)
             reported[k] = None
         

@@ -43,12 +43,13 @@
 # Examples:
 #   python run-in-dir.py build\debug\Rx python c:\bin\make-rx-module.py
 
+from __future__ import print_function
 if __name__ == '__main__':
     import sys, os
     targetDir, invocation = sys.argv[1], " ".join(sys.argv[2:])
-    print "cd %s" % targetDir
+    print("cd %s" % targetDir)
     os.chdir(targetDir)
-    print invocation
+    print(invocation)
     retval = os.system(invocation)
     if not sys.platform.startswith("win"):
         retval = retval >> 8

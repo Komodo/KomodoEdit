@@ -989,7 +989,7 @@ def init_xml_catalogs():
 def _rmtree_OnError(rmFunction, filePath, excInfo):
     if excInfo[0] == OSError:
         # presuming because file is read-only
-        os.chmod(filePath, 0777)
+        os.chmod(filePath, 0o777)
         rmFunction(filePath)
 def rmtree(dirname):
     import shutil

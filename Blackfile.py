@@ -58,6 +58,7 @@ Typical commands for building all Komodo bits:
 
 PKGNAME's are installer (aka msi, dbg, aspackage).
 """
+from __future__ import print_function
 
 import os, sys, os, shutil
 import cPickle as pickle
@@ -480,7 +481,7 @@ def _isdir(dirname):
 def _rmtreeOnError(rmFunction, filePath, excInfo):
     if excInfo[0] == OSError:
         # presuming because file is read-only
-        os.chmod(filePath, 0777)
+        os.chmod(filePath, 0o777)
         rmFunction(filePath)
 
 def _rmtree(dirname):
@@ -552,10 +553,10 @@ def _copy(src, dst):
             #print "copy %s %s" % (srcFile, dstFile)
             if os.path.isfile(dstFile):
                 # make sure 'dstFile' is writeable
-                os.chmod(dstFile, 0755)
+                os.chmod(dstFile, 0o755)
             shutil.copy(srcFile, dstFile)
             # make the new 'dstFile' writeable
-            os.chmod(dstFile, 0755)
+            os.chmod(dstFile, 0o755)
         elif _isdir(srcFile):
             srcFiles = os.listdir(srcFile)
             if not os.path.exists(dst):
@@ -565,7 +566,7 @@ def _copy(src, dst):
                 d = os.path.join(dst, f)
                 try:
                     _copy(s, d)
-                except (IOError, os.error), why:
+                except (IOError, os.error) as why:
                     raise OSError("Can't copy %s to %s: %s"\
                           % (repr(s), repr(d), str(why)))
         elif not usingWildcards:
@@ -960,7 +961,7 @@ def FetchDependentSources(cfg, argv, update=True):
 def StripBinaries(topdir):
     """Remove any unnecssary information from the Komodo binaries"""
     import subprocess
-    print "Stripping binaries in: %r" % (topdir, )
+    print("Stripping binaries in: %r" % (topdir, ))
     if sys.platform.startswith("linux"):
         # First, ensure the binary files we want to update are write-able.
         chmod_cmd = ["find", '"%s"' % (topdir, ), "|",
@@ -1000,7 +1001,7 @@ def GenerateCaches(cfg):
 def ImageKomodo(cfg, argv):
     """Build the Komodo install image."""
     from os.path import join, isdir, exists, dirname, basename
-    print "creating install image in '%s'..." % cfg.installRelDir
+    print("creating install image in '%s'..." % cfg.installRelDir)
 
     # Handy (and platform-independent) path factory functions.
     def mozdistpath(*parts):
@@ -1324,7 +1325,7 @@ def ImageKomodo(cfg, argv):
 
     # Create the install image according to the instruction in 'ibits'.
     for data in ibits:
-        print ' '.join([d or '' for d in data]) # Guard against None
+        print(' '.join([d or '' for d in data])) # Guard against None
         if data[0] == "hack-cp":
             # A "cp" action that HACKs around the problem described
             # above: symlink issues copying Komodo.app. The HACK:
@@ -1426,7 +1427,7 @@ def ImageKomodo(cfg, argv):
 
 def _PackageKomodoDMG(cfg):
     from os.path import join, isdir, exists, dirname, basename
-    print "packaging Komodo 'DMG'..."
+    print("packaging Komodo 'DMG'...")
     assert sys.platform == "darwin",\
         "'DMG' build on non-Mac OS X doesn't make sense"
 
@@ -1491,12 +1492,12 @@ def _PackageKomodoDMG(cfg):
     if not exists(dirname(pkgPath)):
         os.makedirs(dirname(pkgPath))
     _run("osxpkg mkdmg -T %s %s %s" % (template, pkgPath, cfg.installRelDir))
-    print "created '%s'" % pkgPath
+    print("created '%s'" % pkgPath)
 
 
 def _PackageKomodoASPackage(cfg):
     from os.path import join, isdir, exists, dirname, basename
-    print "packaging 'AS Package'..."
+    print("packaging 'AS Package'...")
     assert sys.platform != "win32",\
         "'AS Package' build doesn't support Windows yet"
 
@@ -1517,12 +1518,12 @@ def _PackageKomodoASPackage(cfg):
         
     _run("cp --preserve=timestamps %s %s"
          % (pkgPath, cfg.komodoInstallerPackage))
-    print "created '%s'" % cfg.komodoInstallerPackage
+    print("created '%s'" % cfg.komodoInstallerPackage)
 
 
 def _PackageKomodoMSI(cfg):
     from os.path import join, isdir, exists, dirname, basename
-    print "packaging Komodo MSI..."
+    print("packaging Komodo MSI...")
     assert sys.platform == "win32",\
         "MSI build + %s no makie sense" % sys.platform
 
@@ -1534,7 +1535,7 @@ def _PackageKomodoMSI(cfg):
         "no install image, run 'bk image': '%s' does not exist" % landmark
 
     # Copy the MSI build/support bits over to the working dir.
-    print "---- copy over MSI build/support bits"
+    print("---- copy over MSI build/support bits")
     wixBitsDir = os.path.join(cfg.buildRelDir, "install", "wix")
     _run("xcopy /e/q/y %s %s" % (wixBitsDir, wrkDir))
     _run("copy /y %s %s"
@@ -1561,38 +1562,38 @@ def _PackageKomodoMSI(cfg):
     _run_in_dir("python bin\\autowix.py --force", wrkDir)
 
     # Check if we're unexpectedly imaging files we're not shipping
-    print "---- Checking for new files we're accidentally not shipping"
+    print("---- Checking for new files we're accidentally not shipping")
     _run_in_dir("%s bin/check-wxs.py %s" %
                     (cfg.unsiloedPythonExe, " ".join(features)),
                 wrkDir)
     
-    print "---- build the MSI"
+    print("---- build the MSI")
     dirs = [os.curdir] # implied by Windows shell
     dirs.extend(os.environ.get("PATH", "").split(os.pathsep))
     _run_in_dir('nmake -nologo clean all', wrkDir)
 
-    print "---- copy MSI to packages dir"
+    print("---- copy MSI to packages dir")
     if not exists(dirname(cfg.komodoInstallerPackage)):
         os.makedirs(dirname(cfg.komodoInstallerPackage))
     shutil.copyfile(join(wrkDir, "komodo.msi"), cfg.komodoInstallerPackage)
     
-    print "---- checking for signing key to sign MSI package"
+    print("---- checking for signing key to sign MSI package")
     if exists(cfg.winCodeSigningCert):
         # signtool sign /v /f c:\ActiveStateSPC.pfx /t http://timestamp.verisign.com/scripts/timestamp.dll %1
-        print "---- signing MSI to packages"
+        print("---- signing MSI to packages")
         command = "signtool  sign /a /d \"%s\" /td sha256 /fd sha256 /tr http://timestamp.comodoca.com \"%s\"" %(cfg.msiKomodoPrettyId,cfg.komodoInstallerPackage)
-        print("---- run command: %s", command)
+        print(("---- run command: %s", command))
         _run(command)
     
-    print "'%s' created" % cfg.komodoInstallerPackage
+    print("'%s' created" % cfg.komodoInstallerPackage)
 
 
 
 def _PackageKomodoUpdates(cfg, dryRun=False):
-    print "packaging 'Komodo Updates'..."
+    print("packaging 'Komodo Updates'...")
     # Not creating updates for K7 alpha 2 (as the moz platform changed).
     if cfg.komodoVersion in ('7.0.0-alpha2', '11.0.0'):
-        print "  not creating updates for %r" % (cfg.komodoVersion, )
+        print("  not creating updates for %r" % (cfg.komodoVersion, ))
         return
     mozupdate = join("util", "mozupdate.py")
     packagesDir = join(cfg.packagesRelDir, "updates")
@@ -1679,17 +1680,17 @@ def _PackageKomodoUpdates(cfg, dryRun=False):
         ref_mar_ver = guru.version_from_mar_path(ref_mar_path)
         pkg_name = "%s-partial-%s.mar" % (cfg.komodoPackageBase, ref_mar_ver)
         pkg_path = join(packagesDir, pkg_name)
-        print "creating '%s' (for 'nightly' channel)" % pkg_name
+        print("creating '%s' (for 'nightly' channel)" % pkg_name)
         if not dryRun:
             try:
                 _run([sys.executable, mozupdate, "-q", "partial"] +
                      mozupdate_clobber_arg +
                      ["--removed-files-candidates", removed_file_list,
                       "--force", pkg_path, ref_mar_dir, image_dir])
-                print "created '%s' (for 'nightly' channel)" % pkg_path
-            except OSError, ex:
+                print("created '%s' (for 'nightly' channel)" % pkg_path)
+            except OSError as ex:
                 log.warn("'nightly' mar failed: %r", ex)
-                print "failed to create mar for 'nightly' channel - ignoring"
+                print("failed to create mar for 'nightly' channel - ignoring")
         built_at_least_one_nightly_update = True
 
         # ...and a changelog for this.
@@ -1700,7 +1701,7 @@ def _PackageKomodoUpdates(cfg, dryRun=False):
         html = changelog.changelog_html(start_rev, end_rev)
         if not dryRun:
             open(changelog_path, 'w').write(html.encode('utf-8', 'ignore'))
-        print "created '%s'" % changelog_path
+        print("created '%s'" % changelog_path)
     if not built_at_least_one_nightly_update:
         log.warn("no previous nightly complete .mar exists: skipping "
                  "build of partial update package for *nightly* channel")
@@ -1721,13 +1722,13 @@ def _PackageKomodoUpdates(cfg, dryRun=False):
         ref_mar_ver = guru.version_from_mar_path(ref_mar_path)
         pkg_name = "%s-partial-%s.mar" % (cfg.komodoPackageBase, ref_mar_ver)
         pkg_path = join(packagesDir, pkg_name)
-        print "creating '%s' (for 'beta' channel)" % pkg_name
+        print("creating '%s' (for 'beta' channel)" % pkg_name)
         if not dryRun:
             _run([sys.executable, mozupdate, "-q", "partial"] +
                  mozupdate_clobber_arg +
                  ["--removed-files-candidates", removed_file_list,
                   "--force", pkg_path, ref_mar_dir, image_dir])
-        print "created '%s' (for 'beta' channel)" % pkg_path
+        print("created '%s' (for 'beta' channel)" % pkg_path)
     
     # - For all builds, want a partial update relative to the last
     #   released non-beta. This is used for the "release" channel if this
@@ -1751,13 +1752,13 @@ def _PackageKomodoUpdates(cfg, dryRun=False):
             ref_mar_ver = guru.version_from_mar_path(ref_mar_path)
             pkg_name = "%s-partial-%s.mar" % (cfg.komodoPackageBase, ref_mar_ver)
             pkg_path = join(packagesDir, pkg_name)
-            print "creating '%s' (for 'release' channel)" % pkg_name
+            print("creating '%s' (for 'release' channel)" % pkg_name)
             if not dryRun:
                 _run([sys.executable, mozupdate, "-q", "partial"] +
                      mozupdate_clobber_arg +
                      ["--removed-files-candidates", removed_file_list,
                       "--force", pkg_path, ref_mar_dir, image_dir])
-            print "created '%s' (for 'release' channel)" % pkg_path
+            print("created '%s' (for 'release' channel)" % pkg_path)
 
     # Complete update package.
     # E.g.: Komodo-IDE-4.2.0-beta2-123456-win32-x86-complete.mar
@@ -1767,12 +1768,12 @@ def _PackageKomodoUpdates(cfg, dryRun=False):
         _run([sys.executable, mozupdate, "-q", "complete"] +
              ["--removed-files-candidates", removed_file_list,
               "--force", pkg_path, image_dir])
-    print "created '%s'" % pkg_path
+    print("created '%s'" % pkg_path)
 
 def _PackageKomodoCrashReportSymbols(cfg, dryRun=False):
     if not cfg.withCrashReportSymbols:
         return 0
-    print "packaging 'Komodo Crash Report symbols'..."
+    print("packaging 'Komodo Crash Report symbols'...")
     symbolsSrcDir = join(cfg.mozDist, "crashreporter-symbols")
     symbolsDstDir = join(cfg.packagesRelDir, "internal", "crashreportsymbols")
     if not exists(symbolsSrcDir):
@@ -1977,7 +1978,7 @@ def _PackageKomodoMozillaPatches(cfg):
     Currently we just find the right one and rename it.
     """
     buildDir = os.path.join(cfg.buildRelDir, cfg.mozPatchesPackageName)
-    print "packaging 'mozpatches' in '%s'" % buildDir
+    print("packaging 'mozpatches' in '%s'" % buildDir)
     if os.path.isdir(buildDir):
         _rmtree(buildDir)
 
@@ -2017,7 +2018,7 @@ def _PackageKomodoMozillaPatches(cfg):
         os.makedirs(cfg.packagesAbsDir)
     dst = join(cfg.packagesRelDir, basename(zipfile))
     _copy(zipfile, dst)
-    print "created '%s'" % dst
+    print("created '%s'" % dst)
 
 
 def JarChrome(chromeTree, cfg, argv):
@@ -2202,16 +2203,16 @@ def BuildKomodo(cfg, argv):
     starttime = time.time()
     try:
         retval = _BuildKomodo(cfg, argv)
-    except AttributeError, ex:
+    except AttributeError as ex:
         if "'module' object has no attribute" in str(ex):
             import traceback
             traceback.print_exc()
-            print "\nBuild error - perhaps you need to bk reconfigure?\n"
+            print("\nBuild error - perhaps you need to bk reconfigure?\n")
             return -1
         raise
     endtime = time.time()
     duration = endtime - starttime
-    print "Build time - %s" % (humantime(duration))
+    print("Build time - %s" % (humantime(duration)))
     return retval
 
 def CleanKomodoBuild(cfg, argv):
@@ -2541,7 +2542,7 @@ def BuildQuickBuildDB(cfg, argv):
         sharedSupportRelDir = "%s/Contents/SharedSupport" % cfg.macKomodoAppBuildName
     else:
         sharedSupportRelDir = "INSTALLDIR"
-    print "Building 'bk build quick' cache from installed copy."
+    print("Building 'bk build quick' cache from installed copy.")
     _addFiles(cfg, sourceSubdir='src/chrome/',
               targetSubdir=os.path.join(cfg.mozBin, 'chrome'),
               extensions=['xul', 'xml', 'js', 'css', 'less', 'dtd', 'gif', 'png',
@@ -2609,13 +2610,13 @@ def BuildQuickBuildDB(cfg, argv):
     pickle.dump(_table, open('qbtable.pik', 'w'))
     endtime = time.time()
     duration = endtime - starttime
-    print "Cache created - %s" % (humantime(duration))
+    print("Cache created - %s" % (humantime(duration)))
 
 def DumpQuickBuildDB(cfg, argv):
     sys.stderr.write("Dumping quick build cache...\n");
     cache = pickle.load(open('qbtable.pik', 'r'))
     for source, (target, checksum) in cache.items():
-        print "%s (%s): %s" % (source, checksum, target)
+        print("%s (%s): %s" % (source, checksum, target))
 
 def QuickBuild(cfg, argv, _table):
     todo = []
@@ -2631,16 +2632,16 @@ def QuickBuild(cfg, argv, _table):
                 todo.append((source, target))
                 _table[source] = (target, newmd5)
     if not len(todo):
-        print "quick build: No need to copy any files."
+        print("quick build: No need to copy any files.")
     else:
-        print "Need to (possibly preprocess and) copy %d files" % (len(todo))
+        print("Need to (possibly preprocess and) copy %d files" % (len(todo)))
         sys.path.insert(0, "util")
         import preprocess
         sys.path.pop(0)
         for source, target in todo:
             pext = os.path.splitext(os.path.splitext(source)[0])[1]
             if pext in [".unprocessed", ".p"]:
-                print "Preprocess %s and copy to %s" % (source, target)
+                print("Preprocess %s and copy to %s" % (source, target))
                 
                 preprocess.preprocess(source, target,
                                       defines={"PLATFORM": cfg.platform,
@@ -2654,7 +2655,7 @@ def QuickBuild(cfg, argv, _table):
                                       keepLines=1,
                                       substitute=True)
             else:
-                print "Copying %s to %s" % (source, target)
+                print("Copying %s to %s" % (source, target))
                 _copy(source, target)
 
     if cfg.jarring:
@@ -2663,7 +2664,7 @@ def QuickBuild(cfg, argv, _table):
 
     # save the new state of affairs
     pickle.dump(_table, open('qbtable.pik', 'w'))
-    print "quick build: done"
+    print("quick build: done")
 
 def BuildCrashReportSymbols(cfg):
     if not cfg.withCrashReportSymbols:

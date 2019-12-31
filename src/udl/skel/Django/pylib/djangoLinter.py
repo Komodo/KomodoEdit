@@ -21,10 +21,10 @@ def loadTemplate(pathname):
         f.close()
     try:
         t = Template(s)
-    except TemplateSyntaxError, ex:
+    except TemplateSyntaxError as ex:
         sys.stderr.write("TemplateSyntaxError: %s\n" % ex[0])
         return 1
-    except Exception, ex:
+    except Exception as ex:
         sys.stderr.write("Unexpected error: %s\n" % ex[0])
     return 0
 

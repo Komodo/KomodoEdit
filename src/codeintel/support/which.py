@@ -32,6 +32,7 @@ of where the match was found. For example:
     from PATH element 0
     from HKLM\SOFTWARE\...\perl.exe
 """
+from __future__ import print_function
 
 _cmdlnUsage = """
     Show the full path of commands.
@@ -254,7 +255,7 @@ def which(command, path=None, verbose=0, exts=None):
     If no match is found for the command, a WhichError is raised.
     """
     try:
-        match = whichgen(command, path, verbose, exts).next()
+        match = next(whichgen(command, path, verbose, exts))
     except StopIteration:
         raise WhichError("Could not find '%s' on the path." % command)
     return match

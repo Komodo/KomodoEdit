@@ -21,6 +21,7 @@ either GET or POST:
                             guessed based on the file name
                             and contents.
 """
+from __future__ import print_function
 
 try:
     # This module first appeared in Python 2.2, so it might
@@ -60,36 +61,36 @@ suffix = \
 
 params = cgi.FieldStorage(keep_blank_values = 1)
 
-if not params.has_key("source"):
+if "source" not in params:
     import pydoc
 
-    print "Content-type: text/plain"
-    print
+    print("Content-type: text/plain")
+    print()
 
     doc = pydoc.HTMLDoc()
 
-    print doc.page("Docs", doc.preformat(__doc__))
+    print(doc.page("Docs", doc.preformat(__doc__)))
     
 else:    
     source = params["source"].value
     file_name = urllib.unquote(source) 
 
-    if params.has_key("download"):
+    if "download" in params:
         # The user has asked to download the source, so send it
         # as plain text
-        print "Content-type: text/plain"
-        print
+        print("Content-type: text/plain")
+        print()
         sys.stdout.write(open(file_name, 'r').read())    
 
     else:
         # The user has asked for styled source
-        print "Content-type: text/html"
-        print
+        print("Content-type: text/html")
+        print()
 
         # Create the URL for use in downloading the source
         file_url = script_url + '?' + urllib.urlencode([('download', ''), ('source', file_name)])
 
-        if params.has_key("generator"):
+        if "generator" in params:
             generator = params["generator"].value
         else:
             generator = None

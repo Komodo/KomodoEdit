@@ -53,6 +53,7 @@ the GNU General Public License Version 2 or later (the "GPL"), or
 the GNU Lesser General Public License Version 2.1 or later (the "LGPL").
 
 """
+from __future__ import print_function
 
 import re
 import os.path
@@ -80,21 +81,21 @@ class Compare:
 
     def _do_diff(self, e1, e2):
         if (e1.tag != e2.tag):
-            print "**** tag name diff:\n< %s\n> %s\n" % (e1.tag, e2.tag)
+            print("**** tag name diff:\n< %s\n> %s\n" % (e1.tag, e2.tag))
             self.err(2)
             return
         k1 = e1.attrib.keys()
         k2 = e2.attrib.keys()
         for k in k1:
             if not k in k2:
-                print "**** tag %s, missing attr:\n< %s\n" % (e1.tag, k)
+                print("**** tag %s, missing attr:\n< %s\n" % (e1.tag, k))
                 self.err(1)
-            elif e1.attrib[k] != e2.attrib[k] and not self.ignores.has_key("%s@%s" % (e1.tag, k)):
-                print "**** tag %s@%s: attr-mismatch:\n< %s\n> %s" % (e1.tag, k, e1.attrib[k], e2.attrib[k])
+            elif e1.attrib[k] != e2.attrib[k] and "%s@%s" % (e1.tag, k) not in self.ignores:
+                print("**** tag %s@%s: attr-mismatch:\n< %s\n> %s" % (e1.tag, k, e1.attrib[k], e2.attrib[k]))
                 self.err(1)
         for k in k2:
             if not k in k1:
-                print "**** tag %s, extra attr:\n> %s\n" % (e1.tag, k)
+                print("**** tag %s, extra attr:\n> %s\n" % (e1.tag, k))
                 self.err(1)
         for pyattr in ['text', 'tail']:
             ta = [getattr(e1, pyattr, None), getattr(e2, pyattr, None)]
@@ -108,12 +109,12 @@ class Compare:
                 t1a = self.fix_ws(t1)
                 t2a = self.fix_ws(t2)
                 if t1a != t2a:
-                    print "**** tag %s: %s:\n< [%s]\n> [%s]" % (pyattr, e1.tag, t1, t2)
+                    print("**** tag %s: %s:\n< [%s]\n> [%s]" % (pyattr, e1.tag, t1, t2))
                     self.err(1)
         c1 = e1.getchildren()
         c2 = e2.getchildren()
         if len(c1) != len(c2):
-            print "**** tag %s: child-miscount:\n< [%d]\n> [%d]" % (e1.tag, len(c1), len(c2))
+            print("**** tag %s: child-miscount:\n< [%d]\n> [%d]" % (e1.tag, len(c1), len(c2)))
             self.err(2)
         else:
             for i in range(len(c1)):

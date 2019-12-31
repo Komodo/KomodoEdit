@@ -5,6 +5,7 @@ ${common_task_list}
 
 See `mk -h' for options.
 """
+from __future__ import print_function
 
 import os
 from os.path import join, dirname, normpath, abspath, isabs, exists, \
@@ -55,7 +56,7 @@ class todo(Task):
 
         path = join(self.dir, "TO""DO.txt")
         todos = re.compile("^- ", re.M).findall(open(path, 'r').read())
-        print "(plus %d TO""DOs from TO""DO.txt)" % len(todos)
+        print("(plus %d TO""DOs from TO""DO.txt)" % len(todos))
 
     def _dump_pattern_in_path(self, pattern, path):
         os.system('grep -nH "%s" "%s"' % (pattern, path))

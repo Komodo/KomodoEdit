@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 #
 #  Random/OSRNG/nt.py : OS entropy source for MS Windows
 #
@@ -26,7 +27,7 @@ __revision__ = "$Id$"
 __all__ = ['WindowsRNG']
 
 import winrandom
-from rng_base import BaseRNG
+from .rng_base import BaseRNG
 
 class WindowsRNG(BaseRNG):
 

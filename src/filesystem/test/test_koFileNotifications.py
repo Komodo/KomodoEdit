@@ -1,3 +1,4 @@
+from __future__ import print_function
 # ***** BEGIN LICENSE BLOCK *****
 # Version: MPL 1.1/GPL 2.0/LGPL 2.1
 # 
@@ -421,7 +422,7 @@ class test_monitoring_files(unittest.TestCase):
             # Readonly
             chmod_value = 0
         else:
-            chmod_value = 0400
+            chmod_value = 0o400
         for tmpdir in self.tmpdirs:
             tmpfiles = self.tmpdirs[tmpdir]
             # Make readonly
@@ -1456,8 +1457,8 @@ class test_monitoring_files_and_directories(unittest.TestCase):
 
             try:
                 shutil.rmtree(tmpdir)
-            except Exception, e:
-                print "ERROR:", e
+            except Exception as e:
+                print("ERROR:", e)
                 return
 
             file_observer1.wait()

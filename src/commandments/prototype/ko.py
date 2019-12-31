@@ -55,6 +55,7 @@
 #  Windows.
 #
 
+from __future__ import print_function
 import os
 import sys
 if sys.platform.startswith("win"):
@@ -132,7 +133,7 @@ def wantToBeTheMan():
         fd = os.open(gRunningName, os.O_WRONLY|os.O_CREAT)
         try:
             fcntl.lockf(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
-        except IOError, ex:
+        except IOError as ex:
             os.close(fd)
             # Darwin:
             #   IOError: [Errno 35] Resource temporarily unavailable
@@ -220,7 +221,7 @@ class KomodoXul(Frame):
     prototype.
     """
     def say_hi(self):
-        print "hi there, everyone!"
+        print("hi there, everyone!")
     def createWidgets(self):
         self.QUIT = Button(self)
         self.QUIT["text"] = "QUIT"

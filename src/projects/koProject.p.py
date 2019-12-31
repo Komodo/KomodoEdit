@@ -44,6 +44,7 @@ Interface to the Komodo Project Files and their constituent parts.
 """
 
 from __future__ import generators
+from __future__ import print_function
 import traceback
 import os
 import sys
@@ -174,7 +175,7 @@ class koPart(object):
 
     def assignId(self):
         # we will setup an id based on attributes from the project file
-        if not self._attributes.has_key('id'):
+        if 'id' not in self._attributes:
             self.id = getNextId(self)
             self._attributes['id'] = self.id
             if hasattr(self, 'children') and self.id not in self._project._childmap:
@@ -240,7 +241,7 @@ class koPart(object):
         #print "refs: ",sys.getrefcount(self)
 
     def get_iconurl(self):
-        if self._attributes.has_key('icon'):
+        if 'icon' in self._attributes:
             return self._attributes['icon']
         else:
             return self._iconurl
@@ -255,14 +256,14 @@ class koPart(object):
     def set_iconurl(self, url):
         if not url or url == self._iconurl:
             self.removeAttribute('icon')
-            if self._tmpAttributes.has_key('relativeiconurl'):
+            if 'relativeiconurl' in self._tmpAttributes:
                 del self._tmpAttributes['relativeiconurl']
         else:
             self.setAttribute('icon', url)
             self._tmpAttributes['relativeiconurl'] = self._urltorelpath(url)
         try:
             self._getObserverSvc().notifyObservers(self, 'part_changed', '')
-        except Exception, unused:
+        except Exception as unused:
             pass
 
     def __str__(self):
@@ -337,16 +338,16 @@ class koPart(object):
             UnwrapObject(components.classes["@activestate.com/koUserEnviron;1"].getService()).addProjectEnvironment(self)
 
     def dump(self, indent):
-        print " "*indent + "Part of type '" + self.type +"':"
-        print ' '*(indent+1) + "id: %s" % self.id
-        print ' '*(indent+1) + "idref: %s" % self.getIDRef()
+        print(" "*indent + "Part of type '" + self.type +"':")
+        print(' '*(indent+1) + "id: %s" % self.id)
+        print(' '*(indent+1) + "idref: %s" % self.getIDRef())
         if self._parent:
-            print ' '*(indent+1) + "parent id: %s" % self._parent.id
-            print ' '*(indent+1) + "parent idref: %s" % self._parent.getIDRef()
+            print(' '*(indent+1) + "parent id: %s" % self._parent.id)
+            print(' '*(indent+1) + "parent idref: %s" % self._parent.getIDRef())
         else:
-            print ' '*(indent+1) + "parent: NONE"
+            print(' '*(indent+1) + "parent: NONE")
         for k, v in self._attributes.items():
-            print ' '*(indent+1) + "%s: %s" % (k, v)
+            print(' '*(indent+1) + "%s: %s" % (k, v))
         prefs = self.get_prefset()
         prefs.dump(indent+1)
 
@@ -373,7 +374,7 @@ class koPart(object):
                         attrs['url'] = uriparse.RelativizeURL(project._relativeBasedir, attrs['url'])
                 if attrs['url'] is None:
                     del attrs['url']
-            if self._tmpAttributes.has_key('relativeiconurl'):
+            if 'relativeiconurl' in self._tmpAttributes:
                 if 'icon' not in attrs:
                     attrs['icon'] = self._tmpAttributes['relativeiconurl']
                 else:
@@ -385,7 +386,7 @@ class koPart(object):
         #    print "SERIALIZE [%s][%s][%s] no parent for IDREF" % (self.type, self.get_name(), self.id)
         attributes = []
         for a_name, data in attrs.items():
-            if type(data) not in types.StringTypes:
+            if type(data) not in (str,):
                 data = str(data)
             if '\n' in data:
                 errmsg = "Illegal newline character in '%s' attribute of "\
@@ -489,7 +490,7 @@ class koPart(object):
         return self._koFile
 
     def hasAttribute(self, name):
-        return self._attributes.has_key(name)
+        return name in self._attributes
 
     def getAttribute(self, name):
         return self._attributes[name]
@@ -614,7 +615,7 @@ def compareNodeFolder(a, b, field):
 def compareNode(a, b, field):
     aval = a.getFieldValue(field)
     bval = b.getFieldValue(field)
-    if isinstance(aval, types.StringTypes):
+    if isinstance(aval, (str,)):
         return cmp(aval.lower(), bval.lower())
     return cmp(aval, bval)
 
@@ -1270,7 +1271,7 @@ class koProject(koLiveFolderPart):
             # do not want to decode here, the decoding is left up to the dom
             # parsing routines inside _parseStream.
             contents = open(fname, "rb").read()
-        except (IOError, COMException), e:
+        except (IOError, COMException) as e:
             errstr = "Can't open project file %s because %s" % (fname, e)
             log.error(errstr)
             raise
@@ -1281,7 +1282,7 @@ class koProject(koLiveFolderPart):
         fname = uriparse.URIToLocalPath(url)
         try:
             contents = self._getContents(fname)
-        except (IOError, COMException), e:
+        except (IOError, COMException) as e:
             # For some reason the project cannot be opened.
             contents = ""
         return self._lastmd5 != md5(contents).hexdigest()
@@ -1340,7 +1341,7 @@ class koProject(koLiveFolderPart):
                     if 'kpf_version' in self._attributes:
                         try:
                             kpfVer = int(self._attributes['kpf_version'])
-                        except ValueError, e:
+                        except ValueError as e:
                             kpfVer = 1
                     else:
                         kpfVer = 1 # k 1.x-2.x
@@ -1391,7 +1392,7 @@ class koProject(koLiveFolderPart):
                             if canBeCulled:
                                 koTBMiscSvc = UnwrapObject(components.classes["@activestate.com/koToolbox2Service;1"].getService(components.interfaces.koIToolbox2Service))
                                 koTBMiscSvc.extractToolboxFromKPF_File(fname, os.path.splitext(basename)[0])
-                        except Exception, e:
+                        except Exception as e:
                             log.exception("Error '%s' reading project file '%s'", e, fname)
                         self._attributes['kpf_version'] = KPF_VERSION
                         dirtyAtEnd = 1
@@ -1461,7 +1462,7 @@ class koProject(koLiveFolderPart):
                 elif node.tagName == 'files':
                     # ignore the obsolete 'files' nodes, we'll grab the children
                     # later on.  This is a change from KPF Ver1 to Ver2
-                    print "XXX: Keep the files in this project!"
+                    print("XXX: Keep the files in this project!")
                     continue
 
                 elif node.tagName == 'languagefolder':
@@ -1476,10 +1477,10 @@ class koProject(koLiveFolderPart):
                     # create our new part instance
                     try:
                         part = self.createPartFromType(node.tagName)
-                    except TypeError, e:
+                    except TypeError as e:
                         log.error("Problem creating part from type %s", node.tagName)
                         raise
-                    except KeyError, e:
+                    except KeyError as e:
                         # a bad part in the project, ignore for now
                         log.error("Unknown project element with name %s", node.tagName)
                         if node.attributes.get('url'):
@@ -1616,7 +1617,7 @@ class koProject(koLiveFolderPart):
         # the project url's will be added later, from partWrapper.js
         try:
             self._getObserverSvc().notifyObservers(self,'file_project',os.path.dirname(self._url))
-        except Exception, unused:
+        except Exception as unused:
             # if noone listens, exception
             pass
 
@@ -1688,32 +1689,32 @@ class koProject(koLiveFolderPart):
 
     def validateParts(self):
         myparts = [p for p in idmap.values() if p._project is self]
-        print "I have %d parts" % len(myparts)
+        print("I have %d parts" % len(myparts))
 
         mychildren = [p for p in myparts if p._parent is self]
-        print "       %d direct children" % len(mychildren)
+        print("       %d direct children" % len(mychildren))
 
         folders = [p for p in myparts if hasattr(p, 'children')]
-        print "       %d containers" % len(folders)
+        print("       %d containers" % len(folders))
         for f in folders:
-            print "       id %s" % f.id
+            print("       id %s" % f.id)
 
         orphans = []
         allchildren = []
-        print "       %d child sets" % len(self._childmap)
+        print("       %d child sets" % len(self._childmap))
         for idref, children in self._childmap.items():
-            print "       %d in childset [%s]" % (len(children), idref)
+            print("       %d in childset [%s]" % (len(children), idref))
             if idref not in idmap:
-                print "          is orphaned"
+                print("          is orphaned")
                 orphans += children
             else:
                 allchildren += children
-        print "       %d orphans" % len(orphans)
-        print "       %d tracked children" % len(allchildren)
+        print("       %d orphans" % len(orphans))
+        print("       %d tracked children" % len(allchildren))
         #self.dumpTreeFromMaps(self.id)
 
     def dumpTreeFromMaps(self, id, indent=0):
-        print "%s%s" % ((" " * indent), id)
+        print("%s%s" % ((" " * indent), id))
         if id not in self._childmap: return
         for c in self._childmap[id]:
             self.dumpTreeFromMaps(c.id, indent+2)
@@ -1735,7 +1736,7 @@ class koProject(koLiveFolderPart):
                 stream.write('<?xml version="1.0" encoding="UTF-8"?>'+newl)
                 stream.write('<!-- Komodo Project File - DO NOT EDIT -->'+newl)
                 self.serialize(stream)
-            except Exception, e:
+            except Exception as e:
                 log.exception(e)
                 raise
             import tempfile
@@ -1755,7 +1756,7 @@ class koProject(koLiveFolderPart):
                 shutil.copyfile(tempname, fname)
             finally:
                 os.unlink(tempname)
-        except Exception, e:
+        except Exception as e:
             self.lastErrorSvc.setLastError(0, str(e))
             raise ServerException(nsError.NS_ERROR_ILLEGAL_VALUE, str(e))
 
@@ -1765,9 +1766,9 @@ class koProject(koLiveFolderPart):
         self.set_isDirty(0)
 
     def dump(self, indent):
-        print " "*indent + "project:"
+        print(" "*indent + "project:")
         for x in self.__dict__.keys():
-            print ' '*(indent+1) + x + ':' + str(self.__dict__[x])
+            print(' '*(indent+1) + x + ':' + str(self.__dict__[x]))
         koFolderPart.dump(self, indent)
 
     def getAllContainedURLs(self):

@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 #
 # ElementTree
 # $Id$
@@ -53,7 +54,7 @@
 # <a href='http://effbot.org/downloads'>http://effbot.org/downloads</a>).
 ##
 
-import ElementTree
+from . import ElementTree
 
 ##
 # ElementTree builder for XML source data, based on the SGMLOP parser.

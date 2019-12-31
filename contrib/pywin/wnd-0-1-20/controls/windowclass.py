@@ -1,5 +1,6 @@
 
 
+from future.utils import raise_
 from wnd.wintypes import (user32,
 												gdi32,
 												WNDPROC, 
@@ -116,7 +117,7 @@ class WindowClass(Structure):
 		# will be closed twice, hanging the process.
 		if isinstance(cursor, basestring):
 			try: self.hCursor= user32.LoadCursorA(0, SYSTEM_CURSORS[cursor])
-			except: raise ValueError, "invalid cursor: %s" % cursor
+			except:raise_(ValueError, "invalid cursor: %s" % cursor)
 		elif  cursor: 
 			self.hCursor = cursor.handle
 			cursor.Release()

@@ -8,6 +8,7 @@ Komodo branches. This will help create appropriate commit messages.
 Notes:
     - This only handles git at the moment
 """
+from __future__ import print_function
 
 __version_info__ = (0, 0, 1)
 __version__ = '.'.join(map(str, __version_info__))
@@ -673,7 +674,7 @@ class HelpIniAction(argparse.Action):
     def __init__(self, *args, **kwargs):
         super(HelpIniAction, self).__init__(*args, nargs=0, **kwargs)
     def __call__(self, parser, namespace, values, option_string=None):
-        print textwrap.dedent("""
+        print(textwrap.dedent("""
             Configuring %s
             --------------------------
 
@@ -692,7 +693,7 @@ class HelpIniAction(argparse.Action):
                 openkomodo = /home/me/play/openkomodo
                 devel      = /home/me/wrk/Komodo-devel
                 4.3.x      = /home/me/wrk/Komodo-4.3.x
-        """ % (parser.prog, cfg.cfg_path))
+        """ % (parser.prog, cfg.cfg_path)))
         sys.exit(0)
 
 class ChangedPath(object):

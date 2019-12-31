@@ -1,4 +1,5 @@
 """default template for OpenSaveFile dialog using dlgeditor"""
+from __future__ import print_function
 
 from wnd.consts import dlgs
 from wnd.tools.dlgeditor.dlgeditor import DlgEditor
@@ -57,6 +58,6 @@ if __name__=='__main__':
 	o.onMSG= callback
 	r= o.RunOpenFile(0, 'createprompt', 'hook', 'report', defaultfilter=0, initialdir='c:\\')
 	#r= o.RunSaveFile(0, 'createprompt', 'overwriteprompt', 'hook', 'hidereadonly', defaultfilter=0, initialdir='c:\\')
-	print r
+	print(r)
 
 

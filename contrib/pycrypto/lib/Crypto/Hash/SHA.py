@@ -20,6 +20,7 @@
 
 # Just use the SHA module from the Python standard library
 
+from __future__ import absolute_import
 __revision__ = "$Id$"
 
 __all__ = ['new', 'digest_size']
@@ -32,8 +33,8 @@ try:
     digest_size = new().digest_size
 
 except ImportError:
-    from sha import *
-    import sha
+    from .sha import *
+    from . import sha
     if hasattr(sha, 'digestsize'):
         digest_size = digestsize
         del digestsize

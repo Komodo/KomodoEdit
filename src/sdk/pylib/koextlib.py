@@ -86,6 +86,7 @@ A Mozilla extension source dir can also contain these:
 TODO: create_ext_chrome_skel
 TODO: create_ext_component_skel
 """
+from __future__ import print_function
 
 import os
 from os.path import exists, join, dirname, isdir, basename, splitext, \
@@ -196,7 +197,7 @@ def create_ext_skel(base_dir, name=None, id=None, version=None, desc="",
         difference(set(["content", "prefs", "skin", "locale"]))
     unpack = dirs and "true" or "false"
     while need_to_query:
-        print _banner("Gathering extension information")
+        print(_banner("Gathering extension information"))
         
         if name is None:
             name = ' '.join(s.capitalize()
@@ -229,8 +230,8 @@ def create_ext_skel(base_dir, name=None, id=None, version=None, desc="",
             default=homepage or "",
             prompt="  homepage: ")
 
-        print
-        print _banner(None, '-')
+        print()
+        print(_banner(None, '-'))
         sys.stdout.write(_dedent("""
             Extension information:
                   name: %(name)s
@@ -242,10 +243,10 @@ def create_ext_skel(base_dir, name=None, id=None, version=None, desc="",
             """ % locals()).lstrip())
         answer = _query_yes_no_quit("Are these details correct?")
         if answer == "yes":
-            print _banner(None)
+            print(_banner(None))
             break
         elif answer == "no":
-            print _banner(None, '-')
+            print(_banner(None, '-'))
             continue
         elif answer == "quit":
             raise SystemExit("aborting")
@@ -683,7 +684,7 @@ def build_ext(base_dir, support_devinstall=True, unjarred=False,
             os.chdir(orig_dir)
             base_dir = orig_base_dir
 
-    print "'%s' created." % xpi_path
+    print("'%s' created." % xpi_path)
     return xpi_path
 
 
@@ -826,7 +827,7 @@ def komodo_unpack_xpi(xpi_path, log=None, destdir=None):
     try:
         _run('"%s" -q "%s" -d "%s"' % (unzip_exe, xpi_path, tmp_dir), log.info)
         ext_info = ExtensionInfo(tmp_dir)
-    except (OSError, KoExtError), e:
+    except (OSError, KoExtError) as e:
         _rm(tmp_dir, logstream=log.info)
         log.error(e)
         raise KoExtError("%s xpi_path is not a valid .xpi file" % xpi_path)
@@ -835,7 +836,7 @@ def komodo_unpack_xpi(xpi_path, log=None, destdir=None):
         _rm(install_dir, logstream=log.info)
     _mv(tmp_dir, install_dir)
     
-    print "installed to `%s'" % install_dir
+    print("installed to `%s'" % install_dir)
 
 def komodo_distunpack_xpi(xpi_path, log=None):
     """Unpack an extension .xpi file into a Komodo build.
@@ -1267,8 +1268,8 @@ def _dedentlines(lines, tabsize=8, skip_first_line=False):
     """
     DEBUG = False
     if DEBUG: 
-        print "dedent: dedent(..., tabsize=%d, skip_first_line=%r)"\
-              % (tabsize, skip_first_line)
+        print("dedent: dedent(..., tabsize=%d, skip_first_line=%r)"\
+              % (tabsize, skip_first_line))
     indents = []
     margin = None
     for i, line in enumerate(lines):
@@ -1285,12 +1286,12 @@ def _dedentlines(lines, tabsize=8, skip_first_line=False):
                 break
         else:
             continue # skip all-whitespace lines
-        if DEBUG: print "dedent: indent=%d: %r" % (indent, line)
+        if DEBUG: print("dedent: indent=%d: %r" % (indent, line))
         if margin is None:
             margin = indent
         else:
             margin = min(margin, indent)
-    if DEBUG: print "dedent: margin=%r" % margin
+    if DEBUG: print("dedent: margin=%r" % margin)
 
     if margin is not None and margin > 0:
         for i, line in enumerate(lines):
@@ -1302,7 +1303,7 @@ def _dedentlines(lines, tabsize=8, skip_first_line=False):
                 elif ch == '\t':
                     removed += tabsize - (removed % tabsize)
                 elif ch in '\r\n':
-                    if DEBUG: print "dedent: %r: EOL -> strip up to EOL" % line
+                    if DEBUG: print("dedent: %r: EOL -> strip up to EOL" % line)
                     lines[i] = lines[i][j:]
                     break
                 else:
@@ -1310,8 +1311,8 @@ def _dedentlines(lines, tabsize=8, skip_first_line=False):
                                      "line %r while removing %d-space margin"
                                      % (ch, line, margin))
                 if DEBUG:
-                    print "dedent: %r: %r -> removed %d/%d"\
-                          % (line, ch, removed, margin)
+                    print("dedent: %r: %r -> removed %d/%d"\
+                          % (line, ch, removed, margin))
                 if removed == margin:
                     lines[i] = lines[i][j+1:]
                     break
@@ -1400,7 +1401,7 @@ def _trim_files_in_dir(dir, patterns, log=None):
 def _rmtree_OnError(rmFunction, filePath, excInfo):
     if excInfo[0] == OSError:
         # presuming because file is read-only
-        os.chmod(filePath, 0777)
+        os.chmod(filePath, 0o777)
         rmFunction(filePath)
 def _rmtree(dirname):
     shutil.rmtree(dirname, 0, _rmtree_OnError)
@@ -1579,7 +1580,7 @@ def _walk(top, topdown=True, onerror=None, follow_symlinks=False):
     # left to visit.  That logic is copied here.
     try:
         names = os.listdir(top)
-    except OSError, err:
+    except OSError as err:
         if onerror is not None:
             onerror(err)
         return

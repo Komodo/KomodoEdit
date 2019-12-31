@@ -93,7 +93,7 @@ class KoTclCompletion:
 
             self.lComplete.sort()
             self._ok = 1
-        except Exception, e:
+        except Exception as e:
             log.exception("Error in loading Tcl function lists");
             pass
 
@@ -124,13 +124,13 @@ class KoTclCompletion:
                     # dictionary for that.
                     cmdBase = tmatch.group(1)
                     cmdArgs = tmatch.group(2)
-                    if (self.dTips.has_key(cmdBase)):
+                    if (cmdBase in self.dTips):
                         self.dTips[cmdBase].append(cmdArgs)
                     else:
                         self.dTips[cmdBase] = [cmdArgs]
                 else:
                     cmdBase = line
-                if (self.dComplete.has_key(cmdName)):
+                if (cmdName in self.dComplete):
                     self.dComplete[cmdName].append(cmdBase)
                 else:
                     self.dComplete[cmdName] = [cmdBase]
@@ -166,7 +166,7 @@ class KoTclCompletion:
                 # In the single-word case, just look in the list of
                 # primary commands
                 items = [key for key in self.lComplete if key.startswith(name)]
-            elif self.dComplete.has_key(name):
+            elif name in self.dComplete:
                 # In the multi-word case, look in the dictionary of
                 # commands with methods
                 items = [key for key in self.dComplete[name] \
@@ -183,7 +183,7 @@ class KoTclCompletion:
         # tip is called for.
         if not items:
             name = string.rstrip(text)
-            if self.dTips.has_key(name):
+            if name in self.dTips:
                 items = self.dTips[name]
                 doTip = 1
 

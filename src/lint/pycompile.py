@@ -142,7 +142,7 @@ def main(argv):
         sys.stdout = o
         try:
             tabnanny.check(filename)
-        except IndentationError, e:
+        except IndentationError as e:
             pass # ignore these, we'll catch them later
         sys.stdout = oldStdout
         lineRe = re.compile("^(?P<fname>.*?) (?P<line>\d+) '(?P<content>.*)'$")
@@ -166,7 +166,7 @@ def main(argv):
     # Compile it.
     try:
         dummy = __builtin__.compile(s, filename, 'exec')
-    except SyntaxError, ex:
+    except SyntaxError as ex:
         r = {}
         r["filename"] = filename
         # Prefix the description with the name of the exception class.

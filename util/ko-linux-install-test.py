@@ -21,6 +21,7 @@ with a message something like:
     Ubuntu 6.04: failed to install
     RHEL 9: success installing and starting up
 """
+from __future__ import print_function
 
 import sys
 import os

@@ -54,6 +54,7 @@ Tested with MochiKit versions:
   * 1.3.1           (default)
   * trunk - 1.4.0   (change svn co command for this version)
 """
+from __future__ import print_function
 
 import os
 import sys
@@ -166,13 +167,13 @@ def processSection(cix_blob, cix_module, section_type, div_tag):
         name = name_split[-1]
 
         if section_type == "Errors":
-            print "%s: variable: %r" % (section_type, name)
+            print("%s: variable: %r" % (section_type, name))
             cix_element = createCixVariable(cix_module, name)
         elif section_type == "Constructors":
             # A class or prototype function
             if len(name_split) == 1:
                 # It's a class
-                print "%s: class: %r" % (section_type, name)
+                print("%s: class: %r" % (section_type, name))
                 cix_element = createCixClass(cix_module, name)
                 cix_scopes[name] = cix_element
                 # Add function constructor
@@ -184,7 +185,7 @@ def processSection(cix_blob, cix_module, section_type, div_tag):
                 # else: # It's not really a function signature then
             elif "prototype" in name_split:
                 # Class function, find the class it's for
-                print "%s: class prototype: %r" % (section_type, name)
+                print("%s: class prototype: %r" % (section_type, name))
                 parentname = ".".join(name_split[:-2])
                 cix_class = cix_scopes.get(parentname, None)
                 if cix_class is None:
@@ -197,25 +198,25 @@ def processSection(cix_blob, cix_module, section_type, div_tag):
                 if cix_class is None:
                     raise "Could not find scope: %r for: %r" % (parentname, namespace)
                 if len(sig_split) > 1:
-                    print "%s: class static function: %r" % (section_type, name)
+                    print("%s: class static function: %r" % (section_type, name))
                     cix_element = createCixFunction(cix_class, name)
                     setCixSignature(cix_element, "%s(%s" % (name, sig_split[1]))
                 else:
-                    print "%s: class static variable: %r" % (section_type, name)
+                    print("%s: class static variable: %r" % (section_type, name))
                     cix_element = createCixVariable(cix_class, name)
         elif section_type in ("DOM Custom Event Object Reference"):
             # Special handling for the MochiKit.Signal.Event documentation
             cix_event = cix_scopes.get("Event", None)
             if cix_event is None:
-                print "%s: Event scope" % (section_type)
+                print("%s: Event scope" % (section_type))
                 cix_event = createCixClass(cix_module, "Event")
                 cix_scopes["Event"] = cix_event
             if len(sig_split) > 1:
-                print "%s: function: %r" % (section_type, name)
+                print("%s: function: %r" % (section_type, name))
                 cix_element = createCixFunction(cix_event, name)
                 setCixSignature(cix_element, "%s(%s" % (name, sig_split[1]))
             else:
-                print "%s: variable: %r" % (section_type, name)
+                print("%s: variable: %r" % (section_type, name))
                 cix_element = createCixVariable(cix_event, name)
         #elif section_type in ("Functions", "Signal API Reference", "Objects",
         #                      "Style Functions", "Style Objects"):
@@ -224,10 +225,10 @@ def processSection(cix_blob, cix_module, section_type, div_tag):
         #       moved to MochiKit.Style in 1.4.X 
         else:
             if len(sig_split) > 1:
-                print "%s: function: %r" % (section_type, name)
+                print("%s: function: %r" % (section_type, name))
                 cix_element = createCixFunction(cix_module, name)
             else:
-                print "%s: variable: %r" % (section_type, name)
+                print("%s: variable: %r" % (section_type, name))
                 cix_element = createCixVariable(cix_module, name)
         #else:
         #    raise "Unhandled section type: %r" % (section_type)
@@ -292,7 +293,7 @@ def main(cix_filename):
         # parse html
         for filename in glob(os.path.join(co_dir, "doc", "html", "MochiKit", "*.html")):
             scopename = os.path.basename(filename).rsplit(".", 1)
-            print "MochiKit." + scopename[0]
+            print("MochiKit." + scopename[0])
             data = file(filename).read()
             filename = filename.replace(".html", ".js")
             parseWithSoup(cix_root, scopename[0], data)

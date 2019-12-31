@@ -69,6 +69,7 @@
     instead of Perl's burdensome "MSWin32"). See the particular method
     docstrings for more details.
 """
+from __future__ import print_function
 # Development notes:
 # - The name of this module is intentionally not "platform" to not
 #   conflict with (Marc-Andre Lemburg's?) platform.py in the stdlib.
@@ -460,7 +461,7 @@ class PlatInfo(object):
 
         try:
             self.os_ver = uname[2].split('.', 1)[1]   # e.g. "B.11.00"
-        except IndexError, ex:
+        except IndexError as ex:
             raise InternalError("unknown HP-UX version: could not "
                                 "parse '%s' from uname" % uname[2])
 
@@ -523,7 +524,7 @@ class PlatInfo(object):
         import MacOS
         try:
             sysv = gestalt.gestalt("sysv")
-        except MacOS.Error, ex:
+        except MacOS.Error as ex:
             # On Mac OS X/Intel (at least on the early release dev
             # boxes) the Gestalt Manager does not seem to be intialized
             # with the standard selectors -- or the equivalent.
@@ -771,7 +772,7 @@ def _run(args, ignore_stderr=False):
         p = subprocess.Popen(args=args, 
                 shell=False, # prevent obtrusive shell warnings
                 stdout=subprocess.PIPE, stderr=stderr_pipe)
-    except OSError, e:
+    except OSError as e:
         if e.errno == errno.ENOENT:
             # `exe` not found
             raise ExecutableNotFoundError('The command "%s" cannot be run: %s'
@@ -974,7 +975,7 @@ def _create_temp_dir():
 def _rmtree_on_error(rmFunction, filePath, excInfo):
     if excInfo[0] == OSError:
         # presuming because file is read-only
-        os.chmod(filePath, 0777)
+        os.chmod(filePath, 0o777)
         rmFunction(filePath)
 
 def _rmtree(dirname):
@@ -1107,13 +1108,13 @@ more information."""
     WIDTH=75
     if opts.format is None:
         if rules:
-            print pi.name(*rules)
+            print(pi.name(*rules))
         else:
-            print "%s (%s)" % (pi.name(), pi.fullname())
+            print("%s (%s)" % (pi.name(), pi.fullname()))
     if opts.format == "name":
-        print pi.name(*rules)
+        print(pi.name(*rules))
     if opts.format == "fullname":
-        print pi.fullname()
+        print(pi.fullname())
     elif opts.format == "dict":
         if sys.version_info[:2] >= (2,4):
             pprint(pi.as_dict(), width=WIDTH)
@@ -1122,24 +1123,24 @@ more information."""
             pp = PrettyPrinter(width=WIDTH)
             pp.pprint(pi.as_dict())
     elif opts.format == "xml":
-        print pi.as_xml()
+        print(pi.as_xml())
     elif opts.format == "yaml":
-        print pi.as_yaml()
+        print(pi.as_yaml())
     elif opts.format == "all":
-        print _banner("platform info", length=WIDTH)
-        print pi.name(*rules)
-        print _banner("as_dict", '-', length=WIDTH)
+        print(_banner("platform info", length=WIDTH))
+        print(pi.name(*rules))
+        print(_banner("as_dict", '-', length=WIDTH))
         if sys.version_info[:2] >= (2,4):
             pprint(pi.as_dict(), width=WIDTH)
         else:
             from pprint import PrettyPrinter
             pp = PrettyPrinter(width=WIDTH)
             pp.pprint(pi.as_dict())
-        print _banner("as_xml", '-', length=WIDTH)
-        print pi.as_xml()
-        print _banner("as_yaml", '-', length=WIDTH)
-        print pi.as_yaml()
-        print _banner(None, length=WIDTH)
+        print(_banner("as_xml", '-', length=WIDTH))
+        print(pi.as_xml())
+        print(_banner("as_yaml", '-', length=WIDTH))
+        print(pi.as_yaml())
+        print(_banner(None, length=WIDTH))
 
 
 if __name__ == "__main__":

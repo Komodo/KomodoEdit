@@ -118,7 +118,7 @@ class ToolbarFromSnapshot(Toolbar):
 				
 		try:
 			arrBt, text, arrUser= ReadSnapshot(snapshot)
-		except Exception, details: 
+		except Exception as details: 
 			raise ValueError(details)
 		self._client_snapshot= Snapshot(arrBt, text, arrUser)
 		iTitle=self.SendMessage(self.Hwnd, self.Msg.TB_ADDSTRING, 0, text)

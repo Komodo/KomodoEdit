@@ -280,9 +280,9 @@ class KoFindSession:
         self._state["url"] = replaceResults[-1].url
 
     def WasAlreadyFound(self, findResult):
-        retval = self._findsMap.has_key((findResult.url,
+        retval = (findResult.url,
                                          findResult.start,
-                                         findResult.end))
+                                         findResult.end) in self._findsMap
         log.debug("was this find result, {url:'%s', start:%d, end:%d}, "\
                   "already found? %s   (_findsMap=%s)",
                   findResult.url, findResult.start, findResult.end, retval,
@@ -308,7 +308,7 @@ class KoFindSession:
         return retval
     
     def HaveSearchedThisUrlAlready(self, url):
-        retval = self._urlsSearched.has_key(url)
+        retval = url in self._urlsSearched
         log.debug("has URL '%s' already been search? %s (_urlsSearched=%r)",
                   url, retval, self._urlsSearched)
         return retval

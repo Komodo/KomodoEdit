@@ -36,6 +36,7 @@
 # 
 # ***** END LICENSE BLOCK *****
 
+from __future__ import print_function
 import os
 from xml.dom import pulldom
 import logging
@@ -56,7 +57,7 @@ def dirwalker(dirname, pat=None):
     import fnmatch
     try:
         contents = os.listdir(os.path.normpath(dirname))
-    except OSError, e:
+    except OSError as e:
         if e.errno != 13: # permission denied
             raise
         contents = []
@@ -101,7 +102,7 @@ class DTDinst:
                 for c in celem:
                     ctags[c.tagName] = 0
                 children = "(%s)*" % " | ".join(ctags.keys())
-            print el % (tag, children)
+            print(el % (tag, children))
             
             attrs = {}
             attlist = []
@@ -110,7 +111,7 @@ class DTDinst:
             for attrib in attrs.keys():
                 attlist.append(attr % attrib)
             if attlist:
-                print al % (tag, "\n".join(attlist))
+                print(al % (tag, "\n".join(attlist)))
             
     
     def parsexml(self, xmlfile):

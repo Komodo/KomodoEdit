@@ -1570,7 +1570,7 @@ class KoPlaceTreeView(TreeView):
             if conn.list(fullPath, False):
                 raise ServerException(nsError.NS_ERROR_INVALID_ARG,
                                       "File %s already exists in %s:%s" % (basename, conn.server, parentPath))
-            conn.createFile(fullPath, 0644)
+            conn.createFile(fullPath, 0o644)
         if parentIndex == -1:
             self.refreshFullTreeView()
         else:
@@ -1827,7 +1827,7 @@ class KoPlaceTreeView(TreeView):
         #log.debug(">> isContainerEmpty[%d] => %r", index, len(self._rows[index].childNodes) == 0)
         try:
             return self.isContainer(index) and len(self._rows[index].childNodes) == 0
-        except AttributeError, ex:
+        except AttributeError as ex:
             node = self._rows[index]
             log.exception("level: %d, uri:%s, isContainer:%r",
                            node.level,
@@ -1842,7 +1842,7 @@ class KoPlaceTreeView(TreeView):
             level = self._rows[index].level
             while i >= 0 and self._rows[i].level >= level:
                 i -= 1
-        except IndexError, e:
+        except IndexError as e:
             i = -1
         return i
 
@@ -1856,7 +1856,7 @@ class KoPlaceTreeView(TreeView):
                     return 0
                 elif next_row_level == current_level:
                     return 1
-        except IndexError, e:
+        except IndexError as e:
             pass
         return 0
     
@@ -2353,7 +2353,7 @@ class KoPlaceTreeView(TreeView):
             try:
                 item = self._finishGettingItem(uriparse.localPathToURI(full_name), name, itemType)
                 items.append(item)
-            except ValueError, e:
+            except ValueError as e:
                 log.warn('localPathToURI failed: %s' % e)
         return items
 
@@ -2618,7 +2618,7 @@ class _WorkerThread(threading.Thread, Queue):
             if not copying:
                 try:
                     shutil.move(srcPath, finalTargetFilePath)
-                except IOError, ex:
+                except IOError as ex:
                     finalMsg = ("doTreeOperation_WorkerThread: can't copy %s to %s: %s" %
                                 (srcPath, finalTargetFilePath, ex.message))
                     return finalMsg
@@ -2779,7 +2779,7 @@ class _WorkerThread(threading.Thread, Queue):
                 else:
                     newPath2 = newPath
                     shutil.copy(srcPath, newPath2)
-            except (Exception, IOError), ex:
+            except (Exception, IOError) as ex:
                 finalMsg = ("doTreeCopyWithDestNameAndURI_WorkerThread: can't copy %s to %s: %s" %
                             (srcPath, newPath2, ex.message))
                 log.exception("%s", finalMsg)
@@ -2790,7 +2790,7 @@ class _WorkerThread(threading.Thread, Queue):
             src_rfi = conn.list(srcPath, True)
             try:
                 self._copyRemoteItem(conn, src_rfi, newPath, requester_data)
-            except Exception, ex:
+            except Exception as ex:
                 finalMsg = ("doTreeCopyWithDestNameAndURI_WorkerThread: can't copy file %s to %s: %s" %
                             (srcPath, newPath, ex.message))
                 log.exception("%s", finalMsg)

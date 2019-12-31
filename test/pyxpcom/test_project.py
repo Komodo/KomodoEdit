@@ -35,6 +35,7 @@
 # ***** END LICENSE BLOCK *****
 
 """Test Project functionality in Komodo."""
+from __future__ import print_function
 #TODO:
 #   - This test does not clean up after itself. It leave 'test*.kpf'
 #     turds. It should clean up.
@@ -90,7 +91,7 @@ class ProjectTestCase(unittest.TestCase):
         project.load(uriparse.localPathToURI((os.path.abspath(name))));
         if verbose:
             project.dump(0)
-            print project.getChildren(), len(project.getChildren())
+            print(project.getChildren(), len(project.getChildren()))
         self.failUnless(len(project.getChildren()) == 2, "didn't read the right number of children")
         project.prefset.setStringPref('pref1', u'valueofpref1')
         assert project.prefset.getStringPref('pref1') == u'valueofpref1'
@@ -105,7 +106,7 @@ class ProjectTestCase(unittest.TestCase):
         if verbose:
             project.dump(0)
             project.prefset.dump(0)
-            print "Project %s has %d children" % (name, len(project.getChildren()))
+            print("Project %s has %d children" % (name, len(project.getChildren())))
         assert project.prefset.getStringPref('pref1') == u'valueofpref1'
         project.prefset.deletePref('pref1')
         file1 = project.getChildren()[0]

@@ -39,6 +39,7 @@
 See http://systems.cs.uchicago.edu/ply for more information on PLY, the
 lexer/parser framework this code uses.
 """
+from __future__ import print_function
 
 import os
 from os.path import dirname, join, exists
@@ -58,11 +59,11 @@ log = logging.getLogger("luddite")
 
 #XXX review and Pythonify
 def keep_non_empty_dicts(lst):
-    return filter(lambda(x): x and type(x) == DictType and len(x.keys()) > 0, lst)
+    return filter(lambda x: x and type(x) == DictType and len(x.keys()) > 0, lst)
 
 #XXX review and Pythonify
 def keep_non_empty_lists(lst):
-    return filter(lambda(x): x and type(x) == ListType and len(x) > 0, lst)
+    return filter(lambda x: x and type(x) == ListType and len(x) > 0, lst)
 
 #XXX review and Pythonify
 def combine_filter_list_dict(list1, item2):
@@ -537,8 +538,8 @@ def p_empty(p):
 
 def p_error(p):
     global num_errs
-    print "Syntax error at or near line %d, token '%s'" % (p.lexer.lineno,
-                                                           p.value)
+    print("Syntax error at or near line %d, token '%s'" % (p.lexer.lineno,
+                                                           p.value))
     num_errs += 1
 
 

@@ -62,7 +62,7 @@ class KoDiff:
             # difflib takes forever to work if newlines do not match
             content1_eol_clean = re.sub("\r\n|\r|\n", native_eol, doc1.buffer)
             content2_eol_clean = re.sub("\r\n|\r|\n", native_eol, doc2.buffer)
-        except IOError, ex:
+        except IOError as ex:
             self.lastErrorSvc.setLastError(0, str(ex))
             raise ServerException(nsError.NS_ERROR_UNEXPECTED, str(ex))
 
@@ -85,7 +85,7 @@ class KoDiff:
     def filePosFromDiffPos(self, line, column):
         try:
             return self.diffex.file_pos_from_diff_pos(line, column)
-        except difflibex.DiffLibExError, ex:
+        except difflibex.DiffLibExError as ex:
             self.lastErrorSvc.setLastError(0, str(ex))
             raise ServerException(nsError.NS_ERROR_UNEXPECTED, str(ex))
 
@@ -93,5 +93,5 @@ class KoDiff:
         try:
             return difflibex.infer_cwd_and_strip_from_path(pathInDiff,
                                                            actualPath)
-        except difflibex.DiffLibExError, ex:
+        except difflibex.DiffLibExError as ex:
             raise ServerException(nsError.NS_ERROR_UNEXPECTED, str(ex))

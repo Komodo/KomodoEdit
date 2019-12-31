@@ -80,7 +80,7 @@ class koUrlUtils:
             else:
                 try:
                     return os.path.samefile(path1, path2)
-                except Exception, e:
+                except Exception as e:
                     log.debug("Could not compare files: %r [%r]", e, e.args)
                     return path1 == path2
         else:

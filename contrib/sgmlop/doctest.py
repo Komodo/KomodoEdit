@@ -300,6 +300,7 @@ ok
 54 passed and 0 failed.
 Test passed.
 """
+from __future__ import print_function
 
 # 0,0,1    06-Mar-1999
 #    initial version posted
@@ -357,9 +358,9 @@ __version__ = 0, 9, 6
 
 import types
 _FunctionType = types.FunctionType
-_ClassType    = types.ClassType
+_ClassType    = type
 _ModuleType   = types.ModuleType
-_StringType   = types.StringType
+_StringType   = bytes
 del types
 
 import string
@@ -405,7 +406,7 @@ def _extract_examples(s):
             continue
         lineno = i - 1
         if line[j] != " ":
-            raise ValueError("line " + `lineno` + " of docstring lacks "
+            raise ValueError("line " + repr(lineno) + " of docstring lacks "
                 "blank after " + PS1 + ": " + line)
         j = j + 1
         blanks = m.group(1)
@@ -419,7 +420,7 @@ def _extract_examples(s):
             if m:
                 if m.group(1) != blanks:
                     raise ValueError("inconsistent leading whitespace "
-                        "in line " + `i` + " of docstring: " + line)
+                        "in line " + repr(i) + " of docstring: " + line)
                 i = i + 1
             else:
                 break
@@ -438,7 +439,7 @@ def _extract_examples(s):
             while 1:
                 if line[:nblanks] != blanks:
                     raise ValueError("inconsistent leading whitespace "
-                        "in line " + `i` + " of docstring: " + line)
+                        "in line " + repr(i) + " of docstring: " + line)
                 expect.append(line[nblanks:])
                 i = i + 1
                 line = lines[i]
@@ -496,7 +497,7 @@ def _run_examples_inner(out, fakeout, examples, globs, verbose, name):
                           ("Expecting", want or NADA))
         fakeout.clear()
         try:
-            exec compile(source, "<string>", "single") in globs
+            exec(compile(source, "<string>", "single"), globs)
             got = fakeout.get()
             state = OK
         except:
@@ -526,7 +527,7 @@ def _run_examples_inner(out, fakeout, examples, globs, verbose, name):
         failures = failures + 1
         out("*" * 65 + "\n")
         _tag_out(out, ("Failure in example", source))
-        out("from line #" + `lineno` + " of " + name + "\n")
+        out("from line #" + repr(lineno) + " of " + name + "\n")
         if state == FAIL:
             _tag_out(out, ("Expected", want or NADA), ("Got", got))
         else:
@@ -692,7 +693,7 @@ see its docs for details.
             raise TypeError("Tester.__init__: must specify mod or globs")
         if mod is not None and type(mod) is not _ModuleType:
             raise TypeError("Tester.__init__: mod must be a module; " +
-                            `mod`)
+                            repr(mod))
         if globs is None:
             globs = mod.__dict__
         self.globs = globs
@@ -735,13 +736,13 @@ see its docs for details.
         """
 
         if self.verbose:
-            print "Running string", name
+            print("Running string", name)
         f = t = 0
         e = _extract_examples(s)
         if e:
             f, t = _run_examples(e, self.globs.copy(), self.verbose, name)
         if self.verbose:
-            print f, "of", t, "examples failed in string", name
+            print(f, "of", t, "examples failed in string", name)
         self.__record_outcome(name, f, t)
         return f, t
 
@@ -774,13 +775,13 @@ see its docs for details.
                 name = object.__name__
             except AttributeError:
                 raise ValueError("Tester.rundoc: name must be given "
-                    "when object.__name__ doesn't exist; " + `object`)
+                    "when object.__name__ doesn't exist; " + repr(object))
         if self.verbose:
-            print "Running", name + ".__doc__"
+            print("Running", name + ".__doc__")
         f, t = run_docstring_examples(object, self.globs.copy(),
                                       self.verbose, name)
         if self.verbose:
-            print f, "of", t, "examples failed in", name + ".__doc__"
+            print(f, "of", t, "examples failed in", name + ".__doc__")
         self.__record_outcome(name, f, t)
         if type(object) is _ClassType:
             f2, t2 = self.rundict(object.__dict__, name)
@@ -815,7 +816,7 @@ see its docs for details.
 
         if not hasattr(d, "items"):
             raise TypeError("Tester.rundict: d must support .items(); " +
-                            `d`)
+                            repr(d))
         f = t = 0
         for thisname, value in d.items():
             if type(value) in (_FunctionType, _ClassType):
@@ -845,7 +846,7 @@ see its docs for details.
                 else:
                     raise TypeError("Tester.run__test__: values in "
                             "dict must be strings, functions "
-                            "or classes; " + `v`)
+                            "or classes; " + repr(v))
                 failures = failures + f
                 tries = tries + t
         finally:
@@ -881,27 +882,27 @@ see its docs for details.
                 failed.append(x)
         if verbose:
             if notests:
-                print len(notests), "items had no tests:"
+                print(len(notests), "items had no tests:")
                 notests.sort()
                 for thing in notests:
-                    print "   ", thing
+                    print("   ", thing)
             if passed:
-                print len(passed), "items passed all tests:"
+                print(len(passed), "items passed all tests:")
                 passed.sort()
                 for thing, count in passed:
-                    print " %3d tests in %s" % (count, thing)
+                    print(" %3d tests in %s" % (count, thing))
         if failed:
-            print len(failed), "items had failures:"
+            print(len(failed), "items had failures:")
             failed.sort()
             for thing, (f, t) in failed:
-                print " %3d of %3d in %s" % (f, t, thing)
+                print(" %3d of %3d in %s" % (f, t, thing))
         if verbose:
-            print totalt, "tests in", len(self.name2ft), "items."
-            print totalt - totalf, "passed and", totalf, "failed."
+            print(totalt, "tests in", len(self.name2ft), "items.")
+            print(totalt - totalf, "passed and", totalf, "failed.")
         if totalf:
-            print "***Test Failed***", totalf, "failures."
+            print("***Test Failed***", totalf, "failures.")
         elif verbose:
-            print "Test passed."
+            print("Test passed.")
         return totalf, totalt
 
     def merge(self, other):
@@ -949,18 +950,18 @@ see its docs for details.
 
         d = self.name2ft
         for name, (f, t) in other.name2ft.items():
-            if d.has_key(name):
-                print "*** Tester.merge: '" + name + "' in both" \
-                    " testers; summing outcomes."
+            if name in d:
+                print("*** Tester.merge: '" + name + "' in both" \
+                    " testers; summing outcomes.")
                 f2, t2 = d[name]
                 f = f + f2
                 t = t + t2
             d[name] = f, t
 
     def __record_outcome(self, name, f, t):
-        if self.name2ft.has_key(name):
-            print "*** Warning: '" + name + "' was tested before;", \
-                "summing outcomes."
+        if name in self.name2ft:
+            print("*** Warning: '" + name + "' was tested before;", \
+                "summing outcomes.")
             f2, t2 = self.name2ft[name]
             f = f + f2
             t = t + t2
@@ -1025,7 +1026,7 @@ def testmod(m, name=None, globs=None, verbose=None, isprivate=None,
     global master
 
     if type(m) is not _ModuleType:
-        raise TypeError("testmod: module required; " + `m`)
+        raise TypeError("testmod: module required; " + repr(m))
     if name is None:
         name = m.__name__
     tester = Tester(m, globs=globs, verbose=verbose, isprivate=isprivate)
@@ -1038,7 +1039,7 @@ def testmod(m, name=None, globs=None, verbose=None, isprivate=None,
         if testdict:
             if not hasattr(testdict, "items"):
                 raise TypeError("testmod: module.__test__ must support "
-                                ".items(); " + `testdict`)
+                                ".items(); " + repr(testdict))
             f, t = tester.run__test__(testdict, name + ".__test__")
             failures = failures + f
             tries = tries + t

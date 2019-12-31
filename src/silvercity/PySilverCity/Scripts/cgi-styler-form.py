@@ -1,5 +1,6 @@
 #!/usr/home/sweetapp/bin/python
 
+from __future__ import print_function
 import cgitb; cgitb.enable()
 import cgi
 from SilverCity import LanguageInfo
@@ -65,12 +66,12 @@ def create_generator(source_url, generator_name, content):
         return guess_language(source_url, content).get_default_html_generator()()
 
 def handle_submit(form):
-    if form.has_key('source'):
+    if 'source' in form:
         source_uri = None
         source = form['source'].value
         title = "SilverCity Styled Source"
     else:
-        if form.has_key('uploadedfile'):
+        if 'uploadedfile' in form:
             source_uri = form['uploadedfile'].filename
             source = form['uploadedfile'].file.read()
 
@@ -97,12 +98,12 @@ def handle_submit(form):
     else:
         generator = create_generator(source_uri, form['lexer'].value, source)
 
-    print source2html.xhtml_prefix % {
+    print(source2html.xhtml_prefix % {
         'title' : title,
-        'css' : style_uri}
+        'css' : style_uri})
     
     generator.generate_html(sys.stdout, source)    
-    print source2html.suffix
+    print(source2html.suffix)
 
 def handle_form(template_name):
     template = file(os.path.join(template_path, template_name), 'r').read()
@@ -115,17 +116,17 @@ def handle_form(template_name):
         'generators' : '\n'.join(['<option value="%s">%s</option>' % (name, description) for name, description in generators]),
         'encodings' : '\n'.join(['<option value="%s">%s</option>' % (value, name) for value, name in encodings])}
 
-    print template    
+    print(template)    
 
-print 'Content-type: text/html'
-print
+print('Content-type: text/html')
+print()
     
 form = cgi.FieldStorage(keep_blank_values=True)
     
-if form.has_key('submit'):
+if 'submit' in form:
     handle_submit(form)
 else:
-    if form.has_key('template'):
+    if 'template' in form:
         template = form['template'].value
     else:
         template = os.path.join(default_template_name)

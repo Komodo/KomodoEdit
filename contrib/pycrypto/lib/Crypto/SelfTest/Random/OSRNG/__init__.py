@@ -23,6 +23,7 @@
 # ===================================================================
 
 """Self-test for Crypto.Random.OSRNG package"""
+from __future__ import absolute_import
 
 __revision__ = "$Id$"
 
@@ -31,13 +32,13 @@ import os
 def get_tests(config={}):
     tests = []
     if os.name == 'nt':
-        import test_nt;        tests += test_nt.get_tests(config=config)
-        import test_winrandom; tests += test_winrandom.get_tests(config=config)
+        from . import test_nt;        tests += test_nt.get_tests(config=config)
+        from . import test_winrandom; tests += test_winrandom.get_tests(config=config)
     elif os.name == 'posix':
-        import test_posix;     tests += test_posix.get_tests(config=config)
+        from . import test_posix;     tests += test_posix.get_tests(config=config)
     if hasattr(os, 'urandom'):
-        import test_fallback;      tests += test_fallback.get_tests(config=config)
-    import test_generic;       tests += test_generic.get_tests(config=config)
+        from . import test_fallback;      tests += test_fallback.get_tests(config=config)
+    from . import test_generic;       tests += test_generic.get_tests(config=config)
     return tests
 
 if __name__ == '__main__':

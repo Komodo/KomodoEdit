@@ -285,7 +285,7 @@ class Manager(threading.Thread, Queue):
             log.debug("register `%s' support module", module_path)
             try:
                 module.register(self)
-            except CodeIntelError, ex:
+            except CodeIntelError as ex:
                 log.warn("error registering `%s' support module: %s",
                          module_path, ex)
             except:
@@ -529,9 +529,10 @@ class Manager(threading.Thread, Queue):
         log.exception("error evaluating %s" % eval_sess)
         eval_sess.ctlr.done("unexpected eval error")
 
-    def _put(self, (eval_sess, is_reeval)):
+    def _put(self, xxx_todo_changeme):
         # Only consider re-evaluation if we are still on the same eval
         # session.
+        (eval_sess, is_reeval) = xxx_todo_changeme
         if is_reeval and self._curr_eval_sess is not eval_sess:
             return
 

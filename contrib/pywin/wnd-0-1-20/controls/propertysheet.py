@@ -13,7 +13,9 @@ NOT IMPLEMENTED
 
 
 """
+from __future__ import print_function
 
+from future.utils import raise_
 from wnd.wintypes import (DIALOGPROC,
 													Structure,
 													Union,
@@ -76,7 +78,7 @@ class PropertySheet(object):
 					self._client_p.dwFlags |= FLAGS_PROPHEADER[i]
 					if i=='modeless':
 						self._client_mode= i
-				except: raise ValueError, "invalid flag: %s" % i
+				except:raise_(ValueError, "invalid flag: %s" % i)
 		
 		icon = kwargs.get('icon', None)
 		if icon:
@@ -188,7 +190,7 @@ class PropertySheet(object):
 	
 		
 	def onMSG(self, hwnd, msg, wp, lp):
-		print hwnd, msg, wp, lp
+		print(hwnd, msg, wp, lp)
 		pass
 	
 	
@@ -198,7 +200,7 @@ class PropertySheet(object):
 		
 				
 		if len(self._client_pages) +1 >= MAXPROPPAGES:
-			raise RuntimeError, "maximum number of pages exceeded"
+			raise RuntimeError("maximum number of pages exceeded")
 		
 		
 		p= PROPSHEETPAGE()
@@ -208,14 +210,14 @@ class PropertySheet(object):
 		if flags:
 			for i in flags:
 				try: self._client_p.dwFlags |= FLAGS_PROPPAGE[i]
-				except: raise ValueError, "invalid flag: %s" % i
+				except:raise_(ValueError, "invalid flag: %s" % i)
 			
 		
 		## resource buffer has to be writable, so set the it 
 		## as attribute the structure carries along
 		tpl= dlg.GetTemplate()
 		if tpl==None:
-			raise ValueError, "dialog does not contain template"
+			raise ValueError("dialog does not contain template")
 		p._pWritable= create_string_buffer(tpl)
 		p.u1.pResource= addressof(p._pWritable)
 		
@@ -249,10 +251,10 @@ class PropertySheet(object):
 	def Run(self):
 		
 		if self.Hwnd:
-			raise RuntimeError, "property sheet is alreaddy created"
+			raise RuntimeError("property sheet is alreaddy created")
 		
 		if not self._client_pages:
-			raise RuntimeError, "property sheet must have at least one page"
+			raise RuntimeError("property sheet must have at least one page")
 		
 		self._client_p.nPages = len(self._client_pages)
 		arr= (PROPSHEETPAGE*self._client_p.nPages)(*self._client_pages)
@@ -287,7 +289,7 @@ class PropertySheet(object):
 			user32.SendMessageA(self.Hwnd, PSM_REMOVEPAGE, i, 0)
 			try:
 				del self._client_pages[i]
-			except: raise ValueError, "no such page: %s" % i
+			except:raise_(ValueError, "no such page: %s" % i)
 	
 	def PageChanged(self, hwnd):
 		if self.Hwnd:
@@ -304,7 +306,7 @@ class PropertySheet(object):
 	def PressButton(self, button):
 		if self.Hwnd:
 			try: iButton= PROP_BUTTONS.index(button)
-			except: raise ValueError, "invalid burron: %s" % button
+			except:raise_(ValueError, "invalid burron: %s" % button)
 			user32.SendMessageA(self.Hwnd, PSM_PRESSBUTTON, iButton, 0)
 			
 	def SetTitle(self, title, proptitle=False):
@@ -336,7 +338,7 @@ class PropertySheet(object):
 			flag= 0
 			for i in buttons:
 				try: flag |= btns[i]
-				except: raise ValueError, "invalid button: %s" % i
+				except:raise_(ValueError, "invalid button: %s" % i)
 			## docs claim PostMessage is the right choice here
 			user32.PostMessageA(self.Hwnd, PSM_SETWIZBUTTONS , 0, flag)
 

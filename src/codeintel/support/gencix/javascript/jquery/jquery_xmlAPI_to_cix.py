@@ -14,6 +14,7 @@
     Requirements:
       * cElementTree    (http://effbot.org/downloads/#cElementTree)
 """
+from __future__ import print_function
 
 import os
 import string
@@ -62,7 +63,7 @@ def getTextFromNode(node):
     if node.text:
         text.append(node.text.strip())
     for elem in node:
-        print "  here"
+        print("  here")
         text.append(getTextFromNode(elem))
     if node.tail:
         text.append(node.tail.strip())
@@ -83,7 +84,7 @@ def fixupJQueryScope(scope):
     if noConflict is not None:
         noConflict.set("returns", "$")
     else:
-        print "fixups:: couldn't find 'noConflict' element"
+        print("fixups:: couldn't find 'noConflict' element")
 
 def generateCIXFromXML(root):
     # Find all main doc namespaces
@@ -119,7 +120,7 @@ which is then used to match a set of elements.""")
         elementname = element.get("name")
         if element.get("type") in ("method", "property", "selector"):
             cixscope = jqueryScope
-            print "Generating CIX for %s: %r" % (element.get("type"), elementname)
+            print("Generating CIX for %s: %r" % (element.get("type"), elementname))
             sp = elementname.split(".")
             if len(sp) > 1 and sp[0] in ("$", "jQuery"):
                 sp = sp[1:]
@@ -183,7 +184,7 @@ which is then used to match a set of elements.""")
                 if citdl:
                     cixelement.set("citdl", citdl)
         else:
-            print "Unknown entry type: %r" % (element.get('type'), )
+            print("Unknown entry type: %r" % (element.get('type'), ))
 
     fixupJQueryScope(jqueryScope)
 

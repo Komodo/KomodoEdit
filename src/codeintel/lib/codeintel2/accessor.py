@@ -39,6 +39,7 @@
 """The Accessor interface (and implementations) for accessing scintilla
 lexer-based styled buffers.
 """
+from __future__ import print_function
 
 import bisect
 import math
@@ -521,9 +522,9 @@ class AccessorCache:
             self._cachePos += extendCount
             self._cacheFirstBufPos = start
             if self._debug:
-                print "Extended cache by %d, _cachePos: %d, len now: %d" % (
-                    extendCount, self._cachePos, len(self._chCache))
-                print "Ch cache now: %r" % (self._chCache)
+                print("Extended cache by %d, _cachePos: %d, len now: %d" % (
+                    extendCount, self._cachePos, len(self._chCache)))
+                print("Ch cache now: %r" % (self._chCache))
         else:
             raise IndexError("No buffer left to examine")
 
@@ -545,32 +546,32 @@ class AccessorCache:
                 self._styleCache.append(style)
             self._cacheLastBufPos = end
             if self._debug:
-                print "Extended cache by %d, _cachePos: %d, len now: %d" % (
-                    extendCount, self._cachePos, len(self._chCache))
-                print "Ch cache now: %r" % (self._chCache)
+                print("Extended cache by %d, _cachePos: %d, len now: %d" % (
+                    extendCount, self._cachePos, len(self._chCache)))
+                print("Ch cache now: %r" % (self._chCache))
         else:
             raise IndexError("No buffer left to examine")
 
     # Public
     def dump(self, limit=20):
         if len(self._chCache) > 0:
-            print "  pos: %r, ch: %r, style: %r, cachePos: %r, cache len: %d\n  cache: %r" % (self._cachePos + self._cacheFirstBufPos,
+            print("  pos: %r, ch: %r, style: %r, cachePos: %r, cache len: %d\n  cache: %r" % (self._cachePos + self._cacheFirstBufPos,
                                                              self._chCache[self._cachePos],
                                                              self._styleCache[self._cachePos],
                                                              self._cachePos,
                                                              len(self._chCache),
-                                                             self._chCache)
+                                                             self._chCache))
         else:
-            print "New cache: %r" % (self._chCache[-limit:])
+            print("New cache: %r" % (self._chCache[-limit:]))
 
     def setCacheFetchSize(self, size):
         self._cachefetchsize = size
 
     def resetToPosition(self, position):
         if self._debug:
-            print "resetToPosition: %d" % (position)
-            print "self._cacheFirstBufPos: %d" % (self._cacheFirstBufPos)
-            print "self._cacheLastBufPos: %d" % (self._cacheLastBufPos)
+            print("resetToPosition: %d" % (position))
+            print("self._cacheFirstBufPos: %d" % (self._cacheFirstBufPos))
+            print("self._cacheLastBufPos: %d" % (self._cacheLastBufPos))
         if position >= self._cacheLastBufPos:
             if position >= self._cacheLastBufPos + self._cachefetchsize:
                 # Clear everything
@@ -579,7 +580,7 @@ class AccessorCache:
             else:
                 # Just extend forwards
                 if self._debug:
-                    print "resetToPosition: extending cache forwards"
+                    print("resetToPosition: extending cache forwards")
                 self._extendCacheForwards()
         elif position < self._cacheFirstBufPos:
             if position < self._cacheFirstBufPos - self._cachefetchsize:
@@ -589,7 +590,7 @@ class AccessorCache:
             else:
                 # Just extend back
                 if self._debug:
-                    print "resetToPosition: extending cache backwards"
+                    print("resetToPosition: extending cache backwards")
                 self._extendCacheBackwards()
         else:
             # It's in the current cache area, we keep that then
@@ -599,8 +600,8 @@ class AccessorCache:
         self._style = self._styleCache[self._cachePos]
         self._pos = position
         if self._debug:
-            print "self._cachePos: %d, cacheLen: %d" % (self._cachePos, len(self._chCache))
-            print "resetToPosition: p: %r, ch: %r, st: %r" % (self._pos, self._ch, self._style)
+            print("self._cachePos: %d, cacheLen: %d" % (self._cachePos, len(self._chCache)))
+            print("resetToPosition: p: %r, ch: %r, st: %r" % (self._pos, self._ch, self._style))
 
     #def pushBack(self, numPushed=1):
     #    """Push back the items that were recetly popped off.
@@ -643,7 +644,7 @@ class AccessorCache:
             return (None, None, None)
         self._pos = self._cachePos + self._cacheFirstBufPos
         if self._debug:
-            print "getPrevPosCharStyle:: pos:%d ch:%r style:%d" % (self._pos, self._ch, self._style)
+            print("getPrevPosCharStyle:: pos:%d ch:%r style:%d" % (self._pos, self._ch, self._style))
         return (self._pos, self._ch, self._style)
 
     def peekPrevPosCharStyle(self, ignore_styles=None, max_look_back=100):
@@ -671,7 +672,7 @@ class AccessorCache:
             cache_extended_by = old_cacheFirstBufPos - self._cacheFirstBufPos
             self._cachePos = old_cachePos + cache_extended_by
         if self._debug:
-            print "peekPrevPosCharStyle:: pos:%d ch:%r style:%d" % (pos, ch, style)
+            print("peekPrevPosCharStyle:: pos:%d ch:%r style:%d" % (pos, ch, style))
         return (pos, ch, style)
 
     def getPrecedingPosCharStyle(self, current_style=None, ignore_styles=None,
@@ -734,7 +735,7 @@ class AccessorCache:
             return (None, None, None)
         self._pos = self._cachePos + self._cacheFirstBufPos
         if self._debug:
-            print "getNextPosCharStyle:: pos:%d ch:%r style:%d" % (self._pos, self._ch, self._style)
+            print("getNextPosCharStyle:: pos:%d ch:%r style:%d" % (self._pos, self._ch, self._style))
         return (self._pos, self._ch, self._style)
 
     def getSucceedingPosCharStyle(self, current_style=None, ignore_styles=None,
@@ -784,11 +785,11 @@ class AccessorCache:
             cstart = start - self._cacheFirstBufPos
             cend = end - self._cacheFirstBufPos
             if self._debug:
-                print "text_range:: cstart: %d, cend: %d" % (cstart, cend)
-                print "text_range:: start: %d, end %d" % (start, end)
-                print "text_range:: _cacheFirstBufPos: %d, _cacheLastBufPos: %d" % (self._cacheFirstBufPos, self._cacheLastBufPos)
+                print("text_range:: cstart: %d, cend: %d" % (cstart, cend))
+                print("text_range:: start: %d, end %d" % (start, end))
+                print("text_range:: _cacheFirstBufPos: %d, _cacheLastBufPos: %d" % (self._cacheFirstBufPos, self._cacheLastBufPos))
             # It's all in the cache
             return "".join(self._chCache[cstart:cend])
         if self._debug:
-            print "text_range:: using parent text_range: %r - %r" % (start, end)
+            print("text_range:: using parent text_range: %r - %r" % (start, end))
         return self._accessor.text_range(start, end)

@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 #
 #  Random/OSRNG/fallback.py : Fallback entropy source for systems with os.urandom
 #
@@ -27,7 +28,7 @@ __all__ = ['PythonOSURandomRNG']
 
 import os
 
-from rng_base import BaseRNG
+from .rng_base import BaseRNG
 
 class PythonOSURandomRNG(BaseRNG):
 

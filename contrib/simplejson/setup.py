@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import ez_setup
 ez_setup.use_setuptools()
 
@@ -46,9 +47,9 @@ class ve_build_ext(build_ext):
     def build_extension(self, ext):
         try:
             build_ext.build_extension(self, ext)
-        except CCompilerError, x:
+        except CCompilerError as x:
             print ('*'*70+'\n')
-            print BUILD_EXT_WARNING
+            print(BUILD_EXT_WARNING)
             print ('*'*70+'\n')
 
 speedups = Feature(

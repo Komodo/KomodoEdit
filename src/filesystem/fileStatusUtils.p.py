@@ -49,15 +49,15 @@ from xpcom.server import UnwrapObject
 
 # Pref names each checker should have, will be monitored when the checker
 # is first added and gets automatically updated through a pref observer.
-monitoredPrefNames = { "enabledPrefName": { 'type': types.BooleanType,
+monitoredPrefNames = { "enabledPrefName": { 'type': bool,
                                             'default': True },
-                       "executablePrefName": { 'type': types.StringType,
+                       "executablePrefName": { 'type': bytes,
                                                'default': None },
-                       "backgroundEnabledPrefName": { 'type': types.BooleanType,
+                       "backgroundEnabledPrefName": { 'type': bool,
                                                       'default': True },
-                       "backgroundDurationPrefName": { 'type': types.LongType,
+                       "backgroundDurationPrefName": { 'type': int,
                                                        'default': 15 },
-                       "recursivePrefName": { 'type': types.BooleanType,
+                       "recursivePrefName": { 'type': bool,
                                               'default': False },
 }
 
@@ -164,13 +164,13 @@ class KoFileCheckerBase(object):
             if prefName:
                 variableName = prefSetting.replace("PrefName", "")
                 # Update from the preference
-                if prefType == types.BooleanType:
+                if prefType == bool:
                     setattr(self, variableName,
                             self._globalPrefs.getBoolean(prefName, prefDefault))
-                elif prefType == types.SliceType:
+                elif prefType == slice:
                     setattr(self, variableName,
                             self._globalPrefs.getString(prefName, prefDefault))
-                elif prefType == types.LongType:
+                elif prefType == int:
                     value = self._globalPrefs.getLong(prefName, prefDefault)
                     if variableName == "backgroundDuration":
                         # Convert from minutes to seconds.

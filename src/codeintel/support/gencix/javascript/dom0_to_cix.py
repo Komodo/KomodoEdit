@@ -51,6 +51,7 @@
     Requirements:
       * cElementTree    (http://effbot.org/downloads/#cElementTree)
 """
+from __future__ import print_function
 
 import os
 import string
@@ -127,10 +128,10 @@ def generateCIXFromXML(root):
     for group in root.findall('./group'):
         namespace = group.attrib["name"]
         if namespace not in ("window", ):
-            print "Not writing information for: %r" % (namespace)
+            print("Not writing information for: %r" % (namespace))
             continue
 
-        print "Generating CIX for: %r" % (namespace)
+        print("Generating CIX for: %r" % (namespace))
         namespaceDot = namespace + "."
         if namespace == "window":
             createCixVariable(cixmodule, namespace, vartype="Window")
@@ -162,10 +163,10 @@ def generateCIXFromXML(root):
                 if len(sp) != 1:
                     if len(sp) == 3 and sp[1] == "and":
                         # Two names in one
-                        print "Double element name found: %r" % (elementname)
+                        print("Double element name found: %r" % (elementname))
                         elementnames = (sp[0], sp[2])
                     else:
-                        print "Wierd element name, ignoring... %r" % (elementname)
+                        print("Wierd element name, ignoring... %r" % (elementname))
                         continue
                 else:
                     elementnames = (elementname, )

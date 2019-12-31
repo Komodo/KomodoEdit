@@ -1,4 +1,5 @@
 """default template for OpenSaveFile dialog using dlgeditor"""
+from __future__ import print_function
 
 from wnd.consts import dlgs
 from wnd.tools.dlgeditor.dlgeditor import DlgEditor
@@ -117,5 +118,5 @@ if __name__=='__main__':
 				0xFF, 0xFF, 0xFF, 0xFF)
 	cc.onMSG= callback
 	r= cc.Run(0, 'anycolor','hook', initcolor=0xFF)
-	print r
-	print cc[:]
+	print(r)
+	print(cc[:])

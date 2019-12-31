@@ -1,3 +1,4 @@
+from __future__ import print_function
 # ***** BEGIN LICENSE BLOCK *****
 # Version: MPL 1.1/GPL 2.0/LGPL 2.1
 # 
@@ -366,7 +367,7 @@ class koDocumentBase(object):
                 raise ValueError("already seen prefs %r" % (uprefs, ))
             seen.add(id(uprefs))
             if doPrint:
-                print "%s%r" % (" " * depth, uprefs)
+                print("%s%r" % (" " * depth, uprefs))
             prefs = prefs.parent
             depth += 1
 
@@ -682,7 +683,7 @@ class koDocumentBase(object):
                 data = file.read(-1)
             finally:
                 file.close()
-        except COMException, ex:
+        except COMException as ex:
             # koFileEx.open(), .read(), and .close() will already
             # setLastError on failure so don't need to do it again. The
             # only reason we catch it to just re-raise it is because
@@ -700,7 +701,7 @@ class koDocumentBase(object):
         if dirtyStateChanged:
             try:
                 self.observerService.notifyObservers(self,'buffer_dirty',str(isDirty))
-            except COMException, e:
+            except COMException as e:
                 pass # no one is listening!
         if not self._isDirty:
             self.removeAutoSaveFile()
@@ -727,7 +728,7 @@ class koDocumentBase(object):
                     try:
                         ondisk = self.file.read(-1)
                         newmd5 = md5(ondisk).digest()
-                    except Exception, ex:
+                    except Exception as ex:
                         errmsg = "File differentOnDisk check failed: %s" % ex
                         log.error(errmsg)
                         self.lastErrorSvc.setLastError(nsError.NS_ERROR_FAILURE, errmsg)
@@ -794,7 +795,7 @@ class koDocumentBase(object):
         self._languageObj = None
         try:
             self.observerService.notifyObservers(self,'language_changed',language)
-        except COMException, e:
+        except COMException as e:
             pass # no one is listening!
 
     def get_languageObj(self):
@@ -928,7 +929,7 @@ class koDocumentBase(object):
                 self.encoding.use_byte_order_marker = bom
                 try:
                     self.observerService.notifyObservers(self,'encoding_changed',self.encoding.python_encoding_name)
-                except COMException, e:
+                except COMException as e:
                     pass # no one is listening!
             else:
                 encoded_buffer = text
@@ -979,7 +980,7 @@ class koDocumentBase(object):
         self.set_isDirty(was_dirty or makeDirty)
         try:
             self.observerService.notifyObservers(self,'buffer_changed','')
-        except COMException, e:
+        except COMException as e:
             pass # no one is listening!
 
     @components.ProxyToMainThread
@@ -1009,7 +1010,7 @@ class koDocumentBase(object):
         self.set_isDirty(1)
         try:
             self.observerService.notifyObservers(self,'buffer_changed','')
-        except COMException, e:
+        except COMException as e:
             pass # no one is listening!
 
     def get_existing_line_endings(self):
@@ -1067,7 +1068,7 @@ class koDocumentBase(object):
             language = 'Text'
         try:
             encoding_name = self._getEncodingNameForNewFile(language=language)
-        except Exception, e:
+        except Exception as e:
             log.error("Error getting newEncoding for %s", language, exc_info=1)
             encoding_name = prefs.getStringPref('encodingDefault')
         return encoding_name
@@ -1272,7 +1273,7 @@ class koDocumentBase(object):
                                                 self.encoding.python_encoding_name,
                                                 encoding.python_encoding_name,
                                                 errors)
-                        except (UnicodeError, COMException), ex:
+                        except (UnicodeError, COMException) as ex:
                             # _encodeBuffer created lastErrorMessage
                             lastErrorSet = 1
                             errmsg = self.lastErrorSvc.getLastErrorMessage()
@@ -1297,7 +1298,7 @@ class koDocumentBase(object):
                     self.observerService.notifyObservers(self,
                         'encoding_changed',
                         self.encoding.python_encoding_name)
-                except COMException, ex:
+                except COMException as ex:
                     pass # no one is listening
             finally:
                 if self._views:
@@ -1329,7 +1330,7 @@ class koDocumentBase(object):
         except (UnicodeError, COMException):
             # Error message has been created, return False
             pass
-        except Exception, e:
+        except Exception as e:
             self.lastErrorSvc.setLastError(nsError.NS_ERROR_UNEXPECTED, e.message)
         return False
 
@@ -1356,7 +1357,7 @@ class koDocumentBase(object):
                                   self.encoding.python_encoding_name,
                                   encoding.python_encoding_name,
                                   errors)
-        except (UnicodeError, COMException), e:
+        except (UnicodeError, COMException) as e:
             # The caller might need an explanation of why this method failed
             errmsg = ("Unable to convert '%s' from '%s' to '%s'.  "
                       "This encoding cannot represent all "
@@ -1403,7 +1404,7 @@ class koDocumentBase(object):
                            .python_encoding_name
                 self.encoding.use_byte_order_marker = encoding_info.byte_order_marker != ''
             self._set_buffer_encoded(unicode(encodedText, encoding_name))
-        except Exception, e:
+        except Exception as e:
             log.exception(e)
             raise
 
@@ -1411,7 +1412,7 @@ class koDocumentBase(object):
     def encodedText(self):
         try:
             return self._getEncodedBufferText()
-        except UnicodeError, ex:
+        except UnicodeError as ex:
             log.error("unable to encode document as %r: %s",
                 self.encoding.python_encoding_name, ex)
             raise
@@ -1420,7 +1421,7 @@ class koDocumentBase(object):
     def utf8Text(self):
         try:
             return self._getEncodedBufferText("utf-8")
-        except UnicodeError, ex:
+        except UnicodeError as ex:
             log.error("unable to encode document as 'utf-8': %s",
                 self.encoding.python_encoding_name, ex)
             raise
@@ -1477,7 +1478,7 @@ class koDocumentBase(object):
         scintilla = self._views[0]
         try:
             DEBUG = 0
-            if DEBUG: print "-"*50 + " _clean:"
+            if DEBUG: print("-"*50 + " _clean:")
 
             # Protect settings: selection, cursor position, etc.
             scimoz = scintilla.scimoz
@@ -1505,11 +1506,11 @@ class koDocumentBase(object):
             try:
                 if ensureFinalEOL and not text.endswith(eolStr):
                     if DEBUG:
-                        print "INSERT FINAL EOL: %r" % eolStr
+                        print("INSERT FINAL EOL: %r" % eolStr)
                     scimoz.insertText(sciLength, eolStr)
 
                 if cleanLineEnds:
-                    if DEBUG: print "LINE  POSITION  CONTENT"
+                    if DEBUG: print("LINE  POSITION  CONTENT")
                     pattern = re.compile(".*?([ \t]*)(\r\n|\n|\r)?$")
                     for i in range(numLines - 1, -1, -1):
                         line = lines[i]
@@ -1547,7 +1548,7 @@ class koDocumentBase(object):
                             
                         if DEBUG:
                             span = "%d-%d" % (startPos, endPos)
-                            print "%3d: %9s: %r" % (i, span, line)
+                            print("%3d: %9s: %r" % (i, span, line))
                         scimoz.targetStart = startPos
                         scimoz.targetEnd = endPos
                         scimoz.replaceTarget(len(newText), newText)
@@ -1653,8 +1654,8 @@ class koDocumentBase(object):
             #scimoz.lineScroll(0, min(firstVisibleLine-scimoz.firstVisibleLine,
             #                         scimoz.lineCount-scimoz.firstVisibleLine))
                     
-            if DEBUG: print "-"*60
-        except Exception, e:
+            if DEBUG: print("-"*60)
+        except Exception as e:
             #XXX This is poor error handling.
             log.exception(e)
         
@@ -1671,7 +1672,7 @@ class koDocumentBase(object):
             desired_mode = mode | stat.S_IWUSR
             try:
                 os.chmod(self.file.path, desired_mode)
-            except EnvironmentError, ex:
+            except EnvironmentError as ex:
                 errmsg = "Unable to set the file mode to writeable: %s" % ex
                 self.lastErrorSvc.setLastError(0, errmsg)
                 raise ServerException(nsError.NS_ERROR_FAILURE, errmsg)
@@ -1712,7 +1713,7 @@ class koDocumentBase(object):
             buffer = self.get_buffer()
             try:
                 data = self._getEncodedBufferText(buffer=buffer)
-            except UnicodeError, ex:
+            except UnicodeError as ex:
                 log.error("unable to encode document as %r: %s",
                     self.encoding.python_encoding_name, ex)
                 raise
@@ -1726,7 +1727,7 @@ class koDocumentBase(object):
                     self.file.write(data)
                 finally:
                     self.file.close()
-            except COMException, ex:
+            except COMException as ex:
                 # .open(), .write(), and .close() will setLastError on
                 # failure so don't set it again. You will just override
                 # better data.
@@ -1778,7 +1779,7 @@ class koDocumentBase(object):
     def saveState(self, scintilla):
         try:
             self.docSettingsMgr.applyViewSettingsToDocument(scintilla)
-        except Exception, e:
+        except Exception as e:
             # this failure will block closing a file if something is wrong,
             # log it and move on
             log.exception(e)
@@ -1848,14 +1849,14 @@ class koDocumentBase(object):
                 newDocPointer = scimoz.createDocument()
                 scimoz.docPointer = newDocPointer
                 scimoz.releaseDocument(newDocPointer)
-        except Exception, e:
+        except Exception as e:
             log.exception(e)
             raise
 
     def getView(self):
         try:
             return self._views[0]
-        except IndexError, ex:
+        except IndexError as ex:
             raise ServerException(nsError.NS_ERROR_FAILURE, str(ex))
         
     def getViewIfExists(self):
@@ -2067,7 +2068,7 @@ class koDocumentBase(object):
                 self._languageObj.guessIndentation(self._views[0].scimoz,
                                                    self.tabWidth,
                                                    defaultUseTabs)
-        except Exception, e:
+        except Exception as e:
             log.error("Unable to guess indentation")
             
         if indentWidth == 0:  # still haven't found anything, so go with the prefs.
@@ -2096,7 +2097,7 @@ class koDocumentBase(object):
         sm.highlight = 1  # boolean, whether or not to highlight
         try:
             self._obsSvc.notifyObservers(sm, 'status_message', None)
-        except COMException, e:
+        except COMException as e:
             # do nothing: Notify sometimes raises an exception if (???)
             # receivers are not registered?
             pass
@@ -2179,14 +2180,14 @@ class koDocumentBase(object):
         # fails, we haven't truncated the file
         try:
             data = self.encodedText
-        except Exception, e:
+        except Exception as e:
             try:
                 # failed to get encoded text, save it using utf-8 to avoid
                 # data loss (bug 40857)
                 data = self.utf8Text
                 self._statusBarMessage("Using UTF-8 to autosave '%s'" %
                               self.baseName)
-            except Exception, e:
+            except Exception as e:
                 log.exception(e)
                 self._statusBarMessage("Error getting encoded text for autosave of '%s'" %
                               self.baseName)

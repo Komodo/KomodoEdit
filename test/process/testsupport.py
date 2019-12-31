@@ -165,11 +165,11 @@ def copy(src, dst):
                 dstFile = os.path.join(dstFile, os.path.basename(srcFile))
             if os.path.isfile(dstFile):
                 # make sure 'dstFile' is writeable
-                os.chmod(dstFile, 0755)
+                os.chmod(dstFile, 0o755)
             #print "copy %r %r" % (srcFile, dstFile)
             shutil.copy(srcFile, dstFile)
             # make the new 'dstFile' writeable
-            os.chmod(dstFile, 0755)
+            os.chmod(dstFile, 0o755)
         elif isdir(srcFile):
             srcFiles = os.listdir(srcFile)
             if not os.path.exists(dst):
@@ -179,7 +179,7 @@ def copy(src, dst):
                 d = os.path.join(dst, f)
                 try:
                     copy(s, d)
-                except (IOError, os.error), why:
+                except (IOError, os.error) as why:
                     raise OSError("Can't copy %s to %s: %s"\
                           % (repr(s), repr(d), str(why)))
         elif not usingWildcards:
@@ -189,7 +189,7 @@ def copy(src, dst):
 def _rmtreeOnError(rmFunction, filePath, excInfo):
     if excInfo[0] == OSError:
         # presuming because file is read-only
-        os.chmod(filePath, 0777)
+        os.chmod(filePath, 0o777)
         rmFunction(filePath)
 
 def rmtree(dirname):

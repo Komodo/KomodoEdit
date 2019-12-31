@@ -21,7 +21,7 @@ class Python33:
         f = open(fake_python, 'wb')
         f.write("#!/bin/sh\n\necho 3.3.0\necho /usr")
         f.close()
-        os.chmod(fake_python, 0755)
+        os.chmod(fake_python, 0o755)
     _ci_env_prefs_ = {
         'python3': fake_python
     }

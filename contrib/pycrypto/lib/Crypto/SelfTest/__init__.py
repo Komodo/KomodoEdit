@@ -27,6 +27,7 @@
 These tests should perform quickly and can ideally be used every time an
 application runs.
 """
+from __future__ import absolute_import
 
 __revision__ = "$Id$"
 
@@ -76,12 +77,12 @@ def run(module=None, verbosity=0, stream=None, tests=None, config=None, **kwargs
 
 def get_tests(config={}):
     tests = []
-    import Cipher; tests += Cipher.get_tests(config=config)
-    import Hash;   tests += Hash.get_tests(config=config)
-    import Protocol; tests += Protocol.get_tests(config=config)
-    import PublicKey; tests += PublicKey.get_tests(config=config)
-    import Random; tests += Random.get_tests(config=config)
-    import Util;   tests += Util.get_tests(config=config)
+    from . import Cipher; tests += Cipher.get_tests(config=config)
+    from . import Hash;   tests += Hash.get_tests(config=config)
+    from . import Protocol; tests += Protocol.get_tests(config=config)
+    from . import PublicKey; tests += PublicKey.get_tests(config=config)
+    from . import Random; tests += Random.get_tests(config=config)
+    from . import Util;   tests += Util.get_tests(config=config)
     return tests
 
 if __name__ == '__main__':

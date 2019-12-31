@@ -74,7 +74,7 @@ class RSATest(unittest.TestCase):
         e2 53 72 98 ca 2a 8f 59 46 f8 e5 fd 09 1d bd cb
     """
 
-    e = 0x11L    # public exponent
+    e = 0x11    # public exponent
 
     prime_factor = """
         c9 7f b1 f0 27 f4 53 f6 34 12 33 ea aa d1 d9 35

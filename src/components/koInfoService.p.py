@@ -38,6 +38,7 @@
 """Provide general (read-only) information about a Komodo
 build/installation.
 """
+from __future__ import print_function
 
 # #ifndef PP_VERSION
 # #error Cannot build koInfoService.p.py with 'bk build quick'.
@@ -161,14 +162,14 @@ class KoInfoService(object):
 if __name__ == "__main__":
     info = components.classes['@activestate.com/koInfoService;1'].\
         getService(components.interfaces.koIInfoService)
-    print "platform: %r" % info.platform
-    print "osSystem: %r" % info.osSystem
-    print "osRelease: %r" % info.osRelease
-    print "osVersion: %r" % info.osVersion
-    print "version: %r" % info.version
-    print "buildNumber: %r" % info.buildNumber
-    print "buildASCTime: %r" % info.buildASCTime
-    print "buildType: %r" % info.buildType
-    print "buildFlavour: %r" % info.buildFlavour
-    print "productType: %r" % info.productType
-    print "nonInteractiveMode: %r" % info.nonInteractiveMode
+    print("platform: %r" % info.platform)
+    print("osSystem: %r" % info.osSystem)
+    print("osRelease: %r" % info.osRelease)
+    print("osVersion: %r" % info.osVersion)
+    print("version: %r" % info.version)
+    print("buildNumber: %r" % info.buildNumber)
+    print("buildASCTime: %r" % info.buildASCTime)
+    print("buildType: %r" % info.buildType)
+    print("buildFlavour: %r" % info.buildFlavour)
+    print("productType: %r" % info.productType)
+    print("nonInteractiveMode: %r" % info.nonInteractiveMode)

@@ -41,6 +41,7 @@
     Current it provides a command line and module integrate to add an
     remove file associations.
 """
+from __future__ import print_function
 # Dev Notes:
 # - On Win9x QueryValueEx returns the empty string for a non-existant
 #   default key value. On non-Win9x an EnvironmentError is raised. Care has
@@ -132,11 +133,11 @@ class _ListCmd(cmd.Cmd):
             return self.default(argv)
         try:
             return func(argv)
-        except TypeError, ex:
+        except TypeError as ex:
             log.error("%s: %s", cmdName, ex)
             log.error("try '%s help %s'", self.name, cmdName)
             if 1:   # for debugging
-                print
+                print()
                 import traceback
                 traceback.print_exception(*sys.exc_info())
 
@@ -349,7 +350,7 @@ def setHKLMRegistryValue(keyName, valueName, valueType, value):
     try:
         key = _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE, keyName,
                               0, _winreg.KEY_SET_VALUE)
-    except EnvironmentError, ex:
+    except EnvironmentError as ex:
         # Either do not have permissions or we must create the keys
         # leading up to this key. Presume that latter, if the former
         # then it will fall out in the subsequent calls.
@@ -393,7 +394,7 @@ def getFileAssociation(ext):
     try:
         with _winreg.OpenKey(_winreg.HKEY_CLASSES_ROOT, typeName) as typeKey:
             displayName = _safeQueryValueEx(typeKey, "")[0]
-    except WindowsError, ex:
+    except WindowsError as ex:
         pass
 
     #---- 2. Get the current actions associated with this file type.
@@ -421,7 +422,7 @@ def getFileAssociation(ext):
                 try:
                     with _winreg.OpenKey(shellKey, actionName) as actionKey:
                         actionDisplayName = _safeQueryValueEx(actionKey, None)[0]
-                except WindowsError, ex:
+                except WindowsError as ex:
                     if ex.winerror != 2: # ERROR_FILE_NOT_FOUND
                         raise
                     actionDisplayName = None
@@ -444,7 +445,7 @@ def getFileAssociation(ext):
             commandKey = _winreg.OpenKey(_winreg.HKEY_CLASSES_ROOT,
                                          "%s\\shell\\%s\\command"
                                          % (typeName, actionName))
-        except WindowsError, ex:
+        except WindowsError as ex:
             pass
         else:
             try:
@@ -718,13 +719,13 @@ def removeFileAssociation(ext, action, exe, fromHKLM=False):
                     _winreg.DeleteValue(extKey, None)
                 try:
                     _deleteKeyIfEmpty(root, ext, rootDesc="HKCR")
-                except WindowsError, ex:
+                except WindowsError as ex:
                     if ex.winerror != 2: # ERROR_FILE_NOT_FOUND
                         raise
                     log.debug("removeFileAssociation: Can't find %s", ext)
                     # ignore not found errors, the file extension part may have
                     # come from the HKLM version of HKCR
-    except WindowsError, ex:
+    except WindowsError as ex:
         if ex.winerror != 5: # ERROR_ACCESS_DENIED
             raise
         log.debug("removeFileAssociation: Access denied (%r)", ex)
@@ -781,7 +782,7 @@ class WinIntegShell(_ListCmd):
         # Process options.
         try:
             optlist, args = getopt.getopt(argv[1:], "")
-        except getopt.GetoptError, ex:
+        except getopt.GetoptError as ex:
             log.error("get_assoc: %s", ex)
             log.error("get_assoc: try 'wininteg help get_assoc'")
             return 1
@@ -795,15 +796,15 @@ class WinIntegShell(_ListCmd):
 
         try:
             type, name, actions = getFileAssociation(ext)
-            print "File Type: %s (%s)" % (name, type)
+            print("File Type: %s (%s)" % (name, type))
             if actions:
-                print "Actions:"
+                print("Actions:")
                 for aName, aDisplayName, aCommand in actions:
-                    print "    %s (%s)" % (aDisplayName, aName)
-                    print "        %s" % aCommand
+                    print("    %s (%s)" % (aDisplayName, aName))
+                    print("        %s" % aCommand)
             else:
-                print "Actions: <none>"
-        except Exception, ex:
+                print("Actions: <none>")
+        except Exception as ex:
             log.error(str(ex))
             if log.isEnabledFor(logging.DEBUG):
                 import traceback
@@ -824,7 +825,7 @@ class WinIntegShell(_ListCmd):
         # Process options.
         try:
             optlist, args = getopt.getopt(argv[1:], "", [])
-        except getopt.GetoptError, ex:
+        except getopt.GetoptError as ex:
             log.error("add_assoc: %s", ex)
             log.error("add_assoc: try 'wininteg help check_assoc'")
             return 1
@@ -839,8 +840,8 @@ class WinIntegShell(_ListCmd):
         try:
             msg = checkFileAssociation(ext, action, exe)
             if msg is not None:
-                print msg
-        except Exception, ex:
+                print(msg)
+        except Exception as ex:
             log.error(str(ex))
             if log.isEnabledFor(logging.DEBUG):
                 import traceback
@@ -870,7 +871,7 @@ class WinIntegShell(_ListCmd):
         # Process options.
         try:
             optlist, args = getopt.getopt(argv[1:], "t:", ["type-name="])
-        except getopt.GetoptError, ex:
+        except getopt.GetoptError as ex:
             log.error("add_assoc: %s", ex)
             log.error("add_assoc: try 'wininteg help add_assoc'")
             return 1
@@ -888,7 +889,7 @@ class WinIntegShell(_ListCmd):
 
         try:
             addFileAssociation(ext, action, exe, fallbackTypeName)
-        except Exception, ex:
+        except Exception as ex:
             log.error(str(ex))
             if log.isEnabledFor(logging.DEBUG):
                 import traceback
@@ -914,7 +915,7 @@ class WinIntegShell(_ListCmd):
         # Process options.
         try:
             optlist, args = getopt.getopt(argv[1:], "")
-        except getopt.GetoptError, ex:
+        except getopt.GetoptError as ex:
             log.error("remove_assoc: %s", ex)
             log.error("remove_assoc: try 'wininteg help remove_assoc'")
             return 1
@@ -928,7 +929,7 @@ class WinIntegShell(_ListCmd):
 
         try:
             removeFileAssociation(ext, action, exe)
-        except Exception, ex:
+        except Exception as ex:
             log.error(str(ex))
             if log.isEnabledFor(logging.DEBUG):
                 import traceback
@@ -941,7 +942,7 @@ def _main(argv):
     try:
         optlist, args = getopt.getopt(argv[1:], "hVv",
             ["help", "version", "verbose"])
-    except getopt.GetoptError, msg:
+    except getopt.GetoptError as msg:
         log.error("%s. Your invocation was: %s", msg, argv)
         log.error("Try 'wininteg --help'.")
         return 1
@@ -950,7 +951,7 @@ def _main(argv):
             sys.stdout.write(WinIntegShell.__doc__)
             return 0
         elif opt in ("-V", "--version"):
-            print "wininteg %s" % '.'.join([str(i) for i in _version_])
+            print("wininteg %s" % '.'.join([str(i) for i in _version_]))
             return 0
         elif opt in ("-v", "--verbose"):
             log.setLevel(Logger.DEBUG)

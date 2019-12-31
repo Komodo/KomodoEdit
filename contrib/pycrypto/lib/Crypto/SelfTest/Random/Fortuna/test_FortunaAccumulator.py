@@ -76,17 +76,17 @@ class FortunaAccumulatorTests(unittest.TestCase):
         self.assertEqual(FortunaAccumulator.which_pools(7), [0])
         self.assertEqual(FortunaAccumulator.which_pools(8), [0, 1, 2, 3])
         for i in range(1, 32):
-            self.assertEqual(FortunaAccumulator.which_pools(2L**i-1), [0])
-            self.assertEqual(FortunaAccumulator.which_pools(2L**i), range(i+1))
-            self.assertEqual(FortunaAccumulator.which_pools(2L**i+1), [0])
-        self.assertEqual(FortunaAccumulator.which_pools(2L**31), range(32))
-        self.assertEqual(FortunaAccumulator.which_pools(2L**32), range(32))
-        self.assertEqual(FortunaAccumulator.which_pools(2L**33), range(32))
-        self.assertEqual(FortunaAccumulator.which_pools(2L**34), range(32))
-        self.assertEqual(FortunaAccumulator.which_pools(2L**35), range(32))
-        self.assertEqual(FortunaAccumulator.which_pools(2L**36), range(32))
-        self.assertEqual(FortunaAccumulator.which_pools(2L**64), range(32))
-        self.assertEqual(FortunaAccumulator.which_pools(2L**128), range(32))
+            self.assertEqual(FortunaAccumulator.which_pools(2**i-1), [0])
+            self.assertEqual(FortunaAccumulator.which_pools(2**i), range(i+1))
+            self.assertEqual(FortunaAccumulator.which_pools(2**i+1), [0])
+        self.assertEqual(FortunaAccumulator.which_pools(2**31), range(32))
+        self.assertEqual(FortunaAccumulator.which_pools(2**32), range(32))
+        self.assertEqual(FortunaAccumulator.which_pools(2**33), range(32))
+        self.assertEqual(FortunaAccumulator.which_pools(2**34), range(32))
+        self.assertEqual(FortunaAccumulator.which_pools(2**35), range(32))
+        self.assertEqual(FortunaAccumulator.which_pools(2**36), range(32))
+        self.assertEqual(FortunaAccumulator.which_pools(2**64), range(32))
+        self.assertEqual(FortunaAccumulator.which_pools(2**128), range(32))
 
     def test_accumulator(self):
         """FortunaAccumulator.FortunaAccumulator"""

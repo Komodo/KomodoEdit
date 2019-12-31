@@ -319,7 +319,7 @@ class TabFromHandle(TabMethods, control.ControlFromHandle, ControlMethods):
 
 #**************************************************************************
 TCM_FIRST              = 4864
-c_uint_MAX = (1l << 32)
+c_uint_MAX = (1 << 32)
 TCN_FIRST               = c_uint_MAX-550
 NM_FIRST= UINT_MAX
 #**************************************************

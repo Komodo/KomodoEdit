@@ -53,6 +53,7 @@ Generation guide:
 5) Repeat from step 2 for all platforms that have not yet run the genallcix
    script.
 """
+from __future__ import print_function
 
 ## TODOs:
 # * Figure out an Eggs strategy
@@ -332,10 +333,10 @@ def merge_module_scopes(mod, root, tree, use_init_fallback=False, log=False):
         print("mod: %r" % (mod, ))
         print("root_file names")
         print([x.get("name") for x in root_file.getchildren()])
-        print
+        print()
         print("tree names")
         print([x.get("name") for x in tree.getchildren()])
-        print
+        print()
     lastname = mod.split(".")[-1]
     try:
         root_file_children = create_names_dict(root_file)
@@ -496,7 +497,7 @@ def process_module_list(module_list, fname, catalog_name=None,
                                     log=False)
         except Exception:
             import traceback
-            print("\nEXCEPTION:", sys.exc_info()[1], "when processing", mod)
+            print(("\nEXCEPTION:", sys.exc_info()[1], "when processing", mod))
             traceback.print_exc()
 
     gencix.writeCixFileForElement(fname, root)

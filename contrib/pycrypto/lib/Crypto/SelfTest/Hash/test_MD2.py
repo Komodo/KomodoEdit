@@ -23,6 +23,7 @@
 # ===================================================================
 
 """Self-test suite for Crypto.Hash.MD2"""
+from __future__ import absolute_import
 
 __revision__ = "$Id$"
 
@@ -49,7 +50,7 @@ test_data = [
 
 def get_tests(config={}):
     from Crypto.Hash import MD2
-    from common import make_hash_tests
+    from .common import make_hash_tests
     return make_hash_tests(MD2, "MD2", test_data)
 
 if __name__ == '__main__':

@@ -123,7 +123,7 @@ class Configuration(object):
             finally:
                 if curr_dir != cfg_dir:
                     os.chdir(curr_dir)
-        except ImportError, ex:
+        except ImportError as ex:
             if not exists(self._path):
                 details = "`%s' does not exist" % self._path
                 if exists(join(dirname(self._path), "configure.py")):

@@ -271,7 +271,7 @@ class Datum(Item):
         elif isinstance(self.value, unicode):
             try:
                 stream.write('$%s = %s;\n' % (self.name, repr(str(self.value))))
-            except UnicodeError, ex:
+            except UnicodeError as ex:
                 raise ConfigureError("can't serialize '%s' unicode datum "
                                      "to Perl because can't convert it to "
                                      "a string: %s" % (self.name, ex))
@@ -579,7 +579,7 @@ if __name__ == "__main__":
         # `chmod +x $self.filename` so can just do 
         # `./bkconfig.py SUBSTRING...`
         mode = stat.S_IMODE(os.stat(self.filename).st_mode)
-        os.chmod(self.filename, mode | 0100)
+        os.chmod(self.filename, mode | 0o100)
     
 
 
@@ -691,13 +691,13 @@ def GetOptionMaps(items):
                     conflictingShort = shortOpt[0:-1]
                 else:
                     conflictingShort = shortOpt + ":"
-                if shortMap.has_key(conflictingShort):
+                if conflictingShort in shortMap:
                     raise ConfigureError("Short option string '%s' for "\
                         "item '%s' conflicts with short option '%s' from "\
                         "item(s) %s\n" % (shortOpt, item.name,\
                         conflictingShort,\
                         [item.name for item in shortMap[conflictingShort]]))
-                elif shortMap.has_key(shortOpt):
+                elif shortOpt in shortMap:
                     shortMap[shortOpt].append(item)
                 else:
                     shortMap[shortOpt] = [item]
@@ -706,12 +706,12 @@ def GetOptionMaps(items):
                     conflictingLong = longOpt[0:-1]
                 else:
                     conflictingLong = longOpt + "="
-                if longMap.has_key(conflictingLong):
+                if conflictingLong in longMap:
                     raise ConfigureError("Long option string '%s' for "\
                         "item '%s' conflicts with long option '%s' from "\
                         "item(s) %s\n" % (longOpt, item.name, conflictingLong,\
                         [item.name for item in longMap[conflictingLong]]))
-                elif longMap.has_key(longOpt):
+                elif longOpt in longMap:
                     longMap[longOpt].append(item)
                 else:
                     longMap[longOpt] = [item]
@@ -744,16 +744,16 @@ def Configure(options, blackFileName, blackFile):
     try:
         optlist, args = getopt.getopt(options, "".join(shortMap.keys()),
                                       longMap.keys())
-    except getopt.GetoptError, msg:
+    except getopt.GetoptError as msg:
         raise ConfigureError(msg)
     for opt,optarg in optlist:
         if opt.startswith("--"):
-            if longMap.has_key(opt[2:]):
+            if opt[2:] in longMap:
                 itemsThatCare = longMap[ opt[2:] ]
             else:
                 itemsThatCare = longMap[ opt[2:]+"=" ]
         else:
-            if shortMap.has_key(opt[1:]):
+            if opt[1:] in shortMap:
                 itemsThatCare = shortMap[ opt[1:] ]
             else:
                 itemsThatCare = shortMap[ opt[1:]+":" ]

@@ -98,7 +98,7 @@ def getTreeFromVersion(version=None):
             if ver == wanted_version:
                 log.debug("Found exact match in %s: %s", tree, tag)
                 return (tree, tag)
-        except ValueError, ex:
+        except ValueError as ex:
             # Not a correctly formatter version.
             continue
         if tree == "mozilla-release":

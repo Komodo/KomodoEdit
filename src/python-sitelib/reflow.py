@@ -93,6 +93,7 @@ u'The other instances\nin Homer of double\nnames in the\nlanguage of men and\ngo
 >>> print repr(reflow(embedded_non_breaking_space, 35, '\n'))
 u'abcdefgh1 abcdefgh2\nabcdefgh3\xa0abcdefgh4\xa0abcdefgh5\nabcdefgh6'
 """
+from __future__ import print_function
 
 import re
 import sys
@@ -621,7 +622,7 @@ def htmlify(text):
 
 def _test():
     import doctest, reflow
-    print "...testing doctests..."
+    print("...testing doctests...")
     return doctest.testmod(reflow)
 
 if __name__ == '__main__':

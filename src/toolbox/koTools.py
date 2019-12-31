@@ -99,7 +99,7 @@ class _KoTool(object):
 
     def get_iconurl(self):
         iconurl = None
-        if self._attributes.has_key('icon'):
+        if 'icon' in self._attributes:
             iconurl = self._attributes['icon']
         else:
             iconurl = self._iconurl
@@ -120,7 +120,7 @@ class _KoTool(object):
             self.setAttribute('icon', url)
         try:
             self._getObserverSvc().notifyObservers(self, 'part_changed', '')
-        except Exception, unused:
+        except Exception as unused:
             #log.exception("set_iconurl: trying to notify part_changed")
             pass
 
@@ -186,7 +186,7 @@ class _KoTool(object):
         # Keep names out of attributes
         if name == 'name':
             return self.name is not None
-        return self._attributes.has_key(name)
+        return name in self._attributes
 
     def getAttribute(self, name):
         if not self.hasAttribute(name):

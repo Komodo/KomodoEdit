@@ -1,3 +1,4 @@
+from __future__ import print_function
 # ***** BEGIN LICENSE BLOCK *****
 # Version: MPL 1.1/GPL 2.0/LGPL 2.1
 # 
@@ -71,8 +72,8 @@ def scimoz_transform(match):
         def _load_message_constants(module, prefix, map):
             for name, val in module.__dict__.items():
                 if name.startswith(prefix):
-                    if verbose and map.has_key(val):
-                        print "Overwriting %s with %s" % (map[val], name)
+                    if verbose and val in map:
+                        print("Overwriting %s with %s" % (map[val], name))
                     map[val] = name
         def _load_flags_constants(module, prefix):
             for name, val in module.__dict__.items():
@@ -225,8 +226,8 @@ def parse(file, last_record):
         if match is None:
             # Little bit of debugging - flag suspect lines
             if line[0].isdigit():
-                print >> sys.stderr, "WARNING: regex may have failed on line:"
-                print >> sys.stderr, line
+                print("WARNING: regex may have failed on line:", file=sys.stderr)
+                print(line, file=sys.stderr)
             continue
         r = Record(match)
         records.append(r)
@@ -247,8 +248,8 @@ def calc_times(thread_records):
             # And update the gap time.
             record.gap = record.event_time - last_time
             if verbose and record.gap < -0.1:
-                print >> sys.stderr, "Invalid negative gap", self.gap
-                print >> sys.stderr, self
+                print("Invalid negative gap", self.gap, file=sys.stderr)
+                print(self, file=sys.stderr)
             last_time = record.event_time
 
 def cmp_totals(rec1, rec2):
@@ -261,11 +262,11 @@ def print_top(records, attr, n=20):
     r.reverse()
     tot = 0.0
     for t in r[:n]:
-        print t
+        print(t)
         _t = getattr(t, attr)
         if _t:
             tot += _t
-    print "Top", n, "records have total", attr, "of", tot
+    print("Top", n, "records have total", attr, "of", tot)
 
 def split_thread_records(records):
     threads = {}
@@ -276,41 +277,41 @@ def split_thread_records(records):
 
 def dump_records(thread_records, collapse_enter_leaves = True):
     if collapse_enter_leaves:
-        print "Dumping all records (collapsing consecutive enter/leave pairs)"
+        print("Dumping all records (collapsing consecutive enter/leave pairs)")
     else:
-        print "Dumping all records"
+        print("Dumping all records")
     for thread_id, records in thread_records.items():
-        print "Dumping records from thread", thread_id
+        print("Dumping records from thread", thread_id)
         i = 0
         while i < len(records):
             r = records[i]
             if collapse_enter_leaves and i != len(records)-1:
                 if r.IsMatchingEnterLeave(records[i+1]):
-                    print r.Format(show_collapsed = True)
+                    print(r.Format(show_collapsed = True))
                     i += 2
                     continue
-            print r.Format()
+            print(r.Format())
             i+=1
 
 def usage(msg=None):
     if msg:
-        print msg
-        print
-    print "%s [options] stat_name ... - parse a Mozilla timeline log file" % os.path.basename(sys.argv[0])
-    print "Options:"
-    print "-v : Verbose"
-    print "-n num : Number of records to print"
-    print "-f filename: Name of file to process."
-    print "-d: Dump all records"
-    print "-l desc: Description of last record to process"
-    print "-c: Dump all counters (the counter list is hardcoded)"
-    print "--dont-collapse: Don't collapse identical 'enter/leave' timeline pairs"
-    print "stat_name is the name of a statistic to print - eg, 'event_total', 'gap'"
-    print
-    print "If -f is not specified and NS_TIMELINE_LOG_FILE exists in the"
-    print "environment, it will be used"
-    print
-    print "The following attributes can be used: event_total, gap, event_gap"
+        print(msg)
+        print()
+    print("%s [options] stat_name ... - parse a Mozilla timeline log file" % os.path.basename(sys.argv[0]))
+    print("Options:")
+    print("-v : Verbose")
+    print("-n num : Number of records to print")
+    print("-f filename: Name of file to process.")
+    print("-d: Dump all records")
+    print("-l desc: Description of last record to process")
+    print("-c: Dump all counters (the counter list is hardcoded)")
+    print("--dont-collapse: Don't collapse identical 'enter/leave' timeline pairs")
+    print("stat_name is the name of a statistic to print - eg, 'event_total', 'gap'")
+    print()
+    print("If -f is not specified and NS_TIMELINE_LOG_FILE exists in the")
+    print("environment, it will be used")
+    print()
+    print("The following attributes can be used: event_total, gap, event_gap")
     sys.exit(1)
 
 def main():
@@ -322,7 +323,7 @@ def main():
     import getopt
     try:
         opts, args = getopt.getopt(sys.argv[1:], "vn:f:dl:c", ["dont-collapse"])
-    except getopt.error, msg:
+    except getopt.error as msg:
         usage(msg)
     for opt, val in opts:
         if opt == "-v":
@@ -349,10 +350,10 @@ def main():
     r = parse(f, last_record)
     thread_records = split_thread_records(r)
     calc_times(thread_records)
-    print filename, "contains", len(r), "records from", len(thread_records), "threads."
+    print(filename, "contains", len(r), "records from", len(thread_records), "threads.")
     if dump:
         dump_records(thread_records, collapse_enter_leaves)
-        print
+        print()
 
     if dump_counters:
         counter_defs = (
@@ -369,16 +370,16 @@ def main():
         )
         counters = create_counters(counter_defs, r)
         for thread_id, thread_counters in counters.items():
-            print "Counter values for thread %s:" % thread_id
+            print("Counter values for thread %s:" % thread_id)
             keys = thread_counters.keys()
             keys.sort()
             for name in keys:
-                print "", name, thread_counters[name]
-        print
+                print("", name, thread_counters[name])
+        print()
     for attr in args:
-        print "Top records:", attr
+        print("Top records:", attr)
         print_top(r, attr, num_recs)
-        print
+        print()
 
 if __name__=='__main__':
     main()

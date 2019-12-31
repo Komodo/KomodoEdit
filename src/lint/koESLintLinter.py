@@ -110,7 +110,7 @@ class KoEsLintLinter(object):
       log.debug("EsLint: stdout = %s" % stdout)
       log.debug("EsLint: stderr = %s" % stderr)
       data = json.loads(stdout)[0]['messages']
-    except Exception, e:
+    except Exception as e:
       log.warn('Failed to parse the eslint output!')
       log.warn('The output was: {}'.format(stdout))
       return

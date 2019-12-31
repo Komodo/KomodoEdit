@@ -38,6 +38,7 @@
 """Services for using templates in Komodo.
 Particularly the "New File" dialog.
 """
+from __future__ import print_function
 #TODO:
 #  - mechanism to get the "My Templates" stuff into the user folder on
 #    a clean first start
@@ -112,9 +113,9 @@ class Node(dict):
 
     def dump(self, level=0):
         basenames = [os.path.basename(f['path']) for f in self.files]
-        print "files=%s" % basenames
+        print("files=%s" % basenames)
         for name, node in self.items():
-            print "%sNode '%s':" % ("  "*level, name),
+            print("%sNode '%s':" % ("  "*level, name), end=' ')
             node.dump(level+1)
 
 
@@ -190,7 +191,7 @@ See "Custom Templates" in Komodo's on-line help for more details.
 
     def dumpTemplates(self):
         """Dump the currently loaded template tree."""
-        print "Template Tree:",
+        print("Template Tree:", end=' ')
         self.rootTemplateNode.dump(1)
 
     def getDefaultTemplatesDir(self):
@@ -367,7 +368,7 @@ class KoTemplatesView(TreeView):
         except KeyError:
             log.error("unknown template column id: '%s'" % column.id)
             return ""
-        if type(datum) not in (types.StringType, types.UnicodeType):
+        if type(datum) not in (bytes, str):
             datum = str(datum)
         return datum
 
@@ -464,12 +465,12 @@ class KoTemplateCategoriesView(TreeView):
         stbcStr = self._prefSvc.getStringPref("%s_selected_template_by_category" % self.templateSvc.basename)
         try:
             self.selectedTemplateByCategory = eval(stbcStr)
-        except SyntaxError, ex:
+        except SyntaxError as ex:
             self.selectedTemplateByCategory = {}
         ocStr = self._prefSvc.getStringPref("%s_open_categories" % self.templateSvc.basename)
         try:
             self.categoryIsOpen = eval(ocStr)
-        except SyntaxError, ex:
+        except SyntaxError as ex:
             self.categoryIsOpen = {}
 
         self._updateRowData()
@@ -588,7 +589,7 @@ class KoTemplateCategoriesView(TreeView):
         except KeyError:
             log.error("unknown category column id: '%s'" % column.id)
             return ""
-        if type(datum) not in (types.StringType, types.UnicodeType):
+        if type(datum) not in (bytes, str):
             datum = str(datum)
         return datum
 

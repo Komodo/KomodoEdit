@@ -842,7 +842,7 @@ class PHPTreeEvaluator(TreeEvaluator):
                            elem_ilk, classref)
                 try:
                     subhit = self._hit_from_citdl(classref, scoperef)
-                except CodeIntelError, ex:
+                except CodeIntelError as ex:
                     # Continue with what we *can* resolve.
                     self.warn(str(ex))
                 else:
@@ -941,7 +941,7 @@ class PHPTreeEvaluator(TreeEvaluator):
         if elem.tag == "variable" and not self.defn_request:
             try:
                 elem, scoperef = self._hit_from_variable_type_inference(elem, scoperef)
-            except CodeIntelError, ex:
+            except CodeIntelError as ex:
                 # If lookup failed, try parent classes (See https://github.com/Komodo/KomodoEdit/issues/3780)
                 hits = self._hit_from_citdl_remainining_tokens_hits(tokens[nconsumed:], first_part_hits, True)
                 if not hits:
@@ -987,7 +987,7 @@ class PHPTreeEvaluator(TreeEvaluator):
                                     remaining_tokens = [remaining_tokens[-1]]
                                     new_hit, nconsumed = self._hit_from_getattr(remaining_tokens, *hit)
                     remaining_tokens = remaining_tokens[nconsumed:]
-                except CodeIntelError, ex:
+                except CodeIntelError as ex:
                     self.debug("error %s", ex)
                 if new_hit:
                     new_hits.append(new_hit)
@@ -1392,7 +1392,7 @@ class PHPTreeEvaluator(TreeEvaluator):
                                                 tokens, blob, (blob, []))
                             if hit:
                                 return hit, nconsumed
-                        except CodeIntelError, e:
+                        except CodeIntelError as e:
                             self.debug("_hit_from_elem_imports:: "
                                        "_hit_from_getattr could not resolve: "
                                        "%r on %r", tokens, blob)
@@ -1429,7 +1429,7 @@ class PHPTreeEvaluator(TreeEvaluator):
                         try:
                             if hit and self._return_with_hit(hit, 1):
                                 return hit, nconsumed
-                        except CodeIntelError, e:
+                        except CodeIntelError as e:
                             self.debug("_hit_from_elem_imports:: ie: "
                                        "_hit_from_getattr could not resolve: "
                                        "%r on %r", tokens, blob)
@@ -1518,7 +1518,7 @@ class PHPTreeEvaluator(TreeEvaluator):
                                      '.'.join(tokens[:nconsumed]), scoperef,
                                      hit[0])
                             return hit, nconsumed
-                    except CodeIntelError, e:
+                    except CodeIntelError as e:
                         pass # don't freak out: we'll try the next classref
         elif ilk == "blob":
             attr = elem.names.get(first_token)

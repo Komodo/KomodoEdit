@@ -8,6 +8,7 @@ TODO
 		have to run a dispatch loop for this
 
 """
+from __future__ import print_function
 
 from wnd.wintypes import (user32,
 												shell32,
@@ -298,9 +299,9 @@ class BaseDialog(object):
 							## TODO: better not raise here, leave it to caller
 							if user32.GetMenu(self.Hwnd)==nmu.handle:
 								if not user32.SetMenu(self.Hwnd, 0):
-									raise RuntimeError, "could not remove menu"
+									raise RuntimeError("could not remove menu")
 								if not user32.DrawMenuBar(self.Hwnd):
-									raise RuntimeError, "could not redraw menu bar"
+									raise RuntimeError("could not redraw menu bar")
 								return 1
 							
 					elif nmu.type==fw.MNUT_ACCEL:
@@ -323,15 +324,15 @@ class BaseDialog(object):
 					if nexc.type==fw.EXC_EXCEPTION:
 						fw.WND_ERRORLEVEL += 1
 						if fw.WND_ERRORLEVEL > fw.WND_MAXERROR:
-							print "\nmax error (%s) exceeded, taking down the gui" % fw.WND_MAXERROR
+							print("\nmax error (%s) exceeded, taking down the gui" % fw.WND_MAXERROR)
 							raise fw.ChildwindowExit()
 					
 					elif nexc.type==fw.EXC_FATAL:
-						print "\nsome fatal exception occured, taking down the gui"
+						print("\nsome fatal exception occured, taking down the gui")
 						raise fw.ChildwindowExit()
 											
 					elif nexc.type==fw.EXC_MAXERROR:
-						print "\nmax error (%s) exceeded, taking down the gui" % fw.WND_MAXERROR
+						print("\nmax error (%s) exceeded, taking down the gui" % fw.WND_MAXERROR)
 						raise fw.ChildwindowExit()
 												
 			
@@ -344,7 +345,7 @@ class BaseDialog(object):
 			# default
 			return 0
 
-		except Exception, details:
+		except Exception as details:
 			## TODO
 			## If an error in a dialog occurs ther is probabbly no need to quit 
 			## the GUI (if there is one). So maybe dialogs should get their own

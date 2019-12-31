@@ -154,7 +154,7 @@ def interpolate(s, bracketed=0):
                                                fileName, lineNum, word,
                                                selection, projectFile,
                                                prefSet, lineText)
-    except COMException, ex:
+    except COMException as ex:
         lastErrorSvc = components.classes["@activestate.com/koLastErrorService;1"].\
                        getService(components.interfaces.koILastErrorService)
         errmsg = lastErrorSvc.getLastErrorMessage()

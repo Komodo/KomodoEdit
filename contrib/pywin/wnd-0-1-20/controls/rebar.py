@@ -30,6 +30,7 @@ TODO:
 
 """
 
+from future.utils import raise_
 from wnd.wintypes import (comctl32,
 													InitCommonControlsEx,
 													create_string_buffer,
@@ -153,7 +154,7 @@ class RebarMethods:
 			for i in style:
 				try:
 					bi.fStyle |= st[i]
-				except: raise ValueError, "invalid style: %s" % i
+				except:raise_(ValueError, "invalid style: %s" % i)
 
 		#if idealSize:
 		#	bi.fMask |= RBBIM_IDEALSIZE

@@ -3,6 +3,7 @@
 # See LICENSE.txt for license details.
 
 """Python binary file scanner for CodeIntel"""
+from __future__ import print_function
 
 import os
 import sys
@@ -93,7 +94,7 @@ def _main(argv):
         parser.error("'%s' is not a file" % mod_path)
     
     cix = scan(mod_path)
-    print cix
+    print(cix)
 
 
 if __name__ == '__main__':

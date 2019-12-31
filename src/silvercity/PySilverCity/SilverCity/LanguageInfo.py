@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import re
 import os
 import types
@@ -15,7 +16,7 @@ class LanguageInfo:
         for pattern in self.extension_patterns:
             # pattern can either be a regular expression or a
             # string
-            if isinstance(pattern, types.StringTypes):
+            if isinstance(pattern, (str,)):
                 if extension.lower() == pattern.lower():
                     return 1
             elif pattern.match(extension):
@@ -67,7 +68,7 @@ def guess_language_for_file(filename):
         if len(guesses) == 1:
             return guesses[0]
 
-        import NULL
+        from . import NULL
         return NULL.null_language_info
 
 def guess_language_for_buffer(buffer):
@@ -77,7 +78,7 @@ def guess_language_for_buffer(buffer):
     if len(guesses) == 1:
         return guesses[0]
 
-    import NULL
+    from . import NULL
     return NULL.null_language_info
     
 def find_generator_by_name(name):
@@ -122,16 +123,16 @@ def add_extension(name, ext):
                 language.extension_patterns.append(ext)
     
 def do_registration():
-    import CPP
-    import CSS
-    import HyperText
-    import JavaScript
-    import NULL
-    import Perl
-    import Python
-    import PostScript
-    import Ruby
-    import SQL
-    import YAML
-    import XML
-    import XSLT
+    from . import CPP
+    from . import CSS
+    from . import HyperText
+    from . import JavaScript
+    from . import NULL
+    from . import Perl
+    from . import Python
+    from . import PostScript
+    from . import Ruby
+    from . import SQL
+    from . import YAML
+    from . import XML
+    from . import XSLT

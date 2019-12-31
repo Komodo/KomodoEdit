@@ -42,6 +42,7 @@
 combine-cixes.py -- a utility program that takes a reference
 CIX file, and several other modules
 """
+from __future__ import print_function
 
 import os
 from os.path import basename, splitext, isfile, isdir, join
@@ -75,7 +76,7 @@ parser.add_option("-q", "--quiet",
                   help="don't print status messages to stdout")
 (options, args) = parser.parse_args()
 if not options.origfile:
-    print "Usage: combine_cixes.py --orig-file file file..."
+    print("Usage: combine_cixes.py --orig-file file file...")
     sys.exit()
 
 origTree = ET.parse(options.origfile)
@@ -124,7 +125,7 @@ def replace_node(dest_t, src_t, src_node, src_idx):
     finally:
         src_t[src_idx] = None
 
-print "Before, orig tree has %d nodes" % len(origBlobStar)
+print("Before, orig tree has %d nodes" % len(origBlobStar))
 for curr_tree in (yaml_builtin_tree, refl_builtin_tree):
     i = 0
     for t in curr_tree:
@@ -132,16 +133,16 @@ for curr_tree in (yaml_builtin_tree, refl_builtin_tree):
             replace_node(origBlobStar, curr_tree, t, i)
         i += 1
 
-print "After doing yaml-nodes, orig tree has %d nodes" % len(origBlobStar)
-print "Builtins: %d replacements, %d additions" % (num_replacements, num_additions)
+print("After doing yaml-nodes, orig tree has %d nodes" % len(origBlobStar))
+print("Builtins: %d replacements, %d additions" % (num_replacements, num_additions))
 
 i = 0
 for t in bin_tree:
     replace_node(origFile, bin_tree, t, i)
     i += 1
     
-print "After doing binary modules, orig tree has %d nodes" % len(origBlobStar)
-print "Builtins: %d replacements, %d additions" % (num_replacements, num_additions)
+print("After doing binary modules, orig tree has %d nodes" % len(origBlobStar))
+print("Builtins: %d replacements, %d additions" % (num_replacements, num_additions))
 
 # Finally update the YAML nodes, assuming that if we do a replacement
 # we can replace the entire subtree.
@@ -150,12 +151,12 @@ for t in yaml_stdlib_tree:
     replace_node(origFile, yaml_stdlib_tree, t, i)
     i += 1
   
-print "After doing yaml modules, orig tree has %d nodes" % len(origBlobStar)
-print "Builtins: %d replacements, %d additions" % (num_replacements, num_additions)
+print("After doing yaml modules, orig tree has %d nodes" % len(origBlobStar))
+print("Builtins: %d replacements, %d additions" % (num_replacements, num_additions))
   
 newFile = options.origfile + ".new"
 fd = open(newFile, "w")
 fd.write(ET.tostring(pretty_tree_from_tree(origTopLevel)))
 fd.close()
-print "Done writing to file %s" % newFile
+print("Done writing to file %s" % newFile)
 

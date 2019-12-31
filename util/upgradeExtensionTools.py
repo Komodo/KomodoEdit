@@ -3,6 +3,7 @@
 # ship because they're installed in the Komodo installation dir,
 # not the user's profile.
 """
+from __future__ import print_function
 
 __version_info__ = (0, 0, 1)
 __version__ = '.'.join(map(str, __version_info__))
@@ -187,7 +188,7 @@ if __name__ == "__main__":
     except:
         exc_info = sys.exc_info()
         import traceback
-        print
+        print()
         traceback.print_exception(*exc_info)
         sys.exit(1)
     else:

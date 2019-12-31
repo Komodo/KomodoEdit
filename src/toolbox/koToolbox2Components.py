@@ -278,28 +278,28 @@ class KoToolbox2Service(object):
         try:
             self.toolboxLoader.importDirectory(parentPath, pathToImport)
             self._notifyToolboxChanged(parentPath)
-        except Exception, ex:
+        except Exception as ex:
             raise ServerException(nsError.NS_ERROR_ILLEGAL_VALUE, ex)
     
     def importFiles(self, parentPath, toolPaths):
         try:
             self.toolboxLoader.importFiles(parentPath, toolPaths)
             self._notifyToolboxChanged(parentPath)
-        except Exception, ex:
+        except Exception as ex:
             raise ServerException(nsError.NS_ERROR_ILLEGAL_VALUE, ex)
     
     def importFileWithNewName(self, parentPath, srcPath, destPath):
         try:
             self.toolboxLoader.importFileWithNewName(parentPath, srcPath, destPath)
             self._notifyToolboxChanged(parentPath)
-        except Exception, ex:
+        except Exception as ex:
             raise ServerException(nsError.NS_ERROR_ILLEGAL_VALUE, ex)
             
     def importV5Package(self, parentPath, kpzPath):
         try:
             self.importV5Package_aux(parentPath, kpzPath)
             self._notifyToolboxChanged(parentPath)
-        except Exception, ex:
+        except Exception as ex:
             raise ServerException(nsError.NS_ERROR_ILLEGAL_VALUE, ex)
         
     def importV5Package_aux(self, parentPath, kpzPath):

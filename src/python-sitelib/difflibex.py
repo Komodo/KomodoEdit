@@ -42,6 +42,7 @@ Notes:
   of many formats.
 
 """
+from __future__ import print_function
 
 __version_info__ = (0, 1, 0)
 __version__ = '.'.join(map(str, __version_info__))
@@ -281,8 +282,8 @@ class Hunk:
         self.end_line = end_line
         self.lines = lines
     def pprint(self, indent=' '*8):
-        print "%shunk: lines %d-%d"\
-              % (indent, self.start_line, self.end_line)
+        print("%shunk: lines %d-%d"\
+              % (indent, self.start_line, self.end_line))
 
 class FileDiff:
     """A FileDiff represents diff content for one file. It is made up of one
@@ -345,11 +346,11 @@ class FileDiff:
         best_path = self.best_path()
         if best_path is None:
             best_path = "???"
-        print "%s%s file diff of '%s' (%d hunks)"\
+        print("%s%s file diff of '%s' (%d hunks)"\
               % (indent,
                  self.diff_type,
                  best_path,
-                 len(self.hunks))
+                 len(self.hunks)))
         for hunk in self.hunks:
             hunk.pprint(indent*2)
 
@@ -395,7 +396,7 @@ class Diff:
                   sum([len(f.hunks) for f in self.file_diffs]))
 
     def pprint(self):
-        print "diff (%s files)" % (len(self.file_diffs))
+        print("diff (%s files)" % (len(self.file_diffs)))
         for file_diff in self.file_diffs:
             file_diff.pprint(indent=' '*4)
 
@@ -1205,11 +1206,11 @@ def _print_file_position(diff, path, diff_pos):
     try:
         file_path, file_line, file_col \
             = diff.file_pos_from_diff_pos(diff_line-1, diff_col-1)
-    except DiffLibExError, ex:
-        print "%s:%s -> unknown (%s)" % (path, diff_pos, ex)
+    except DiffLibExError as ex:
+        print("%s:%s -> unknown (%s)" % (path, diff_pos, ex))
     else:
-        print "%s:%s -> %s:%s,%s" % (path, diff_pos, file_path, file_line+1,
-                                     file_col+1)
+        print("%s:%s -> %s:%s,%s" % (path, diff_pos, file_path, file_line+1,
+                                     file_col+1))
 
 
 def main(argv):
@@ -1244,7 +1245,7 @@ def main(argv):
             if diff_pos:
                 _print_file_position(d, path, diff_pos)
             else:
-                print path + ':',
+                print(path + ':', end=' ')
                 d.pprint()
 
     else: # read from stdin
@@ -1265,7 +1266,7 @@ if __name__ == "__main__":
     except:
         exc_info = sys.exc_info()
         if log.isEnabledFor(logging.DEBUG):
-            print
+            print()
             traceback.print_exception(*exc_info)
         else:
             if hasattr(exc_info[0], "__name__"):

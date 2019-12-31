@@ -179,7 +179,7 @@ class Handles(object):
 			self.handles.remove(handle)
 		except: 
 			self.lock.release()
-			raise ValueError, "no handle found to close"
+			raise ValueError("no handle found to close")
 		self.lock.release()
 	
 	def New(self):

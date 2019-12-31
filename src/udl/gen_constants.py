@@ -46,6 +46,7 @@ Usage:
 This script presumes that the Scintilla sources are at ../scintilla
 relative to the current directory.
 """
+from __future__ import print_function
 
 import os
 from os.path import join
@@ -102,11 +103,11 @@ def get_constants():
 
 def gen_constants():
     resConstants = get_constants()
-    print "# Generated on ", datetime.datetime.now().ctime()
-    print "#"
-    print "# List of constants used by luddite"
-    print
-    print "vals = ",
+    print("# Generated on ", datetime.datetime.now().ctime())
+    print("#")
+    print("# List of constants used by luddite")
+    print()
+    print("vals = ", end=' ')
     pprint.PrettyPrinter(indent=4).pprint(resConstants)
 
 if __name__ == "__main__":

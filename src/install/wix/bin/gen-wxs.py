@@ -7,6 +7,7 @@ This reads feature-*.ini for the set of files to ship in a feature, plus the
 template XML input, to generate a .wxs.in containing all files we intend to
 ship.  This mainly exists so we can list our files in a more readable format.
 """
+from __future__ import print_function
 
 import collections
 import hashlib
@@ -44,11 +45,11 @@ def readFileList(filename, config=set()):
                 section = line[1:-1]
                 for part in section.split("."):
                     if not part in config:
-                        print "Skipping section %s: feature %s fail" % (section, part)
+                        print("Skipping section %s: feature %s fail" % (section, part))
                         valid = False
                         break
                 else:
-                    print "Adding section %s" % (section,)
+                    print("Adding section %s" % (section,))
             else:
                 if valid:
                     results.add(line)

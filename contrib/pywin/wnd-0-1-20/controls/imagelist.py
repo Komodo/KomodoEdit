@@ -35,8 +35,8 @@ comctl32.InitCommonControls()
 S_OK = 0
 S_FALSE = 1
 STG_E_ACCESSDENIED = -2147287035 
-STG_E_CANTSAVE  =   0x80030103L
-STG_E_MEDIUMFULL = 2147680368L                 
+STG_E_CANTSAVE  =   0x80030103
+STG_E_MEDIUMFULL = 2147680368                 
 E_NOTIMPL    = -2147467263
 
 #**************************************************
@@ -369,22 +369,22 @@ class SystemImagelist(object):
 				IconInit = GPA(shell32._handle, 660)
 				IconInit(1)
 			except:
-				raise RuntimeError, "could not retrieve IconInit api"
+				raise RuntimeError("could not retrieve IconInit api")
 			
 		GPA.restype = WINFUNCTYPE(INT, POINTER(HANDLE), POINTER(HANDLE))
 		try:
 			SH_GetImageLists = GPA(shell32._handle, 71) 
 		except:
-			raise RuntimeError, "could not retrieve shell_GetImageLists api"
+			raise RuntimeError("could not retrieve shell_GetImageLists api")
 		
 			
 		small = HANDLE()
 		large = HANDLE()
 		if not SH_GetImageLists(byref(large), byref(small)):
-			raise RuntimeError, "could not retrieve system imagelist"
+			raise RuntimeError("could not retrieve system imagelist")
 		
 		if not (large.value and small.value):
-			raise RuntimeError, "could not retrieve system imagelist"
+			raise RuntimeError("could not retrieve system imagelist")
 		
 		if size=='small':
 			self.handle= small.value

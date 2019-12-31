@@ -1,3 +1,4 @@
+from __future__ import print_function
 # Python
 #
 # See the accompanying LICENSE file.
@@ -13,7 +14,7 @@ import collections
 import copy
 
 if len(sys.argv)!=4:
-    print >> sys.stderr, "You must supply sqlite version, input and output filenames"
+    print("You must supply sqlite version, input and output filenames", file=sys.stderr)
 
 if os.path.exists(sys.argv[3]):
     os.remove(sys.argv[3])
@@ -32,7 +33,7 @@ if sys.argv[2]!="src/apsw.c":
 import apsw
 
 with tempfile.NamedTemporaryFile() as f:
-    print basesqurl+"toc.db"
+    print(basesqurl+"toc.db")
     f.write(urllib2.urlopen(basesqurl+"toc.db").read())
     f.flush()
 
@@ -78,7 +79,7 @@ def do_mappings():
 
         for v in lookfor:
             if v not in mappings[map]:
-                print "Mapping", map, "is missing", v
+                print("Mapping", map, "is missing", v)
                 shouldexit=True
         if shouldexit:
             sys.exit(1)
@@ -107,7 +108,7 @@ def do_mappings():
 
     for d in sorted(consts.keys()):
         if d not in seenmappings and d not in ignores:
-            print "Missing mapping", d, "with values", consts[d]["vars"], "at", consts[d]["page"]
+            print("Missing mapping", d, "with values", consts[d]["vars"], "at", consts[d]["page"])
 
 
 # we have our own markup to describe what sqlite3 calls we make using

@@ -28,12 +28,12 @@ class KoFileImportingService:
         dirname = os.path.normpath(os.path.abspath(dirname))
         try:
             allnames = os.listdir(dirname)
-        except OSError, e:
+        except OSError as e:
             if e.errno == 13: # permission denied
                 self.lastErrorSvc.setLastError(13, 'Permission denied')
             raise
 # #if PLATFORM == "win"
-        except WindowsError, e:
+        except WindowsError as e:
             if e.errno in (5, 32) and not os.path.exists(dirname):
                 # Looks like the directory was deleted between the
                 # time the request was initiated and when it was handled
@@ -272,7 +272,7 @@ def _dirwalker(dirname, exclude_pats):
     """Generate all subdirectories of the given directory."""
     try:
         contents = os.listdir(os.path.normpath(dirname))
-    except OSError, e:
+    except OSError as e:
         if e.errno != 13: # permission denied
             raise
         contents = []

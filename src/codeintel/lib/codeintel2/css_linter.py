@@ -605,7 +605,7 @@ class _CSSParser(object):
                     self._tokenizer.put_back(tok)
                     return False
                 elif tok['text'] == '}':
-                    if could_have_mixin and self._less_mixins.has_key(current_name):
+                    if could_have_mixin and current_name in self._less_mixins:
                         self._inserted_mixin = True
                         self._tokenizer.put_back(tok)
                         return False
@@ -644,14 +644,14 @@ class _CSSParser(object):
         # Note that we have the token that caused us to leave the above loop
         if not self._classifier.is_operator(tok, "("):
             if (could_have_mixin
-                and self._less_mixins.has_key(current_name)
+                and current_name in self._less_mixins
                 and self._classifier.is_operator(tok, ";")):
                 self._inserted_mixin = True
             self._tokenizer.put_back(tok)
             return True
         do_recover = False
         if could_have_mixin:
-            if self._less_mixins.has_key(current_name):
+            if current_name in self._less_mixins:
                 self._parse_mixin_invocation()
                 self._inserted_mixin = True
             else:

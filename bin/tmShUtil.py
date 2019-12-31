@@ -44,6 +44,7 @@
 #    Copy       - more like "cp"
 #
 
+from __future__ import print_function
 import sys, os
 
 
@@ -112,7 +113,7 @@ def WhichFollowSymLinks(exeName, path=None):
     while p.islink(fullExeName):
         fullExeName = p.normpath( p.join(p.dirname(fullExeName),
             os.readlink(fullExeName)) )
-        print fullExeName
+        print(fullExeName)
     return fullExeName
 
 
@@ -134,7 +135,7 @@ def Mkdir(newdir):
         if head and not os.path.isdir(head):
             Mkdir(head)
         if verbosity > 1:
-            print "mkdir %s" % repr(newdir)
+            print("mkdir %s" % repr(newdir))
         if tail:
             os.mkdir(newdir)
 
@@ -176,10 +177,10 @@ def Copy(src, dst):
             if not os.path.isdir(dstFileHead):
                 Mkdir(dstFileHead)
             if verbosity > 1:
-                print "copy %s to %s" % (repr(srcFile), repr(dstFile))
+                print("copy %s to %s" % (repr(srcFile), repr(dstFile)))
             if os.path.isfile(dstFile):
                 # make sure 'dstFile' is writeable
-                os.chmod(dstFile, 0755)
+                os.chmod(dstFile, 0o755)
             shutil.copy(srcFile, dstFile)
         elif os.path.isdir(srcFile):
             srcFiles = os.listdir(srcFile)
@@ -190,7 +191,7 @@ def Copy(src, dst):
                 d = os.path.join(dst, f)
                 try:
                     Copy(s, d)
-                except (IOError, os.error), why:
+                except (IOError, os.error) as why:
                     raise InstallError("Can't copy %s to %s: %s"\
                           % (repr(s), repr(d), str(why)))
         elif not usingWildcards:

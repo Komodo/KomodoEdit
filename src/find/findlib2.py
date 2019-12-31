@@ -174,7 +174,7 @@ def grep(regex, paths, files_with_matches=False,
                 if statinfo.st_size > skip_filesizes_larger_than:
                     yield SkipLargeFilePath(path, statinfo.st_size)
                     continue
-            except EnvironmentError, ex:
+            except EnvironmentError as ex:
                 yield SkipPath(path, "error determining file info: %s" % ex)
                 continue
         try:
@@ -184,7 +184,7 @@ def grep(regex, paths, files_with_matches=False,
                 ti = textinfo.TextInfo.init_from_path(path,
                         follow_symlinks=True, env=env)
                 ti.is_loaded_path = False
-        except EnvironmentError, ex:
+        except EnvironmentError as ex:
             yield SkipPath(path, "error determining file info: %s" % ex)
             continue
 
@@ -478,12 +478,12 @@ def undo_replace(journal_id, dry_run=False, loadedFileManager=None):
     if not dry_run:
         try:
             os.remove(journal.path)
-        except EnvironmentError, ex:
+        except EnvironmentError as ex:
             log.warn("couldn't remove journal '%s': %s", journal.path, ex)
         if exists(journal.summary_path):
             try:
                 os.remove(journal.summary_path)
-            except EnvironmentError, ex:
+            except EnvironmentError as ex:
                 log.warn("couldn't remove journal summary '%s': %s", 
                          journal.summary_path, ex)
 
@@ -1037,7 +1037,7 @@ class Journal(list):
                     os.remove(spath)
                 except:
                     log.error("Can't remove remove %s", spath)
-        except EnvironmentError, ex:
+        except EnvironmentError as ex:
             log.warn("error removing old journals: %s (ignored)", ex)
 
     @classmethod
@@ -1380,7 +1380,7 @@ def _walk(top, topdown=True, onerror=None, follow_symlinks=False):
     # left to visit.  That logic is copied here.
     try:
         names = os.listdir(top)
-    except OSError, err:
+    except OSError as err:
         if onerror is not None:
             onerror(err)
         return
@@ -1604,7 +1604,7 @@ def paths_from_path_patterns(path_patterns, files=True, dirs="never",
                                         _filenames.append(filename)
                                 else:
                                     yield filepath
-                        except UnicodeDecodeError, ex:
+                        except UnicodeDecodeError as ex:
                             # This may happen with remote filesystems whose
                             # encoding does not match the current system's.
                             log.exception("Unable to search in `%s/%s' due to UTF-8 decoding error",

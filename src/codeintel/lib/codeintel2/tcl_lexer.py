@@ -53,6 +53,7 @@ while 1:
     # tok is an array of (style, text, start-col, start-line, end-col, end-line)
     # column and line numbers are all zero-based.
 """
+from __future__ import absolute_import
 
 import copy
 import re
@@ -61,8 +62,8 @@ import string
 
 import SilverCity
 from SilverCity import ScintillaConstants
-import shared_lexer
-from shared_lexer import EOF_STYLE
+from . import shared_lexer
+from .shared_lexer import EOF_STYLE
 
 from codeintel2 import lang_tcl
 

@@ -50,6 +50,7 @@ has contributed to Python.  It is the greatest language I have ever used and I
 thank you all for it.
 
 """
+from __future__ import print_function
 import re
 
 __all__=['strptime']
@@ -234,35 +235,35 @@ self.daylight)
         if self.month!=None:
             if not (1<=self.month<=12):
                 success=0
-                raise DataError,'Month'
+                raise DataError('Month')
         if self.day!=None:
             if not 1<=self.day<=31:
                 success=0
-                raise DataError,'Day'
+                raise DataError('Day')
         if self.hour!=None:
             if not 0<=self.hour<=23:
                 success=0
-                raise DataError,'Hour'
+                raise DataError('Hour')
         if self.minute!=None:
             if not 0<=self.minute<=59:
                 success=0
-                raise DataError,'Minute'
+                raise DataError('Minute')
         if self.second!=None:
             if not 0<=self.second<=61: #61 covers leap seconds.
                 success=0
-                raise DataError,'Second'
+                raise DataError('Second')
         if self.day_week!=None:
             if not 0<=self.day_week<=6:
                 success=0
-                raise DataError,'Day of the Week'
+                raise DataError('Day of the Week')
         if self.julian_date!=None:
             if not 0<=self.julian_date<=366:
                 success=0
-                raise DataError,'Julian Date'
+                raise DataError('Julian Date')
         if self.daylight!=None:
             if not -1<=self.daylight<=1:
                 success=0
-                raise DataError,'Daylight Savings'
+                raise DataError('Daylight Savings')
         return success
             
 
@@ -422,7 +423,7 @@ class StrpObj(TimeObj):
                      'Sön':6}
 
         else:
-            raise TimeObjError, 'Unsupported locale setting'
+            raise TimeObjError('Unsupported locale setting')
             
 
         return DIRECTIVEDict, AM_PM, MONTHDict, DAYDict
@@ -437,7 +438,7 @@ class StrpObj(TimeObj):
             if char=='%' and not Directive:
                 Directive=1
             elif Directive:
-                if not DIRECTIVEDict.has_key('%'+char):
+                if '%'+char not in DIRECTIVEDict:
                     raise GenericError
                 else:
                     REString+=DIRECTIVEDict['%'+char]
@@ -476,7 +477,7 @@ class StrpObj(TimeObj):
                         else:
                             AP=1
                     except KeyError:
-                        print 'Lacking needed AM/PM information'
+                        print('Lacking needed AM/PM information')
                     if AP:
                         if hour==12:
                             self.hour=12

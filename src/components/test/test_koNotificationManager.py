@@ -1,3 +1,4 @@
+from __future__ import print_function
 import itertools, time, unittest
 from contextlib import contextmanager
 from xpcom import components, COMException
@@ -84,7 +85,7 @@ class NotificationManagerTestCase(unittest.TestCase):
             # manually print out a stack of sorts so it can be debugged
             import inspect
             for frame in inspect.stack():
-                print '  File "%s", line %r, in %s' % (frame[1], frame[2], frame[3])
+                print('  File "%s", line %r, in %s' % (frame[1], frame[2], frame[3]))
             raise
         finally:
             self.nm.removeListener(listener)

@@ -1,3 +1,4 @@
+from __future__ import print_function
 
 from wnd.wintypes import pointer, user32
 from wnd.api.shell.wintypes import *
@@ -187,7 +188,7 @@ if __name__=='__main__':
 		#br.SetStatusText('Selected Folder: ' )
 
 	def on_br(hwnd, msg, wp, lp):
-		if msg=='debug': print lp
+		if msg=='debug': print(lp)
 		
 		if msg=='bff_selchanged':
 			try:
@@ -204,7 +205,7 @@ if __name__=='__main__':
 	pIdl = br.Run(0, 'editbox', 'validate', 'statustext', 'hook')
 	if pIdl:
 		sh.SetCwd(pIdl)
-		print 'folder selected: "%s"' % sh.GetParseName()
+		print('folder selected: "%s"' % sh.GetParseName())
 					
 	sh.Close()
 

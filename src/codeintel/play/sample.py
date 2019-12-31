@@ -4,6 +4,7 @@
 
 Blah.
 """
+from __future__ import print_function
 
 import os, sys
 import xml.sax
@@ -57,7 +58,7 @@ class ClassOneBase(ClassNoBase):
     def __private_method(self, a):
         pass
 
-print "hi"
+print("hi")
 func_args("foo", "bar", "blam")
-print "bye"
+print("bye")
 

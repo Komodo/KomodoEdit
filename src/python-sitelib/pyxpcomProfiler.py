@@ -1,3 +1,4 @@
+from __future__ import print_function
 # ***** BEGIN LICENSE BLOCK *****
 # Version: MPL 1.1/GPL 2.0/LGPL 2.1
 # 
@@ -104,19 +105,19 @@ class XPCOMRecorder:
         return self.totalcallcount() + sum(self.getters.values()) + sum(self.setters.values())
 
     def print_stats(self):
-        print "%s" % (self.name)
+        print("%s" % (self.name))
         if self.calls:
-            print "  Calls: %d, Time: %f" % (self.totalcallcount(), self.totalcalltime())
-            for name, recorder in sorted(self.calls.items(), key=lambda (k,v): (v,k), reverse=True):
-                print "      %-30s%5d %f" % (name, recorder[1], recorder[0])
+            print("  Calls: %d, Time: %f" % (self.totalcallcount(), self.totalcalltime()))
+            for name, recorder in sorted(self.calls.items(), key=lambda k_v: (k_v[1],k_v[0]), reverse=True):
+                print("      %-30s%5d %f" % (name, recorder[1], recorder[0]))
         if self.getters:
-            print "  Getters: %d" % (sum(self.getters.values()))
-            for name, num in sorted(self.getters.items(), key=lambda (k,v): (v,k), reverse=True):
-                print "      %-30s%d" % (name, num)
+            print("  Getters: %d" % (sum(self.getters.values())))
+            for name, num in sorted(self.getters.items(), key=lambda k_v1: (k_v1[1],k_v1[0]), reverse=True):
+                print("      %-30s%d" % (name, num))
         if self.setters:
-            print "  Setters: %d" % (sum(self.setters.values()))
-            for name, num in sorted(self.setters.items(), key=lambda (k,v): (v,k), reverse=True):
-                print "      %-30s%d" % (name, num)
+            print("  Setters: %d" % (sum(self.setters.values())))
+            for name, num in sorted(self.setters.items(), key=lambda k_v2: (k_v2[1],k_v2[0]), reverse=True):
+                print("      %-30s%d" % (name, num))
         #print
 
 def getXPCOMRecorder(xpcomObject):
@@ -153,7 +154,7 @@ class TracerDelegate:
         self.callstats = callstats
     def __call__(self, *args):
         if not xpcom._koprofiler.acquire():
-            return apply(self.callme, args)
+            return self.callme(*args)
         try:
             if self.callstats:
                 t1 = time.time()
@@ -186,7 +187,7 @@ class Tracer:
                 self.__dict__['_recorder'].recordGetter(attr)
             return ret
     def __setattr__(self, attr, val):
-        if self.__dict__.has_key(attr):
+        if attr in self.__dict__:
             self.__dict__[attr] = val
             return
         if not attr.startswith("_com_") and not attr.startswith("_reg_"):
@@ -199,15 +200,15 @@ def print_stats():
         return cmp(a[0].totalcalltime(), b[0].totalcalltime())
     for name, recorder in sorted(xpcom_recordings.items(),
                                  cmp=recorder_cmp,
-                                 key=lambda (k,v): (v,k), reverse=True):
+                                 key=lambda k_v3: (k_v3[1],k_v3[0]), reverse=True):
         if len(recorder) > 0:
             recorder.print_stats()
-    print
-    print "*" * 60
-    print
+    print()
+    print("*" * 60)
+    print()
     xpcom._koprofiler.print_stats(sort='time', limit=100)
-    print "*" * 60
-    print "Stats finished\n"
+    print("*" * 60)
+    print("Stats finished\n")
 
 
 # Installed as a global XPCOM function that if exists, will be called

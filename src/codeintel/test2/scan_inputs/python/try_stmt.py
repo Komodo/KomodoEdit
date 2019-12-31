@@ -1,4 +1,5 @@
 from __future__ import with_statement
+from __future__ import print_function
 
 def one():
     try:
@@ -65,5 +66,5 @@ def seven():
     with open('/etc/passwd:', 'r') \
             as f:  # making this: hard 
         for line in f:
-            print line
+            print(line)
 

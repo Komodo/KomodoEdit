@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # Requires Python 2.7 or later
 
+from __future__ import print_function
 import io, os, sys, unittest
 
 if sys.platform == "win32":

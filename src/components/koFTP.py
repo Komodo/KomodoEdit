@@ -1,3 +1,4 @@
+from __future__ import print_function
 # ***** BEGIN LICENSE BLOCK *****
 # Version: MPL 1.1/GPL 2.0/LGPL 2.1
 # 
@@ -40,6 +41,7 @@
 # * Shane Caraveo
 # * Todd Whiteman
 
+from future.utils import raise_
 import os
 import socket
 import ssl
@@ -92,7 +94,7 @@ class koFTP(ftplib.FTP):
         for af_type in (socket.AF_UNSPEC, socket.AF_INET):
             try:
                 address_info = socket.getaddrinfo(self.host, self.port, af_type, socket.SOCK_STREAM)
-            except socket.error, msg:
+            except socket.error as msg:
                 log_koFTP.warn("socket.getaddrinfo raised exception: %r", msg)
                 continue
             for res in address_info:
@@ -104,7 +106,7 @@ class koFTP(ftplib.FTP):
                         self.sock.settimeout(timeout)
                     # End
                     self.sock.connect(sa)
-                except socket.error, msg:
+                except socket.error as msg:
                     if self.sock:
                         self.sock.close()
                     self.sock = None
@@ -113,7 +115,7 @@ class koFTP(ftplib.FTP):
             if self.sock:
                 break
         if not self.sock:
-            raise socket.error, msg
+            raise_(socket.error, msg)
         self.af = af
         self.file = self.sock.makefile('rb')
         self.welcome = self.getresp()
@@ -143,7 +145,7 @@ class koFTPConnection(remotefilelib.koRFConnection):
             self.log.debug("__del__: koFTP deleted")
             if self._connection and self._connection.sock:
                 self._connection.quit()
-        except self._FTPExceptions, e:
+        except self._FTPExceptions as e:
             #self.log.error("FTP CLOSE ERROR: %s", e)
             pass
 
@@ -157,7 +159,7 @@ class koFTPConnection(remotefilelib.koRFConnection):
         try:
             if self.passive:
                 self._connection.makepasv()
-        except self._FTPExceptions, e:
+        except self._FTPExceptions as e:
             # Note: Sometimes e.args is an empty tuple, thus we use the "and/or"
             msg = e.args and e.args[-1] or "Setting passive mode failed"
             self.log.info("_setConnectionMode: Unable to set passive mode, exception: %s", msg)
@@ -175,7 +177,7 @@ class koFTPConnection(remotefilelib.koRFConnection):
             self._connection.set_pasv(self.passive)
             self._connection.connect(self.server, self.port,
                                      self._socket_timeout)
-        except self._FTPExceptions, e:
+        except self._FTPExceptions as e:
             self._raiseWithException(e)
 
     def do_authenticateWithAgent(self):
@@ -193,7 +195,7 @@ class koFTPConnection(remotefilelib.koRFConnection):
             self._setConnectionMode()
             self.log.debug("do_authenticateWithPassword: login successful")
             return 1
-        except self._FTPExceptions, e:
+        except self._FTPExceptions as e:
             self._lasterror = e.args and e.args[-1] or "Login failed"
             if self._lasterror[:3] == "530":
                 # username/password error, unset password so we can prompt again
@@ -206,7 +208,7 @@ class koFTPConnection(remotefilelib.koRFConnection):
         try:
             self.log.debug("Sending NOOP");
             self._connection.voidcmd('NOOP')
-        except self._FTPExceptions, e:
+        except self._FTPExceptions as e:
             # Note: Sometimes e.args is an empty tuple, thus we do this
             self._lasterror = e.args and e.args[-1] or ""
             self.log.info("FTP NOOP ERROR: %s", self._lasterror)
@@ -225,7 +227,7 @@ class koFTPConnection(remotefilelib.koRFConnection):
                     self.log.debug("Checking that the ftp connection is alive")
                     self._NOOP()
                     self._last_verified_time = current_time
-        except Exception, e:
+        except Exception as e:
             if isinstance(e, socket.timeout):
                 self._raiseWithException(e)
             else:
@@ -242,7 +244,7 @@ class koFTPConnection(remotefilelib.koRFConnection):
             self.log.debug("do_close: Closing FTP connection")
             if self._connection:
                 self._connection.quit()
-        except Exception, e:
+        except Exception as e:
             self._setLastError(e.args and e.args[-1] or "Connection close failed")
             self.log.error("FTP CLOSE ERROR: %s", self._lasterror)
             pass
@@ -279,7 +281,7 @@ class koFTPConnection(remotefilelib.koRFConnection):
                         rf_pathinfo = self._createRFInfoFromListing(dirname, info[0])
                         if rf_pathinfo and rf_pathinfo.getFilename() == basename:
                             return rf_pathinfo
-                except self._FTPExceptions, e:
+                except self._FTPExceptions as e:
                     if isinstance(e, socket.timeout):
                         raise
                     msg = e.args and e.args[-1] or "Retrieval of listing failed"
@@ -309,7 +311,7 @@ class koFTPConnection(remotefilelib.koRFConnection):
                         filelisting, encoding, bom = self._encodingSvc.getUnicodeEncodedString(filelisting)
                         foundPos = filelisting.find(basename)
                         self.log.debug("Had to decode filelisting(%s): %s" % (encoding, filelisting))
-                    except Exception, e:
+                    except Exception as e:
                         # No go, we assume it was not found in this string
                         self.log.debug("Error decoding filelisting: %s" % (e))
                         self.log.debug("filelisting is: %s" % (filelisting))
@@ -329,9 +331,9 @@ class koFTPConnection(remotefilelib.koRFConnection):
             # Get the remote file details
             try:
                 rf_info = self._createRFInfo(path)
-            except socket.timeout, e:
+            except socket.timeout as e:
                 self._raiseWithException(e)
-            except Exception, e:
+            except Exception as e:
                 self.log.error("Unable to get path info for: %s", path)
                 self.log.debug("Error: %s: %s", e, e.args)
                 return None
@@ -366,7 +368,7 @@ class koFTPConnection(remotefilelib.koRFConnection):
             # Does not exist
             self.log.debug("do_getPathInfo: Path does not exist '%s'", path)
             return None
-        except self._FTPExceptions, e:
+        except self._FTPExceptions as e:
             self._lasterror = e.args and e.args[-1] or "Retrieval of listing failed"
             if self._lasterror[:3] == "550":
                 # This path does not exist then
@@ -391,12 +393,12 @@ class koFTPConnection(remotefilelib.koRFConnection):
                         rf_fileinfo = self._createRFInfo(path, fileinfo)
                         if rf_fileinfo and rf_fileinfo.getFilename() not in (".", ".."):
                             dirinfo.append(rf_fileinfo)
-                    except socket.timeout, e:
+                    except socket.timeout as e:
                         self._raiseWithException(e)
-                    except Exception, e:
+                    except Exception as e:
                         self.log.error("Unable to create a listing element for: %s", fileinfo)
                         self.log.debug("Error: %s: %s", e, e.args)
-            except self._FTPExceptions, e:
+            except self._FTPExceptions as e:
                 self._lasterror = e.args and e.args[-1] or "Directory listing failed"
                 if self._lasterror[:3] == "550":
                     # This path does not exist then
@@ -412,13 +414,13 @@ class koFTPConnection(remotefilelib.koRFConnection):
     def do_rename(self, oldName, newName):
         try:
             self._connection.rename(self._fixPath(oldName), self._fixPath(newName))
-        except self._FTPExceptions, e:
+        except self._FTPExceptions as e:
             self._raiseWithException(e)
 
     def do_removeFile(self, name):
         try:
             self._connection.delete(self._fixPath(name))
-        except self._FTPExceptions, e:
+        except self._FTPExceptions as e:
             self._raiseWithException(e)
 
     def do_changeDirectory(self, path, doRaiseException=True):
@@ -426,7 +428,7 @@ class koFTPConnection(remotefilelib.koRFConnection):
             self._connection.cwd(path)
             self._currentDirectory = path
             return 1
-        except self._FTPExceptions, e:
+        except self._FTPExceptions as e:
             if doRaiseException:
                 self._raiseWithException(e)
             else:
@@ -437,7 +439,7 @@ class koFTPConnection(remotefilelib.koRFConnection):
             path = self._connection.pwd()
             self.log.debug("do_currentDirectory: pwd '%s'",path)
             return path
-        except self._FTPExceptions, e:
+        except self._FTPExceptions as e:
             self._raiseWithException(e)
 
     def do_getHomeDirectory(self):
@@ -452,7 +454,7 @@ class koFTPConnection(remotefilelib.koRFConnection):
                     self._homedirectory = self._connection.pwd()
                     self.log.debug("do_getHomeDirectory: path '%s'", self._homedirectory)
                 return self._homedirectory
-            except self._FTPExceptions, e:
+            except self._FTPExceptions as e:
                 self._setLastError(e.args and e.args[-1] or "Setting home directory failed")
                 self.log.warn("FTP HOMEDIR ERROR: %s", self._lasterror)
         finally:
@@ -468,19 +470,19 @@ class koFTPConnection(remotefilelib.koRFConnection):
                 parent_path = "/"
             self.log.debug("do_getParentPath: '%s' -> '%s'", path, parent_path)
             return parent_path
-        except self._FTPExceptions, e:
+        except self._FTPExceptions as e:
             self._raiseWithException(e)
 
     def do_removeDirectory(self, name):
         try:
             self._connection.rmd(self._fixPath(name))
-        except self._FTPExceptions, e:
+        except self._FTPExceptions as e:
             self._raiseServerException(e.args and e.args[-1] or "Directory removal failed")
 
     def do_createDirectory(self, name, permissions):
         try:
             self._connection.mkd(self._fixPath(name))
-        except self._FTPExceptions, e:
+        except self._FTPExceptions as e:
             self._raiseWithException(e)
 
     def do_createFile(self, name, permissions):
@@ -491,7 +493,7 @@ class koFTPConnection(remotefilelib.koRFConnection):
             name = self._fixPath(name)
             self.log.debug("do_createFile: Creating file though ftp: '%s'", name)
             self.do_writeFile(name, '')
-        except self._FTPExceptions, e:
+        except self._FTPExceptions as e:
             self._raiseWithException(e)
 
     def do_chmod(self, filepath, permissions):
@@ -499,7 +501,7 @@ class koFTPConnection(remotefilelib.koRFConnection):
             chmod_cmd = "SITE CHMOD %s %s" % (oct(permissions),
                                               self._fixPath(filepath))
             self._connection.sendcmd(chmod_cmd)
-        except self._FTPExceptions, e:
+        except self._FTPExceptions as e:
             self._raiseWithException(e)
 
     def _read_cb(self, block):
@@ -517,7 +519,7 @@ class koFTPConnection(remotefilelib.koRFConnection):
                 self._filedata.seek(0,0)
             data = self._filedata.getvalue()
             # reset _filedata
-        except self._FTPExceptions, e:
+        except self._FTPExceptions as e:
             self._filedata.close()
             del self._filedata
             self._raiseWithException(e)
@@ -532,7 +534,7 @@ class koFTPConnection(remotefilelib.koRFConnection):
         self._setLastError("")
         try:
             self._connection.storbinary("STOR "+self._fixPath(filename), filedata)
-        except self._FTPExceptions, e:
+        except self._FTPExceptions as e:
             filedata.close()
             self._raiseWithException(e)
         filedata.close()
@@ -735,7 +737,7 @@ class koFTPS(koFTP):
         fp = conn.makefile('rb')
         while 1:
             line = fp.readline()
-            if self.debugging > 2: print '*retr*', repr(line)
+            if self.debugging > 2: print('*retr*', repr(line))
             if not line:
                 break
             if line[-2:] == ftplib.CRLF:
@@ -804,14 +806,14 @@ class koFTPSConnection(koFTPConnection):
             self._connection = koFTPS()        # Using python ssl
             self._connection.connect(self.server, self.port,
                                      self._socket_timeout)
-        except self._FTPExceptions, e:
+        except self._FTPExceptions as e:
             self._raiseServerException(e.args and e.args[-1] or "Connection failed")
 
         # Now try to request for authorization over SSL.
         try:
             # auth_tls throws exception when tls authentication not supported
             self._connection.auth_tls()
-        except self._FTPExceptions, e:
+        except self._FTPExceptions as e:
             self._raiseServerException(e.args and e.args[-1] or "Connection failed")
 
     def _setConnectionMode(self):
@@ -820,7 +822,7 @@ class koFTPSConnection(koFTPConnection):
             # Try and force encryption of all data transfers
             self._connection.prot_p()
             self.log.debug("TLS data encryption setting was successful.")
-        except self._FTPExceptions, e:
+        except self._FTPExceptions as e:
             self.log.warn("TLS data encryption failed, data will be sent and received in clear text.")
             # Fall back to clear text transfer of data
             self._connection.prot_c()
@@ -860,7 +862,7 @@ class FTPFile:
         # make the connection to the remote site
         try:
             conn = self._getRemoteConnection()
-        except COMException, ex:
+        except COMException as ex:
             # koIRemoteConnection will already setLastError on failure so don't
             # need to do it again. The only reason we catch it to just
             # re-raise it is because PyXPCOM complains on stderr if a
@@ -875,7 +877,7 @@ class FTPFile:
         try:
             conn = self._getRemoteConnection()
             self.rfinfo = conn.list(self._uriparse.path, 1)
-        except COMException, ex:
+        except COMException as ex:
             # koIRemoteConnection will already setLastError on failure so don't
             # need to do it again. The only reason we catch it to just
             # re-raise it is because PyXPCOM complains on stderr if a
@@ -887,7 +889,7 @@ class FTPFile:
         try:
             conn = self._getRemoteConnection()
             return conn.readFile(self._uriparse.path)
-        except COMException, ex:
+        except COMException as ex:
             # koIRemoteConnection will already setLastError on failure so don't
             # need to do it again. The only reason we catch it to just
             # re-raise it is because PyXPCOM complains on stderr if a
@@ -899,7 +901,7 @@ class FTPFile:
         try:
             conn = self._getRemoteConnection()
             conn.writeFile(self._uriparse.path, data)
-        except COMException, ex:
+        except COMException as ex:
             # koIRemoteConnection will already setLastError on failure so don't
             # need to do it again. The only reason we catch it to just
             # re-raise it is because PyXPCOM complains on stderr if a

@@ -21,6 +21,7 @@
     :author: Yesudeep Mangalapilly <yesudeep@gmail.com>
 """
 from __future__ import with_statement
+from __future__ import print_function
 
 import os.path
 import tempfile
@@ -54,7 +55,7 @@ def mkdir(path, parents=False):
     if parents:
         try:
             os.makedirs(path)
-        except OSError, e:
+        except OSError as e:
             if not e.errno == errno.EEXIST:
                 raise
     else:

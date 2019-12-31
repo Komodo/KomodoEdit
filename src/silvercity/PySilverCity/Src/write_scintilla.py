@@ -1,5 +1,6 @@
 """This script is used to generate ScintillaConstants.py from
 scintilla.iface."""
+from __future__ import print_function
 
 import sys
 import os
@@ -62,7 +63,7 @@ def create_constants_file(iface_file, out_file):
     
 if __name__ == "__main__":
     if len(sys.argv) != 4:
-        print "usage: write_scintilla.py <path to Face.py> <scintilla.iface> <output file>"
+        print("usage: write_scintilla.py <path to Face.py> <scintilla.iface> <output file>")
         sys.exit(1)
 
     face_path = sys.argv[1]

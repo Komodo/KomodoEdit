@@ -1,3 +1,4 @@
+from __future__ import print_function
 # ***** BEGIN LICENSE BLOCK *****
 # Version: MPL 1.1/GPL 2.0/LGPL 2.1
 # 
@@ -153,11 +154,11 @@ def parseItem(line):
     return name, sig
 
 def genPerlStdCIX(cixfile, perlfunc_pod_path):
-    print >> sys.stderr, "Reading perlfuncs"
+    print("Reading perlfuncs", file=sys.stderr)
     # Process Perl's built-ins out of perlfunc.pod.
     lines = open(perlfunc_pod_path, 'r').read().splitlines(0)
 
-    print >> sys.stderr, "Parsing perlfuncs"
+    print("Parsing perlfuncs", file=sys.stderr)
     # Parse the "Alphabetical Listing of Perl Functions" into a list of
     # 'blocks' where each block is one command-"=item" block.
     start = lines.index("=head2 Alphabetical Listing of Perl Functions")
@@ -209,7 +210,7 @@ def genPerlStdCIX(cixfile, perlfunc_pod_path):
     #pprint(blocks)
 
 
-    print >> sys.stderr, "Processing syscalls"
+    print("Processing syscalls", file=sys.stderr)
 
     # These perl built-ins are grouped in perlfunc.pod.
     commands = []
@@ -432,7 +433,7 @@ def gencix(major, minor):
     command = "python ../../../ci2.py scan -n -r -p -l Perl -T /tmp/ActivePerl-%d.%d/perl/lib -i \"*.pm\"> %s" % (major, minor, cixfile)
     retval = os.system(command)
     if retval != 0:
-        print "Error scanning ActivePerl library"
+        print("Error scanning ActivePerl library")
         sys.exit(retval)
     #    
     # Grab the output of that scan
@@ -445,7 +446,7 @@ def gencix(major, minor):
                          path=os.path.basename('perl.cix'))
     
     for file in root.getiterator('file'):
-        print >> sys.stderr, "Processing", file.get('path')
+        print("Processing", file.get('path'), file=sys.stderr)
         for blob in file:
             if blob.get("src"):
                 # Don't want the src string.
@@ -461,14 +462,14 @@ def gencix(major, minor):
             parent_map[variable].remove(variable)
 
     # Generate the CIX.
-    print >>sys.stderr, "Prettying"
+    print("Prettying", file=sys.stderr)
     prettify(newroot)
     tree = ElementTree(newroot)
     #fname = '../../../lib/codeintel2/stdlibs/perl-%d.%d.cix' % (major, minor)
     fname = 'perl-%d.%d.cix' % (major, minor)
     #os.system('p4 edit %s' % fname)
     stream = open(fname, "w")
-    print >>sys.stderr, "Writing"
+    print("Writing", file=sys.stderr)
     stream.write('<?xml version="1.0" encoding="UTF-8"?>\n')
     tree.write(stream)
     stream.close()

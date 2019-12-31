@@ -35,6 +35,7 @@ This implementation of Markdown implements the full "core" syntax plus a
 number of extras (e.g., code syntax coloring, footnotes) as described on
 <https://github.com/trentm/python-markdown2/wiki/Extras>.
 """
+from __future__ import print_function
 
 cmdln_desc = """A fast and complete Python implementation of Markdown, a
 text-to-HTML conversion tool for web writers.

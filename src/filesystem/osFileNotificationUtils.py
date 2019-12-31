@@ -67,7 +67,7 @@ try:
     FS_PATH_WAS_DELETED = components.interfaces.koIFileNotificationService.FS_FILE_DELETED | \
                           components.interfaces.koIFileNotificationService.FS_DIR_DELETED
     haveXPCOM = 1
-except ImportError, e:
+except ImportError as e:
     # Standalone mode, used for testing
     haveXPCOM = 0
     sys.stderr.write("WARNING: osFileNotificationUtils: Could not import XPCOM components, running as standalone.\n")
@@ -143,7 +143,7 @@ class FileStat:
         self.st_mode  = stat_info.st_mode
         self.st_size  = stat_info.st_size
         self.st_mtime = stat_info.st_mtime
-        m = self.st_mode & 0170000
+        m = self.st_mode & 0o170000
         self.__isFile = m == S_IFREG
         self.__isDir  = m == S_IFDIR
     def __eq__(self, other_fileStatObject):

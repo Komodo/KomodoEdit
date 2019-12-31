@@ -27,6 +27,7 @@ NOTES
 			'window' is not really a classname, its more like a placeholder 
 			so you can access the styles available for main windows
 """
+from __future__ import print_function
 
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 SUPPORTED= (			# must be lowercase
@@ -509,6 +510,6 @@ def GetStyles(classname):
 
 #------------------------------------------------------------------------------------------
 def test():
-	print GetStyles('button')
+	print(GetStyles('button'))
 		
 #test()

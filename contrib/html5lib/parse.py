@@ -3,6 +3,7 @@
 
 Parse a document to a tree, with optional profiling
 """
+from __future__ import print_function
 
 import sys
 import os
@@ -101,7 +102,7 @@ def run(parseMethod, f, encoding):
 
 def printOutput(parser, document, opts):
     if opts.encoding:
-        print("Encoding:", parser.tokenizer.stream.charEncoding)
+        print(("Encoding:", parser.tokenizer.stream.charEncoding))
 
     for item in parser.log:
         print(item)

@@ -6,6 +6,7 @@
 #  - Todd Whiteman
 #
 
+from __future__ import print_function
 import re
 import urllib
 import htmlentitydefs
@@ -33,14 +34,14 @@ def unescape(text):
                 else:
                     return unichr(int(text[2:-1]))
             except ValueError:
-                print "erreur de valeur"
+                print("erreur de valeur")
                 pass
         else:
            # named entity
             try:
                 text = unichr(htmlentitydefs.name2codepoint[text[1:-1]])
             except KeyError:
-                print "keyerror"
+                print("keyerror")
                 pass
         return text # leave as is
     text = re.sub("&#?\w+;", fixup, text)
@@ -120,7 +121,7 @@ def parseProperty(property_name, property_details):
     try:
         soup = BeautifulSoup(data)
     except:
-        print "Unable to pass HTML for property: %r" % (property_name, )
+        print("Unable to pass HTML for property: %r" % (property_name, ))
         return
         
     tags = soup.html.body("h3", {'class': "editable"})
@@ -182,7 +183,7 @@ def parseProperty(property_name, property_details):
 def processProperty(property_name, properties):
     property_details = {}
     properties[property_name] = property_details
-    print property_name
+    print(property_name)
     parseProperty(property_name, property_details)
 
 # Soup parsing of API documentation from webpage

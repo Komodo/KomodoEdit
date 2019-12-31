@@ -52,6 +52,7 @@ Note: The suffix "Service" on koObserverService is a misnomer because it is
 NOT to be used as a service, there must be one instance per user. I.e.
 createInstance() must be used instead of getService().
 """
+from __future__ import print_function
 
 import threading
 import logging
@@ -80,14 +81,14 @@ class KoObserverService:
         self.cv = threading.Condition()
 
     def dump(self, topics=None):
-        print
-        print "KoObserverService"
+        print()
+        print("KoObserverService")
         if topics is None:
             topics = self._topics.keys()
         for topic in topics:
             observers = self._getLiveObservers(topic)
-            print "  %r (%d observers)" % (topic, len(observers))
-        print
+            print("  %r (%d observers)" % (topic, len(observers)))
+        print()
 
     # Returns list of observers that are not dead. Maintains a 1-1 match for
     # the returned observers to the "self._topics[topic]" weak references.

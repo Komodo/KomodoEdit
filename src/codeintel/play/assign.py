@@ -37,10 +37,10 @@ myglobal = [1,2,3]
 #---- simple assignments
 bar = 1; bar = "trent"
 foo, bar = 1, 2
-Foo.bar.spam = 4L
+Foo.bar.spam = 4
 Foo.blam.spam = 5 # we bail on this because Foo.blam doesn't exist
 bar[1:2] = "foo" # we bail on this because it is too hard
-[foo, Foo.bar.spam] = 1L, 2
+[foo, Foo.bar.spam] = 1, 2
 key1, key2 = {'one':1, 'two':2}
 foo, bar, blam = sys.exc_info() # bail on this, too hard for now
 bar[1] = 1
@@ -65,16 +65,16 @@ ORAND = 1 and (2.0 or "three")
 LC = [i for i in range(4)]
 NOT = not 1
 POWER_II = 2**3
-POWER_IL = 2**3L
-POWER_LI = 2L**3
+POWER_IL = 2**3
+POWER_LI = 2**3
 POWER_FF = 2.0**3.0
 POWER_IF = 2**3.0
-POWER_LF = 2L**3.0
+POWER_LF = 2**3.0
 POWER_IC = 2**3j
 POWER_CF = 2j**3.0
 RSHIFT = 4>>2
 LSHIFT = 4>>2
-BACKQUOTE = `[1,2]`
+BACKQUOTE = repr([1,2])
 BITAND = 42 & 0xf0
 BITOR  = 42 | 0xf0
 BITXOR = 42 ^ 0xf0
@@ -83,7 +83,7 @@ COMPARE2 = 1 == 2
 COMPARE3 = 1 < 2
 COMPARE4 = 1 <= 2
 COMPARE5 = 1 >= 2
-COMPARE6 = 1 <> 2
+COMPARE6 = 1 != 2
 COMPARE7 = 1 != 2
 INVERT = ~1
 LSLICE = [1,2,3][1:2]
@@ -125,13 +125,14 @@ name = name.capitalize()
 #---- Gotcha's found in the stdlib
 # CITDL would be something like: assign os.popen CALL read GETATTR CALL
 # But don't have GETATTR, so punt.
-stuff = os.popen("pick %s 2>/dev/null" % `seq`).read()
+stuff = os.popen("pick %s 2>/dev/null" % repr(seq)).read()
 # From mimify.py
 newline = ('=%02x' % ord('F')).upper()
 # From pyclbr.py
 _getnext = re.compile(r"""...""", re.VERBOSE | re.DOTALL | re.MULTILINE).search
 
-def foo(a, (b,c)=(1,2), *args, **kwargs):
+def foo(a, xxx_todo_changeme=(1,2), *args, **kwargs):
+    (b,c) = xxx_todo_changeme
     pass
 bar = lambda a, (b, c), *args, **kwargs: cmp(a, b)
 

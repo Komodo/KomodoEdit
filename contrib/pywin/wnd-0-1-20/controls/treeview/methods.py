@@ -104,10 +104,10 @@ class TreeviewMethods(TreeviewMessageHandler ):
 	
 	def ItemFromPath(self, path, iImage=None, iSelectedImage=None, iStateImage=None, lp=None, fInsert='last', integral=None):
 		try:									# item level
-			nextname = path.next()
+			nextname = next(path)
 		except AttributeError:				# root level
 			path =self._client_IterPath.setpath(path)
-			nextname = path.next()
+			nextname = next(path)
 		except StopIteration:
 			return path.hParent			# return handle to the user
 					
@@ -125,10 +125,10 @@ class TreeviewMethods(TreeviewMessageHandler ):
 	
 	def IsPath(self, path):
 		try:																	# item level
-			nextname = path.next()
+			nextname = next(path)
 		except AttributeError:								# root level
 			path = self._client_IterPath.setpath(path)
-			nextname = path.next()
+			nextname = next(path)
 		except StopIteration:
 			return True
 		handle= None
@@ -143,10 +143,10 @@ class TreeviewMethods(TreeviewMessageHandler ):
 	
 	def HandleFromPath(self, path):
 		try:										# item level
-			nextname = path.next()
+			nextname = next(path)
 		except AttributeError:				# root level -- setup path iterator
 			path =  self._client_IterPath.setpath(path)
-			nextname = path.next()
+			nextname = next(path)
 		except StopIteration:
 			return path.hParent	 # return the handle of the key
 		handle= None

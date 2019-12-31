@@ -85,7 +85,7 @@ class Logger:
             self.level = self.WARN
         else:
             self.level = level
-        if type(streamOrFileName) == types.StringType:
+        if type(streamOrFileName) == bytes:
             self.stream = open(streamOrFileName, 'w')
             self._opennedStream = 1
         else:
@@ -197,10 +197,10 @@ def dtdclean(xmlfile, dtdfile, outfile=sys.stdout, force=0):
     fin.close()
 
     # Prep 'fout', the output steam.
-    if type(outfile) in types.StringTypes:
+    if type(outfile) in (str,):
         if os.path.exists(outfile):
             if force:
-                os.chmod(outfile, 0777)
+                os.chmod(outfile, 0o777)
                 os.remove(outfile)
             else:
                 raise DTDCleanError("'%s' already exists, use '--force' to "\
@@ -250,7 +250,7 @@ def main(argv):
     try:
         optlist, args = getopt.getopt(argv[1:], "hVvo:if",
             ["help", "version", "verbose", "force"])
-    except getopt.GetoptError, msg:
+    except getopt.GetoptError as msg:
         sys.stderr.write("dtdclean: error: %s. Your invocation was: %s\n"\
                          % (msg, argv))
         sys.stderr.write("See 'dtdclean --help'.\n")
@@ -294,7 +294,7 @@ def main(argv):
 
     try:
         dtdclean(xmlfile, dtdfile, outfile, force)
-    except DTDCleanError, ex:
+    except DTDCleanError as ex:
         if log.isDebugEnabled():
             import traceback
             traceback.print_exc(file=sys.stderr)

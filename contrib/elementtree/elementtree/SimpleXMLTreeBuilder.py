@@ -1,3 +1,5 @@
+from __future__ import print_function
+from __future__ import absolute_import
 #
 # ElementTree
 # $Id$
@@ -59,7 +61,7 @@
 
 import xmllib, string
 
-import ElementTree
+from . import ElementTree
 
 ##
 # ElementTree builder for XML source data.
@@ -136,9 +138,9 @@ if __name__ == "__main__":
         status.append("default namespace applied to unqualified attribute")
     # report bugs
     if status:
-        print "xmllib doesn't work properly in this Python version:"
+        print("xmllib doesn't work properly in this Python version:")
         for bug in status:
-            print "-", bug
+            print("-", bug)
     else:
-        print "congratulations; no problems found in xmllib"
+        print("congratulations; no problems found in xmllib")
 

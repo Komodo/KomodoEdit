@@ -482,9 +482,9 @@ class Walker:
             for subPath, dirnames, filenames in walker: # recursive=false means we only get 1 result
                 return [dirnames, filenames]
             
-        except OSError, e:
+        except OSError as e:
             log.error("OSError while walking path: " + path)
-        except Exception, e:
+        except Exception as e:
             log.warn("Exception occurred while walking path: " + path + ", returning empty list")
             
         return [[],[]]

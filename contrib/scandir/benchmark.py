@@ -1,4 +1,5 @@
 """Simple benchmark to compare the speed of scandir.walk() with os.walk()."""
+from __future__ import print_function
 
 import optparse
 import os

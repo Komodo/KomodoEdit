@@ -69,6 +69,7 @@
 
     Please report inadequacies to Trent Mick <trentm at google's mail thing>.
 """
+from __future__ import print_function
 # Nomenclature: (TODO)
 #   eol                 the actual EOL string: '\n', '\r\n' or '\r'
 #   eol-name            the EOL name: 'LF', 'CRLF', 'CR', 'NATIVE' or 'MIXED'
@@ -606,7 +607,7 @@ def main(argv):
         opts, path_patterns = getopt.getopt(argv[1:], "Vvqhrc:x:",
             ["version", "verbose", "quiet", "help", "test",
              "recursive", "convert=", "skip="])
-    except getopt.GetoptError, ex:
+    except getopt.GetoptError as ex:
         log.error(str(ex))
         log.error("Try `eol --help'.")
         return 1
@@ -618,7 +619,7 @@ def main(argv):
             sys.stdout.write(__doc__)
             return
         elif opt in ("-V", "--version"):
-            print "eol %s" % __version__
+            print("eol %s" % __version__)
             return
         elif opt in ("-v", "--verbose"):
             log.setLevel(logging.DEBUG)
@@ -665,7 +666,7 @@ if __name__ == "__main__":
             log.error(exc_info[0])
         if log.isEnabledFor(logging.DEBUG):
             import traceback
-            print
+            print()
             traceback.print_exception(*exc_info)
         sys.exit(1)
     else:

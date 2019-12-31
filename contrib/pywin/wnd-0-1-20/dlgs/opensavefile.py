@@ -1,4 +1,5 @@
 
+from future.utils import raise_
 from wnd.wintypes import *
 from wnd.controls.base.dialog import BaseCommonDialog
 from wnd.controls.base.methods import DialogMethods
@@ -74,7 +75,7 @@ class OpenSaveFile(BaseCommonDialog, DialogMethods):
 			else:
 				try:
 					ofn.Flags|= OFN_FLAGS[i]
-				except: raise ValueError, "invalid flag: %s" % i
+				except:raise_(ValueError, "invalid flag: %s" % i)
 				
 		ofn.hWndOwner      =   hwnd and hwnd or 0
 		ofn.lpstrFilter           =   kwargs.get('filters', 'All Files (*.*)\x00*.*\x00\x00')

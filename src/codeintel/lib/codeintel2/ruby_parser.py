@@ -38,6 +38,7 @@
 #   Eric Promislow (EricP@ActiveState.com)
 
 """Ruby parsing support for codeintel/rubycile.py"""
+from __future__ import print_function
 
 import string
 import sys
@@ -1281,5 +1282,5 @@ if __name__ == "__main__":
     tokenizer = ruby_lexer.RubyLexer(sample_code)
     parser = Parser(tokenizer, "Ruby")
     tree = parser.parse()
-    print "Analyze the parse tree"
+    print("Analyze the parse tree")
     tree.dump()

@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 from xpcom import components, ServerException, COMException, nsError
 from xpcom.server import WrapObject, UnwrapObject
 
@@ -34,7 +35,7 @@ class koProjectPackageService:
         part = UnwrapObject(part)
         icon = part.get_iconurl()
         if self.test:
-            print "icon [%s]"%icon
+            print("icon [%s]"%icon)
         if not icon.startswith(('chrome://', 'moz-icon://stock/', 'koicon://')):
             newicon = os.path.join('.icons', os.path.basename(icon))
             part.set_iconurl(newicon)
@@ -80,7 +81,7 @@ class koProjectPackageService:
             self._packageParts(packagePath, orig_project=project,
                                live=project.live, extradir=0,
                                overwrite=overwrite)
-        except Exception, e:
+        except Exception as e:
             log.exception(e)
 
     def _clonePartList(self, newproject, partList):
@@ -109,7 +110,7 @@ class koProjectPackageService:
         else:
             zipfilename = packagePath
         if self.debug:
-            print "zipfilename [%s]" % zipfilename
+            print("zipfilename [%s]" % zipfilename)
         if os.path.exists(zipfilename):
             if overwrite:
                 os.unlink(zipfilename)
@@ -131,7 +132,7 @@ class koProjectPackageService:
             tmp_project_localPath = uriparse.URIToLocalPath(newproject._url)
             newproject.name = projectName
             if self.debug:
-                print "newproject._url [%s]" % newproject._url
+                print("newproject._url [%s]" % newproject._url)
             
             if partList:
                 # clone parts and add them to the project
@@ -142,7 +143,7 @@ class koProjectPackageService:
             if not newproject._relativeBasedir:
                 newproject._relativeBasedir = os.path.dirname(newproject._url)
             if self.debug:
-                print "using relative base [%s]" % newproject._relativeBasedir
+                print("using relative base [%s]" % newproject._relativeBasedir)
 
             import zipfile
             if not self.test:
@@ -175,7 +176,7 @@ class koProjectPackageService:
                 if dest.find('file:')==0:
                     try:
                         dest = fix_drive_re.sub(r'\1\2',dest)
-                    except Exception, e:
+                    except Exception as e:
                         dest = fix_drive_re.sub(r'\2',dest)
 
                 # we do not add directories
@@ -184,7 +185,7 @@ class koProjectPackageService:
                     if extraDirName:
                         dest = os.path.join(extraDirName, dest)
                     if self.debug:
-                        print "diskfile [%r] dest[%r]" % (diskfile, dest)
+                        print("diskfile [%r] dest[%r]" % (diskfile, dest))
                     flist.add((diskfile, dest))
 
                 
@@ -232,7 +233,7 @@ class koProjectPackageService:
                 else:
                     dest = icondata[1]
                 if self.debug:
-                    print "icon diskfile [%r] dest[%r]" % (source,dest)
+                    print("icon diskfile [%r] dest[%r]" % (source,dest))
                 if not self.test:
                     zf.write(str(source), str(dest))
 
@@ -244,11 +245,11 @@ class koProjectPackageService:
             else:
                 project_filename = os.path.basename(tmp_project_localPath)
             if self.debug:
-                print "writing project to zip as [%r]" % project_filename
+                print("writing project to zip as [%r]" % project_filename)
             if not self.test:
                 zf.write(str(tmp_project_localPath), str(project_filename))
                 zf.close()
-        except Exception, e:
+        except Exception as e:
             log.exception(e)
             if os.path.exists(tmp_project_localPath):
                 os.unlink(tmp_project_localPath)
@@ -294,11 +295,11 @@ class koProjectPackageService:
         isTempProjectFile = True
         try:
             packageDir, projectFile = self.extractPackage(file, dir)
-        except BadZipfile, e:
+        except BadZipfile as e:
             # The file may be a kpf already (not a kpz).
             projectFile = file
             isTempProjectFile = False
-        except Exception, e:
+        except Exception as e:
             log.exception(e)
             packageDir = None
             projectFile = None
@@ -321,7 +322,7 @@ class koProjectPackageService:
                 # this.
                 continue
             newchild = child.clone()
-            if child._attributes.has_key('icon'):
+            if 'icon' in child._attributes:
                 # cloned parts have a relative url here, fix it
                 if newchild._attributes['icon'].find("://") == -1:
                     newchild._attributes['icon'] = uriparse.UnRelativizeURL(newproject._relativeBasedir, child._attributes['icon'])

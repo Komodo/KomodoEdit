@@ -66,6 +66,7 @@ Ronald L. Rivest, "Chaffing and Winnowing: Confidentiality without Encryption"
 http://theory.lcs.mit.edu/~rivest/chaffing.txt
 
 """
+from __future__ import print_function
 
 __revision__ = "$Id$"
 
@@ -106,9 +107,9 @@ class Chaff:
         """
 
         if not (0.0<=factor<=1.0):
-            raise ValueError, "'factor' must be between 0.0 and 1.0"
+            raise ValueError("'factor' must be between 0.0 and 1.0")
         if blocksper < 0:
-            raise ValueError, "'blocksper' must be zero or more"
+            raise ValueError("'blocksper' must be zero or more")
 
         self.__factor = factor
         self.__blocksper = blocksper
@@ -185,9 +186,9 @@ abolish it, and to institute new Government, laying its foundation on such
 principles and organizing its powers in such form, as to them shall seem most
 likely to effect their Safety and Happiness.
 """
-    print 'Original text:\n=========='
-    print text
-    print '=========='
+    print('Original text:\n==========')
+    print(text)
+    print('==========')
 
     # first transform the text into packets
     blocks = [] ; size = 40
@@ -195,7 +196,7 @@ likely to effect their Safety and Happiness.
         blocks.append( text[i:i+size] )
 
     # now get MACs for all the text blocks.  The key is obvious...
-    print 'Calculating MACs...'
+    print('Calculating MACs...')
     from Crypto.Hash import HMAC, SHA
     key = 'Jefferson'
     macs = [HMAC.new(key, block, digestmod=SHA).digest()
@@ -206,12 +207,12 @@ likely to effect their Safety and Happiness.
     # put these into a form acceptable as input to the chaffing procedure
     source = []
     m = map(None, range(len(blocks)), blocks, macs)
-    print m
+    print(m)
     for i, data, mac in m:
         source.append((i, data, mac))
 
     # now chaff these
-    print 'Adding chaff...'
+    print('Adding chaff...')
     c = Chaff(factor=0.5, blocksper=2)
     chaffed = c.chaff(source)
 
@@ -221,7 +222,7 @@ likely to effect their Safety and Happiness.
     # the chaff
 
     wheat = []
-    print 'chaffed message blocks:'
+    print('chaffed message blocks:')
     for i, data, mac in chaffed:
         # do the authentication
         h = HMAC.new(key, data, digestmod=SHA)
@@ -232,13 +233,13 @@ likely to effect their Safety and Happiness.
         else:
             tag = '   '
         # base64 adds a trailing newline
-        print tag, '%3d' % i, \
-              repr(data), encodestring(mac)[:-1]
+        print(tag, '%3d' % i, \
+              repr(data), encodestring(mac)[:-1])
 
     # now decode the message packets and check it against the original text
-    print 'Undigesting wheat...'
+    print('Undigesting wheat...')
     newtext = "".join(wheat)
     if newtext == text:
-        print 'They match!'
+        print('They match!')
     else:
-        print 'They differ!'
+        print('They differ!')

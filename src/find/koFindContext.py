@@ -37,6 +37,7 @@
 
 """Komodo find contexts (i.e. in what to search)"""
 
+from future.utils import raise_
 from os.path import basename
 import logging
 
@@ -79,7 +80,7 @@ class KoFindContext(object):
         try:
             return _names[self.type]
         except (AttributeError, KeyError):
-            raise ServerException, nsError.NS_ERROR_NOT_INITIALIZED
+            raise_(ServerException, nsError.NS_ERROR_NOT_INITIALIZED)
 
 
 class KoRangeFindContext(KoFindContext):

@@ -66,7 +66,7 @@ for key in logging.Logger.manager.loggerDict.keys():
         level = logging.Logger.manager.loggerDict[key].level
         if level != logging.NOTSET:
             levels[key] = level
-    except Exception, e:
+    except Exception as e:
         pass
 logging.Logger.manager = logging.Manager(logging.Logger.root)
 for key, level in levels.items():

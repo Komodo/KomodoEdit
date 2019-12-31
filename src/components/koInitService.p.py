@@ -82,12 +82,12 @@ log = None
 
 #---- Startup support routines
 
-if os.environ.has_key("KO_PYXPCOM_PROFILE"):
+if "KO_PYXPCOM_PROFILE" in os.environ:
     # insert the xpcom tracer
     import pyxpcomProfiler
 
 # #if BUILD_FLAVOUR == "dev"
-if os.environ.has_key("KO_DEBUG_PORT"):
+if "KO_DEBUG_PORT" in os.environ:
     try:
         from dbgp.client import brk
         brk(port=int(os.environ["KO_DEBUG_PORT"]))
@@ -183,7 +183,7 @@ def _copy(src, dst, overwriteExistingFiles=True, ignoreErrors=False,
             if _isdir(dstFile):
                 dstFile = os.path.join(dstFile, os.path.basename(srcFile))
             #print "copy %s %s" % (srcFile, dstFile)
-            mode = (os.access(srcFile, os.X_OK) and 0755 or 0644)
+            mode = (os.access(srcFile, os.X_OK) and 0o755 or 0o644)
             if os.path.isfile(dstFile):
                 if not overwriteExistingFiles:
                     continue
@@ -203,7 +203,7 @@ def _copy(src, dst, overwriteExistingFiles=True, ignoreErrors=False,
                     _copy(s, d, overwriteExistingFiles=overwriteExistingFiles,
                           ignoreErrors=ignoreErrors,
                           ignoredFileNames=ignoredFileNames)
-                except (IOError, os.error), why:
+                except (IOError, os.error) as why:
                     if ignoreErrors:
                         log.warn("Failed to copy %r to %r - %r", s, d, why)
                     else:
@@ -219,7 +219,7 @@ def _copy(src, dst, overwriteExistingFiles=True, ignoreErrors=False,
 def _rmtreeOnError(rmFunction, filePath, excInfo):
     if excInfo[0] == OSError:
         # presuming because file is read-only
-        os.chmod(filePath, 0777)
+        os.chmod(filePath, 0o777)
         rmFunction(filePath)
 
 def _rmtree(dirname):
@@ -323,7 +323,7 @@ class KoInitService(object):
 
         try:
             self.checkStartupFlags()
-        except Exception, e:
+        except Exception as e:
             log.exception(e)
             
         self.upgradeUserSettings()
@@ -643,7 +643,7 @@ class KoInitService(object):
                 sys.setdefaultencoding(encoding[1])
                 del sys.setdefaultencoding
                 return encoding
-        except ValueError, e:
+        except ValueError as e:
             # XXX Also getting this error occassionaly (as reported on
             # Komodo-beta). Should handle that.
             #    LookupError: unknown encoding
@@ -653,7 +653,7 @@ class KoInitService(object):
             else:
                 log.error('Unable to set encoding for locale %s'%\
                          os.getenv('LANG'))
-        except LookupError, e:
+        except LookupError as e:
             # windows sets codepages into the locale without
             # the leading 'cp' that python wants.  If the encoding
             # we received is a number, try cp# and see if it works.
@@ -662,7 +662,7 @@ class KoInitService(object):
                 if sys.platform.startswith("win") and int(encoding[1]):
                     encoding[1] = 'cp'+encoding[1]
                     return self._setencoding(encoding)
-            except ValueError,e:
+            except ValueError as e:
                 # not an int
                 #XXX Change inherited (an untested) from bug 24439.
                 # check if it has "cp"
@@ -673,11 +673,11 @@ class KoInitService(object):
                 if alias:
                     try:
                         return self._setencoding(locale._parse_localename(alias))
-                    except ValueError, e:
+                    except ValueError as e:
                         pass
             log.debug('Unsupported encoding for locale %s.%s'%\
                      (encoding[0],encoding[1]))
-        except TypeError, e:
+        except TypeError as e:
             if not sys.platform.startswith("win") and os.getenv("LANG") == "C":
                 return ("en_US","iso8859-1")
             else:
@@ -823,7 +823,7 @@ class KoInitService(object):
                 new_locale = self._startup_locale[0]+'.UTF-8'
                 log.info("Setting LC_CTYPE to utf-8")
                 locale.setlocale(locale.LC_CTYPE,new_locale)
-            except Exception,e:
+            except Exception as e:
                 log.warn("cannot reset LOCALE set to %s : %s" % (new_locale,e))
 
             if sys.platform.startswith("sunos"):
@@ -914,7 +914,7 @@ class KoInitService(object):
             try:
                 log.info("upgrading '%s' from '%s'" % (dst, src))
                 _copy(src, dst, ignoreErrors=True)
-            except OSError, ex:
+            except OSError as ex:
                 log.error("Could not upgrade '%s' from '%s': %s"\
                          % (dst, src, ex))
 
@@ -1229,7 +1229,7 @@ class KoInitService(object):
 
     def _hostUserDataDir(self, userDataDir):
         """Support for Komodo profiles that contain a host-$HOST directory."""
-        if os.environ.has_key("KOMODO_HOSTNAME"):
+        if "KOMODO_HOSTNAME" in os.environ:
             hostname = os.environ["KOMODO_HOSTNAME"]
         else:
             import socket
@@ -1303,7 +1303,7 @@ class KoInitService(object):
         for datadir in datadirs:
             try:
                 ver_strs = os.listdir(datadir)  # e.g. ["3.5", "4.0", "bogus"]
-            except EnvironmentError, ex:
+            except EnvironmentError as ex:
                 continue
             for ver_str in ver_strs:
                 if not ver_pat.match(ver_str):  # e.g. "bogus" doesn't match

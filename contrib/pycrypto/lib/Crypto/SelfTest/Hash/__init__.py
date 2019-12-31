@@ -23,18 +23,19 @@
 # ===================================================================
 
 """Self-test for hash modules"""
+from __future__ import absolute_import
 
 __revision__ = "$Id$"
 
 def get_tests(config={}):
     tests = []
-    import test_HMAC;   tests += test_HMAC.get_tests(config=config)
-    import test_MD2;    tests += test_MD2.get_tests(config=config)
-    import test_MD4;    tests += test_MD4.get_tests(config=config)
-    import test_MD5;    tests += test_MD5.get_tests(config=config)
-    import test_RIPEMD; tests += test_RIPEMD.get_tests(config=config)
-    import test_SHA;    tests += test_SHA.get_tests(config=config)
-    import test_SHA256; tests += test_SHA256.get_tests(config=config)
+    from . import test_HMAC;   tests += test_HMAC.get_tests(config=config)
+    from . import test_MD2;    tests += test_MD2.get_tests(config=config)
+    from . import test_MD4;    tests += test_MD4.get_tests(config=config)
+    from . import test_MD5;    tests += test_MD5.get_tests(config=config)
+    from . import test_RIPEMD; tests += test_RIPEMD.get_tests(config=config)
+    from . import test_SHA;    tests += test_SHA.get_tests(config=config)
+    from . import test_SHA256; tests += test_SHA256.get_tests(config=config)
     return tests
 
 if __name__ == '__main__':

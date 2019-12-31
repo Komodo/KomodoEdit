@@ -5,6 +5,7 @@
 #TODO: not sure configure() belongs in here
 
 #TODO: pare down this import list
+from __future__ import print_function
 import os
 import sys
 from os.path import basename, join, splitext, exists
@@ -136,9 +137,9 @@ def configure(config_vars, argv=sys.argv, default_config_file_path="config.py",
     if sys.platform != "win32":
         # Make it executable so can use the convience mainline easily.
         curr_mode = stat.S_IMODE(os.stat(options.config_file_path).st_mode)
-        os.chmod(options.config_file_path, curr_mode | 0100)
+        os.chmod(options.config_file_path, curr_mode | 0o100)
 
-    print "\nWrote configuration to `%s'." % options.config_file_path
+    print("\nWrote configuration to `%s'." % options.config_file_path)
     
 
 #---- mainline
@@ -190,7 +191,7 @@ def main(config_vars, argv=sys.argv, default_config_file_path="config.py",
         else:  # string exception
             log.error(exc_info[0])
         if log.isEnabledFor(logging.DEBUG):
-            print
+            print()
             traceback.print_exception(*exc_info)
         sys.exit(1)
     else:
@@ -286,8 +287,8 @@ def _dedentlines(lines, tabsize=8, skip_first_line=False):
     """
     DEBUG = False
     if DEBUG: 
-        print "dedent: dedent(..., tabsize=%d, skip_first_line=%r)"\
-              % (tabsize, skip_first_line)
+        print("dedent: dedent(..., tabsize=%d, skip_first_line=%r)"\
+              % (tabsize, skip_first_line))
     indents = []
     margin = None
     for i, line in enumerate(lines):
@@ -304,12 +305,12 @@ def _dedentlines(lines, tabsize=8, skip_first_line=False):
                 break
         else:
             continue # skip all-whitespace lines
-        if DEBUG: print "dedent: indent=%d: %r" % (indent, line)
+        if DEBUG: print("dedent: indent=%d: %r" % (indent, line))
         if margin is None:
             margin = indent
         else:
             margin = min(margin, indent)
-    if DEBUG: print "dedent: margin=%r" % margin
+    if DEBUG: print("dedent: margin=%r" % margin)
 
     if margin is not None and margin > 0:
         for i, line in enumerate(lines):
@@ -321,7 +322,7 @@ def _dedentlines(lines, tabsize=8, skip_first_line=False):
                 elif ch == '\t':
                     removed += tabsize - (removed % tabsize)
                 elif ch in '\r\n':
-                    if DEBUG: print "dedent: %r: EOL -> strip up to EOL" % line
+                    if DEBUG: print("dedent: %r: EOL -> strip up to EOL" % line)
                     lines[i] = lines[i][j:]
                     break
                 else:
@@ -329,8 +330,8 @@ def _dedentlines(lines, tabsize=8, skip_first_line=False):
                                      "line %r while removing %d-space margin"
                                      % (ch, line, margin))
                 if DEBUG:
-                    print "dedent: %r: %r -> removed %d/%d"\
-                          % (line, ch, removed, margin)
+                    print("dedent: %r: %r -> removed %d/%d"\
+                          % (line, ch, removed, margin))
                 if removed == margin:
                     lines[i] = lines[i][j+1:]
                     break

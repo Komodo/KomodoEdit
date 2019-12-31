@@ -1,4 +1,5 @@
 
+from future.utils import raise_
 import gc
 from wnd import fwtypes as fw
 from wnd.wintypes import (user32, 
@@ -208,12 +209,12 @@ class _CommonMethods:
 						newHandle= user32.DeferWindowPos(handle, wnd.Hwnd, 0, x, y, w, h, flag)
 					if newHandle: handle= newHandle
 					else: raise ''
-			except Exception, d:
+			except Exception as d:
 				user32.EndDeferWindowPos(handle)
 				if GetLastError():
 					raise WinError(GetLastError())
 				else:
-					raise RuntimeError, d
+					raise_(RuntimeError, d)
 			
 			if user32.EndDeferWindowPos(handle): return
 		raise WinError(GetLastError())
@@ -232,12 +233,12 @@ class _CommonMethods:
 						newHandle= user32.DeferWindowPos(handle, i.Hwnd, 0, 0, 0,0,0, flag)
 					if newHandle: handle= newHandle
 					else: raise ''
-			except Exception, d:
+			except Exception as d:
 				user32.EndDeferWindowPos(handle)
 				if GetLastError():
 					raise WinError(GetLastError())
 				else:
-					raise RuntimeError, d
+					raise_(RuntimeError, d)
 			if user32.EndDeferWindowPos(handle): return
 		raise WinError(GetLastError())
 	
@@ -254,12 +255,12 @@ class _CommonMethods:
 						newHandle= user32.DeferWindowPos(handle, i.Hwnd, 0, 0,0,0,0, flag)
 					if newHandle: handle= newHandle
 					else: raise ''
-			except Exception, d:
+			except Exception as d:
 				user32.EndDeferWindowPos(handle)
 				if GetLastError():
 					raise WinError(GetLastError())
 				else:
-					raise RuntimeError, d
+					raise_(RuntimeError, d)
 			if user32.EndDeferWindowPos(handle): return
 		raise WinError(GetLastError())
 		
@@ -362,7 +363,7 @@ class _CommonMethods:
 		# when the window is closed for a status report
 		result= user32.KillTimer(self.Hwnd, ID)
 		try: self._base_timers.remove(ID)
-		except: raise IndexError, "no such timer registered: %s" % ID
+		except:raise_(IndexError, "no such timer registered: %s" % ID)
 		if not result:		
 			raise WinError(GetLastError())
 		
@@ -377,13 +378,13 @@ class _CommonMethods:
 			user32.SetWindowLongA(self.Hwnd, -20, style)	# GWL_EXSTYLE
 		elif offset=='extendedstyle':
 			try: self.SendMessage(self.Hwnd, self.Msg.MSG_SETEXSTYLE, 0, style)
-			except: raise AttributeError, "control does not define extended styles"
+			except: raise AttributeError("control does not define extended styles")
 		elif ofset=='basestyle':
 			self._base_style[0] = style
 		elif offset=='clientstyle':
 			self._base_style[1] = style
 		else:
-			raise ValueError, "invalid style offset: %s" % offset
+			raise_(ValueError, "invalid style offset: %s" % offset)
 		self.RedrawFrame()	## or do some heavy parsing to see if the frame is afected
 			
 	def GetStyleL(self, offset):
@@ -393,13 +394,13 @@ class _CommonMethods:
 			return user32.GetWindowLongA(self.Hwnd, -20)	# GWL_EXSTYLE
 		elif offset == 'extendedstyle':
 			try: return self.SendMessage(self.Hwnd, self.Msg.MSG_GETEXSTYLE, 0, 0)
-			except: raise AttributeError, "control does not define extendedstyles"
+			except: raise AttributeError("control does not define extendedstyles")
 		elif offset == 'basestyle':
 			return self._base_style[0]
 		elif offset == 'clientstyle':
 			return self._base_style[1]
 		else:
-			raise ValueError, "invalid style offset: %s" % offset
+			raise_(ValueError, "invalid style offset: %s" % offset)
 
 	def GetStyle(self):
 		
@@ -676,14 +677,14 @@ class ControlMethods(_CommonMethods):
 		if not NewParent: NewParent= None
 		else: NewParent= NewParent.Hwnd
 		if not user32.SetParent(self.Hwnd, NewParent):
-			raise RuntimeError, "could not set parent"
+			raise RuntimeError("could not set parent")
 	
 	def Subclass(self):
-		if not self._base_pWndProc: raise RuntimeError, "can not subclass control" 
-		if self._base_pOldWndProc: raise RuntimeError, "control is alreaddy subclassed" 
-		if not self._base_subclassable: raise RuntimeError, "custom classes should not be subclassed" 
+		if not self._base_pWndProc: raise RuntimeError("can not subclass control") 
+		if self._base_pOldWndProc: raise RuntimeError("control is alreaddy subclassed") 
+		if not self._base_subclassable: raise RuntimeError("custom classes should not be subclassed") 
 		self._base_pOldWndProc = user32.SetWindowLongA(self.Hwnd, -4, self._base_pWndProc)
-		if not self._base_pOldWndProc: raise RuntimeError, "could not subclass window"
+		if not self._base_pOldWndProc: raise RuntimeError("could not subclass window")
 		
 	
 	def Close(self):
@@ -716,7 +717,7 @@ class WindowMethods(_CommonMethods):
 					if flag:
 						if flag in ('desktop', 'session', 'trustee'):
 							self._base_mutext_singleinst= kernel32.CreateMutexA(None, 0, CreateExclusionName(self._base_guid, flag))
-						else: raise ValueError, "invalid flag: %s" % flag
+						else:raise_(ValueError, "invalid flag: %s" % flag)
 					else:
 						self._base_mutext_singleinst= kernel32.CreateMutexA(None, 0, self._base_guid)
 					if GetLastError() in (ERROR_ALREADY_EXISTS, ERROR_ACCESS_DENIED):
@@ -737,9 +738,9 @@ class WindowMethods(_CommonMethods):
 								user32.ShowWindow(hwnd, 9)		# SW_RESTORE
 					
 					self.Close()
-					raise RuntimeError, "single instance enforced"
+					raise RuntimeError("single instance enforced")
 			else:
-				raise RuntimeError, "GUID is required"
+				raise RuntimeError("GUID is required")
 		else:
 			if self._base_mutext_singleinst:
 				kernel32.CloseHandle(self._base_mutext_singleinst)
@@ -756,16 +757,16 @@ class WindowMethods(_CommonMethods):
 	#
 	def Subclass(self, pWindowProc):
 		if self._base_pOldWndProc:
-			raise RuntimeError, "window is alreaddy subclassed"
+			raise RuntimeError("window is alreaddy subclassed")
 		self._base_pOldWndProc = user32.SetWindowLongA(self.hwnd, -4, pWindowProc)
 		if not self._base_pOldWndProc:
-			raise RuntimeError, "could not subclass window"
+			raise RuntimeError("could not subclass window")
 
 	# not documented. Kick out ??
 	#
 	def RestoreOldProc(self):
 		if not self._base_pOldWndProc:
-			raise RuntimeError, "window is not subclassed"
+			raise RuntimeError("window is not subclassed")
 		result = user32.SetWindowLongA(self.hwnd, -4, self._base_pOldWndProc)
 		self._base_pOldWndProc=None
 		return result
@@ -789,7 +790,7 @@ class WindowMethods(_CommonMethods):
 		if modkeys:
 			for i in modkeys:
 				try: modkey |= flags[i]
-				except: raise ValueError, "invalid modkey flag: %s" % i
+				except:raise_(ValueError, "invalid modkey flag: %s" % i)
 		result = user32.RegisterHotKey(self.Hwnd, ID, modkey, vk)
 		if not result: raise WinError(GetLastError())
 			
@@ -803,11 +804,11 @@ class WindowMethods(_CommonMethods):
 		if modkeys:
 			for i in modkeys:
 				try: modkey |= flags[i]
-				except: raise ValueError, "invalid modkey flag: %s" % i
+				except:raise_(ValueError, "invalid modkey flag: %s" % i)
 		result = self.SendMessage(self.Hwnd, self.Msg.WM_SETHOTKEY, MAKEWORD(vk, modkey), 0)
-		if result == -1: raise ValueError, "invalid hotkey"
-		elif result == 0:	raise ValueError, "invalid window"
-		elif result==2: raise RuntimeError, "hotkey unavailable"
+		if result == -1: raise ValueError("invalid hotkey")
+		elif result == 0:	raise ValueError("invalid window")
+		elif result==2: raise RuntimeError("hotkey unavailable")
 				 
 	def GetHotkey(self):
 		result = self.sendmessage(self.Hwnd, self.Msg.WM_GETHOTKEY, 0, 0)
@@ -827,7 +828,7 @@ class WindowMethods(_CommonMethods):
 		flag=0
 		for i in flags:
 			try: flag|=FLASHW[i]
-			except:  raise ValueError, "invalid flash flag: %s" % i
+			except:raise_(ValueError, "invalid flash flag: %s" % i)
 		fi=FLASHWINFO()
 		fi.hwnd=self.Hwnd
 		fi.dwFlags=flag

@@ -1,3 +1,4 @@
+from __future__ import print_function
 # $Id$
 # elementtree selftest program
 
@@ -56,7 +57,7 @@ def check_string(string):
     len(string)
     for char in string:
         if len(char) != 1:
-            print "expected one-character string, got %r" % char
+            print("expected one-character string, got %r" % char)
     new_string = string + ""
     new_string = string + " "
     string[:0]
@@ -69,19 +70,19 @@ def check_mapping(mapping):
         item = mapping[key]
     mapping["key"] = "value"
     if mapping["key"] != "value":
-        print "expected value string, got %r" % mapping["key"]
+        print("expected value string, got %r" % mapping["key"])
 
 def check_element(element):
     if not ElementTree.iselement(element):
-        print "not an element"
+        print("not an element")
     if not hasattr(element, "tag"):
-        print "no tag member"
+        print("no tag member")
     if not hasattr(element, "attrib"):
-        print "no attrib member"
+        print("no attrib member")
     if not hasattr(element, "text"):
-        print "no text member"
+        print("no text member")
     if not hasattr(element, "tail"):
-        print "no tail member"
+        print("no tail member")
     check_string(element.tag)
     check_mapping(element.attrib)
     if element.text != None:
@@ -94,7 +95,7 @@ def check_element_tree(tree):
 
 def check_method(method):
     if not callable(method):
-        print method, "not callable"
+        print(method, "not callable")
 
 def version():
     """
@@ -661,4 +662,4 @@ def xmltoolkit61(encoding):
 if __name__ == "__main__":
     import doctest
     failed, tested = doctest.testmod(__import__(__name__))
-    print tested - failed, "tests ok."
+    print(tested - failed, "tests ok.")

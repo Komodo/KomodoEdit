@@ -34,6 +34,7 @@
 # SOFTWARE.
 # ===================================================================
 
+from __future__ import print_function
 __revision__ = "$Id$"
 
 from distutils import core
@@ -43,7 +44,7 @@ import os, sys
 import struct
 
 if sys.version[0:1] == '1':
-    raise RuntimeError, ("The Python Cryptography Toolkit requires "
+    raise RuntimeError("The Python Cryptography Toolkit requires "
                          "Python 2.x to build.")
 
 if sys.platform == 'win32':
@@ -164,7 +165,7 @@ class PCTBuildExt (build_ext):
         # Detect libgmp and don't build _fastmath if it is missing.
         lib_dirs = self.compiler.library_dirs + ['/lib', '/usr/lib']
         if not (self.compiler.find_library_file(lib_dirs, 'gmp')):
-            print >>sys.stderr, "warning: GMP library not found; Not building Crypto.PublicKey._fastmath."
+            print("warning: GMP library not found; Not building Crypto.PublicKey._fastmath.", file=sys.stderr)
             self.__remove_extensions(["Crypto.PublicKey._fastmath"])
 
     def __remove_extensions(self, names):

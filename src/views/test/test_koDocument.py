@@ -608,7 +608,7 @@ class TestKoDocumentBase(_KoDocTestCase):
             # test converting to an invalid ending, should raise exception
             try:
                 koDoc.existing_line_endings = 10
-            except COMException, e:
+            except COMException as e:
                 pass
             assert koDoc.existing_line_endings != 10
         finally:

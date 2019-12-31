@@ -171,7 +171,7 @@ class KoRunProcess(object):
                 # the stdout, stderr data is ready for use.
                 self.__communicating_event.wait()
             return retval
-        except process.ProcessError, ex:
+        except process.ProcessError as ex:
             raise ServerException(nsError.NS_ERROR_FAILURE, str(ex))
 
     def write_stdin(self, input, closeAfterWriting=False):
@@ -197,7 +197,7 @@ class KoRunProcess(object):
                 input = input.encode(sys.getfilesystemencoding())
             try:
                 stdoutData, stderrData = self._process.communicate(input)
-            except IOError, ex:
+            except IOError as ex:
                 if ex.errno == 32: # Broken pipe
                     # If we get this exception, most likely the process has
                     # terminated abruptly (while we're trying to still read
@@ -301,7 +301,7 @@ def _terminalProcessWaiter(runProcess, runListener):
             runProcess.communicate()
         if runListener:
             retval = runProcess.wait(None)
-    except process.ProcessError, ex:
+    except process.ProcessError as ex:
         retval = ex.errno  # Use the error set in the exception.
     if runListener:
         @components.ProxyToMainThread

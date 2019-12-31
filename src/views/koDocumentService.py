@@ -193,7 +193,7 @@ class KoDocumentService:
                 
                 # XXX projects and other files?
                 
-            except Exception, e:
+            except Exception as e:
                 # never die
                 log.exception(e)
                 pass
@@ -254,7 +254,7 @@ class KoDocumentService:
                                                    'Default Encoding')
             if encoding == 'Default Encoding':
                 encoding = self._globalPrefs.getString('encodingDefault')
-        except Exception, e:
+        except Exception as e:
             log.error("Error getting newEncoding for %s", language, exc_info=1)
             encoding = self._globalPrefs.getString('encodingDefault')
         return encoding

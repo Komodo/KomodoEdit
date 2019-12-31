@@ -198,7 +198,7 @@ class _Logger:
             self.level = self.WARN
         else:
             self.level = level
-        if type(streamOrFileName) == types.StringType:
+        if type(streamOrFileName) == bytes:
             self.stream = open(streamOrFileName, 'w')
             self._opennedStream = 1
         else:
@@ -259,7 +259,7 @@ def _evaluate(expr, defines):
     #interpolated = _interpolate(s, defines)
     try:
         rv = eval(expr, {'defined':lambda v: v in defines}, defines)
-    except Exception, ex:
+    except Exception as ex:
         msg = str(ex)
         if msg.startswith("name '") and msg.endswith("' is not defined"):
             # A common error (at least this is presumed:) is to have
@@ -345,7 +345,7 @@ def getContentType(filename):
     basename = os.path.basename(filename)
     contentType = None
     # Try to determine from the filename.
-    if not contentType and filenameMap.has_key(basename):
+    if not contentType and basename in filenameMap:
         contentType = filenameMap[basename]
         log.debug("Content type of '%s' is '%s' (determined from full "\
                   "filename).", filename, contentType)
@@ -355,7 +355,7 @@ def getContentType(filename):
         if sys.platform.startswith("win"):
             # Suffix patterns are case-insensitive on Windows.
             suffix = suffix.lower()
-        if suffixMap.has_key(suffix):
+        if suffix in suffixMap:
             contentType = suffixMap[suffix]
             log.debug("Content type of '%s' is '%s' (determined from "\
                       "suffix '%s').", filename, contentType, suffix)
@@ -476,9 +476,9 @@ def preprocess(infile, outfile=sys.stdout, defines={}, force=0, keepLines=0,
     fin = open(infile, 'r')
     lines = fin.readlines()
     fin.close()
-    if type(outfile) in types.StringTypes:
+    if type(outfile) in (str,):
         if force and os.path.exists(outfile):
-            os.chmod(outfile, 0777)
+            os.chmod(outfile, 0o777)
             os.remove(outfile)
         fout = open(outfile, 'w')
     else:
@@ -660,7 +660,7 @@ def main(argv):
         optlist, args = getopt.getopt(argv[1:], 'hVvo:D:fkI:s',
             ['help', 'version', 'verbose', 'force', 'keep-lines',
              'substitute'])
-    except getopt.GetoptError, msg:
+    except getopt.GetoptError as msg:
         sys.stderr.write("preprocess: error: %s. Your invocation was: %s\n"\
                          % (msg, argv))
         sys.stderr.write("See 'preprocess --help'.\n")
@@ -711,7 +711,7 @@ def main(argv):
     try:
         preprocess(infile, outfile, defines, force, keepLines, includePath,
                    substitute)
-    except PreprocessError, ex:
+    except PreprocessError as ex:
         if log.isDebugEnabled():
             import traceback
             traceback.print_exc(file=sys.stderr)

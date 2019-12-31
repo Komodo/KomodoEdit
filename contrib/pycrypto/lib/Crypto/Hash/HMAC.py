@@ -38,6 +38,7 @@ Implements the HMAC algorithm as described by RFC 2104.
 This is just a copy of the Python 2.2 HMAC module, modified to work when
 used on versions of Python before 2.2.
 """
+from __future__ import absolute_import
 
 __revision__ = "$Id$"
 
@@ -65,7 +66,7 @@ class HMAC:
         digestmod: A module supporting PEP 247. Defaults to the md5 module.
         """
         if digestmod == None:
-            import MD5
+            from . import MD5
             digestmod = MD5
 
         self.digestmod = digestmod

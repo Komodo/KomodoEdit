@@ -26,7 +26,7 @@ def docapture(filename):
             code.append(line)
     code="\n".join(code)
     # open("xx.py", "wt").write(code)
-    exec code in {}
+    exec(code, {})
 
 outputredirector="""
 import sys

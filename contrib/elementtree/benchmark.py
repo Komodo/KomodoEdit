@@ -1,3 +1,4 @@
+from __future__ import print_function
 # $Id$
 # simple elementtree benchmark program
 
@@ -23,9 +24,9 @@ def benchmark(file, builder_module):
         parser.feed(data)
     tree = parser.close()
     t1 = time.time()
-    print "%s: %d nodes read in %.3f seconds" % (
+    print("%s: %d nodes read in %.3f seconds" % (
         builder_module.__name__, len(tree.getiterator()), t1-t0
-        )
+        ))
     raw_input("press return to continue...")
     del tree
 
@@ -33,7 +34,7 @@ def benchmark_minidom(file):
     t0 = time.time()
     dom = minidom.parse(file)
     t1 = time.time()
-    print "minidom tree read in %.3f seconds" % (t1-t0)
+    print("minidom tree read in %.3f seconds" % (t1-t0))
     raw_input("press return to continue...")
     del dom
 
@@ -41,6 +42,6 @@ benchmark(file, XMLTreeBuilder)
 benchmark(file, SimpleXMLTreeBuilder) # use xmllib
 try:
     benchmark(file, SgmlopXMLTreeBuilder) # use sgmlop
-except RuntimeError, v:
-    print "=== SgmlopXMLTreeBuilder not available (%s)" % v
+except RuntimeError as v:
+    print("=== SgmlopXMLTreeBuilder not available (%s)" % v)
 benchmark_minidom(file)

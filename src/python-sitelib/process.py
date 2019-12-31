@@ -59,7 +59,7 @@ except ImportError:
 
 try:
     from xpcom import components
-except ImportError, e:
+except ImportError as e:
     class components:
         @staticmethod
         def ProxyToMainThread(fn):
@@ -124,7 +124,7 @@ if sys.platform == "win32" and sys.getwindowsversion()[3] == 2:
                            errread, errwrite):
             """Execute program (MS Windows version)"""
     
-            if not isinstance(args, types.StringTypes):
+            if not isinstance(args, (str,)):
                 args = list2cmdline(args)
     
             # Process startup details
@@ -141,7 +141,7 @@ if sys.platform == "win32" and sys.getwindowsversion()[3] == 2:
                 startupinfo.wShowWindow = SW_HIDE
                 comspec = os.environ.get("COMSPEC", "cmd.exe")
                 args = comspec + " /c " + args
-                if (GetVersion() >= 0x80000000L or
+                if (GetVersion() >= 0x80000000 or
                         os.path.basename(comspec).lower() == "command.com"):
                     # Win9x, or using command.com on NT. We need to
                     # use the w9xpopen intermediate program. For more
@@ -177,7 +177,7 @@ if sys.platform == "win32" and sys.getwindowsversion()[3] == 2:
                                          env,
                                          cwd,
                                          startupinfo)
-            except pywintypes.error, e:
+            except pywintypes.error as e:
                 # Translate pywintypes.error to WindowsError, which is
                 # a subclass of OSError.  FIXME: We should really
                 # translate errno using _sys_errlist (or simliar), but
@@ -467,7 +467,7 @@ class ProcessOpen(Popen):
             # Use the parent call.
             try:
                 return Popen.wait(self)
-            except OSError, ex:
+            except OSError as ex:
                 # If the process has already ended, that is fine. This is
                 # possible when wait is called from a different thread.
                 if ex.errno != 10: # No child process
@@ -541,7 +541,7 @@ class ProcessOpen(Popen):
                     os.killpg(self.pid, sig)
                 else:
                     os.kill(self.pid, sig)
-            except OSError, ex:
+            except OSError as ex:
                 if ex.errno != 3:
                     # Ignore:   OSError: [Errno 3] No such process
                     raise

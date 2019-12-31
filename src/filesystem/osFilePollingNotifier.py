@@ -146,13 +146,13 @@ def _checkPathForChanges(oldStatCache, statCache, oldDirCache, dirCache,
     try:
         try:
             lstat = os_lstat(path)
-        except Exception, e:
+        except Exception as e:
             log.debug("polling _checkPathForChanges unable to lstat [%r] - %s",
                       path, e)
             raise
 
         #if S_ISLNK(lstat.st_mode):
-        if (lstat.st_mode & 0170000) == S_IFLNK:    # Taken from stat module
+        if (lstat.st_mode & 0o170000) == S_IFLNK:    # Taken from stat module
             realpath = os_path_realpath(path)
             # linked_paths is used to ensure we don't go in a cyclic loop for symlinks
             if not linked_paths:
@@ -603,7 +603,7 @@ class osFilePollingNotifier(threading.Thread):
             try:
                 self.__checkMonitoredFilesystem()
                 #profiler.runcall(self.__checkMonitoredFilesystem)
-            except Exception, e:
+            except Exception as e:
                 log.error("Polling service runtime exception:")
                 log.exception(e)
             self.__finished_checking_event.set()

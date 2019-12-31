@@ -80,7 +80,7 @@ class KoExtensionsView(TreeView):
             logError("no %sth row of data" % row)
             return ""
 
-        if type(cell) not in (types.StringType, types.UnicodeType):
+        if type(cell) not in (bytes, str):
             cell = str(cell)
         return cell
 
@@ -101,7 +101,7 @@ class KoExtensionsView(TreeView):
     def Remove(self, ext):
         try:
             self._exts.remove(ext)
-        except ValueError, ex:
+        except ValueError as ex:
             pass
         else:
             self._tree.beginUpdateBatch()
@@ -164,7 +164,7 @@ class KoWindowsIntegrationService:
                     if wininteg.removeFileAssociation(ext, untypedAction,
                                                       self._komodo, fromHKLM=True):
                         log.info("Removed untyped action %r", untypedAction)
-                except WindowsError, ex:
+                except WindowsError as ex:
                     if ex.winerror != 5: # ERROR_ACCESS_DENIED
                         raise
                     # can't remove the untyped action, don't add
@@ -174,10 +174,10 @@ class KoWindowsIntegrationService:
                     return
 
             wininteg.addFileAssociation(ext, action, self._komodo)
-        except WindowsError, ex:
+        except WindowsError as ex:
             self.lastErrorSvc.setLastError(ex.errno, ex.strerror)
             raise ServerException(nsError.NS_ERROR_UNEXPECTED, ex.strerror)
-        except EnvironmentError, ex:
+        except EnvironmentError as ex:
             self.lastErrorSvc.setLastError(0, str(ex))
             raise ServerException(nsError.NS_ERROR_UNEXPECTED, str(ex))
 
@@ -190,15 +190,15 @@ class KoWindowsIntegrationService:
                                                self._komodo, fromHKLM=True)
             try:
                 wininteg.removeFileAssociation(ext, action, self._komodo)
-            except WindowsError, ex:
+            except WindowsError as ex:
                 if ex.winerror != 2: # FILE_NOT_FOUND
                     raise
                 # perhaps it's under HKLM
                 wininteg.removeFileAssociation(ext, action, self._komodo, fromHKLM=True)
-        except WindowsError, ex:
+        except WindowsError as ex:
             self.lastErrorSvc.setLastError(ex.errno, ex.strerror)
             raise ServerException(nsError.NS_ERROR_UNEXPECTED, ex.strerror)
-        except EnvironmentError, ex:
+        except EnvironmentError as ex:
             self.lastErrorSvc.setLastError(0, str(ex))
             raise ServerException(nsError.NS_ERROR_UNEXPECTED, str(ex))
 
@@ -210,7 +210,7 @@ class KoWindowsIntegrationService:
             try:
                 found = wininteg.removeFileAssociation(ext, "Edit with Komodo",
                                                        self._komodo, fromHKLM=True)
-            except WindowsError, ex:
+            except WindowsError as ex:
                 if ex.winerror != 5: # ERROR_ACCESS_DENIED
                     raise
                 return False
@@ -218,10 +218,10 @@ class KoWindowsIntegrationService:
                 return False
             wininteg.addFileAssociation(ext, "Edit with %s" % (self._appName,), self._komodo)
             return True
-        except WindowsError, ex:
+        except WindowsError as ex:
             self.lastErrorSvc.setLastError(ex.errno, ex.strerror)
             raise ServerException(nsError.NS_ERROR_UNEXPECTED, ex.strerror)
-        except EnvironmentError, ex:
+        except EnvironmentError as ex:
             self.lastErrorSvc.setLastError(0, str(ex))
             raise ServerException(nsError.NS_ERROR_UNEXPECTED, str(ex))
 
@@ -236,10 +236,10 @@ class KoWindowsIntegrationService:
                 untypedAction = action[:-len(self._appName)] + "Komodo"
                 return wininteg.checkFileAssociation(ext, untypedAction, self._komodo)
             return result
-        except WindowsError, ex:
+        except WindowsError as ex:
             self.lastErrorSvc.setLastError(ex.errno, ex.strerror)
             raise ServerException(nsError.NS_ERROR_UNEXPECTED, ex.strerror)
-        except EnvironmentError, ex:
+        except EnvironmentError as ex:
             self.lastErrorSvc.setLastError(0, str(ex))
             raise ServerException(nsError.NS_ERROR_UNEXPECTED, str(ex))
 
@@ -258,14 +258,14 @@ class KoWindowsIntegrationService:
         try:
             try:
                 key = _winreg.OpenKey(root, keyName, 0, _winreg.KEY_SET_VALUE)
-            except WindowsError, ex:
+            except WindowsError as ex:
                 if ex.winerror != 2: # ERROR_FILE_NOT_FOUND
                     raise
                 _winreg.CreateKey(root, keyName)
                 key = _winreg.OpenKey(_winreg.HKEY_CURRENT_USER, keyName,
                                       0, _winreg.KEY_SET_VALUE)
             _winreg.SetValueEx(key, valueName, 0, _winreg.REG_SZ, value)
-        except EnvironmentError, ex:
+        except EnvironmentError as ex:
             self.lastErrorSvc.setLastError(0, str(ex))
             raise ServerException(nsError.NS_ERROR_UNEXPECTED, str(ex))
 

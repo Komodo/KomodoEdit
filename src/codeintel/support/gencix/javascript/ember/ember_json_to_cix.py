@@ -74,9 +74,9 @@ for klass in sorted(data['classes'].keys()):
             scope = scope.names[name]
     logging.info("Adding class '%s'", klass)
     scope = createCixClass(scope, namespaces[-1])
-    if info.has_key('description'):
+    if 'description' in info:
         setCixDoc(scope, info['description'])
-    if info.has_key('extends'):
+    if 'extends' in info:
         addClassRef(scope, info['extends'])
     
 # Fill in the classes.
@@ -89,7 +89,7 @@ for item in data['classitems']:
         else:
             scope = None
             break
-    if scope is None or not item.has_key('itemtype'):
+    if scope is None or 'itemtype' not in item:
         logging.warn("Cannot process '%s.%s'", item['class'],
                                                item.get('name', '(anonymous)'))
         continue
@@ -98,14 +98,14 @@ for item in data['classitems']:
                                           item['name'])
     if item['itemtype'] == 'method':
         scope = createCixFunction(scope, item['name'], item.get('access'))
-        if item.has_key('description'):
+        if 'description' in item:
             setCixDoc(scope, item['description'])
         args = item.get('params', [])
         for arg in args:
             addCixArgument(scope, arg['name'], arg.get('type'), arg['description'])
-        if item.has_key('return'):
+        if 'return' in item:
             addCixReturns(scope, item['return'].get('type'))
-        if item.has_key('return') and item['return'].has_key('type'):
+        if 'return' in item and 'type' in item['return']:
             setCixSignature(scope,
                             '%s(%s) => %s' % (item['name'],
                                               ','.join([arg['name'] for arg in args]),
@@ -116,7 +116,7 @@ for item in data['classitems']:
     elif item['itemtype'] == 'property' or item['itemtype'] == 'event':
         scope = createCixVariable(scope, name, item.get('type'),
                                   ' '.join([item['itemtype'], item.get('access')]))
-        if item.has_key('description'):
+        if 'description' in item:
             setCixDoc(scope, item['description'])
     else:
         logging.warn("Ignoring unknown attribute: %s", item['itemtype'])

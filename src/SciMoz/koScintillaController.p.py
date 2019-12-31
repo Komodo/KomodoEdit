@@ -34,6 +34,7 @@
 # 
 # ***** END LICENSE BLOCK *****
 
+from future.utils import raise_
 from xpcom import components, COMException
 from xpcom.client import WeakReference
 import string
@@ -331,7 +332,7 @@ class koScintillaController:
             attr()
         # and hopefully this will never happen!
         else:
-            raise TypeError, "The command map entry '%s' yielded a '%r' - dunno what to do with it" % (command_name, attr)
+            raise_(TypeError, "The command map entry '%s' yielded a '%r' - dunno what to do with it" % (command_name, attr))
         # We only need to send a command update when the selection changes _shape_, not location
         # (ie, only when it changes from no selection to selection, or vice-versa.
         if command_name not in ('cmd_redo', 'cmd_killLine'):
@@ -1409,7 +1410,7 @@ def _sendStatusMessage(msg, highlight=False, timeout=3000):
     sm.highlight = highlight
     try:
         observerSvc.notifyObservers(sm, "status_message", None)
-    except COMException, ex:
+    except COMException as ex:
         pass
 
 import sciutils

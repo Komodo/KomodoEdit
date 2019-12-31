@@ -102,7 +102,7 @@ class DerSequenceTests(unittest.TestCase):
 	def testEncode3(self):
 		# One multi-byte integer (non-zero)
 		der = DerSequence()
-		der.append(0x180L)
+		der.append(0x180)
 		self.assertEquals(der.encode(), '0\x04\x02\x02\x01\x80')
 	
 	def testEncode4(self):
@@ -133,14 +133,14 @@ class DerSequenceTests(unittest.TestCase):
 	def testEncode5(self):
 		# One single-byte integer (looks negative)
 		der = DerSequence()
-		der.append(0xFFL)
+		der.append(0xFF)
 		self.assertEquals(der.encode(), '0\x04\x02\x02\x00\xff')
 	
 	def testEncode6(self):
 		# Two integers
 		der = DerSequence()
-		der.append(0x180L)
-		der.append(0xFFL)
+		der.append(0x180)
+		der.append(0xFF)
 		self.assertEquals(der.encode(), '0\x08\x02\x02\x01\x80\x02\x02\x00\xff')
 		self.failUnless(der.hasOnlyInts())
 		#
@@ -154,7 +154,7 @@ class DerSequenceTests(unittest.TestCase):
 	def testEncode6(self):
 		# One integer and another type (no matter what it is)
 		der = DerSequence()
-		der.append(0x180L)
+		der.append(0x180)
 		der.append('\x00\x02\x00\x00')
 		self.assertEquals(der.encode(), '0\x08\x02\x02\x01\x80\x00\x02\x00\x00')
 		self.failIf(der.hasOnlyInts())
@@ -187,7 +187,7 @@ class DerSequenceTests(unittest.TestCase):
 		der = DerSequence()
 		der.decode('0\x04\x02\x02\x01\x80')
 		self.assertEquals(len(der),1)
-		self.assertEquals(der[0],0x180L)
+		self.assertEquals(der[0],0x180)
 
 	def testDecode4(self):
 		# One very long integer
@@ -220,22 +220,22 @@ class DerSequenceTests(unittest.TestCase):
 		der = DerSequence()
 		der.decode('0\x04\x02\x02\x00\xff')
 		self.assertEquals(len(der),1)
-		self.assertEquals(der[0],0xFFL)
+		self.assertEquals(der[0],0xFF)
 
 	def testDecode6(self):
 		# Two integers
 		der = DerSequence()
 		der.decode('0\x08\x02\x02\x01\x80\x02\x02\x00\xff')
 		self.assertEquals(len(der),2)
-		self.assertEquals(der[0],0x180L)
-		self.assertEquals(der[1],0xFFL)
+		self.assertEquals(der[0],0x180)
+		self.assertEquals(der[1],0xFF)
 
 	def testDecode7(self):
 		# One integer and 2 other types
 		der = DerSequence()
 		der.decode('0\x0A\x02\x02\x01\x80\x24\x02\xb6\x63\x12\x00')
 		self.assertEquals(len(der),3)
-		self.assertEquals(der[0],0x180L)
+		self.assertEquals(der[0],0x180)
 		self.assertEquals(der[1],'\x24\x02\xb6\x63')
 		self.assertEquals(der[2],'\x12\x00')
 

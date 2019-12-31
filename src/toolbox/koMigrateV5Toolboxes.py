@@ -271,7 +271,7 @@ class TreeWalker():
         if not nowrite:
             newDict = {'type': elt.tag}
             newDict.update(elt.attrib)
-            if newDict.has_key('url'):
+            if 'url' in newDict:
                 payload = newDict['url']
                 del newDict['url']
             else:

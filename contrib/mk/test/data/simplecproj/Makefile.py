@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os
 import glob
 import shutil
@@ -8,14 +9,14 @@ class prog(Task):
     deps = ["prog.o"]
     results = ["prog"]
     def make(self):
-        print "link it"
+        print("link it")
         shutil.copy("prog.o", "prog")
 
 class prog_o(Task):
     deps = ["prog.c"]
     results = ["prog.o"]
     def make(self):
-        print "compile it"
+        print("compile it")
         shutil.copy("prog.c", "prog.o")
 
 class prog_c(File):

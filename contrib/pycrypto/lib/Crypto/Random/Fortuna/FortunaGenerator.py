@@ -22,6 +22,7 @@
 # SOFTWARE.
 # ===================================================================
 
+from __future__ import absolute_import
 __revision__ = "$Id$"
 
 from Crypto.Util.python_compat import *
@@ -32,7 +33,7 @@ from Crypto.Util.number import ceil_shift, exact_log2, exact_div
 from Crypto.Util import Counter
 from Crypto.Cipher import AES
 
-import SHAd256
+from . import SHAd256
 
 class AESGenerator(object):
     """The Fortuna "generator"

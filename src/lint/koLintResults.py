@@ -131,7 +131,7 @@ class koLintResults:
                 
         self._results.append(result)
         for lineNum in range(lineStart, result.lineEnd+1):
-            if self._resultMap.has_key(lineNum):
+            if lineNum in self._resultMap:
                 self._resultMap[lineNum].append(result)
             else:
                 self._resultMap[lineNum] = [result]

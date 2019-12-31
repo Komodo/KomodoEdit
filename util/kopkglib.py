@@ -126,7 +126,7 @@ class KomodoReleasesGuru(object):
         changenum_pat = re.compile("^%s-.*?-(\d+)-%s-.*$" % (self.pkg_prefix, self.platname))
         try:
             return int(changenum_pat.search(basename(mar_path)).group(1))
-        except AttributeError, ex:
+        except AttributeError as ex:
             raise ValueError("'%s' doesn't match '%s'"
                              % (basename(mar_path), changenum_pat.pattern))
 
@@ -135,7 +135,7 @@ class KomodoReleasesGuru(object):
                              % (self.pkg_prefix, self.platname))
         try:
             return ver_pat.search(basename(mar_path)).group(1)
-        except IndexError, ex:
+        except IndexError as ex:
             raise Error("`%s' didn't match `%s'"
                         % (basename(mar_path), ver_pat.pattern))
 
@@ -161,7 +161,7 @@ class KomodoReleasesGuru(object):
                 ver_str = basename(dirname(f))
                 try:
                     ver = buildutils.split_short_ver(ver_str, intify=True)
-                except ValueError, ex:
+                except ValueError as ex:
                     log.warn("invalid GoldBits dir `%s': %s", f, ex)
                     continue
                 if len(ver) == 3: # e.g. (4,1,0) -> (4,1,0,'c',0)
@@ -553,7 +553,7 @@ def _isint(s):
 def _rmtreeOnError(rmFunction, filePath, excInfo):
     if excInfo[0] == OSError:
         # presuming because file is read-only
-        os.chmod(filePath, 0777)
+        os.chmod(filePath, 0o777)
         rmFunction(filePath)
 
 def _rmtree(dirname):

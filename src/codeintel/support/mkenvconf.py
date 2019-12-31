@@ -50,6 +50,8 @@ The relevant part here is step #2. Those 'setenv' scripts do this:
 - call the generated envconf script
 
 """
+from __future__ import print_function
+from __future__ import absolute_import
 
 __version_info__ = (0, 1, 0)
 __version__ = '.'.join(map(str, __version_info__))
@@ -64,7 +66,7 @@ import traceback
 import logging
 import optparse
 
-import which
+from . import which
 
 
 
@@ -313,7 +315,7 @@ if __name__ == "__main__":
     except:
         exc_info = sys.exc_info()
         if log.isEnabledFor(logging.DEBUG):
-            print
+            print()
             traceback.print_exception(*exc_info)
         else:
             if hasattr(exc_info[0], "__name__"):

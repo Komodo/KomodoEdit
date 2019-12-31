@@ -88,7 +88,7 @@ def setup():
     try:
         import test
         test.setup()
-    except ImportError, ex:
+    except ImportError as ex:
         pass  # Don't bork if don't have full codeintel build.
     finally:
         del sys.path[0]

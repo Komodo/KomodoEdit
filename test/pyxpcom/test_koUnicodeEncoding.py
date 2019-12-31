@@ -107,7 +107,7 @@ class TestDetectEncoding(unittest.TestCase):
                         expectFailure=0):
         try:
             data = teststr.encode(encoding)
-        except UnicodeError, e:
+        except UnicodeError as e:
             if expectFailure:
                 return
             raise
@@ -252,7 +252,7 @@ class TestDetectFileEncoding(unittest.TestCase):
         aStr = open(path, 'rb').read()
         try:
             nStr = recode_raw(aStr, 'utf-8', enc)
-        except UnicodeError, e:
+        except UnicodeError as e:
             return 0
         return 1
         
@@ -278,7 +278,7 @@ class TestDetectFileEncoding(unittest.TestCase):
             recoded = recode(encoded, encoding, 'utf-8', raw=1)
             # compare original raw utf-8 with new raw utf-8
             assert(recoded == aStr)
-        except UnicodeError, e:
+        except UnicodeError as e:
             return 0
         return 1
         

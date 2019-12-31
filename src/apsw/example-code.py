@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os, sys, time
 import apsw
 
@@ -6,10 +7,10 @@ import apsw
 ###
 
 #@@CAPTURE
-print "      Using APSW file",apsw.__file__                # from the extension module
-print "         APSW version",apsw.apswversion()           # from the extension module
-print "   SQLite lib version",apsw.sqlitelibversion()      # from the sqlite library code
-print "SQLite header version",apsw.SQLITE_VERSION_NUMBER   # from the sqlite header file at compile time
+print("      Using APSW file",apsw.__file__)                # from the extension module
+print("         APSW version",apsw.apswversion())           # from the extension module
+print("   SQLite lib version",apsw.sqlitelibversion())      # from the sqlite library code
+print("SQLite header version",apsw.SQLITE_VERSION_NUMBER)   # from the sqlite header file at compile time
 #@@ENDCAPTURE
 
 ###
@@ -45,15 +46,15 @@ cursor.execute("delete from foo; insert into foo values(1,2,3); create table bar
 ###
 
 for x,y,z in cursor.execute("select x,y,z from foo"):
-    print cursor.getdescription()  # shows column names and declared types
-    print x,y,z
+    print(cursor.getdescription())  # shows column names and declared types
+    print(x,y,z)
 
 ###
 ### iterator - multiple statements
 ###
 
 for m,n,o in cursor.execute("select x,y,z from foo ; select a,b,c from bar"):
-    print m,n,o
+    print(m,n,o)
 
 ###
 ### bindings - sequence
@@ -74,9 +75,9 @@ cursor.execute("insert into foo values(:alpha, :beta, :gamma)", {'alpha': 1, 'be
 
 def mytrace(cursor, statement, bindings):
     "Called just before executing each statement"
-    print "SQL:",statement
+    print("SQL:",statement)
     if bindings:
-        print "Bindings:",bindings
+        print("Bindings:",bindings)
     return True  # if you return False then execution is aborted
 
 #@@CAPTURE
@@ -91,7 +92,7 @@ cursor.execute("drop table bar ; create table bar(x,y,z); select * from foo wher
 def rowtrace(cursor, row):
     """Called with each row of results before they are handed off.  You can return None to
     cause the row to be skipped or a different set of values to return"""
-    print "Row:", row
+    print("Row:", row)
     return row
 
 #@@CAPTURE
@@ -114,7 +115,7 @@ cursor.executemany("insert into foo (x) values(?)", ( [1], [2], [3] ) )
 
 # You can also use it for statements that return data
 for row in cursor.executemany("select * from foo where x=?", ( [1], [2], [3] ) ):
-    print row
+    print(row)
 
 ###
 ### defining your own functions  @@ scalar-example
@@ -122,14 +123,14 @@ for row in cursor.executemany("select * from foo where x=?", ( [1], [2], [3] ) )
 
 def ilove7(*args):
     "a scalar function"
-    print "ilove7 got",args,"but I love 7"
+    print("ilove7 got",args,"but I love 7")
     return 7
 
 connection.createscalarfunction("seven", ilove7)
 
 #@@CAPTURE
 for row in cursor.execute("select seven(x,y) from foo"):
-    print row
+    print(row)
 #@@ENDCAPTURE
 
 ###
@@ -159,7 +160,7 @@ class longest:
 #@@CAPTURE
 connection.createaggregatefunction("longest", longest.factory)
 for row in cursor.execute("select longest(x,y) from foo"):
-    print row
+    print(row)
 #@@ENDCAPTURE
 
 ###
@@ -175,7 +176,7 @@ cursor.executemany("insert into s values(?)",
 
 #@@CAPTURE
 for row in cursor.execute("select * from s order by str"):
-    print row
+    print(row)
 #@@ENDCAPTURE
 
 def strnumcollate(s1, s2):
@@ -203,7 +204,7 @@ connection.createcollation("strnum", strnumcollate)
 
 #@@CAPTURE
 for row in cursor.execute("select * from s order by str collate strnum"):
-    print row
+    print(row)
 #@@ENDCAPTURE
 
 ###
@@ -214,8 +215,8 @@ def authorizer(operation, paramone, paramtwo, databasename, triggerorview):
     """Called when each operation is prepared.  We can return SQLITE_OK, SQLITE_DENY or
     SQLITE_IGNORE"""
     # find the operation name
-    print apsw.mapping_authorizer_function[operation],
-    print paramone, paramtwo, databasename, triggerorview
+    print(apsw.mapping_authorizer_function[operation], end=' ')
+    print(paramone, paramtwo, databasename, triggerorview)
     if operation==apsw.SQLITE_CREATE_TABLE and paramone.startswith("private"):
         return apsw.SQLITE_DENY  # not allowed to create tables whose names start with private
 
@@ -260,10 +261,10 @@ def progresshandler():
 connection.setprogresshandler(progresshandler, 20)
 
 # see it in action - sorting 100 numbers to find the biggest takes a while
-print "spinny thing -> ",
+print("spinny thing -> ", end=' ')
 for i in cursor.execute("select max(x) from bigone"):
-    print # newline
-    print i # and the maximum number
+    print() # newline
+    print(i) # and the maximum number
 
 connection.setprogresshandler(None)
 
@@ -272,12 +273,12 @@ connection.setprogresshandler(None)
 ###
 
 def mycommithook():
-    print "in commit hook"
+    print("in commit hook")
     hour=time.localtime()[3]
     if hour<8 or hour>17:
-        print "no commits out of hours"
+        print("no commits out of hours")
         return 1  # abort commits outside of 8am through 6pm
-    print "commits okay at this time"
+    print("commits okay at this time")
     return 0  # let commit go ahead
 
 #@@CAPTURE
@@ -285,7 +286,7 @@ connection.setcommithook(mycommithook)
 try:
     cursor.execute("begin; create table example(x,y,z); insert into example values (3,4,5) ; commit")
 except apsw.ConstraintError:
-    print "commit was not allowed"
+    print("commit was not allowed")
 
 connection.setcommithook(None)
 #@@ENDCAPTURE
@@ -295,8 +296,8 @@ connection.setcommithook(None)
 ###
 
 def myupdatehook(type, databasename, tablename, rowid):
-    print "Updated: %s database %s, table %s, row %d" % (
-        apsw.mapping_authorizer_function[type], databasename, tablename, rowid)
+    print("Updated: %s database %s, table %s, row %d" % (
+        apsw.mapping_authorizer_function[type], databasename, tablename, rowid))
 
 #@@CAPTURE
 connection.setupdatehook(myupdatehook)
@@ -403,13 +404,13 @@ cursor.execute("create virtual table sysfiles using filesource("+sysdirs+")")
 #@@CAPTURE
 # Which 3 files are the biggest?
 for size,directory,file in cursor.execute("select st_size,directory,name from sysfiles order by st_size desc limit 3"):
-    print size,file,directory
+    print(size,file,directory)
 #@@ENDCAPTURE
 
 # Which 3 files are the oldest?
 #@@CAPTURE
 for ctime,directory,file in cursor.execute("select st_ctime,directory,name from sysfiles order by st_ctime limit 3"):
-    print ctime,file,directory
+    print(ctime,file,directory)
 #@@ENDCAPTURE
 
 ### @@ example-vfs
@@ -435,10 +436,10 @@ class ObfuscatedVFS(apsw.VFS):
         # We can look at uri parameters
         if isinstance(name, apsw.URIFilename):
             #@@CAPTURE
-            print "fast is", name.uri_parameter("fast")
-            print "level is", name.uri_int("level", 3)
-            print "warp is", name.uri_boolean("warp", False)
-            print "notpresent is", name.uri_parameter("notpresent")
+            print("fast is", name.uri_parameter("fast"))
+            print("level is", name.uri_int("level", 3))
+            print("warp is", name.uri_boolean("warp", False))
+            print("notpresent is", name.uri_parameter("notpresent"))
             #@@ENDCAPTURE
         return ObfuscatedVFSFile(self.basevfs, name, flags)
 
@@ -458,7 +459,7 @@ class ObfuscatedVFSFile(apsw.VFSFile):
 obfuvfs=ObfuscatedVFS()
 # Lets see what vfs are now available?
 #@@CAPTURE
-print apsw.vfsnames()
+print(apsw.vfsnames())
 #@@ENDCAPTURE
 
 # Make an obfuscated db, passing in some URI parameters
@@ -470,12 +471,12 @@ obfudb.cursor().execute("create table foo(x,y); insert into foo values(1,2)")
 
 # Check it really is obfuscated on disk
 #@@CAPTURE
-print `open("myobfudb", "rb").read()[:20]`
+print(repr(open("myobfudb", "rb").read()[:20]))
 #@@ENDCAPTURE
 
 # And unobfuscating it
 #@@CAPTURE
-print `encryptme(open("myobfudb", "rb").read()[:20])`
+print(repr(encryptme(open("myobfudb", "rb").read()[:20])))
 #@@ENDCAPTURE
 
 # Tidy up
@@ -493,11 +494,11 @@ for limit in ("LENGTH", "COLUMN", "ATTACHED"):
     name="SQLITE_LIMIT_"+limit
     maxname="SQLITE_MAX_"+limit  # compile time
     orig=connection.limit(getattr(apsw, name))
-    print name, orig
+    print(name, orig)
     # To get the maximum, set to 0x7fffffff and then read value back
     connection.limit(getattr(apsw, name), 0x7fffffff)
     max=connection.limit(getattr(apsw, name))
-    print maxname, max
+    print(maxname, max)
 
 # Set limit for size of a string
 cursor.execute("create table testlimit(s)")
@@ -505,9 +506,9 @@ cursor.execute("insert into testlimit values(?)", ( "x"*1024, )) # 1024 char str
 connection.limit(apsw.SQLITE_LIMIT_LENGTH, 1023) # limit is now 1023
 try:
     cursor.execute("insert into testlimit values(?)", ( "y"*1024, ))
-    print "string exceeding limit was inserted"
+    print("string exceeding limit was inserted")
 except apsw.TooBigError:
-    print "Caught toobig exception"
+    print("Caught toobig exception")
 connection.limit(apsw.SQLITE_LIMIT_LENGTH, 0x7fffffff)
 
 #@@ENDCAPTURE
@@ -549,7 +550,7 @@ shell.process_complete_line("select * from csvtest")
 
 # Verify output
 #@@CAPTURE
-print output.getvalue()
+print(output.getvalue())
 #@@ENDCAPTURE
 
 ###
@@ -557,7 +558,7 @@ print output.getvalue()
 ###
 
 #@@CAPTURE
-print "SQLite memory usage current %d max %d" % apsw.status(apsw.SQLITE_STATUS_MEMORY_USED)
+print("SQLite memory usage current %d max %d" % apsw.status(apsw.SQLITE_STATUS_MEMORY_USED))
 #@@ENDCAPTURE
 
 ###

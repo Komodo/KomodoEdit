@@ -23,6 +23,7 @@
 # ===================================================================
 
 """Self-test suite for Crypto.Hash.SHA256"""
+from __future__ import absolute_import
 
 __revision__ = "$Id$"
 
@@ -71,7 +72,7 @@ def get_tests(config={}):
     ]
 
     from Crypto.Hash import SHA256
-    from common import make_hash_tests
+    from .common import make_hash_tests
     tests = make_hash_tests(SHA256, "SHA256", test_data)
 
     if config.get('slow_tests'):

@@ -1,3 +1,4 @@
+from __future__ import print_function
 # ***** BEGIN LICENSE BLOCK *****
 # Version: MPL 1.1/GPL 2.0/LGPL 2.1
 # 
@@ -249,7 +250,7 @@ class Lexer:
         tval = tok['text']
         split_tokens = []
         while len(tval) > 0:
-            if multi_char_ops_dict.has_key(tval):
+            if tval in multi_char_ops_dict:
                 split_tokens.append(tval)
                 break
             else:
@@ -380,9 +381,9 @@ def main(argv, provide_sample_code, specificLexer):
         if tok['style'] == EOF_STYLE:
             break
         if last_line != tok['start_line']:
-            print "[%d:%d] " % (tok['start_line'], lexer_wrapper.curr_indentation),
+            print("[%d:%d] " % (tok['start_line'], lexer_wrapper.curr_indentation), end=' ')
             last_line = tok['start_line']
         if lexer_wrapper.has_comment():
             comments = lexer_wrapper.curr_comment(1)
-            print comments
-        print tok
+            print(comments)
+        print(tok)

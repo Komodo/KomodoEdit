@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import _SilverCity
 from _SilverCity import *
 
@@ -15,5 +16,5 @@ def get_default_stylesheet_location():
     
     return css_file
 
-import LanguageInfo
+from . import LanguageInfo
 LanguageInfo.do_registration()

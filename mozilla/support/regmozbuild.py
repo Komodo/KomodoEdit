@@ -194,7 +194,7 @@ class _MozBuildRegistry:
                         "_mozbuild_config_%d_" % build_num, config_path, f)
                 finally:
                     f.close()
-            except (EnvironmentError, ImportError), ex:
+            except (EnvironmentError, ImportError) as ex:
                 log.warn("could not import registered `%s': skipping",
                          config_path)
             else:
@@ -257,7 +257,7 @@ class _MozBuildRegistry:
                             break
                     elif getattr(config, attr) != value:
                         break
-                except AttributeError, ex:
+                except AttributeError as ex:
                     # This attr is a likely a new configuration items
                     # since this mozbuild config was registered.
                     break
@@ -273,7 +273,7 @@ class _MozBuildRegistry:
                                              config_path, f)
             finally:
                 f.close()
-        except (EnvironmentError, ImportError), ex:
+        except (EnvironmentError, ImportError) as ex:
             raise Error("cannot register moz build: %s", ex)
         new_moz_obj_dir = join(new_config.buildDir,
                                _srcTreeName_from_config(new_config),

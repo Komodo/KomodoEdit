@@ -23,10 +23,11 @@
 # ===================================================================
 
 """Self-test suite for Crypto.Cipher.DES3"""
+from __future__ import absolute_import
 
 __revision__ = "$Id$"
 
-from common import dict     # For compatibility with Python 2.1 and 2.2
+from .common import dict     # For compatibility with Python 2.1 and 2.2
 
 # This is a list of (plaintext, ciphertext, key, description) tuples.
 SP800_20_A1_KEY = "01" * 24
@@ -309,7 +310,7 @@ test_data = [
 
 def get_tests(config={}):
     from Crypto.Cipher import DES3
-    from common import make_block_tests
+    from .common import make_block_tests
     return make_block_tests(DES3, "DES3", test_data)
 
 if __name__ == '__main__':

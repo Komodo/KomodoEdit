@@ -1,3 +1,4 @@
+from __future__ import print_function
 # ***** BEGIN LICENSE BLOCK *****
 # Version: MPL 1.1/GPL 2.0/LGPL 2.1
 # 
@@ -53,18 +54,18 @@ def scrapeHeadlines(text):
                     headlines += line[pos1+len("<b>"):pos2] + ".\n"
     return headlines
     
-print '--- Creating Headline Web Service'
+print('--- Creating Headline Web Service')
 news_service = WebService.ServiceProxy("http://www.soapclient.com/xml/SQLDataSoap.WSDL");
-print '--- Calling Headline Web Service'
+print('--- Calling Headline Web Service')
 news = news_service.ProcessSRL("NEWS.SRI", "yahoo", "");
 headlines = scrapeHeadlines(news)
-print '--- Got headlines in English'
-print headlines
+print('--- Got headlines in English')
+print(headlines)
 
-print '--- Creating Translation Web Service'
+print('--- Creating Translation Web Service')
 babel_service = WebService.ServiceProxy("http://www.xmethods.net/sd/BabelFishService.wsdl");
-print '--- Calling Translation Web Service'
+print('--- Calling Translation Web Service')
 translation = babel_service.BabelFish("en_fr", headlines)
-print '--- Translated headlines:'
-print translation
-print '--- Done!'
+print('--- Translated headlines:')
+print(translation)
+print('--- Done!')

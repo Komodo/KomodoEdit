@@ -24,6 +24,7 @@
 
 #"""Self-test suite for Crypto.Hash.RIPEMD"""
 
+from __future__ import absolute_import
 __revision__ = "$Id$"
 
 # This is a list of (expected_result, input[, description]) tuples.
@@ -58,7 +59,7 @@ test_data = [
 
 def get_tests(config={}):
     from Crypto.Hash import RIPEMD
-    from common import make_hash_tests
+    from .common import make_hash_tests
     return make_hash_tests(RIPEMD, "RIPEMD", test_data)
 
 if __name__ == '__main__':

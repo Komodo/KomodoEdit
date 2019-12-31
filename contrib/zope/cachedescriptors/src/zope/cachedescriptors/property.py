@@ -16,7 +16,7 @@ See the CachedProperty class.
 $Id$
 """
 
-ncaches = 0l
+ncaches = 0
 
 
 class CachedProperty(object):

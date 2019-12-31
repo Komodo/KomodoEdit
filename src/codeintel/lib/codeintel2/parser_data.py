@@ -1,3 +1,4 @@
+from __future__ import print_function
 # 
 # ***** BEGIN LICENSE BLOCK *****
 # Version: MPL 1.1/GPL 2.0/LGPL 2.1
@@ -60,7 +61,7 @@ class VarInfo:
         self.type = type
 
 def update_collection(coll, name, line_num, type=None, attributes=None):
-    if not coll.has_key(name):
+    if name not in coll:
         coll[name] = VarInfo(line_num, type)
     elif coll[name].type is None and type is not None:
         coll[name].type = type
@@ -93,15 +94,15 @@ class Node:
             c.dump(indent_level + 2)
             
     def dump2(self, node_type_name, indent_level, *call_backs):
-        print "%s %s %s - line %r:%r" % (" " * indent_level, node_type_name, self.name, self.line_num, getattr(self, 'lineend', '???'))
+        print("%s %s %s - line %r:%r" % (" " * indent_level, node_type_name, self.name, self.line_num, getattr(self, 'lineend', '???')))
         if len(self.doc_lines) > 0:
-            print "%s Documentation: %s" % (" " * (indent_level + 2), "\n".join(self.doc_lines))
+            print("%s Documentation: %s" % (" " * (indent_level + 2), "\n".join(self.doc_lines)))
         if len(self.imports) > 0:
             for m in self.imports:
-                print "%s Import: %s" % (" " * (indent_level + 2), m.name)
+                print("%s Import: %s" % (" " * (indent_level + 2), m.name))
         if len(self.includes) > 0:
             for m in self.includes:
-                print "%s Include: %s" % (" " * (indent_level + 2), m.name)
+                print("%s Include: %s" % (" " * (indent_level + 2), m.name))
         self.dump_collection('Globals', 'global_vars', indent_level + 2)
         self.dump_collection('Locals', 'local_vars', indent_level + 2)
         self.dump_collection('Instance vars', 'instance_vars', indent_level + 2)
@@ -114,14 +115,14 @@ class Node:
         if hasattr(self, attr):
             collection = getattr(self, attr)
             if len(collection) > 0:
-                print "%s %s: " % (" " * indent_level, label)
+                print("%s %s: " % (" " * indent_level, label))
                 for name, varInfo in collection.items():
                     line, type = varInfo.line_num, varInfo.type
                     if type:
                         typeString = " [" + type + "]"
                     else:
                         typeString = ""
-                    print "%s %s - line %s%s" % (" " * (indent_level + 2), name, line, typeString)
+                    print("%s %s - line %s%s" % (" " * (indent_level + 2), name, line, typeString))
             
     
 class ClassNode(Node):
@@ -142,8 +143,8 @@ class ClassNode(Node):
             classrefs = self.classrefs
             if len(classrefs) > 0:
                 for ref in classrefs:
-                    print "%sClassref %s - line %s" % (" " * (indent_level + 2),
-                                                       ref[0], ref[1])
+                    print("%sClassref %s - line %s" % (" " * (indent_level + 2),
+                                                       ref[0], ref[1]))
         self.dump2("Class", indent_level, cb)
     
 class FileNode(Node):
@@ -158,10 +159,10 @@ class FileNode(Node):
         indent_level = 0
         if len(self.imports) > 0:
             for m in self.imports:
-                print "%s Import: %s" % (" " * (indent_level + 2), m.name)
+                print("%s Import: %s" % (" " * (indent_level + 2), m.name))
         if len(self.includes) > 0:
             for m in self.includes:
-                print "%s Include: %s" % (" " * (indent_level + 2), m.name)
+                print("%s Include: %s" % (" " * (indent_level + 2), m.name))
         self.dump_kids(0)
         
 class ArgNode:
@@ -191,10 +192,10 @@ class MethodNode(Node):
         def cb():
             args = self.args
             for arg in args:
-                print "%sArg %s" % (" " * (indent_level + 2), arg.get_full_name())
+                print("%sArg %s" % (" " * (indent_level + 2), arg.get_full_name()))
         self.dump2("Method", indent_level, cb)
         if len(self.signature) > 0:
-            print "%sSignature %s" % (" " * (indent_level + 2), self.signature)
+            print("%sSignature %s" % (" " * (indent_level + 2), self.signature))
 
 class ModuleNode(Node):
     def __init__(self, the_name, line_num, unused=False):

@@ -11,6 +11,7 @@ arguments: the first is the name of the file to write to.  The second
 is the relative path to the directory where the icons are stored.
 
 """
+from __future__ import print_function
 
 header = """<html>
 <body>
@@ -39,7 +40,7 @@ content = []
 extensions = ['.svg']
 try:
     os.chdir(where)
-    print os.getcwd()
+    print(os.getcwd())
     fp.write(header)
     zip = zipfile.ZipFile(here + os.path.sep + "../../modules/icomoon/content/icons.jar")
     zipFiles = zip.namelist()

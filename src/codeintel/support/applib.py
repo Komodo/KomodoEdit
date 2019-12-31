@@ -10,6 +10,7 @@ Utility Functions:
     site_data_dir(...)      path to all users shared app data dir
     user_cache_dir(...)     path to user-specific app cache dir
 """
+from __future__ import print_function
 # Dev Notes:
 # - MSDN on where to store app data files:
 #   http://support.microsoft.com/default.aspx?scid=kb;en-us;310294#XSLTH3194121123120121120120
@@ -208,7 +209,7 @@ if sys.platform == "win32":
 #---- self test code
 
 if __name__ == "__main__":
-    print "applib: user data dir:", user_data_dir("Komodo", "ActiveState")
-    print "applib: site data dir:", site_data_dir("Komodo", "ActiveState")
-    print "applib: user cache dir:", user_cache_dir("Komodo", "ActiveState")
+    print("applib: user data dir:", user_data_dir("Komodo", "ActiveState"))
+    print("applib: site data dir:", site_data_dir("Komodo", "ActiveState"))
+    print("applib: user cache dir:", user_cache_dir("Komodo", "ActiveState"))
 

@@ -61,14 +61,14 @@ def tryEncoding(buffer, encoding):
     #log.info("_tryEncoding...%s",encoding)
     try:
         secret_decoder_ring = codecs.lookup(encoding)[1]
-    except LookupError, e:
+    except LookupError as e:
         # the encoding name doesn't exist, likely a pep263 failure
         # an example is using windows-1250 as the name
         return None
     try:
         (outdata,len) = secret_decoder_ring(buffer)
         return outdata
-    except Exception, e: # Figure out the real exception types
+    except Exception as e: # Figure out the real exception types
         return None
 
 
@@ -250,7 +250,7 @@ class Lexer:
             t, attributes, fn = self.prgmap[prg]
             #log.debug("'%s' token: %r", self.tokennum2name[t], tmpres)
             if attributes & EXECFN:
-                tmpres = apply(fn, (mo,))
+                tmpres = fn(*(mo,))
             if attributes & USETXT:
                 t = ord(mo.group(0)[0])
             return (t, tmpres)

@@ -111,7 +111,7 @@ class ListviewMessageHandler:
 								
 		elif msg==self.Msg.WM_STYLECHANGING:
 			# set LVS_SHAREIMAGELISTS as unchangable style
-			if wp==(1l<<32) - 16:		# GWL_STYLE
+			if wp==(1<<32) - 16:		# GWL_STYLE
 				LVS_SHAREIMAGELISTS = 64
 				sst = STYLESTRUCT.from_address(lp)
 				sst.styleNew = sst.styleNew|LVS_SHAREIMAGELISTS

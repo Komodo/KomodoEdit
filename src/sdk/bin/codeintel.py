@@ -36,6 +36,7 @@
 # ***** END LICENSE BLOCK *****
 
 """codeintel -- a tool for developing with Komodo's Code Intelligence system"""
+from __future__ import print_function
 
 __revision__ = "$Id$"
 __version_info__ = (2, 0, 0)
@@ -249,7 +250,7 @@ class Shell(cmdln.Cmdln):
 
             try:
                 _outline_ci_elem(mgr, elem, quiet=opts.quiet)
-            except IOError, ex:
+            except IOError as ex:
                 if ex.errno == 0:
                     # Ignore this error from aborting 'less' of this
                     # command:
@@ -626,7 +627,7 @@ def main(argv=sys.argv):
             log.error(exc_info[0])
         if not skip_it:
             if log.isEnabledFor(logging.DEBUG):
-                print
+                print()
                 traceback.print_exception(*exc_info)
             sys.exit(1)
     else:

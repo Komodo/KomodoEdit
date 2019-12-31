@@ -7,6 +7,7 @@ file.
 Usage:
     lsstrings JAVASCRIPT-PATH
 """
+from __future__ import print_function
 
 __version_info__ = (0, 1, 0)
 __version__ = '.'.join(map(str, __version_info__))
@@ -192,7 +193,7 @@ def main(argv):
         for usage in lsstrings(path):
             if opts.list_warnings_only and usage.found_in_loaded_bundles:
                 continue
-            print usage
+            print(usage)
 
 
 if __name__ == "__main__":
@@ -207,7 +208,7 @@ if __name__ == "__main__":
     except:
         exc_info = sys.exc_info()
         if log.isEnabledFor(logging.DEBUG):
-            print
+            print()
             traceback.print_exception(*exc_info)
         else:
             if hasattr(exc_info[0], "__name__"):

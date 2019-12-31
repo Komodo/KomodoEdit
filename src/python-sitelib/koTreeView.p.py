@@ -39,6 +39,7 @@ import logging
 import itertools
 import contextlib
 import functools
+from functools import reduce
 
 log = logging.getLogger("TreeView")
 #log.setLevel(logging.DEBUG)
@@ -897,7 +898,7 @@ class InvalidationRange(object):
             self._maybeMerge(index + 1)
             self._maybeMerge(index)
 
-        except Exception, e:
+        except Exception as e:
             self.log_exception(e)
             # mark this is being broken; the next commit will simply refresh
             # the whole tree and discard all changes.
@@ -943,7 +944,7 @@ class InvalidationRange(object):
                 self.ranges.append([start, start, count])
                 self._maybeMerge(len(self.ranges) - 2)
 
-        except Exception, e:
+        except Exception as e:
             self.log_exception(e)
             # mark this is being broken; the next commit will simply refresh
             # the whole tree and discard all changes.

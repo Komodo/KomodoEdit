@@ -73,7 +73,7 @@ class KoEnvironmentView(TreeView):
         except KeyError:
             log.error("unknown column id: '%s'", col)
             return ""
-        if type(datum) not in (types.StringType, types.UnicodeType):
+        if type(datum) not in (bytes, str):
             datum = str(datum)
         return datum
 

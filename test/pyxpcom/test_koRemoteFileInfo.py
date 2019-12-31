@@ -241,4 +241,4 @@ class remoteInfoTests(unittest.TestCase):
     @tag("bug82484")
     def test_remote_file_large_timestamps(self):
         fileinfo = self._makeKoRemoteFileInfo()
-        fileinfo.initFromStats("/foo", "bar.txt", "100", "1", "1", 1, 4294952895L)
+        fileinfo.initFromStats("/foo", "bar.txt", "100", "1", "1", 1, 4294952895)

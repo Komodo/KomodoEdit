@@ -20,6 +20,7 @@
 
 # Just use the MD5 module from the Python standard library
 
+from __future__ import absolute_import
 __revision__ = "$Id$"
 
 __all__ = ['new', 'digest_size']
@@ -32,9 +33,9 @@ try:
     digest_size = new().digest_size
 
 except ImportError:
-    from md5 import *
+    from .md5 import *
 
-    import md5
+    from . import md5
     if hasattr(md5, 'digestsize'):
         digest_size = digestsize
         del digestsize

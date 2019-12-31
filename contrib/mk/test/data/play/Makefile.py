@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os
 from mklib import Task, File
 from mklib.common import relpath
@@ -7,7 +8,7 @@ class a(Task):
     results = "foo bar".split()
     def make(self):
         for result in self.results:
-            print "touch %s" % relpath(result.path)
+            print("touch %s" % relpath(result.path))
 
 class b(File):
     path = "foo"

@@ -1,3 +1,4 @@
+from __future__ import print_function
 import distutils.sysconfig
 import getopt
 import glob
@@ -235,7 +236,7 @@ class SepBuilder:
 		print(" ".join(args))
 		retcode = subprocess.call(" ".join(args), shell=True, stderr=subprocess.STDOUT)
 		if retcode:
-			print("Failed in generatorrunner", retcode)
+			print(("Failed in generatorrunner", retcode))
 			sys.exit()
 
 	def writeVariables(self):

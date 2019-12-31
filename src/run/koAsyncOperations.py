@@ -114,7 +114,7 @@ class koAsyncService(object):
                 aOp.status = self.STATUS_RUNNING
                 data = aOp.run()
                 log.debug("operation run finished, return data: %r", data)
-            except Exception, ex:
+            except Exception as ex:
                 if aOpCallback:
                     log.debug("operation: %r raised exception: %r", aOp, ex)
                     #################################
@@ -142,7 +142,7 @@ class koAsyncService(object):
                             self.notifyCallback(aOpCallback, self.RESULT_STOPPED, data)
                         else:
                             self.notifyCallback(aOpCallback, self.RESULT_SUCCESSFUL, data)
-                    except Exception, ex:
+                    except Exception as ex:
                         log.debug("callback for %r failed: %r", name, ex)
         finally:
             # Remove the operation from the list

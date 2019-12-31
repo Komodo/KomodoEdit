@@ -69,12 +69,12 @@ try:
 except ImportError:
     ez = {}
     if USE_DISTRIBUTE:
-        exec urllib2.urlopen('http://python-distribute.org/distribute_setup.py'
-                         ).read() in ez
+        exec(urllib2.urlopen('http://python-distribute.org/distribute_setup.py'
+                         ).read(), ez)
         ez['use_setuptools'](to_dir=tmpeggs, download_delay=0, no_fake=True)
     else:
-        exec urllib2.urlopen('http://peak.telecommunity.com/dist/ez_setup.py'
-                             ).read() in ez
+        exec(urllib2.urlopen('http://peak.telecommunity.com/dist/ez_setup.py'
+                             ).read(), ez)
         ez['use_setuptools'](to_dir=tmpeggs, download_delay=0)
 
     if to_reload:

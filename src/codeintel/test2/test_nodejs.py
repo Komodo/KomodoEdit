@@ -106,7 +106,7 @@ class CodeIntelNodeJSTestCase(CodeIntelTestCase):
         f = open(fake_node, 'wb')
         f.write("#!/bin/sh\n\necho v0.8.0")
         f.close()
-        os.chmod(fake_node, 0755)
+        os.chmod(fake_node, 0o755)
     _ci_env_prefs_ = {
         'nodejsDefaultInterpreter': fake_node
     }

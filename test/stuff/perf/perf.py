@@ -74,6 +74,7 @@
         bk perf             # run all metrics
         bk perf -x startup  # run all but the startup perf metric
 """
+from __future__ import print_function
 
 import os
 import sys
@@ -157,9 +158,9 @@ class SmokePerfRunner:
         # Print some summary results (similar to TextPerfRunner's
         # summary output).
         nperfs = result.perfsRun
-        print "Ran %d perf%s in %.3fs."\
-              % (nperfs, nperfs == 1 and "" or "s", elapsed)
-        print
+        print("Ran %d perf%s in %.3fs."\
+              % (nperfs, nperfs == 1 and "" or "s", elapsed))
+        print()
         return result
         
 
@@ -195,7 +196,7 @@ class _QuietSmokePerfResult(unitperf.PerfResult):
                 name=name,
                 project_id=self.project_id,
                 server=self.server)
-        except smokeclient.SmokeClientError, ex:
+        except smokeclient.SmokeClientError as ex:
             perfspec_id = smokeclient.addPerfSpec(
                 name=name,
                 description=perf.shortDescription(),
@@ -332,7 +333,7 @@ def main(argv):
         opts, modules = getopt.getopt(argv[1:], "hvqx:ls:",
             ["help", "verbose", "quiet", "exclude=", "list",
              "smoke", "server=", "project-id=", "build-id="])
-    except getopt.error, ex:
+    except getopt.error as ex:
         log.error(str(ex))
         return 1
     excludes = []
@@ -343,7 +344,7 @@ def main(argv):
     build_id = None
     for opt, optarg in opts:
         if opt in ("-h", "--help"):
-            print __doc__
+            print(__doc__)
             return 0
         elif opt in ("-v", "--verbose"):
             log.setLevel(logging.DEBUG)

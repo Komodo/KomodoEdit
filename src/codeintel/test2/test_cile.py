@@ -55,6 +55,7 @@ whitespace is generally insigificant for XML data (i.e. CIX), testing will
 consider it significant. That is generally okay, because a Language
 Engine should not be randomly changing the whitespace that it spits out.
 """
+from __future__ import print_function
 
 import sys
 import os
@@ -147,8 +148,8 @@ def _testOneInputFile(self, fpath, tags=None):
     optsfile = os.path.join(gInputsDir, fpath+'.options') # input options
     
     if _debug:
-        print
-        print "*"*50, "codeintel '%s'" % fpath
+        print()
+        print("*"*50, "codeintel '%s'" % fpath)
 
     # Set standard options:
     opts = {"mtime": "42"}
@@ -165,7 +166,7 @@ def _testOneInputFile(self, fpath, tags=None):
                 pass
             opts[name] = value
         if _debug:
-            print "*"*50, "options"
+            print("*"*50, "options")
             pprint.pprint(opts)
 
     # Scan the file, capturing stdout and stderr and any possible
@@ -210,7 +211,7 @@ def _testOneInputFile(self, fpath, tags=None):
                 tree[0].set("error", len(cile_error) < 30 and cile_error or (cile_error[:30] + "..."))
             cix = ET.tostring(tree)
 
-        except CodeIntelError, ex:
+        except CodeIntelError as ex:
             error = traceback.format_exc()
         else:
             error = None
@@ -226,13 +227,13 @@ def _testOneInputFile(self, fpath, tags=None):
         sys.stdout = oldStdout
         sys.stderr = oldStderr
     if _debug:
-        print "*"*50, "stdout"
-        print stdout
-        print "*"*50, "stderr"
-        print stderr
-        print "*"*50, "error"
-        print str(error)
-        print "*" * 50
+        print("*"*50, "stdout")
+        print(stdout)
+        print("*"*50, "stderr")
+        print(stderr)
+        print("*"*50, "error")
+        print(str(error))
+        print("*" * 50)
 
     # Verify that the results are as expected.
     if os.path.exists(outfile) and error:

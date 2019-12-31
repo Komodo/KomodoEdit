@@ -86,7 +86,7 @@ class Path(Datum):
     def _Determine_Do(self):
         # If there is a PATH configuration item, then return its value.
         # Otherwise return the value of the PATH environment variable.
-        if black.configure.items.has_key("PATH"):
+        if "PATH" in black.configure.items:
             pathItem = black.configure.items["PATH"]
             self.applicable = pathItem.Determine()
             if self.applicable:
@@ -209,12 +209,12 @@ class MsvcrtDebugDllsInstalled(BooleanDatum):
         # optionally use the "buildType" configuration item, if defined,
         # to determine if this item is applicable
         if sys.platform.startswith("win"):
-            if black.configure.items.has_key("buildType") and\
+            if "buildType" in black.configure.items and\
               black.configure.items["buildType"].Get() != "debug":
                 self.applicable = 0
             else:
                 self.applicable = 1
-                if not black.configure.items.has_key("systemDirs"):
+                if "systemDirs" not in black.configure.items:
                     black.configure.items["systemDirs"] =\
                         black.configure.std.SystemDirs()
                 systemDirs = black.configure.items["systemDirs"].Get()
@@ -239,7 +239,7 @@ class PythonExeName(Datum):
     def _Determine_Do(self):
         self.applicable = 1
         if sys.platform.startswith("win"):
-            if black.configure.items.has_key("buildType") and\
+            if "buildType" in black.configure.items and\
               black.configure.items["buildType"].Get() == "debug":
                 self.value = "python_d.exe"
             else:
@@ -256,7 +256,7 @@ class PythonVersion(Datum):
     def _Determine_Do(self):
         self.applicable = 1
 
-        if not black.configure.items.has_key("pythonExeName"):
+        if "pythonExeName" not in black.configure.items:
             black.configure.items["pythonExeName"] = PythonExeName()
         pythonExeName = black.configure.items["pythonExeName"].Get()
         o = os.popen('%s -c "import sys; sys.stdout.write(\'.\'.join(map(str, sys.version_info[:3])))"' % pythonExeName)
@@ -311,7 +311,7 @@ class PythonBinDir(Datum):
 
     def _Determine_Do(self):
         self.applicable = 1
-        if not black.configure.items.has_key("pythonExeName"):
+        if "pythonExeName" not in black.configure.items:
             black.configure.items["pythonExeName"] = PythonExeName()
         pythonExeName = black.configure.items["pythonExeName"].Get()
         pythonExe = tmShUtil.WhichFollowSymLinks(pythonExeName)
@@ -333,7 +333,7 @@ class PythonInstallDir(Datum):
 
     def _Determine_Do(self):
         self.applicable = 1
-        if not black.configure.items.has_key("pythonBinDir"):
+        if "pythonBinDir" not in black.configure.items:
             black.configure.items["pythonBinDir"] = PythonBinDir()
         pythonBinDir = black.configure.items["pythonBinDir"].Get()
         if pythonBinDir:
@@ -368,7 +368,7 @@ class PerlInstallDir(Datum):
 
     def _Determine_Do(self):
         self.applicable = 1
-        if not black.configure.items.has_key("perlBinDir"):
+        if "perlBinDir" not in black.configure.items:
             black.configure.items["perlBinDir"] = PerlBinDir()
         perlBinDir = black.configure.items["perlBinDir"].Get()
         if perlBinDir:
@@ -391,7 +391,7 @@ class PerlVersion(Datum):
         Datum.__init__(self, name, desc)
 
     def _Determine_Do(self):
-        if not black.configure.items.has_key(self.perlBinDirItemName):
+        if self.perlBinDirItemName not in black.configure.items:
             black.configure.items[self.perlBinDirItemName] = PerlBinDir()
         self.applicable = black.configure.items[self.perlBinDirItemName].Determine()
         if self.applicable:
@@ -424,7 +424,7 @@ class ActivePerlBuild(Datum):
         Datum.__init__(self, name, desc)
 
     def _Determine_Do(self):
-        if not black.configure.items.has_key(self.perlBinDirItemName):
+        if self.perlBinDirItemName not in black.configure.items:
             black.configure.items[self.perlBinDirItemName] = PerlBinDir()
         self.applicable = black.configure.items[self.perlBinDirItemName].Determine()
         if self.applicable:
@@ -471,7 +471,7 @@ class PerlModulesInstalled(BooleanDatum):
 
     def _Determine_Do(self):
         self.applicable = 1
-        if not black.configure.items.has_key(self.perlBinDirItemName):
+        if self.perlBinDirItemName not in black.configure.items:
             black.configure.items[self.perlBinDirItemName] = PerlBinDir()
         perlBinDir = black.configure.items[self.perlBinDirItemName].Get()
         perlExe = os.path.join(perlBinDir, "perl")

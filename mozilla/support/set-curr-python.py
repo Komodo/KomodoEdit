@@ -47,6 +47,7 @@
   Note: We are talking about a non-system framework Python install. I.e. a
   Python installed in '/Library/Frameworks' and '/usr/local/bin'.
 """
+from __future__ import print_function
 
 import sys
 import os
@@ -63,13 +64,13 @@ def set_curr_python(pyver):
                     % (pyver_dir, pyver))
     
     curr_link = "/Library/Frameworks/Python.framework/Versions/Current"
-    print "ln -s %s %s" % (pyver, curr_link)
+    print("ln -s %s %s" % (pyver, curr_link))
     os.remove(curr_link)
     os.symlink(pyver, curr_link)
     
     for name in ("python", "pythonw", "python-config", "pydoc", "idle", "smtpd.py"):
         bin_path = os.path.join("/usr/local/bin", name)
-        print "reset '%s'" % bin_path
+        print("reset '%s'" % bin_path)
         fmwk_path = os.path.join(pyver_dir, "bin", name)
         if os.path.exists(bin_path):
             os.remove(bin_path)

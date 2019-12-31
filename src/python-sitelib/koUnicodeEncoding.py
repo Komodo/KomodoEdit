@@ -104,14 +104,14 @@ def tryEncoding(buffer, encoding):
     
     try:
         secret_decoder_ring = codecs.lookup(encoding)[1]
-    except LookupError, e:
+    except LookupError as e:
         # the encoding name doesn't exist, likely a pep263 failure
         # an example is using windows-1250 as the name
         return None
     try:
         (outdata,len) = secret_decoder_ring(buffer)
         return outdata
-    except Exception, e: # Figure out the real exception types
+    except Exception as e: # Figure out the real exception types
         return None
 
 pep263re = re.compile("coding[:=]\s*([\w\-_.]+)")

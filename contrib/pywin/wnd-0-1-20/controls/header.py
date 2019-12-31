@@ -321,7 +321,7 @@ class HeaderFromHandle(HeaderMethods, control.ControlFromHandle, ControlMethods)
 #***********************************************************************************
 #***********************************************************************************					
 
-UINT_MAX = (1l << 32)
+UINT_MAX = (1 << 32)
 NM_FIRST = UINT_MAX
 HDN_FIRST = (UINT_MAX) - 300
 HDM_FIRST =  4608

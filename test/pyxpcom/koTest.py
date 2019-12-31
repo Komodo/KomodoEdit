@@ -179,7 +179,7 @@ class KoTestService:
                             .getService(components.interfaces.nsIXULRuntime)
         try:
             appinfo.QueryInterface(components.interfaces.nsIXULAppInfo)
-        except COMException, e:
+        except COMException as e:
             if e.errno != nsError.NS_ERROR_NO_INTERFACE:
                 raise
             # need to register our own app info

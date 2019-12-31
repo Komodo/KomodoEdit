@@ -68,7 +68,7 @@ except TypeError:
         str: type(""),
         unicode: type(u""),
         int: type(0),
-        long: type(0L),
+        long: type(0),
     }
     def isinstance(obj, t):
         if not __builtin__.isinstance(t, type(())):

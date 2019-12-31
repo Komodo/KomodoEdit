@@ -1,3 +1,4 @@
+from __future__ import print_function
 # Script to generate CaseConvert.cxx from Python's Unicode data
 # Should be run rarely when a Python with a new version of Unicode data is available.
 # Requires Python 3.3 or later
@@ -110,16 +111,16 @@ def updateCaseConvert():
     
     rangeGroups, nonRanges = groupRanges(symmetrics)
 
-    print(len(rangeGroups), "ranges")
+    print((len(rangeGroups), "ranges"))
     rangeLines = ["%d,%d,%d,%d, " % x for x in rangeGroups]
 
-    print(len(nonRanges), "non ranges")
+    print((len(nonRanges), "non ranges"))
     nonRangeLines = ["%d,%d, " % x for x in nonRanges]
     
-    print(len(symmetrics), "symmetric")
+    print((len(symmetrics), "symmetric"))
     
     complexLines = ['"%s|%s|%s|%s|"' % tuple(escape(t) for t in x) for x in complexes]
-    print(len(complexLines), "complex")
+    print((len(complexLines), "complex"))
 
     Regenerate("../src/CaseConvert.cxx", "//", rangeLines, nonRangeLines, complexLines)
 

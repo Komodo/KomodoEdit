@@ -154,7 +154,7 @@ class KoInterpolationService:
                        getService(components.interfaces.koIWebbrowser)
             try:
                 browsers = koWebbrowser.get_possible_browsers()
-            except Exception, ex:
+            except Exception as ex:
                 #TODO: I suspect this is a KeyError, but not sure.
                 log.exception(ex)
                 errorMsg = "The command string includes %(browser), but Komodo failed to find the list of installed browsers. You can configure a default browser in Komodo's 'Web' Preference panel. Go to 'Edit | Preferences'."
@@ -680,7 +680,7 @@ class KoInterpolationService:
                                                indentReplacement=True)
                     i1strings.append(i1s)
                     i1strings.append(i1s) # see NOTE in koIRunService on doubling strings
-            except ValueError, ex:
+            except ValueError as ex:
                 log.exception(ex)
                 self.lastErrorSvc.setLastError(nsError.NS_ERROR_INVALID_ARG,
                                             ex.args[0])
@@ -696,7 +696,7 @@ class KoInterpolationService:
             else:
                 i2strings = self.Interpolate2(i1strings, queries)
                 return [], i2strings
-        except Exception, e:
+        except Exception as e:
             log.exception(e)
             raise
 
@@ -731,7 +731,7 @@ class KoInterpolationService:
                 i2strings += [forUse, forDisplay]
     
             return i2strings
-        except Exception, e:
+        except Exception as e:
             log.exception(e)
             raise
 
@@ -764,9 +764,9 @@ class KoRunService:
 
     def __init__(self):
         if sys.platform.startswith("win"):
-            if os.environ.has_key("SHELL"):
+            if "SHELL" in os.environ:
                 shell = os.environ["SHELL"]
-            elif os.environ.has_key("ComSpec"):
+            elif "ComSpec" in os.environ:
                 shell = os.environ["ComSpec"]
             else:
                 #XXX Would be nice to get full path here so can use
@@ -875,7 +875,7 @@ class KoRunService:
                              .replace('\\}', '}')
             try:
                 optupdate = eval(optdictstr)
-            except SyntaxError, ex:
+            except SyntaxError as ex:
                 # This likely means that we are trying to decode an old
                 # style encoded command as if it were a new-style
                 # encoded command and the encoded command includes '{'
@@ -956,7 +956,7 @@ class KoRunService:
 
         try:
             p = runutils.KoTerminalProcess(command, cwd=cwd, env=envDict)
-        except process.ProcessError, ex:
+        except process.ProcessError as ex:
             self.lastErrorSvc.setLastError(ex.errno, str(ex))
             raise ServerException(nsError.NS_ERROR_FAILURE, str(ex))
         if terminal:
@@ -983,13 +983,13 @@ class KoRunService:
         if scriptFileName:
             try:
                 os.unlink(scriptFileName)
-            except OSError, ex:
+            except OSError as ex:
                 log.warn("Could not remove temporary script file '%s': %s"\
                            % (scriptFileName, ex))
         if inputFileName:
             try:
                 os.unlink(inputFileName)
-            except OSError, ex:
+            except OSError as ex:
                 log.warn("Could not remove temporary input file '%s': %s"\
                            % (inputFileName, ex))
         
@@ -1005,7 +1005,7 @@ class KoRunService:
             sm.highlight = 1
         try:
             self.notifyObservers(sm, 'status_message', None)
-        except COMException, e:
+        except COMException as e:
             # do nothing: Notify sometimes raises an exception if (???)
             # receivers are not registered?
             pass
@@ -1120,7 +1120,7 @@ class KoRunService:
             child = process.ProcessOpen(command, cwd=cwd, env=envDict)
             output, error = child.communicate(input)
             return (child.returncode, output, error)
-        except process.ProcessError, ex:
+        except process.ProcessError as ex:
             self.lastErrorSvc.setLastError(ex.errno, str(ex))
             raise ServerException(nsError.NS_ERROR_FAILURE, str(ex))
 
@@ -1131,7 +1131,7 @@ class KoRunService:
         try:
             #XXX Dunno if need to pass 'child' in the notification here.
             self.notifyObservers(child, 'run_terminated', command)
-        except COMException, e:
+        except COMException as e:
             # Do nothing: Notify sometimes raises an exception if (???)
             # no receiver are registered?
             pass
@@ -1162,7 +1162,7 @@ class KoRunService:
 
         try:
             child = runutils.KoRunProcess(command, cwd=cwd, env=envDict)
-        except process.ProcessError, ex:
+        except process.ProcessError as ex:
             self.lastErrorSvc.setLastError(ex.errno, str(ex))
             raise ServerException(nsError.NS_ERROR_FAILURE, str(ex))
 
@@ -1197,7 +1197,7 @@ class KoRunService:
             runnable = CallbackRunnable(callbackHandler, command, returncode, stdout, stderr)
             try:
                 thread.dispatch(runnable, components.interfaces.nsIThread.DISPATCH_SYNC)
-            except COMException, e:
+            except COMException as e:
                 log.warn("RunAsync: callback failed: %s, command %r",
                          str(e), command)
 
@@ -1226,7 +1226,7 @@ class KoRunService:
 
         try:
             child = runutils.KoRunProcess(command, cwd=cwd, env=envDict)
-        except process.ProcessError, ex:
+        except process.ProcessError as ex:
             self.lastErrorSvc.setLastError(ex.errno, str(ex))
             raise ServerException(nsError.NS_ERROR_FAILURE, str(ex))
 
@@ -1291,7 +1291,7 @@ class KoRunEnvView(TreeView):
             log.error("unknown run environment variables column id: '%s'" % column.id)
             return ""
 
-        if type(cell) not in (types.StringType, types.UnicodeType):
+        if type(cell) not in (bytes, str):
             cell = str(cell)
         return cell
 
@@ -1299,7 +1299,7 @@ class KoRunEnvView(TreeView):
         if sys.platform.startswith("win"):
             variable = variable.upper()
         self._tree.beginUpdateBatch()
-        if not self._data.has_key(variable):
+        if variable not in self._data:
             self._order.append(variable)
             self._sortedBy = None
             self._tree.rowCountChanged(len(self._data)-2, 1)
@@ -1318,7 +1318,7 @@ class KoRunEnvView(TreeView):
         """Return true iff have a datum with the given variable name."""
         if sys.platform.startswith("win"):
             variable = variable.upper()
-        return self._data.has_key(variable)
+        return variable in self._data
 
     def Index(self, variable):
         if sys.platform.startswith("win"):

@@ -1,4 +1,5 @@
 
+from future.utils import raise_
 from wnd.wintypes import *
 from wnd.controls.base.dialog import BaseCommonDialog
 from wnd.controls.base.methods import DialogMethods
@@ -45,7 +46,7 @@ class ChooseColor(BaseCommonDialog, DialogMethods):
 			if flags:
 				for i in flags:
 					try: cc.Flags |=CC_FLAGS[i]
-					except: raise ValueError, "invalid flag: %s" % i
+					except:raise_(ValueError, "invalid flag: %s" % i)
 						
 			customcolors= kwargs.get('customcolors')
 			if customcolors: 	

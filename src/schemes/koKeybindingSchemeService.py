@@ -1,3 +1,4 @@
+from __future__ import print_function
 # ***** BEGIN LICENSE BLOCK *****
 # Version: MPL 1.1/GPL 2.0/LGPL 2.1
 # 
@@ -79,7 +80,7 @@ class Scheme(SchemeBase):
             name = "__unnamed__"
         fname = os.path.join(self._userSchemeDir, name+'.ksf')
         if os.path.exists(fname):
-            print "Already exists"
+            print("Already exists")
             return
         schemeService = components.classes['@activestate.com/koKeybindingSchemeService;1'].getService()
         if self.name == '__unnamed__': # we want to forget about the unnamed one.

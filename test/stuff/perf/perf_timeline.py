@@ -146,7 +146,7 @@ def _getTimelineRecords():
             and not log.isEnabledFor(logging.DEBUG)):
             try:
                 os.remove(timelineLog)
-            except OSError, ex:
+            except OSError as ex:
                 log.warn("Could not remove timeline log file, '%s': %s",
                          timelineLog, ex)
     

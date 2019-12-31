@@ -121,7 +121,7 @@ class koSysUtils:
         path = self._userEnvSvc.get("PATH", "").split(os.pathsep)
         try:
             return which.which(exeName, path=path)
-        except which.WhichError, ex:
+        except which.WhichError as ex:
             return ""
 
     def WhichAll(self, exeName):
@@ -131,20 +131,20 @@ class koSysUtils:
     def IsFile(self, filename):
         try:
             return os.path.isfile(filename)
-        except OSError, e:
-            raise ServerException, (nsError.NS_ERROR_FILE_NOT_FOUND, str(e))
+        except OSError as e:
+            raise ServerException(nsError.NS_ERROR_FILE_NOT_FOUND, str(e))
 
     def IsDir(self, dirname):
         try:
             return os.path.isdir(dirname)
-        except OSError, e:
-            raise ServerException, (nsError.NS_ERROR_FILE_NOT_FOUND, str(e))
+        except OSError as e:
+            raise ServerException(nsError.NS_ERROR_FILE_NOT_FOUND, str(e))
 
     def Stat(self, filename):
         try:
             return os.stat(filename)[:10]
-        except OSError, e:
-            raise ServerException, (nsError.NS_ERROR_FILE_NOT_FOUND, str(e))
+        except OSError as e:
+            raise ServerException(nsError.NS_ERROR_FILE_NOT_FOUND, str(e))
 
     def Access(self, filename, mode):
         return os.access(filename, mode)
@@ -234,7 +234,7 @@ class koSysUtils:
             # do a copy & rename
             try:
                 shutil.move(filename, toTrash)
-            except OSError, ex:
+            except OSError as ex:
                 if ex.errno == 18:
                     # OSError: [Errno 18] Invalid cross-device link
                     # Try to copy the file and then remove the original,
@@ -251,7 +251,7 @@ class koSysUtils:
         try:
             localFile.reveal()
             return
-        except COMException, e:
+        except COMException as e:
             # reveal is not implemented, try the old stuff
             pass
         if sys.platform not in ['win32','darwin']:
@@ -285,7 +285,7 @@ class koSysUtils:
         try:
             localFile.launch()
             return
-        except COMException, e:
+        except COMException as e:
             # launch is not implemented, try the old stuff
             pass
         if sys.platform not in ['win32','darwin']:
@@ -325,7 +325,7 @@ class koSysUtils:
                 eof = "\n"
             elif line.endswith("\r"):
                 eof = "\r"
-        except IndexError, ex:
+        except IndexError as ex:
             pass
 
         if eof is None:
@@ -336,7 +336,7 @@ class koSysUtils:
             eofCode2eof = {"CRLF": "\r\n", "LF": "\r", "CR": "\n"}
             try:
                 eof = eofCode2eof[eofCode]
-            except KeyError, ex:
+            except KeyError as ex:
                 log.warn("unexpected 'endOfLine' pref value: '%s'", eofCode)
                 # Paranoia: Fallback to a reasonable platform default.
                 if sys.platform.startswith("win"):
@@ -354,7 +354,7 @@ class koSysUtils:
         try:
             lines1 = open(fname1, 'rb').readlines()
             lines2 = open(fname2, 'rb').readlines()
-        except IOError, ex:
+        except IOError as ex:
             lastErrorSvc = components.classes["@activestate.com/koLastErrorService;1"]\
                            .getService(components.interfaces.koILastErrorService)
             lastErrorSvc.setLastError(0, str(ex))
@@ -388,7 +388,7 @@ class koSysUtils:
         try:
             cpSvc = components.classes[cid].\
                         getService(components.interfaces.koIColorPicker)
-        except COMException, ex:
+        except COMException as ex:
             # Only log an exception if a cid has been explicitly set.
             if cid:
                 log.exception("Unable to load the colorpicker with CID: %r", cid)
@@ -409,7 +409,7 @@ class koSysUtils:
         try:
             cpSvc = components.classes[cid].\
                         getService(components.interfaces.koIColorPickerAsync)
-        except COMException, ex:
+        except COMException as ex:
             # Only log an exception if a cid has been explicitly set.
             if cid:
                 log.exception("Unable to load the colorpicker with CID: %r", cid)

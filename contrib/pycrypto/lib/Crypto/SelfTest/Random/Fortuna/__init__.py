@@ -23,6 +23,7 @@
 # ===================================================================
 
 """Self-test for the Crypto.Random.Fortuna package"""
+from __future__ import absolute_import
 
 __revision__ = "$Id$"
 
@@ -30,9 +31,9 @@ import os
 
 def get_tests(config={}):
     tests = []
-    import test_FortunaAccumulator; tests += test_FortunaAccumulator.get_tests(config=config)
-    import test_FortunaGenerator;   tests += test_FortunaGenerator.get_tests(config=config)
-    import test_SHAd256;            tests += test_SHAd256.get_tests(config=config)
+    from . import test_FortunaAccumulator; tests += test_FortunaAccumulator.get_tests(config=config)
+    from . import test_FortunaGenerator;   tests += test_FortunaGenerator.get_tests(config=config)
+    from . import test_SHAd256;            tests += test_SHAd256.get_tests(config=config)
     return tests
 
 if __name__ == '__main__':

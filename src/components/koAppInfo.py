@@ -35,6 +35,7 @@
 # 
 # ***** END LICENSE BLOCK *****
 
+from __future__ import print_function
 import sys, os, re, string
 import os.path
 import tempfile
@@ -100,7 +101,7 @@ class KoAppInfoEx:
 
         try:
             self._prefs.prefObserverService.addObserver(self, self.defaultInterpreterPrefName, 0)
-        except Exception, e:
+        except Exception as e:
             log.warn("Unable to listen for preference change for: %r",
                      self.defaultInterpreterPrefName)
 
@@ -200,10 +201,10 @@ class KoAppInfoEx:
                 if tuple(versionParts) > self.maxVersionTuple:
                     return False
             return True
-        except AttributeError, ValueError:
+        except AttributeError as ValueError:
             log.exception("Unable to determine version for executable %r", exe)
             return False
-        except ServerException, ex:
+        except ServerException as ex:
             if ex.errno != nsError.NS_ERROR_FILE_NOT_FOUND:
                 raise
         return False
@@ -310,7 +311,7 @@ class KoAppInfoEx:
             try:
                 executables = instance.FindExecutables()
                 result = components.interfaces.koIAsyncCallback.RESULT_SUCCESSFUL
-            except Exception, ex:
+            except Exception as ex:
                 log.warn("FindExecutables failed: %r", str(ex))
 
             class CallbackRunnable(object):
@@ -327,7 +328,7 @@ class KoAppInfoEx:
             runnable = CallbackRunnable(callbackObj, result, executables)
             try:
                 starting_thread.dispatch(runnable, components.interfaces.nsIThread.DISPATCH_SYNC)
-            except COMException, e:
+            except COMException as e:
                 log.warn("FindExecutables: callback failed: %s", str(e))
 
         # Start the thread.
@@ -782,7 +783,7 @@ class KoPHPInfoInstance(KoAppInfoEx):
         self._info = {}
         try:
             self._prefs.prefObserverService.addObserver(self, "phpConfigFile", 0)
-        except Exception, e:
+        except Exception as e:
             log.warn("Unable to listen for preference change for: 'phpConfigFile'")
 
     def observe(self, subject, topic, data):
@@ -831,7 +832,7 @@ class KoPHPInfoInstance(KoAppInfoEx):
             argv.append(filepath)
             try:
                 p = process.ProcessOpen(argv, cwd=cwd, env=env)
-            except OSError, e:
+            except OSError as e:
                 if e.errno == 0 or e.errno == 32:
                     # this happens if you are playing
                     # in prefs and change the executable, but
@@ -949,7 +950,7 @@ class KoPHPInfoInstance(KoAppInfoEx):
                     return False
             except AttributeError:
                 pass
-            except ServerException, ex:
+            except ServerException as ex:
                 if ex.errno != nsError.NS_ERROR_FILE_NOT_FOUND:
                     raise
         return True
@@ -1202,7 +1203,7 @@ if __name__ == "__main__":
     def getCOMAttribute(obj, property, default = 'not implemented'):
         try:
             return getattr(obj, property)
-        except COMException, e:
+        except COMException as e:
             if e.errno == nsError.NS_ERROR_NOT_IMPLEMENTED:
                 return default
             else:
@@ -1215,22 +1216,22 @@ if __name__ == "__main__":
         installations = appInfoExe.FindInstallationPaths()
         for installation in installations:
             appInfoExe.installationPath = installation
-            print "+------ %s installation: %s" % (app, appInfoExe.installationPath)
-            print "| haveLicense: %s" % getCOMAttribute(appInfoExe, 'haveLicense')
-            print "| executable location: %s" % getCOMAttribute(appInfoExe, 'executablePath')
-            print "| version: %s" % getCOMAttribute(appInfoExe, 'version')
-            print "| localHelpFile: %s" % getCOMAttribute(appInfoExe, 'localHelpFile')
-            print "| webHelpURL: %s" % getCOMAttribute(appInfoExe, 'webHelpURL')
+            print("+------ %s installation: %s" % (app, appInfoExe.installationPath))
+            print("| haveLicense: %s" % getCOMAttribute(appInfoExe, 'haveLicense'))
+            print("| executable location: %s" % getCOMAttribute(appInfoExe, 'executablePath'))
+            print("| version: %s" % getCOMAttribute(appInfoExe, 'version'))
+            print("| localHelpFile: %s" % getCOMAttribute(appInfoExe, 'localHelpFile'))
+            print("| webHelpURL: %s" % getCOMAttribute(appInfoExe, 'webHelpURL'))
             
             if app == "PHP":
-                print "|\t+------ PHP extra features ------"
-                print "|\t| cfg_file_path: %s" % appInfoExe.cfg_file_path
-                print "|\t| include_path: %s %s" % (appInfoExe.include_path,
-                                                    appInfoExe.GetIncludePathArray())
-                print "|\t| extension_dir: %s" % appInfoExe.extension_dir
-                print "|\t+---------------------------------"
+                print("|\t+------ PHP extra features ------")
+                print("|\t| cfg_file_path: %s" % appInfoExe.cfg_file_path)
+                print("|\t| include_path: %s %s" % (appInfoExe.include_path,
+                                                    appInfoExe.GetIncludePathArray()))
+                print("|\t| extension_dir: %s" % appInfoExe.extension_dir)
+                print("|\t+---------------------------------")
             
-            print "+---------------------------------"
+            print("+---------------------------------")
     
 
 

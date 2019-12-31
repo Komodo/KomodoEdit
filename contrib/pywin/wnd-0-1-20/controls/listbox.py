@@ -67,7 +67,7 @@ class ListboxMethods:
 			# make shure LBS_MULTIPLESEL and LBS_EXTENDEDSEL
 			# can not be changed at runtime 
 			# (will deadlock on some method calls)
-			if wp==(1l<<32) - 16:			# GWL_STYLE
+			if wp==(1<<32) - 16:			# GWL_STYLE
 				#LVS_SHAREIMAGELISTS = 64
 				sst = STYLESTRUCT.from_address(lp)
 				if sst.styleOld & 8:			# LBS_MULTIPLESEL
@@ -118,7 +118,7 @@ class ListboxMethods:
 		if lp !=None:
 			if self.SendMessage(self.Hwnd,
 					self.Msg.LB_SETITEMDATA, result, lp)==LB_ERR:
-				raise RuntimeError, "could not set lparam"
+				raise RuntimeError("could not set lparam")
 		return result
 
 	def InsertItem(self, i, text, lp=None):

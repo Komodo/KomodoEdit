@@ -54,6 +54,7 @@
     Website download from:
       * http://www.w3.org/TR/2000/REC-DOM-Level-2- ...
 """
+from __future__ import print_function
 
 import os
 import glob
@@ -213,7 +214,7 @@ def getDom2XMLFilesFromWebpage():
             xml_source = ""
             try:
                 zipdata = zf.read(zippath)
-                print "File %r okay" % (os.path.basename(url))
+                print("File %r okay" % (os.path.basename(url)))
             except KeyError:
                 #print "No %s in file %r" % (zippath, os.path.basename(url))
                 xml_source = zf.read("xml-source.xml")
@@ -250,7 +251,7 @@ def getDom2XMLFilesFromWebpage():
                         files.update(possibleFiles)
             elif xml_source:
                 files[os.path.basename(url)] = StringIO(fixXMLEntities(xml_source))
-                print "Special casing for %s" % (os.path.basename(url))
+                print("Special casing for %s" % (os.path.basename(url)))
             zf.close()
         finally:
             os.remove(zippath)
@@ -267,14 +268,14 @@ def main():
         tree = ElementTree()
         try:
             tree.parse(xml_file)
-        except SyntaxError, e:
+        except SyntaxError as e:
             message = str(e)
             if message.find("(invalid token)") > 0:
                 linesp = message.split("line ", 1)
                 linesp = linesp[1].split(",", 1)
                 line = int(linesp[0])
                 lines_split = xml_file.getvalue().splitlines(0)
-                print "Invalid character on line: %r" % (lines_split[line])
+                print("Invalid character on line: %r" % (lines_split[line]))
             raise e
 
         root = tree.getroot()

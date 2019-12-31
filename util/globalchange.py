@@ -1,3 +1,4 @@
+from __future__ import print_function
 # ***** BEGIN LICENSE BLOCK *****
 # Version: MPL 1.1/GPL 2.0/LGPL 2.1
 # 
@@ -37,7 +38,7 @@
 import sys, os
 names = {}
 
-print sys.argv[1]
+print(sys.argv[1])
 map = eval(open(sys.argv[1]).read())
 
 import re
@@ -48,14 +49,14 @@ for fname in sys.argv[2:]:
         p = re.compile(orig, re.M)
         matched = re.search(p, data)
         if matched:
-            if not names.has_key(fname):
+            if fname not in names:
                 names[fname] = []
             names[fname].append((orig, target))
 import pprint
 #pprint.pprint(names)
 if 1:
     for fname in names.keys():
-        print 'do fname', fname,  names[fname]
+        print('do fname', fname,  names[fname])
         os.system('p4 edit ' + fname)
         data = open(fname).read()
         for orig, target in names[fname]:

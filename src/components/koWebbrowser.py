@@ -68,14 +68,14 @@ class KoWebbrowser(object):
         """Spawn the given command (or argv) and return true iff successful"""
         try:
             env = koprocessutils.getUserEnv()
-        except ServerException, ex:
+        except ServerException as ex:
             log.error(str(ex))
             return 1
         try:
             process.ProcessOpen(command, env=env, stdin=None, stdout=None,
                                 stderr=None)
             return 1
-        except process.ProcessError, ex:
+        except process.ProcessError as ex:
             log.error(str(ex))
             return 0
 
@@ -111,7 +111,7 @@ class KoWebbrowser(object):
                         num = int(part[1:])-2
                         try:
                             interpolated += args[num]
-                        except IndexError,ex:
+                        except IndexError as ex:
                             pass
                     state = LITERAL
         else:
@@ -152,7 +152,7 @@ class KoWebbrowser(object):
         try:
             os.startfile(url)
             return 1
-        except WindowsError, e:
+        except WindowsError as e:
             # I don't know who is at fault here but if Netscape 6 (and
             # presumable, therefore, some versions of Mozilla) is set as
             # the default then (1) the browser successfully loads the
@@ -339,7 +339,7 @@ class KoWebbrowser(object):
                     join(programFiles, "Opera"))
             try:
                 localAppDataDir = _get_win_folder("CSIDL_LOCAL_APPDATA")
-            except Exception, ex:
+            except Exception as ex:
                 log.warn("error getting local appdata dir: %s", ex)
             else:
                 if localAppDataDir:

@@ -23,15 +23,16 @@
 # ===================================================================
 
 """Self-test for random number generators"""
+from __future__ import absolute_import
 
 __revision__ = "$Id$"
 
 def get_tests(config={}):
     tests = []
-    import Fortuna;             tests += Fortuna.get_tests(config=config)
-    import OSRNG;               tests += OSRNG.get_tests(config=config)
-    import test_random;         tests += test_random.get_tests(config=config)
-    import test_rpoolcompat;    tests += test_rpoolcompat.get_tests(config=config)
+    from . import Fortuna;             tests += Fortuna.get_tests(config=config)
+    from . import OSRNG;               tests += OSRNG.get_tests(config=config)
+    from . import test_random;         tests += test_random.get_tests(config=config)
+    from . import test_rpoolcompat;    tests += test_rpoolcompat.get_tests(config=config)
     return tests
 
 if __name__ == '__main__':

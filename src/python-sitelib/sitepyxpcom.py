@@ -98,8 +98,8 @@ def redirect_std_handles():
 
 #---- mainline
 
-if not os.environ.has_key("KOMODO_VERBOSE"):
+if "KOMODO_VERBOSE" not in os.environ:
     redirect_std_handles()
 
-if __debug__ or os.environ.has_key("KOMODO_DEVELOPER"):
+if __debug__ or "KOMODO_DEVELOPER" in os.environ:
     import thread_helper

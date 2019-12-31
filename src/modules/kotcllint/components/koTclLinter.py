@@ -36,6 +36,7 @@
 # 
 # ***** END LICENSE BLOCK *****
 
+from __future__ import print_function
 import os
 from os.path import join, abspath, dirname
 import sys
@@ -300,7 +301,7 @@ class KoTclCompileLinter:
             env["TCLLIBPATH"] = TCLLIBPATH
 
         cwd = request.cwd or None
-        print 'argv: %r' % (argv, )
+        print('argv: %r' % (argv, ))
         p = process.ProcessOpen(argv, cwd=cwd, env=env)
         lOutput, lErrOut = p.communicate(text)
         lOutput = lOutput.splitlines(1)

@@ -1,3 +1,4 @@
+from __future__ import print_function
 # $Id$
 # sgmlop selftest (designed for python 2.1)
 #
@@ -7,11 +8,11 @@ import sgmlop, string
 
 class echo_handler:
     def handle_special(self, text):
-        print "SPECIAL", repr(text)
+        print("SPECIAL", repr(text))
     def handle_proc(self, target, value):
-        print "PROC", repr(target), repr(value)
+        print("PROC", repr(target), repr(value))
     def finish_starttag(self, tag, attrs):
-        print "START", tag,
+        print("START", tag, end=' ')
         if isinstance(attrs, type({})):
             items = attrs.items()
             items.sort()
@@ -23,11 +24,11 @@ class echo_handler:
             attrs = attrs + "}"
         else:
             attrs = repr(attrs)
-        print attrs
+        print(attrs)
     def finish_endtag(self, tag):
-        print "END", tag
+        print("END", tag)
     def handle_data(self, data):
-        print "DATA", repr(data)
+        print("DATA", repr(data))
 
 class recursive_handler(echo_handler):
     parser = None
@@ -37,15 +38,15 @@ class recursive_handler(echo_handler):
 
 class entity_handler(echo_handler):
     def handle_entityref(self, entityref):
-        print "ENTITY", entityref
+        print("ENTITY", entityref)
 
 class charref_handler(echo_handler):
     def handle_charref(self, charref):
-        print "CHARREF", charref
+        print("CHARREF", charref)
 
 class entity_resolve_handler(echo_handler):
     def resolve_entityref(self, entityref):
-        print "RESOLVE", entityref
+        print("RESOLVE", entityref)
         return entityref
 
 # sanity checks
@@ -389,4 +390,4 @@ def bug_xmltoolkit38():
 if __name__ == "__main__":
     import doctest, selftest
     failed, tested = doctest.testmod(selftest)
-    print tested - failed, "tests ok."
+    print(tested - failed, "tests ok.")

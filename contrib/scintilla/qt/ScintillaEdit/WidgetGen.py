@@ -2,6 +2,7 @@
 # WidgetGen.py - regenerate the ScintillaWidgetCpp.cpp and ScintillaWidgetCpp.h files
 # Check that API includes all gtkscintilla2 functions
 
+from __future__ import print_function
 import sys
 import os
 import getopt
@@ -243,10 +244,10 @@ def main(argv):
 			namesGtk = set(gtkNames())
 			for name in namesGtk:
 				if name not in names:
-					print(name, "not found in Qt version")
+					print((name, "not found in Qt version"))
 			for name in names:
 				if name not in namesGtk:
-					print(name, "not found in GTK+ version")
+					print((name, "not found in GTK+ version"))
 	except:
 		raise
 

@@ -38,6 +38,7 @@
 
 # Run a number of cases of 'measure_lint_leak.py'
 
+from __future__ import print_function
 import os, time
 
 timeStamp = int(time.time())
@@ -74,6 +75,6 @@ cmdTemplate = r'python measure_lint_leak.py --komodo="%(komodo)s" %(file)s > mea
 
 for run in runs:
     cmd = cmdTemplate % run
-    print "running '%s'..." % cmd
+    print("running '%s'..." % cmd)
     os.system(cmd)
 

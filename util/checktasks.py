@@ -3,6 +3,7 @@
 
     mk check:*
 """
+from __future__ import print_function
 
 import os
 from os.path import join, dirname, normpath, abspath, isabs, exists, \
@@ -73,7 +74,7 @@ class langinfo(Task):
             if not li.is_text:
                 continue
             if li.name not in ko_ext_from_lang:
-                print "warning: `%s' langinfo not in Komodo" % li.name
+                print("warning: `%s' langinfo not in Komodo" % li.name)
                 num_warnings += 1
 
         num_errors = 0
@@ -81,8 +82,8 @@ class langinfo(Task):
             if ko_lang not in li_langs:
                 ext = ko_ext_from_lang[ko_lang]
                 ext_str = ext and (" (ext: %s)" % ext) or ""
-                print "error: `%s' Komodo lang%s not in langinfo" \
-                      % (ko_lang, ext_str)
+                print("error: `%s' Komodo lang%s not in langinfo" \
+                      % (ko_lang, ext_str))
                 num_errors += 1
 
         self.log.info("%d errors, %d warnings", num_errors, num_warnings)

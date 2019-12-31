@@ -1,3 +1,4 @@
+from __future__ import print_function
 # ***** BEGIN LICENSE BLOCK *****
 # Version: MPL 1.1/GPL 2.0/LGPL 2.1
 # 
@@ -69,9 +70,9 @@ configuration = {
 # The custom build procedure.
 def SayHello(projectConfig, argv):
     # a custom build procedure is launched "in" the project root directory
-    print "the cwd is", os.getcwd()
+    print("the cwd is", os.getcwd())
     # a custom build procedure is passed the command line arg vector
-    print "the command line args are", argv[1:]
+    print("the command line args are", argv[1:])
     # the project configuration module (i.e. bkconfig.py) is passed in so the
     # routine can determine configuration items:
     #  - invoke perl using the configured Perl bin directory

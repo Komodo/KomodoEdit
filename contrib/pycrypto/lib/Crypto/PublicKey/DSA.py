@@ -104,7 +104,7 @@ class _DSAobj(pubkey.pubkey):
             self.implementation = DSAImplementation()
         t = []
         for k in self.keydata:
-            if not d.has_key(k):
+            if k not in d:
                 break
             t.append(d[k])
         self.key = self.implementation._math.dsa_construct(*tuple(t))

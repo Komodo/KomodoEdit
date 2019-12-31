@@ -42,6 +42,7 @@
     - to individual test_* methods via a "tags" attribute list (you can
       use the testlib.tag() decorator for this).
 """
+from __future__ import print_function
 #TODO:
 # - Document how tests are found (note the special "test_cases()" and
 #   "test_suite_class" hooks).
@@ -244,9 +245,9 @@ def testmods_from_testdir(testdir):
                 testmod = imp.load_module(testmod_name, *iinfo)
             finally:
                 del sys.path[0]
-        except TestSkipped, ex:
+        except TestSkipped as ex:
             log.warn("'%s' module skipped: %s", testmod_name, ex)
-        except Exception, ex:
+        except Exception as ex:
             log.warn("could not import test module '%s': %s (skipping, "
                      "run with '-d' for full traceback)",
                      testmod_path, ex)
@@ -285,7 +286,7 @@ def testcases_from_testmod(testmod):
                     continue
                 for testcase in loader.loadTestsFromTestCase(testcase_class):
                     yield testcase
-        except Exception, ex:
+        except Exception as ex:
             testmod_path = testmod.__file__
             if testmod_path.endswith(".pyc"):
                 testmod_path = testmod_path[:-1]
@@ -439,23 +440,23 @@ def list_tests(testdir_from_ns, tags):
     if log.isEnabledFor(logging.INFO): # long-form
         for i, t in enumerate(tests):
             if i:
-                print
+                print()
             testfile = t.testmod.__file__
             if testfile.endswith(".pyc"):
                 testfile = testfile[:-1]
-            print "%s:" % t.shortname()
-            print "  from: %s#%s.%s" \
-                  % (testfile, t.testcase.__class__.__name__, t.testfn_name)
+            print("%s:" % t.shortname())
+            print("  from: %s#%s.%s" \
+                  % (testfile, t.testcase.__class__.__name__, t.testfn_name))
             wrapped = textwrap.fill(' '.join(t.tags()), WIDTH-10)
-            print "  tags: %s" % _indent(wrapped, 8, True)
+            print("  tags: %s" % _indent(wrapped, 8, True))
             if t.doc():
-                print _indent(t.doc(), width=2)
+                print(_indent(t.doc(), width=2))
     else:
         for t in tests:
             line = t.shortname() + ' '
             if t.explicit_tags():
                 line += '[%s]' % ' '.join(t.explicit_tags())
-            print line
+            print(line)
 
 
 #---- text test runner that can handle TestSkipped reasonably
@@ -685,13 +686,13 @@ def harness(testdir_from_ns={None: os.curdir}, argv=sys.argv,
     logging.basicConfig()
     try:
         log_level, action, tags = _parse_opts(argv[1:])
-    except getopt.error, ex:
+    except getopt.error as ex:
         log.error(str(ex) + " (did you need a '--' before a '-TAG' argument?)")
         return 1
     log.setLevel(log_level)
 
     if action == "help":
-        print __doc__
+        print(__doc__)
         return 0
     if action == "list":
         return list_tests(testdir_from_ns, tags)

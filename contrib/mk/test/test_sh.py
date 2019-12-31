@@ -2,6 +2,7 @@
 # Copyright (c) 2004-2007 ActiveState Software Inc.
 
 """Test mklib/sh.py (shell utilities)."""
+from __future__ import print_function
 
 import sys
 import os
@@ -21,13 +22,13 @@ class Error(Exception):
 #---- internal support routines
 
 def _getumask():
-    oldumask = os.umask(077)
+    oldumask = os.umask(0o77)
     os.umask(oldumask)
     return oldumask
 
 def _run(cmd):
     DEBUG = False
-    if DEBUG: print "running '%s'" % cmd
+    if DEBUG: print("running '%s'" % cmd)
     if DEBUG:
         redirect = ""
     elif sys.platform == "win32":
@@ -244,13 +245,13 @@ class CpTestCase(unittest.TestCase):
             from mklib.sh import cp
             os.mkdir("dira")
             os.mkdir("dirb")
-            os.chmod("dirb", 0666)
+            os.chmod("dirb", 0o666)
             try:
                 self.assertRaises(OSError, cp, "dira", "dirb", recursive=True)
             finally:
                 # Have to do this because HP-UX 11's `chmod -R` can't
                 # handle it.
-                os.chmod("dirb", 0777)
+                os.chmod("dirb", 0o777)
 
         def test_permissions(self):
             # Test nitpicky permissions on a simple copy:
@@ -260,39 +261,39 @@ class CpTestCase(unittest.TestCase):
             a = "filea"
             b = "fileb"
 
-            old_umask = os.umask(022)
+            old_umask = os.umask(0o22)
             try:
                 # - before: filea (-rw-r--r--), no fileb, umask=0022
                 #   action: cp filea fileb
                 #   after:  filea (-rw-r--r--), fileb (-rw-r--r--)
                 _write(a, "filea's content")
-                os.chmod(a, 0644)
+                os.chmod(a, 0o644)
                 cp(a, b)
-                self.assertFile(b, mode=0644)
+                self.assertFile(b, mode=0o644)
 
                 # - before: filea (-rwxrwxrwx), no fileb, umask=0022
                 #   action: cp filea fileb
                 #   after:  filea (-rwxrwxrwx), fileb (-rwxr-xr-x)
                 os.remove(b)
-                os.chmod(a, 0777)
+                os.chmod(a, 0o777)
                 cp(a, b)
-                self.assertFile(b, mode=0755)
+                self.assertFile(b, mode=0o755)
 
                 # - before: filea (-rw-r--r--), fileb (-rwxrwxrwx), umask=0022
                 #   action: cp filea fileb
                 #   after:  filea (-rw-r--r--), fileb (-rwxrwxrwx)
-                os.chmod(a, 0644)
-                os.chmod(b, 0777)
+                os.chmod(a, 0o644)
+                os.chmod(b, 0o777)
                 cp(a, b)
-                self.assertFile(b, mode=0777)
+                self.assertFile(b, mode=0o777)
 
                 # - before: filea (-rwxrwxrwx), fileb (--w-------), umask=0022
                 #   action: cp filea fileb
                 #   after:  filea (-rwxrwxrwx), fileb (--w-------)
-                os.chmod(a, 0777)
-                os.chmod(b, 0200)
+                os.chmod(a, 0o777)
+                os.chmod(b, 0o200)
                 cp(a, b)
-                self.assertFile(b, mode=0200)
+                self.assertFile(b, mode=0o200)
             finally:
                 os.umask(old_umask)
 
@@ -301,17 +302,17 @@ class CpTestCase(unittest.TestCase):
         a = "filea"; b = "fileb"
         _write(a, "this is filea")
         a_stat = os.stat(a)
-        os.chmod(a, 0777)
+        os.chmod(a, 0o777)
         cp(a, b, preserve=True)
         self.assertFile(b, mtime=a_stat.st_mtime, atime=a_stat.st_atime)
         if sys.platform != "win32":
-            self.assertFile(b, mode=0777)
+            self.assertFile(b, mode=0o777)
 
-        os.chmod(a, 0700)
+        os.chmod(a, 0o700)
         cp(a, b, preserve=True)
         self.assertFile(b, mtime=a_stat.st_mtime, atime=a_stat.st_atime)
         if sys.platform != "win32":
-            self.assertFile(b, mode=0700)
+            self.assertFile(b, mode=0o700)
 
     def test_no_preserve(self):
         from mklib.sh import cp
@@ -334,9 +335,9 @@ class CpTestCase(unittest.TestCase):
             a = "dira"; b = "dirb"
             os.mkdir(a)
             a_stat = os.stat(a)
-            os.chmod(a, 0777)
+            os.chmod(a, 0o777)
             cp(a, b, recursive=True, preserve=True)
-            self.assertDir(b, mode=0777, mtime=a_stat.st_mtime,
+            self.assertDir(b, mode=0o777, mtime=a_stat.st_mtime,
                            atime=a_stat.st_atime)
 
     if sys.platform == "win32":
@@ -404,7 +405,7 @@ class CpTestCase(unittest.TestCase):
             finally:
                 # Have to do this because HP-UX 11's `chmod -R` can't
                 # handle it.
-                os.chmod("noaccess", 0777)
+                os.chmod("noaccess", 0o777)
 
     def test_trailing_slashes(self):
         from mklib.sh import cp
@@ -459,7 +460,7 @@ class CpTestCase(unittest.TestCase):
 
         try:
             callable(*args, **kwargs)
-        except exception, exc:
+        except exception as exc:
             if exc_args is not None:
                 self.failIf(exc.args != exc_args,
                             "%s raised %s with unexpected args: "\
@@ -473,7 +474,7 @@ class CpTestCase(unittest.TestCase):
                                    str(exc)))
         except:
             exc_info = sys.exc_info()
-            print exc_info
+            print(exc_info)
             self.fail("%s raised an unexpected exception type: "\
                       "expected=%s, actual=%s"\
                       % (callsig, exception, exc_info[0]))

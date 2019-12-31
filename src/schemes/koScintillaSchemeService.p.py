@@ -129,7 +129,7 @@ class Scheme(SchemeBase):
         except SyntaxError:
             log.exception("Syntax Error loading scheme %s:", fname)
             return False
-        except Exception, ex:
+        except Exception as ex:
             log.exception("Error loading scheme %s:", fname)
             return False
 
@@ -338,7 +338,7 @@ class Scheme(SchemeBase):
                 self.save()
                 log.warn("Upgraded scheme %r from version %d to %d.",
                          self.name, orig_version, self._current_scheme_version)
-            except EnvironmentError, ex:
+            except EnvironmentError as ex:
                 log.warn("Unable to save scheme upgrade for %r, error: %r",
                          self.name, ex)
 
@@ -1398,7 +1398,7 @@ class KoScintillaSchemeService(SchemeServiceBase):
             f = open(fname, 'wb')
             f.write(text)
             f.close()
-        except Exception, ex:
+        except Exception as ex:
             errmsg = str(ex)
             self.lastErrorSvc.setLastError(nsError.NS_ERROR_FAILURE,
                                            errmsg)
@@ -1694,7 +1694,7 @@ class KoScintillaSchemeService(SchemeServiceBase):
 
     def getStyleTags(self, language, styleNumber):
         """ Returns a tuple containing the open and close HTML tags"""
-        if self._htmlStyleTags.has_key(styleNumber):
+        if styleNumber in self._htmlStyleTags:
             return self._htmlStyleTags[styleNumber]
         language = str(language)
         if (styleNumber, language) in ScimozStyleNo2CommonName:

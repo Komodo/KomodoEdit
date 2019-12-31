@@ -63,6 +63,7 @@
         -n, --no-clean  Don't clean up after setting up and running the
                         test suite.
 """
+from __future__ import print_function
 
 import os
 import sys
@@ -92,7 +93,7 @@ gVerbosity = 2
 def _rmtreeOnError(rmFunction, filePath, excInfo):
     if excInfo[0] == OSError:
         # presuming because file is read-only
-        os.chmod(filePath, 0777)
+        os.chmod(filePath, 0o777)
         rmFunction(filePath)
 
 def _rmtree(dirname):
@@ -137,8 +138,8 @@ def test(testModules, testDir=os.curdir, exclude=[]):
             allSuites.append(suite())
         else:
             if gVerbosity >= 2:
-                print "WARNING: module '%s' did not have a suite() method."\
-                      % moduleFile
+                print("WARNING: module '%s' did not have a suite() method."\
+                      % moduleFile)
     suite = unittest.TestSuite(allSuites)
 
     # Run the suite.
@@ -157,9 +158,9 @@ def main(argv):
         opts, testModules = getopt.getopt(sys.argv[1:], 'hvqx:cn',
             ['help', 'verbose', 'quiet', 'exclude=',
              'clean', 'no-clean'])
-    except getopt.error, ex:
-        print "%s: ERROR: %s" % (argv[0], ex)
-        print __doc__
+    except getopt.error as ex:
+        print("%s: ERROR: %s" % (argv[0], ex))
+        print(__doc__)
         sys.exit(2)  
     exclude = []
     setupOpts = {}
@@ -167,7 +168,7 @@ def main(argv):
     clean = 1
     for opt, optarg in opts:
         if opt in ("-h", "--help"):
-            print __doc__
+            print(__doc__)
             sys.exit(0)
         elif opt in ("-v", "--verbose"):
             gVerbosity += 1

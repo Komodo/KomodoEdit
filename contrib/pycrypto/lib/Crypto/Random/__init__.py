@@ -22,11 +22,12 @@
 # SOFTWARE.
 # ===================================================================
 
+from __future__ import absolute_import
 __revision__ = "$Id$"
 __all__ = ['new']
 
-import OSRNG
-import _UserFriendlyRNG
+from . import OSRNG
+from . import _UserFriendlyRNG
 
 def new(*args, **kwargs):
     """Return a file-like object that outputs cryptographically random bytes."""

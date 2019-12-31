@@ -42,6 +42,7 @@
 
 Outputs the added or removed element names between the two cix files.
 """
+from __future__ import print_function
 
 import re
 import os.path
@@ -57,7 +58,7 @@ def report_missing(elem, names):
         elem_type = childElem.get("ilk") or childElem.tag
         if elem_type == "variable" and len(childElem):
             elem_type = "namespace"
-        print "  missing %-10s %r" % (elem_type, name)
+        print("  missing %-10s %r" % (elem_type, name))
 
 def report_additional(elem, names):
     for name in sorted(names):
@@ -67,21 +68,21 @@ def report_additional(elem, names):
             elem_type = "namespace"
         path = childElem.get("path")
         if path:
-            print "  additional %-10s %-20r %s#%s" % (elem_type, name, path, childElem.get("line", ""))
+            print("  additional %-10s %-20r %s#%s" % (elem_type, name, path, childElem.get("line", "")))
         else:
-            print "  additional %-10s %r" % (elem_type, name)
+            print("  additional %-10s %r" % (elem_type, name))
 
 def report_missing_attributes(elem, names):
     for name in sorted(names):
-        print "  missing attr %-10r => %r" % (name, elem.get(name))
+        print("  missing attr %-10r => %r" % (name, elem.get(name)))
 
 def report_additional_attributes(elem, names):
     for name in sorted(names):
-        print "  additional attr %-10r => %r" % (name, elem.get(name))
+        print("  additional attr %-10r => %r" % (name, elem.get(name)))
 
 def report_attribute_differences(elem1, elem2, names):
     for name in sorted(names):
-        print "  attr %-10s differs, %r != %r" % (name, elem1.get(name), elem2.get(name))
+        print("  attr %-10s differs, %r != %r" % (name, elem1.get(name), elem2.get(name)))
 
 def diffElements(opts, lpath, e1, e2):
     # Ignore elements with these set attributes.
@@ -117,7 +118,7 @@ def diffElements(opts, lpath, e1, e2):
                 attrs_that_differ.append(attr)
     if names_in_e1_only or names_in_e2_only or attrs_in_e1_only or \
        attrs_in_e2_only or attrs_that_differ:
-        print "%r differs" % (lpath, )
+        print("%r differs" % (lpath, ))
         if names_in_e1_only:
             report_missing(e1, names_in_e1_only)
         if names_in_e2_only:
@@ -146,7 +147,7 @@ def diffCixFiles(opts, filename1, filename2):
                     elem1 = elem1.names[name]
                     elem2 = elem2.names[name]
                 except KeyError:
-                    print "lpath not found in both cix files: %r" % (lpath, )
+                    print("lpath not found in both cix files: %r" % (lpath, ))
                     return
             elems1.append(elem1)
             elems2.append(elem2)
@@ -154,7 +155,7 @@ def diffCixFiles(opts, filename1, filename2):
         elems1 = [e1]
         elems2 = [e2]
     for e1, e2 in zip(elems1, elems2):
-        print "Diffing elements: %r, %r" % (e1, e2)
+        print("Diffing elements: %r, %r" % (e1, e2))
         diffElements(opts, [], e1, e2)
 
 def main(argv=None):

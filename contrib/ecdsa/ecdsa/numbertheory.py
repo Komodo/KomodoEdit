@@ -16,6 +16,7 @@ from .six.moves import reduce
 
 import math
 import types
+from functools import reduce
 
 
 class Error( Exception ):

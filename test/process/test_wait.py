@@ -51,7 +51,7 @@ class WaitTestCase(unittest.TestCase):
         self._hitLinuxThreadsBug = 0
         try:
             child.wait()
-        except OSError, ex:
+        except OSError as ex:
             self._hitLinuxThreadsBug = 1
         else:
             self._hitLinuxThreadsBug = 0

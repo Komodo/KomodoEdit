@@ -1,3 +1,4 @@
+from __future__ import print_function
 # Copyright (c) 2000-2011 ActiveState Software Inc.
 # See the file LICENSE.txt for licensing information.
 
@@ -26,9 +27,9 @@ except ImportError:
                     os.path.split(sys.argv[0])[0], "../scintilla/scripts"
                 ))
     if not os.path.isfile(os.path.join(scintillaIncPath,"Scintilla.iface")):
-        print "WARNING: Expecting to find 'Face.py' and 'Scintilla.iface' in path"
-        print scintillaIncPath, ", but I can't. "
-        print "I'm probably gunna fail real-soon-now!"
+        print("WARNING: Expecting to find 'Face.py' and 'Scintilla.iface' in path")
+        print(scintillaIncPath, ", but I can't. ")
+        print("I'm probably gunna fail real-soon-now!")
     sys.path.insert(0, scintillaIncPath)
     sys.path.insert(1, scintillaScriptsPath)
     import Face
@@ -489,7 +490,7 @@ def generate_idl_constants_fragment(face):
     """
     unwantedValues = ["SCI_START", "SCI_OPTIONAL_START", "SCI_LEXER_START"]
     outputfile = file("ISciMoz_gen.consts.fragment", "w")
-    print "Dumping ISciMoz interface constants to %s" % outputfile.name
+    print("Dumping ISciMoz interface constants to %s" % outputfile.name)
     outputfile.write("%{C++\n#ifndef SCINTILLA_HIDE_DEFINES\n%}\n")
     for name in face.order:
         if name in unwantedValues:
@@ -609,7 +610,7 @@ def generate_idl_lite_fragment(face):
     @param face: the scintilla interface definition structure
     """
     outputfile = file("ISciMoz_lite_gen.idl.fragment", "w")
-    print "Dumping ISciMoz 'lite' inteface to %s" % outputfile.name
+    print("Dumping ISciMoz 'lite' inteface to %s" % outputfile.name)
     liteFeatures = str.split("""
         addText insertText length currentPos anchor selectAll gotoLine
         gotoPos startStyling setStyling markerAdd markerNext styleSetFore
@@ -671,7 +672,7 @@ def generate_idl_full_fragment(face):
     interfaceCount = 0
     slotCount = 0
 
-    print "Dumping ISciMoz inteface to %s" % outputfile.name
+    print("Dumping ISciMoz inteface to %s" % outputfile.name)
     _(idlTemplateHead % (static_guids[interfaceCount], interfaceCount), file=outputfile)
     for name in face.order:
         if idlName(name) in suppressedFeatures:
@@ -908,7 +909,7 @@ def generate_cxx_xpcom_fragment(face):
     @param face: the scintilla interface definition structure
     """
     outputfile = file("npscimoz_gen.h", "w")
-    print "Dumping C++ SciMoz implementation to %s" % outputfile.name
+    print("Dumping C++ SciMoz implementation to %s" % outputfile.name)
     for name in face.order:
         if idlName(name) in manualFunctions + discardedFeatures:
             # skip manually implemented functions
@@ -930,7 +931,7 @@ def generate_npapi_identifiers(face, file):
     @param face: the scintilla interface definition structure
     @param file: the file to write to
     """
-    print "Dumping NPAPI identifier declarations to %s" % file.name
+    print("Dumping NPAPI identifier declarations to %s" % file.name)
 
     methods = set(manualFunctions)
     for name in face.order:
@@ -968,7 +969,7 @@ def generate_npapi_init(methods, properties, file):
     @param properties: the list of property names (as listed in the idl)
     @param file: the file to write to
     """
-    print "Dumping NPAPI identifier initialization to %s" % file.name
+    print("Dumping NPAPI identifier initialization to %s" % file.name)
     _("""
         static bool mNPIdentifiersInitialized = 0;
         void SciMoz::SciMozInitNPIdentifiers() {
@@ -1008,7 +1009,7 @@ def generate_npapi_has_method(face, file):
     @param face: the scintilla interface definition structure
     @param file: the file to write to
     """
-    print "Generating NPAPI HasMethod implementation in %s" % file.name
+    print("Generating NPAPI HasMethod implementation in %s" % file.name)
     _("""
       bool
       SciMoz::HasMethod(NPIdentifier np_name)
@@ -1262,7 +1263,7 @@ def generate_npapi_invoke(face, file):
     @param face: the scintilla interface definition structure
     @param file: the file to write to
     """
-    print "Generating NPAPI Invoke implementation in %s" % file.name
+    print("Generating NPAPI Invoke implementation in %s" % file.name)
     _("""
       bool
       SciMoz::Invoke(NPP instance,
@@ -1308,7 +1309,7 @@ def generate_npapi_has_property(face, file):
     @param face: the scintilla interface definition structure
     @param file: the file to write to
     """
-    print "Generating NPAPI HasProperty implementation in %s" % file.name
+    print("Generating NPAPI HasProperty implementation in %s" % file.name)
     _("""
       bool
       SciMoz::HasProperty(NPIdentifier np_name)
@@ -1428,7 +1429,7 @@ def generate_npapi_get_property(face, file):
     @param face: the scintilla interface definition structure
     @param file: the file to write to
     """
-    print "Generating NPAPI GetProperty implementation in %s" % file.name
+    print("Generating NPAPI GetProperty implementation in %s" % file.name)
     _("""
       bool
       SciMoz::GetProperty(NPIdentifier np_name, NPVariant *result)
@@ -1592,7 +1593,7 @@ def generate_npapi_set_property(face, file):
     @param face: the scintilla interface definition structure
     @param file: the file to write to
     """
-    print "Generating NPAPI SetProperty implementation in %s" % file.name
+    print("Generating NPAPI SetProperty implementation in %s" % file.name)
     _("""
       bool
       SciMoz::SetProperty(NPIdentifier np_name, const NPVariant *value)
@@ -1621,7 +1622,7 @@ def generate_npapi_set_property(face, file):
 
 def generate_wrapper(face, interfaceCount):
     outputfile = file("ISciMoz_jswrapper_gen.fragment", "w")
-    print "Generating XPCOM wrapper in %s" % outputfile.name
+    print("Generating XPCOM wrapper in %s" % outputfile.name)
     for i in range(interfaceCount + 1):
         _("""
           koSciMozWrapper.prototype._interfaces.push(Components.interfaces.ISciMoz_Part%(i)s);

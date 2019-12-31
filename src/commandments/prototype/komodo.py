@@ -38,6 +38,7 @@
 
 # equiv to Komodo's komodo.exe
 
+from __future__ import print_function
 import os
 import sys
 import re
@@ -202,7 +203,7 @@ def getKomodoStatus():
         # If cannot get a lock on the running lock file then Komodo is running.
         try:
             fd = os.open(_gRunningLockFileName, os.O_RDONLY)
-        except OSError, ex:
+        except OSError as ex:
             # OSError: [Errno 2] No such file or directory: 'running.lock'
             if ex.errno == 2:
                 return KS_NOTRUNNING
@@ -212,7 +213,7 @@ def getKomodoStatus():
         try:
             try:
                 fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
-            except IOError, ex:
+            except IOError as ex:
                 # Darwin:
                 #   IOError: [Errno 35] Resource temporarily unavailable
                 # Elsewhere:
@@ -266,13 +267,13 @@ def waitUntilKomodoIsRunning():
         for i in range(60, 0, -1):
             if getKomodoStatus() == KS_RUNNING:
                 break
-            print "Waiting for an existing Komodo to finish "\
-                  "starting up (timeout in %d sec)." % i
+            print("Waiting for an existing Komodo to finish "\
+                  "starting up (timeout in %d sec)." % i)
             time.sleep(1)
         else:
-            print "WARNING: Either an existing Komodo is locked trying to\n"\
+            print("WARNING: Either an existing Komodo is locked trying to\n"\
                   "         startup or Komodo did not shutdown properly \n"\
-                  "         last time. Recovering and re-starting."
+                  "         last time. Recovering and re-starting.")
             # Timed out: Komodo has not started up, so start up our own.
             os.unlink(_gRunningLockFileName)
             retval = 0
@@ -310,7 +311,7 @@ def main(argv):
     elif action == KA_STARTANDWAIT:
         startMozilla()
         if not waitUntilKomodoIsRunning():
-            print "XXX wait was not successful, starting mozilla again"
+            print("XXX wait was not successful, starting mozilla again")
             startMozilla()
             waitUntilKomodoIsRunning()
     elif action == KA_WAIT:

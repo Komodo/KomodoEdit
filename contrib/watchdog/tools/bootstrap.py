@@ -17,6 +17,7 @@ Simply run this script in a directory containing a buildout.cfg.
 The script accepts buildout command-line options, so you can
 use the -c option to specify an alternate configuration file.
 """
+from __future__ import print_function
 
 import os, shutil, sys, tempfile, textwrap
 try:

@@ -1,3 +1,4 @@
+from __future__ import print_function
 # ***** BEGIN LICENSE BLOCK *****
 # Version: MPL 1.1/GPL 2.0/LGPL 2.1
 # 
@@ -474,7 +475,7 @@ def tagEndFromStartViaMatchingName(scimoz, startTagPos, lastVisiblePos):
                 style = scimoz.getStyleAt(nextStartTagPos)
                 if style == 0 and canColourise:
                     if lastVisiblePos is not None and nextStartTagPos > lastVisiblePos:
-                        print "searching for end, got start-tag at %d past pos %d" % (nextStartTagPos, lastVisiblePos)
+                        print("searching for end, got start-tag at %d past pos %d" % (nextStartTagPos, lastVisiblePos))
                         return None
                     if lastVisiblePos is None:
                         scimoz.colourise(startTagPos, -1)

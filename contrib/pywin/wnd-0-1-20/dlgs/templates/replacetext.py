@@ -1,3 +1,4 @@
+from __future__ import print_function
 from wnd.consts import dlgs
 from wnd.tools.dlgeditor.dlgeditor import DlgEditor
 #::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -42,7 +43,7 @@ if __name__=='__main__':
 			
 		def on_fr(self, hwnd, msg, wp, lp):
 			if msg.startswith('fr_'):
-				print hwnd, msg, wp, lp
+				print(hwnd, msg, wp, lp)
 				
 		def onMSG(self, hwnd, msg, wp, lp):
 			if msg == 'open':

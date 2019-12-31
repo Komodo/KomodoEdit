@@ -23,6 +23,7 @@
 # ===================================================================
 
 """Self-test suite for Crypto.Cipher.XOR"""
+from __future__ import absolute_import
 
 import unittest
 
@@ -59,7 +60,7 @@ class TruncationSelfTest(unittest.TestCase):
 def get_tests(config={}):
     global XOR
     from Crypto.Cipher import XOR
-    from common import make_stream_tests
+    from .common import make_stream_tests
     return make_stream_tests(XOR, "XOR", test_data) + [TruncationSelfTest()]
 
 if __name__ == '__main__':

@@ -4,6 +4,7 @@
 This script checks that we're not accidentally imaging files that are not being
 shipped.
 """
+from __future__ import print_function
 
 import imp
 import os
@@ -130,7 +131,7 @@ feature-*.ini in "src/install/wix".
 
 %s
 """ % ("\n\n".join(msg,)))
-    print "Features %s appears to have correct manifests" % (", ".join(features))
+    print("Features %s appears to have correct manifests" % (", ".join(features)))
 
 
 if __name__ == '__main__':

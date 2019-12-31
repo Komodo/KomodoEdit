@@ -38,6 +38,7 @@
 #   Trent Mick (TrentM@ActiveState.com)
 
 """A Python interpretation of GNU make."""
+from __future__ import print_function
 
 __revision__ = "$Id$"
 __version_info__ = (0, 3, 0)
@@ -501,7 +502,7 @@ if __name__ == "__main__":
             log.error(exc_info[0])
         if log.isEnabledFor(logging.DEBUG):
             import traceback
-            print
+            print()
             traceback.print_exception(*exc_info)
         sys.exit(1)
     else:

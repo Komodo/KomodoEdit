@@ -126,14 +126,14 @@ class koFileNotificationService:
             nsIFile.initWithPath(path)
             # Convert the local path to a uri
             uri = self.__io_service.getURLSpecFromFile(nsIFile)
-        except COMException, e:
+        except COMException as e:
             # Try uri then
             log.debug("Could not initialise file with path, trying as URI")
             try:
                 uri = path
                 nsIFile = self.__io_service.getFileFromURLSpec(uri)
                 log.debug("URI initialised okay.")
-            except COMException, e:
+            except COMException as e:
                 log.debug("Could not initialise file with URI")
                 raise ServerException(nsError.NS_ERROR_FAILURE,
                                       "Invalid path format")

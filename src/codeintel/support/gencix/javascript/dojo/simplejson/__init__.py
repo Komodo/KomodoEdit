@@ -71,14 +71,15 @@ Extending JSONEncoder::
 Note that the JSON produced by this module is a subset of YAML,
 so it may be used as a serializer for that as well.
 """
+from __future__ import absolute_import
 __version__ = '1.3'
 __all__ = [
     'dump', 'dumps', 'load', 'loads',
     'JSONDecoder', 'JSONEncoder',
 ]
 
-from decoder import JSONDecoder
-from encoder import JSONEncoder
+from .decoder import JSONDecoder
+from .encoder import JSONEncoder
 
 def dump(obj, fp, skipkeys=False, ensure_ascii=True, check_circular=True,
         allow_nan=True, cls=None, **kw):

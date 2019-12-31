@@ -6,6 +6,7 @@ import spider
 s = spider.Spider()
 s.spider("http://www.google.com", maxURLs=100)
 """
+from __future__ import print_function
 
 import urllib.request, urllib.error, urllib.parse
 import urllib.robotparser
@@ -45,7 +46,7 @@ class Spider(object):
         except:
             self.buggyURLs.add(self.currentURL)
             failed = True
-            print("BUGGY:", self.currentURL)
+            print(("BUGGY:", self.currentURL))
         self.visitedURLs.add(self.currentURL)
         if not failed:
             self.updateURLs(tree)

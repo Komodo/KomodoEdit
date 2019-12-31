@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 #
 #  Random/OSRNG/posix.py : OS entropy source for POSIX systems
 #
@@ -28,7 +29,7 @@ __all__ = ['DevURandomRNG']
 import os
 import stat
 
-from rng_base import BaseRNG
+from .rng_base import BaseRNG
 
 class DevURandomRNG(BaseRNG):
 

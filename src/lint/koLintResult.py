@@ -179,6 +179,6 @@ class KoLintResult:
                 unicodebuffer, encoding, bom = _gEncodingServices.\
                                                  getUnicodeEncodedStringUsingOSDefault(self.description)
                 self.encodedDescription  = self._encode_string(unicodebuffer)
-            except Exception, e:
+            except Exception as e:
                 self.encodedDescription  = repr(self.description)[1:-1] # remove quotes
         return self.encodedDescription

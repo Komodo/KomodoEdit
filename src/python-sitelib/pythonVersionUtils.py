@@ -1,3 +1,4 @@
+from __future__ import print_function
 # Copyright (c) 2000-2010 ActiveState Software Inc.
 # See the file LICENSE.txt for licensing information.
 
@@ -86,7 +87,7 @@ def at_stmt_end(token_type, token_string):
     
 def safe_get_next_token(tokenizer):
     try:
-        return tokenizer.next()
+        return next(tokenizer)
     except (tokenize.TokenError, IndentationError):
         log.debug("problem getting next token")
         raise StopIteration
@@ -463,11 +464,11 @@ def foo():
 """
         f.set_text(code)
         # f.set_stdin()
-        print _calc_py2_py3_scores(f)
+        print(_calc_py2_py3_scores(f))
     else:
         import os
         for path in sys.argv[1:]:
             if not os.path.isfile(path):
                 continue
             f.set_file(path)
-            print "%s: %r" % (path, _calc_py2_py3_scores(f))
+            print("%s: %r" % (path, _calc_py2_py3_scores(f)))

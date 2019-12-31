@@ -1,5 +1,7 @@
 """Framework entry... """
+from __future__ import print_function
 
+from future.utils import raise_
 __version__= "0.1.20"
 
 
@@ -23,26 +25,26 @@ def DecreaseErrorLevel(): _fw.WND_ERRORLEVEL-= 1
 def Debug(*cathegory):
 	
 	def PrintUser():
-		print
-		print 'OPEN USER HANDLES:---------------------------------'
+		print()
+		print('OPEN USER HANDLES:---------------------------------')
 		for i in _fw.TrackHandler.GetOpen().items():
-			print i
-		print
+			print(i)
+		print()
 	
 	def PrintGDI():
 		from wnd.gdi.trackhandles import TrackHandler
-		print 'OPEN GDI HANDLES:---------------------------------'
+		print('OPEN GDI HANDLES:---------------------------------')
 		for i in TrackHandler.GetOpen().items():
-			print i
-		print
+			print(i)
+		print()
 	
 	def PrintLeaks():
 		import gc
-		print 'LEAKS FOUND:---------------------------------'
+		print('LEAKS FOUND:---------------------------------')
 		gc.set_debug(gc.DEBUG_LEAK)
 		leaks = gc.collect()
-		print '%s LEAKS"' % leaks
-		print
+		print('%s LEAKS"' % leaks)
+		print()
 	
 	avail=(
 	('user', PrintUser),
@@ -56,14 +58,14 @@ def Debug(*cathegory):
 			for name, func in avail:
 				if name==i: func()
 				flag=True
-			if not flag: raise ValueError, "invalid cathegory: %s" % i
+			if not flag:raise_(ValueError, "invalid cathegory: %s" % i)
 	else:
 		for name, func in avail: func()
 	
 	
 def RegisterWindowMessage(name):
 	msg = _user32.RegisterWindowMessageA(name)
-	if not msg: raise RuntimeError, "could not register message"
+	if not msg: raise RuntimeError("could not register message")
 	return msg
 
 

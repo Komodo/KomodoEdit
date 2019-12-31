@@ -1,3 +1,4 @@
+from __future__ import print_function
 def _capture_stdout(argv, ignore_retval=False, cwd=None, env=None):
     # Only available on python 2.4 and above
     import subprocess

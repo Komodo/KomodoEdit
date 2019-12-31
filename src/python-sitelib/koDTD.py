@@ -1,3 +1,4 @@
+from __future__ import print_function
 # ***** BEGIN LICENSE BLOCK *****
 # Version: MPL 1.1/GPL 2.0/LGPL 2.1
 # 
@@ -486,10 +487,10 @@ if __name__=="__main__":
         #print dtd.dataset.root
         #print dtd.dataset.possible_children("related-links")
         dtd = DTD(filename, casename=True)
-        print dtd.dataset.root
+        print(dtd.dataset.root)
         #print dtd.dataset.possible_children("table")
-        print dtd.dataset.possible_attributes("input")
-        print dtd.dataset.possible_attribute_values("input", "type")
+        print(dtd.dataset.possible_attributes("input"))
+        print(dtd.dataset.possible_attribute_values("input", "type"))
         #print dtd.dataset.possible_children("head")
         #dtd.dataset.dump(sys.stdout)
         #sys.exit(0)

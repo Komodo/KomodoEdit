@@ -41,7 +41,7 @@ def name(item):
 
 def is_classmethod(instancemethod):
     " Determine if an instancemethod is a classmethod. "
-    return instancemethod.im_self is not None
+    return instancemethod.__self__ is not None
 
 def is_class_private_name(name):
     " Determine if a name is a class private name. "
@@ -56,7 +56,7 @@ def method_name(method):
     """
     mname = name(method)
     if is_class_private_name(mname):
-        mname = "_%s%s" % (name(method.im_class), mname)
+        mname = "_%s%s" % (name(method.__self__.__class__), mname)
     return mname
 
 def format_arg_value(arg_val):
@@ -77,10 +77,10 @@ def echo(fn, write=sys.stdout.write):
     """
     import functools
     # Unpack function's arg count, arg names, arg defaults
-    code = fn.func_code
+    code = fn.__code__
     argcount = code.co_argcount
     argnames = code.co_varnames[:argcount]
-    fn_defaults = fn.func_defaults or list()
+    fn_defaults = fn.__defaults__ or list()
     argdefs = dict(zip(argnames[-len(fn_defaults):], fn_defaults))
 
     @functools.wraps(fn)
@@ -108,7 +108,7 @@ def echo_instancemethod(klass, method, write=sys.stdout.write):
     if mname in never_echo:
         pass
     elif is_classmethod(method):
-        setattr(klass, mname, classmethod(echo(method.im_func, write)))
+        setattr(klass, mname, classmethod(echo(method.__func__, write)))
     else:
         setattr(klass, mname, echo(method, write))
 

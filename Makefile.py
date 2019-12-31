@@ -5,6 +5,7 @@ ${common_task_list}
 
 See `mk -h' for options.
 """
+from __future__ import print_function
 
 import os
 from os.path import join, dirname, normpath, abspath, isabs, exists, \
@@ -48,7 +49,7 @@ class langpack(Task):
     def _svnversion_from_dir(self, dir):
         try:
             p = subprocess.Popen(["svnversion"], cwd=dir, stdout=subprocess.PIPE)
-        except EnvironmentError, ex:
+        except EnvironmentError as ex:
             self.log.debug("error running 'svnversion': %s", ex)
             return None
         version = p.stdout.read().strip()
@@ -165,7 +166,7 @@ class lscolors(Task):
             for color_name in self._color_names_from_css_path(css_path):
                 if color_name not in color_names:
                     color_names.add(color_name)
-                    print color_name
+                    print(color_name)
 
     # This doesn't get colors listed in groups CSS productions like
     #   border: 1px solid black;
@@ -207,7 +208,7 @@ class lsunusedentities(Task):
             for entity in entity_use_re.findall(xul):
                 entities.discard(entity)
         for entity in entities:
-            print entity
+            print(entity)
         if entities:
             self.log.info("%d unused entities", len(entities))
     
@@ -246,7 +247,7 @@ class lsnosvneolstyle(Task):
     """
     def make(self):
         for path in self._no_svn_eol_style_files(os.curdir):
-            print path
+            print(path)
 
     def _no_svn_eol_style_files(self, d):
         from os.path import split
@@ -300,7 +301,7 @@ def _svn_propfiles(root, fn):  # Derived from Python's Tools/scripts/svneol.py
         # local modifications in props
         return [os.path.join(root, ".svn", "prop-base", fn+".svn-base"),
                 os.path.join(root, ".svn", "props", fn+".svn-work")]
-    raise ValueError, "Unknown repository format"
+    raise ValueError("Unknown repository format")
 
 def _svn_proplist(root, fn):  # from Python's Tools/scripts/svneol.py
     "Return a list of property names for file fn in directory root"
@@ -352,8 +353,8 @@ def _dedentlines(lines, tabsize=8, skip_first_line=False):
     """
     DEBUG = False
     if DEBUG: 
-        print "dedent: dedent(..., tabsize=%d, skip_first_line=%r)"\
-              % (tabsize, skip_first_line)
+        print("dedent: dedent(..., tabsize=%d, skip_first_line=%r)"\
+              % (tabsize, skip_first_line))
     indents = []
     margin = None
     for i, line in enumerate(lines):
@@ -370,12 +371,12 @@ def _dedentlines(lines, tabsize=8, skip_first_line=False):
                 break
         else:
             continue # skip all-whitespace lines
-        if DEBUG: print "dedent: indent=%d: %r" % (indent, line)
+        if DEBUG: print("dedent: indent=%d: %r" % (indent, line))
         if margin is None:
             margin = indent
         else:
             margin = min(margin, indent)
-    if DEBUG: print "dedent: margin=%r" % margin
+    if DEBUG: print("dedent: margin=%r" % margin)
 
     if margin is not None and margin > 0:
         for i, line in enumerate(lines):
@@ -387,7 +388,7 @@ def _dedentlines(lines, tabsize=8, skip_first_line=False):
                 elif ch == '\t':
                     removed += tabsize - (removed % tabsize)
                 elif ch in '\r\n':
-                    if DEBUG: print "dedent: %r: EOL -> strip up to EOL" % line
+                    if DEBUG: print("dedent: %r: EOL -> strip up to EOL" % line)
                     lines[i] = lines[i][j:]
                     break
                 else:
@@ -395,8 +396,8 @@ def _dedentlines(lines, tabsize=8, skip_first_line=False):
                                      "line %r while removing %d-space margin"
                                      % (ch, line, margin))
                 if DEBUG:
-                    print "dedent: %r: %r -> removed %d/%d"\
-                          % (line, ch, removed, margin)
+                    print("dedent: %r: %r -> removed %d/%d"\
+                          % (line, ch, removed, margin))
                 if removed == margin:
                     lines[i] = lines[i][j+1:]
                     break

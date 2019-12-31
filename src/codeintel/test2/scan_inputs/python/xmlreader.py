@@ -1,6 +1,7 @@
 """An XML Reader is the SAX 2 name for an XML parser. XML Parsers
 should be based on this code. """
 
+from future.utils import raise_
 import handler
 
 from _exceptions import SAXNotSupportedException, SAXNotRecognizedException
@@ -294,13 +295,13 @@ class AttributesImpl:
         return self._attrs[name]
 
     def getNameByQName(self, name):
-        if not self._attrs.has_key(name):
-            raise KeyError, name
+        if name not in self._attrs:
+            raise_(KeyError, name)
         return name
 
     def getQNameByName(self, name):
-        if not self._attrs.has_key(name):
-            raise KeyError, name
+        if name not in self._attrs:
+            raise_(KeyError, name)
         return name
 
     def getNames(self):
@@ -319,7 +320,7 @@ class AttributesImpl:
         return self._attrs.keys()
 
     def has_key(self, name):
-        return self._attrs.has_key(name)
+        return name in self._attrs
 
     def get(self, name, alternative=None):
         return self._attrs.get(name, alternative)
@@ -350,14 +351,14 @@ class AttributesNSImpl(AttributesImpl):
             if qname == name:
                 return self._attrs[nsname]
 
-        raise KeyError, name
+        raise_(KeyError, name)
 
     def getNameByQName(self, name):
         for (nsname, qname) in self._qnames.items():
             if qname == name:
                 return nsname
 
-        raise KeyError, name
+        raise_(KeyError, name)
 
     def getQNameByName(self, name):
         return self._qnames[name]

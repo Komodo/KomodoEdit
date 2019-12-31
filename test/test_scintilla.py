@@ -51,6 +51,7 @@ from xpcom import components
 from xpcom.server import UnwrapObject
 
 from testlib import tag, TestFailed
+from functools import reduce
 
 class IfaceTestCase(unittest.TestCase):
     def test_scintilla_iface(self):
@@ -68,8 +69,8 @@ class IfaceTestCase(unittest.TestCase):
             lang = m.group(2)
             fullname = m.group(1)
             val = m.group(3)
-            if not matches.has_key(lang): matches[lang] = {}
-            if matches[lang].has_key(val):
+            if lang not in matches: matches[lang] = {}
+            if val in matches[lang]:
                 if lang == "UDL" and fullname.endswith("_UPPER_BOUND"):
                     continue # ignore upper bounds, they _should_ overlap
                 if not ignores.get(fullname, False):

@@ -239,7 +239,7 @@ class KoDjangoLinter(object):
                     if sys.platform.startswith("win"):
                         pythonPath = pythonPath.replace('\\', '/')
                     env["PYTHONPATH"] = pythonPath
-                elif env.has_key("PYTHONPATH"):
+                elif "PYTHONPATH" in env:
                     del env["PYTHONPATH"]
 
                 # First try to use Python2 to run the django linter. If django
@@ -301,7 +301,7 @@ class KoDjangoLinter(object):
     _compiled_ptns = {}
 
     def _do_simple_matcher(self, ptn, text, lintResult):
-        if not self._compiled_ptns.has_key(ptn):
+        if ptn not in self._compiled_ptns:
             self._compiled_ptns[ptn] = re.compile(ptn)
         regex = self._compiled_ptns[ptn]
         m = regex.search(text)
@@ -318,7 +318,7 @@ class KoDjangoLinter(object):
 
     def _do_contextual_matcher(self, ptnTemplate, arg, text, lintResult):
         ptn = ptnTemplate % (re.escape(arg),)
-        if not self._compiled_ptns.has_key(ptn):
+        if ptn not in self._compiled_ptns:
             self._compiled_ptns[ptn] = re.compile(ptn)
         regex = self._compiled_ptns[ptn]
         m = regex.search(text)
@@ -338,7 +338,7 @@ class KoDjangoLinter(object):
         if "'extends' cannot appear more than once in the same template" not in message:
             return
         ptn = r"\{\%\s*extends\b.*?\%\}.*?(\{\%\s*extends\b)"
-        if not self._compiled_ptns.has_key(ptn):
+        if ptn not in self._compiled_ptns:
             self._compiled_ptns[ptn] = re.compile(ptn, re.DOTALL)
         m = self._compiled_ptns[ptn].search(text)
         if not m:
@@ -372,7 +372,7 @@ class KoDjangoLinter(object):
                                                text, r):
                         return r
             for raw_ptn in self._contextual_matchers:
-                if not self._compiled_ptns.has_key(raw_ptn):
+                if raw_ptn not in self._compiled_ptns:
                     self._compiled_ptns[raw_ptn] = re.compile(raw_ptn)
                 ptn = self._compiled_ptns[raw_ptn]
                 m = ptn.search(message)

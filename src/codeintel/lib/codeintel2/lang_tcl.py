@@ -144,8 +144,9 @@ class TclImportHandler(ImportHandler):
     # for Tcl.
     PATH_ENV_VAR = None
 
-    def _findScannableFiles(self, (files, searchedDirs, skipRareImports),
+    def _findScannableFiles(self, xxx_todo_changeme,
                             dirname, names):
+        (files, searchedDirs, skipRareImports) = xxx_todo_changeme
         if sys.platform.startswith("win"):
             cpath = dirname.lower()
         else:

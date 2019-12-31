@@ -53,6 +53,7 @@ Future ideas and changes for the JavaScript ciler:
 
   * use better push/pop handling
 """
+from __future__ import print_function
 
 import os
 from os.path import splitext, basename, exists, dirname, normpath
@@ -215,7 +216,7 @@ class JavaScriptLangIntel(CitadelLangIntel,
         # calltip if we find a function open paren "(" and function identifier
         #   http://bugs.activestate.com/show_bug.cgi?id=93864
         if DEBUG:
-            print "Arg separater found, looking for start of function, pos: %r" % (pos, )
+            print("Arg separater found, looking for start of function, pos: %r" % (pos, ))
         ac.getPrevPosCharStyle()
         # Move back to the open paren of the function
         paren_count = 0
@@ -224,23 +225,23 @@ class JavaScriptLangIntel(CitadelLangIntel,
         while p > min_p:
             p, c, style = ac.getPrecedingPosCharStyle(ignore_styles=jsClassifier.comment_styles)
             if DEBUG:
-                print '  p: %r, ch: %r, st: %d' % (p, c, style)
+                print('  p: %r, ch: %r, st: %d' % (p, c, style))
             loopcount = 0
             while style == jsClassifier.operator_style and loopcount < 10:
                 loopcount += 1
                 if c == ")":
                     paren_count += 1
                     if DEBUG:
-                        print '    paren_count: %r' % (paren_count, )
+                        print('    paren_count: %r' % (paren_count, ))
                 elif c == "(":
                     if DEBUG:
-                        print '    paren_count: %r' % (paren_count, )
+                        print('    paren_count: %r' % (paren_count, ))
                     if paren_count == 0:
                         # We found the open brace of the func
                         trg_from_pos = p+1
                         p, ch, style = ac.getPrevPosCharStyle()
                         if DEBUG:
-                            print "  function start found, pos: %d" % (p, )
+                            print("  function start found, pos: %d" % (p, ))
                         if style in jsClassifier.ignore_styles:
                             # Find previous non-ignored style then
                             p, c, style = ac.getPrecedingPosCharStyle(style, jsClassifier.ignore_styles)
@@ -261,14 +262,14 @@ class JavaScriptLangIntel(CitadelLangIntel,
                 elif c in ";{}":
                     # Gone too far and noting was found
                     if DEBUG:
-                        print "  no function found, hit stop char: %s at p: %d" % (c, p)
+                        print("  no function found, hit stop char: %s at p: %d" % (c, p))
                     return None
                 p, c, style = ac.getPrevPosCharStyle()
                 if DEBUG:
-                    print '  p: %r, ch: %r, st: %d' % (p, c, style)
+                    print('  p: %r, ch: %r, st: %d' % (p, c, style))
         # Did not find the function open paren
         if DEBUG:
-            print "  no function found, ran out of chars to look at, p: %d" % (p,)
+            print("  no function found, ran out of chars to look at, p: %d" % (p,))
         return None
 
     def trg_from_pos(self, buf, pos, implicit=True,
@@ -295,9 +296,9 @@ class JavaScriptLangIntel(CitadelLangIntel,
         last_char = accessor.char_at_pos(last_pos)
         last_style = accessor.style_at_pos(last_pos)
         if DEBUG:
-            print "  last_pos: %s" % last_pos
-            print "  last_ch: %r" % last_char
-            print "  last_style: %r" % last_style
+            print("  last_pos: %s" % last_pos)
+            print("  last_ch: %r" % last_char)
+            print("  last_style: %r" % last_style)
 
         if (jsClassifier.is_udl and last_char == '/'
             and last_pos > 0 and accessor.char_at_pos(last_pos-1) == '<'
@@ -317,7 +318,7 @@ class JavaScriptLangIntel(CitadelLangIntel,
             p = last_pos - 1
             min_p = max(0, p - 50)      # Don't bother looking more than 50 chars
             if DEBUG:
-                print "Checking match for jsdoc completions"
+                print("Checking match for jsdoc completions")
             while p >= min_p and \
                   accessor.style_at_pos(p) in jsClassifier.comment_styles:
                 ch = accessor.char_at_pos(p)
@@ -332,10 +333,10 @@ class JavaScriptLangIntel(CitadelLangIntel,
             else:
                 # Nothing found in the specified range
                 if DEBUG:
-                    print "trg_from_pos: not a jsdoc"
+                    print("trg_from_pos: not a jsdoc")
                 return None
             if DEBUG:
-                print "Matched trigger for jsdoc completion"
+                print("Matched trigger for jsdoc completion")
             return Trigger(lang, TRG_FORM_CPLN,
                            "jsdoc-tags", pos, implicit)
 
@@ -345,7 +346,7 @@ class JavaScriptLangIntel(CitadelLangIntel,
             p = last_pos - 1
             min_p = max(0, p - 50)      # Don't bother looking more than 50 chars
             if DEBUG:
-                print "Checking match for jsdoc calltip"
+                print("Checking match for jsdoc calltip")
             ch = None
             ident_found_pos = None
             while p >= min_p and \
@@ -360,25 +361,25 @@ class JavaScriptLangIntel(CitadelLangIntel,
                         ident_found_pos = p+1
                     else:
                         if DEBUG:
-                            print "No jsdoc, whitespace not preceeded by an " \
-                                  "identifer"
+                            print("No jsdoc, whitespace not preceeded by an " \
+                                  "identifer")
                         return None
                 elif ch == "@":
                     # This is what we've been looking for!
                     jsdoc_field = accessor.text_range(p+2, ident_found_pos+1)
                     if DEBUG:
-                        print "Matched trigger for jsdoc calltip: '%s'" % (jsdoc_field, )
+                        print("Matched trigger for jsdoc calltip: '%s'" % (jsdoc_field, ))
                     return Trigger(lang, TRG_FORM_CALLTIP,
                                    "jsdoc-tags", ident_found_pos, implicit,
                                    jsdoc_field=jsdoc_field)
                 elif not _isident(ch):
                     if DEBUG:
-                        print "No jsdoc, identifier not preceeded by an '@'"
+                        print("No jsdoc, identifier not preceeded by an '@'")
                     # Not whitespace, not a valid tag then
                     return None
             # Nothing found in the specified range
             if DEBUG:
-                print "No jsdoc, ran out of characters to look at."
+                print("No jsdoc, ran out of characters to look at.")
 
         elif last_char not in self.trg_chars:
             # Check if this could be a 'complete-names' trigger, this is
@@ -389,7 +390,7 @@ class JavaScriptLangIntel(CitadelLangIntel,
             if last_pos >= 2 and (last_style == jsClassifier.identifier_style or
                                   last_style == jsClassifier.keyword_style):
                 if DEBUG:
-                    print "Checking for 'names' three-char-trigger"
+                    print("Checking for 'names' three-char-trigger")
                 # The previous two characters must be the same style.
                 p = last_pos - 1
                 min_p = max(0, p - 1)
@@ -397,8 +398,8 @@ class JavaScriptLangIntel(CitadelLangIntel,
                 while p >= min_p:
                     if accessor.style_at_pos(p) != last_style:
                         if DEBUG:
-                            print "No 'names' trigger, inconsistent style: " \
-                                  "%d, pos: %d" % (accessor.style_at_pos(p), p)
+                            print("No 'names' trigger, inconsistent style: " \
+                                  "%d, pos: %d" % (accessor.style_at_pos(p), p))
                         break
                     citdl_expr += accessor.char_at_pos(p)
                     p -= 1
@@ -411,8 +412,8 @@ class JavaScriptLangIntel(CitadelLangIntel,
                         if style == last_style:
                             if implicit:
                                 if DEBUG:
-                                    print "No 'names' trigger, third char " \
-                                          "style: %d, pos: %d" % (style, p)
+                                    print("No 'names' trigger, third char " \
+                                          "style: %d, pos: %d" % (style, p))
                                 return None
                             else:
                                 # explicit can be longer than 3-chars, skip over
@@ -440,8 +441,8 @@ class JavaScriptLangIntel(CitadelLangIntel,
                             ch = accessor.char_at_pos(p)
                             if ch == ".":
                                 if DEBUG:
-                                    print "No 'names' trigger, third char " \
-                                          "is a dot"
+                                    print("No 'names' trigger, third char " \
+                                          "is a dot")
                                 return None
                             elif style == jsClassifier.keyword_style:
                                 p, prev_text = ac.getTextBackWithStyle(style, jsClassifier.ignore_styles, max_text_len=len("function")+1)
@@ -449,19 +450,19 @@ class JavaScriptLangIntel(CitadelLangIntel,
                                     # We don't trigger after function, this is
                                     # defining a new item that does not exist.
                                     if DEBUG:
-                                        print "No 'names' trigger, preceeding "\
-                                              "text is 'function'"
+                                        print("No 'names' trigger, preceeding "\
+                                              "text is 'function'")
                                     return None
                     if DEBUG:
-                        print "triggering 'javascript-complete-names' at " \
-                              "pos: %d" % (last_pos - 2, )
+                        print("triggering 'javascript-complete-names' at " \
+                              "pos: %d" % (last_pos - 2, ))
                                 
                     return Trigger(self.lang, TRG_FORM_CPLN,
                                    "names", last_pos - 2, implicit,
                                    citdl_expr="".join(reversed(citdl_expr)))
             if DEBUG:
-                print "trg_from_pos: no: %r is not in %r" % (
-                                last_char, "".join(self.trg_chars), )
+                print("trg_from_pos: no: %r is not in %r" % (
+                                last_char, "".join(self.trg_chars), ))
             return None
 
         elif last_style == jsClassifier.operator_style:
@@ -482,8 +483,8 @@ class JavaScriptLangIntel(CitadelLangIntel,
                 elif style not in jsClassifier.ignore_styles:
                     # Else, wrong style for calltip
                     if DEBUG:
-                        print "not a trigger: unexpected style: %d at pos: %d" \
-                              % (style, p)
+                        print("not a trigger: unexpected style: %d at pos: %d" \
+                              % (style, p))
                     return None
                 p -= 1
             else:
@@ -542,7 +543,7 @@ class JavaScriptLangIntel(CitadelLangIntel,
             if prev_char == '[':
                 # We're good to go.
                 if DEBUG:
-                    print "Matched trigger for array completions"
+                    print("Matched trigger for array completions")
                 return Trigger(lang, TRG_FORM_CPLN,
                                "array-members", pos, implicit,
                                bracket_pos=prev_pos, trg_char=last_char)
@@ -553,9 +554,9 @@ class JavaScriptLangIntel(CitadelLangIntel,
                                preceding_trg_terminators=None, DEBUG=False):
         DEBUG = False
         if DEBUG:
-            print "pos: %d" % (pos, )
-            print "ch: %r" % (buf.accessor.char_at_pos(pos), )
-            print "curr_pos: %d" % (curr_pos, )
+            print("pos: %d" % (pos, ))
+            print("ch: %r" % (buf.accessor.char_at_pos(pos), ))
+            print("curr_pos: %d" % (curr_pos, ))
 
         # Check if we can match on either of the 3-character trigger or on the
         # normal preceding_trg_terminators.
@@ -596,9 +597,9 @@ class JavaScriptLangIntel(CitadelLangIntel,
                     names_trigger = self.trg_from_pos(buf, prev_pos + 4, implicit=False)
 
         if DEBUG:
-            print "trg: %r" % (trg, )
-            print "names_trigger: %r" % (names_trigger, )
-            print "last_trg_type: %r" % (self._last_trg_type, )
+            print("trg: %r" % (trg, ))
+            print("names_trigger: %r" % (names_trigger, ))
+            print("last_trg_type: %r" % (self._last_trg_type, ))
 
         if names_trigger:
             if not trg:
@@ -616,18 +617,18 @@ class JavaScriptLangIntel(CitadelLangIntel,
             # Check if there is a JSDoc to provide a calltip for, example:
             #       /** @param foobar {sometype} This is field for <|>
             if DEBUG:
-                print "\njs preceding_trg_from_pos::jsdoc: check for calltip"
+                print("\njs preceding_trg_from_pos::jsdoc: check for calltip")
             comment = accessor.text_range(max(0, curr_pos-200), curr_pos)
             at_idx = comment.rfind("@")
             if at_idx >= 0:
                 if DEBUG:
-                    print "\njs preceding_trg_from_pos::jsdoc: contains '@'"
+                    print("\njs preceding_trg_from_pos::jsdoc: contains '@'")
                 space_idx = comment[at_idx:].find(" ")
                 if space_idx >= 0:
                     # Trigger after the space character.
                     trg_pos = (curr_pos - len(comment)) + at_idx + space_idx + 1
                     if DEBUG:
-                        print "\njs preceding_trg_from_pos::jsdoc: calltip at %d" % (trg_pos, )
+                        print("\njs preceding_trg_from_pos::jsdoc: calltip at %d" % (trg_pos, ))
                     trg = self.trg_from_pos(buf, trg_pos, implicit=False)
 
         if trg:
@@ -672,7 +673,7 @@ class JavaScriptLangIntel(CitadelLangIntel,
         else:
             try:
                 citdl_expr = self.citdl_expr_from_trg(buf, trg)
-            except CodeIntelError, ex:
+            except CodeIntelError as ex:
                 ctlr.error(str(ex))
                 ctlr.done("error")
                 return
@@ -881,7 +882,7 @@ class JavaScriptBuffer(CitadelBuffer):
         """
         DEBUG = False
         if DEBUG:
-            print "scoperef_from_pos: look for line %d in %r" % (line, blob)
+            print("scoperef_from_pos: look for line %d in %r" % (line, blob))
 
         best_fit_lpath = None
         for scope, lpath in _walk_js_scopes(blob):
@@ -892,19 +893,19 @@ class JavaScriptBuffer(CitadelBuffer):
             # Note: not sure the fallback is correct.
             end = int(scope.get("lineend", start))
             if DEBUG:
-                print "scoperef_from_pos:    scope %r (%r-%r)?"\
-                      % (scope, start, end),
+                print("scoperef_from_pos:    scope %r (%r-%r)?"\
+                      % (scope, start, end), end=' ')
             if line < start:
-                if DEBUG: print "no, before start"
+                if DEBUG: print("no, before start")
                 continue
             elif line > end:
-                if DEBUG: print "no, after end"
+                if DEBUG: print("no, after end")
                 continue
             elif line <= end:
-                if DEBUG: print "yes, could be"
+                if DEBUG: print("yes, could be")
                 best_fit_lpath = lpath
             else:
-                if DEBUG: print "no, passed end"
+                if DEBUG: print("no, passed end")
                 if best_fit_lpath is not None:
                     break
         if best_fit_lpath is not None:
@@ -918,7 +919,8 @@ class JavaScriptImportHandler(ImportHandler):
     # The file extensions that this import handler will use when importing.
     import_file_extensions = (".js", )
 
-    def _findScannableFiles(self, (files, searchedDirs), dirname, names):
+    def _findScannableFiles(self, xxx_todo_changeme, dirname, names):
+        (files, searchedDirs) = xxx_todo_changeme
         if sys.platform.startswith("win"):
             cpath = dirname.lower()
         else:
@@ -961,7 +963,7 @@ class JavaScriptImportHandler(ImportHandler):
         #TODO: log the fs-stat'ing a la codeintel.db logging.
         try:
             names = os.listdir(dir)
-        except OSError, ex:
+        except OSError as ex:
             return {}
         dirs, nondirs = set(), set()
         for name in names:
@@ -3702,7 +3704,7 @@ class JavaScriptCiler:
                     f._class = jsclass
                 # Change function constructor name to the class name so that it
                 # is correctly recognized by Komodo as the constructor.
-                if jsclass.functions.has_key('constructor'):
+                if 'constructor' in jsclass.functions:
                     func=jsclass.functions.pop('constructor')
                     func.name=jsclass.name
                     jsclass.functions[jsclass.name]=func

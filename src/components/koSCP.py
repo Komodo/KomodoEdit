@@ -131,7 +131,7 @@ class koSCPConnection(remotefilelib.koRemoteSSH):
             else:
                 self._homedirectory = '/'
                 self.log.error("Could not determine the remote home directory. 'pwd' failed")
-        except self._SCPExceptions, e:
+        except self._SCPExceptions as e:
             self._raiseWithException(e)
 
     # remotefilelib.koRemoteSSH handles the opening and authentication methods.
@@ -262,7 +262,7 @@ class koSCPConnection(remotefilelib.koRemoteSSH):
                     rf_pathinfo = self._createRFInfoFromListing(dirname, line)
                     if rf_pathinfo and (path[0] == '~' or rf_pathinfo.getFilename() == basename):
                         return rf_pathinfo
-            except self.ConnectionException, e:
+            except self.ConnectionException as e:
                 self._use_ls_lad = 0
                 self.log.info("ls -lad failed: %s", e)
                 self.log.debug("_createRFInfoFromPath: Not using 'ls -lad' any further")
@@ -283,9 +283,9 @@ class koSCPConnection(remotefilelib.koRemoteSSH):
             # Get the remote file details
             try:
                 rf_info = self._createRFInfo(path)
-            except self._SCPExceptions, e:
+            except self._SCPExceptions as e:
                 self._raiseWithException(e)
-            except Exception, e:
+            except Exception as e:
                 self.log.error("Unable to get path info for: %s", path)
                 self.log.debug("Error: %s: %s", e, e.args)
                 return None
@@ -300,7 +300,7 @@ class koSCPConnection(remotefilelib.koRemoteSSH):
             # Does not exist
             self.log.debug("do_getPathInfo: Path does not exist '%s'", path)
             return None
-        except self._SCPExceptions, e:
+        except self._SCPExceptions as e:
             self._raiseWithException(e)
 
     def do_getDirectoryList(self, path, dir_rfinfo):
@@ -327,19 +327,19 @@ class koSCPConnection(remotefilelib.koRemoteSSH):
                     rf_fileinfo = self._createRFInfo(path, fileinfo)
                     if rf_fileinfo and rf_fileinfo.getFilename() not in (".", ".."):
                         dirinfo.append(rf_fileinfo)
-                except self._SCPExceptions, e:
+                except self._SCPExceptions as e:
                     self._raiseWithException(e)
-                except Exception, e:
+                except Exception as e:
                     self.log.error("Unable to create a listing element for: %s", fileinfo)
                     self.log.debug("Error: %s: %s", e, e.args)
-        except self._SCPExceptions, e:
+        except self._SCPExceptions as e:
             self._raiseWithException(e)
         return dirinfo
 
     def do_rename(self, oldName, newName):
         try:
             self._runScpCommand("mv %s %s" % (self._escapePath(oldName), self._escapePath(newName)))
-        except self._SCPExceptions, e:
+        except self._SCPExceptions as e:
             self._raiseWithException(e)
 
     def do_changeDirectory(self, path):
@@ -349,7 +349,7 @@ class koSCPConnection(remotefilelib.koRemoteSSH):
     def do_currentDirectory(self):
         try:
             return self._runScpCommand("pwd")
-        except self._SCPExceptions, e:
+        except self._SCPExceptions as e:
             self._raiseWithException(e)
 
     def do_getHomeDirectory(self):
@@ -366,19 +366,19 @@ class koSCPConnection(remotefilelib.koRemoteSSH):
                 parent_path = "/"
             self.log.debug("do_getParentPath: '%s' -> '%s'", path, parent_path)
             return parent_path
-        except self._SCPExceptions, e:
+        except self._SCPExceptions as e:
             self._raiseWithException(e)
 
     def do_removeFile(self, name):
         try:
             self._runScpCommand("rm %s" % (self._escapePath(name)))
-        except self._SCPExceptions, e:
+        except self._SCPExceptions as e:
             self._raiseWithException(e)
 
     def do_removeDirectory(self, name):
         try:
             self._runScpCommand("rmdir %s" % (self._escapePath(name)))
-        except self._SCPExceptions, e:
+        except self._SCPExceptions as e:
             self._raiseWithException(e)
 
     def do_createDirectory(self, name, permissions):
@@ -387,7 +387,7 @@ class koSCPConnection(remotefilelib.koRemoteSSH):
             # I.e. 755 as octet, the integer value of this is 493
             # permissions = int(str(permissions), 8)
             self._runScpCommand("mkdir %s" % (self._escapePath(name)))
-        except self._SCPExceptions, e:
+        except self._SCPExceptions as e:
             self._raiseWithException(e)
 
     def do_createFile(self, name, permissions):
@@ -397,14 +397,14 @@ class koSCPConnection(remotefilelib.koRemoteSSH):
             # permissions = int(str(permissions), 8)
             self._runScpCommand("touch %s" % (self._escapePath(name)))
             #self._runScpCommand("chmod %s %s" % (permissions, self._escapePath(name)))
-        except self._SCPExceptions, e:
+        except self._SCPExceptions as e:
             self._raiseWithException(e)
 
     def do_chmod(self, filepath, permissions):
         try:
             self._runScpCommand("chmod %s %s" % (oct(permissions),
                                                  self._escapePath(filepath)))
-        except self._SCPExceptions, e:
+        except self._SCPExceptions as e:
             self._raiseWithException(e)
 
     class _scp_transfer_response:
@@ -454,7 +454,7 @@ class koSCPConnection(remotefilelib.koRemoteSSH):
                                                            regex_groups['filename'])
                     log.info("_scpGetFileTransferResponse: scp_info: %s", (scp_info))
                     return scp_info
-        except self._SCPExceptions, e:
+        except self._SCPExceptions as e:
             self._raiseWithException(e)
 
     def _scpReadFile(self, filename):
@@ -510,7 +510,7 @@ class koSCPConnection(remotefilelib.koRemoteSSH):
         try:
             # Fix up path for home directory
             return self._scpReadFile(self._fixPath(filename))
-        except self._SCPExceptions, e:
+        except self._SCPExceptions as e:
             self._raiseWithException(e)
 
     def _getAcknowledgement(self, channel):
@@ -557,7 +557,7 @@ class koSCPConnection(remotefilelib.koRemoteSSH):
             filemode = "0644"
             # Fix up path for home directory
             return self._scpWriteFile(self._fixPath(filename), filemode, data)
-        except self._SCPExceptions, e:
+        except self._SCPExceptions as e:
             self._raiseWithException(e)
 
 

@@ -90,9 +90,9 @@ class CipherSelfTest(unittest.TestCase):
             from Crypto.Util import Counter
             ctr_class = _extract(params, 'ctr_class', Counter.new)
             ctr_params = _extract(params, 'ctr_params', {}).copy()
-            if ctr_params.has_key('prefix'): ctr_params['prefix'] = a2b_hex(ctr_params['prefix'])
-            if ctr_params.has_key('suffix'): ctr_params['suffix'] = a2b_hex(ctr_params['suffix'])
-            if not ctr_params.has_key('nbits'):
+            if 'prefix' in ctr_params: ctr_params['prefix'] = a2b_hex(ctr_params['prefix'])
+            if 'suffix' in ctr_params: ctr_params['suffix'] = a2b_hex(ctr_params['suffix'])
+            if 'nbits' not in ctr_params:
                 ctr_params['nbits'] = 8*(self.module.block_size - len(ctr_params.get('prefix', '')) - len(ctr_params.get('suffix', '')))
             params['counter'] = ctr_class(**ctr_params)
 
@@ -180,7 +180,7 @@ class CTRWraparoundTest(unittest.TestCase):
 
         for disable_shortcut in (0, 1): # (False, True) Test CTR-mode shortcut and PyObject_CallObject code paths
             for little_endian in (0, 1): # (False, True) Test both endiannesses
-                ctr = Counter.new(8*self.module.block_size, initial_value=2L**(8*self.module.block_size)-1, little_endian=little_endian, disable_shortcut=disable_shortcut)
+                ctr = Counter.new(8*self.module.block_size, initial_value=2**(8*self.module.block_size)-1, little_endian=little_endian, disable_shortcut=disable_shortcut)
                 cipher = self.module.new(a2b_hex(self.key), self.module.MODE_CTR, counter=ctr)
                 block = "\x00" * self.module.block_size
                 cipher.encrypt(block)
@@ -258,12 +258,12 @@ def make_block_tests(module, module_name, test_data):
             tests.append(CipherStreamingSelfTest(module, params))
 
         # When using CTR mode, test the non-shortcut code path.
-        if p_mode == 'CTR' and not params.has_key('ctr_class'):
+        if p_mode == 'CTR' and 'ctr_class' not in params:
             params2 = params.copy()
             params2['description'] += " (shortcut disabled)"
             ctr_params2 = params.get('ctr_params', {}).copy()
             params2['ctr_params'] = ctr_params2
-            if not params2['ctr_params'].has_key('disable_shortcut'):
+            if 'disable_shortcut' not in params2['ctr_params']:
                 params2['ctr_params']['disable_shortcut'] = 1
             tests.append(CipherSelfTest(module, params2))
     return tests

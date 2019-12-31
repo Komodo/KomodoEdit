@@ -4,6 +4,7 @@
 codesign.py
 Script to drive Mac OSX code signing
 """
+from __future__ import print_function
 
 import os
 import subprocess

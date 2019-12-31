@@ -34,6 +34,7 @@ To play along
     pycile -v play\sample.py  # also pprints the syntax tree from lib2to3
     pycile -vc play\sample.py # compares with CIX from pythoncile.py
 """
+from __future__ import print_function
 #TODO:
 # - foo.bar assignments for class instance vars
 # - improved type inferencing: raven.py diffs, hi.py, assign.py
@@ -276,7 +277,7 @@ class Scanner(object):
         }
 
         traverser = _traverse(ast.children)
-        first = traverser.next()
+        first = next(traverser)
         if first == "end":
             return
         elif (first.type == python_symbols.simple_stmt
@@ -515,7 +516,7 @@ class Scanner(object):
         """
         DEBUG = True
         if DEBUG:
-            print "-- resolve `%s'" % re.sub(r'\s+', ' ', str(node))
+            print("-- resolve `%s'" % re.sub(r'\s+', ' ', str(node)))
         #return None, None #XXX
 
         # Example: `self.name` looks like:
@@ -535,7 +536,7 @@ class Scanner(object):
             #XXX Need to look in *names* in this scope, not just vars.
             #XXX:TODO: test case for that, class def inside function
             if DEBUG:
-                print "find first name %r in %r" % (name, scope)
+                print("find first name %r in %r" % (name, scope))
             try:
                 var = scope[name]
             except KeyError:
@@ -547,7 +548,7 @@ class Scanner(object):
             return None
         vscope = scope
         if DEBUG:
-            print "first name %r is %r in %r" % (name, var, vscope)
+            print("first name %r is %r in %r" % (name, var, vscope))
 
         # Resolve that type (i.e. eval its CITDL).
         # Example: <variable 'self'>
@@ -561,7 +562,7 @@ class Scanner(object):
             return None
         name, scope = self._resolve_citdl(citdl, vscope)
         if DEBUG:
-            print "citdl %r -> (%r, %r)" % (citdl, name, scope)
+            print("citdl %r -> (%r, %r)" % (citdl, name, scope))
 
         #print "XXX not complete here yet"
         return (name, scope)
@@ -582,16 +583,16 @@ class Scanner(object):
         """
         DEBUG = True
         if DEBUG:
-            print "-- resolve citdl %r starting in %r" % (citdl, start_scope)
+            print("-- resolve citdl %r starting in %r" % (citdl, start_scope))
         tokens = list(self._tokenize_citdl(citdl))
-        print tokens
+        print(tokens)
         
         # Find first part.
         first_token = tokens[0]
         scope = start_scope
         while scope:
             if DEBUG:
-                print "look for CITDL token %r in %r" % (first_token, scope)
+                print("look for CITDL token %r in %r" % (first_token, scope))
             if first_token in scope:
                 break
             scope = scope.parent
@@ -608,7 +609,7 @@ class Scanner(object):
                 else:
                     return None, None
                     
-            print "*** token=", token, " scope=", scope
+            print("*** token=", token, " scope=", scope)
         
         return token, scope
         
@@ -983,7 +984,7 @@ def scan(content, filename, md5sum=None, mtime=None, lang="Python"):
     # funky *whitespace* at the end of the file.
     content = content.rstrip() + '\n'
 
-    if type(filename) == types.UnicodeType:
+    if type(filename) == str:
         filename = filename.encode('utf-8')
     # The 'path' attribute must use normalized dir separators.
     if sys.platform.startswith("win"):
@@ -1001,7 +1002,7 @@ def scan(content, filename, md5sum=None, mtime=None, lang="Python"):
         if tree2.get('error'):
             raise Exception(tree2.get('error'))
         if _gClockIt: sys.stdout.write(" (ast:%.3fs)" % (_gClock()-_gStartTime))
-    except Exception, ex:
+    except Exception as ex:
         fileAttrs["error"] = str(ex)
         file = '    <file%s/>' % getAttrStr(fileAttrs)
     else:
@@ -1073,10 +1074,10 @@ def main(argv=None):
 
     try:
         tree2 = pythoncile2(path)
-    except PythonCILEError, ex:
+    except PythonCILEError as ex:
         log.error(str(ex))
         if log.isEnabledFor(logging.DEBUG):
-            print
+            print()
             import traceback
             traceback.print_exception(*sys.exc_info())
         return 1
@@ -1090,10 +1091,10 @@ def main(argv=None):
     if opts.compare:
         cix1 = _pythoncile_cix_from_path(path)
         if log.isEnabledFor(logging.DEBUG):
-            print "-- pythoncile1 %s" % path
-            print cix1
-            print "-- pythoncile2 %s" % path
-            print cix2
+            print("-- pythoncile1 %s" % path)
+            print(cix1)
+            print("-- pythoncile2 %s" % path)
+            print(cix2)
 
         # Normalizing for comparison.
         tree1 = ET.fromstring(cix1)
@@ -1160,7 +1161,7 @@ def main(argv=None):
                 "pythoncile2 %s (normalized)" % path)
         diff = ''.join(list(diff))
         if diff:
-            print diff
+            print(diff)
     else:
         sys.stdout.write(cix2)
 
@@ -1174,7 +1175,7 @@ def _pythoncile_cix_from_path(path):
     if stderr:
         lines = [line for line in stderr.splitlines(0)
                  if "error registering" not in line]
-        print '\n'.join(lines)
+        print('\n'.join(lines))
     return stdout
 
 if __name__ == "__main__":

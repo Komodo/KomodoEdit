@@ -1,3 +1,4 @@
+from __future__ import print_function
 import time
 import operator
 from collections import defaultdict
@@ -52,15 +53,15 @@ class BenchReporter(object):
 
     def displayEvents(self, limit=None):
         if self._events:
-            print "Events:"
+            print("Events:")
             for name, t in sorted(self._events, key=operator.itemgetter(1)):
-                print "  %-66s at %0.5f" % (name, t - self.time0)
+                print("  %-66s at %0.5f" % (name, t - self.time0))
 
     def displayAccumulations(self, limit=None):
         if self._cumulative:
-            print "Cumulative:"
+            print("Cumulative:")
             for name, hit in sorted(self._cumulative.items(), key=lambda x: x[1][1]):
-                print "  %-46s %d calls - %0.5f" % (name, hit[0], hit[1])
+                print("  %-46s %d calls - %0.5f" % (name, hit[0], hit[1]))
 
     def display(self, order="by-time", limit=None):
         """Display the reports.
@@ -73,7 +74,7 @@ class BenchReporter(object):
         The `limit` argument is used to limit the number of reports displayed.
         """
         if order == "by-time":
-            print "Timings:"
+            print("Timings:")
             entries_by_time = defaultdict(list)
             for name, timings in self._entries.items():
                 for start, spent, depth in timings:
@@ -82,9 +83,9 @@ class BenchReporter(object):
             for start in sorted(entries_by_time):
                 entries = entries_by_time[start]
                 for name, spent, depth in entries:
-                    print "  %-58s %0.5f at %0.5f" % (depth * " " + name, spent, start - self.time0)
+                    print("  %-58s %0.5f at %0.5f" % (depth * " " + name, spent, start - self.time0))
         else:
-            print "Unknown sort order %r" % (order, )
+            print("Unknown sort order %r" % (order, ))
 
         self.displayEvents()
         self.displayAccumulations()

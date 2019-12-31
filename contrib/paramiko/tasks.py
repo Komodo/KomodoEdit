@@ -1,3 +1,4 @@
+from __future__ import print_function
 from os import mkdir
 from os.path import join
 from shutil import rmtree, copytree

@@ -52,6 +52,7 @@
     Tested with dojo versions:
       * 0.9.0           (trunk)
 """
+from __future__ import print_function
 
 import os
 import sys
@@ -90,7 +91,7 @@ def verifyType(name, typename, DEBUG=False):
         if typename.startswith("dojo."):
             return typename
         elif typename and DEBUG:
-            print "    %s: Unknown type: %r" % (name, typename)
+            print("    %s: Unknown type: %r" % (name, typename))
     return t
 
 def findOrCreateCixNamespace(cixmodule, namespace_items):
@@ -117,12 +118,12 @@ def processVars(cixmodule, varsElement):
     for elem in sorted(varsElement.getchildren(), sortElement):
         name = elem.get("name")
         if not name:
-            print "No name for var element: %r" % (elem, )
+            print("No name for var element: %r" % (elem, ))
             continue
         namespace = name.split(".")
         name = namespace[-1]
         if name[0].lower() not in string.ascii_lowercase and name[0] != "_":
-            print "Ignoring invalid element name: %r" % (namespace, )
+            print("Ignoring invalid element name: %r" % (namespace, ))
             continue
         elemType = elem.get("type")
         citdl = None
@@ -148,8 +149,8 @@ def processVars(cixmodule, varsElement):
             elif elemType.lower().startswith("true|"):
                 citdl = "Boolean"
             if citdl is None:
-                print "Unknown type %r for %r, marking as variable" % (elemType,
-                                                           namespace)
+                print("Unknown type %r for %r, marking as variable" % (elemType,
+                                                           namespace))
             elemType = "Variable"
 
         scope = findOrCreateCixNamespace(cixmodule, namespace[:-1])
@@ -186,7 +187,7 @@ def generateCIXFromXML(root):
     for element in root.getchildren():
     #for group in root.findall('./method'):
         if element.tag != "resource":
-            print "Ignoring xml element: %r" % (element, )
+            print("Ignoring xml element: %r" % (element, ))
             continue
         module_name = element.get("project")
         cixmodule = createOrFindCixModule(cixfile, module_name, lang="JavaScript")
@@ -200,12 +201,12 @@ def generateCIXFromXML(root):
 
 def updateCix(filename, content, updatePerforce=False):
     if updatePerforce:
-        print os.popen("p4 edit %s" % (filename)).read()
+        print(os.popen("p4 edit %s" % (filename)).read())
     file(filename, "w").write(content)
     if updatePerforce:
         diff = os.popen("p4 diff %s" % (filename)).read()
         if len(diff.splitlines()) <= 1 and diff.find("not opened on this client") < 0:
-            print "No change, reverting: %s" % os.popen("p4 revert %s" % (filename)).read()
+            print("No change, reverting: %s" % os.popen("p4 revert %s" % (filename)).read())
 
 # Main function
 def main(cix_filename, updatePerforce=False):

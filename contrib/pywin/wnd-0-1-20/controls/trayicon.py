@@ -1,3 +1,4 @@
+from __future__ import print_function
 
 
 from wnd.wintypes import (user32, 
@@ -20,7 +21,7 @@ class TrayIcon(object):
 		
 
 	def Foo(self):
-		print 'foo------------------------'
+		print('foo------------------------')
 	
 	def RegisterTrayIcon(self, ID, Icon, tooltip=None):
 		if ID in self.ids:

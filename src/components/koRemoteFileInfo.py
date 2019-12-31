@@ -1,3 +1,4 @@
+from __future__ import print_function
 # ***** BEGIN LICENSE BLOCK *****
 # Version: MPL 1.1/GPL 2.0/LGPL 2.1
 # 
@@ -50,7 +51,7 @@ from string import ascii_lowercase
 try:
     from xpcom import components
 except ImportError:
-    print "WARNING: koRemoteFileInfo: Could not import xpcom components!"
+    print("WARNING: koRemoteFileInfo: Could not import xpcom components!")
     # Setup a dummy class that gives us the xpcom like structure
     # This should only be used for command line tests.
     class components:
@@ -99,8 +100,8 @@ class koRemoteFileInfo:
         self.st_size  = '0'
         self.st_uid   = ''
         self.st_gid   = ''
-        self.st_mode  = 0L
-        self.st_mtime = 0L
+        self.st_mode  = 0
+        self.st_mtime = 0
         self.children = []
         self.lastListedTime = 0
         self.originalIsSymlink = False
@@ -338,7 +339,7 @@ class koRemoteFileInfo:
                         #       English as the locale setting. See bug:
                         # http://bugs.activestate.com/show_bug.cgi?id=62638
                         t = time.strptime(date, '%b %d %Y %H:%M')
-                    except Exception, e:     # Error parsing the date field
+                    except Exception as e:     # Error parsing the date field
                         # Try using internal strptime, with ENGLISH setting
                         t = strptime.strptime(date, '%b %d %Y %H:%M')
                 else:
@@ -366,7 +367,7 @@ class koRemoteFileInfo:
                         t[0] -= 1
                         self.st_mtime = time.mktime(t)
 
-            except Exception, e:     # Error parsing the date field
+            except Exception as e:     # Error parsing the date field
                 #print "\n%s" % e
                 self.log.warn("Unknown date in line: '%s'" % (line))
                 self.st_mtime = 0   # Unknown date, 1970 it is!
@@ -413,12 +414,12 @@ class koRemoteFileInfo:
                     #       English as the locale setting. See bug:
                     # http://bugs.activestate.com/show_bug.cgi?id=62638
                     t = time.strptime(fi[0],'%m-%d-%y  %I:%M%p')
-                except Exception, e:     # Error parsing the date field
+                except Exception as e:     # Error parsing the date field
                     # Try using internal strptime, with ENGLISH setting
                     t = strptime.strptime(fi[0],'%m-%d-%y  %I:%M%p')
                 #print "date trans: ",repr(t)
                 self.st_time = time.mktime(t)
-            except Exception, e:     # Error parsing the date field
+            except Exception as e:     # Error parsing the date field
                 #print "\n%s" % e
                 self.log.warn("Unknown date in line: '%s'" % (line))
                 self.st_mtime = 0   # Unknown date, 1970 it is!

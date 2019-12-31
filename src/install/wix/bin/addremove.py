@@ -13,6 +13,7 @@ Script uses the following file markers (which is generated from buildbots):
       feature-core/INSTALLDIR/lib/mozilla/application.ini
       ...
 """
+from __future__ import print_function
 
 import os
 import sys
@@ -127,7 +128,7 @@ def main():
 
 if __name__ == "__main__":
     if len(sys.argv) <= 1:
-        print "Usage: addremove.py file.txt"
+        print("Usage: addremove.py file.txt")
         sys.exit(1)
     main()
 

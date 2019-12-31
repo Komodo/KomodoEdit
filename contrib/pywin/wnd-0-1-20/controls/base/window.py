@@ -1,5 +1,7 @@
+from __future__ import print_function
 
 
+from future.utils import raise_
 from wnd.wintypes import (user32, 
 													shell32,
 													kernel32,
@@ -78,7 +80,7 @@ class BaseWindow(object):
 		
 			
 		if fw.WND_GUIMAIN:
-			raise RuntimeError, "a GUI can only have one main window"
+			raise RuntimeError("a GUI can only have one main window")
 		fw.WND_GUIMAIN = True
 		
 		#self.Data= 	Data()
@@ -123,7 +125,7 @@ class BaseWindow(object):
 							iStyles[1],WindowClass.lpszClassName,
 							title,iStyles[0],x,y,w,h,0,0,0,0)
 		if not self.Hwnd:
-			raise RuntimeError, "could not create window"
+			raise RuntimeError("could not create window")
 		# make shure window is destroyed if an error occurs
 		# before the gui is up and running
 		_exit.Register(self.Hwnd)
@@ -365,9 +367,9 @@ class BaseWindow(object):
 							## TODO: better not raise here, leave it to caller
 							if user32.GetMenu(self.Hwnd)==nmu.handle:
 								if not user32.SetMenu(self.Hwnd, 0):
-									raise RuntimeError, "could not remove menu"
+									raise RuntimeError("could not remove menu")
 								if not user32.DrawMenuBar(self.Hwnd):
-									raise RuntimeError, "could not redraw menu bar"
+									raise RuntimeError("could not redraw menu bar")
 								return 1
 					elif nmu.type==fw.MNUT_ACCEL:
 						# remove accelerator table
@@ -402,15 +404,15 @@ class BaseWindow(object):
 					if nexc.type==fw.EXC_EXCEPTION:
 						fw.WND_ERRORLEVEL += 1
 						if fw.WND_ERRORLEVEL > fw.WND_MAXERROR:
-							print "\nmax error (%s) exceeded, taking down the gui" % fw.WND_MAXERROR
+							print("\nmax error (%s) exceeded, taking down the gui" % fw.WND_MAXERROR)
 							raise fw.ChildwindowExit()
 					
 					elif nexc.type==fw.EXC_FATAL:
-						print "\nsome fatal exception occured, taking down the gui"
+						print("\nsome fatal exception occured, taking down the gui")
 						raise fw.ChildwindowExit()
 											
 					elif nexc.type==fw.EXC_MAXERROR:
-						print "\nmax error (%s) exceeded, taking down the gui" % fw.WND_MAXERROR
+						print("\nmax error (%s) exceeded, taking down the gui" % fw.WND_MAXERROR)
 						raise fw.ChildwindowExit()
 												
 					return 0
@@ -429,7 +431,7 @@ class BaseWindow(object):
 		
 		
 		
-		except Exception, details:
+		except Exception as details:
 			if isinstance(details, fw.ChildwindowExit):
 				# child window should have printed exc already
 				import sys
@@ -470,7 +472,7 @@ class BaseWindow(object):
 		try: show=['hidden','normal', 'minimized','maximized'].index(show)
 		except:
 			try: range(4)[show]
-			except:	raise ValueError, "invalid flag: %s" % show			
+			except:raise_(ValueError, "invalid flag: %s" % show)			
 		
 		# run the messageloop
 		self._base_fIsopen= True

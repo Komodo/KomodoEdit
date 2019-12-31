@@ -1,3 +1,4 @@
+from __future__ import print_function
 # Script to generate CharacterCategory.cxx from Python's Unicode data
 # Should be run rarely when a Python with a new version of Unicode data is available.
 # Requires Python 3.3 or later

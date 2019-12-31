@@ -117,7 +117,7 @@ def _compareNodeClassCheck(a, b):
 def _compareNodeValue(a, b, field):
     aval = a[2].getFieldValue(field)
     bval = b[2].getFieldValue(field)
-    if isinstance(aval, types.StringTypes):
+    if isinstance(aval, (str,)):
         return cmp(aval.lower(), bval.lower())
     return cmp(aval, bval)
 
@@ -410,7 +410,7 @@ class KPFTreeView(TreeView):
             try:
                 nodeIsOpen = eval(nioStr)
                 self._nodeIsOpen.update(nodeIsOpen)
-            except SyntaxError, ex:
+            except SyntaxError as ex:
                 pass
 
     def savePrefs(self, kpf):
@@ -592,19 +592,19 @@ class KPFTreeView(TreeView):
     def getSelectedItem(self):
         try:
             return self._rows[self.selection.currentIndex].part
-        except IndexError, e:
+        except IndexError as e:
             return None
 
     def _getIndexByPart(self, part):
         nodes = [row.part for row in self._rows]
         try:
             return nodes.index(part)
-        except ValueError, e:
+        except ValueError as e:
             return -1
         ids = [row.part.id for row in self._rows]
         try:
             return ids.index(part.id)
-        except ValueError, e:
+        except ValueError as e:
             return -1
 
     def getIndexByPart(self, part):
@@ -889,7 +889,7 @@ class KPFTreeView(TreeView):
         name = self._getFieldName(column)
         if name == "name":
             part = self._rows[index].part
-            if part._attributes.has_key('icon'):
+            if 'icon' in part._attributes:
                 #print "getImageSrc row %d [%s]"% (index, part._attributes['icon'])
                 return part._attributes['icon']
             else:
@@ -975,7 +975,7 @@ class KPFTreeView(TreeView):
             # just get the rows for the node, then insert them into our list
             try:
                 children = self.makeRowsFromParts(node.part.children, node.level, node.project)
-            except AttributeError, ex:
+            except AttributeError as ex:
                 msg = ("Error trying to get children for row %d (%s)" %
                        (index, node.part.get_name()))
                 if ex.message == "'koProject' object has no attribute 'children'":

@@ -35,6 +35,7 @@
 # ***** END LICENSE BLOCK *****
 
 """Some utils for Komodo's build system."""
+from __future__ import print_function
 
 import os
 from os.path import (join, dirname, basename, isdir, isfile, abspath,
@@ -142,8 +143,8 @@ def _dedentlines(lines, tabsize=8, skip_first_line=False):
     """
     DEBUG = False
     if DEBUG: 
-        print "dedent: dedent(..., tabsize=%d, skip_first_line=%r)"\
-              % (tabsize, skip_first_line)
+        print("dedent: dedent(..., tabsize=%d, skip_first_line=%r)"\
+              % (tabsize, skip_first_line))
     indents = []
     margin = None
     for i, line in enumerate(lines):
@@ -160,12 +161,12 @@ def _dedentlines(lines, tabsize=8, skip_first_line=False):
                 break
         else:
             continue # skip all-whitespace lines
-        if DEBUG: print "dedent: indent=%d: %r" % (indent, line)
+        if DEBUG: print("dedent: indent=%d: %r" % (indent, line))
         if margin is None:
             margin = indent
         else:
             margin = min(margin, indent)
-    if DEBUG: print "dedent: margin=%r" % margin
+    if DEBUG: print("dedent: margin=%r" % margin)
 
     if margin is not None and margin > 0:
         for i, line in enumerate(lines):
@@ -177,7 +178,7 @@ def _dedentlines(lines, tabsize=8, skip_first_line=False):
                 elif ch == '\t':
                     removed += tabsize - (removed % tabsize)
                 elif ch in '\r\n':
-                    if DEBUG: print "dedent: %r: EOL -> strip up to EOL" % line
+                    if DEBUG: print("dedent: %r: EOL -> strip up to EOL" % line)
                     lines[i] = lines[i][j:]
                     break
                 else:
@@ -185,8 +186,8 @@ def _dedentlines(lines, tabsize=8, skip_first_line=False):
                                      "line %r while removing %d-space margin"
                                      % (ch, line, margin))
                 if DEBUG:
-                    print "dedent: %r: %r -> removed %d/%d"\
-                          % (line, ch, removed, margin)
+                    print("dedent: %r: %r -> removed %d/%d"\
+                          % (line, ch, removed, margin))
                 if removed == margin:
                     lines[i] = lines[i][j+1:]
                     break
@@ -507,7 +508,7 @@ def remote_glob(rpattern, log=None):
     rpaths = []
     try:
         output = capture_stdout(argv)
-    except OSError, ex:
+    except OSError as ex:
         pass
     else:
         # Skip stderr lines like this (see ActiveState bug 79857):
@@ -540,7 +541,7 @@ def remote_find(rdir, options={}, log=None):
         # Windows (see Komodo bug 79857). Eventual best fix is probably
         # to use `subprocess.Popen().communicate()`.
         output = capture_output(argv)
-    except OSError, ex:
+    except OSError as ex:
         pass
     else:
         remote_run(src_login, " ".join(cmd), log=log)
@@ -612,7 +613,7 @@ def remote_md5sum(rpath, log=None):
         md5sum, rv_path = stdout.splitlines(0)[0].split()
         assert path == rv_path
         assert len(md5sum) == 32
-    except (AssertionError, ValueError, IndexError), ex:
+    except (AssertionError, ValueError, IndexError) as ex:
         raise OSError("error getting remote md5sum: unexpected output: %r"
                       % stdout)
     return md5sum
@@ -640,7 +641,7 @@ def remote_size(rpath, log=None):
         bytes, rv_path = stdout.splitlines(0)[0].split()
         assert path == rv_path
         bytes = int(bytes)
-    except (AssertionError, ValueError, IndexError), ex:
+    except (AssertionError, ValueError, IndexError) as ex:
         raise OSError("error getting remote md5sum: unexpected output: %r"
                       % stdout)
     return bytes

@@ -69,6 +69,7 @@ Hence:
     <codeintel>
 
 """
+from __future__ import print_function
 
 import operator
 import re
@@ -367,7 +368,7 @@ class PerlTreeEvaluatorBase(CandidatesForTreeEvaluator):
     def post_process_cplns(self, cplns):
         DEBUG = False
         if DEBUG:
-            print banner("Perl post_process_cplns (before)")
+            print(banner("Perl post_process_cplns (before)"))
             pprint(cplns)
         
         trg_type = self.trg.type
@@ -410,8 +411,8 @@ class PerlTreeEvaluatorBase(CandidatesForTreeEvaluator):
                         continue
                     prefix, name = match.groups()
                     if DEBUG:
-                        print "tokenize perl var: %r -> %r %r"\
-                              % (value, prefix, name)
+                        print("tokenize perl var: %r -> %r %r"\
+                              % (value, prefix, name))
                     if prefix:
                         prefix = prefix[-1] # only last char is relevant
                     
@@ -435,9 +436,9 @@ class PerlTreeEvaluatorBase(CandidatesForTreeEvaluator):
 
         cplns = CandidatesForTreeEvaluator.post_process_cplns(self, cplns)
         if DEBUG:
-            print banner("(after)", '-')
+            print(banner("(after)", '-'))
             pprint(cplns)
-            print banner(None, '-')
+            print(banner(None, '-'))
         return cplns
 
 

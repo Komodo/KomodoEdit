@@ -36,6 +36,7 @@
 # ***** END LICENSE BLOCK *****
 
 
+from __future__ import print_function
 from xpcom import components
 from koLintResult import *
 from koLintResults import koLintResults
@@ -68,7 +69,7 @@ class KoTestLinter:
         results = koLintResults()
         for line in lines:
             # for testing, lets just bitch about the word 'self'
-            print 'linting:', repr(line)
+            print('linting:', repr(line))
             complainMatch = complainRe.search(line)
             if complainMatch:
                 r = KoLintResult()
@@ -79,9 +80,9 @@ class KoTestLinter:
                 r.description = "I don't like you use of 'self' there pardner."
                 r.severity = r.SEV_WARNING 
                 results.addResult(r)
-                print 'error: (%d,%d)(%d,%d): %s' %\
+                print('error: (%d,%d)(%d,%d): %s' %\
                     (r.lineStart, r.lineEnd, r.columnStart, r.columnEnd,
-                    r.description)
+                    r.description))
             lineNum = lineNum + 1
         return results
 

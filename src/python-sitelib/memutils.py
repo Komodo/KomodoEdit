@@ -1,3 +1,4 @@
+from __future__ import print_function
 import sys
 import logging
 import gc
@@ -54,4 +55,4 @@ def object_memory_summary(obj):
         child_obj = getattr(obj, name)
         if child_obj is not None:
             usage = memusage(child_obj)
-            print "%-40s %6dKb" % (name, usage / 1024)
+            print("%-40s %6dKb" % (name, usage / 1024))

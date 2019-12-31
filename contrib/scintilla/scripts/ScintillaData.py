@@ -29,6 +29,7 @@
 # Requires Python 2.5 or later
 
 from __future__ import with_statement
+from __future__ import print_function
 
 import codecs, datetime, glob, os, sys, textwrap
 

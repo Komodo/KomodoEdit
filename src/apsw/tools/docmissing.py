@@ -1,3 +1,4 @@
+from __future__ import print_function
 # python
 #
 # See the accompanying LICENSE file.
@@ -56,7 +57,7 @@ for name, obj in ( ('Connection', con),
                    ):
     if name not in classes:
         retval=1
-        print "class", name,"not found"
+        print("class", name,"not found")
         continue
 
     for c in classes[name]:
@@ -65,7 +66,7 @@ for name, obj in ( ('Connection', con),
             if (name+"."+c) in ("apsw.async_control", "apsw.async_initialize", "apsw.async_run", "apsw.async_shutdown"):
                 continue
             retval=1
-            print "%s.%s in documentation but not object" % (name, c)
+            print("%s.%s in documentation but not object" % (name, c))
     for c in dir(obj):
         if c.startswith("__"): continue
         if name=="apsw":
@@ -87,6 +88,6 @@ for name, obj in ( ('Connection', con),
         if c not in classes[name]:
             if "%s.%s" % (name, c)  not in ("Cursor.next",):
                 retval=1
-                print "%s.%s on object but not in documentation" % (name, c)
+                print("%s.%s on object but not in documentation" % (name, c))
 
 sys.exit(retval)

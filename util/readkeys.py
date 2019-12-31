@@ -1,3 +1,4 @@
+from __future__ import print_function
 # ***** BEGIN LICENSE BLOCK *****
 # Version: MPL 1.1/GPL 2.0/LGPL 2.1
 # 
@@ -47,5 +48,5 @@ for l in lines:
     #print r
     if (len(r) < 3): continue
     if r[2] in records:
-        print "binding for %s is duplicated" % r[2]
+        print("binding for %s is duplicated" % r[2])
     records[r[2]] = l

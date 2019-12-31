@@ -75,6 +75,7 @@ Simple usage:
         runner.run(suite)
 """
 
+from future.utils import raise_
 _version_ = (0, 1, 0)
 
 import os
@@ -300,7 +301,7 @@ class PerfLoader:
         perfs = []
         for name in dir(module):
             obj = getattr(module, name)
-            if type(obj) == types.ClassType and issubclass(obj, PerfCase):
+            if type(obj) == type and issubclass(obj, PerfCase):
                 perfs.append(self.loadPerfsFromPerfCase(obj))
         return self.suiteClass(perfs)
 
@@ -316,7 +317,7 @@ class PerfLoader:
         parts = name.split('.')
         if module is None:
             if not parts:
-                raise ValueError, "incomplete perf name: %s" % name
+                raise_(ValueError, "incomplete perf name: %s" % name)
             else:
                 parts_copy = parts[:]
                 while parts_copy:
@@ -333,10 +334,10 @@ class PerfLoader:
 
         if type(obj) == types.ModuleType:
             return self.loadPerfsFromModule(obj)
-        elif type(obj) == types.ClassType and issubclass(obj, unitperf.PerfCase):
+        elif type(obj) == type and issubclass(obj, unitperf.PerfCase):
             return self.loadPerfsFromPerfCase(obj)
         elif type(obj) == types.UnboundMethodType:
-            return obj.im_class(obj.__name__)
+            return obj.__self__.__class__(obj.__name__)
         elif callable(obj):
             perf = obj()
             if not isinstance(perf, PerfCase) and \

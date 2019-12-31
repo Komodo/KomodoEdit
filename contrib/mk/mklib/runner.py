@@ -4,6 +4,7 @@
 """Perform tasks defined in a Makefile.py in the current or parent
 directories.
 """
+from __future__ import print_function
 
 # The primary usage of this module is for command-line usage. The "mk"
 # tool calls "main()" here.
@@ -305,7 +306,7 @@ def main(argv=sys.argv, doc=None):
     #     import configurelib
     #     del configurelib_path
     if "--configurelib-path" in argv:
-        print join(dirname(dirname(abspath(__file__))))
+        print(join(dirname(dirname(abspath(__file__)))))
         return 0
     
     setup_logging(sys.stdout)
@@ -341,7 +342,7 @@ def main(argv=sys.argv, doc=None):
         else:  # string exception
             log.error(exc_info[0])
         if log.isEnabledFor(logging.INFO-1):
-            print
+            print()
             traceback.print_exception(*exc_info)
         sys.exit(1)
     else:

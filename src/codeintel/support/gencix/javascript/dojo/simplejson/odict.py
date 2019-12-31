@@ -420,7 +420,7 @@ class OrderedDict(dict):
                         ' keys')
                     self.insert(pos, newkey, newval)
         else:
-            if not self.has_key(key):
+            if key not in self:
                 self._sequence.append(key)
             dict.__setitem__(self, key, val)
 
@@ -560,7 +560,7 @@ class OrderedDict(dict):
         def make_iter(self=self):
             keys = self.iterkeys()
             while True:
-                key = keys.next()
+                key = next(keys)
                 yield (key, self[key])
         return make_iter()
 
@@ -597,7 +597,7 @@ class OrderedDict(dict):
         def make_iter(self=self):
             keys = self.iterkeys()
             while True:
-                yield self[keys.next()]
+                yield self[next(keys)]
         return make_iter()
 
 ### Read-write methods ###
@@ -631,7 +631,7 @@ class OrderedDict(dict):
         TypeError: pop expected at most 2 arguments, got 3
         """
         if len(args) > 1:
-            raise TypeError, ('pop expected at most 2 arguments, got %s' %
+            raise TypeError('pop expected at most 2 arguments, got %s' %
                 (len(args) + 1))
         if key in self:
             val = self[key]

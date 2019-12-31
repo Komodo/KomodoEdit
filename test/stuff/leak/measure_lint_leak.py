@@ -46,6 +46,7 @@
         --komodo=<path-to-komodo-exe>   specify komodo executable to drive
         -o                              dump output to stdout [default]
 """
+from __future__ import print_function
 
 import os, sys, time, random, getopt
 if sys.platform.startswith("win"):
@@ -60,9 +61,9 @@ import which
 #---- support routines
 
 def usage(code, msg=''):
-    print >> sys.stderr, __doc__ % globals()
+    print(__doc__ % globals(), file=sys.stderr)
     if msg:
-        print >> sys.stderr, msg
+        print(msg, file=sys.stderr)
     sys.exit(code)
 
 
@@ -218,9 +219,9 @@ def measure_lint_leak(testFile, komodoExe, out, verbose):
             except IOError: # catch this exception that seems to happen rarely
                 import traceback
                 traceback.print_exception(*sys.exc_info())
-                print "XXX i=%s (%s), ch=%s (%s), pause=%s (%s), mem=%s (%s)"\
-                      % (i, type(i), ch, type(ch), pause, type(pause), mem, type(mem))
-                print "XXX log='%s' (%s)" % (log, type(log))
+                print("XXX i=%s (%s), ch=%s (%s), pause=%s (%s), mem=%s (%s)"\
+                      % (i, type(i), ch, type(ch), pause, type(pause), mem, type(mem)))
+                print("XXX log='%s' (%s)" % (log, type(log)))
     
     finally:
         # close Komodo
@@ -250,7 +251,7 @@ def main(argv):
     try:
         opts, args = getopt.getopt(sys.argv[1:], 'ho',
                                    ['help', 'komodo='])
-    except getopt.error, msg:
+    except getopt.error as msg:
         usage(1, msg)
 
     for opt, optarg  in opts:

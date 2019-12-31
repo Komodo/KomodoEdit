@@ -38,6 +38,7 @@
 #   Todd Whiteman (ToddW@ActiveState.com)
 
 r"""cix2html -- Utilities to generate html content from cix files"""
+from __future__ import absolute_import
 
 __revision__ = "$Id$"
 __version_info__ = (1, 0, 0)
@@ -55,7 +56,7 @@ from codeintel2.manager import Manager
 from codeintel2.tree import tree_from_cix
 del sys.path[0]
 
-import cmdln
+from . import cmdln
 
 #
 # HTML API generating code
@@ -384,7 +385,7 @@ def cix2html(opts, path):
                 _html_ci_elem(opts, elem.getchildren()[0])
             else:
                 _html_ci_elem(opts, elem)
-        except IOError, ex:
+        except IOError as ex:
             if ex.errno == 0:
                 # Ignore this error from aborting 'less' of 'ci2 outline'
                 # output:
@@ -392,7 +393,7 @@ def cix2html(opts, path):
                 pass
             else:
                 raise
-        except Exception, e:
+        except Exception as e:
             import traceback
             traceback.print_exc()
     finally:

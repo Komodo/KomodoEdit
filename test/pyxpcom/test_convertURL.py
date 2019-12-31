@@ -37,13 +37,14 @@
 # ***** END LICENSE BLOCK *****
 
 """test src/python-sitelib/uriparse.py"""
+from __future__ import print_function
 
 import os, sys
 import unittest
 try:
     from uriparse import *
 except ImportError:
-    print "boom"
+    print("boom")
     pass # Allow testing without PyXPCOM to proceed.
 
 class Case(object):

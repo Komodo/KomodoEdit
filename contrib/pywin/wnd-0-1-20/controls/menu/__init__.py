@@ -37,7 +37,7 @@ class MenuFromTemplate(Popup, MenuMethods):
 	def __init__(self, template):
 		self._client_template= template
 		hMenu= user32.LoadMenuIndirectA(template)
-		if not hMenu: raise ValueError, "could not create menu (invalid template)"
+		if not hMenu: raise ValueError("could not create menu (invalid template)")
 		self.handle= hMenu
 		TrackHandler.Register('menus', self.handle)
 		Popup.__init__(self, self.handle)

@@ -177,7 +177,7 @@ class Processor(object):
             log.warning("Writing section %s to %s", section.name, filename)
 
             if not os.path.isdir(dirname):
-                os.makedirs(dirname, mode=0755)
+                os.makedirs(dirname, mode=0o755)
 
             overrides = self.overrides.get(section.name, {})
 

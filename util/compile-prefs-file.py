@@ -39,6 +39,7 @@
 # Compile a Komodo preferences file for a .xmlc file using the koIPrefs.idl
 # API.
 
+from __future__ import print_function
 import sys
 from xpcom import components
 
@@ -47,7 +48,7 @@ factory = components \
           .getService(components.interfaces.koIPreferenceSetObjectFactory)
 
 for fileName in sys.argv[1:]:
-    print "Compiling preference file: '%s'" % fileName
+    print("Compiling preference file: '%s'" % fileName)
     ob = factory.deserializeFile(fileName)
     ob.serializeToFileFast(fileName+"c")
 

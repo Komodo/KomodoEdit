@@ -1,3 +1,4 @@
+from __future__ import print_function
 # Copyright (c) 2005-2007 ActiveState Software Ltd.
 
 import sys
@@ -83,7 +84,7 @@ class TaskMaster(object):
                 else:
                     doc = "(default)"
             if not doc:
-                print "mk "+task.nsname
+                print("mk "+task.nsname)
             else:
                 # 7 == len('mk ' + '  # ')
                 summary_width = WIDTH - name_width - 7
@@ -91,13 +92,13 @@ class TaskMaster(object):
                 if len(summary) > summary_width:
                     summary = summary[:summary_width-3] + "..."
                 template = "mk %%-%ds  # %%s" % name_width
-                print template % (task.nsname, summary)
+                print(template % (task.nsname, summary))
             if verbose:
                 for dep in task.deps:
-                    print "    dep %s" % dep
+                    print("    dep %s" % dep)
                 if hasattr(task, "results"):  # Alias' do not have results
                     for result in task.results:
-                        print "    result %s" % result
+                        print("    result %s" % result)
 
     def default_makefile_doc(self):
         return "`%s' has no default target.\n\n${common_task_list}\n" \
@@ -609,7 +610,7 @@ class _TaskList(list):
             try:
                 for ns_str in ns_list:
                     table = table[0][ns_str]
-            except KeyError, ex:
+            except KeyError as ex:
                 log.debug("no such task namespace: %s", ex)
                 tables = []
             else:
@@ -699,7 +700,7 @@ class _TaskList(list):
             try:
                 for ns in name[:-1].split(':'):
                     table = table[0][ns]
-            except KeyError, ex:
+            except KeyError as ex:
                 log.debug("no such task namespace: %s", ex)
             else:
                 for makefile in table[1]:

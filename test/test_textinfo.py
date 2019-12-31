@@ -87,7 +87,7 @@ def _fill_DataTestCase():
                     recursive=True, includes=["*.textinfo"]):
         try:
             info = simplejson.loads(open(ti_path, 'rb').read())
-        except ValueError, ex:
+        except ValueError as ex:
             raise TestError("error reading JSON in `%s': %s" % (ti_path, ex)) 
         data_path = testsupport.relpath(splitext(ti_path)[0], os.getcwd())
 
@@ -106,7 +106,7 @@ def _fill_DataTestCase():
         if exists(opts_path):
             try:
                 opts = simplejson.loads(open(opts_path, 'rb').read())
-            except ValueError, ex:
+            except ValueError as ex:
                 raise TestError("error reading JSON in `%s': %s"
                                 % (opts_path, ex)) 
             # The names of keyword args for a function call must be

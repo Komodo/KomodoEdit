@@ -352,7 +352,7 @@ class koTerminalHandler:
             self._scintilla.emptyUndoBuffer();
             if self._addTextCallbackHandler is not None:
                 self._addTextCallbackHandler.callback(0, text)
-          except COMException, e:
+          except COMException as e:
             # XXX we're catching an xpcom exception that happens
             # at shutdown. bug #28989
             # Exception: 0x8000ffff (NS_ERROR_UNEXPECTED)
@@ -448,7 +448,7 @@ class KoRunTerminal(koTerminalHandler, TreeView):
     def setParseRegex(self, parseRegex):
         try:
             self._parseRegex = re.compile(parseRegex)
-        except re.error, ex:
+        except re.error as ex:
             self._lastErrorSvc.setLastError(0, str(ex))
             raise ServerException(nsError.NS_ERROR_INVALID_ARG, str(ex))
 
@@ -704,7 +704,7 @@ class _TerminalWriter(object):
             log.info("_TerminalWriter.close %r" % self.__name)
             try:
                 self.__stdin.close()
-            except IOError, ex:
+            except IOError as ex:
                 # The file is already closed or is owned by another thread (see
                 # bug 83303) - treat it as if it had closed successfully.
                 pass
@@ -758,7 +758,7 @@ class _TerminalReader(threading.Thread):
                 self.__terminal.addText(l, data, name)
                 #finally:
                     #self.__terminal.mutex.release()
-        except Exception, ex:
+        except Exception as ex:
             log.exception("_TerminalReader:: exception during %r socket read "
                           "for cmd: %r", name, self.__cmd)
         self.__terminal.notifyEOF(name)

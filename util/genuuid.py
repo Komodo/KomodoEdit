@@ -41,10 +41,11 @@ command line, lest we forget...
 
 Otherwise it can be deleted with impunity.
 """
+from __future__ import print_function
 
 import os
 import sys
 
 uuid=os.popen( "uuidgen" ).read().strip()
-print sys.stdin.read().replace( "__NEW_UUID__", uuid )
+print(sys.stdin.read().replace( "__NEW_UUID__", uuid ))
 

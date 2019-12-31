@@ -61,6 +61,7 @@
     Some common commands:
     python .../expand_toolbox.py -v -o .../stdToolbox .../toolbox.kpf
 """
+from __future__ import print_function
 
 import os
 import sys
@@ -71,7 +72,7 @@ import logging
 
 from os.path import join, dirname
 sys.path.insert(0, join(os.getcwd(), dirname(dirname(__file__)), 'src', 'toolbox'))
-print sys.path[0]
+print(sys.path[0])
 import koToolbox2
 import koMigrateV5Toolboxes
 
@@ -88,7 +89,7 @@ def main(argv):
     try:
         optlist, args = getopt.getopt(argv[1:], "hVvo:fn",
             ["help", "version", "verbose", "force", "dry-run"])
-    except getopt.GetoptError, msg:
+    except getopt.GetoptError as msg:
         log.error("%s. Your invocation was: %s\n"\
                          % (msg, argv))
         log.error("See 'expand_toolbox --help'.\n")

@@ -23,6 +23,7 @@
 # ===================================================================
 
 """Self-test suite for Crypto.Cipher.CAST"""
+from __future__ import absolute_import
 
 __revision__ = "$Id$"
 
@@ -44,7 +45,7 @@ test_data = [
 
 def get_tests(config={}):
     from Crypto.Cipher import CAST
-    from common import make_block_tests
+    from .common import make_block_tests
     return make_block_tests(CAST, "CAST", test_data)
 
 if __name__ == '__main__':

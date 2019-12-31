@@ -4,6 +4,7 @@
 # Implemented 2000 by Neil Hodgson neilh@scintilla.org
 # Requires Python 2.5 or later
 
+from __future__ import print_function
 import sys
 import os
 import Face

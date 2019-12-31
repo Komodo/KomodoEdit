@@ -187,7 +187,7 @@ class AtomicFileWriter(object):
         self.file = None
         try:
             shutil.move(self.temp_filename, self.filename)
-        except OSError, details:
+        except OSError as details:
             # Could not move, resort to a copy then.
             shutil.copy(self.temp_filename, self.filename)
 

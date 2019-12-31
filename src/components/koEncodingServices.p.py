@@ -53,7 +53,7 @@ class koEncodingHierarchyCategory:
             if isinstance(child, koEncodingHierarchyCategory) or isinstance(child, koEncodingHierarchyEncodingInfo):
                 self.children.append(child)
             else:
-                self.children.append(apply(koEncodingHierarchyEncodingInfo,child))
+                self.children.append(koEncodingHierarchyEncodingInfo(*child))
                 
     def get_available_types(self):
         return components.interfaces.koIHierarchyItem.ITEM_HAS_OBJECT
@@ -70,7 +70,7 @@ class koEncodingHierarchyEncodingInfo:
     _reg_contractid_ = "@activestate.com/koEncodingHierarchyEncodingInfo;1"
     _reg_desc_ = "Information about an encoding item"
     def __init__(self, *encodingArgs):
-        self.encodingInfo = self.item_object = apply(koEncodingInfo,encodingArgs)
+        self.encodingInfo = self.item_object = koEncodingInfo(*encodingArgs)
         self.container = 0
         self.available_types = components.interfaces.koIHierarchyItem.ITEM_HAS_OBJECT
         self.name = self.encodingInfo.friendly_encoding_name
@@ -208,7 +208,7 @@ class koEncodingServices:
             try:
                 if codecs.lookup(self._encodingInfoList[i].python_encoding_name) == codecs.lookup(python_encoding_name):
                     return i
-            except LookupError, e:
+            except LookupError as e:
                 pass
 
         return -1
@@ -228,7 +228,7 @@ class koEncodingServices:
             try:
                 if codecs.lookup(encodingInfo.python_encoding_name) == codecs.lookup(python_encoding_name):
                     return encodingInfo
-            except LookupError, e:
+            except LookupError as e:
                 # if we receive a bad encoding, try utf-8 instead
                 python_encoding_name = 'utf-8'
                 
@@ -263,7 +263,7 @@ class koEncodingServices:
     def unicode(self, encoded_string, encoding, errors):
         try:
             unistring = unicode(encoded_string, encoding, errors)
-        except Exception, ex:
+        except Exception as ex:
             self.lastErrorSvc.setLastError(0, str(ex))
             raise ServerException(nsError.NS_ERROR_INVALID_ARG, str(ex))
         return unistring
@@ -271,7 +271,7 @@ class koEncodingServices:
     def encode(self, unicode_string, encoding, errors):
         try:
             decoded_string = unicode_string.encode(encoding, errors)
-        except Exception, ex:
+        except Exception as ex:
             self.lastErrorSvc.setLastError(0, str(ex))
             raise ServerException(nsError.NS_ERROR_INVALID_ARG, str(ex))
         return decoded_string

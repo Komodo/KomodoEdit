@@ -426,7 +426,7 @@ class LangDirsLib(LangDirsLibBase):
                     try:
                         buf = self.mgr.buf_from_path(
                                 join(blobdir, blobfile), self.lang)
-                    except (EnvironmentError, CodeIntelError), ex:
+                    except (EnvironmentError, CodeIntelError) as ex:
                         # This can occur if the path does not exist, such as a
                         # broken symlink, or we don't have permission to read
                         # the file, or the file does not contain text.
@@ -778,7 +778,7 @@ class LangZone(object):
             lang_path = join(self.base_dir, "lang")
             try:
                 fin = open(lang_path, 'r')
-            except EnvironmentError, ex:
+            except EnvironmentError as ex:
                 self.db.corruption("LangZone._check_lang",
                     "could not open `%s': %s" % (lang_path, ex),
                     "recover")
@@ -838,7 +838,7 @@ class LangZone(object):
             if res_data:
                 try:
                     dbfile_from_blobname = self.dfb_from_dir(dir)
-                except EnvironmentError, ex:
+                except EnvironmentError as ex:
                     # DB corruption will be noted in remove_buf_data()
                     self.remove_buf_data(buf)
                     raise NotFoundInDatabase("%s buffer '%s' not found in database"
@@ -848,7 +848,7 @@ class LangZone(object):
                     dbsubpath = join(dhash, dbfile_from_blobname[blobname])
                     try:
                         blob = self.load_blob(dbsubpath)
-                    except ET.XMLParserError, ex:
+                    except ET.XMLParserError as ex:
                         self.db.corruption("LangZone.get_buf_data",
                             "could not parse dbfile for '%s' blob: %s"\
                                 % (blobname, ex),
@@ -857,7 +857,7 @@ class LangZone(object):
                         raise NotFoundInDatabase(
                             "`%s' buffer `%s' blob was corrupted in database"
                             % (buf.path, blobname))
-                    except EnvironmentError, ex:
+                    except EnvironmentError as ex:
                         self.db.corruption("LangZone.get_buf_data",
                             "could not read dbfile for '%s' blob: %s"\
                                 % (blobname, ex),
@@ -892,7 +892,7 @@ class LangZone(object):
 
             try:
                 blob_index = self.load_index(dir, "blob_index")
-            except EnvironmentError, ex:
+            except EnvironmentError as ex:
                 self.db.corruption("LangZone.remove_path",
                     "could not read blob_index for '%s' dir: %s" % (dir, ex),
                     "recover")
@@ -902,7 +902,7 @@ class LangZone(object):
             if is_hits_from_lpath_lang:
                 try:
                     toplevelname_index = self.load_index(dir, "toplevelname_index")
-                except EnvironmentError, ex:
+                except EnvironmentError as ex:
                     self.db.corruption("LangZone.remove_path",
                         "could not read toplevelname_index for '%s' dir: %s"
                             % (dir, ex),
@@ -1193,7 +1193,7 @@ class LangZone(object):
                         if old_dbfile_content == None:
                             try:
                                 fin = open(dbpath, 'r')
-                            except (OSError, IOError), ex:
+                            except (OSError, IOError) as ex:
                                 # Technically if the dbfile doesn't exist, this
                                 # is a sign of database corruption. No matter
                                 # though (for this blob anyway), we are about to

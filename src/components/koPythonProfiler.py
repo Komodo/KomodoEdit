@@ -1,3 +1,4 @@
+from __future__ import print_function
 # ***** BEGIN LICENSE BLOCK *****
 # Version: MPL 1.1/GPL 2.0/LGPL 2.1
 # 
@@ -101,7 +102,7 @@ class Tracer:
         ret = getattr(self._ob, attr) # Attribute error just goes up
         # If not collecting, or we have any methods, and ours isn't listed, don't profile.
         methods = self._methods
-        if (not self._profiler_service_.collecting) or (methods is not None and not methods.has_key(attr)):
+        if (not self._profiler_service_.collecting) or (methods is not None and attr not in methods):
             return ret
         if callable(ret):
             return TracerDelegate(ret)
@@ -111,7 +112,7 @@ class Tracer:
                 ps.getter_accesses[attr] = ps.getter_accesses.setdefault(attr,0) + 1
             return ret
     def __setattr__(self, attr, val):
-        if self.__dict__.has_key(attr):
+        if attr in self.__dict__:
             self.__dict__[attr] = val
             return
         ps = self._profiler_service_
@@ -205,7 +206,7 @@ class koIPythonProfiler:
         logFileName = os.path.join(koDirs.userDataDir, "log", self._dumpFilename)
         file = open(logFileName, 'w')
         if not file:
-            print "Error opening ",self._dumpFilename
+            print("Error opening ",self._dumpFilename)
             return
         self.old_stdout = sys.stdout
         sys.stdout = file
@@ -219,19 +220,19 @@ class koIPythonProfiler:
         try:
             if not sortNames:
                 sortNames = "cumulative"
-            print "Dumping Python XPCOM profile statistics"
-            print "=============================="
+            print("Dumping Python XPCOM profile statistics")
+            print("==============================")
             if profiler_stats is None:
-                print "No profile call stats collected!"
+                print("No profile call stats collected!")
             else:
                 profiler_stats.strip_dirs().sort_stats(sortNames).print_stats(howMany)
-            print "%-30s%s" % ("Attribute Gets", "Number")
-            print "-" * 36
+            print("%-30s%s" % ("Attribute Gets", "Number"))
+            print("-" * 36)
             for name, num in self.getter_accesses.items():
-                print "%-30s%d" % (name, num)
-            print "%-30s%s" % ("Attribute Sets", "Number")
-            print "-" * 36
+                print("%-30s%d" % (name, num))
+            print("%-30s%s" % ("Attribute Sets", "Number"))
+            print("-" * 36)
             for name, num in self.setter_accesses.items():
-                print "%-30s%d" % (name, num)
+                print("%-30s%d" % (name, num))
         finally:
             if self._dumpFilename: self._finishDump();

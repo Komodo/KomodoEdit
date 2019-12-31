@@ -161,7 +161,7 @@ class RemoteConnectionCache(object):
                     self._cache.pop(cache_key, None)
                     try:
                         connection.close()
-                    except Exception, ex:
+                    except Exception as ex:
                         # We don't care if there was any exception here.
                         log.debug("RemoteConnectionCache:: exception when closing connection: %r", ex)
             if len(self._cache) == 0:
@@ -345,7 +345,7 @@ class koRemoteConnectionService:
             sessionkey = "%s:%s:%s" % (server, port, c.username)
             self._saveSessionInfo(sessionkey, [c.username, c.password])
             return c
-        except COMException, ex:
+        except COMException as ex:
             # koIRemoteConnection will already setLastError on failure so don't
             # need to do it again. The only reason we catch it to just
             # re-raise it is because PyXPCOM complains on stderr if a
@@ -430,7 +430,7 @@ class koRemoteConnectionService:
         # We want the port as an integer
         try:
             if not port: port = -1
-            elif type(port) != types.IntType: port = int(port)
+            elif type(port) != int: port = int(port)
         except ValueError:
             log.debug("Invalid port number: %s", port)
             port = -1
@@ -438,7 +438,7 @@ class koRemoteConnectionService:
         # We want the passive as an integer
         try:
             if not passive: passive = 1
-            elif type(passive) != types.IntType: passive = int(passive)
+            elif type(passive) != int: passive = int(passive)
         except ValueError:
             log.debug("Invalid passive value: %s", passive)
             passive = 1
@@ -464,7 +464,7 @@ class koRemoteConnectionService:
             loginmanager = components.classes["@mozilla.org/login-manager;1"].\
                                 getService(components.interfaces.nsILoginManager)
             logins = loginmanager.getAllLogins() # array of nsILoginInfo
-        except COMException, ex:
+        except COMException as ex:
             # TODO: Check if this is a testing environment, if it's not then
             #       this should be an exception.
             log.warn("Could not obtain logins from the nsILoginManager")
@@ -510,7 +510,7 @@ class koRemoteConnectionService:
         for i in range(len(children)):
             childRFInfo = children[i]
             child_path = addslash(path) + childRFInfo.getFilename()
-            if cache.has_key(child_path):
+            if child_path in cache:
                 # It's already cached, update the child to be the cached object
                 log.debug("_setCachedRFInfo: Adding new child rfinfo to cache: '%s'", child_path)
                 children[i] = cache[child_path]
@@ -523,10 +523,10 @@ class koRemoteConnectionService:
     def _getCachedRFInfo(self, cache_key, path):
         log.debug("_getCachedRFInfo: cache_key %r, path %r",
                   cache_key, path)
-        if not self._cachedFiles.has_key(cache_key):
+        if cache_key not in self._cachedFiles:
             self._cachedFiles[cache_key] = {}
         cache = self._cachedFiles[cache_key]
-        if cache.has_key(path):
+        if path in cache:
             return cache[path]
         return None
 
@@ -534,9 +534,9 @@ class koRemoteConnectionService:
     def _removeCachedRFInfo(self, cache_key, path, removeChildPaths):
         log.debug("_removeCachedRFInfo: cache_key %r, path %r",
                   cache_key, path)
-        if self._cachedFiles.has_key(cache_key):
+        if cache_key in self._cachedFiles:
             cache = self._cachedFiles[cache_key]
-            if cache.has_key(path):
+            if path in cache:
                 del cache[path]
             if removeChildPaths:
                 # Remove all cached paths that are under this directory
@@ -597,7 +597,7 @@ class koRemoteConnectionService:
         #       a "file:///" URI even if it was originally "sftp://". Bah!
         try:
             return "%s://%s/%s" % (protocol, server, urllib.quote(path))
-        except KeyError, e:
+        except KeyError as e:
             # Quoting can fail on unicode chars, just leave as is then.
             return "%s://%s/%s" % (protocol, server, path)
 

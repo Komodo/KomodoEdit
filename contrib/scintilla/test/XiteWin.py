@@ -3,6 +3,7 @@
 
 from __future__ import with_statement
 from __future__ import unicode_literals
+from __future__ import print_function
 
 import os, sys, unittest
 
@@ -248,7 +249,7 @@ class XiteWin():
 			keyName += "<shift>"
 		keyName += KeyTranslate(w)
 		if trace:
-			print("Key:", keyName)
+			print(("Key:", keyName))
 		if keyName in self.keys:
 			method = "Cmd" + self.keys[keyName]
 			getattr(self, method)()
@@ -269,7 +270,7 @@ class XiteWin():
 		lpmsg = ctypes.byref(msg)
 		while user32.GetMessageW(lpmsg, 0, 0, 0):
 			if trace and msg.message != msgs["WM_TIMER"]:
-				print('mm', hex(msg.hWnd)[2:],sgsm.get(msg.message, "XXX"))
+				print(('mm', hex(msg.hWnd)[2:],sgsm.get(msg.message, "XXX")))
 			if not self.Accelerator(msg):
 				user32.TranslateMessage(lpmsg)
 				user32.DispatchMessageW(lpmsg)
@@ -481,11 +482,11 @@ class XiteWin():
 	def CmdExercised(self):
 		print()
 		unused = sorted(self.ed.all.difference(self.ed.used))
-		print("Unused", len(unused))
+		print(("Unused", len(unused)))
 		print()
 		print("\n".join(unused))
 		print()
-		print("Used", len(self.ed.used))
+		print(("Used", len(self.ed.used)))
 		print()
 		print("\n".join(sorted(self.ed.used)))
 

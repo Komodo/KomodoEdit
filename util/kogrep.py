@@ -38,6 +38,7 @@
 #   Todd Whiteman (ToddW@ActiveState.com)
 
 """Perform a grep-like recursive search and prompt to open the matches with Komodo."""
+from __future__ import print_function
 
 #
 # Example usage:
@@ -110,7 +111,7 @@ def mainHandler(opts, args):
         for line in lines:
             regroups = rematch.search(line)
             if not regroups:
-                print "ERROR: Re match problem on line '%s'" % (line)
+                print("ERROR: Re match problem on line '%s'" % (line))
                 continue
             regroups = regroups.groups()
             grep_results.append(regroups)
@@ -126,7 +127,7 @@ def mainHandler(opts, args):
                 if len(filename) > 40:
                     filename = "%s...%s" % (filename[:10], filename[-25:])
                 data = data.strip()
-            print format % (pos, filename, line_number, data)
+            print(format % (pos, filename, line_number, data))
             pos += 1
 
         x = raw_input("Open which one in komodo: ")
@@ -143,13 +144,13 @@ def mainHandler(opts, args):
                     komodo_command = 'komodo -s %s,%d-%s,%d "%s"' % (line_number, pos_start, \
                                                              line_number, pos_end, \
                                                              os.path.abspath(filename))
-                    print komodo_command
+                    print(komodo_command)
                     os.popen(komodo_command)
                 x = raw_input("Open which one in komodo: ")
-        except Exception, e:
-            print e
+        except Exception as e:
+            print(e)
             traceback.print_exc()
-            print "Invalid number: '%s'" % (x)
+            print("Invalid number: '%s'" % (x))
 
 # Parse the command line parameters
 def main(argv=None):

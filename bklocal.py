@@ -190,7 +190,7 @@ def _getDefaultPlatform(linuxDistro=False, macUniversal=True):
     try:
         return _getValidPlatforms(linuxDistro=linuxDistro,
                                   macUniversal=macUniversal)[0]
-    except IndexError, ex:
+    except IndexError as ex:
         raise ConfigureError("cannot build mozilla on this platform: '%s'"
                              % sys.platform)
 
@@ -385,7 +385,7 @@ class SiloedPythonVersion(black.configure.std.Datum):
                              siloedPythonExeName)
             try:
                 pythonExe = glob.glob(pythonExe)[0]
-            except IndexError, ex:
+            except IndexError as ex:
                 raise black.configure.ConfigureError(
                     "Could not determine %s: `%s' doesn't exist" % (
                     self.desc, pythonExe))
@@ -523,7 +523,7 @@ class SetMozTools(black.configure.SetEnvVar):
                     self.value = os.path.abspath(os.path.normpath(optarg))
                     break
             else:
-                if os.environ.has_key(self.name):
+                if self.name in os.environ:
                     self.value = os.environ[self.name]
                 else:
                     self.value = None
@@ -1066,8 +1066,8 @@ class PythonExe(black.configure.Datum):
                              % python)
         #print "HEXVER: %s" % hexverstr
         hexver = eval(hexverstr)
-        major = int((hexver & 0xff000000L) >> 24)
-        minor = int((hexver & 0x00ff0000L) >> 16)
+        major = int((hexver & 0xff000000) >> 24)
+        minor = int((hexver & 0x00ff0000) >> 16)
         return (major, minor)
 
     def _Determine_Sufficient(self):
@@ -2078,7 +2078,7 @@ class MozObjDir(black.configure.Datum):
                 scheme = optarg
                 break
         else:
-            if os.environ.has_key("MOZ_SRC"):
+            if "MOZ_SRC" in os.environ:
                 scheme = os.environ["MOZ_SRC"]
             else:
                 scheme = "latest"
@@ -2614,7 +2614,7 @@ class BuildNum(black.configure.Datum):
         # Simplify the possibly-complex svn version.
         try:
             changenum = int(changestr)
-        except ValueError, ex:
+        except ValueError as ex:
             # pull off front number (good enough for our purposes)
             try:
                 changenum = int(re.match("(\d+)", changestr).group(1))

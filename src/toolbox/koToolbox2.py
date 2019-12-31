@@ -41,6 +41,7 @@
 See KD 252 for details.
 
 """
+from __future__ import print_function
 import fileutils
 import json
 import os
@@ -145,7 +146,7 @@ class Database(object):
         else:
             try:
                 self.upgrade()
-            except Exception, ex:
+            except Exception as ex:
                 log.exception("error upgrading `%s': %s", self.path, ex)
                 self.reset()
         koDirSvc = components.classes["@activestate.com/koDirs;1"].getService()
@@ -2047,7 +2048,7 @@ class ToolboxLoader(object):
         
     def markAllTopLevelItemsUnloaded(self):
         self._loadedPaths = dict([(x, False) for x in self.db.getTopLevelPaths()])
-        print "" #debug
+        print("") #debug
         
     def deleteUnloadedTopLevelItems(self):
         for path, isLoaded in self._loadedPaths.items():
@@ -2403,8 +2404,8 @@ def main(argv):
         log.debug("Time to load shared-toolbox: %g msec", (t2 - t1) * 1000.0)
         toolboxLoader.deleteUnloadedTopLevelItems()
         toolboxAccessor = ToolboxAccessor(dbFile)
-        print toolboxAccessor.getTopLevelNodes()
-        print "Wahoo!!!"
+        print(toolboxAccessor.getTopLevelNodes())
+        print("Wahoo!!!")
     except:
         log.exception("Failure")
         os.unlink(dbFile)

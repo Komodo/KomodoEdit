@@ -38,6 +38,7 @@
 #   Eric Promislow (EricP@ActiveState.com)
 
 """Tcl parsing support for codeintel/tclcile.py"""
+from __future__ import print_function
 
 import string
 import sys
@@ -502,11 +503,11 @@ class Parser:
                             self.tokenizer.put_back(afterIdent)
                             self.tokenizer.put_back(ident)
                     if self.classifier.is_identifier(tok, True):
-                        if curr_globals.has_key(tok['text']):
+                        if tok['text'] in curr_globals:
                             pass
                         elif len(self.block_stack) > 1 and \
                              isinstance(self.block_stack[-2], ClassNode) and \
-                             self.block_stack[-2].local_vars.has_key(tok['text']):
+                             tok['text'] in self.block_stack[-2].local_vars:
                             # Declared instance variable. Move along.
                             pass
                         else:
@@ -582,5 +583,5 @@ if __name__ == "__main__":
     tokenizer = tcl_lexer.TclLexer(sample_code)
     parser = Parser(tokenizer, "Tcl")
     tree = parser.parse()
-    print "Analyze the parse tree"
+    print("Analyze the parse tree")
     tree.dump()

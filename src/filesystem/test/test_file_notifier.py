@@ -1,3 +1,4 @@
+from __future__ import print_function
 # ***** BEGIN LICENSE BLOCK *****
 # Version: MPL 1.1/GPL 2.0/LGPL 2.1
 # 
@@ -102,9 +103,9 @@ def addPaths(poller, observer, paths, recursive=False):
             elif stat.S_ISREG(st.st_mode):
                 poller.addObserver(observer, path, WATCH_FILE, FS_NOTIFY_ALL)
             else:
-                print "Path is not a file or directory: %s" % (path)
+                print("Path is not a file or directory: %s" % (path))
         except OSError:
-            print "Path does exist: %s" % (path)
+            print("Path does exist: %s" % (path))
 
 # Main function
 def mainHandler(opts, args):
@@ -134,7 +135,7 @@ def mainHandler(opts, args):
                 observer.dump()
                 observer.clear()
         except KeyboardInterrupt:
-            print "Shutting down"
+            print("Shutting down")
         #print observer.notifications()
     finally:
         service.stopNotificationService()

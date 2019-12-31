@@ -87,7 +87,7 @@ def _sendStatusMessage(msg, timeout=3000, highlight=1):
     sm.highlight = highlight # boolean, whether or not to highlight
     try:
         observerSvc.notifyObservers(sm, 'status_message', None)
-    except COMException, e:
+    except COMException as e:
         # do nothing: Notify sometimes raises an exception if (???)
         # receivers are not registered?
         pass
@@ -107,7 +107,7 @@ def _handleCommandment(commandment):
     if name == "open":
         try:
             opts, args = getopt.getopt(args, "s:", ["selection="])
-        except getopt.error, ex:
+        except getopt.error as ex:
             log.error(str(ex))
             return 1
         selection = None
@@ -132,7 +132,7 @@ def _handleCommandment(commandment):
         if sys.platform.startswith("win"):
             try:
                 koWndWrapper.set_foreground_window(_gHWnd)
-            except RuntimeError, ex:
+            except RuntimeError as ex:
                 # XXX This sporadically fails and I don't know why:
                 # api_error: (0, 'SetForegroundWindow', 'No error message is available')
                 log.error(str(ex))
@@ -156,19 +156,19 @@ def _handleCommandment(commandment):
             try:
                 # TODO: Should send a multi-file open request.
                 notifyObservers(None, "open_file", f)
-            except COMException, e:
+            except COMException as e:
                 log.warn("No one observing 'open_file' notification.")
 
     elif name == 'new_window':
         try:
             notifyObservers(None, "new_window", '')
-        except COMException, e:
+        except COMException as e:
             log.warn("No one observing 'new_window' notification.")
 
     elif name == 'quit':
         try:
             notifyObservers(None, "quit", '')
-        except COMException, e:
+        except COMException as e:
             log.warn("No one observing 'quit' notification.")
 
     elif name in ("macro", "macro_file"):
@@ -184,7 +184,7 @@ def _handleCommandment(commandment):
         # <macro-code-repr> is the repr'd macro code.
         try:
             opts, macro_args = getopt.getopt(args, "l:", ["language="])
-        except getopt.error, ex:
+        except getopt.error as ex:
             log.error(str(ex))
             return 1
         languages = ("python", "javascript")
@@ -226,7 +226,7 @@ def _handleCommandment(commandment):
         try:
             opts, modules = getopt.getopt(args, "s:",
                 ["smoke", "server=", "project-id=", "build-id="])
-        except getopt.error, ex:
+        except getopt.error as ex:
             raise CommandmentError("illegal 'testgui' option: "+str(ex))
         useSmoke = 0
         server = None
@@ -240,12 +240,12 @@ def _handleCommandment(commandment):
             elif opt == "--project-id":
                 try:
                     project_id = int(optarg)
-                except ValueError, ex:
+                except ValueError as ex:
                     raise CommandmentError("invalid project id: %s" % ex)
             elif opt == "--build-id":
                 try:
                     build_id = int(optarg)
-                except ValueError, ex:
+                except ValueError as ex:
                     raise CommandmentError("invalid build id: %s" % ex)
 
         guiTestSvc = components.classes["@activestate.com/koTestSvc;1"]\
@@ -326,7 +326,7 @@ if sys.platform.startswith("win"):
                     else:
                         try:
                             _handleCommandment(cmd)
-                        except Exception, ex:
+                        except Exception as ex:
                             tb = ''.join(traceback.format_exception(
                                 *sys.exc_info()))
                             log.error("'%s': %s:\n%s", cmd, str(ex), tb)
@@ -416,7 +416,7 @@ else:
                     else:
                         try:
                             _handleCommandment(cmd)
-                        except CommandmentError, ex:
+                        except CommandmentError as ex:
                             log.error("'%s': %s", cmd, str(ex))
                 if exit:
                     break
@@ -458,7 +458,7 @@ class KoCommandmentService(object):
             global _gHWnd
             try:
                 _gHWnd = koWndWrapper.get_active_window()
-            except RuntimeError, ex:
+            except RuntimeError as ex:
                 # XXX This sporadically fails:
                 # api_error: (0, 'SetForegroundWindow', 'No error message is available')
                 # it happens if you switch windows right at a certain
@@ -491,5 +491,5 @@ class KoCommandmentService(object):
         # system allows synchronous commandment calls.
         try:
             _handleCommandment(commandment)
-        except CommandmentError, ex:
+        except CommandmentError as ex:
             log.error("'%s': %s", commandment, str(ex))

@@ -25,6 +25,8 @@
 # SOFTWARE.
 # ===================================================================
 
+from __future__ import print_function
+from functools import reduce
 __revision__ = "$Id$"
 
 
@@ -95,7 +97,7 @@ def english_to_key (str):
         p=0
         for i in range(0, 64, 2): p=p+_extract(skbin, i, 2)
         if (p&3) != _extract(skbin, 64, 2):
-            raise ValueError, "Parity error in resulting key"
+            raise ValueError("Parity error in resulting key")
         key=key+subkey[0:8]
     return key
 
@@ -352,13 +354,13 @@ if __name__=='__main__':
            ]
 
     for key, words in data:
-        print 'Trying key', key
+        print('Trying key', key)
         key=binascii.a2b_hex(key)
         w2=key_to_english(key)
         if w2!=words:
-            print 'key_to_english fails on key', repr(key), ', producing', str(w2)
+            print('key_to_english fails on key', repr(key), ', producing', str(w2))
         k2=english_to_key(words)
         if k2!=key:
-            print 'english_to_key fails on key', repr(key), ', producing', repr(k2)
+            print('english_to_key fails on key', repr(key), ', producing', repr(k2))
 
 

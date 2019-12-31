@@ -23,6 +23,7 @@
 # ===================================================================
 
 """Self-test suite for Crypto.Cipher.ARC4"""
+from __future__ import absolute_import
 
 __revision__ = "$Id$"
 
@@ -68,7 +69,7 @@ test_data = [
 
 def get_tests(config={}):
     from Crypto.Cipher import ARC4
-    from common import make_stream_tests
+    from .common import make_stream_tests
     return make_stream_tests(ARC4, "ARC4", test_data)
 
 if __name__ == '__main__':

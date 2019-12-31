@@ -41,6 +41,8 @@ Ronald L. Rivest.  "All-Or-Nothing Encryption and The Package Transform"
 http://theory.lcs.mit.edu/~rivest/fusion.pdf
 
 """
+from __future__ import print_function
+from functools import reduce
 
 __revision__ = "$Id$"
 
@@ -179,7 +181,7 @@ class AllOrNothing:
         # better have at least 2 blocks, for the padbytes package and the hash
         # block accumulator
         if len(blocks) < 2:
-            raise ValueError, "List must be at least length 2."
+            raise ValueError("List must be at least length 2.")
 
         # blocks is a list of strings.  We need to deal with them as long
         # integers
@@ -264,15 +266,15 @@ Where:
 
     def usage(code, msg=None):
         if msg:
-            print msg
-        print usagemsg % {'program': sys.argv[0],
-                          'ciphermodule': ciphermodule}
+            print(msg)
+        print(usagemsg % {'program': sys.argv[0],
+                          'ciphermodule': ciphermodule})
         sys.exit(code)
 
     try:
         opts, args = getopt.getopt(sys.argv[1:],
                                    'c:l', ['cipher=', 'aslong'])
-    except getopt.error, msg:
+    except getopt.error as msg:
         usage(1, msg)
 
     if args:
@@ -290,23 +292,23 @@ Where:
     module = __import__('Crypto.Cipher.'+ciphermodule, None, None, ['new'])
 
     a = AllOrNothing(module)
-    print 'Original text:\n=========='
-    print __doc__
-    print '=========='
+    print('Original text:\n==========')
+    print(__doc__)
+    print('==========')
     msgblocks = a.digest(__doc__)
-    print 'message blocks:'
+    print('message blocks:')
     for i, blk in map(None, range(len(msgblocks)), msgblocks):
         # base64 adds a trailing newline
-        print '    %3d' % i,
+        print('    %3d' % i, end=' ')
         if aslong:
-            print bytes_to_long(blk)
+            print(bytes_to_long(blk))
         else:
-            print base64.encodestring(blk)[:-1]
+            print(base64.encodestring(blk)[:-1])
     #
     # get a new undigest-only object so there's no leakage
     b = AllOrNothing(module)
     text = b.undigest(msgblocks)
     if text == __doc__:
-        print 'They match!'
+        print('They match!')
     else:
-        print 'They differ!'
+        print('They differ!')

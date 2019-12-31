@@ -143,6 +143,7 @@
     If a "series" file exists within a patch directory, it is used for patch
     ordering.
 """
+from __future__ import print_function
 # TODO:
 # - break this out into a separate project
 # - add a test suite
@@ -241,12 +242,12 @@ def _getPatchInfo(dirname):
             pass
     try:
         file, path, desc = imp.find_module("__patchinfo__", [dirname])
-    except ImportError, ex:
+    except ImportError as ex:
         return None
     try:
         patchinfo = imp.load_module("__patchinfo__", file, path, desc)
         return patchinfo
-    except SyntaxError, ex:
+    except SyntaxError as ex:
         errinfo = ex.args[1]
         raise Error("syntax error in patchinfo file: %s:%d: %r"
                     % (errinfo[0], errinfo[1], errinfo[3]))
@@ -379,15 +380,15 @@ def _getPreprocessorDefines(config):
     defines = {}
     if isinstance(config, types.ModuleType):
         for key, value in config.__dict__.items():
-            if type(key) in (types.StringType, types.UnicodeType) and not key.startswith("_"):
+            if type(key) in (bytes, str) and not key.startswith("_"):
                 defines["PT_CONFIG_"+key] = value
     elif isinstance(config, dict):
         for key, value in config.items():
-            if type(key) in (types.StringType, types.UnicodeType) and not key.startswith("_"):
+            if type(key) in (bytes, str) and not key.startswith("_"):
                 defines["PT_CONFIG_"+key] = value
     else:
         for name in dir(config):
-            if type(name) in (types.StringType, types.UnicodeType) and not name.startswith("_"):
+            if type(name) in (bytes, str) and not name.startswith("_"):
                 defines["PT_CONFIG_"+name] = getattr(config, name)
     return defines
 
@@ -658,7 +659,7 @@ def _loadPatchLog(logDir, logFilename=None):
     try:
         file, path, desc = imp.find_module(patchLogName, [logDir])
         patchLog = imp.load_module(patchLogName, file, path, desc)
-    except ImportError, ex:
+    except ImportError as ex:
         raise Error("could not find a patch log in the given log "
                     "directory, '%s': %s" % (logDir, ex))
     return patchLog
@@ -1181,7 +1182,7 @@ actions = %s
         log.debug("removing temporary working dir '%s'", tempDir)
         try:
             sh.rm(tempDir)
-        except EnvironmentError, ex:
+        except EnvironmentError as ex:
             log.warn("could not remove temp working dir '%s': %s",
                      tempDir, ex)
         if sys.platform.startswith("win") and oldTmpDir is not None:
@@ -1198,7 +1199,7 @@ def main(argv):
         optlist, args = getopt.getopt(argv[1:], "hvVc:L:R",
             ["help", "verbose", "version", "config=", "log-dir=",
              "dry-run"])
-    except getopt.GetoptError, msg:
+    except getopt.GetoptError as msg:
         raise Error("patchtree: %s" % str(msg))
     config = None
     logDir = None
@@ -1209,7 +1210,7 @@ def main(argv):
             sys.stdout.write(__doc__)
             return 0
         elif opt in ("-V", "--version"):
-            print "patchtree %s" % __version__
+            print("patchtree %s" % __version__)
             return 0
         elif opt in ("-v", "--verbose"):
             log.setLevel(logging.DEBUG)
@@ -1256,7 +1257,7 @@ if __name__ == "__main__":
     except:
         exc_info = sys.exc_info()
         if log.isEnabledFor(logging.DEBUG):
-            print
+            print()
             traceback.print_exception(*exc_info)
         else:
             log.error("%s: %s", exc_info[0].__name__, exc_info[1])

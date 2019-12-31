@@ -36,6 +36,7 @@
 # ***** END LICENSE BLOCK *****
 
 """Some tools for working with an SELinux installation."""
+from __future__ import print_function
 
 import os
 import sys
@@ -232,12 +233,12 @@ def main():
 
     selinux = SELinux()
     if not selinux.is_installed():
-        print "SELinux is not installed. Done."
+        print("SELinux is not installed. Done.")
         return
     
     for path in sys.argv[1:]:
         context = selinux.context_from_path(path)
-        print "%s: %s" % (path, context)
+        print("%s: %s" % (path, context))
     
 
 if __name__ == "__main__":

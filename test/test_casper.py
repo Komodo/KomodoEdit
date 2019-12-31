@@ -78,6 +78,7 @@ a custom CasperTestSuite that knows how to run the selected tests with
 casper (as described above), read the JSON log and fake out having run
 the PyUnit tests.
 """
+from __future__ import print_function
 
 import os
 import sys
@@ -119,14 +120,14 @@ class CasperTest(object):
     def __init__(self, path, class_name, func_name, tags=None):
         self.path = path
         self.class_name = class_name
-        self.func_name = func_name
+        self.__name__ = func_name
         self.tags = tags
     def __repr__(self):
         tags_str = ""
         if self.tags:
             tags_str = " [%s]" % ' '.join(self.tags)
         return "<CasperTest %s#%s.%s%s>" \
-               % (basename(self.path), self.class_name, self.func_name,
+               % (basename(self.path), self.class_name, self.__name__,
                   tags_str)
 
 def testpaths():
@@ -419,7 +420,7 @@ def test_cases():
         #    is handled by the custom CasperTestSuite below.
         func = lambda self: True
         func._casper_test_ = test
-        setattr(klass, test.func_name, func)
+        setattr(klass, test.__name__, func)
         if test.tags:
             func.tags = test.tags
 
@@ -443,7 +444,7 @@ class CasperTestSuite(unittest.TestSuite):
         if result.shouldStop:
             return result
 
-        print "running casper tests in komodo ..."
+        print("running casper tests in komodo ...")
 
         if exists(self.log_path):
             os.remove(self.log_path)
@@ -457,7 +458,7 @@ class CasperTestSuite(unittest.TestSuite):
         casper_ids = []
         for testcase in self._tests:
             test = getattr(testcase, testcase._testMethodName)._casper_test_
-            id = "%s#%s.%s" % (test.path, test.class_name, test.func_name)
+            id = "%s#%s.%s" % (test.path, test.class_name, test.__name__)
             casper_ids.append(id)
             testcase._casper_id = id
         file(self.teststorun_filepath, "w").write("\n".join(casper_ids))
@@ -488,7 +489,7 @@ class CasperTestSuite(unittest.TestSuite):
         # Gather the casper run results.
         try:
             casper_results = simplejson.loads(open(self.log_path, 'r').read())
-        except ValueError, ex:
+        except ValueError as ex:
             for testcase in self._tests:
                 result.startTest(testcase)
                 detail = "Error in casper JSON log output (%s): %s" \
@@ -506,7 +507,7 @@ class CasperTestSuite(unittest.TestSuite):
         for testcase in self._tests:
             try:
                 cr = casper_result_from_id[testcase._casper_id]
-            except KeyError, ex:
+            except KeyError as ex:
                 # Casper can be flaky: not logging results for some tests
                 # it was meant to run.
                 status = "BREAK"

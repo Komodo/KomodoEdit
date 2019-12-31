@@ -213,7 +213,7 @@ def fixupURI(uri):
         if fixupURI.spec:
             uri = fixupURI.spec;
             re.sub("^(file:/+\w)|", "\1:", uri)
-    except Exception, ex:
+    except Exception as ex:
         log.debug("nsIURIFixup could not fixup '%s': %s", uri, ex)
         # Leave uri alone (presumably to fail below!)
     return uri

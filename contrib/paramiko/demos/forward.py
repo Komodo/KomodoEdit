@@ -25,6 +25,7 @@ This script connects to the requested SSH server and sets up local port
 forwarding (the openssh -L option) from a local port through a tunneled
 connection to a destination reachable from the SSH server machine.
 """
+from __future__ import print_function
 
 import getpass
 import os

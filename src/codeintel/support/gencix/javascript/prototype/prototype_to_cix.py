@@ -56,6 +56,7 @@ Webpage used for documentation:
 Tested with prototype versions:
   * 1.4.0           (default)
 """
+from __future__ import print_function
 
 import os
 import sys
@@ -156,13 +157,13 @@ def processScope(cix_module, h4_tag):
             if cix_module is None:
                 raise "Could not find scope: %r for: %r" % (parentScopeName, scopeName)
         if h4_text_split[0] == "The" and h4_text_split[-1] == "class":
-            print "Class:",
+            print("Class:", end=' ')
             cix_element = createCixClass(cix_module, scopeNames[-1])
         else:
-            print "Object:",
+            print("Object:", end=' ')
             cix_element = createCixVariable(cix_module, scopeNames[-1])
         cix_scopes[scopeName] = cix_element
-        print "%s - %s" % (scopeName, h4_text)
+        print("%s - %s" % (scopeName, h4_text))
         processScopeFields(cix_element, h4_tag)
 
 def processRefTags(cix_module, p_tag):
@@ -248,12 +249,12 @@ def getPrototypeDocsFromWebpage():
 
 def updateCix(filename, content, updatePerforce=False):
     if updatePerforce:
-        print os.popen("p4 edit %s" % (filename)).read()
+        print(os.popen("p4 edit %s" % (filename)).read())
     file(filename, "w").write(content)
     if updatePerforce:
         diff = os.popen("p4 diff %s" % (filename)).read()
         if len(diff.splitlines()) <= 1 and diff.find("not opened on this client") < 0:
-            print "No change, reverting: %s" % os.popen("p4 revert %s" % (filename)).read()
+            print("No change, reverting: %s" % os.popen("p4 revert %s" % (filename)).read())
 
 # Soup parsing of API documentation from webpage
 def main(cix_filename, updatePerforce=False):

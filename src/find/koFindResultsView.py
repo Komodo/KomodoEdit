@@ -83,7 +83,7 @@ class KoFindResultsView(TreeView):
         except KeyError:
             log.error("unknown find result column id: '%s'" % column.id)
             return ""
-        if type(datum) not in (types.StringType, types.UnicodeType):
+        if type(datum) not in (bytes, str):
             datum = str(datum)
         return datum
 
@@ -318,7 +318,7 @@ class KoFindResultsView(TreeView):
         for column in self.columns:
             # Modified form of getCellText:
             celltext = datum[column.id]
-            if type(celltext) not in (types.StringType, types.UnicodeType):
+            if type(celltext) not in (bytes, str):
                 celltext = str(celltext)
             else:
                 celltext = celltext.lower()

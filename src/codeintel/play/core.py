@@ -1,3 +1,4 @@
+from __future__ import print_function
 # This file was created automatically by SWIG.
 # Don't modify this file, modify the SWIG interface instead.
 
@@ -557,7 +558,7 @@ class Object(object):
     The base class for most wx objects, although in wxPython not
     much functionality is needed nor exposed.
     """
-    def __init__(self): raise RuntimeError, "No constructor defined"
+    def __init__(self): raise RuntimeError("No constructor defined")
     def __repr__(self):
         return "<%s.%s; proxy of C++ wxObject instance at %s>" % (self.__class__.__module__, self.__class__.__name__, self.this,)
     def GetClassName(*args, **kwargs):
@@ -1541,7 +1542,7 @@ DefaultPosition = cvar.DefaultPosition
 DefaultSize = cvar.DefaultSize
 
 class OutputStream(object):
-    def __init__(self): raise RuntimeError, "No constructor defined"
+    def __init__(self): raise RuntimeError("No constructor defined")
     def __repr__(self):
         return "<%s.%s; proxy of C++ wxOutputStream instance at %s>" % (self.__class__.__module__, self.__class__.__name__, self.this,)
     def write(*args, **kwargs):
@@ -1605,7 +1606,7 @@ class FSFilePtr(FSFile):
 _core.FSFile_swigregister(FSFilePtr)
 
 class CPPFileSystemHandler(object):
-    def __init__(self): raise RuntimeError, "No constructor defined"
+    def __init__(self): raise RuntimeError("No constructor defined")
     def __repr__(self):
         return "<%s.%s; proxy of C++ wxFileSystemHandler instance at %s>" % (self.__class__.__module__, self.__class__.__name__, self.this,)
 
@@ -1826,7 +1827,7 @@ def MemoryFSHandler_AddFile(filename, a, b=''):
         __wxMemoryFSHandler_AddFile_wxBitmap(filename, a, b)
     elif type(a) == str:
         __wxMemoryFSHandler_AddFile_Data(filename, a)
-    else: raise TypeError, 'wx.Image, wx.Bitmap or string expected'
+    else: raise TypeError('wx.Image, wx.Bitmap or string expected')
 
 class MemoryFSHandler(CPPFileSystemHandler):
     def __repr__(self):
@@ -1874,7 +1875,7 @@ def MemoryFSHandler_RemoveFile(*args, **kwargs):
 #---------------------------------------------------------------------------
 
 class ImageHandler(Object):
-    def __init__(self): raise RuntimeError, "No constructor defined"
+    def __init__(self): raise RuntimeError("No constructor defined")
     def __repr__(self):
         return "<%s.%s; proxy of C++ wxImageHandler instance at %s>" % (self.__class__.__module__, self.__class__.__name__, self.this,)
     def GetName(*args, **kwargs):
@@ -2630,7 +2631,7 @@ class PyEventBinder(object):
     """
     def __init__(self, evtType, expectedIDs=0):
         if expectedIDs not in [0, 1, 2]:
-            raise ValueError, "Invalid number of expectedIDs"
+            raise ValueError("Invalid number of expectedIDs")
         self.expectedIDs = expectedIDs
 
         if type(evtType) == list or type(evtType) == tuple:
@@ -2666,7 +2667,7 @@ class PyEventBinder(object):
             id2 = args[2]
             func = args[3]
         else:
-            raise ValueError, "Unexpected number of IDs"
+            raise ValueError("Unexpected number of IDs")
 
         self.Bind(target, id1, id2, func)
 
@@ -2981,7 +2982,7 @@ EVT_CONTEXT_MENU = wx.PyEventBinder( wxEVT_CONTEXT_MENU )
 #---------------------------------------------------------------------------
 
 class Event(Object):
-    def __init__(self): raise RuntimeError, "No constructor defined"
+    def __init__(self): raise RuntimeError("No constructor defined")
     def __repr__(self):
         return "<%s.%s; proxy of C++ wxEvent instance at %s>" % (self.__class__.__module__, self.__class__.__name__, self.this,)
     def __del__(self, destroy=_core.delete_Event):
@@ -3958,7 +3959,7 @@ _core.MaximizeEvent_swigregister(MaximizeEventPtr)
 #---------------------------------------------------------------------------
 
 class DropFilesEvent(Event):
-    def __init__(self): raise RuntimeError, "No constructor defined"
+    def __init__(self): raise RuntimeError("No constructor defined")
     def __repr__(self):
         return "<%s.%s; proxy of C++ wxDropFilesEvent instance at %s>" % (self.__class__.__module__, self.__class__.__name__, self.this,)
     def GetPosition(*args, **kwargs):
@@ -5008,10 +5009,10 @@ class App(wx.PyApp):
             try:
                 import MacOS
                 if not MacOS.WMAvailable():
-                    print """\
+                    print("""\
 This program needs access to the screen. Please run with 'pythonw',
 not 'python', and only when you are logged in on the main display of
-your Mac."""
+your Mac.""")
                     _sys.exit(1)
             except:
                 pass
@@ -7961,7 +7962,7 @@ class ItemContainer(object):
     and, optionally, client data associated with them.
 
     """
-    def __init__(self): raise RuntimeError, "No constructor defined"
+    def __init__(self): raise RuntimeError("No constructor defined")
     def __repr__(self):
         return "<%s.%s; proxy of C++ wxItemContainer instance at %s>" % (self.__class__.__module__, self.__class__.__name__, self.this,)
     def Append(*args, **kwargs):
@@ -8116,7 +8117,7 @@ class ControlWithItems(Control,ItemContainer):
     wx.Control class, and is used for the base class of various
     controls that have items.
     """
-    def __init__(self): raise RuntimeError, "No constructor defined"
+    def __init__(self): raise RuntimeError("No constructor defined")
     def __repr__(self):
         return "<%s.%s; proxy of C++ wxControlWithItems instance at %s>" % (self.__class__.__module__, self.__class__.__name__, self.this,)
 
@@ -8296,7 +8297,7 @@ def SizerItemSizer(*args, **kwargs):
     return val
 
 class Sizer(Object):
-    def __init__(self): raise RuntimeError, "No constructor defined"
+    def __init__(self): raise RuntimeError("No constructor defined")
     def __repr__(self):
         return "<%s.%s; proxy of C++ wxSizer instance at %s>" % (self.__class__.__module__, self.__class__.__name__, self.this,)
     def _setOORInfo(*args, **kwargs):
@@ -9063,7 +9064,7 @@ class IndividualLayoutConstraint(Object):
 
 
     """
-    def __init__(self): raise RuntimeError, "No constructor defined"
+    def __init__(self): raise RuntimeError("No constructor defined")
     def __repr__(self):
         return "<%s.%s; proxy of C++ wxIndividualLayoutConstraint instance at %s>" % (self.__class__.__module__, self.__class__.__name__, self.this,)
     def Set(*args, **kwargs):

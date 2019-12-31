@@ -1,3 +1,4 @@
+from __future__ import print_function
 # ***** BEGIN LICENSE BLOCK *****
 # Version: MPL 1.1/GPL 2.0/LGPL 2.1
 # 
@@ -37,6 +38,7 @@
 # A better implementation of uri's than urllib stuff
 
 # needed for ftpfile
+from future.utils import raise_
 import urlparse, urllib
 import stat, os, sys, copy
 from os.path import splitdrive
@@ -101,13 +103,13 @@ class URIServerParser(object):
             self.parseServerUri(serveruri)
     
     def dump(self):
-        print
-        print "serveruri:[%s]"%self._serveruri
-        print "username: [%s]"%self._username
-        print "password: [%s]"%self._password
-        print "hostname: [%s]"%self._hostname
-        print "port:     [%s]"%self._port
-        print
+        print()
+        print("serveruri:[%s]"%self._serveruri)
+        print("username: [%s]"%self._username)
+        print("password: [%s]"%self._password)
+        print("hostname: [%s]"%self._hostname)
+        print("port:     [%s]"%self._port)
+        print()
 
     # Parse up a serveruri into it's component fields
     # Raises ValueError on failure, because serveruri was not in the correct format.
@@ -115,7 +117,7 @@ class URIServerParser(object):
         self._serveruri = serveruri
         u = re.search("^(([^:@]+)(:([^:]+))?@)?([^:@]+)(:(.*))?", self._serveruri)
         if not u:
-            raise ValueError, "Regular Expression Failure in %s" % (self._serveruri)
+            raise_(ValueError, "Regular Expression Failure in %s" % (self._serveruri))
         ug = u.groups()
         self._username, self._password, self._hostname, self._port = ug[1], ug[3], ug[4], ug[6]
         # Unquote the individual pieces from the URL.
@@ -193,18 +195,18 @@ class URIParser(object):
         self._fileParsed = ['', '', '', '', '']
     
     def dump(self):
-        print
-        print "_uri:     [%s]"%self._uri
-        print "fileName: [%s]"%self.fileName
-        print "URI:      [%s]"%self.URI
-        print "scheme:   [%s]"%self.scheme
-        print "server:   [%s]"%self.server
-        print "path:     [%s]"%self.path
-        print "leafName: [%s]"%self.leafName
-        print "baseName: [%s]"%self.baseName
-        print "dirName:  [%s]"%self.dirName
-        print "ext:      [%s]"%self.ext
-        print
+        print()
+        print("_uri:     [%s]"%self._uri)
+        print("fileName: [%s]"%self.fileName)
+        print("URI:      [%s]"%self.URI)
+        print("scheme:   [%s]"%self.scheme)
+        print("server:   [%s]"%self.server)
+        print("path:     [%s]"%self.path)
+        print("leafName: [%s]"%self.leafName)
+        print("baseName: [%s]"%self.baseName)
+        print("dirName:  [%s]"%self.dirName)
+        print("ext:      [%s]"%self.ext)
+        print()
         
     def _parseURI(self, uri, doUnquote=True):
         #print "_parseURI[%s]"%uri
@@ -274,7 +276,7 @@ class URIParser(object):
                     if win32:
                         uparts[2] = prefix + uriPartQuoted
                     uparts[2] = prefix + uriPartQuoted
-                except KeyError, e:
+                except KeyError as e:
                     # quote fails on unicode chars - bug 63027, just pass
                     # through and hope for the best.
                     # Toddw: We could fall back to the Mozilla escape handling,
@@ -299,7 +301,7 @@ class URIParser(object):
         # get a decoded version of uri.path.  This exists to fix reading
         # files with latin-1 or other 8 bit encodings on systems where
         # utf-8 support is incomplete (bug 29040)
-        if type(filename) == types.UnicodeType:
+        if type(filename) == str:
             try:
                 fn_enc = sys.getfilesystemencoding()
                 if not fn_enc:
@@ -310,7 +312,7 @@ class URIParser(object):
                     else:
                         fn_enc = self.komodoStartupEncoding
                 filename = self.encodingServices.encode(filename, fn_enc, 'strict')
-            except COMException, e:
+            except COMException as e:
                 # happens on occasion, such as when windows system encoding is
                 # cp936. see bug #32814. falling back to the regular path allows
                 # most files to still work properly. The exception would
@@ -515,7 +517,7 @@ class FileHandlerBase(object):
         if name in self.stats:
             return self.stats[name]
         if self._file is None or not hasattr(self._file,name):
-            raise AttributeError, name
+            raise_(AttributeError, name)
         return getattr(self._file,name)
 
     def getStatusMap(self):
@@ -535,7 +537,7 @@ class FileHandlerBase(object):
                 return self._file.read(-1)
             else:
                 return self._file.read(nBytes)
-        except EnvironmentError, ex:
+        except EnvironmentError as ex:
             self.lastErrorSvc.setLastError(ex.errno, ex.strerror)
             raise ServerException(nsError.NS_ERROR_FAILURE, ex.strerror)
         except COMException:
@@ -543,12 +545,12 @@ class FileHandlerBase(object):
             raise ServerException(nsError.NS_ERROR_FAILURE)
 
     def updateStatsAsync(self):
-        raise NotImplementedError,"'updateStatsAsync' not implemented for local files."
+        raise NotImplementedError("'updateStatsAsync' not implemented for local files.")
 
     def write(self, text):
         try:
             self._file.write(text)
-        except EnvironmentError, ex:
+        except EnvironmentError as ex:
             self.lastErrorSvc.setLastError(ex.errno, ex.strerror)
             raise ServerException(nsError.NS_ERROR_FAILURE, ex.strerror)
         except COMException:
@@ -614,7 +616,7 @@ class FileHandler(FileHandlerBase):
         try:
             try:
                 self._file.close()
-            except EnvironmentError, ex:
+            except EnvironmentError as ex:
                 self.lastErrorSvc.setLastError(ex.errno, ex.strerror)
                 raise ServerException(nsError.NS_ERROR_FAILURE, ex.strerror)
                 return 0
@@ -629,11 +631,11 @@ class FileHandler(FileHandlerBase):
             self._stats = None
         try:
             self._file = open(self._decodedPath, self._mode)
-        except EnvironmentError, ex:
+        except EnvironmentError as ex:
             try:
                 # XXX bug 63027, try the original path
                 self._file = open(self._path, self._mode)
-            except EnvironmentError, ex:
+            except EnvironmentError as ex:
                 log.exception(ex)
                 # python exceptions dont follow their own rules
                 if ex.errno is None:
@@ -660,11 +662,11 @@ class FileHandler(FileHandlerBase):
         try:
             try:
                 lstats = os.lstat(self._decodedPath) # Don't follow symlinks
-            except EnvironmentError, ex:
+            except EnvironmentError as ex:
                 try:
                     # XXX bug 63027, try the original path
                     lstats = os.lstat(self._path)
-                except EnvironmentError, ex:
+                except EnvironmentError as ex:
                     #log.exception(ex)
                     raise
             lmode = lstats[stat.ST_MODE]
@@ -675,11 +677,11 @@ class FileHandler(FileHandlerBase):
             else:
                 try:
                     stats = os.stat(self._decodedPath)
-                except EnvironmentError, ex:
+                except EnvironmentError as ex:
                     try:
                         # XXX bug 63027, try the original path
                         stats = os.stat(self._path)
-                    except EnvironmentError, ex:
+                    except EnvironmentError as ex:
                         #log.exception(ex)
                         raise
                 mode = stats[stat.ST_MODE]
@@ -707,7 +709,7 @@ class FileHandler(FileHandlerBase):
             _stats['isReadWrite'] = int(_stats['isReadable'] and _stats['isWriteable'])
             _stats['exists']=1
             #print repr(_stats)
-        except OSError,e:
+        except OSError as e:
             if e.errno != 2:
                 raise
         return _stats
@@ -849,7 +851,7 @@ class xpURIHandler(FileHandlerBase):
     
     def open(self, mode):
         if "r" not in mode:
-            raise ValueError, "only 'r' mode supported'"
+            raise ValueError("only 'r' mode supported'")
         self._mode = mode
 
         io_service = components.classes["@mozilla.org/network/io-service;1"] \
@@ -857,7 +859,7 @@ class xpURIHandler(FileHandlerBase):
         url_ob = io_service.newURI(self._path, None, None)
         # Mozilla asserts and starts saying "NULL POINTER" if this is wrong!
         if not url_ob.scheme:
-            raise ValueError, ("The URI '%s' is invalid (no scheme)" 
+            raise ValueError("The URI '%s' is invalid (no scheme)" 
                                   % (url_ob.spec,))
 
         if self._stats and self._stats['exists']==0:
@@ -866,7 +868,7 @@ class xpURIHandler(FileHandlerBase):
         try:
             channel = io_service.newChannelFromURI(url_ob)
             self._file = channel.open()
-        except Exception, e:
+        except Exception as e:
             # Mozilla could not open the file, so it either does not exist
             # or some other error which we unfortunately do not get good info
             # on from mozilla.  One example is a dbgp uri being restored
@@ -1077,7 +1079,7 @@ class projectURIHandler(FileHandlerBase):
         finally:
             try:
                 self._file.close()
-            except Exception, e:
+            except Exception as e:
                 log.exception(e)
             self._file = None
         
@@ -1100,7 +1102,7 @@ class projectURIHandler(FileHandlerBase):
                 self._file = StringIO.StringIO(self.part.value.encode('utf-8'))
             else:
                 self._file = StringIO.StringIO()
-        except Exception, e:
+        except Exception as e:
             # Mozilla could not open the file, so it either does not exist
             # or some other error which we unfortunately do not get good info
             # on from mozilla.  One example is a dbgp uri being restored
@@ -1176,7 +1178,7 @@ class projectURI2_Handler(projectURIHandler):
         finally:
             try:
                 self._file.close()
-            except Exception, e:
+            except Exception as e:
                 log.exception(e)
             self._file = None
         

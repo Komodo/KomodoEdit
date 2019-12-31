@@ -1,3 +1,4 @@
+from __future__ import print_function
 # ***** BEGIN LICENSE BLOCK *****
 # Version: MPL 1.1/GPL 2.0/LGPL 2.1
 # 
@@ -61,9 +62,9 @@ for query, linenums in queries.items():
 
 dupes.sort()
 for dupe in dupes:
-    print "%4d repeats: %s" % dupe
+    print("%4d repeats: %s" % dupe)
 
-print
-print "Number of dupes: %r" % numdupes
-print "Theoretical max number of wasted queries: %r" % numwastes
+print()
+print("Number of dupes: %r" % numdupes)
+print("Theoretical max number of wasted queries: %r" % numwastes)
 

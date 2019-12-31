@@ -308,7 +308,7 @@ class PythonTreeEvaluator(TreeEvaluator):
             for classref in elem.get("classrefs", "").split():
                 try:
                     basehit = self._hit_from_type_inference(classref, scoperef)
-                except CodeIntelError, ex:
+                except CodeIntelError as ex:
                     self.warn(str(ex))
                 else:
                     ctor_hit = self._ctor_hit_from_class(*basehit)
@@ -380,13 +380,13 @@ class PythonTreeEvaluator(TreeEvaluator):
             if "__hidden__" not in child.get("attributes", "").split():
                 try:
                     members.update(self._members_from_elem(child))
-                except CodeIntelError, ex:
+                except CodeIntelError as ex:
                     self.warn("%s (skipping members for %s)", ex, child)
         if elem.get("ilk") == "class":
             for classref in elem.get("classrefs", "").split():
                 try:
                     subhit = self._hit_from_type_inference(classref, scoperef)
-                except CodeIntelError, ex:
+                except CodeIntelError as ex:
                     # Continue with what we *can* resolve.
                     self.warn(str(ex))
                 else:
@@ -753,7 +753,7 @@ class PythonTreeEvaluator(TreeEvaluator):
                         = self._hit_from_type_inference(classref, scoperef)
                     return self._hit_from_getattr(tokens, base_elem,
                                                   base_scoperef)
-                except CodeIntelError, ex:
+                except CodeIntelError as ex:
                     self.log("could not resolve classref '%s' on scoperef %r",
                              classref, scoperef, )
                     # Was not available, try the next class then.

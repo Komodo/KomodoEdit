@@ -413,7 +413,7 @@ class KoUDLLanguage(KoLanguageBase):
             try:
                 return registryService.getLanguage(language).\
                             getLanguageService(serviceInterface)
-            except Exception, e:
+            except Exception as e:
                 # continue to next language
                 log.exception(e)
         return None
@@ -475,7 +475,7 @@ class KoUDLLanguage(KoLanguageBase):
                     getService(components.interfaces.koILanguageRegistryService)
                 langObj = UnwrapObject(registryService.getLanguage(language))
                 self._lang_svc_from_udl_family[family] = langObj
-            except KeyError, e:
+            except KeyError as e:
                 log.exception(e)
                 self._lang_svc_from_udl_family[family] = None
         return self._lang_svc_from_udl_family[family]
@@ -595,7 +595,7 @@ class KoUDLCommenterLanguageService(KoCommenterLanguageService):
                         getService(components.interfaces.koILanguageRegistryService)
                     self.commenter_from_udl_family[family] = registryService.getLanguage(language).\
                                     getLanguageService(components.interfaces.koICommenterLanguageService)
-                except Exception, e:
+                except Exception as e:
                     log.exception(e)
                     self.commenter_from_udl_family[family] = None
         return self.commenter_from_udl_family[family]

@@ -46,6 +46,7 @@
         --komodo=<path-to-komodo-exe>   specify komodo executable to drive
         -o                              dump output to stdout [default]
 """
+from __future__ import print_function
 
 import os, sys, time, random, getopt
 if sys.platform.startswith("win"):
@@ -60,9 +61,9 @@ import which
 #---- support routines
 
 def usage(code, msg=''):
-    print >> sys.stderr, __doc__ % globals()
+    print(__doc__ % globals(), file=sys.stderr)
     if msg:
-        print >> sys.stderr, msg
+        print(msg, file=sys.stderr)
     sys.exit(code)
 
 
@@ -158,7 +159,7 @@ class Stopwatch:
         self._timers[id] = (0, 0)
 
     def startTimerFor(self, id):
-        if not self._timers.has_key(id):
+        if id not in self._timers:
             self.resetTimerFor(id)
         elapsed, then = self._timers[id]
         assert then == 0
@@ -195,10 +196,10 @@ def measure_typing_speed(testFile, blankFile, komodoExe, out, verbose):
     if procname == "komodo":
         procname = "mozilla"
         sleeptime=20
-    print "using procname",procname
+    print("using procname",procname)
     
     pidsBefore = _GetMozillaPIDs(procname)
-    print "pidsBefore:",repr(pidsBefore)
+    print("pidsBefore:",repr(pidsBefore))
     argv = [exename, blankFile]
     
     os.spawnv(os.P_NOWAIT, komodoExe, argv)
@@ -210,7 +211,7 @@ def measure_typing_speed(testFile, blankFile, komodoExe, out, verbose):
     # - determine process PID and prefix for Win32 PDH logging
     pidsAfter = _GetMozillaPIDs(procname)
     newPids = [pid for pid in pidsAfter if pid not in pidsBefore]
-    print "newPids:",repr(newPids)
+    print("newPids:",repr(newPids))
     if len(newPids) == 0:
         raise "No new Mozilla PIDs were found. The same Komodo was probably already running."
     elif len(newPids) > 1:
@@ -258,7 +259,7 @@ def measure_typing_speed(testFile, blankFile, komodoExe, out, verbose):
                 else:
                     komodo.SendKeys(ch)
             except:
-                print "unable to send ",repr(ch)
+                print("unable to send ",repr(ch))
                 win32api.Sleep(1)
             
             # emulate some kind of delay in typing
@@ -283,8 +284,8 @@ def measure_typing_speed(testFile, blankFile, komodoExe, out, verbose):
         # close Komodo
         timer.stopTimerFor("typing")
         duration = timer.readTimerFor("typing")
-        print "typing took ",duration
-        print "each char took ",(duration/len(keys))
+        print("typing took ",duration)
+        print("each char took ",(duration/len(keys)))
         #komodo.SendKeys("%(f)x")    # Alt-fx
         # big delay to see if komodo will finish eating the key buffer
         win32api.Sleep(5000)        # wait for "Save Changes" dialog to come up
@@ -309,7 +310,7 @@ def main(argv):
     try:
         opts, args = getopt.getopt(sys.argv[1:], 'ho',
                                    ['help', 'komodo='])
-    except getopt.error, msg:
+    except getopt.error as msg:
         usage(1, msg)
 
     for opt, optarg  in opts:

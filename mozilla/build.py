@@ -70,6 +70,7 @@ r"""
     * Komodo 9.0 development builds:
         python build.py configure -k 9.10
 """
+from __future__ import print_function
 #
 # Development Notes:
 #   - In general, all relative paths are relative to the root Mozilla-devel
@@ -153,14 +154,14 @@ def _getChangeNum():
         changestr = 0  # fallback
     try:
         changenum = int(changestr)
-    except ValueError, ex:
+    except ValueError as ex:
         # pull off front number (good enough for our purposes)
         try:
             changenum = int(re.match("(\d+)", changestr).group(1))
             log.warn("simplifying complex changenum from 'svnversion': %s -> %s"
                      " (see `svnversion --help` for details)",
                      changestr, changenum)
-        except AttributeError, ex:
+        except AttributeError as ex:
             changenum = 0
             log.warn("Failed to get changenum, using 0 instead")
     return changenum
@@ -738,8 +739,8 @@ def _dedentlines(lines, tabsize=8, skip_first_line=False):
     """
     DEBUG = False
     if DEBUG: 
-        print "dedent: dedent(..., tabsize=%d, skip_first_line=%r)"\
-              % (tabsize, skip_first_line)
+        print("dedent: dedent(..., tabsize=%d, skip_first_line=%r)"\
+              % (tabsize, skip_first_line))
     indents = []
     margin = None
     for i, line in enumerate(lines):
@@ -756,12 +757,12 @@ def _dedentlines(lines, tabsize=8, skip_first_line=False):
                 break
         else:
             continue # skip all-whitespace lines
-        if DEBUG: print "dedent: indent=%d: %r" % (indent, line)
+        if DEBUG: print("dedent: indent=%d: %r" % (indent, line))
         if margin is None:
             margin = indent
         else:
             margin = min(margin, indent)
-    if DEBUG: print "dedent: margin=%r" % margin
+    if DEBUG: print("dedent: margin=%r" % margin)
 
     if margin is not None and margin > 0:
         for i, line in enumerate(lines):
@@ -773,7 +774,7 @@ def _dedentlines(lines, tabsize=8, skip_first_line=False):
                 elif ch == '\t':
                     removed += tabsize - (removed % tabsize)
                 elif ch in '\r\n':
-                    if DEBUG: print "dedent: %r: EOL -> strip up to EOL" % line
+                    if DEBUG: print("dedent: %r: EOL -> strip up to EOL" % line)
                     lines[i] = lines[i][j:]
                     break
                 else:
@@ -781,8 +782,8 @@ def _dedentlines(lines, tabsize=8, skip_first_line=False):
                                      "line %r while removing %d-space margin"
                                      % (ch, line, margin))
                 if DEBUG:
-                    print "dedent: %r: %r -> removed %d/%d"\
-                          % (line, ch, removed, margin)
+                    print("dedent: %r: %r -> removed %d/%d"\
+                          % (line, ch, removed, margin))
                 if removed == margin:
                     lines[i] = lines[i][j+1:]
                     break
@@ -1049,7 +1050,7 @@ def target_configure(argv):
              "p4-changenum=",
              "compiler=", "gcc=", "gxx=",
              "moz-objdir="])
-    except getopt.GetoptError, msg:
+    except getopt.GetoptError as msg:
         raise BuildError("configure: %s" % str(msg))
 
     for opt, optarg in optlist:
@@ -2775,7 +2776,7 @@ def build(argv):
         target = argv[0]
         try:
             targetFunc = getattr(sys.modules[__name__], 'target_' + target)
-        except AttributeError, e:
+        except AttributeError as e:
             log.error("no '%s' (function target_%s()) target exists"\
                       % (target, target))
             return 1
@@ -2783,10 +2784,10 @@ def build(argv):
         # Run the target.
         try:
             newArgv = targetFunc(argv)
-        except BuildError, ex:
+        except BuildError as ex:
             log.error("%s: %s", target, str(ex))
             if log.isEnabledFor(logging.DEBUG):
-                print
+                print()
                 import traceback
                 traceback.print_exception(*sys.exc_info())
             return 1
@@ -2808,15 +2809,15 @@ def _helpOnTargets(targets):
     for target in targets:
         try:
             targetFunc = getattr(sys.modules[__name__], 'target_' + target)
-        except AttributeError, e:
+        except AttributeError as e:
             log.error("no '%s' (function target_%s()) target exists"\
                       % (target, target))
             return 1
         doc = targetFunc.__doc__
         if doc:
-            print target+" -- "+doc
+            print(target+" -- "+doc)
         else:
-            print "No help for target '%s'." % target
+            print("No help for target '%s'." % target)
 
 
 def _listTargets():
@@ -2863,11 +2864,11 @@ def _listTargets():
     titles = groupMap.values()
     titles.sort()
 
-    print "                    Mozilla-devel BUILD TARGETS"
-    print "                    ==========================="
+    print("                    Mozilla-devel BUILD TARGETS")
+    print("                    ===========================")
     for order, title in titles:
         if title not in grouped: continue
-        print '\n' + title + ':'
+        print('\n' + title + ':')
         #XXX long form output
         #for target in grouped[title]:
         #    print "  %-20s" % target
@@ -2882,7 +2883,7 @@ def _listTargets():
                 doc = doc.splitlines()[0]
             if len(doc) > 53:
                 doc = doc[:50] + "..."
-            print "  %-20s  %s" % (target, doc)
+            print("  %-20s  %s" % (target, doc))
 
 
 # Recipe: pretty_logging (0.1) in C:\trentm\tm\recipes\cookbook
@@ -2932,7 +2933,7 @@ def main(argv):
     try:
         optlist, args = getopt.getopt(argv[1:], "htvf:c:",
             ["help", "targets", "verbose", "config"])
-    except getopt.GetoptError, msg:
+    except getopt.GetoptError as msg:
         log.error(str(msg))
         log.error("Your invocation was: %s. Try 'build --help'.\n" % argv)
         return 1

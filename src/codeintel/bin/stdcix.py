@@ -69,6 +69,7 @@
         python bin/stdcix.py -o lib/codeintel/perl.cix Perl
         p4 submit lib/codeintel/perl.cix
 """
+from __future__ import print_function
 #TODO:
 # - Should the <file> for modules defined in .pyd's be the .pyd file or
 #   the python.cix file. It is the latter, currently.
@@ -513,7 +514,7 @@ def main(argv):
     try:
         opts, args = getopt.getopt(argv[1:], "Vvhl:o:",
             ["version", "verbose", "help", "language=",])
-    except getopt.GetoptError, ex:
+    except getopt.GetoptError as ex:
         log.error(str(ex))
         log.error("Try `python bin/stdcix.py --help'.")
         return 1
@@ -524,7 +525,7 @@ def main(argv):
             return
         elif opt in ("-V", "--version"):
             ver = '.'.join([str(part) for part in _version_])
-            print "stdcix %s" % ver
+            print("stdcix %s" % ver)
             return
         elif opt in ("-v", "--verbose"):
             if log.level == logging.NOTSET:
@@ -550,10 +551,10 @@ def main(argv):
     try:
         try:
             stdcix(language, filename, stream)
-        except Error, ex:
+        except Error as ex:
             log.error(str(ex))
             if log.isEnabledFor(logging.DEBUG):
-                print
+                print()
                 import traceback
                 traceback.print_exception(*sys.exc_info())
             return 1

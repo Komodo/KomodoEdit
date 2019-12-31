@@ -97,7 +97,7 @@ class KoNotificationAsyncCallbackAdapter(object):
             try:
                 data.QueryInterface(components.interfaces.nsIException)
                 self.notification.details += data.toString()
-            except COMException, e:
+            except COMException as e:
                 if e.number != nsError.NS_ERROR_NO_INTERFACE:
                     raise
 
@@ -107,7 +107,7 @@ class KoNotificationAsyncCallbackAdapter(object):
             for action in self.notification.getActions():
                 action.visible = False
                 self.notification.updateAction(action)
-        except COMException, e:
+        except COMException as e:
             if e.number != nsError.NS_ERROR_NO_INTERFACE:
                 raise
 
@@ -117,7 +117,7 @@ class KoNotificationAsyncCallbackAdapter(object):
             try:
                 self.next.QueryInterface(components.interfaces.koIAsyncCallback)
                 self.next.callback(result, data)
-            except COMException, e:
+            except COMException as e:
                 if getattr(e, "number", None) != nsError.NS_ERROR_NO_INTERFACE:
                     raise
 
@@ -134,7 +134,7 @@ class KoNotificationAsyncCallbackAdapter(object):
             try:
                 self.next.QueryInterface(components.interfaces.koIAsyncCallbackWithProgress)
                 self.next.onProgress(label, value)
-            except COMException, e:
+            except COMException as e:
                 if e.number != nsError.NS_ERROR_NO_INTERFACE:
                     raise
 

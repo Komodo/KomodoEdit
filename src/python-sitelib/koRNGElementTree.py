@@ -1,3 +1,4 @@
+from __future__ import print_function
 # ***** BEGIN LICENSE BLOCK *****
 # Version: MPL 1.1/GPL 2.0/LGPL 2.1
 # 
@@ -124,7 +125,7 @@ class rng_dataset(rng_base_dataset):
 
     def resolveUnresolvedRefs(self):
         for ref in self.ref_unresolved.keys()[:]:
-            print "resolving earlier unresolved reference %s"%ref
+            print("resolving earlier unresolved reference %s"%ref)
             el = self.ref_unresolved[ref]
             del self.ref_unresolved[ref]
             for e in el:
@@ -164,16 +165,16 @@ class rng_dataset(rng_base_dataset):
 
 
     def dump(self, stream):
-        print "RNG NS: %s" % self.xmlns
-        print "Namespace: %s" % self.namespace
-        print "datatypeLibrary: %s" % self.datatypeLibrary
-        print "-"*60
+        print("RNG NS: %s" % self.xmlns)
+        print("Namespace: %s" % self.namespace)
+        print("datatypeLibrary: %s" % self.datatypeLibrary)
+        print("-"*60)
         for e in self.elements:
             e.dump(stream)
-        print "-"*60
+        print("-"*60)
         for e in self.all_elements.values():
             e.dump(stream)
-        print "-"*60
+        print("-"*60)
 
 class rng_node_info(rng_base_dataset):
     def __init__(self, node):

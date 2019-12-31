@@ -134,15 +134,15 @@ def run(cmd, stdin=None):
             if stdin:
                 i.write(stdin)
             i.close()
-        except IOError, e:
+        except IOError as e:
             pass
         try:
             stdout = o.read()
-        except IOError, e:
+        except IOError as e:
             pass
         try:
             stderr = e.read()
-        except IOError, e:
+        except IOError as e:
             pass
         o.close()
         retval = e.close()
@@ -162,7 +162,7 @@ class KoEnviron:
     _reg_desc_ = "System Environment Interaction Service"
 
     def has(self, key):
-        return os.environ.has_key(key)
+        return key in os.environ
     def get(self, key, default=None):
         return os.environ.get(key, default)
     def set(self, key, value):
@@ -226,7 +226,7 @@ class KoUserEnviron:
         try:
             import pwd
             return pwd.getpwnam(os.environ['USER'])[6]
-        except Exception, e:
+        except Exception as e:
             log.exception(e)
         return None
         
@@ -258,7 +258,7 @@ class KoUserEnviron:
         # read in startup env delta file and fill in the startup env
         try:
             fin = open(self.startupEnvFileName, "r")
-        except EnvironmentError, ex:
+        except EnvironmentError as ex:
             self._userEnviron = os.environ.copy()
         else:
             content = fin.read()
@@ -417,7 +417,7 @@ class KoUserEnviron:
         self._initialize()
         if sys.platform.startswith("win"):
             key = key.upper()  # put everything upper on Windows
-        return self._userEnviron.has_key(key)
+        return key in self._userEnviron
 
     def get(self, key, default=None):
         self._initialize()
@@ -567,7 +567,7 @@ class KoEnvironUtils:
                 continue
             # an empty value means: remove env. var.
             if value == "":
-                if envDict.has_key(name):
+                if name in envDict:
                     del envDict[name]
                 #print "... delete '%s' variable" % name
             # interpolate any other value into the resultant dictionary

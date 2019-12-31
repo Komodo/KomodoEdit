@@ -520,7 +520,7 @@ _active = []
 
 def _cleanup():
     for inst in _active[:]:
-        res = inst._internal_poll(_deadstate=sys.maxint)
+        res = inst._internal_poll(_deadstate=sys.maxsize)
         if res is not None:
             try:
                 _active.remove(inst)
@@ -537,7 +537,7 @@ def _eintr_retry_call(func, *args):
     while True:
         try:
             return func(*args)
-        except (OSError, IOError), e:
+        except (OSError, IOError) as e:
             if e.errno == errno.EINTR:
                 continue
             raise
@@ -859,7 +859,7 @@ class Popen(object):
         return data
 
 
-    def __del__(self, _maxint=sys.maxint, _active=_active):
+    def __del__(self, _maxint=sys.maxsize, _active=_active):
         # If __init__ hasn't had a chance to execute (e.g. if it
         # was passed an undeclared keyword argument), we don't
         # have a _child_created attribute at all.
@@ -1036,7 +1036,7 @@ class Popen(object):
 
             assert not pass_fds, "pass_fds not supported on Windows."
 
-            if not isinstance(args, types.StringTypes):
+            if not isinstance(args, (str,)):
                 args = list2cmdline(args)
 
             # Process startup details
@@ -1053,7 +1053,7 @@ class Popen(object):
                 startupinfo.wShowWindow = _subprocess.SW_HIDE
                 comspec = os.environ.get("COMSPEC", "cmd.exe")
                 args = comspec + " /c " + '"%s"' % args
-                if (_subprocess.GetVersion() >= 0x80000000L or
+                if (_subprocess.GetVersion() >= 0x80000000 or
                         os.path.basename(comspec).lower() == "command.com"):
                     # Win9x, or using command.com on NT. We need to
                     # use the w9xpopen intermediate program. For more
@@ -1080,7 +1080,7 @@ class Popen(object):
                                              env,
                                              cwd,
                                              startupinfo)
-                except pywintypes.error, e:
+                except pywintypes.error as e:
                     # Translate pywintypes.error to WindowsError, which is
                     # a subclass of OSError.  FIXME: We should really
                     # translate errno using _sys_errlist (or similar), but
@@ -1288,7 +1288,7 @@ class Popen(object):
                     while True:
                         try:
                             os.close(fd)
-                        except (OSError, IOError), e:
+                        except (OSError, IOError) as e:
                             if e.errno == errno.EINTR:
                                 continue
                             break
@@ -1319,7 +1319,7 @@ class Popen(object):
                            restore_signals, start_new_session):
             """Execute program (POSIX version)"""
 
-            if isinstance(args, types.StringTypes):
+            if isinstance(args, (str,)):
                 args = [args]
             else:
                 args = list(args)
@@ -1528,7 +1528,7 @@ class Popen(object):
             if errpipe_data != "":
                 try:
                     _eintr_retry_call(os.waitpid, self.pid, 0)
-                except OSError, e:
+                except OSError as e:
                     if e.errno != errno.ECHILD:
                         raise
                 try:
@@ -1593,7 +1593,7 @@ class Popen(object):
                     pid, sts = _waitpid(self.pid, _WNOHANG)
                     if pid == self.pid:
                         self._handle_exitstatus(sts)
-                except _os_error, e:
+                except _os_error as e:
                     if _deadstate is not None:
                         self.returncode = _deadstate
                     elif e.errno == _ECHILD:
@@ -1609,7 +1609,7 @@ class Popen(object):
         def _try_wait(self, wait_flags):
             try:
                 (pid, sts) = _eintr_retry_call(os.waitpid, self.pid, wait_flags)
-            except OSError, e:
+            except OSError as e:
                 if e.errno != errno.ECHILD:
                     raise
                 # This happens if SIGCLD is set to be ignored or waiting
@@ -1739,7 +1739,7 @@ class Popen(object):
             while self._fd2file:
                 try:
                     ready = poller.poll(self._remaining_time(endtime))
-                except select.error, e:
+                except select.error as e:
                     if e.args[0] == errno.EINTR:
                         continue
                     raise
@@ -1799,7 +1799,7 @@ class Popen(object):
                     (rlist, wlist, xlist) = \
                         select.select(self._read_set, self._write_set, [],
                                       self._remaining_time(endtime))
-                except select.error, e:
+                except select.error as e:
                     if e.args[0] == errno.EINTR:
                         continue
                     raise

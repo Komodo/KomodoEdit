@@ -70,11 +70,11 @@ def get_desktop():
     environment. If no environment could be detected, None is returned.
     """
 
-    if os.environ.has_key("KDE_FULL_SESSION") or \
-        os.environ.has_key("KDE_MULTIHEAD"):
+    if "KDE_FULL_SESSION" in os.environ or \
+        "KDE_MULTIHEAD" in os.environ:
         return "KDE"
-    elif os.environ.has_key("GNOME_DESKTOP_SESSION_ID") or \
-        os.environ.has_key("GNOME_KEYRING_SOCKET"):
+    elif "GNOME_DESKTOP_SESSION_ID" in os.environ or \
+        "GNOME_KEYRING_SOCKET" in os.environ:
         return "GNOME"
     elif sys.platform == "darwin":
         return "Mac OS X"
@@ -90,7 +90,7 @@ def is_standard():
     launching.
     """
 
-    return os.environ.has_key("DESKTOP_LAUNCH")
+    return "DESKTOP_LAUNCH" in os.environ
 
 def _wait(pid, block):
 
@@ -154,7 +154,7 @@ def open(url, desktop=None, wait=0):
     # Finish with an error where no suitable desktop was identified.
 
     else:
-        raise OSError, "Desktop not supported (neither DESKTOP_LAUNCH nor os.startfile could be used)"
+        raise OSError("Desktop not supported (neither DESKTOP_LAUNCH nor os.startfile could be used)")
 
     return _wait(subprocess.Popen(cmd).pid, wait)
 

@@ -98,8 +98,8 @@ class Lexer:
             #log.info("'%s' token: %r", self.tokennum2name[t], tmpres)
             if attributes & EXECFN:
                 try:
-                    tmpres = apply(fn, (mo,))
-                except Exception, e:
+                    tmpres = fn(*(mo,))
+                except Exception as e:
                     log.exception(e)
                     line = len(re.split('\r|\n|\r\n', self.text[:self.textindex]))
                     raise Exception("Syntax Error in lexer at file %s line %d positon %d text[%s]" % (self.filename, line, self.textindex, self.text[self.textindex:self.textindex+300]))

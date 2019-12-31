@@ -426,12 +426,12 @@ class StdLibsZone(object):
         try:
             import process
             import which
-        except ImportError, ex:
+        except ImportError as ex:
             log.info("can't preload stdlibs: %s", ex)
             return False
         try:
             which.which("unzip")
-        except which.WhichError, ex:
+        except which.WhichError as ex:
             log.info("can't preload stdlibs: %s", ex)
             return False
         preload_zip = self._get_preload_zip()
@@ -587,10 +587,10 @@ class StdLibsZone(object):
         dbdir = join(self.base_dir, name)
         try:
             rmdir(dbdir)
-        except OSError, ex:
+        except OSError as ex:
             try:
                 os.rename(dbdir, dbdir+".zombie")
-            except OSError, ex2:
+            except OSError as ex2:
                 log.error("could not remove %s stdlib database dir `%s' (%s): "
                           "couldn't even rename it to `%s.zombie' (%s): "
                           "giving up", name, dbdir, ex, name, ex2)
@@ -603,7 +603,7 @@ class StdLibsZone(object):
         cix_path = res.path
         try:
             tree = tree_from_cix_path(cix_path)
-        except ET.XMLParserError, ex:
+        except ET.XMLParserError as ex:
             log.warn("could not load %s stdlib from `%s' (%s): skipping",
                      name, cix_path, ex)
             return
@@ -614,7 +614,7 @@ class StdLibsZone(object):
                      "removing it", name)
             try:
                 rmdir(dbdir)
-            except OSError, ex:
+            except OSError as ex:
                 log.error("could not remove `%s' to create %s stdlib in "
                           "database (%s): skipping", dbdir, name)
         if not exists(dbdir):

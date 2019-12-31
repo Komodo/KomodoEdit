@@ -1,3 +1,5 @@
+from __future__ import print_function
+from __future__ import absolute_import
 #
 # ElementTree
 # $Id$
@@ -21,7 +23,7 @@
 
 import glob, string, os, sys
 
-from ElementTree import ElementTree, Element
+from .ElementTree import ElementTree, Element
 
 NS_XHTML = "{http://www.w3.org/1999/xhtml}"
 
@@ -53,7 +55,7 @@ def tidy(file, new_inline_tags=None):
         tree = ElementTree()
         tree.parse(file + ".out")
     except:
-        print "*** %s:%s" % sys.exc_info()[:2]
+        print("*** %s:%s" % sys.exc_info()[:2])
         print ("*** %s is not valid XML "
                "(check %s.err for info)" % (file, file))
         tree = None
@@ -78,11 +80,11 @@ def getbody(file, **options):
 
     # get xhtml tree
     try:
-        tree = apply(tidy, (file,), options)
+        tree = tidy(*(file,), **options)
         if tree is None:
             return
-    except IOError, v:
-        print "***", v
+    except IOError as v:
+        print("***", v)
         return None
 
     NS = NS_XHTML
@@ -125,4 +127,4 @@ if __name__ == "__main__":
     import sys
     for arg in sys.argv[1:]:
         for file in glob.glob(arg):
-            print file, "...", tidy(file)
+            print(file, "...", tidy(file))

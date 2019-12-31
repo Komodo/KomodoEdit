@@ -38,6 +38,7 @@
 # this is used both in the implementation of the preferences system (koPrefs.py) as well
 # as by code that wishes to parse files and then have them turned into preferences.
 
+from future.utils import raise_
 from xml.dom import minidom
 from xml.sax import SAXParseException
 from xpcom import components, ServerException, COMException, nsError
@@ -111,7 +112,7 @@ def pickleCache(prefs, filename):
                 pickle_file.close()
                 pickle_file = None
                 os.unlink(pickleFilename)
-            except IOError, details:
+            except IOError as details:
                 log.error("Could not erase the incomplete pickle file %r: %s",
                           pickleFilename, details)
     finally:
@@ -122,7 +123,7 @@ def pickleCache(prefs, filename):
             import shutil
             try:
                 shutil.move(pickleFilename, filename)
-            except OSError, details:
+            except OSError as details:
                 # Could not move, resort to a copy then.
                 shutil.copy(pickleFilename, filename)
 
@@ -209,8 +210,8 @@ class koGlobalPreferenceDefinition:
             # Handle deprecated "user_filename" field.
             if name == "user_filename":
                 name = "user_filepath"
-            if not self.__dict__.has_key(name):
-                raise ValueError, "Unknown keyword param '%s'" % (name,)
+            if name not in self.__dict__:
+                raise_(ValueError, "Unknown keyword param '%s'" % (name,))
             self.__dict__[name] = val
 
     @property
@@ -437,7 +438,7 @@ def serializePref(stream, pref, prefType, prefName=None, basedir=None):
                             pref = relative
                     else:
                         pref = relative
-            except Exception, e:
+            except Exception as e:
                 # XXX quick fix bug 65913
                 log.exception(e)
                 pass # pass and use original value
@@ -474,7 +475,7 @@ def serializePref(stream, pref, prefType, prefName=None, basedir=None):
             log.error("preference '%s' (a %s) is unserializable",
                       prefName, pref)
             raise
-        except TypeError, e:
+        except TypeError as e:
             log.error("cannot serialize %r %s", pref, str(e))
 
 if sys.version_info[0] == 2 and sys.version_info[1] < 3:
@@ -577,7 +578,7 @@ class koXMLPreferenceSetObjectFactory:
         unless a deserializer has already been instantiated to
         handle the given preference type. We cache deserializer
         instances in self._deserializers. """
-        if self._deserializers.has_key(prefType):
+        if prefType in self._deserializers:
             return self._deserializers[prefType]
         else:
             return None

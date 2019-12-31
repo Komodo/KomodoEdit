@@ -168,7 +168,7 @@ class KoPHPCompileLinter:
                 lineText = line.rfind(' ')
                 try:
                     lineNo = int(line[lineText+1:])
-                except ValueError, e:
+                except ValueError as e:
                     continue
                 #print "Line Number: ", lineNo
                 result = KoLintResult()

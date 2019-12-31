@@ -84,7 +84,7 @@ class GeneralTestCase(CodeIntelTestCase):
                     "needs to be updated" % (const_name, lang))
                 try:
                     actual_lang = buf.lang_from_style(const)
-                except ValueError, ex:
+                except ValueError as ex:
                     self.fail(error_msg)
                 else:
                     self.assertEqual(actual_lang, lang,

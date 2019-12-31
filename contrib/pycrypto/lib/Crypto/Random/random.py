@@ -46,7 +46,7 @@ class StrongRandom(object):
         """Return a python long integer with k random bits."""
         if self._randfunc is None:
             self._randfunc = Random.new().read
-        mask = (1L << k) - 1
+        mask = (1 << k) - 1
         return mask & bytes_to_long(self._randfunc(ceil_div(k, 8)))
 
     def randrange(self, *args):

@@ -52,6 +52,7 @@ TODO:
 - propose this for https://bugzilla.mozilla.org/show_bug.cgi?id=375752
   (need to publish cmdln.py first) and ditch the Komodo-specific bits
 """
+from __future__ import print_function
 
 import os
 from os.path import exists, isdir, isfile, abspath, basename, splitext, \
@@ -170,7 +171,7 @@ class Shell(cmdln.Cmdln):
 
         try:
             _run_in_dir('%s -x "%s"' % (mar, abspath(mar_path)), opts.dir)
-        except OSError, ex:
+        except OSError as ex:
             # A -1 from mar.exe can indicate a path that is too long
             # (the _open() call used internally on Windows seems to fail
             # with ENOENT if the file path is >= ~256 characters).
@@ -749,7 +750,7 @@ def _get_mar():
     if exists(config_path):
         try:
             config = _module_from_path(config_path)
-        except ImportError, ex:
+        except ImportError as ex:
             pass
         else:
             exe = (sys.platform == "win32" and ".exe" or "")
@@ -765,7 +766,7 @@ def _get_mar():
     # Use the first one found on the path, if any.
     try:
         return which.which("mar")
-    except which.WhichError, ex:
+    except which.WhichError as ex:
         pass
 
     raise Error(_dedent("""\
@@ -782,7 +783,7 @@ def _get_mbsdiff():
 
     try:
         return which.which("mbsdiff")
-    except which.WhichError, ex:
+    except which.WhichError as ex:
         pass
 
     # If this is a Komodo-devel tree, attempt to use the configured
@@ -791,7 +792,7 @@ def _get_mbsdiff():
     if exists(config_path):
         try:
             config = _module_from_path(config_path)
-        except ImportError, ex:
+        except ImportError as ex:
             pass
         else:
             exe = (sys.platform == "win32" and ".exe" or "")
@@ -851,7 +852,7 @@ def _module_from_path(path):
 def _rmtree_OnError(rmFunction, filePath, excInfo):
     if excInfo[0] == OSError:
         # presuming because file is read-only
-        os.chmod(filePath, 0777)
+        os.chmod(filePath, 0o777)
         rmFunction(filePath)
 def _rmtree(dirname):
     import shutil
@@ -881,8 +882,8 @@ def _dedentlines(lines, tabsize=8, skip_first_line=False):
     """
     DEBUG = False
     if DEBUG: 
-        print "dedent: dedent(..., tabsize=%d, skip_first_line=%r)"\
-              % (tabsize, skip_first_line)
+        print("dedent: dedent(..., tabsize=%d, skip_first_line=%r)"\
+              % (tabsize, skip_first_line))
     indents = []
     margin = None
     for i, line in enumerate(lines):
@@ -899,12 +900,12 @@ def _dedentlines(lines, tabsize=8, skip_first_line=False):
                 break
         else:
             continue # skip all-whitespace lines
-        if DEBUG: print "dedent: indent=%d: %r" % (indent, line)
+        if DEBUG: print("dedent: indent=%d: %r" % (indent, line))
         if margin is None:
             margin = indent
         else:
             margin = min(margin, indent)
-    if DEBUG: print "dedent: margin=%r" % margin
+    if DEBUG: print("dedent: margin=%r" % margin)
 
     if margin is not None and margin > 0:
         for i, line in enumerate(lines):
@@ -916,7 +917,7 @@ def _dedentlines(lines, tabsize=8, skip_first_line=False):
                 elif ch == '\t':
                     removed += tabsize - (removed % tabsize)
                 elif ch in '\r\n':
-                    if DEBUG: print "dedent: %r: EOL -> strip up to EOL" % line
+                    if DEBUG: print("dedent: %r: EOL -> strip up to EOL" % line)
                     lines[i] = lines[i][j:]
                     break
                 else:
@@ -924,8 +925,8 @@ def _dedentlines(lines, tabsize=8, skip_first_line=False):
                                      "line %r while removing %d-space margin"
                                      % (ch, line, margin))
                 if DEBUG:
-                    print "dedent: %r: %r -> removed %d/%d"\
-                          % (line, ch, removed, margin)
+                    print("dedent: %r: %r -> removed %d/%d"\
+                          % (line, ch, removed, margin))
                 if removed == margin:
                     lines[i] = lines[i][j+1:]
                     break
@@ -1091,7 +1092,7 @@ if __name__ == "__main__":
     except:
         exc_info = sys.exc_info()
         if log.isEnabledFor(logging.DEBUG):
-            print
+            print()
             traceback.print_exception(*exc_info)
         else:
             if hasattr(exc_info[0], "__name__"):

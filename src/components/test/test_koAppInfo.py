@@ -360,7 +360,7 @@ class PerlAppInfoTestCase(_BaseAppInfoTestCase):
         if exe:
             try:
                 self.assertFalse(appInfo.haveModules(["foozball22"]))
-            except COMException, ex:
+            except COMException as ex:
                 if ex.errno != nsError.NS_ERROR_NOT_IMPLEMENTED:
                     raise
 

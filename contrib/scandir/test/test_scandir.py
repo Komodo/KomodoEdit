@@ -1,4 +1,5 @@
 """Tests for scandir.scandir()."""
+from __future__ import print_function
 
 import os
 import shutil
@@ -49,7 +50,7 @@ def setup_main():
     try:
         os.mkdir(TEST_PATH)
     except Exception as e:
-        print(repr(e), e.filename)
+        print((repr(e), e.filename))
         import time
         time.sleep(500)
         raise

@@ -54,6 +54,7 @@
     Website download from:
       * http://www.w3.org/TR/1998/REC-DOM-Level-1-19981001/DOM.zip
 """
+from __future__ import print_function
 
 import os
 import glob
@@ -176,7 +177,7 @@ def main():
     files = getDom1XMLFilesFromWebpage()
     for filename, xml_file in files.items():
     #for xml_file in glob.glob(os.path.join("dom2_docs", "definitions", "*.xml")):
-        print "filename: %r" % (filename)
+        print("filename: %r" % (filename))
         tree = ElementTree()
         tree.parse(xml_file)
         root = tree.getroot()

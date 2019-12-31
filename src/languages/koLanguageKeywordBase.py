@@ -36,6 +36,7 @@
 # ***** END LICENSE BLOCK *****
 
 """Language service base class for keyword-based languages"""
+from __future__ import print_function
 import os, sys, re
 import logging
 
@@ -88,8 +89,8 @@ class KoLanguageKeywordBase(KoLanguageBase):
         try:
             self._prefs.prefObserverService.addObserver(self, "edit.indent.keyword.dedent_on_last_char", 0)
             self._prefs.prefObserverService.addObserver(self, "editAutoIndentStyle", 0)
-        except Exception, e:
-            print e
+        except Exception as e:
+            print(e)
 
     def observe(self, subject, topic, data):
         if topic == "edit.indent.keyword.dedent_on_last_char":

@@ -1,3 +1,4 @@
+from __future__ import print_function
 
 #!python
 # ***** BEGIN LICENSE BLOCK *****
@@ -100,6 +101,7 @@
 #   of that has changed :)
 #   
 
+from future.utils import raise_
 import sys
 import os
 import types
@@ -381,7 +383,7 @@ class koPreferenceSetBase(object):
             
             try:
                 isValid = eval(validation, _validationNamespace)
-            except Exception, ex:
+            except Exception as ex:
                 exstr = str(ex)
                 if exstr.startswith("invalid syntax"):
                     log.debug("Validation failed due to invalid syntax")
@@ -430,7 +432,7 @@ class koPreferenceSetBase(object):
             try:
                 try:
                     isValid = eval(validation, _validationNamespace)
-                except Exception, ex:
+                except Exception as ex:
                     exstr = str(ex)
                     if exstr.startswith("invalid syntax"):
                         msg = ("The validation expression for pref '%s' is "
@@ -637,7 +639,7 @@ class koPreferenceSetBase(object):
     def deletePref(self, prefName):
         """Remove a preference from the preference set.
         prefName is the name of the preference to be removed."""
-        if self.prefs.has_key(prefName):
+        if prefName in self.prefs:
             del self.prefs[prefName]
             self._notifyPreferenceChange(prefName)
 
@@ -730,7 +732,7 @@ class koPreferenceSetBase(object):
                     new_val = source.getPref(id)
                     changed = True
             else:
-                raise TypeError, "Unknown child of type '%s'" % (typ,)
+                raise_(TypeError, "Unknown child of type '%s'" % (typ,))
             # XXX - may need better equality semantics here!?!?
             if changed:
                 #print "notifying pref change %r of %r, new %r existing %r" % (self.id, id, new_val, existing_val)
@@ -771,7 +773,7 @@ class koPreferenceSetBase(object):
             try:
                 self._observerService.notifyObservers(prefset, self.id, pref_id)
                 self._observerService.notifyObservers(prefset, "__all__", pref_id)
-            except COMException, e:
+            except COMException as e:
                 pass # no one is listening
 
         # Notify observers, but only if we've already ran the getter once. (Otherwise nobody could
@@ -780,7 +782,7 @@ class koPreferenceSetBase(object):
             try:
                 self.prefObserverService.notifyObservers(prefset, pref_id, self.id)
                 self.prefObserverService.notifyObservers(prefset, "__all__", pref_id)
-            except COMException, e:
+            except COMException as e:
                 pass # no one is listening
 
         container = getattr(self, "container", None)
@@ -1439,7 +1441,7 @@ class koPreferenceCache(object):
         if self._maxsize > 0:
             while len(self.pref_map.keys()) > self._maxsize:
                 index_look = self.index_big
-                while not self.index_map.has_key(index_look):
+                while index_look not in self.index_map:
                     index_look-=1
                 pop_id = self.index_map[index_look]
                 del self.index_map[index_look]
@@ -1466,7 +1468,7 @@ class koPreferenceCache(object):
     
     def hasPref( self, id):
         assert self._is_sane()
-        return self.pref_map.has_key(id)
+        return id in self.pref_map
 
     @property
     def length(self):
@@ -1579,7 +1581,7 @@ class koGlobalPrefService(object):
                           .getService(components.interfaces.nsIIdleService))
 
     def _setupGlobalPreference(self, prefName):
-        if not self.pref_map.has_key(prefName):
+        if prefName not in self.pref_map:
             raise ServerException(nsError.NS_ERROR_UNEXPECTED, "No well-known preference set with name '%s'" % (prefName,))
 
         existing, defn = self.pref_map[prefName]
@@ -1636,7 +1638,7 @@ class koGlobalPrefService(object):
         self.pref_map[prefName] = prefs, defn
 
     def getPrefs(self, name):
-        if not self.pref_map.has_key(name):
+        if name not in self.pref_map:
             raise ServerException(nsError.NS_ERROR_UNEXPECTED, "No preference set with name '%s'" % (name,) )
         if self.pref_map[name][0] is None:
             self._setupGlobalPreference(name)
@@ -1644,7 +1646,7 @@ class koGlobalPrefService(object):
         return self.pref_map[name][0]
 
     def resetPrefs(self, prefName):
-        if not self.pref_map.has_key(prefName):
+        if prefName not in self.pref_map:
             raise ServerException(nsError.NS_ERROR_UNEXPECTED, "No well-known preference set with name '%s'" % (prefName,))
 
         existing, defn = self.pref_map[prefName]

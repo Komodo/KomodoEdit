@@ -1,3 +1,4 @@
+from __future__ import print_function
 
 import sys
 import os
@@ -17,7 +18,7 @@ sys.path    # should have path in completion list
 f = Foo()
 f.bar()
 
-print "this is ", os.path.abspath(__file__)
+print("this is ", os.path.abspath(__file__))
 
 print (sys
 .path)

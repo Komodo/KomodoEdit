@@ -1,4 +1,5 @@
 from __future__ import absolute_import, division, unicode_literals
+from __future__ import print_function
 
 
 def f1():
@@ -33,4 +34,4 @@ for x in range(4):
     statement = "f%s" % (x + 1)
     t = timeit.Timer(statement, "from __main__ import " + statement)
     r = t.repeat(3, 1000000)
-    print(r, min(r))
+    print((r, min(r)))

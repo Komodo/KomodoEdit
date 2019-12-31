@@ -6,6 +6,8 @@
 #  - properties & slots?  (how frequent in binary modules??)
 #  - go through std library looking for .so's to test this on.
 
+from __future__ import print_function
+from __future__ import absolute_import
 import inspect
 import types
 import pydoc
@@ -35,7 +37,7 @@ if sys.version_info < (3, ):
     _gLanguage = "Python"
 from pydoc import visiblename, classname, _split_list, isdata, ispackage, getdoc
 import re
-from parsedocs import parseDocSummary, parsePyFuncDoc
+from .parsedocs import parseDocSummary, parsePyFuncDoc
 import logging
 
 log = logging.getLogger("codeintel.gencix")
@@ -360,7 +362,7 @@ def docmodule(modname, root, force=False, usefile=False, dir=None):
             inspect.isroutine(value) or
             inspect.isbuiltin(value)):
             process_routine(moduleElt, value, key, callables)
-        elif inspect.isclass(value) or (not _gIsPy3 and isinstance(value, types.TypeType)):
+        elif inspect.isclass(value) or (not _gIsPy3 and isinstance(value, type)):
             process_class(moduleElt, value, key, callables)
         elif (_gIsPy3 and hasattr(value, 'class')) or (not _gIsPy3 and isinstance(value, types.InstanceType)):
             klass = value.__class__

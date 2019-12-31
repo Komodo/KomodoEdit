@@ -4,6 +4,7 @@
 Experimental out-of-process driver for codeintel2
 Reference: http://bugs.activestate.com/show_bug.cgi?id=93455
 """
+from __future__ import print_function
 
 import argparse
 import contextlib
@@ -175,7 +176,7 @@ def set_process_limits():
         # this error:
         #   Fatal Python error: Couldn't create autoTLSkey mapping
         GB = 1<<30
-        resource.setrlimit(resource.RLIMIT_AS, (2 * GB, -1L))
+        resource.setrlimit(resource.RLIMIT_AS, (2 * GB, -1))
     else:
         # TODO: What to do on the Mac?
         pass

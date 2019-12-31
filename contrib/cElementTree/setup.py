@@ -45,7 +45,7 @@ else:
     config_h = sysconfig.get_config_h_filename()
     config_h_vars = sysconfig.parse_config_h(open(config_h))
     for feature_macro in ["HAVE_MEMMOVE", "HAVE_BCOPY"]:
-        if config_h_vars.has_key(feature_macro):
+        if feature_macro in config_h_vars:
             defines.append((feature_macro, "1"))
     defines.append(("XML_NS", "1"))
     defines.append(("XML_DTD", "1"))

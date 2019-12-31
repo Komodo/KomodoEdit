@@ -6,6 +6,7 @@
 #  - Todd Whiteman
 #
 
+from __future__ import print_function
 import os
 import sys
 import re
@@ -38,14 +39,14 @@ def unescape(text):
                 else:
                     return unichr(int(text[2:-1]))
             except ValueError:
-                print "erreur de valeur"
+                print("erreur de valeur")
                 pass
         else:
            # named entity
             try:
                 text = unichr(htmlentitydefs.name2codepoint[text[1:-1]])
             except KeyError:
-                print "keyerror"
+                print("keyerror")
                 pass
         return text # leave as is
     text = re.sub("&#?\w+;", fixup, text)
@@ -130,12 +131,12 @@ def parseExtraValuesFromDl(dl_tag, values):
             value = None
 
 def parseExtraData(property_name, properties, page_info):
-    print "%r" % (property_name, )
+    print("%r" % (property_name, ))
     data = getHtmlForUrl(page_info[0])
     try:
         soup = BeautifulSoup(data)
     except:
-        print "Unable to pass HTML for property: %r" % (property_name, )
+        print("Unable to pass HTML for property: %r" % (property_name, ))
         return
         
     property_details = {}
@@ -143,7 +144,7 @@ def parseExtraData(property_name, properties, page_info):
 
     tag = soup.html.body.find(True, {'id': page_info[1]})
     if not tag:
-        print "Unable to find HTML element with id: %r" % (page_info[1], )
+        print("Unable to find HTML element with id: %r" % (page_info[1], ))
         return
 
     description = ''

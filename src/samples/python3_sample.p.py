@@ -12,13 +12,14 @@
 #   - Click the "+" and "-" symbols in the left margin.
 #   - Use View|Fold to collapse or expand all blocks.
 
+from __future__ import print_function
 def printStrings(mylist):
     '''This function will print all the items in list that are a string type'''
     import types
     for element in mylist:
         if type(element) is str:
             print("element %s is a string" % element)
-    print
+    print()
 
 mylist = ["hello", 42, "there", 3.14159]
 printStrings(mylist)

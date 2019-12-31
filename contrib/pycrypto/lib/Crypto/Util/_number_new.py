@@ -39,7 +39,7 @@ def ceil_shift(n, b):
         raise TypeError("unsupported operand type(s): %r and %r" % (type(n).__name__, type(b).__name__))
 
     assert n >= 0 and b >= 0    # I haven't tested or even thought about negative values
-    mask = (1L << b) - 1
+    mask = (1 << b) - 1
     if n & mask:
         return (n >> b) + 1
     else:
@@ -85,7 +85,7 @@ def exact_log2(num):
         n >>= 1
     i -= 1
 
-    assert num == (1L << i)
+    assert num == (1 << i)
     return i
 
 def exact_div(p, d, allow_divzero=False):

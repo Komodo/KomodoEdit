@@ -106,6 +106,7 @@
     be similar to existing WiX preprocessor syntax, because I think
     WiX's compiler should reasonably grow this ability.
 """
+from __future__ import print_function
 #TODO:
 # - Add ability to automatically pick out the ProductCode from the WiX proj
 #   files. See notes in my black book p150.
@@ -323,16 +324,16 @@ def main(argv):
     try:
         optlist, args = getopt.getopt(argv[1:], "h?Vvqf",
             ["help", "version", "verbose", "quiet", "force"])
-    except getopt.GetoptError, ex:
+    except getopt.GetoptError as ex:
         raise Error(str(ex))
         return 1
     force = False
     for opt, optarg in optlist:
         if opt in ("-h", "-?", "--help"):
-            print __doc__
+            print(__doc__)
             return 0
         elif opt in ("-V", "--version"):
-            print "autowix %s" % __version__
+            print("autowix %s" % __version__)
             return 0
         elif opt in ("-v", "--verbose"):
             log.setLevel(logging.DEBUG)
@@ -354,7 +355,7 @@ if __name__ == "__main__":
     except:
         exc_info = sys.exc_info()
         if log.isEnabledFor(logging.DEBUG):
-            print
+            print()
             traceback.print_exception(*exc_info)
         else:
             if hasattr(exc_info[0], "__name__"):

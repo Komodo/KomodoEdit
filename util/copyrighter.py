@@ -75,6 +75,7 @@
 #    Add additional verbose logging and logging formatting
 #
 
+from __future__ import print_function
 import os
 import sys
 import time
@@ -439,8 +440,8 @@ class CopyrighterFileHandler:
                         lineFrom -= 1
                         inMiddleOfComment = False
         if inMiddleOfComment:
-            print "Expected comment style %r, got %r in %r" % (
-                    self.commentStart, line[:10] + "...", self.filename)
+            print("Expected comment style %r, got %r in %r" % (
+                    self.commentStart, line[:10] + "...", self.filename))
 
         # If the last line we replace does not end the comment, we need
         # to keep the comment going on the next line!
@@ -855,7 +856,7 @@ if __name__ == "__main__":
         for filename in args:
             AddCopyright(filename, opts.recursive, opts.save, opts.update_only, opts.backup_files, opts.num_lines, opts.max_line_length)
 
-        print "Results:"
+        print("Results:")
 
         print("  Skipped paths     : %d" % (len(_g_skipped_paths)))
         if opts.show_files_changed:

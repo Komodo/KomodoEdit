@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 #
 # ElementTree
 # $Id$
@@ -130,7 +131,7 @@ class _SimpleElementPath:
         return result
 
 try:
-    import ElementPath
+    from . import ElementPath
 except ImportError:
     # FIXME: issue warning in this case?
     ElementPath = _SimpleElementPath()
@@ -952,7 +953,7 @@ class iterparse:
             return self
     except NameError:
         def __getitem__(self, index):
-            return self.next()
+            return next(self)
 
 ##
 # Parses an XML document from a string constant.  This function can

@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+from __future__ import print_function
 import sys
 
 from PySide.QtCore import *
@@ -26,7 +27,7 @@ keywords = \
 		"virtual void volatile wchar_t while xor xor_eq";
 
 def uriDropped():
-	print "uriDropped"
+	print("uriDropped")
 
 class Form(QDialog):
 
@@ -66,41 +67,41 @@ class Form(QDialog):
 		self.edit.addText(len(txtInit), txtInit)
 		self.edit.setSel(1,10)
 		retriever = str(self.edit.getLine(1))
-		print(type(retriever), len(retriever))
+		print((type(retriever), len(retriever)))
 		print('[' + retriever + ']')
 		someText = str(self.edit.textRange(2,5))
-		print(len(someText), '[' + someText + ']')
+		print((len(someText), '[' + someText + ']'))
 		someText = self.edit.getCurLine(100)
-		print(len(someText), '[' + someText + ']')
+		print((len(someText), '[' + someText + ']'))
 		someText = self.edit.styleFont(1)
-		print(len(someText), '[' + someText + ']')
+		print((len(someText), '[' + someText + ']'))
 		someText = self.edit.getSelText()
-		print(len(someText), '[' + someText + ']')
+		print((len(someText), '[' + someText + ']'))
 		someText = self.edit.tag(1)
-		print(len(someText), '[' + someText + ']')
+		print((len(someText), '[' + someText + ']'))
 		someText = self.edit.autoCCurrentText()
-		print(len(someText), '[' + someText + ']')
+		print((len(someText), '[' + someText + ']'))
 		someText = self.edit.annotationText(1)
-		print(len(someText), '[' + someText + ']')
+		print((len(someText), '[' + someText + ']'))
 		someText = self.edit.annotationStyles(1)
-		print(len(someText), '[' + someText + ']')
+		print((len(someText), '[' + someText + ']'))
 		someText = self.edit.describeKeyWordSets()
-		print(len(someText), '[' + someText + ']')
+		print((len(someText), '[' + someText + ']'))
 		someText = self.edit.propertyNames()
-		print(len(someText), '[' + someText + ']')
+		print((len(someText), '[' + someText + ']'))
 		self.edit.setProperty("fold", "1")
 		someText = self.edit.property("fold")
-		print(len(someText), '[' + someText + ']')
+		print((len(someText), '[' + someText + ']'))
 		someText = self.edit.propertyExpanded("fold")
-		print(len(someText), '[' + someText + ']')
+		print((len(someText), '[' + someText + ']'))
 		someText = self.edit.lexerLanguage()
-		print(len(someText), '[' + someText + ']')
+		print((len(someText), '[' + someText + ']'))
 		someText = self.edit.describeProperty("styling.within.preprocessor")
-		print(len(someText), '[' + someText + ']')
+		print((len(someText), '[' + someText + ']'))
 
 		xx = self.edit.findText(0, "main", 0, 25)
-		print(type(xx), xx)
-		print("isBold", self.edit.styleBold(sci.SCE_C_WORD))
+		print((type(xx), xx))
+		print(("isBold", self.edit.styleBold(sci.SCE_C_WORD)))
 
 		# Retrieve the document and write into it
 		doc = self.edit.get_doc()
@@ -131,20 +132,20 @@ class Form(QDialog):
 
 	def receive_notification(self, scn):
 		if scn.nmhdr.code == sci.SCN_CHARADDED:
-			print "Char %02X" % scn.ch
+			print("Char %02X" % scn.ch)
 		elif scn.nmhdr.code == sci.SCN_SAVEPOINTREACHED:
-			print "Saved"
+			print("Saved")
 		elif scn.nmhdr.code == sci.SCN_SAVEPOINTLEFT:
-			print "Unsaved"
+			print("Unsaved")
 		elif scn.nmhdr.code == sci.SCN_MODIFIED:
-			print "Modified"
+			print("Modified")
 		elif scn.nmhdr.code == sci.SCN_UPDATEUI:
-			print "Update UI"
+			print("Update UI")
 		elif scn.nmhdr.code == sci.SCN_PAINTED:
 			#print "Painted"
 			pass
 		else:
-			print "Notification", scn.nmhdr.code
+			print("Notification", scn.nmhdr.code)
 			pass
 
 if __name__ == '__main__':

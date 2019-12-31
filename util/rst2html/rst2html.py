@@ -70,6 +70,7 @@
     Examples:
         python rst2html.py foo.txt     # makes foo.html
 """
+from __future__ import print_function
 # Dev Notes:
 # - Perhaps docutils-<version>/tools/html.py is a better candidate that this.
 #   It provides a plethora of options (good and bad).
@@ -213,7 +214,7 @@ def main(argv):
     try:
         opts, args = getopt.getopt(argv[1:], "Vvho:b",
             ["version", "verbose", "help", "browse"])
-    except getopt.GetoptError, ex:
+    except getopt.GetoptError as ex:
         log.error(str(ex))
         log.error("Try `rst2html --help'.")
         return 1
@@ -224,7 +225,7 @@ def main(argv):
             sys.stdout.write(__doc__)
             return
         elif opt in ("-V", "--version"):
-            print "rst2html %s" % __version__
+            print("rst2html %s" % __version__)
             return
         elif opt in ("-v", "--verbose"):
             log.setLevel(logging.DEBUG)
@@ -256,10 +257,10 @@ def main(argv):
                 fout.close()
             else:
                 sys.stdout.write(html)
-    except (RST2HTMLError, ValueError, EnvironmentError), ex:
+    except (RST2HTMLError, ValueError, EnvironmentError) as ex:
         log.error(str(ex))
         if log.isEnabledFor(logging.DEBUG):
-            print
+            print()
             import traceback
             traceback.print_exception(*sys.exc_info())
         return 1

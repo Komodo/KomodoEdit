@@ -340,7 +340,7 @@ class MultiLangDirsLib(LangDirsLibBase):
                     try:
                         buf = self.mgr.buf_from_path(
                                 join(blobdir, blobfile), self.lang)
-                    except (EnvironmentError, CodeIntelError), ex:
+                    except (EnvironmentError, CodeIntelError) as ex:
                         # This can occur if the path does not exist, such as a
                         # broken symlink, or we don't have permission to read
                         # the file, or the file does not contain text.
@@ -640,7 +640,7 @@ class MultiLangZone(LangZone):
         blob_index = self.load_index(dir, "blob_index", default=default)
         try:
             return blob_index[sublang]
-        except KeyError, ex:
+        except KeyError as ex:
             if default is not None:
                 return default
             raise
@@ -660,7 +660,7 @@ class MultiLangZone(LangZone):
 
             try:
                 blob_index = self.load_index(dir, "blob_index")
-            except EnvironmentError, ex:
+            except EnvironmentError as ex:
                 self.db.corruption("MultiLangZone.get_buf_data",
                     "could not find 'blob_index' index: %s" % ex,
                     "recover")
@@ -677,7 +677,7 @@ class MultiLangZone(LangZone):
                 try:
                     dbsubpath = join(dhash, blob_index[lang][blobname])
                     blob = self.load_blob(dbsubpath)
-                except KeyError, ex:
+                except KeyError as ex:
                     self.db.corruption("MultiLangZone.get_buf_data",
                         "could not find lang `%s' or blob `%s' for buffer `%s'"\
                             % (lang, blobname, buf.path),
@@ -686,7 +686,7 @@ class MultiLangZone(LangZone):
                     raise NotFoundInDatabase(
                         "`%s' buffer %s `%s' blob not found in database"
                         % (buf.path, lang, blobname))
-                except ET.XMLParserError, ex:
+                except ET.XMLParserError as ex:
                     self.db.corruption("MultiLangZone.get_buf_data",
                         "could not parse dbfile for '%s' blob: %s"\
                             % (blobname, ex),
@@ -695,7 +695,7 @@ class MultiLangZone(LangZone):
                     raise NotFoundInDatabase(
                         "`%s' buffer %s `%s' blob was corrupted in database"
                         % (buf.path, lang, blobname))
-                except EnvironmentError, ex:
+                except EnvironmentError as ex:
                     self.db.corruption("MultiLangZone.get_buf_data",
                         "could not read dbfile for '%s' blob: %s"\
                             % (blobname, ex),
@@ -729,7 +729,7 @@ class MultiLangZone(LangZone):
 
             try:
                 blob_index = self.load_index(dir, "blob_index")
-            except EnvironmentError, ex:
+            except EnvironmentError as ex:
                 self.db.corruption("MultiLangZone.remove_path",
                     "could not read blob_index for '%s' dir: %s" % (dir, ex),
                     "recover")
@@ -739,7 +739,7 @@ class MultiLangZone(LangZone):
             if is_hits_from_lpath_lang:
                 try:
                     toplevelname_index = self.load_index(dir, "toplevelname_index")
-                except EnvironmentError, ex:
+                except EnvironmentError as ex:
                     self.db.corruption("MultiLangZone.remove_path",
                         "could not read toplevelname_index for '%s' dir: %s"
                             % (dir, ex),
@@ -934,7 +934,7 @@ class MultiLangZone(LangZone):
                                   self.lang, lang, dhash, dbfile)
                         try:
                             os.remove(join(self.base_dir, dhash, dbfile+".blob"))
-                        except EnvironmentError, ex:
+                        except EnvironmentError as ex:
                             self.db.corruption("MultiLangZone.update_buf_data",
                                 "could not remove dbfile for '%s' blob: %s"\
                                     % (blobname, ex),
@@ -956,7 +956,7 @@ class MultiLangZone(LangZone):
                         if old_dbfile_content == None:
                             try:
                                 fin = open(dbpath, 'r')
-                            except (OSError, IOError), ex:
+                            except (OSError, IOError) as ex:
                                 # Technically if the dbfile doesn't exist, this
                                 # is a sign of database corruption. No matter
                                 # though (for this blob anyway), we are about to

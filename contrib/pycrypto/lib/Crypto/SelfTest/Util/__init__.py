@@ -23,6 +23,7 @@
 # ===================================================================
 
 """Self-test for utility modules"""
+from __future__ import absolute_import
 
 __revision__ = "$Id$"
 
@@ -31,9 +32,9 @@ import os
 def get_tests(config={}):
     tests = []
     if os.name == 'nt':
-        import test_winrandom; tests += test_winrandom.get_tests(config=config)
-    import test_number; tests += test_number.get_tests(config=config)
-    import test_Counter; tests += test_Counter.get_tests(config=config)
+        from . import test_winrandom; tests += test_winrandom.get_tests(config=config)
+    from . import test_number; tests += test_number.get_tests(config=config)
+    from . import test_Counter; tests += test_Counter.get_tests(config=config)
     return tests
 
 if __name__ == '__main__':

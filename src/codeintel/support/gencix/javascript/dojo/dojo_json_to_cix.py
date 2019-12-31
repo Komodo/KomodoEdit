@@ -59,6 +59,7 @@ Dev notes:
     function arguments. This was done by: Adding odict.py to simplejson, and
     then using OrderedDict in simplejson/decoder.py.
 """
+from __future__ import print_function
 
 import os
 import sys
@@ -85,13 +86,13 @@ library_info = library_alternatives[library_version]
 
 def print_keys_values(d, depth=0):
     for key, val in d.items():
-        print "%s%s: %r" % (" " * depth, key, val)
+        print("%s%s: %r" % (" " * depth, key, val))
         if isinstance(val, dict):
             print_keys_values(val, depth+1)
 
 def print_keys(d, depth=0):
     for key, val in d.items():
-        print "%s%s" % (" " * depth, key)
+        print("%s%s" % (" " * depth, key))
         if isinstance(val, dict):
             print_keys(val, depth+1)
 
@@ -121,8 +122,8 @@ def parse_functions(dojoblob, cixclass, funcdict):
             lastcixelement = cixelement
             cixelement = cixelement.names.get(name)
             if cixelement is None:
-                print "Creating variable: %s for namespace: %r, under cix element: %r" % (
-                        name, namespace[:-1], lastcixelement.get("name"))
+                print("Creating variable: %s for namespace: %r, under cix element: %r" % (
+                        name, namespace[:-1], lastcixelement.get("name")))
                 cixelement = createCixVariable(lastcixelement, name, vartype="Object")
         cixclass = cixelement
         method_name = namespace[-1]
@@ -180,7 +181,7 @@ def parse_functions(dojoblob, cixclass, funcdict):
             # Remove some comments that dojo parsing has missed
             #print "returntype: %r" % (returntype)
             if isinstance(returntype, dict):
-                print "Returntype unexpectedly is a dictionary: %r" % (returntype)
+                print("Returntype unexpectedly is a dictionary: %r" % (returntype))
             else:
                 returntype = returntype.rstrip(" */")
                 addCixReturns(cixfunction, verifyType(returntype))
@@ -235,7 +236,7 @@ def parse_functions(dojoblob, cixclass, funcdict):
                            "parameters", "returns", "protovariables",
                            "this_variables", "inherits", "this_inherits",
                            "variables", "object_inherits"):
-                print "%s%s: %r" % ("     ", key, val)
+                print("%s%s: %r" % ("     ", key, val))
 
         #print_keys_values(meta, depth=3)
         #print_keys_values(meta.get("src", {}), depth=3)
@@ -249,14 +250,14 @@ def parse_class(dojoblob, cixclass, meta, namespace):
         elif key == "functions":
             parse_functions(dojoblob, cixclass, val)
         else:
-            print "  Unhandled key: %s" % (key)
+            print("  Unhandled key: %s" % (key))
 
 def parse_classes(dojoblob, dojomodule, d):
     # key is the dojo namespace (ex: "dojo.animation.Timer")
     # val is dictionary containing the namespace properties
     for key, val in d.items():
         if key.endswith("._"):
-            print "Ingoring: %s" % (key)
+            print("Ingoring: %s" % (key))
             continue
         namespace = key
         namesplit = namespace.split(".")
@@ -279,10 +280,10 @@ def parse_classes(dojoblob, dojomodule, d):
         for name in namesplit[:-1]:
             subelem = cixelement.names.get(name)
             if subelem is None:
-                print "Creating variable: %s for namespace: %r" % (name, namesplit[:-1])
+                print("Creating variable: %s for namespace: %r" % (name, namesplit[:-1]))
                 subelem = createCixVariable(cixelement, name, vartype="Object")
             cixelement = subelem
-        print "Class: %s in module: %s" % (classname, namespace)
+        print("Class: %s in module: %s" % (classname, namespace))
         meta = val.get("meta", None)
         # meta contains package info (description, functions, requires, etc...)
         if meta:
@@ -299,12 +300,12 @@ def parseJSONFile(dojoblob, dojomodule, filename):
 
 def updateCix(filename, content, updatePerforce=False):
     if updatePerforce:
-        print os.popen("p4 edit %s" % (filename)).read()
+        print(os.popen("p4 edit %s" % (filename)).read())
     file(filename, "w").write(content)
     if updatePerforce:
         diff = os.popen("p4 diff %s" % (filename)).read()
         if len(diff.splitlines()) <= 1 and diff.find("not opened on this client") < 0:
-            print "No change, reverting: %s" % os.popen("p4 revert %s" % (filename)).read()
+            print("No change, reverting: %s" % os.popen("p4 revert %s" % (filename)).read())
 
 # Main function
 def main(cix_filename, updatePerforce=False):

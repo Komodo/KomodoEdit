@@ -75,7 +75,7 @@ class KoJSONLinter:
         try:
             file(fn, 'wb').write(text)
             return self.parse(fn, cwd=cwd)
-        except Exception, e:
+        except Exception as e:
             log.exception(e)
         finally:
             os.unlink(fn)

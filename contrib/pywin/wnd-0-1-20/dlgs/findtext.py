@@ -7,6 +7,7 @@ NOTES
 """
 
 
+from future.utils import raise_
 from wnd.wintypes import *
 from wnd.controls.base.dialog import BaseCommonDialog
 from wnd.controls.base.methods import DialogMethods
@@ -155,7 +156,7 @@ class FindText(BaseCommonDialog, DialogMethods):
 		if flags:	
 			for i in flags:
 				try: fr.Flags |= FR_FLAGS[i]
-				except: raise ValueError, "invalid flag: %s" % i
+				except:raise_(ValueError, "invalid flag: %s" % i)
 				
 						
 		## check for template

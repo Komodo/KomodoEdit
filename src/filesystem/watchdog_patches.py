@@ -39,7 +39,7 @@ def queue_event_with_patch(self, event):
         # DIR_DELETED event:
         if isinstance(event, (watchdog.events.FileDeletedEvent, 
                               watchdog.events.DirCreatedEvent,
-                              watchdog.events.DirDeletedEvent,)):
+                              watchdog.events.DirDeletedEvent)):
             src_path = os.path.dirname(event.src_path)
             extra_events.append(watchdog.events.DirModifiedEvent(src_path))
 

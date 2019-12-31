@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 __all__ = ["curves", "der", "ecdsa", "ellipticcurve", "keys", "numbertheory",
            "test_pyecdsa", "util", "six"]
 from .keys import SigningKey, VerifyingKey, BadSignatureError, BadDigestError
@@ -10,7 +11,7 @@ del _hush_pyflakes
 # This code comes from http://github.com/warner/python-ecdsa
 
 try:
-    from _version import __version__ as v
+    from ._version import __version__ as v
     __version__ = v
     del v
 except ImportError:

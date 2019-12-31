@@ -36,6 +36,7 @@
 # ***** END LICENSE BLOCK *****
 
 """Scrape CSS property definitions from the w3 web site."""
+from __future__ import print_function
 
 from codeintel2.util import CompareNPunctLast
 #
@@ -145,14 +146,14 @@ def lookup_all_attrs(name, result_dict, lookup_dict, seenSoFar=None):
     else:
         attrs = result_dict.get(name)
     if attrs == None:
-        print "WARNING: No attributes found for: %s" % (name)
+        print("WARNING: No attributes found for: %s" % (name))
         return []
     attrs = set(attrs)
     lookup_ids = lookup_dict.get(name, [])
     for id in lookup_ids:
         if id[1:-1] == name:
             if name not in special_attribute_lookups:
-                print "WARNING: Lookup id same as name: '%s', but no matching special_attribute_lookups" % id
+                print("WARNING: Lookup id same as name: '%s', but no matching special_attribute_lookups" % id)
         if id not in seenSoFar:
             attrs.update(lookup_all_attrs(id, result_dict, lookup_dict, seenSoFar))
     return list(attrs)
@@ -232,7 +233,7 @@ def processTrTags(soup, taglist):
     #    printlist.append('    %-18s: """ """,' % ("'%s'" % name))
     #printlist.append("}")
 
-    print "\n".join(printlist)
+    print("\n".join(printlist))
 
 # Soup parsing of CSS properties
 def main():

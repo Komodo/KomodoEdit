@@ -152,7 +152,7 @@ class AugmentedListCmd(cmd.Cmd):
             return self.default(argv)
         try:
             return func(argv)
-        except (TypeError, CmdError), err:
+        except (TypeError, CmdError) as err:
             out.write("*** %s %s: %s\n" % (self.name, cmdName, str(err)))
             out.write("(Try `%s help %s'.)\n" % (self.name, cmdName))
             usage = self.doc_usage(func.__doc__)

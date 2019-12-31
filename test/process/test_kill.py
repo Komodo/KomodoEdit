@@ -53,7 +53,7 @@ class KillTestCase(unittest.TestCase):
     def _KillAndReturn(self, child):
         try:
             child.kill()
-        except OSError, ex:
+        except OSError as ex:
             self._failedToKill = 1
         else:
             self._failedToKill = 0

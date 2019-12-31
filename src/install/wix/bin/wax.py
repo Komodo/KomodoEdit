@@ -142,6 +142,7 @@
         # existing definitions in the current "*.wxs" WiX project files.
         python wax.py -p *.wxs
 """
+from __future__ import print_function
 # TODO:
 # - get a pretty printer for ElementTree writing
 # - then, convert Accumulator over to using it
@@ -555,7 +556,7 @@ class Accumulator(list):
         s = indent + item
         list.append(self, s)
         if log.isEnabledFor(logging.DEBUG):
-            print s
+            print(s)
 
     def has_content(self):
         return bool(self)
@@ -776,7 +777,7 @@ def main(argv):
         optlist, args = getopt.getopt(argv[1:], "h?Vvqp:wfb:",
             ["help", "version", "verbose", "quiet", "self-test",
              "project-file=", "write-files", "force"])
-    except getopt.GetoptError, ex:
+    except getopt.GetoptError as ex:
         raise Error(str(ex))
         return 1
     help = False
@@ -786,10 +787,10 @@ def main(argv):
     base_image_dir = os.curdir
     for opt, optarg in optlist:
         if opt in ("-h", "-?", "--help"):
-            print __doc__
+            print(__doc__)
             return 0
         elif opt in ("-V", "--version"):
-            print "wax %s" % __version__
+            print("wax %s" % __version__)
             return 0
         elif opt in ("-v", "--verbose"):
             log.setLevel(logging.DEBUG)
@@ -833,7 +834,7 @@ if __name__ == "__main__":
     except:
         exc_info = sys.exc_info()
         if log.isEnabledFor(logging.DEBUG):
-            print
+            print()
             traceback.print_exception(*exc_info)
         else:
             if hasattr(exc_info[0], "__name__"):

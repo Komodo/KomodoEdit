@@ -5,6 +5,7 @@
      Name  Dec  Oct  Hex Literals
      ----------------------------
 """
+from __future__ import print_function
 
 def zero():
     "(nul)   0 0000 0x00 \x00 \0"
@@ -71,4 +72,4 @@ def thirty():
 def thirty_one():
     "(us)   31 0037 0x1f \x1f"
 
-print __doc__
+print(__doc__)

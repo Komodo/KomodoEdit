@@ -182,7 +182,7 @@ TransitionInfo *p_TranBlock;
 Transition *p_Tran;
 FamilyInfo *p_FamilyInfo;\n""" % (WRITER_VERSION_MAJOR, WRITER_VERSION_MINOR,
                                   WRITER_VERSION_SUBMINOR))
-            if filter(lambda(x): hasattr(x, 'tokenCheckBlock'), self.familyList.values()):
+            if filter(lambda x: hasattr(x, 'tokenCheckBlock'), self.familyList.values()):
                 fout.write("LookBackTests *p_LBTests;\n")
                 fout.write("LookBackTestObj *p_LBTestObj;\n")
     
@@ -222,7 +222,7 @@ FamilyInfo *p_FamilyInfo;\n""" % (WRITER_VERSION_MAJOR, WRITER_VERSION_MINOR,
             for pair in family_name_pairs:
                 (long_name, short_name) = pair
                 deft_name = "IN_" + short_name + "_DEFAULT";
-                if self.verbose and not (resDefinesPath or nameTable.has_key(deft_name)):
+                if self.verbose and not (resDefinesPath or deft_name in nameTable):
                     warn("Can't figure out a value for state %s, using 0\n",
                          deft_name)
                 
@@ -564,7 +564,7 @@ FamilyInfo *p_FamilyInfo;\n""" % (WRITER_VERSION_MAJOR, WRITER_VERSION_MINOR,
                                     processed_part += final_trans_value[:d1]
                                     final_trans_value = final_trans_value[d1:]
                                     continue
-                                if not obj.patterns.has_key(ptn1):
+                                if ptn1 not in obj.patterns:
                                     die("Undefined pattern " + ptn1 + " in str " + trans_value[0] + ", family " + family_name, True)
                                 final_trans_value = final_trans_value.replace("$" + ptn1, obj.patterns[ptn1])
                                 i += 1
@@ -902,7 +902,7 @@ class Ko%(safeLangName)sLanguage(%(baseClass)s):
             k2 = 'SCE_UDL_' + k
         else:
             k2 = k
-        if self.resConstants and not self.resConstants.has_key(k2):
+        if self.resConstants and k2 not in self.resConstants:
             die("Style " + k2 + " is unknown. ", True)
         return k2
 
@@ -913,7 +913,7 @@ class Ko%(safeLangName)sLanguage(%(baseClass)s):
 
     def getFamilyOwner(self, stateNum):
         die ("No owning family for state #" + str(stateNum),
-             not self.nameInfo[stateNum].has_key('owningFamily'))
+             'owningFamily' not in self.nameInfo[stateNum])
         familyName = self.nameInfo[stateNum]['owningFamily']
         die ("No owning family for state #" + str(stateNum),
              familyName is None)
@@ -921,7 +921,7 @@ class Ko%(safeLangName)sLanguage(%(baseClass)s):
         
     def internStateName(self, name):        
         nameTable = self.nameTable
-        if not nameTable.has_key(name):
+        if name not in nameTable:
             self.stateCount += 1
             stateNum = nameTable[name] = self.stateCount
             test_assign_entry(self.nameInfo, stateNum, {})
@@ -952,7 +952,7 @@ class Analyzer:
     def semanticCheck(self):
         familyNames = [x.lower() for x in self.mainObj.familyList.keys()]
         for k in familyNames:
-            if not self.mainObj.families.has_key(k):
+            if k not in self.mainObj.families:
                 warn("Family %s isn't recognized, expected one of [%s]\n",
                      k, " ".join(self.mainObj.families.keys()))
                 return
@@ -988,7 +988,7 @@ class Analyzer:
             nameInfo = self.mainObj.nameInfo
             for state_name in nameTable.keys():
                 state_num = nameTable[state_name]
-                if not nameInfo[state_num].has_key('owningFamily'):
+                if 'owningFamily' not in nameInfo[state_num]:
                     warn("At least one transition moves to undefined state " + state_name +
                     "\n This state needs to be defined somewhere.\n")
                     return
@@ -1012,7 +1012,7 @@ class Analyzer:
             % (attrname, extra_msg, old_val, new_val))
         
     def processTree(self, tree, currFamily='markup'):
-        if not self.mainObj.familyList.has_key(currFamily):
+        if currFamily not in self.mainObj.familyList:
             self.mainObj.familyList[currFamily] = CurrentInfo(currFamily)
         permFamilyInfo = self.mainObj.familyList[currFamily]
         for node in tree:
@@ -1067,7 +1067,7 @@ class Analyzer:
                     curr_color = self._favor_upto_color(inner_tran['cmds'])
                     if curr_color and not isTemplateStateName(stateName):
                         # These are global across all families
-                        if not self.mainObj.holdUniqueStates.has_key(curr_color):
+                        if curr_color not in self.mainObj.holdUniqueStates:
                             self.mainObj.holdUniqueStates[curr_color] = {}
                         self.mainObj.holdUniqueStates[curr_color][stateName] = None
                     

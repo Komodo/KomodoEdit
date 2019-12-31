@@ -10,6 +10,7 @@ See KD 218 for details.
 Dev Notes:
 - Requires Python 2.6: for `with` statement, and `maxlen` argument to `deque`.
 """
+from __future__ import print_function
 
 from xpcom.components import interfaces as Ci
 from xpcom.components import classes as Cc
@@ -196,7 +197,7 @@ class Database(object):
             update_version = False
             try:
                 self.upgrade()
-            except Exception, ex:
+            except Exception as ex:
                 log.exception("error upgrading `%s': %s", self.path, ex)
                 self.reset(backup=False)
         try:
@@ -784,9 +785,9 @@ class HistorySession(object):
         while i < num_to_load:
             try:
                 loc = self.db.visit_from_id(id, session_name=self.session_name, cu=cu)
-            except HistoryNoLatestVisitError, ex:
+            except HistoryNoLatestVisitError as ex:
                 break
-            except HistoryError, ex:
+            except HistoryError as ex:
                 # This loc was most likely deleted via expiry, so all earlier
                 # locs were deleted too.  We can break here.
                 # No need to worry about overflow -- the largest
@@ -1180,17 +1181,17 @@ class HistorySession(object):
         
     def debug_dump_recent_history(self, curr_loc=None, merge_curr_loc=True):
         merge_str = "" if merge_curr_loc else " (curr loc not merged)"
-        print "-- recent history%s" % merge_str
+        print("-- recent history%s" % merge_str)
         for is_curr, loc in self.recent_history(curr_loc,
                 merge_curr_loc=merge_curr_loc):
-            print ("  *" if is_curr else "   "),
+            print(("  *" if is_curr else "   "), end=' ')
             if not loc:
-                print "(current location)"
+                print("(current location)")
             else:
-                print repr(loc)
+                print(repr(loc))
         if self._last_visit is not None:
-            print "self._last_visit: %r" % self._last_visit
-        print "--"
+            print("self._last_visit: %r" % self._last_visit)
+        print("--")
 
     def recent_uris(self, n=100, show_all=False):
         """Generate the most recent N uris.
@@ -1240,9 +1241,9 @@ class HistorySession(object):
         
         @param n {int} The number of URIs to look back for. Default 100.
         """
-        print "-- recent URIs (session %s)" % self.session_name
+        print("-- recent URIs (session %s)" % self.session_name)
         for uri in self.recent_uris(n, True):
-            print uri
+            print(uri)
 
 class History(object):
     """The main manager object for the editor history.

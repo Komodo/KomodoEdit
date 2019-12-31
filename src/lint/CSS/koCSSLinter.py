@@ -113,7 +113,7 @@ class KoCSSLinter:
         try:
             file(fn, 'wb').write(text)
             return self.parse(fn, cwd=cwd, text=text)
-        except Exception, e:
+        except Exception as e:
             log.exception(e)
         finally:
             os.unlink(fn)

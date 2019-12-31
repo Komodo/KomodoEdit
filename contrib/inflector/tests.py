@@ -3,8 +3,9 @@
 
 # Copyright (c) 2006 Bermi Ferrer Martinez
 
+from __future__ import absolute_import
 import unittest
-from Inflector import Inflector, English, Spanish
+from .Inflector import Inflector, English, Spanish
 
 class EnglishInflectorTestCase(unittest.TestCase):
     singular_to_plural = {

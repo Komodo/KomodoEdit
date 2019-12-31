@@ -51,6 +51,7 @@
    python patch-template.py LICENSE.html.template LICENSE.html
        __LICENSE_TEXT__ @src/doc/LICENSE.txt
 """
+from __future__ import print_function
 
 import sys, os
 
@@ -75,7 +76,7 @@ while theRest:
         fin.close()
     templateMap[key] = value
 
-print "Creating '%s' from template file '%s'.\n" % (outFileName, inFileName)
+print("Creating '%s' from template file '%s'.\n" % (outFileName, inFileName))
 
 # process file
 fin = open(inFileName, "r")

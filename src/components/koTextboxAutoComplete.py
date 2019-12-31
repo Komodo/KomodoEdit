@@ -65,6 +65,7 @@ Currently implemented textbox autocomplete types:
 
 http://developer.mozilla.org/en/docs/XUL:textbox_%28Firefox_autocomplete%29
 """
+from __future__ import print_function
 
 import os
 from os.path import basename
@@ -224,7 +225,7 @@ class KoTACDemoSearch(KoTACSearch):
 
         try:
             filenames = os.listdir(self.tmpdir)
-        except EnvironmentError, ex:
+        except EnvironmentError as ex:
             result.setFailed("cannot list tmp dir: %s" % ex)
             listener.onSearchResult(self, result)
             return
@@ -410,7 +411,7 @@ class KoTACMruAndFilePathSearch(KoTACSearch):
                   searchParam, previousResult)
 
         # Parse the searchParam
-        if DEBUG: print "startSearch: parse searchParam: %r" % searchParam
+        if DEBUG: print("startSearch: parse searchParam: %r" % searchParam)
         params = self.parseSearchParam(searchParam)
         cwd = params.get("cwd")
         prefName = params.get("mru")
@@ -427,9 +428,9 @@ class KoTACMruAndFilePathSearch(KoTACSearch):
             log.warn("potentially bogus autocompletesearchparam for "
                      "mru_and_filepath search: %r" % searchParam)
         if DEBUG:
-            print "startSearch: prefName=%r" % prefName
-            print "startSearch: cwd=%r" % cwd
-            print "startSearch: mruLimit=%r" % mruLimit
+            print("startSearch: prefName=%r" % prefName)
+            print("startSearch: cwd=%r" % cwd)
+            print("startSearch: mruLimit=%r" % mruLimit)
 
         result = result = KoTACResult()
         result.init(searchString)
@@ -443,14 +444,14 @@ class KoTACMruAndFilePathSearch(KoTACSearch):
                     item = mru.getStringPref(i)
                     if item.startswith(searchString):
                         if DEBUG:
-                            print "startSearch: mru hit: %r" % item
+                            print("startSearch: mru hit: %r" % item)
                         result.addMatch(item, None, "ac-special", False)
                         num += 1
                         if mruLimit is not None and num >= mruLimit:
                             break
                     else:
                         if DEBUG:
-                            print "startSearch: skip mru item: %r" % item
+                            print("startSearch: skip mru item: %r" % item)
 
         # Now filepath hits.
         if multiPaths:
@@ -459,11 +460,11 @@ class KoTACMruAndFilePathSearch(KoTACSearch):
             paths = searchString.rsplit(os.pathsep, 1)
             leadingPaths, searchString = paths[:-1], paths[-1]
         if DEBUG:
-            print "startSearch: complete '%s' path in '%s'" % (searchString, cwd)
+            print("startSearch: complete '%s' path in '%s'" % (searchString, cwd))
         num = 0
         for path in _genPathCompletions(searchString, cwd, self.dirsOnly):
             if DEBUG:
-                print "startSearch: path hit: '%s'" % path
+                print("startSearch: path hit: '%s'" % path)
             isDefault = num == 0
             if self.normPaths:
                 path = os.path.normpath(path)
@@ -541,7 +542,7 @@ class KoTACItemAndMruSearch(KoTACSearch):
                   searchParam, previousResult)
 
         # Parse the searchParam
-        if DEBUG: print "startSearch: parse searchParam: %r" % searchParam
+        if DEBUG: print("startSearch: parse searchParam: %r" % searchParam)
         params = self.parseSearchParam(searchParam)
         prefName = params.get("mru")
         item = params.get("item")
@@ -570,14 +571,14 @@ class KoTACItemAndMruSearch(KoTACSearch):
                     value = mru.getStringPref(i)
                     if value.startswith(searchString):
                         if DEBUG:
-                            print "startSearch: mru hit: %r" % value
+                            print("startSearch: mru hit: %r" % value)
                         result.addMatch(value, None, None, False)
                         num += 1
                         if mruLimit is not None and num >= mruLimit:
                             break
                     else:
                         if DEBUG:
-                            print "startSearch: skip mru value: %r" % value
+                            print("startSearch: skip mru value: %r" % value)
 
         listener.onSearchResult(self, result)
 
@@ -612,7 +613,7 @@ def _genPathCompletions(pattern, cwd, dirsOnly=False):
 
     try:
         flist = glob.glob(abspattern+"*")
-    except UnicodeDecodeError, ex:
+    except UnicodeDecodeError as ex:
         # Python's os.listdir doesn't handle names with high-bit characters,
         # since it doesn't know which encoding to use, and doesn't bother
         # trying to guess.

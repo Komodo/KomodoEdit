@@ -1,3 +1,4 @@
+from __future__ import print_function
 import sys
 import unittest
 
@@ -186,5 +187,5 @@ if __name__ == "__main__":
         if sys.argv[1] == '--experimental':
             testExperimental()
         else:
-            print 'usage: %s [--experimental]' % sys.argv[0]
+            print('usage: %s [--experimental]' % sys.argv[0])
             sys.exit(1)

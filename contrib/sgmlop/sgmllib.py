@@ -1,3 +1,4 @@
+from __future__ import print_function
 # A parser for SGML, using the derived class as static DTD.
 
 # XXX This only supports those SGML features used by HTML.
@@ -167,7 +168,7 @@ class SlowSGMLParser:
 		    if rawdata[i-1] != ';': i = i-1
 		    continue
 	    else:
-		raise RuntimeError, 'neither < nor & ??'
+		raise RuntimeError('neither < nor & ??')
 	    # We get here only if incomplete matches but
 	    # nothing else
 	    match = incomplete.match(rawdata, i)
@@ -190,8 +191,8 @@ class SlowSGMLParser:
     # Internal -- parse comment, return length or -1 if not terminated
     def parse_comment(self, i):
 	rawdata = self.rawdata
-	if rawdata[i:i+4] <> '<!--':
-	    raise RuntimeError, 'unexpected call to handle_comment'
+	if rawdata[i:i+4] != '<!--':
+	    raise RuntimeError('unexpected call to handle_comment')
 	match = commentclose.search(rawdata, i+4)
 	if not match:
 	    return -1
@@ -230,7 +231,7 @@ class SlowSGMLParser:
 	else:
 	    match = tagfind.match(rawdata, i+1)
 	    if not match:
-		raise RuntimeError, 'unexpected call to parse_starttag'
+		raise RuntimeError('unexpected call to parse_starttag')
 	    k = match.end(0)
 	    tag = string.lower(rawdata[i+1:k])
 	    self.lasttag = tag
@@ -328,8 +329,8 @@ class SlowSGMLParser:
     # Example -- report an unbalanced </...> tag.
     def report_unbalanced(self, tag):
 	if self.verbose:
-	    print '*** Unbalanced </' + tag + '>'
-	    print '*** Stack:', self.stack
+	    print('*** Unbalanced </' + tag + '>')
+	    print('*** Stack:', self.stack)
 
     # Example -- handle character reference, no need to override
     def handle_charref(self, name):
@@ -349,7 +350,7 @@ class SlowSGMLParser:
     # Example -- handle entity reference, no need to override
     def handle_entityref(self, name):
 	table = self.entitydefs
-	if table.has_key(name):
+	if name in table:
 	    self.handle_data(table[name])
 	else:
 	    self.unknown_entityref(name)
@@ -478,8 +479,8 @@ class FastSGMLParser:
     # Example -- report an unbalanced </...> tag.
     def report_unbalanced(self, tag):
 	if self.verbose:
-	    print '*** Unbalanced </' + tag + '>'
-	    print '*** Stack:', self.stack
+	    print('*** Unbalanced </' + tag + '>')
+	    print('*** Stack:', self.stack)
 
     # Example -- handle character reference, no need to override
     # def handle_charref(self, name):
@@ -531,43 +532,43 @@ class TestSGMLParser(SGMLParser):
 
     def handle_data(self, data):
 	self.testdata = self.testdata + data
-	if len(`self.testdata`) >= 70:
+	if len(repr(self.testdata)) >= 70:
 	    self.flush()
 
     def flush(self):
 	data = self.testdata
 	if data:
 	    self.testdata = ""
-	    print 'data:', `data`
+	    print('data:', repr(data))
 
     def handle_comment(self, data):
 	self.flush()
-	r = `data`
+	r = repr(data)
 	if len(r) > 68:
 	    r = r[:32] + '...' + r[-32:]
-	print 'comment:', r
+	print('comment:', r)
 
     def unknown_starttag(self, tag, attrs):
 	self.flush()
 	if not attrs:
-	    print 'start tag: <' + tag + '>'
+	    print('start tag: <' + tag + '>')
 	else:
-	    print 'start tag: <' + tag,
+	    print('start tag: <' + tag, end=' ')
 	    for name, value in attrs:
-		print name + '=' + '"' + value + '"',
-	    print '>'
+		print(name + '=' + '"' + value + '"', end=' ')
+	    print('>')
 
     def unknown_endtag(self, tag):
 	self.flush()
-	print 'end tag: </' + tag + '>'
+	print('end tag: </' + tag + '>')
 
     def unknown_entityref(self, ref):
 	self.flush()
-	print '*** unknown entity ref: &' + ref + ';'
+	print('*** unknown entity ref: &' + ref + ';')
 
     def unknown_charref(self, ref):
 	self.flush()
-	print '*** unknown char ref: &#' + ref + ';'
+	print('*** unknown char ref: &#' + ref + ';')
 
     def close(self):
 	SGMLParser.close(self)
@@ -596,8 +597,8 @@ def test(args = None):
     else:
 	try:
 	    f = open(file, 'r')
-	except IOError, msg:
-	    print file, ":", msg
+	except IOError as msg:
+	    print(file, ":", msg)
 	    sys.exit(1)
 
     data = f.read()

@@ -951,7 +951,7 @@ class iterparse:
             return self
     except NameError:
         def __getitem__(self, index):
-            return self.next()
+            return next(self)
 
 ##
 # Parses an XML document from a string constant.  This function can

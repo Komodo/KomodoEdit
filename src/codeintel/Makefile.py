@@ -58,7 +58,7 @@ try:
 
     try:
         import config as cfg
-    except ImportError, ex:
+    except ImportError as ex:
         raise MakeError("could not import configuration: %s" % ex)
     from config import xpath
 finally:
@@ -325,7 +325,7 @@ def make_src_elementtree(maker, log):
         for filename in filenames:
             path = join(dirpath, filename)
             curr_mode = stat.S_IMODE(os.stat(path).st_mode)
-            writeable_mode = curr_mode | 0200 # make writeable
+            writeable_mode = curr_mode | 0o200 # make writeable
             if curr_mode != writeable_mode:
                 os.chmod(path, writeable_mode)
     found_some_patches = False

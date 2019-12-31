@@ -87,7 +87,7 @@ class koFileService(object):
                 components.classes["@activestate.com/koFileEx;1"] \
                 .createInstance(components.interfaces.koIFileEx)
             kofile.URI = uri
-        except Exception, e:
+        except Exception as e:
             log.error("Invalid URL parsed: %r", uri)
             raise ServerException(nsError.NS_ERROR_FAILURE, str(e))
         self._files[uri] = WeakReference(kofile)
@@ -113,7 +113,7 @@ class koFileService(object):
                 components.classes["@activestate.com/koFileEx;1"] \
                 .createInstance(components.interfaces.koIFileEx)
             kofile.URI = uri
-        except Exception, e:
+        except Exception as e:
             log.error("Invalid URL parsed: %r", uri)
             raise ServerException(nsError.NS_ERROR_FAILURE, str(e))
         return kofile
@@ -186,7 +186,7 @@ class koFileService(object):
             error_message = "no error available"
             try:
                 os.unlink(fname)
-            except OSError, error_message:
+            except OSError as error_message:
                 pass
             if os.path.exists(fname):
                 msg = "TempFile: File still exists after deleting '%s' - '%s'" % (fname,error_message)

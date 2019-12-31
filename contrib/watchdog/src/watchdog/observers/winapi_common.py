@@ -17,6 +17,7 @@
 
 
 from watchdog.utils import platform
+from functools import reduce
 
 if platform.is_windows():
     import ctypes

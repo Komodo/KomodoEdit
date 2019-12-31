@@ -1,3 +1,4 @@
+from __future__ import print_function
 # ***** BEGIN LICENSE BLOCK *****
 # Version: MPL 1.1/GPL 2.0/LGPL 2.1
 # 
@@ -44,8 +45,8 @@
 mylist = ["hello", 42, "there", 3.14159]
 for element in mylist:
     if type(element) == type(""):
-        print "element %s is a string" % element
-print
+        print("element %s is a string" % element)
+print()
 
 
 #---- Background Syntax Checking:
@@ -80,7 +81,7 @@ print
 #   CallTips.
 
 import string
-print string.split("hello there pete", " ")
+print(string.split("hello there pete", " "))
 
 
 #---- Debugging
@@ -107,7 +108,7 @@ prices = [5.50, 6.25, 7.00, 3.15]
 sum = 0.0
 for price in prices:
     sum = sum + price
-print "the sum of the prices is", sum
+print("the sum of the prices is", sum)
 
 
 # See Komodo's online help for much more information on:

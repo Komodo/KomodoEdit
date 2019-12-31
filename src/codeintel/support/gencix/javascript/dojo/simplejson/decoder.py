@@ -1,8 +1,9 @@
 """
 Implementation of JSONDecoder
 """
+from __future__ import absolute_import
 import re
-from odict import OrderedDict
+from .odict import OrderedDict
 
 from simplejson.scanner import Scanner, pattern
 
@@ -135,7 +136,7 @@ def JSONObject(match, context, _w=WHITESPACE.match):
             raise ValueError(errmsg("Expecting : delimiter", s, end))
         end = _w(s, end + 1).end()
         try:
-            value, end = JSONScanner.iterscan(s, idx=end).next()
+            value, end = next(JSONScanner.iterscan(s, idx=end))
         except StopIteration:
             raise ValueError(errmsg("Expecting object", s, end))
         pairs[key] = value
@@ -167,7 +168,7 @@ def JSONArray(match, context, _w=WHITESPACE.match):
         return values, end + 1
     while True:
         try:
-            value, end = JSONScanner.iterscan(s, idx=end).next()
+            value, end = next(JSONScanner.iterscan(s, idx=end))
         except StopIteration:
             raise ValueError(errmsg("Expecting object", s, end))
         values.append(value)
@@ -264,7 +265,7 @@ class JSONDecoder(object):
         """
         kw.setdefault('context', self)
         try:
-            obj, end = self._scanner.iterscan(s, **kw).next()
+            obj, end = next(self._scanner.iterscan(s, **kw))
         except StopIteration:
             raise ValueError("No JSON object could be decoded")
         return obj, end

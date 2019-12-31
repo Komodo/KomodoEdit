@@ -11,6 +11,7 @@
 Uses the web pages found here:
   http://css-infos.net/properties/webkit.php
 """
+from __future__ import print_function
 
 import re
 import urllib
@@ -38,14 +39,14 @@ def unescape(text):
                 else:
                     return unichr(int(text[2:-1]))
             except ValueError:
-                print "erreur de valeur"
+                print("erreur de valeur")
                 pass
         else:
            # named entity
             try:
                 text = unichr(htmlentitydefs.name2codepoint[text[1:-1]])
             except KeyError:
-                print "keyerror"
+                print("keyerror")
                 pass
         return text # leave as is
     text = re.sub("&#?\w+;", fixup, text)
@@ -135,7 +136,7 @@ def parseProperty(property_name):
     try:
         soup = BeautifulSoup(data)
     except:
-        print "Unable to pass HTML for property: %r" % (property_name, )
+        print("Unable to pass HTML for property: %r" % (property_name, ))
         return property_details
         
     tags = soup.html.body("h2")
@@ -159,7 +160,7 @@ def parseWebKitProperties():
     try:
         soup = BeautifulSoup(data)
     except:
-        print "Unable to obtain HTML for url: %r" % (url, )
+        print("Unable to obtain HTML for url: %r" % (url, ))
         return
 
     tags = soup.html.body.table.tbody.findAll('td', {'class': 'element'})

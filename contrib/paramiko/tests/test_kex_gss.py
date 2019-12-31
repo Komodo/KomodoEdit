@@ -23,6 +23,7 @@
 Unit Tests for the GSS-API / SSPI SSHv2 Diffie-Hellman Key Exchange and user
 authentication
 """
+from __future__ import print_function
 
 
 import socket

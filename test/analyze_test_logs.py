@@ -36,6 +36,7 @@
 # ***** END LICENSE BLOCK *****
 
 """Analyze the logs from a "rrun.py kodev-test" run."""
+from __future__ import print_function
 
 import sys
 from os.path import *
@@ -67,7 +68,7 @@ def analyze_test_logs():
         retval += len(result.failures)
     
     if retval == 0:
-        print "OK"
+        print("OK")
     else:
         error_in_all = []
         for error in results[0].errors:
@@ -84,22 +85,22 @@ def analyze_test_logs():
             else:
                 failure_in_all.append(failure)
         if error_in_all or failure_in_all:
-            print "all platforms:"
+            print("all platforms:")
             for error in error_in_all:
-                print "  [ERROR] "+error
+                print("  [ERROR] "+error)
             for failure in failure_in_all:
-                print "  [ FAIL] "+failure
+                print("  [ FAIL] "+failure)
         for result in sorted(results, key=operator.attrgetter("platname"),
                              reverse=True):
             errors = [e for e in result.errors if e not in error_in_all]
             failures = [e for e in result.failures if e not in failure_in_all]
             if not errors and not failures:
                 continue
-            print "%s (%s):" % (result.platname, result.hostname)
+            print("%s (%s):" % (result.platname, result.hostname))
             for error in errors:
-                print "  [ERROR] "+error
+                print("  [ERROR] "+error)
             for failure in failures:
-                print "  [ FAIL] "+failure
+                print("  [ FAIL] "+failure)
 
     return retval
 

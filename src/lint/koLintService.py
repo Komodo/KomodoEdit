@@ -35,6 +35,7 @@
 # 
 # ***** END LICENSE BLOCK *****
 
+from __future__ import print_function
 import os, sys
 import threading
 import time
@@ -295,7 +296,7 @@ class KoLintService:
         for entry in _xpcom.GetCategoryEntries(categoryName):
             rawName, cid = entry.split(" ", 1)
             fixedName = urllib2.unquote(rawName)
-            if not self._linterCIDsByLanguageName.has_key(fixedName):
+            if fixedName not in self._linterCIDsByLanguageName:
                 self._linterCIDsByLanguageName[fixedName] = {'terminals':[],
                                                      'aggregator':cid}
             else:
@@ -314,7 +315,7 @@ class KoLintService:
                 languageName = fixedName
             else:
                 languageName = fixedName[:idx]
-            if not self._linterCIDsByLanguageName.has_key(languageName):
+            if languageName not in self._linterCIDsByLanguageName:
                 self._linterCIDsByLanguageName[languageName] = {'terminals':[],
                                                              'aggregator':None}
             self._linterCIDsByLanguageName[languageName]['terminals'].append(cid)
@@ -398,7 +399,7 @@ class KoLintService:
                     linter = None
                 else:
                     linter = components.classes[linterCID].createInstance(components.interfaces.koILinter)
-            except COMException, ex:
+            except COMException as ex:
                 errmsg = "Internal Error creating a linter with CID '%s': %s"\
                     % (linterCID, ex)
                 raise ServerException(nsError.NS_ERROR_UNEXPECTED, errmsg)
@@ -441,7 +442,7 @@ class KoLintService:
         try:
             encodedString = content.encode(encoding.python_encoding_name,
                                            "strict")
-        except UnicodeError, ex:
+        except UnicodeError as ex:
             pass  # errors are handled after the try/except/else block
         else:
             return koLintResults() # no encoding errors
@@ -618,14 +619,14 @@ class KoLintService:
 
                     if TIME_LINTS:
                         endeollint = time.clock()
-                        print "lint of '%s': encoding=%.3fs  lint=%.3fs  eol=%.3fs"\
+                        print("lint of '%s': encoding=%.3fs  lint=%.3fs  eol=%.3fs"\
                               % (request.koDoc.baseName,
                                  endencodinglint-startlint,
                                  endlintlint-endencodinglint,
-                                 endeollint-endlintlint)
+                                 endeollint-endlintlint))
     
                     request.results = results
-                except (ServerException, COMException), ex:
+                except (ServerException, COMException) as ex:
                     request.errorString = str(ex)
                 except:
                     # Any exceptions that are not ServerException or
@@ -658,7 +659,7 @@ class KoLintService:
                         def reportResults(rq):
                             rq.lintBuffer.reportResults(rq)
                         reportResults(request)
-                    except COMException, ex:
+                    except COMException as ex:
                         # Ignore this error, which will happen if results
                         # are reported after the buffer has gone away (i.e.
                         # the file owning that buffer was closed):
@@ -693,15 +694,15 @@ if __name__ == "__main__":
     if 0:
         q.put(TestRequest("id_1"))
         q.remove_uid("id_1")
-        print "item:"
+        print("item:")
         sys.stdout.flush()
-        print q.get()
+        print(q.get())
     
     if 1:    
         q.put(TestRequest("id_1"))
         q.put(TestRequest("id_2"))
         pprint.pprint(q.queue)
-        print "item: ", q.get()
+        print("item: ", q.get())
         q.put(TestRequest("id_3"))
         q.put(TestRequest("id_4"))
         q.put(TestRequest("id_3"))
@@ -714,7 +715,7 @@ if __name__ == "__main__":
         pprint.pprint(q.queue)
         q.remove_uid("id_4")
         pprint.pprint(q.queue)
-        print "item: ", q.get()
-        print "item: ", q.get()
+        print("item: ", q.get())
+        print("item: ", q.get())
         pprint.pprint(q.queue)
 

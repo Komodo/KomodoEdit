@@ -90,7 +90,7 @@ class KoMemoryReporter:
                 reporter = components.classes[cid].\
                     getService(components.interfaces.koIPythonMemoryReporter)
                 total -= reporter.reportMemory(reportHandler, closure)
-            except Exception, e:
+            except Exception as e:
                 log.exception("Unable to report memory for %r: %r", name, cid)
 
         reportHandler.callback(process,

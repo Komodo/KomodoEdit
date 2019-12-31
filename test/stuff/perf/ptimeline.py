@@ -83,6 +83,7 @@
         >>> records = ptimeline.parse("timeline.log")
         >>> counter = ptimeline.count("os.stat", records)
 """
+from __future__ import print_function
 # TODO:
 #   - Add a module interface.
 #
@@ -107,7 +108,7 @@ import types
 
 try:
     import logging
-except ImportError, ex:
+except ImportError as ex:
     sys.stderr.write("""\
 This script now requires Python's Logging module. It will be standard with
 Python 2.3. If you don't have it you can get it here:
@@ -179,7 +180,7 @@ def scimoz_transform(match):
         def _load_message_constants(module, prefix, map):
             for name, val in module.__dict__.items():
                 if name.startswith(prefix):
-                    if map.has_key(val):
+                    if val in map:
                         log.debug("overwriting %s with %s", map[val], name)
                     map[val] = name
         def _load_flags_constants(module, prefix):
@@ -287,7 +288,7 @@ def count(regex, records=None):
         else:
             raise ParseError("'records' not specified and "
                              "NS_TIMELINE_LOG_FILE not set")
-    if type(regex) in types.StringTypes:
+    if type(regex) in (str,):
         regex = re.compile(regex)
 
     counter_def = {"regex": regex}
@@ -389,9 +390,9 @@ def cmp_totals(rec1, rec2):
 
 def _print_top(records_by_thread, attr, n=20):
     # Print top records for the given "attr"/statistic.
-    print "="*70
-    print "Top records for '%s' statistic:" % attr
-    print "-"*70
+    print("="*70)
+    print("Top records for '%s' statistic:" % attr)
+    print("-"*70)
     records = []
     for rs in records_by_thread.values():
         records += rs
@@ -400,11 +401,11 @@ def _print_top(records_by_thread, attr, n=20):
     records.reverse()
     tot = 0.0
     for t in records[:n]:
-        print t
+        print(t)
         tot += getattr(t, attr)
-    print "-"*70
-    print "Top", n, "records have total", attr, "of", tot
-    print "="*70
+    print("-"*70)
+    print("Top", n, "records have total", attr, "of", tot)
+    print("="*70)
 
 
 def parse(filename=None, last_record=None):
@@ -420,7 +421,7 @@ def parse(filename=None, last_record=None):
     if filename is None:
         try:
             filename = os.environ["NS_TIMELINE_LOG_FILE"]
-        except KeyError, ex:
+        except KeyError as ex:
             raise ParseError("Could not determine timeline log file name: "
                              "'filename' not specified and "
                              "NS_TIMELINE_LOG_FILE not defined.")
@@ -464,7 +465,7 @@ def _dump_counters(counter_defs, records_by_thread, dump_log=0):
     counters = create_counters(counter_defs, records_by_thread)
     records = []
     for thread_id, thread_counters in counters.items():
-        print "Counter values for thread %s:" % thread_id
+        print("Counter values for thread %s:" % thread_id)
         values = thread_counters.values()
         values.sort(lambda a,b: cmp(a.get("name", a["regex"].pattern),
                                     b.get("name", b["regex"].pattern)))
@@ -472,14 +473,14 @@ def _dump_counters(counter_defs, records_by_thread, dump_log=0):
         for counter in values:
             if counter["count"]:
                 prettyname = counter.get("name", counter["regex"].pattern)
-                print " %s %s" % (prettyname, counter["count"])
+                print(" %s %s" % (prettyname, counter["count"]))
                 if dump_log:
                     records += counter["records"]
 
     if records:
-        print "Log:"
+        print("Log:")
         for record in records:
-            print record
+            print(record)
 
 
 
@@ -493,7 +494,7 @@ def main(argv):
     try:
         opts, statistics = getopt.getopt(argv[1:], "vqhVn:f:l:c:",
             ["verbose", "quiet", "help", "version", "counters", "log"])
-    except getopt.error, ex:
+    except getopt.error as ex:
         log.error(str(ex))
         return 1
     filename = None
@@ -504,7 +505,7 @@ def main(argv):
     counter_defs = []
     for opt, optarg in opts:
         if opt in ("-h", "--help"):
-            print __doc__
+            print(__doc__)
             return 0
         elif opt in ("-v", "--verbose"):
             log.setLevel(logging.DEBUG)
@@ -512,12 +513,12 @@ def main(argv):
             log.setLevel(logging.WARN)
         elif opt in ("-V", "--version"):
             ver = '.'.join([str(i) for i in _version_])
-            print "ptimeline %s" % ver
+            print("ptimeline %s" % ver)
             return 0
         elif opt == "-n":
             try:
                 num_recs = int(optarg)
-            except ValueError, ex:
+            except ValueError as ex:
                 log.error("invalid value for -n: %s\n", ex)
                 return 1
         elif opt == "-f":
@@ -535,7 +536,7 @@ def main(argv):
     if filename is None:
         try:
             filename = os.environ["NS_TIMELINE_LOG_FILE"]
-        except KeyError, ex:
+        except KeyError as ex:
             log.error("No timeline log to parse. Use the '-f' option or "
                       "set NS_TIMELINE_LOG_FILE.")
             return 1
@@ -550,10 +551,10 @@ def main(argv):
             _dump_counters(counter_defs, records_by_thread, dump_log)
         for statistic in statistics:
             _print_top(records_by_thread, statistic, num_recs)
-    except ParseError, ex:
+    except ParseError as ex:
         log.error(str(ex))
         if log.isEnabledFor(logging.DEBUG):
-            print
+            print()
             import traceback
             traceback.print_exception(*sys.exc_info())
         return 1

@@ -20,6 +20,7 @@
 
 # based on code provided by raymond mosteller (thanks!)
 
+from __future__ import print_function
 import base64
 import getpass
 import os

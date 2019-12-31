@@ -35,6 +35,7 @@
 # ***** END LICENSE BLOCK *****
 
 from __future__ import generators
+from __future__ import print_function
 
 import re
 import os
@@ -84,12 +85,12 @@ for funcname in function_definitions.keys():
     # If it starts with is_cmd or do_, skip it
     if funcname.startswith('is_cmd_') or funcname.startswith('do_cmd_'): continue
     jsfunccall = re.compile(funcname + "\s*\(", re.MULTILINE)
-    print 'looking for calls to', funcname, "found", 
+    print('looking for calls to', funcname, "found", end=' ') 
     function_calls[funcname] = 0
     for filename, data in file_contents.items():
         calls = jsfunccall.findall(data)
         function_calls[funcname] += len(calls)
-    print function_calls[funcname]
+    print(function_calls[funcname])
 
 
 call_distribution = function_calls.items()
@@ -98,7 +99,7 @@ def sort_items(item1, item2):
 call_distribution.sort(sort_items)
 for function, hit in call_distribution:
     if hit == 0:
-        print '%3d hits for %s (defined in %s)' % (hit, function, function_definitions[function])
+        print('%3d hits for %s (defined in %s)' % (hit, function, function_definitions[function]))
 
 #import pprint
 #pprint.pprint(function_definitions)

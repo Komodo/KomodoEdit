@@ -36,6 +36,7 @@
 # ***** END LICENSE BLOCK *****
 
 """koext -- a tool for building Komodo extensions"""
+from __future__ import print_function
 
 __version_info__ = (0, 3, 0)
 __version__ = '.'.join(map(str, __version_info__))
@@ -677,7 +678,7 @@ def main(argv=sys.argv):
             log.error(exc_info[0])
         if not skip_it:
             if log.isEnabledFor(logging.DEBUG):
-                print
+                print()
                 traceback.print_exception(*exc_info)
             sys.exit(1)
     else:

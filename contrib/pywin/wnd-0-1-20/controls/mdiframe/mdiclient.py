@@ -1,5 +1,6 @@
 
 
+from future.utils import raise_
 from wnd.wintypes import (user32,
 												byref,
 												Structure,
@@ -158,13 +159,13 @@ class MDIClient(control.ControlFromHandle, methods.ControlMethods):
 					'hscroll':WS_HSCROLL}
 			for i in styles:
 				try: iStyle |= st[i]
-				except: raise ValueError, "invalid style: %s" % i
+				except:raise_(ValueError, "invalid style: %s" % i)
 		
 		hwnd=user32.CreateWindowExA(
 							WS_EX_MDICHILD,classname,title, 
 							iStyle,x,y,w,h,
 							self.Hwnd,0,0,0)
-		if not hwnd: raise RuntimeError, "could not create MDI child"
+		if not hwnd: raise RuntimeError("could not create MDI child")
 		return self.GetChild(hwnd)
 	
 	def __iter__(self):

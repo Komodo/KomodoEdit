@@ -4,6 +4,7 @@
 # See the file LICENSE.txt for licensing information.
 
 """Test some CSS-specific codeintel handling."""
+from __future__ import print_function
 
 import os
 import sys
@@ -61,7 +62,7 @@ class CSSLintTest(CodeIntelTestCase):
                     
     def test_expect_good_files(self):
         test_dir = join(self.test_dir, "bits", "css_files")
-        print "Test files in path %s" % test_dir
+        print("Test files in path %s" % test_dir)
         for path in glob.glob(join(test_dir, "*.css")):
             fd = open(path, 'r')
             code = fd.read().decode("utf-8")
@@ -110,7 +111,7 @@ class CSSLintTest(CodeIntelTestCase):
         fd = open(path, 'r')
         code = fd.read().decode("utf-8")
         fd.close()
-        print "Test file %s" % basename(path)
+        print("Test file %s" % basename(path))
         results = self.csslinter.lint(code)
         self.assertTrue(len(results) > 0)            
             

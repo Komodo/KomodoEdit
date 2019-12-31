@@ -43,6 +43,7 @@
     - to individual test_* methods via a "tags" attribute list (you can
       use the testlib.tag() decorator for this).
 """
+from __future__ import print_function
 #TODO:
 # - Document how tests are found (note the special "test_cases()" and
 #   "test_suite_class" hooks).

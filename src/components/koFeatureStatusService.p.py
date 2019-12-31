@@ -239,7 +239,7 @@ class KoFeatureStatusService:
                 st = KoFeatureStatus(featureName, status, reason)
                 try:
                     self.notifyObservers(st, "feature_status_ready", featureName)
-                except COMException, ex:
+                except COMException as ex:
                     # do nothing: Notify sometimes raises an exception if
                     # receivers are not registered?
                     log.warn("exception notifying 'feature_status_ready': %s", ex)
@@ -294,7 +294,7 @@ class KoFeatureStatusService:
         if isActivePerl is not None or minActivePerlBuild is not None:
             try:
                 buildNumber = perlInfoEx.buildNumber
-            except COMException, ex:
+            except COMException as ex:
                 log.info("%s: not ActivePerl", installDir)
                 self._lastErrorSvc.setLastError(0,
                     "Perl installation is not ActivePerl: %s" % installDir)

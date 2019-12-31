@@ -23,6 +23,7 @@
 # ===================================================================
 
 """Self-test for public-key crypto"""
+from __future__ import absolute_import
 
 __revision__ = "$Id$"
 
@@ -30,9 +31,9 @@ import os
 
 def get_tests(config={}):
     tests = []
-    import test_DSA;       tests += test_DSA.get_tests(config=config)
-    import test_RSA;       tests += test_RSA.get_tests(config=config)
-    import test_importKey; tests += test_importKey.get_tests(config=config)
+    from . import test_DSA;       tests += test_DSA.get_tests(config=config)
+    from . import test_RSA;       tests += test_RSA.get_tests(config=config)
+    from . import test_importKey; tests += test_importKey.get_tests(config=config)
     return tests
 
 if __name__ == '__main__':

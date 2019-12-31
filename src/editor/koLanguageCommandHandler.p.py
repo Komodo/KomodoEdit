@@ -224,7 +224,7 @@ class GenericCommandHandler:
         try:
             currentPosFilePath, currentPosFileLine, currentPosFileCol \
                 = diff.file_pos_from_diff_pos(currentPosLine, currentPosCol)
-        except difflibex.DiffLibExError, ex:
+        except difflibex.DiffLibExError as ex:
             log.warn("could not jump to corresponding line: %s", ex)
             return
         
@@ -249,7 +249,7 @@ class GenericCommandHandler:
             try:
                 anchorFilePath, anchorFileLine, anchorFileCol \
                     = diff.file_pos_from_diff_pos(anchorLine, anchorCol)
-            except difflibex.DiffLibExError, ex:
+            except difflibex.DiffLibExError as ex:
                 log.warn("could not jump to corresponding line: %s", ex)
                 return
             
@@ -775,7 +775,7 @@ class GenericCommandHandler:
             key = str(i)
             try:
                 val_type = command_params.getValueType(key)
-            except COMException, e:
+            except COMException as e:
                 # out of positional arguments, probably
                 break
             args.append(get_param(key, val_type))
@@ -1624,7 +1624,7 @@ class GenericCommandHandler:
             tabwidth = self._view.prefs.getLongPref('tabWidth')
             if tabwidth != 0:
                 return tabwidth
-        except COMException, ex:
+        except COMException as ex:
             pass
         dialogproxy = components.classes['@activestate.com/asDialogProxy;1'].\
             getService(components.interfaces.asIDialogProxy)
@@ -2268,7 +2268,7 @@ def _sendStatusMessage(msg, highlight=False, timeout=3000):
     sm.highlight = highlight
     try:
         observerSvc.notifyObservers(sm, "status_message", None)
-    except COMException, ex:
+    except COMException as ex:
         pass
 
 def classifyws(s, tabwidth):

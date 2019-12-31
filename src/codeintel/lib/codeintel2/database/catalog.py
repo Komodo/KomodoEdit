@@ -157,7 +157,7 @@ class CatalogsZone(object):
             in self._selection_from_selector(selections).items():
             try:
                 res_ids += self._res_ids_from_selector_cache[selector]
-            except KeyError, ex:
+            except KeyError as ex:
                 missing_selections.append(selection)
         log.debug("_res_ids_from_selections: res_ids=%r", res_ids)
         return tuple(res_ids), missing_selections
@@ -330,7 +330,7 @@ class CatalogsZone(object):
                     elif elem.tag == "file":
                         lang = elem.get("lang")
                         break
-            except ET.XMLParserError, ex:
+            except ET.XMLParserError as ex:
                 log.warn("%s: error reading catalog, skipping it (%s)",
                          cix_path, ex)
                 continue
@@ -406,7 +406,7 @@ class CatalogsZone(object):
                 # remove this obsolete CIX file
                 try:
                     todos.append( ("remove", AreaResource(res_area_path), res_name) )
-                except ValueError, ex:
+                except ValueError as ex:
                     # Skip resources in unknown areas. This is primarily to
                     # allow debugging/testing (when the set of registered
                     # path_areas may not include the set when running in
@@ -455,7 +455,7 @@ class CatalogsZone(object):
                         #    more intelligently if possible.
                         self._remove_res(res)
                         self._add_res(res)
-                except DatabaseError, ex:
+                except DatabaseError as ex:
                     log.warn("%s (skipping)" % ex)
     
             if progress_cb:
@@ -514,7 +514,7 @@ class CatalogsZone(object):
                         log.debug("fs-write: remove catalog %s blob file '%s'",
                                   lang, basename(path))
                         os.remove(path)
-                except EnvironmentError, ex:
+                except EnvironmentError as ex:
                     #XXX If get lots of these, then try harder. Perhaps
                     #    creating a zombies area, or creating a list of
                     #    them: self.db.add_zombie(dbpath).
@@ -533,7 +533,7 @@ class CatalogsZone(object):
                             del bfrft[toplevelname][res_id]
                             if not bfrft[toplevelname]:
                                 del bfrft[toplevelname]
-                    except KeyError, ex:
+                    except KeyError as ex:
                         self.db.corruption("CatalogsZone._remove_res",
                             "error removing top-level names of ilk '%s' for "
                                 "'%s' resource from toplevelname_index: %s"
@@ -547,7 +547,7 @@ class CatalogsZone(object):
                             del tfrfp[prefix][res_id]
                             if not tfrfp[prefix]:
                                 del tfrfp[prefix]
-                    except KeyError, ex:
+                    except KeyError as ex:
                         self.db.corruption("CatalogsZone._remove_res",
                             "error removing top-level name of ilk '%s' for "
                                 "'%s' resource from toplevelprefix_index: %s"
@@ -560,7 +560,7 @@ class CatalogsZone(object):
         cix_path = res.path
         try:
             tree = tree_from_cix_path(cix_path)
-        except ET.XMLParserError, ex:
+        except ET.XMLParserError as ex:
             log.warn("could not load `%s' into catalog (skipping): %s",
                      cix_path, ex)
             return

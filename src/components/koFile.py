@@ -1,3 +1,4 @@
+from __future__ import print_function
 # ***** BEGIN LICENSE BLOCK *****
 # Version: MPL 1.1/GPL 2.0/LGPL 2.1
 # 
@@ -47,6 +48,7 @@
 # (note we could probably find reasonable xpcom error codes,
 # but the text message from the error is very useful.)
 
+from future.utils import raise_
 import os
 import tempfile
 import logging
@@ -63,8 +65,8 @@ log = logging.getLogger("koFile")
 
 def apply_raising_com(fn, args):
         try:
-                return apply(fn, args)
-        except COMException, why:
+                return fn(*args)
+        except COMException as why:
                 log.debug("koFile has XPCOM exception %s: re-raising", why)
                 raise ServerException(why.errno)
 
@@ -125,7 +127,7 @@ def DeleteTempFile(fname, remove_fname = 1):
                 error_message = "no error available"
                 try:
                         os.unlink(fname)
-                except OSError, error_message:
+                except OSError as error_message:
                         pass
                 if os.path.exists(fname):
                         msg = "TempFile: File still exists after deleting '%s' - '%s'" % (fname,error_message)
@@ -220,7 +222,7 @@ def _DoTestRead(file, expected):
     got = got + file.read(0)
     got = got + file.read(-1)
     if got != expected:
-        raise RuntimeError, "Reading '%s' failed - got %d bytes, but expected %d bytes" % (file, len(got), len(expected))
+        raise_(RuntimeError, "Reading '%s' failed - got %d bytes, but expected %d bytes" % (file, len(got), len(expected)))
 
 def _TestLocalFile():
     fname = tempfile.mktemp()
@@ -233,24 +235,24 @@ def _TestLocalFile():
         test_file.init(fname, "r")
         got = test_file.read(-1)
         if got != data:
-            print "Read the wrong data back - %r" % (got,)
+            print("Read the wrong data back - %r" % (got,))
         else:
-            print "Read the correct data."
+            print("Read the correct data.")
         test_file.close()
         # Try reading in chunks.
         test_file = components.classes[LocalFile._reg_contractid_].createInstance(LocalFile._com_interfaces_[0])
         test_file.init(fname, "r")
         got = test_file.read(10) + test_file.read(-1)
         if got != data:
-            print "Chunks the wrong data back - %r" % (got,)
+            print("Chunks the wrong data back - %r" % (got,))
         else:
-            print "Chunks read the correct data."
+            print("Chunks read the correct data.")
         test_file.close()
     finally:
         try:
             os.unlink(fname)
-        except OSError, details:
-            print "Error removing temp test file:", details
+        except OSError as details:
+            print("Error removing temp test file:", details)
 
 filename_to_check_after_shutdown = None
 
@@ -258,21 +260,21 @@ def _TestTempFile():
         factory = components.classes[TempFileFactory._reg_contractid_].getService(TempFileFactory._com_interfaces_[0])
         test_file = factory.MakeTempFile("pyxpcomtest", "w")
         test_file_name = test_file.file.path
-        print "Test file name is ", test_file_name
+        print("Test file name is ", test_file_name)
         test_data = "Hello\nfrom\r\npython"
         test_file.write(test_data)
         if not os.path.isfile(test_file_name):
-                raise RuntimeError, "Our temp file appears to not exist"
+                raise RuntimeError("Our temp file appears to not exist")
         test_file.flush()
         got = open(test_file_name,"rb").read()
         if got != test_data:
-                raise RuntimeError, "Our test data wasnt there: %r" % (got,)
+                raise_(RuntimeError, "Our test data wasnt there: %r" % (got,))
         test_file.close()
         if not os.path.isfile(test_file_name):
-                raise RuntimeError, "Our temp file appears to not exist after a close"
+                raise RuntimeError("Our temp file appears to not exist after a close")
         test_file = None
         if os.path.isfile(test_file_name):
-                raise RuntimeError, "Our temp file appears to still exist after removing its last reference"
+                raise RuntimeError("Our temp file appears to still exist after removing its last reference")
 
         test_file = factory.MakeTempFile("pyxpcomtest", "w")
         test_file_name = test_file.file.path
@@ -281,12 +283,12 @@ def _TestTempFile():
         hold_file = open(test_file_name,"rb")
         test_file = None
         if not os.path.isfile(test_file_name):
-                raise RuntimeError, "Our temp file that we didn't want deleted, was!"
+                raise RuntimeError("Our temp file that we didn't want deleted, was!")
         global filename_to_check_after_shutdown
         filename_to_check_after_shutdown = test_file_name
         hold_file.close()
 
-        print "Temp file tests worked"
+        print("Temp file tests worked")
 
 def _TestAll():
     # A mini test suite.
@@ -303,19 +305,19 @@ def _TestAll():
     test_file = components.classes[URIFile._reg_contractid_].createInstance(URIFile._com_interfaces_[0])
     test_file.init( url.spec, "r")
     _DoTestRead( test_file, expected)
-    print "Open as string test worked."
+    print("Open as string test worked.")
     # Now with a URL object.
     test_file = components.classes[URIFile._reg_contractid_].createInstance(URIFile._com_interfaces_[0])
     test_file.initURI( url, "r")
     _DoTestRead( test_file, expected)
-    print "Open as URL test worked."
+    print("Open as URL test worked.")
 
     # For the sake of testing, do our pointless, demo object!
     
     test_file = components.classes[LocalFile._reg_contractid_].createInstance(LocalFile._com_interfaces_[0])
     test_file.init(fname, "r")
     _DoTestRead( test_file, expected )
-    print "Local file read test worked."
+    print("Local file read test worked.")
 
     # Now do the full test of our pointless, demo object!
     _TestLocalFile()
@@ -324,13 +326,13 @@ def _TestAll():
 
 def _TestURI(url):
     test_file = URIFile(url)
-    print "Opened file is", test_file
+    print("Opened file is", test_file)
     got = test_file.read(-1)
-    print "Read %d bytes of data from %r" % (len(got), url)
+    print("Read %d bytes of data from %r" % (len(got), url))
     test_file.close()
 
 if __name__=='__main__':
-    print "Performing self-test"
+    print("Performing self-test")
     _TestAll()
     
     if filename_to_check_after_shutdown is not None:
@@ -341,7 +343,7 @@ if __name__=='__main__':
 
     if filename_to_check_after_shutdown is not None:
         if os.path.exists(filename_to_check_after_shutdown):
-            raise RuntimeError, "The delete-temp-files-on-shutdown trick did not delete the temp file!"
+            raise RuntimeError("The delete-temp-files-on-shutdown trick did not delete the temp file!")
 
     if _xpcom._GetInterfaceCount() or _xpcom._GetGatewayCount():
-            print "Warning - exiting with", _xpcom._GetInterfaceCount(), "interfaces and", _xpcom._GetGatewayCount(), "gateways!!"
+            print("Warning - exiting with", _xpcom._GetInterfaceCount(), "interfaces and", _xpcom._GetGatewayCount(), "gateways!!")
