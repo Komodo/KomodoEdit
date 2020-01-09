@@ -662,8 +662,10 @@ this.promptKomodoUpgrade = () =>
     if (ko.prefs.getBoolean(dontBotherPref, false))
         return;
 
+    ko.prefs.setBoolean(dontBotherPref, true);
+
     var w = require("ko/windows").getMain();
-    var dialog = w.openDialog("chrome://komodo/content/empty.xul?name=versioncheck", "Komodo IDE now FREE!", "modal=true,width=600,height=800,resizable=0");
+    var dialog = w.openDialog("chrome://komodo/content/empty.xul?name=versioncheck", "Komodo IDE now FREE!", "modal=true,width=600,height=700,resizable=0");
     var $ = require("ko/dom");
 
     dialog.addEventListener("DOMContentLoaded", (e) =>
@@ -675,26 +677,7 @@ this.promptKomodoUpgrade = () =>
 
         var de = $(dialog.document.documentElement);
         var browser = $("<browser>").attr({src: "chrome://komodo/content/upgrade.html", flex: 1, type: "content"});
-        var hbox = $("<hbox>").attr({ align: "center", pack: "center" });
-        var ok = $("<button>").attr({ label: "Get Your Copy", class: "primary" });
-        var cancel = $("<button>").attr({ label: "Not Interested" });
         de.append(browser);
-        de.append(hbox);
-        hbox.append(ok);
-        hbox.append(cancel);
-
-        ok.on("command", () =>
-        {
-            var moreInfoUrl = ko.prefs.getString("upgrade.ide.url");
-            ko.browse.openUrlInDefaultBrowser(moreInfoUrl);
-            dialog.close();
-        });
-
-        cancel.on("command", () =>
-        {
-            ko.prefs.setBoolean(dontBotherPref, true);
-            dialog.close();
-        });
 
         browser.on("DOMContentLoaded", () =>
         {
