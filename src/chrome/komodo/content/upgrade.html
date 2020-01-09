@@ -11,89 +11,96 @@
         font-family: 'Open Sans', sans-serif;
     }
     body {
-        text-align: center;
+        text-align: left;
         font-size: 16px;
+        margin: 0;
+        padding: 0 20px 20px;
+    }
+    .get-copy {
+        color: white;
+        display: inline-block;
+        margin: 10px 0;
+        padding: 12px 15px;
+        border-radius: 3px;
+        text-decoration: none;
+    }
+    .get-copy:hover {
+        text-decoration: underline;
+        opacity: .9;
     }
     h1 {
+        margin: 0;
+    }
+    .big {
+        border-radius: 4px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    .big h4 {
+        margin: 0 0 0 0;
+        padding: 0;
+    }
+    .big p {
         margin-bottom: 0;
     }
-    li {
-        text-align: left;
-    }
-    ul.big {
+    .big ul {
         display: inline-block; 
-        margin: 16px auto; 
+        margin: 10px 0 15px 20px;
+        margin-bottom: 0;
         padding: 0;
+    }
+    .big ul li {
+        margin: 0 4px 0 0;
     }
     ul.small {
         padding-left: 20px;
+        margin-top: 0;
     }
     ul.small li {
         width: calc(50% - 40px);
-        margin: 0 20px;
+        margin: 0 0 3px 0;
         float: left;
         font-size: 14px;
+        white-space: nowrap;
     }
     </style>
 </head>
 <body id="upgradeKomodo">
-
     <div>
-        <h1>Komodo IDE is now FREE!</h1>
-        <p><a href="https://platform.activestate.com/dev-tools#komodo">Get Your Copy Today!</a></p>
+        <h1>Komodo IDE&mdash;the big sister to<br/>Komodo Edit&mdash;is now free!</h1>
+        <p>
+            <strong><a class="get-copy primary" href="https://platform.activestate.com/dev-tools?utm_source=Komodo&utm_medium=Button&utm_content=komodo-12-message&utm_campaign=komodo-12-download-button#komodo">Download your copy today</a></strong>
+        </p>
     </div>
     <div>
         <p>
-            Upgrade to Komodo IDE and receive the following features for free:
+            Take advantage of the many benefits of the IDE, including...
         </p>
-        <ul class="big">
-            <li>
-                <strong>ActiveState Platform Integration</strong>
-                <ul>
-                    <li>Sandboxed Dev Environments</li>
-                    <li>Dependency Management</li>
-                    <li>Secret Management</li>
-                    <li>Script Automation</li>
-                    <li><a href="https://docs.activestate.com/komodo/12/state-integration">Find out More</a></li>
-                </ul>
-            </li>
-        </ul>
+        <div class="big bordered">
+            <h4>ActiveState Platform Integration</h4>
+            <ul>
+                <li>Sandboxed developement environments</li>
+                <li>Automatic dependency resolution</li>
+                <li>Secure secret management</li>
+                <li>Cross-platform script automation</li>
+            </ul>
+            <p><a href="https://docs.activestate.com/komodo/12/state-integration/?utm_source=Komodo&utm_medium=Link&utm_content=komodo-12-message&utm_campaign=komodo-12-platform-link">Find out More</a></p>
+        </div>
+        <p>And many powerful features, including...</p>
         <ul class="small">
             <li>Unit Testing</li>
-            <li>Print Debugging</li>
-            <li>Live Previewing</li>
-            <li>Project Wizard</li>
-            <li>Dependency Detector</li>
-            <li>Universal Package Manager</li>
-            <li>Clipboard Manager</li>
-            <li>Slack Sharing</li>
-            <li>Tutorials</li>
-            <li>Chrome Debugging</li>
-            <li>Gulp, Grunt, NPM, Yarn Integration</li>
-            <li>PhoneGap & Cordova Integration</li>
-            <li>Symbol Browser</li>
-            <li>Run In-Line Tool</li>
-            <li>Docker Integration</li>
-            <li>Vagrant Integration</li>
-            <li>Shell Scope</li>
-            <li>Custom Workspaces</li>
-            <li>Track Changes with VCS</li>
-            <li>Code Refactoring</li>
-            <li>Code Browser</li>
             <li>Visual Debugging</li>
+            <li>Chrome Debugging</li>
+            <li>NPM, Yarn Integration</li>
+            <li>Symbol Browser</li>
+            <li>Docker Integration</li>
             <li>RegEx Toolkit</li>
-            <li>HTTP Inspector</li>
             <li>VCS Integration</li>
             <li>Database Explorer</li>
             <li>Interactive Shells (REPL)</li>
-            <li>Publishing</li>
+            <li>Code Publishing</li>
             <li>Real-Time Code Collaboration</li>
         </ul>
-        <div style="clear: both"></div>
-        <ul>
-            <li>And Much More ..</li>
-        </ul>
     </div>
-    
 </body>
 </html>
