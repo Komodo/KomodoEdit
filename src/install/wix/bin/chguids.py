@@ -49,9 +49,9 @@ from os.path import exists
 import shutil
 
 def new_guid():
-    import pythoncom
-    guid = str(pythoncom.CreateGuid())
-    guid = guid[1:-1] # strip of the {}'s
+    import uuid
+    guid = str(uuid.uuid4())
+    # guid = guid[1:-1] # strip of the {}'s
     return guid
 
 
@@ -63,7 +63,7 @@ def main():
         original = content = fin.read()
         fin.close()
         # E.g.: Guid="32A46AA4-051B-4574-A6B2-E7B3C7666CB6"
-        pattern = re.compile('Guid="([0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12})"')
+        pattern = re.compile('"([0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12})"')
         for match in pattern.finditer(content):
             start, end = match.start(1), match.end(1)
             guid = new_guid()
