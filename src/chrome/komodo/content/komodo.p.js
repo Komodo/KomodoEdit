@@ -263,6 +263,8 @@ this._onDOMWindowClose = function(event) {
         saveWorkspaceIfNeeded("window-close");
     }
     ko.main.runWillCloseHandlers();
+    ko.prefs.setBooleanPref("komodo_normal_shutdown", true);
+
     window.removeEventListener("DOMWindowClose", ko.main._onDOMWindowClose, true);
     _log.debug("<< ko.main._onDOMWindowClose");
 }
