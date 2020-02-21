@@ -979,7 +979,7 @@ class PHPTreeEvaluator(TreeEvaluator):
                             new_hit, nconsumed \
                                 = self._hit_from_getattr(remaining_tokens, elem, scoperef, ignore_attrs=parent_lookup)
                             ## if is function and return is in (this, ) return initial class
-                            if new_hit[0].get("ilk") == "function" and new_hit[0].get("returns") in ("this",):
+                            if new_hit[0].get("ilk") == "function" and new_hit[0].get("returns") in ("this", "static",):
                                 nconsumed = 2
                                 new_hit = hit
                                 if self.trg.form == TRG_FORM_CALLTIP and len(remaining_tokens) <= 1:
