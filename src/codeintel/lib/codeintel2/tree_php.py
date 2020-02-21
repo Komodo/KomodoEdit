@@ -1504,7 +1504,7 @@ class PHPTreeEvaluator(TreeEvaluator):
                          "class: %r?", first_token, classref)
                 base_elem, base_scoperef \
                     = self._hit_from_citdl(classref, scoperef)
-                if base_elem is not None and base_elem.get("ilk") in ("class", "trait"):
+                if base_elem is not None and base_elem.get("ilk") in ("class", "trait", "interface"):
                     self.log("_hit_from_getattr:: is '%s' from %s base %s?",
                              first_token, base_elem, base_elem.get("ilk"))
                     try:
