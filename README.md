@@ -65,7 +65,7 @@ guide check [BUILD.txt](BUILD.txt).
    * Once installed remove the wget and hg directories
    * Download version 2.2.0 and install it to a temp directory, then copy the wget directory from 2.2 to the 1.9 install directory
 
- * Install the [latest ActivePerl](http://downloads.activestate.com/ActivePerl/releases/).
+ * Install the Perl <= 5.22
 
  * Install Mercurial
 
