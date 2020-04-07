@@ -1,26 +1,26 @@
 #!python
 # ***** BEGIN LICENSE BLOCK *****
 # Version: MPL 1.1/GPL 2.0/LGPL 2.1
-# 
+#
 # The contents of this file are subject to the Mozilla Public License
 # Version 1.1 (the "License"); you may not use this file except in
 # compliance with the License. You may obtain a copy of the License at
 # http://www.mozilla.org/MPL/
-# 
+#
 # Software distributed under the License is distributed on an "AS IS"
 # basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
 # License for the specific language governing rights and limitations
 # under the License.
-# 
+#
 # The Original Code is Komodo code.
-# 
+#
 # The Initial Developer of the Original Code is ActiveState Software Inc.
 # Portions created by ActiveState Software Inc are Copyright (C) 2000-2007
 # ActiveState Software Inc. All Rights Reserved.
-# 
+#
 # Contributor(s):
 #   ActiveState Software Inc
-# 
+#
 # Alternatively, the contents of this file may be used under the terms of
 # either the GNU General Public License Version 2 or later (the "GPL"), or
 # the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
@@ -32,7 +32,7 @@
 # and other provisions required by the GPL or the LGPL. If you do not delete
 # the provisions above, a recipient may use your version of this file under
 # the terms of any one of the MPL, the GPL or the LGPL.
-# 
+#
 # ***** END LICENSE BLOCK *****
 
 """
@@ -87,7 +87,7 @@ def _localTmpFileName():
     # Keep in mind that the pylint section strips out complains about
     # modules whose names start with '#'
     args = {'suffix':".py", 'prefix':"#"}
-    
+
     # There are problems with the safer versions of tempfile:
     # tempfile.mkstemp returns an os-level file descriptor integer,
     # and using os.fdopen(fd, 'w') didn't create a writable object.
@@ -99,11 +99,11 @@ def _localTmpFileName():
     # when I try to write to them.
     # written up at http://bugs.python.org/issue11818
     tmpFileName = tempfile.mktemp(**args)
-    
+
     # Open files in binary mode. On windows, if we open in default text mode
     # CR/LFs  => CR/CR/LF, extra CR in each line.  Lines then get the wrong
     # line # reported with each message.
-     
+
     # Related to bug97364: if we can't open the temporary file,
     # just throw the exception. Something is very wrong if this happens.
     fout = open(tmpFileName, 'wb')
@@ -163,7 +163,7 @@ class KoPythonCommonPyLintChecker(_GenericPythonLinter):
         if not hasattr(self, "_pylint_version"):
             # Fallback:
             self._pylint_version = 1
-        
+
     def lint_with_text(self, request, text):
         if not text:
             return None
@@ -214,7 +214,7 @@ class KoPythonCommonPyLintChecker(_GenericPythonLinter):
                         f.close()
                 if usePreferredLineWidth:
                     extraArgs.append("--max-line-length=%d" % preferredLineWidth)
-    
+
             baseArgs = [pythonExe, '-c', 'import sys; from pylint.lint import Run; Run(sys.argv[1:])']
             cmd = baseArgs + ["-f", "text", "-r", "n"] + extraArgs
             if self._pylint_version == 1:
@@ -293,7 +293,7 @@ class KoPythonCommonPyLintChecker(_GenericPythonLinter):
                     continue
                 koLintResult.createAddResult(results, textlines, severity, lineNo, desc)
         return results
-    
+
     def _createShouldMatchPtn(self, pseudoPtn):
         fixedPtn = pseudoPtn.replace("(", "(?:")
         try:
@@ -322,7 +322,7 @@ class KoPython3PyLintChecker(KoPythonCommonPyLintChecker):
          ]
     lint_prefname = "lint_python3_with_pylint3"
     rcfile_prefname = "pylint3_checking_rcfile"
-    
+
 class KoPythonCommonPep8Checker(_GenericPythonLinter):
     def lint_with_text(self, request, text):
         if not text:
@@ -375,7 +375,7 @@ class KoPythonCommonPep8Checker(_GenericPythonLinter):
                         f.close()
                 if usePreferredLineWidth:
                     extraArgs.append("--max-line-length=%d" % preferredLineWidth)
-    
+
             cmd += extraArgs
             cmd.append(tmpfilename)
             cwd = request.cwd or None
@@ -383,7 +383,10 @@ class KoPythonCommonPep8Checker(_GenericPythonLinter):
             try:
                 p = process.ProcessOpen(cmd, cwd=cwd, env=env, stdin=None)
                 stdout, stderr = p.communicate()
-                if stderr.strip():
+                # pep8 returns 1 if syntax errors were found, 0 otherwise.
+                # If pep8 returns something else, this means that a runtime
+                # error occured
+                if p.returncode not in [0, 1]:
                     pathMessageKey = "%s-%s" % (request.koDoc.displayPath, stderr)
                     _complainIfNeeded(pathMessageKey,
                                       "Error in pep8: %s", stderr)
@@ -449,7 +452,7 @@ class KoPythonCommonPyflakesChecker(_GenericPythonLinter):
                                       columnStart=1,
                                       columnEnd=columnEnd)
                 results.addResult(result)
-        
+
     def lint_with_text(self, request, text):
         if not text:
             return None
@@ -478,7 +481,7 @@ class KoPythonCommonPyflakesChecker(_GenericPythonLinter):
             #  foo/
             #    __init__.py  - an "from foo import bar" in this file will break
             env = self._get_fixed_env(prefset, cwd=None)
-            
+
             cmd = [pythonExe, checkerExe, tmpfilename]
             # stdout for pyflakes.checker.Checker
             # stderr for __builtin__.compile()
@@ -533,7 +536,7 @@ class KoPythonCommonPycheckerLinter(_GenericPythonLinter):
     Instead of checking your Python code using pylinter,
       this one lints    your Python code using pychecker.
     """
-        
+
     def lint_with_text(self, request, text):
         if not text:
             return None
@@ -562,7 +565,7 @@ class KoPythonCommonPycheckerLinter(_GenericPythonLinter):
                 extraArgs = [ '--config=%s' % (rcfilePath,) ]
             else:
                 extraArgs = []
-                
+
             cmd = [pychecker, "--keepgoing", "--only"] + extraArgs + [tmpfilename]
             cwd = request.cwd or None
             # We only need the stdout result.
@@ -643,7 +646,7 @@ class KoPythonCommonLinter(_GenericPythonLinter):
 
     def _buildResult(self, resultDict, leadingWS):
         """Convert a pycompile.py output resultDict to a KoILintResult.
-        
+
         A pycompile.py dict looks like this:
             {'description': 'SyntaxError: invalid syntax',
              'filename': 'foo.py',
@@ -758,14 +761,14 @@ class KoPythonCommonLinter(_GenericPythonLinter):
             fout, tmpFileName = _localTmpFileName()
             fout.write(text)
             fout.close()
-    
+
             results = koLintResults()
             try:
                 argv = [python, '-u', compilePy, tmpFileName]
                 #print "---- check syntax of the following with %r" % argv
                 #sys.stdout.write(text)
                 #print "-"*70
-    
+
                 env = self._get_fixed_env(prefset)
                 if sys.platform.startswith("win") and cwd is not None\
                    and cwd.startswith("\\\\"):
@@ -777,7 +780,7 @@ class KoPythonCommonLinter(_GenericPythonLinter):
                     #     run via "cmd.exe /c", but don't know if that would
                     #     help either.
                     cwd = None
-                
+
                 p = process.ProcessOpen(argv, cwd=cwd, env=env, stdin=None)
                 output, error = p.communicate()
                 retval = p.returncode
