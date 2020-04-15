@@ -16,7 +16,8 @@ the entire project.
 - [Feedback](#feedback)
 - [Building Komodo](#building-komodo)
     - [Building on Windows](#building-on-windows)
-    - [Building on Mac & Linux](#building-on-mac-and-linux)
+    - [Building on Mac](#building-on-mac)
+    - [building on Linux](building-on-linux)
     - [Building with Docker](#building-with-docker)
     - [Building Complications](#building-complications)
 
@@ -43,9 +44,8 @@ IRC: <irc://irc.mozilla.org/#komodo>
 Mailing Lists: [komodo-discuss](http://code.activestate.com/lists/komodo-discuss/) & [komodo-beta](http://code.activestate.com/lists/komodo-beta/) & [komodo-announce](http://code.activestate.com/lists/komodo-announce/)
 
 ## Building Komodo
-
 Note that these are simplified steps of the building process, for a more in-depth
-guide check [BUILD.txt](BUILD.txt).
+guide check (outdated) [BUILD.txt](docs/BUILD.txt). 
 
 ### Building on Windows
 
@@ -108,13 +108,9 @@ Upon making any modifications to the source you will again have to run `bk build
 or simply `bk build && bk run` to quickly get back into Komodo. Subsequent builds
 should be a lot faster as much of the compiled data is cached.
 
-### Building on Mac and Linux
+### Building on Mac
 
 - [Mac Prerequisites](#mac-prerequisites)
-- [Linux Prerequisites](#linux-prerequisites)
-    - [Ubuntu](#ubuntu)
-    - [Fedora](#fedora)
-    - [Others](#others)
 - [Building Steps](#building-steps-1)
 
 #### Mac Prerequisites
@@ -160,27 +156,6 @@ under Xcode 8 using a new extra steps.
  * Ensure you are using ccache 3.1 (later versions will break)
  * Configure Mozilla with `--options=disable-webrtc`
 
-#### Linux Prerequisites
-
- * Subversion if it's not already installed. Installing from package installers such as apt-get on Ubuntu or yum on Redhat/Fedora is ok.
-
-##### Ubuntu
-
-  `sudo apt-get build-dep firefox`
-
-##### Fedora
-
-  `sudo yum install gcc-c++ patch gtk2-devel libIDL-devel libcurl-devel`
-
-##### Others
-
- * Python >=2.7 (but not Python 3.x yet). You can
-   [install ActivePython from here](http://downloads.activestate.com/ActivePython/releases).
-
-   If you prefer, your distro's Python 2.7 should be sufficient.
-
- * Everything mentioned in the
-   [Mozilla Linux build prerequisites](http://developer.mozilla.org/en/docs/Linux_Build_Prerequisites): 
 
 #### Building Steps
 
@@ -269,6 +244,12 @@ under Xcode 8 using a new extra steps.
 Upon making any modifications to the source you will again have to run `bk build`,
 or simply `bk build && bk run` to quickly get back into Komodo. Subsequent builds
 should be a lot faster as much of the compiled data is cached.
+
+### Building on Linux
+[Linux instructions](docs/Linux_build_guide.md)
+<br />
+<br />
+
 
 ### Building with Docker
 
