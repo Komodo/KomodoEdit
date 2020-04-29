@@ -39,7 +39,7 @@ sudo apt install git zip unzip subversion autoconf2.13 \
 ### STEP 2 Download repo and configure Mozilla
 
 ```
-git clone https://github.com/Komodo/KomodoEdit.git
+git clone https://github.com/Komodo/KomodoEdit.git --branch master --single-branch --depth 1
 cd KomodoEdit/mozilla
 python build.py configure --gcc gcc --gxx g++-4.9 -k 12.10
 ```
