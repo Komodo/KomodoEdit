@@ -210,7 +210,7 @@ cd .. # go back to main repo directory
 export PATH=`pwd`/util/black:$PATH   # Komodo's "bk" build tool
 git submodule update --init
 git submodule update --remote
-bk configure -V 12.10.0-devel
+bk configure -V 12.10.0-devel --komodo-buildnum=12
 bk build
 ```
 
