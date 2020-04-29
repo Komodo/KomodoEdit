@@ -95,18 +95,26 @@ Error `nsLocalFileUnix.cpp:1397:46: error: ‘minor’ was not declared in this 
 ```
 # fix
 ./build/moz3500-ko12.10/mozilla/xpcom/io/nsLocalFileUnix.cpp
-@@ -1393,9 +1393,7 @@ nsLocalFile::GetDiskSpaceAvailable(int64_t* aDiskSpaceAvailable)
-   }
- 
-   nsCString deviceName;
--  if (!GetDeviceName(major(mCachedStat.st_dev),
--                     minor(mCachedStat.st_dev),
--                     deviceName)) {
-+  if (false) {
-     return NS_OK;
-   }
-# probably not the best fix.
+@@ -13,6 +13,7 @@
+ #include <sys/types.h>
+ #include <sys/stat.h>
++#include <sys/sysmacros.h>
+ #include <unistd.h>
+ #include <fcntl.h>
+ #include <errno.h>
+
+
+./build/moz3500-ko12.10/mozilla/config/system-headers
+@@ -1073,6 +1073,7 @@
+ sys/syscall.h
+ sys/sysctl.h
+ sys/sysinfo.h
++sys/sysmacros.h
+ sys/sysmp.h
+ sys/syssgi.h
+ sys/system_properties.h
 ```
+clear cache to avoid binutils error `run python build.py clean`
 <br />
 <br />
 
