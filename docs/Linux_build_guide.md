@@ -175,12 +175,12 @@ Error`exception_handler.cc error: field ‘context’ has incomplete type ‘goo
    }
    CrashContext context;
    memcpy(&context.siginfo, info, sizeof(siginfo_t));
--  memcpy(&context.context, uc, sizeof(struct ucontext_t));
-+  memcpy(&context.context, uc, sizeof(struct ucontext));
+-  memcpy(&context.context, uc, sizeof(struct ucontext));
++  memcpy(&context.context, uc, sizeof(struct ucontext_t));
  #if !defined(__ARM_EABI__)
    // FP state is not part of user ABI on ARM Linux.
--  struct ucontext_t *uc_ptr = (struct ucontext_t*)uc;
-+  struct ucontext *uc_ptr = (struct ucontext*)uc;
+-  struct ucontext *uc_ptr = (struct ucontext*)uc;
++  struct ucontext_t *uc_ptr = (struct ucontext_t*)uc;
    if (uc_ptr->uc_mcontext.fpregs) {
      memcpy(&context.float_state,
             uc_ptr->uc_mcontext.fpregs,
@@ -188,8 +188,8 @@ Error`exception_handler.cc error: field ‘context’ has incomplete type ‘goo
    // ExceptionHandler::HandleSignal().
    siginfo.si_code = SI_USER;
    siginfo.si_pid = getpid();
--  struct ucontext_t context;
-+  struct ucontext context;
+-  struct ucontext context;
++  struct ucontext_t context;
    getcontext(&context);
    return HandleSignal(sig, &siginfo, &context);
  }
