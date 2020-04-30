@@ -8,6 +8,8 @@
 - git
 - zip
 - unzip
+- wget
+- mercurial
 - subversion
 - libgtk-2-dev
 - libdbus-glib-1-dev
@@ -20,7 +22,7 @@
 
 Debian
 ```
-sudo apt install git zip unzip subversion autoconf2.13 \
+sudo apt install git zip unzip wget mercurial subversion autoconf2.13 \
 	libgtk2.0-dev libdbus-glib-1-dev yasm libasound2-dev \
 	libpulse-dev libxt-dev
 ```
