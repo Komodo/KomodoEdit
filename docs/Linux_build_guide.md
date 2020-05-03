@@ -84,7 +84,7 @@ Error `exception_handler.h:192:21: error: field ‘context’ has incomplete typ
      siginfo_t siginfo;
      pid_t tid;  // the crashing thread.
 -    struct ucontext context;
-+    struct ucontext_t context;
++    ucontext_t context;
  #if !defined(__ARM_EABI__)
      // #ifdef this out because FP state is not part of user ABI for Linux ARM.
      struct _libc_fpstate float_state;
@@ -158,7 +158,7 @@ Error `minidump_writer.cc:276:56: error: ‘ucontext’ does not name a type`
    const char* path_;  // Path to the file where the minidum should be written.
  
 -  const struct ucontext* const ucontext_;  // also from the signal handler
-+  const struct ucontext_t* const ucontext_;  // also from the signal handler
++  const ucontext_t* const ucontext_;  // also from the signal handler
    const struct _libc_fpstate* const float_state_;  // ditto
    LinuxDumper* dumper_;
    MinidumpFileWriter minidump_writer_;
@@ -182,7 +182,7 @@ Error`exception_handler.cc error: field ‘context’ has incomplete type ‘goo
  #if !defined(__ARM_EABI__)
    // FP state is not part of user ABI on ARM Linux.
 -  struct ucontext *uc_ptr = (struct ucontext*)uc;
-+  struct ucontext_t *uc_ptr = (struct ucontext_t*)uc;
++  ucontext_t *uc_ptr = (ucontext_t*)uc;
    if (uc_ptr->uc_mcontext.fpregs) {
      memcpy(&context.float_state,
             uc_ptr->uc_mcontext.fpregs,
@@ -191,7 +191,7 @@ Error`exception_handler.cc error: field ‘context’ has incomplete type ‘goo
    siginfo.si_code = SI_USER;
    siginfo.si_pid = getpid();
 -  struct ucontext context;
-+  struct ucontext_t context;
++  ucontext_t context;
    getcontext(&context);
    return HandleSignal(sig, &siginfo, &context);
  }
