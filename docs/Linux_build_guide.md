@@ -17,6 +17,7 @@
 - libasound2-dev
 - libpulse-dev
 - libxt-dev
+- autoconf2.13
 
 <br />
 
@@ -24,13 +25,12 @@ Debian
 ```
 sudo apt install git zip unzip wget mercurial subversion autoconf2.13 \
 	libgtk2.0-dev libdbus-glib-1-dev yasm libasound2-dev \
-	libpulse-dev libxt-dev
+	libpulse-dev libxt-dev autoconf2.13
 ```
 <br />
 
 
 #### SPECIAL DEPENDENCIES
-- autoconf2.13 `There should be a package for this on most distros.`
 - perl-5.22.4     `I recommend using perlbrew.`
 - g++-4.9   `You have to find this on your own.`
 
