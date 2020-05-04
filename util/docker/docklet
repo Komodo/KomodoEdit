@@ -1,7 +1,5 @@
 #!/bin/bash
 
-CURRENT_VERSION=12.10
-
 # Default docker image to use.
 if [ -z "$DOCKER_IMAGE_NAME" ]; then
     DOCKER_IMAGE_NAME="komodo"
@@ -155,14 +153,9 @@ function build-quick {
 }
 
 function run {
-    version=$1
-    if [ -z "${version}" ]
-    then
-        version=${CURRENT_VERSION}
-    fi
     cd $KOPATH
     # https://askubuntu.com/questions/1184774/some-applications-on-ubuntu-19-10-very-slow-to-start
-    dbus-launch --exit-with-session ./mozilla/build/moz3500-ko${version}/mozilla/ko-rel/dist/bin/komodo # Todo: auto-detect path
+    dbus-launch --exit-with-session ./mozilla/build/moz3500-ko12.10/mozilla/ko-rel/dist/bin/komodo # Todo: auto-detect path
     pkill -f "dbus-daemon --syslog --fork"
     pkill -f "dbus-launch --exit-with-session"
 }
@@ -235,12 +228,7 @@ while true; do
             shift
             ;;
         run)
-            version=""
-            if [ "$2" == "--version" ]; then
-                version=$3
-                shift 2
-            fi
-            run $version
+            run
             shift
             ;;
         image)
