@@ -37,10 +37,10 @@ TestPylint.prototype.setUp = function TestPylint_setUp() {
       lint_python_with_standard_python: this.globalPrefs.getBooleanPref("lint_python_with_standard_python"),
       lint_python3_with_standard_python: this.globalPrefs.getBooleanPref("lint_python3_with_standard_python"),
       lint_python_with_pyflakes: this.globalPrefs.getBooleanPref("lint_python_with_pyflakes"),
-      lint_python_with_pep8: this.globalPrefs.getBooleanPref("lint_python_with_pep8"),
+      lint_python_with_pycodestyle: this.globalPrefs.getBooleanPref("lint_python_with_pycodestyle"),
       lint_python_with_pychecker: this.globalPrefs.getBooleanPref("lint_python_with_pychecker"),
       lint_python3_with_pyflakes3: this.globalPrefs.getBooleanPref("lint_python3_with_pyflakes3"),
-      lint_python3_with_pep83: this.globalPrefs.getBooleanPref("lint_python3_with_pep83"),
+      lint_python3_with_pycodestyle3: this.globalPrefs.getBooleanPref("lint_python3_with_pycodestyle3"),
       lint_python3_with_pychecker3: this.globalPrefs.getBooleanPref("lint_python3_with_pychecker3")
     };
     this.origStringPrefs = {

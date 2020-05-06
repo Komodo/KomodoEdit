@@ -323,12 +323,12 @@ class KoPython3PyLintChecker(KoPythonCommonPyLintChecker):
     lint_prefname = "lint_python3_with_pylint3"
     rcfile_prefname = "pylint3_checking_rcfile"
 
-class KoPythonCommonPep8Checker(_GenericPythonLinter):
+class KoPythonCommonPycodestyleChecker(_GenericPythonLinter):
     def lint_with_text(self, request, text):
         if not text:
             return None
         prefset = request.prefset
-        # if not prefset.getBooleanPref("lintPythonWithPep8"): return
+        # if not prefset.getBooleanPref("lintPythonWithPycodestyle"): return
         if not prefset.getBooleanPref(self.lint_prefname):
             return
         pythonExe = self._pythonInfo.getExecutableFromPrefs(prefset)
@@ -342,7 +342,7 @@ class KoPythonCommonPep8Checker(_GenericPythonLinter):
             fout.close()
             textlines = text.splitlines()
             env = self._get_fixed_env(prefset, cwd)
-            cmd = [pythonExe, '-m', 'pep8']
+            cmd = [pythonExe, '-m', 'pycodestyle']
             checkRCFile = False
             rcfilePath = prefset.getStringPref(self.rcfile_prefname)
             if rcfilePath and os.path.exists(rcfilePath):
@@ -350,11 +350,11 @@ class KoPythonCommonPep8Checker(_GenericPythonLinter):
                 checkRCFile = True
             else:
                 extraArgs = []
-                # default location: ~/.pep8
+                # default location: ~/.pycodestyle
                 homeDir = os.path.expanduser("~")
-                rcfilePath = os.path.join(homeDir, ".pep8")
+                rcfilePath = os.path.join(homeDir, ".pycodestyle")
                 if not os.path.exists(rcfilePath):
-                    rcfilePath = os.path.join(homeDir, ".config", "pep8")
+                    rcfilePath = os.path.join(homeDir, ".config", "pycodestyle")
                 checkRCFile = os.path.exists(rcfilePath)
             preferredLineWidth = prefset.getLongPref("editAutoWrapColumn")
             if preferredLineWidth > 0:
@@ -383,13 +383,13 @@ class KoPythonCommonPep8Checker(_GenericPythonLinter):
             try:
                 p = process.ProcessOpen(cmd, cwd=cwd, env=env, stdin=None)
                 stdout, stderr = p.communicate()
-                # pep8 returns 1 if syntax errors were found, 0 otherwise.
-                # If pep8 returns something else, this means that a runtime
+                # pycodestyle returns 1 if syntax errors were found, 0 otherwise.
+                # If pycodestyle returns something else, this means that a runtime
                 # error occured
                 if p.returncode not in [0, 1]:
                     pathMessageKey = "%s-%s" % (request.koDoc.displayPath, stderr)
                     _complainIfNeeded(pathMessageKey,
-                                      "Error in pep8: %s", stderr)
+                                      "Error in pycodestyle: %s", stderr)
                     return
                 warnLines = stdout.splitlines(False) # Don't need the newlines.
             except:
@@ -404,35 +404,35 @@ class KoPythonCommonPep8Checker(_GenericPythonLinter):
             if m:
                 lineNo = int(m.group("lineNum"))
                 columnNum = int(m.group("columnNum"))
-                desc = "pep8: %s%s %s" % (m.group("status"),
+                desc = "pycodestyle: %s%s %s" % (m.group("status"),
                                           m.group("statusCode"),
                                           m.group("message"))
-                # Everything pep8 complains about is a warning, by definition
+                # Everything pycodestyle complains about is a warning, by definition
                 severity = koLintResult.SEV_WARNING
                 koLintResult.createAddResult(results, textlines, severity, lineNo, desc, columnStart=columnNum)
         return results
 
-class KoPythonPep8Checker(KoPythonCommonPep8Checker):
+class KoPythonPycodestyleChecker(KoPythonCommonPycodestyleChecker):
     language_name = "Python"
-    _reg_desc_ = "Komodo Python Pep8 Linter"
+    _reg_desc_ = "Komodo Python Pycodestyle Linter"
     _reg_clsid_ = "{1c51ad7e-2788-448d-80f4-db6465164cc9}"
-    _reg_contractid_ = "@activestate.com/koLinter?language=Python&type=pep8;1"
+    _reg_contractid_ = "@activestate.com/koLinter?language=Python&type=pycodestyle;1"
     _reg_categories_ = [
-         ("category-komodo-linter", 'Python&type=pep8'),
+         ("category-komodo-linter", 'Python&type=pycodestyle'),
          ]
-    lint_prefname = "lint_python_with_pep8"
-    rcfile_prefname = "pep8_checking_rcfile"
+    lint_prefname = "lint_python_with_pycodestyle"
+    rcfile_prefname = "pycodestyle_checking_rcfile"
 
-class KoPython3Pep8Checker(KoPythonCommonPep8Checker):
+class KoPython3PycodestyleChecker(KoPythonCommonPycodestyleChecker):
     language_name = "Python3"
-    _reg_desc_ = "Komodo Python3 Pep8 Linter"
+    _reg_desc_ = "Komodo Python3 Pycodestyle Linter"
     _reg_clsid_ = "{4eb876a9-818d-4d94-b490-837bc306492c}"
-    _reg_contractid_ = "@activestate.com/koLinter?language=Python3&type=pep8;1"
+    _reg_contractid_ = "@activestate.com/koLinter?language=Python3&type=pycodestyle;1"
     _reg_categories_ = [
-         ("category-komodo-linter", 'Python3&type=pep8'),
+         ("category-komodo-linter", 'Python3&type=pycodestyle'),
          ]
-    lint_prefname = "lint_python3_with_pep83"
-    rcfile_prefname = "pep83_checking_rcfile"
+    lint_prefname = "lint_python3_with_pycodestyle3"
+    rcfile_prefname = "pycodestyle3_checking_rcfile"
 
 
 class KoPythonCommonPyflakesChecker(_GenericPythonLinter):
