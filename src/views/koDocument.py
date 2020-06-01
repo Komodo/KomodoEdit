@@ -1721,7 +1721,7 @@ class koDocumentBase(object):
                 self.doAutoSave()
 
             try:
-                self.file.open('rb+')
+                self.file.open('wb+')
                 try:
                     self.file.write(data)
                 finally:
