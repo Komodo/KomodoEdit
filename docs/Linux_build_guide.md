@@ -204,7 +204,7 @@ Error`exception_handler.cc error: field ‘context’ has incomplete type ‘goo
 
 ### STEP 4 Build Komodo
 
-make sure your using perl-5.22.4 
+make sure you're using perl-5.22.4 
 `perl --version`
 
 ```
