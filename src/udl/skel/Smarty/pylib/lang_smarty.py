@@ -220,7 +220,8 @@ class SmartyLangIntel(LangIntel):
             ctlr.done("success")
             return
         elif trg.id == (lang, TRG_FORM_CPLN, "complete-vars"):
-            completions = [("variable", t) for t in self._get_smarty_vars(buf) ]
+            # Get variables, but remove dollar sign
+            completions = [("variable", t[1:]) for t in self._get_smarty_vars(buf) ]
             ctlr.set_cplns(completions)
             ctlr.done("success")
             return
