@@ -29,6 +29,19 @@
         <scope doc="ErrorException constructor" ilk="function" name="__construct" signature="__construct(string message, int code, int severity [, string filename [, int lineno [, Throwable previous]]])" src="zend_exceptions.c" />
         <scope doc="Get the exception severity" ilk="function" name="getSeverity" returns="int" signature="getSeverity()" src="zend_exceptions.c" />
       </scope>
+      <scope ilk="class" name="Throwable">
+        <scope doc="Clone the throwable object" ilk="function" name="__clone" returns="Throwable" signature="__clone()" src="zend_exceptions.c" />
+        <scope doc="Throwable constructor" ilk="function" name="__construct" signature="__construct(string message, int code [, Throwable previous])" src="zend_exceptions.c" />
+        <scope doc="Throwable unserialize checks" ilk="function" name="__wakeup" signature="__wakeup()" src="zend_exceptions.c" />
+        <scope doc="Get the file in which the throwable occurred" ilk="function" name="getFile" returns="string" signature="getFile()" src="zend_exceptions.c" />
+        <scope doc="Get the line in which the throwable occurred" ilk="function" name="getLine" returns="int" signature="getLine()" src="zend_exceptions.c" />
+        <scope doc="Get the throwable message" ilk="function" name="getMessage" returns="string" signature="getMessage()" src="zend_exceptions.c" />
+        <scope doc="Get the throwable code" ilk="function" name="getCode" returns="int" signature="getCode()" src="zend_exceptions.c" />
+        <scope doc="Get the stack trace for the location in which the throwable occurred" ilk="function" name="getTrace" returns="array" signature="getTrace()" src="zend_exceptions.c" />
+        <scope doc="Obtain the backtrace for the throwable as a string instead of an array" ilk="function" name="getTraceAsString" returns="string" signature="getTraceAsString()" src="zend_exceptions.c" />
+        <scope doc="Return previous Throwable or NULL" ilk="function" name="getPrevious" returns="Throwable" signature="getPrevious()" src="zend_exceptions.c" />
+        <scope doc="Obtain the string representation of the Throwable object" ilk="function" name="__toString" returns="string" signature="__toString()" src="zend_exceptions.c" />
+      </scope>
       <scope ilk="class" name="Closure">
         <scope doc="Call closure binding to a given object with its class&#xA;as the scope" ilk="function" name="call" returns="mixed" signature="call(object to [, mixed parameter] [, mixed ...] )" src="zend_closures.c" />
         <scope doc="Create a closure from another one and bind to another&#xA;object and scope" ilk="function" name="bind" returns="Closure" signature="bind(callable old, object to [, mixed scope])" src="zend_closures.c" />
