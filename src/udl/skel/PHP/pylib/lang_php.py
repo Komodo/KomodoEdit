@@ -261,6 +261,8 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
                         return Trigger(lang, TRG_FORM_CPLN, "interfaces", pos, implicit)
                     elif text in ("use", ):
                         return Trigger(lang, TRG_FORM_CPLN, "use", pos, implicit)
+                    elif text in ("namespace", ):
+                        return Trigger(lang, TRG_FORM_CPLN, "namespace", pos, implicit)
                     elif text in ("function", "const"):
                         # Check for a "use function" or "use const" expression.
                         p, ch, style = ac.getPrevPosCharStyle(ignore_styles=self.comment_styles)
@@ -327,9 +329,6 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
                         return Trigger(lang, TRG_FORM_CALLTIP, "call-signature",
                                        pos, implicit)
                 elif last_char == "\\":
-                    # Ensure does not trigger when defining a new namespace,
-                    # i.e., do not trigger for:
-                    #      namespace foo\<|>
                     style = last_style
                     while style in (self.operator_style, self.identifier_style):
                         p, c, style = ac.getPrecedingPosCharStyle(style, max_look_back=30)
@@ -353,7 +352,12 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
                             print "Triggering use-namespace completion with ilk %r" % (prev_text[1])
                         return Trigger(lang, TRG_FORM_CPLN, "use-namespace",
                                        pos, implicit, ilk=prev_text[1])
-                    elif prev_text[1] != "namespace":
+                    elif prev_text[1] == "namespace":
+                        if DEBUG:
+                            print "Triggering namespace-subspaces completion"
+                        return Trigger(lang, TRG_FORM_CPLN, "namespace-subspaces",
+                                       pos, implicit)
+                    else:
                         if DEBUG:
                             print "Triggering namespace completion"
                         return Trigger(lang, TRG_FORM_CPLN, "namespace-members",
@@ -912,8 +916,11 @@ class PHPLangIntel(CitadelLangIntel, ParenStyleCalltipIntelMixin,
                 i = trg.extra.get("bracket_pos")   # triggered on foo['
             elif trg.type == "use":
                 i = trg.pos + 1
+            elif trg.type == "namespace":
+                i = trg.pos + 1
             elif trg.type == "namespace-members" or \
-                 trg.type == "use-namespace":
+                 trg.type == "use-namespace" or \
+                 trg.type == "namespace-subspaces":
                 i = trg.pos - 1
             else:
                 i = trg.pos - 2 # skip past the trigger char
