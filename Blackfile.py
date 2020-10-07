@@ -1577,7 +1577,7 @@ def _PackageKomodoMSI(cfg):
     shutil.copyfile(join(wrkDir, "komodo.msi"), cfg.komodoInstallerPackage)
     
     print "---- checking for signing key to sign MSI package"
-    if exists(cfg.winCodeSigningCert):
+    if hassttr(cfg, "winCodeSigningCert") and  exists(cfg.winCodeSigningCert):
         # signtool sign /v /f c:\ActiveStateSPC.pfx /t http://timestamp.verisign.com/scripts/timestamp.dll %1
         print "---- signing MSI to packages"
         command = "signtool  sign /a /d \"%s\" /td sha256 /fd sha256 /tr http://timestamp.comodoca.com \"%s\"" %(cfg.msiKomodoPrettyId,cfg.komodoInstallerPackage)
