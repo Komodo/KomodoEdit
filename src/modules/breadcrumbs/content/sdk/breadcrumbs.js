@@ -24,7 +24,7 @@ var breadcrumbs = function(view) {
     //log.setLevel(legacy.logging.LOG_DEBUG);
 
     /* Element References */
-    var breadcrumbBar, overflowBtn, wrapper;
+    var breadcrumbBarWrap, breadcrumbBar, overflowBtn, wrapper;
 
     /* Templates */
     var template = {};
@@ -67,7 +67,7 @@ var breadcrumbs = function(view) {
         var $ = require("ko/dom");
         xv = $(view);
 
-        var breadcrumbBarWrap = $('#breadcrumbBarWrap').clone();
+        breadcrumbBarWrap = $('#breadcrumbBarWrap').clone();
         breadcrumbBarWrap.removeAttr("id");
 
         breadcrumbBar           = breadcrumbBarWrap.find('[anonid="breadcrumbBar"]').element();
@@ -190,14 +190,11 @@ var breadcrumbs = function(view) {
         window.addEventListener('symbollist_updated', this._checkOverflowBound);
         window.addEventListener('current_view_changed', this._checkOverflowBound);
         window.addEventListener('keydown', this._menuKeyPressBound);
-        
-        window.addEventListener('view_closed', this._unbindBound);
 
-        /* Misc */
-        var overflowMenu = xtk.domutils.getChildByProperty(
-            overflowBtn, 'nodeName', 'menupopup'
-        );
-        this.bindCrumbPopupListeners(overflowMenu);
+        // Crumb listeners
+        this.bindDelegateCrumbListeners();
+
+        window.addEventListener('view_closed', this._unbindBound);
 
         // Register observer
         var _observerSvc = Cc["@mozilla.org/observer-service;1"].
@@ -218,142 +215,153 @@ var breadcrumbs = function(view) {
         window.removeEventListener('symbollist_updated', this._checkOverflowBound);
         window.removeEventListener('current_view_changed', this._checkOverflowBound);
         window.removeEventListener('keydown', this._menuKeyPressBound);
+        window.removeEventListener('view_closed', this._unbindBound);
 
         // Register observer
         var _observerSvc = Cc["@mozilla.org/observer-service;1"].
                             getService(Ci.nsIObserverService);
         _observerSvc.removeObserver(this, "file_status", false);
+
+        // Clear cached
+        crumbs = {};
+        crumbFile = null;
+        crumbView = null;
+
+        // Trash everything
+        breadcrumbBarWrap.remove();
+        breadcrumbBarWrap = breadcrumbBar = overflowBtn = wrapper = null;
+        template = {};
+        view = null;
+        xv = null;
     };
 
+
     /**
-     * Bind listeners specific to a breadcrumb
-     *
-     * @param   {Object} crumb
+     * Bind listeners specific to breadcrumbs
      *
      * @returns {Void} 
      */
-    this.bindCrumbListeners = function breadcrumbs_bindCrumbListeners(crumb)
+    this.bindDelegateCrumbListeners = function breadcrumbs_bindDelegateCrumbListeners()
     {
-        log.debug('Binding crumb listeners for: ' +
-                  crumb.node.getAttribute("label"));
-        
-        // Bind listeners specific to a folder crumb
-        if (crumb.node.getAttribute("anonid") == 'breadcrumbTemplateFolder')
-        {
-            // Track mouse click events for stuff like Shift+LMB
-            // to view the file in Places
-            crumb.node.addEventListener('mousedown', function(e)
+        let that = this;
+
+        let crumbMousedown = function(e) {
+            // Is this a crumb?
+            let crumbNode = e.target;
+            let uid = crumbNode.id;
+            if (crumbNode.matches(".breadcrumb") && uid && (uid in crumbs))
             {
-                if (e.which !== 1) // Only LMB
-                {
-                    return;
-                }
+                let crumb = crumbs[uid];
 
-                // Fast Open shortcut
-                if (e.shiftKey && e.ctrlKey)
+                // Folder
+                if (crumbNode.matches(".folder"))
                 {
-                    // on timeout so as not to make the mouseup event hide
-                    // commando
-                    setTimeout(function() {
-                        this.doCommandFastOpen(crumb);
-                    }.bind(this), 100);
-                }
+                    let isSystemCtrlOrMeta = false;
+                    if (window.navigator.platform.toLowerCase().indexOf("mac") == -1)
+                        isSystemCtrlOrMeta = e.ctrlKey;
+                    else
+                        isSystemCtrlOrMeta = e.metaKey;
 
-                // Show in places shortcut
-                else if (e.shiftKey)
-                {
-                    this.doCommandShowPlaces(crumb);
-                }
+                    // Track mouse click events for stuff like Shift+LMB
+                    // to view the file in Places
+                    if (e.which !== 1) // Only LMB
+                        return;
 
-                // Find in folder shortcut
-                else if (e.ctrlKey && window.navigator.platform.toLowerCase().indexOf("mac") == -1 ||
-                         e.metaKey && window.navigator.platform.toLowerCase().indexOf("mac") != -1)
-                {
-                    this.doCommandFind(crumb);
-                }
+                    // Fast Open shortcut
+                    if (e.shiftKey && isSystemCtrlOrMeta)
+                    {
+                        // on timeout so as not to make the mouseup event hide
+                        // commando
+                        setTimeout(function() {
+                            that.doCommandFastOpen(crumb);
+                        }, 100);
+                    }
+                    // Show in places shortcut
+                    else if (e.shiftKey)
+                    {
+                        that.doCommandShowPlaces(crumb);
+                    }
+                    // Find in folder shortcut
+                    else if (isSystemCtrlOrMeta)
+                    {
+                        that.doCommandFind(crumb);
+                    }
+                    // Default - open menupopup
+                    else
+                    {
+                        var menupopup = xtk.domutils.getChildByProperty(
+                            crumb.node, 'nodeName', 'menupopup'
+                        );
+                        menupopup.openPopup(crumb.node, 'after_start');
+                        return;
+                    }
 
-                // Default - open menupopup
+                    e.stopPropagation();
+                }
+                // Crumb for a file (not folder)
                 else
                 {
-                    var menupopup = xtk.domutils.getChildByProperty(
-                        crumb.node, 'nodeName', 'menupopup'
-                    );
-                    menupopup.openPopup(crumb.node, 'after_start');
-                    return;
+                    // Show the context menu on any sort of mouse click
+                    var contextMenu = document.getElementById('tabContextMenu');
+                    contextMenu.openPopup(crumb.node, 'after_start');
                 }
+            }
+        };
+        breadcrumbBar.addEventListener("mousedown", crumbMousedown);
 
-                e.preventDefault;
-                e.stopPropagation();
-            }.bind(this));
-        }
-
-        // Crumb for a file (not folder)
-        else
-        {
-            // Show the context menu on any sort of mouse click
-            crumb.node.addEventListener('click', function() {
-                var contextMenu = document.getElementById('tabContextMenu');
-                contextMenu.openPopup(crumb.node, 'after_start');
-            }.bind(this));
-        }
-    };
-
-    /**
-     * Bind listeners on a crumb menupopup
-     *
-     * @param   {Object} crumb
-     *
-     * @returns {Void} 
-     */
-    this.bindCrumbPopupListeners = function breadcrumbs_bindCrumbPopupListeners(menupopup)
-    {
         // Bind menupopup listeners
-        var textbox = xtk.domutils.getChildByProperty(
-            menupopup, 'nodeName', 'textbox'
-        );
-        if (textbox)
-        {
-            textbox.addEventListener(
-                'keyup', this.onCrumbMenuFilter.bind(this, menupopup)
-            );
-        }
+        let filterFunc = function(e) {
+            if (e.target.matches("menupopup textbox"))
+                that.onCrumbMenuFilter(e.target.closest("menupopup"));
+        };
+        breadcrumbBar.addEventListener("keyup", filterFunc);
 
         // We want to load the menupopup contents only when accessed
-        //menupopup.addEventListener(
-        //    'popupshowing', this.onCrumbMenuShowing.bind(this, menupopup)
-        //);
-        menupopup.addEventListener(
-            'popupshowing', this.onCrumbMenuShowing.bind(this)
-        );
-        //menupopup.addEventListener(
-        //    'popupshown', this.onCrumbMenuShown.bind(this, menupopup)
-        //);
-        menupopup.addEventListener(
-            'popupshown', this.onCrumbMenuShown.bind(this)
-        );
-        //menupopup.addEventListener(
-        //    'popuphidden', this.onCrumbMenuHidden.bind(this, menupopup)
-        //);
-        menupopup.addEventListener(
-            'popuphidden', this.onCrumbMenuHidden.bind(this)
-        );
+        let showingFunc = function(e) {
+            that.onCrumbMenuShowing(e);
+        };
+        breadcrumbBar.addEventListener("popupshowing", showingFunc);
+        let shownFunc = function(e) {
+            that.onCrumbMenuShown(e);
+        };
+        breadcrumbBar.addEventListener("popupshown", shownFunc);
+        let hiddenFunc = function(e) {
+            that.onCrumbMenuHidden(e);
+        };
+        breadcrumbBar.addEventListener("popuphidden", hiddenFunc);
 
         // On mouse move remove menuactive attribute from irrelevant
         // items
-        menupopup.addEventListener(
-            'mousemove', function(e)
-        {
-            var elems = xtk.domutils.getChildrenByAttribute(
-                e.target, '_moz-menuactive', 'true'
-            );
-            for (let [k,elem] in Iterator(elems))
+        let popupMousemove = function(e) {
+            if (e.target.matches("menupopup"))
             {
-                if (elem != e.target)
+                var elems = xtk.domutils.getChildrenByAttribute(
+                    e.target, '_moz-menuactive', 'true'
+                );
+                for (let [k,elem] in Iterator(elems))
                 {
-                    elem.removeAttribute("_moz-menuactive");
+                    if (elem != e.target)
+                    {
+                        elem.removeAttribute("_moz-menuactive");
+                    }
                 }
             }
-        });
+        };
+        breadcrumbBar.addEventListener("mousemove", popupMousemove);
+
+        // Set up unbinds
+        let unbinder = function(e) {
+            if (e.originalTarget != crumbView)
+                return;
+            breadcrumbBar.removeEventListener("mousedown", crumbMousedown);
+            breadcrumbBar.removeEventListener("keyup", filterFunc);
+            breadcrumbBar.removeEventListener("popupshowing", showingFunc);
+            breadcrumbBar.removeEventListener("popupshown", shownFunc);
+            breadcrumbBar.removeEventListener("popuphidden", hiddenFunc);
+            breadcrumbBar.removeEventListener("mousemove", popupMousemove);
+            window.removeEventListener('view_closed', unbinder);
+        };
+        window.addEventListener('view_closed', unbinder);
     };
 
     /*
@@ -463,7 +471,7 @@ var breadcrumbs = function(view) {
         var element = crumbFile.node;
 
         // Scc status.
-        if (koFile.sccType == '')
+        if (!("sccType" in koFile) || koFile.sccType == '')
         {
             element.setAttribute("collapsed", "true");
         }
@@ -746,7 +754,7 @@ var breadcrumbs = function(view) {
      */
     this.onCrumbMenuHidden = function breadcrumb_onCrumbMenuHidden(event)
     {
-        if (event.eventPhase == 3)
+        if (!eventContext.menuShowing)
         {
             return;
         }
@@ -1160,9 +1168,6 @@ var breadcrumbs = function(view) {
             menupopup.file = file;
             menupopup.crumb = crumbs[uid];
             crumb.appendChild(menupopup);
-
-            // Bind listeners
-            this.bindCrumbPopupListeners(menupopup);
         }
 
         if ( file && file.isFile())
@@ -1172,9 +1177,6 @@ var breadcrumbs = function(view) {
 
         // Add the created breadcrumb to the DOM
         breadcrumbBar.appendChild(crumb);
-
-        // Bind listeners
-        this.bindCrumbListeners(crumbs[uid]);
     };
 
     /**
@@ -1228,8 +1230,6 @@ var breadcrumbs = function(view) {
                 popup.crumb = menupopup.crumb;
                 popup.parentMenu = menupopup;
                 elem.appendChild(popup);
-
-                this.bindCrumbPopupListeners(popup);
             }
 
             elem.setAttribute('label', child.getFilename());
@@ -1358,14 +1358,6 @@ var breadcrumbs = function(view) {
             let item = this._getTemplate('overflowItem');
             item.setAttribute("label", button.getAttribute("label"));
             item.breadcrumb = button;
-
-            // Bind event listener to open the menupopup when the menu
-            // is hovered, as the menupopup is not a child of the menu
-            //item.addEventListener("mouseover", function(item,crumb)
-            //{
-            //    var menupopup = crumb.querySelector("menupopup");
-            //    menupopup.openPopup(item, 'end_before');
-            //}.bind(this, item, button));
 
             var id = button.getAttribute("id");
             var crumb = crumbs[id];

@@ -58,8 +58,8 @@
         lastSearch: 0,
         showing: false,
         accesskeys: {},
-        selectedScope: null,
         tipMessage: null,
+        selectedScope: null
     };
 
     var elems = {

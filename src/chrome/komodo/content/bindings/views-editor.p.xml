@@ -1137,6 +1137,9 @@
                 this.removeEventListener('current_view_linecol_changed',
                     this.handle_current_view_linecol_changed, false);
 
+                var evt = new CustomEvent("editor_view_closed", { detail: { view: this } });
+                window.dispatchEvent(evt);
+
                 log.time("closeUnconditionally-close_viewbufferbase");
                 var res = this.close_viewbufferbase();
                 log.timeEnd("closeUnconditionally-close_viewbufferbase");
