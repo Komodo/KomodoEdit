@@ -241,6 +241,17 @@ class PHPTreeEvaluator(TreeEvaluator):
             if not trg.extra.get('ilk'):
                 cplns += [("keyword", "const"), ("keyword", "function")]
             return cplns
+        elif trg.type == "namespace":
+            # Look for namespace completions.
+            # All available namespaces and all available/global classes.
+            cplns = self._namespaces_from_scope(None, start_scope);
+            # Add file path segments
+            file_path = start_scope[0].get("src")
+            if file_path:
+                for path_segment in file_path.split(os_sep)[:-1]:
+                    if path_segment:
+                        cplns += [("namespace", path_segment)]
+            return cplns
         elif trg.type == "namespace-members" and (not self.expr or self.expr == "\\"):
             # All available namespaces and include all available global
             # functions/classes/constants as well.
@@ -303,6 +314,49 @@ class PHPTreeEvaluator(TreeEvaluator):
                 namespace = n[len(fqn):]
                 if namespace and namespace.startswith("\\"):
                     cplns.append((ilk, namespace.strip("\\")))
+            return cplns
+        elif trg.type == "namespace-subspaces":
+            # Find the completions:
+            cplns = []
+            expr = self.expr
+            # Use FQN name
+            if expr and not expr.startswith("\\"):
+                expr = "\\" + expr
+            fqn = self._fqn_for_expression(expr, start_scope)
+            hits = self._hits_from_namespace(fqn, start_scope)
+            if hits:
+                cplns = list(self._members_from_hits(hits))
+            cplns = [c for c in cplns if c[0] in ("namespace")]
+            # Return additional sub-namespaces that start with this prefix.
+            if hits and hits[0][0] is not None:
+                # We hit a namespace, return additional namespaces that
+                # start with the hit's fully qualified name (fqn).
+                fqn = hits[0][0].get("name")
+
+            self.debug("eval_cplns:: adding namespace hits that start with "
+                       "fqn: %r", fqn)
+            namespaces = self._namespaces_from_scope(fqn, start_scope)
+            for ilk, n in namespaces:
+                namespace = n[len(fqn):]
+                if namespace and namespace.startswith("\\"):
+                    cplns.append((ilk, namespace.strip("\\")))
+
+            # Add file path segments
+            file_path = start_scope[0].get("src")
+            expr_segments = [x for x in expr.split("\\") if x]
+            num_expr_segments = len(expr_segments)
+            expr_segments_left = num_expr_segments
+            if file_path and expr_segments_left > 0:
+                for path_segment in file_path.split(os_sep)[:-1]:
+                    if path_segment:
+                        if expr_segments_left == 0:
+                            cplns += [("namespace", path_segment)]
+                            break
+                        elif expr_segments[num_expr_segments - expr_segments_left] == path_segment:
+                            expr_segments_left = expr_segments_left - 1
+                        else:
+                            expr_segments_left = num_expr_segments
+
             return cplns
         else:
             hit = self._hit_from_citdl(self.expr, start_scope)
