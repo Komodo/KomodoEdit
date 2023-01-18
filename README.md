@@ -27,7 +27,7 @@ the entire project.
 
 ## Download
 
-You can [download Komodo Edit here](https://www.activestate.com/komodo-ide/downloads/edit).
+You can [download Komodo Edit here](https://downloads.activestate.com/Komodo/releases/12.0.1/index.html).
 
 ## Feedback
 
