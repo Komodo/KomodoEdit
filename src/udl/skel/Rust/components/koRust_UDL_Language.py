@@ -1,4 +1,4 @@
-#!/usr/local/bin/perl
+#!python
 # ***** BEGIN LICENSE BLOCK *****
 # Version: MPL 1.1/GPL 2.0/LGPL 2.1
 # 
@@ -35,44 +35,35 @@
 # 
 # ***** END LICENSE BLOCK *****
 
-Import(
-    'cons',
-    'build',
-    'ranRegxpcomStateFileName',
-    'mozComponentsDir',
-    'mozIdlIncludePath',
-    'idlExportDir',
-    'komodoPythonUtilsDir',
-    'unsiloedPythonExe',
-    'siloedPython',
-    'supportDir',
-    'mozVersion',
-    'sdkDir',
-    'mozSrc',
-    'platform',
-    'havePy2to3',
-);
+"""Language package for Rust"""
 
-$cons->Install($idlExportDir, 'koILinter.idl');
-$cons->BuildAndInstallXpt('koILinter.idl');
+import logging
+from koUDLLanguageBase import KoUDLLanguage
 
-$cons->InstallPythonUtility('koLintResult.py');
-$cons->InstallXpcomComponent('koPerlCompileLinter.py');
-$cons->InstallXpcomComponent('koPythonLinter.py');
-$cons->Install("$supportDir/python", 'pycompile.py');
-if ($havePy2to3) {
-    $cons->Py2To3('pycompile.py', "$supportDir/python/py3compile.py");
-}
-$cons->InstallXpcomComponent('koCSSExLinter.py');
-$cons->InstallXpcomComponent('koHTMLLinter.py');
-$cons->InstallXpcomComponent('koPHPLinter.py');
-$cons->InstallXpcomComponent('koESLintLinter.py');
-$cons->InstallXpcomComponent('koJavaScriptLinter.py');
-$cons->InstallXpcomComponent('koRustLinter.py');
-$cons->InstallXpcomComponent('koLintService.py');
-$cons->InstallPythonUtility('koLintResults.py');
+log = logging.getLogger("koRustLanguage")
+log.setLevel(logging.DEBUG)
 
-if ($platform eq "win") {
-    $cons->Install("$supportDir/perl/perltray", 'PerlTray.pm');
-}
+def registerLanguage(registry):
+    log.debug("Registering language Rust")
+    registry.registerLanguage(KoRustLanguage())
 
+class KoRustLanguage(KoUDLLanguage):
+    name = "Rust"
+    _reg_desc_ = "%s Language" % name
+    _reg_contractid_ = "@activestate.com/koLanguage?language=%s;1" \
+                       % (name)
+    _reg_clsid_ = "{FABBE082-7E14-41C3-92EA-90F5CB95519C}"
+    _reg_categories_ = [("komodo-language", name)]
+
+    lexresLangName = "Rust"
+    lang_from_udl_family = {'SSL': 'Rust'}
+
+    accessKey = 'r'
+    primary = 1
+    defaultExtension = ".rs"
+    downloadURL = 'http://rust-lang.org/'
+    commentDelimiterInfo = {
+        "line": [ "//" ],
+        "block": [ ("/*", "*/") ],
+    }
+    supportsSmartIndent = "brace"
