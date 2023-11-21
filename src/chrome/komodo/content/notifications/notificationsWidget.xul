@@ -37,6 +37,9 @@
             <toolbarbutton type="checkbox" id="filter-progress"
                            tooltiptext="&filterProgressTooltip;"
                            oncommand="NotificationsWidgetController.updateFilters()"/>
+            <toolbarbutton id="notifications-clear"
+                           tooltiptext="&notificationsClearTooltip;"
+                           oncommand="NotificationsWidgetController.clearMessages()"/>
           </toolbargroup>
         </toolbar>
     </box>
