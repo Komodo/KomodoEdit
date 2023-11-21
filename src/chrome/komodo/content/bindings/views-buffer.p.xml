@@ -87,7 +87,7 @@
 <binding id="view-buffer-base"
     extends="chrome://komodo/content/bindings/views.xml#view-base">
     <implementation name="viewbufferbase" implements="koIScintillaView, ISciMozEvents, nsIObserver">
-      
+
         <constructor>
         <![CDATA[
         // A list of registered handlers that can handle the onModified event.
@@ -115,7 +115,7 @@
 
         <!-- Whether the buffer/editor sends DOM events. -->
         <field name="_dispatch_events">false</field>
-
+        
         <field name="__prefs">null</field>
 
         <property name="prefs">
@@ -128,6 +128,20 @@
                 return this.__prefs;
             ]]></getter>
         </property>
+        
+        <field name="_onUpdateUI_timeout">null</field>
+
+        <property name="onUpdateUI_timeout">
+            <getter>
+                <![CDATA[
+                    if (!this._onUpdateUI_timeout) {
+                        this._onUpdateUI_timeout = this.prefs.getLong('onUpdateUI_timeout', 200);
+                    }
+                    return this._onUpdateUI_timeout;
+                ]]>
+            </getter>
+        </property>
+
 
         <field name="__docSvc">null</field>
 
@@ -1216,7 +1230,7 @@
                 clearTimeout(this._uiTimer);
             }
             
-            this._uiTimer = setTimeout(this._onUpdateUI_debounced.bind(this, updated), 200);
+            this._uiTimer = setTimeout(this._onUpdateUI_debounced.bind(this, updated), this.onUpdateUI_timeout);
         ]]>
         </body>
         </method>
