@@ -21,6 +21,9 @@
 #filter-progress {
   list-style-image: url("chrome://fugue/skin/icons/clock-history.png");
 }
+#notifications-clear {
+  list-style-image: url("chrome://global/skin/icons/close.png");
+}
 
 #filter-search {
   -moz-box-flex: 1;
