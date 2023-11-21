@@ -640,7 +640,7 @@ function python_setup() {
         dialog.Python = {};
         [
          "lint_python_with_pychecker",
-         "lint_python_with_pep8",
+         "lint_python_with_pycodestyle",
          "lint_python_with_pylint",
          "lint_python_with_pyflakes",
          "pychecker_browse_rcfile",
@@ -655,10 +655,10 @@ function python_setup() {
          "pylint_checking_rcfile",
          "pylint_failure",
          "pylint_checking_vbox_rcfile",
-         "pep8_browse_rcfile",
-         "pep8_checking_rcfile",
-         "pep8_failure",
-         "pep8_checking_vbox_rcfile",
+         "pycodestyle_browse_rcfile",
+         "pycodestyle_checking_rcfile",
+         "pycodestyle_failure",
+         "pycodestyle_checking_vbox_rcfile",
          "python_lintOption"
          ].forEach(function(name) {
             dialog.Python[name] = document.getElementById(name);
@@ -669,10 +669,10 @@ function python_setup() {
         getService(Components.interfaces.koIAppInfoEx);
     var pythonExe = appInfoEx.executablePath;
     var pylintStatusByExecutable = languageInfo.Python.pylintStatusByExecutable;
-    var pep8StatusByExecutable = languageInfo.Python.pep8StatusByExecutable;
+    var pycodestyleStatusByExecutable = languageInfo.Python.pycodestyleStatusByExecutable;
     var pyflakesStatusByExecutable = languageInfo.Python.pyflakesStatusByExecutable;
     if (!(pythonExe in pylintStatusByExecutable)
-        || !(pythonExe in pep8StatusByExecutable)
+        || !(pythonExe in pycodestyleStatusByExecutable)
         || !(pythonExe in pyflakesStatusByExecutable)) {
         setTimeout(function() {
                 var res;
@@ -681,8 +681,8 @@ function python_setup() {
                         res = appInfoEx.haveModules(1, ['pylint']);
                         pylintStatusByExecutable[pythonExe] = res;
                     }
-                    if (!(pythonExe in pep8StatusByExecutable)) {
-                        pep8StatusByExecutable[pythonExe] = appInfoEx.haveModules(1, ['pep8']);
+                    if (!(pythonExe in pycodestyleStatusByExecutable)) {
+                        pycodestyleStatusByExecutable[pythonExe] = appInfoEx.haveModules(1, ['pycodestyle']);
                     }
                     if (!(pythonExe in pyflakesStatusByExecutable)) {
                         res = null;
@@ -709,7 +709,7 @@ languageSetup.Python = python_setup;
 function pythonInfo() {
     return {
         pylintStatusByExecutable: {},
-        pep8StatusByExecutable: {},
+        pycodestyleStatusByExecutable: {},
         pyflakesStatusByExecutable: {},
         
         _updateFailureBox: function(failureNode, pythonExe, linterName) {
@@ -740,18 +740,18 @@ function pythonInfo() {
             }
             this.onTogglePylintChecking(checkbox);
             
-            // pep8
-            var checkbox = dialog.Python.lint_python_with_pep8;
-            var failureNode = dialog.Python.pep8_failure;
-            if (pythonExe && this.pep8StatusByExecutable[pythonExe]) {
+            // pycodestyle
+            var checkbox = dialog.Python.lint_python_with_pycodestyle;
+            var failureNode = dialog.Python.pycodestyle_failure;
+            if (pythonExe && this.pycodestyleStatusByExecutable[pythonExe]) {
                 failureNode.setAttribute("class", "pref_hide");
                 checkbox.disabled = false;
             } else {
                 checkbox.checked = false;
                 checkbox.disabled = true;
-                this._updateFailureBox(failureNode, pythonExe, "pep8");
+                this._updateFailureBox(failureNode, pythonExe, "pycodestyle");
             }
-            this.onTogglePep8Checking(checkbox);
+            this.onTogglePycodestyleChecking(checkbox);
             
             // pyflakes
             checkbox = dialog.Python.lint_python_with_pyflakes;
@@ -782,8 +782,8 @@ function pythonInfo() {
             dialog.Python.pylint_checking_vbox_rcfile.collapsed = !checkbox.checked;
         },
             
-        onTogglePep8Checking: function(checkbox) {
-            dialog.Python.pep8_checking_vbox_rcfile.collapsed = !checkbox.checked;
+        onTogglePycodestyleChecking: function(checkbox) {
+            dialog.Python.pycodestyle_checking_vbox_rcfile.collapsed = !checkbox.checked;
         },
 
         onTogglePycheckerChecking: function(checkbox) {
@@ -821,9 +821,9 @@ function pythonInfo() {
                                            "Find a .pylintrc file");
         },
        
-        loadPep8Rcfile: function() {
-            this.loadTextboxFromFilepicker("pep8_checking_rcfile",
-                                           "Find a pep8 config file");
+        loadPycodestyleRcfile: function() {
+            this.loadTextboxFromFilepicker("pycodestyle_checking_rcfile",
+                                           "Find a pycodestyle config file");
         },
 
         loadPycheckerRcFile: function() {
@@ -847,7 +847,7 @@ function python3_setup() {
         [
          "lint_python3_with_pychecker3",
          "lint_python3_with_pylint3",
-         "lint_python3_with_pep83",
+         "lint_python3_with_pycodestyle3",
          "lint_python3_with_pyflakes3",
          "pychecker3_browse_rcfile",
          "pychecker3_browse_wrapper_location",
@@ -861,10 +861,10 @@ function python3_setup() {
          "pylint3_checking_rcfile",
          "pylint3_failure",
          "pylint3_checking_vbox_rcfile",
-         "pep83_browse_rcfile",
-         "pep83_checking_rcfile",
-         "pep83_failure",
-         "pep83_checking_vbox_rcfile",
+         "pycodestyle3_browse_rcfile",
+         "pycodestyle3_checking_rcfile",
+         "pycodestyle3_failure",
+         "pycodestyle3_checking_vbox_rcfile",
          "python3_lintOption"
          ].forEach(function(name) {
             dialog.Python3[name] = document.getElementById(name);
@@ -875,10 +875,10 @@ function python3_setup() {
         getService(Components.interfaces.koIAppInfoEx);
     var python3Exe = appInfoEx.executablePath;
     var pylint3StatusByExecutable = languageInfo.Python3.pylint3StatusByExecutable;
-    var pep83StatusByExecutable = languageInfo.Python3.pep83StatusByExecutable;
+    var pycodestyle3StatusByExecutable = languageInfo.Python3.pycodestyle3StatusByExecutable;
     var pyflakes3StatusByExecutable = languageInfo.Python3.pyflakes3StatusByExecutable;
     if (!(python3Exe in pylint3StatusByExecutable)
-        || !(python3Exe in pep83StatusByExecutable)
+        || !(python3Exe in pycodestyle3StatusByExecutable)
         || !(python3Exe in pyflakes3StatusByExecutable)) {
         setTimeout(function() {
                 var res;
@@ -887,8 +887,8 @@ function python3_setup() {
                         res = appInfoEx.haveModules(1, ['pylint']);
                         pylint3StatusByExecutable[python3Exe] = res;
                     }
-                    if (!(python3Exe in pep83StatusByExecutable)) {
-                        pep83StatusByExecutable[python3Exe] = appInfoEx.haveModules(1, ['pep8']);
+                    if (!(python3Exe in pycodestyle3StatusByExecutable)) {
+                        pycodestyle3StatusByExecutable[python3Exe] = appInfoEx.haveModules(1, ['pycodestyle']);
                     }
                     if (!(python3Exe in pyflakes3StatusByExecutable)) {
                         res = appInfoEx.haveModules(1, ['pyflakes']);
@@ -907,7 +907,7 @@ languageSetup.Python3 = python3_setup;
 function python3Info() {
     return {
         pylint3StatusByExecutable: {},
-        pep83StatusByExecutable: {},
+        pycodestyle3StatusByExecutable: {},
         pyflakes3StatusByExecutable: {},
         
         _updateFailureBox: function(failureNode, python3Exe, linterName) {
@@ -938,18 +938,18 @@ function python3Info() {
             }
             this.onTogglePylint3Checking(checkbox);
             
-            // pep8
-            var checkbox = dialog.Python3.lint_python3_with_pep83;
-            var failureNode = dialog.Python3.pep83_failure;
-            if (python3Exe && this.pep83StatusByExecutable[python3Exe]) {
+            // pycodestyle
+            var checkbox = dialog.Python3.lint_python3_with_pycodestyle3;
+            var failureNode = dialog.Python3.pycodestyle3_failure;
+            if (python3Exe && this.pycodestyle3StatusByExecutable[python3Exe]) {
                 failureNode.setAttribute("class", "pref_hide");
                 checkbox.disabled = false;
             } else {
                 checkbox.checked = false;
                 checkbox.disabled = true;
-                this._updateFailureBox(failureNode, python3Exe, "pep8");
+                this._updateFailureBox(failureNode, python3Exe, "pycodestyle");
             }
-            this.onTogglePep83Checking(checkbox);
+            this.onTogglePycodestyle3Checking(checkbox);
             
             // pyflakes3
             checkbox = dialog.Python3.lint_python3_with_pyflakes3;
@@ -979,8 +979,8 @@ function python3Info() {
         onTogglePylint3Checking: function(checkbox) {
             dialog.Python3.pylint3_checking_vbox_rcfile.collapsed = !checkbox.checked;
         },
-        onTogglePep83Checking: function(checkbox) {
-            dialog.Python3.pep83_checking_vbox_rcfile.collapsed = !checkbox.checked;
+        onTogglePycodestyle3Checking: function(checkbox) {
+            dialog.Python3.pycodestyle3_checking_vbox_rcfile.collapsed = !checkbox.checked;
         },
         onTogglePychecker3Checking: function(checkbox) {
             var pychecker3Enabled = checkbox.checked;
@@ -1017,9 +1017,9 @@ function python3Info() {
                                            "Find a .pylintrc file");
         },
        
-        loadPep83Rcfile: function() {
-            this.loadTextboxFromFilepicker("pep83_checking_rcfile",
-                                           "Find a pep8 config file");
+        loadPycodestyle3Rcfile: function() {
+            this.loadTextboxFromFilepicker("pycodestyle3_checking_rcfile",
+                                           "Find a pycodestyle config file");
         },
 
         loadPychecker3RcFile: function() {

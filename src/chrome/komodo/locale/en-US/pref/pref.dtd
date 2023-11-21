@@ -390,8 +390,8 @@ adding an additional caret at the clicked position.">
 <!ENTITY properties.label "Properties">
 <!ENTITY proportional.label "Proportional">
 <!ENTITY pyflakesChecking.label "Pyflakes Checking">
-<!ENTITY pep8CheckingStatus.label "Do pep8 Checking">
-<!ENTITY pep8RCFileLocation.label "Location of pep8 config file to use">
+<!ENTITY pycodestyleCheckingStatus.label "Do pycodestyle Checking">
+<!ENTITY pycodestyleRCFileLocation.label "Location of pycodestyle config file to use">
 <!ENTITY pylintCheckingStatus.label "Do Pylint Checking">
 <!ENTITY pylintRCFileLocation.label "Location of .pylintrc file to use">
 <!ENTITY pyPython.label ".py: Python">
