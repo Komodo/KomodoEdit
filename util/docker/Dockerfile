@@ -10,7 +10,7 @@ RUN apt-get install -y sudo git vim zip \
         libdbus-1-dev libdbus-glib-1-dev libasound2-dev libcurl4-openssl-dev \
         libiw-dev libxt-dev mesa-common-dev libpulse-dev libffi-dev python-setuptools \
         openssh-server python-dev libssl-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev \
-        build-essential
+        build-essential subversion
 
 # Ubuntu 17.04 uses gcc 6, but we want gcc 4
 RUN apt-get remove -y gcc cpp g++ gcc-6 cpp-6 g++-6
