@@ -83,7 +83,7 @@ smarty_tags = [
     "rdelim",
     "section",
     "sectionelse",
-    "string",
+    "strip",
     "textformat"
 ]
 
@@ -236,13 +236,17 @@ class SmartyLangIntel(LangIntel):
     _re_assign_var = re.compile(r'\{assign\s+(?:[^}]+\s)?name=[\'"](?P<variable>\w+)[\'"]', re.M|re.U)
     # Variable in form {... assign="..."
     _re_assign_attr_var = re.compile(r'\{[^}]+\sassign=[\'"](?P<variable>\w+)[\'"]', re.M|re.U)
+    # Variable in form {foreach item="..."
+    _re_foreach_item_var = re.compile(r'\{foreach\s+(?:[^}]+\s)?item=[\'"](?P<variable>\w+)[\'"]', re.M|re.U)
+    # Variable in form {foreach key="..."
+    _re_foreach_key_var = re.compile(r'\{foreach\s+(?:[^}]+\s)?key=[\'"](?P<variable>\w+)[\'"]', re.M|re.U)
     # Any variable used
     _re_used_var = re.compile(r'{[^}]*(?P<variable>\$\w+)', re.M|re.U)
     def _get_smarty_vars(self, buf):
         """ Get Smarty variables from this file """
         smarty_vars = ["$smarty"]
         # Add any vars assigned in this file
-        for regex in [self._re_assign_var, self._re_assign_attr_var]:
+        for regex in [self._re_assign_var, self._re_assign_attr_var, self._re_foreach_item_var, self._re_foreach_key_var]:
             for match in re.finditer(regex, buf.accessor.text):
                 groups = match.groupdict()
                 this_var = "$" + groups['variable']
