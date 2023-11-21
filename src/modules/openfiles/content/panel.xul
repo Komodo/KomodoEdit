@@ -216,6 +216,13 @@
                     tooltiptext="&closeFiles.tooltip;"/>
                 
             </richlistitem>
+            <box class="widgetToolbarWrap centered">
+                <textbox id="filter-search" flex="1"
+                 emptytext="&openFiles.filterSearch;" type="search"
+                         oninput="ko.openfiles.updateFilters();"
+                         oncommand="ko.openfiles.updateFilters();" />
+                <separator flex="1"/>
+            </box>
         </vbox>
     </vbox>
 
