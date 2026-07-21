@@ -1097,7 +1097,7 @@ def ImageKomodo(cfg, argv):
 
     # Define the steps to build the install image.
     # Note that Mac OS X is quite different -- with the .app bundle
-    # structure and the differences in the Mozilla build to accomodate
+    # structure and the differences in the Mozilla build to accommodate
     # that.
     ibits = []  # the steps to build the install image
     # - Copy over the main bits: Mozilla build, siloed Python, Komodo
