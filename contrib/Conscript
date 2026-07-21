@@ -114,17 +114,21 @@ $consLocal->InstallRecursive("$supportDir/catalogs",
                         ('\.svn'));
 
 
-#---- Komodo's SFTP support uses 'paramiko' which, in turn, uses PyCrypto and
-#     ecdsa.
-# PyCrypto (http://www.amk.ca/python/code/crypto)
+#---- Komodo's SFTP support uses 'paramiko' which, in turn, uses PyCryptodome
+#     and ecdsa. (PyCryptodome replaced PyCrypto, unmaintained since ~2013
+#     with known CVEs -- PyCryptodome is an actively maintained drop-in
+#     replacement exposing the same Crypto.* import namespace. paramiko's
+#     rsakey.py/dsskey.py needed two small compatibility patches for API
+#     changes pycryptodome made vs. pycrypto -- see those files.)
+# PyCryptodome (https://www.pycryptodome.org/)
 my $landmark = "$komodoPythonUtilsDir/Crypto/__init__.py";
 $consLocal->Command($landmark,
-               "pycrypto/setup.py",
+               "pycryptodome/setup.py",
                qq(
                 cd %1:d && $siloedPython %1:f build $debugFlags
                 cd %1:d && $siloedPython %1:f install --skip-build --install-lib=$komodoPythonUtilsDir
                ));
-$consLocal->DependsRecursive($landmark, "pycrypto", ("build", '\.svn'));
+$consLocal->DependsRecursive($landmark, "pycryptodome", ("build", '\.svn'));
 
 # ecdsa (http://github.com/warner/python-ecdsa)
 my $landmark = "$komodoPythonUtilsDir/ecdsa";
@@ -408,8 +412,15 @@ $consTidy->Command($exeName,
 $consTidy->Install("$supportDir/html", $exeName);
 }
 
-# six (required for html5lib)
+# six (required for html5lib and ecdsa)
 $consLocal->Install("$komodoPythonUtilsDir", "six/six.py");
+
+# webencodings (required for html5lib 1.1+)
+$landmark = "$komodoPythonUtilsDir/webencodings";
+$consLocal->InstallRecursive($landmark,
+                        #XXX must be absolute path (bug in InstallRecursive)
+                        cwd()."/contrib/webencodings/webencodings",
+                        ('\.svn'));
 
 # html5lib
 $landmark = "$komodoPythonUtilsDir/html5lib";

@@ -1,4 +1,4 @@
-'''
+"""
 RFC 6979:
     Deterministic Usage of the Digital Signature Algorithm (DSA) and
     Elliptic Curve Digital Signature Algorithm (ECDSA)
@@ -7,39 +7,27 @@ RFC 6979:
 
 Many thanks to Coda Hale for his implementation in Go language:
     https://github.com/codahale/rfc6979
-'''
+"""
 
 import hmac
 from binascii import hexlify
-from .util import number_to_string, number_to_string_crop
-from .six import b
+from .util import number_to_string, number_to_string_crop, bit_length
+from ._compat import hmac_compat
 
-try:
-    bin(0)
-except NameError:
-    binmap = {"0": "0000", "1": "0001", "2": "0010", "3": "0011",
-              "4": "0100", "5": "0101", "6": "0110", "7": "0111",
-              "8": "1000", "9": "1001", "a": "1010", "b": "1011",
-              "c": "1100", "d": "1101", "e": "1110", "f": "1111"}
-    def bin(value): # for python2.5
-        v = "".join(binmap[x] for x in "%x"%abs(value)).lstrip("0")
-        if value < 0:
-            return "-0b" + v
-        return "0b" + v
 
-def bit_length(num):
-    # http://docs.python.org/dev/library/stdtypes.html#int.bit_length
-    s = bin(num)  # binary representation:  bin(-37) --> '-0b100101'
-    s = s.lstrip('-0b')  # remove leading zeros and minus sign
-    return len(s)  # len('100101') --> 6
+# bit_length was defined in this module previously so keep it for backwards
+# compatibility, will need to deprecate and remove it later
+__all__ = ["bit_length", "bits2int", "bits2octets", "generate_k"]
+
 
 def bits2int(data, qlen):
     x = int(hexlify(data), 16)
     l = len(data) * 8
 
     if l > qlen:
-        return x >> (l-qlen)
+        return x >> (l - qlen)
     return x
+
 
 def bits2octets(data, order):
     z1 = bits2int(data, bit_length(order))
@@ -50,35 +38,55 @@ def bits2octets(data, order):
 
     return number_to_string_crop(z2, order)
 
-# https://tools.ietf.org/html/rfc6979#section-3.2
-def generate_k(generator, secexp, hash_func, data):
-    '''
-        generator - ECDSA generator used in the signature
-        secexp - secure exponent (private key) in numeric form
-        hash_func - reference to the same hash function used for generating hash
-        data - hash in binary form of the signing data
-    '''
 
-    qlen = bit_length(generator.order())
+# https://tools.ietf.org/html/rfc6979#section-3.2
+def generate_k(order, secexp, hash_func, data, retry_gen=0, extra_entropy=b""):
+    """
+    Generate the ``k`` value - the nonce for DSA.
+
+    :param int order: order of the DSA generator used in the signature
+    :param int secexp: secure exponent (private key) in numeric form
+    :param hash_func: reference to the same hash function used for generating
+        hash, like :py:class:`hashlib.sha1`
+    :param bytes data: hash in binary form of the signing data
+    :param int retry_gen: how many good 'k' values to skip before returning
+    :param bytes extra_entropy: additional added data in binary form as per
+        section-3.6 of rfc6979
+    :rtype: int
+    """
+
+    qlen = bit_length(order)
     holen = hash_func().digest_size
-    rolen = (qlen + 7) / 8
-    bx = number_to_string(secexp, generator.order()) + bits2octets(data, generator.order())
+    rolen = (qlen + 7) // 8
+    bx = (
+        hmac_compat(number_to_string(secexp, order)),
+        hmac_compat(bits2octets(data, order)),
+        hmac_compat(extra_entropy),
+    )
 
     # Step B
-    v = b('\x01') * holen
+    v = b"\x01" * holen
 
     # Step C
-    k = b('\x00') * holen
+    k = b"\x00" * holen
 
     # Step D
 
-    k = hmac.new(k, v+b('\x00')+bx, hash_func).digest()
+    k = hmac.new(k, digestmod=hash_func)
+    k.update(v + b"\x00")
+    for i in bx:
+        k.update(i)
+    k = k.digest()
 
     # Step E
     v = hmac.new(k, v, hash_func).digest()
 
     # Step F
-    k = hmac.new(k, v+b('\x01')+bx, hash_func).digest()
+    k = hmac.new(k, digestmod=hash_func)
+    k.update(v + b"\x01")
+    for i in bx:
+        k.update(i)
+    k = k.digest()
 
     # Step G
     v = hmac.new(k, v, hash_func).digest()
@@ -86,7 +94,7 @@ def generate_k(generator, secexp, hash_func, data):
     # Step H
     while True:
         # Step H1
-        t = b('')
+        t = b""
 
         # Step H2
         while len(t) < rolen:
@@ -96,8 +104,10 @@ def generate_k(generator, secexp, hash_func, data):
         # Step H3
         secret = bits2int(t, qlen)
 
-        if secret >= 1 and secret < generator.order():
-            return secret
+        if 1 <= secret < order:
+            if retry_gen <= 0:
+                return secret
+            retry_gen -= 1
 
-        k = hmac.new(k, v+b('\x00'), hash_func).digest()
+        k = hmac.new(k, v + b"\x00", hash_func).digest()
         v = hmac.new(k, v, hash_func).digest()

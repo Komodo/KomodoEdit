@@ -1,2 +1,0 @@
-# http://github.com/warner/python-ecdsa
-0.11

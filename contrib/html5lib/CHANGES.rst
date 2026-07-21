@@ -1,6 +1,214 @@
 Change Log
 ----------
 
+1.1
+~~~
+
+UNRELEASED
+
+Breaking changes:
+
+* Drop support for Python 3.3. (#358)
+* Drop support for Python 3.4. (#421)
+
+Deprecations:
+
+* Deprecate the ``html5lib`` sanitizer (``html5lib.serialize(sanitize=True)`` and
+  ``html5lib.filters.sanitizer``). We recommend users migrate to `Bleach
+  <https://github.com/mozilla/bleach>`. Please let us know if Bleach doesn't suffice for your
+  use. (#443)
+
+Other changes:
+
+* Try to import from ``collections.abc`` to remove DeprecationWarning and ensure
+  ``html5lib`` keeps working in future Python versions. (#403)
+* Drop optional ``datrie`` dependency. (#442)
+
+
+1.0.1
+~~~~~
+
+Released on December 7, 2017
+
+Breaking changes:
+
+* Drop support for Python 2.6. (#330) (Thank you, Hugo, Will Kahn-Greene!)
+* Remove ``utils/spider.py`` (#353) (Thank you, Jon Dufresne!)
+
+Features:
+
+* Improve documentation. (#300, #307) (Thank you, Jon Dufresne, Tom Most,
+  Will Kahn-Greene!)
+* Add iframe seamless boolean attribute. (Thank you, Ritwik Gupta!)
+* Add itemscope as a boolean attribute. (#194) (Thank you, Jonathan Vanasco!)
+* Support Python 3.6. (#333) (Thank you, Jon Dufresne!)
+* Add CI support for Windows using AppVeyor. (Thank you, John Vandenberg!)
+* Improve testing and CI and add code coverage (#323, #334), (Thank you, Jon
+  Dufresne, John Vandenberg, Sam Sneddon, Will Kahn-Greene!)
+* Semver-compliant version number.
+
+Bug fixes:
+
+* Add support for setuptools < 18.5 to support environment markers. (Thank you,
+  John Vandenberg!)
+* Add explicit dependency for six >= 1.9. (Thank you, Eric Amorde!)
+* Fix regexes to work with Python 3.7 regex adjustments. (#318, #379) (Thank
+  you, Benedikt Morbach, Ville Skyttä, Mark Vasilkov!)
+* Fix alphabeticalattributes filter namespace bug. (#324) (Thank you, Will
+  Kahn-Greene!)
+* Include license file in generated wheel package. (#350) (Thank you, Jon
+  Dufresne!)
+* Fix annotation-xml typo. (#339) (Thank you, Will Kahn-Greene!)
+* Allow uppercase hex chararcters in CSS colour check. (#377) (Thank you,
+  Komal Dembla, Hugo!)
+
+
+1.0
+~~~
+
+Released and unreleased on December 7, 2017. Badly packaged release.
+
+
+0.999999999/1.0b10
+~~~~~~~~~~~~~~~~~~
+
+Released on July 15, 2016
+
+* Fix attribute order going to the tree builder to be document order
+  instead of reverse document order(!).
+
+
+0.99999999/1.0b9
+~~~~~~~~~~~~~~~~
+
+Released on July 14, 2016
+
+* **Added ordereddict as a mandatory dependency on Python 2.6.**
+
+* Added ``lxml``, ``genshi``, ``datrie``, ``charade``, and ``all``
+  extras that will do the right thing based on the specific
+  interpreter implementation.
+
+* Now requires the ``mock`` package for the testsuite.
+
+* Cease supporting DATrie under PyPy.
+
+* **Remove PullDOM support, as this hasn't ever been properly
+  tested, doesn't entirely work, and as far as I can tell is
+  completely unused by anyone.**
+
+* Move testsuite to ``py.test``.
+
+* **Fix #124: move to webencodings for decoding the input byte stream;
+  this makes html5lib compliant with the Encoding Standard, and
+  introduces a required dependency on webencodings.**
+
+* **Cease supporting Python 3.2 (in both CPython and PyPy forms).**
+
+* **Fix comments containing double-dash with lxml 3.5 and above.**
+
+* **Use scripting disabled by default (as we don't implement
+  scripting).**
+
+* **Fix #11, avoiding the XSS bug potentially caused by serializer
+  allowing attribute values to be escaped out of in old browser versions,
+  changing the quote_attr_values option on serializer to take one of
+  three values, "always" (the old True value), "legacy" (the new option,
+  and the new default), and "spec" (the old False value, and the old
+  default).**
+
+* **Fix #72 by rewriting the sanitizer to apply only to treewalkers
+  (instead of the tokenizer); as such, this will require amending all
+  callers of it to use it via the treewalker API.**
+
+* **Drop support of charade, now that chardet is supported once more.**
+
+* **Replace the charset keyword argument on parse and related methods
+  with a set of keyword arguments: override_encoding, transport_encoding,
+  same_origin_parent_encoding, likely_encoding, and default_encoding.**
+
+* **Move filters._base, treebuilder._base, and treewalkers._base to .base
+  to clarify their status as public.**
+
+* **Get rid of the sanitizer package. Merge sanitizer.sanitize into the
+  sanitizer.htmlsanitizer module and move that to sanitizer. This means
+  anyone who used sanitizer.sanitize or sanitizer.HTMLSanitizer needs no
+  code changes.**
+
+* **Rename treewalkers.lxmletree to .etree_lxml and
+  treewalkers.genshistream to .genshi to have a consistent API.**
+
+* Move a whole load of stuff (inputstream, ihatexml, trie, tokenizer,
+  utils) to be underscore prefixed to clarify their status as private.
+
+
+0.9999999/1.0b8
+~~~~~~~~~~~~~~~
+
+Released on September 10, 2015
+
+* Fix #195: fix the sanitizer to drop broken URLs (it threw an
+  exception between 0.9999 and 0.999999).
+
+
+0.999999/1.0b7
+~~~~~~~~~~~~~~
+
+Released on July 7, 2015
+
+* Fix #189: fix the sanitizer to allow relative URLs again (as it did
+  prior to 0.9999/1.0b5).
+
+
+0.99999/1.0b6
+~~~~~~~~~~~~~
+
+Released on April 30, 2015
+
+* Fix #188: fix the sanitizer to not throw an exception when sanitizing
+  bogus data URLs.
+
+
+0.9999/1.0b5
+~~~~~~~~~~~~
+
+Released on April 29, 2015
+
+* Fix #153: Sanitizer fails to treat some attributes as URLs. Despite how
+  this sounds, this has no known security implications.  No known version
+  of IE (5.5 to current), Firefox (3 to current), Safari (6 to current),
+  Chrome (1 to current), or Opera (12 to current) will run any script
+  provided in these attributes.
+
+* Pass error message to the ParseError exception in strict parsing mode.
+
+* Allow data URIs in the sanitizer, with a whitelist of content-types.
+
+* Add support for Python implementations that don't support lone
+  surrogates (read: Jython). Fixes #2.
+
+* Remove localization of error messages. This functionality was totally
+  unused (and untested that everything was localizable), so we may as
+  well follow numerous browsers in not supporting translating technical
+  strings.
+
+* Expose treewalkers.pprint as a public API.
+
+* Add a documentEncoding property to HTML5Parser, fix #121.
+
+
+0.999
+~~~~~
+
+Released on December 23, 2013
+
+* Fix #127: add work-around for CPython issue #20007: .read(0) on
+  http.client.HTTPResponse drops the rest of the content.
+
+* Fix #115: lxml treewalker can now deal with fragments containing, at
+  their root level, text nodes with non-ASCII characters on Python 2.
+
+
 0.99
 ~~~~
 
@@ -106,7 +314,7 @@ Released on May 17, 2013
 
 * Test harness has been improved and now depends on ``nose``.
 
-* Documentation updated and moved to http://html5lib.readthedocs.org/.
+* Documentation updated and moved to https://html5lib.readthedocs.io/.
 
 
 0.95

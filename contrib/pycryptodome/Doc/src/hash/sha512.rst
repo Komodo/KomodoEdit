@@ -1,0 +1,57 @@
+SHA-512, SHA-512/224, SHA-512/256
+=================================
+
+SHA-512 and its two truncated variants (SHA-512/224 and SHA-512/256) belong to the SHA-2_ family of cryptographic hashes.
+The three functions produce the digest of a message, respectively 512, 224 or 256 bits long.
+
+SHA-512 is roughly 50% faster than SHA-224 and SHA-256 on 64-bit machines, even if its digest is longer.
+The speed-up is due to the internal computation being performed with 64-bit words,
+whereas the other two hash functions employ 32-bit words.
+
+SHA-512/224, SHA-512/256, and SHA-384 too are faster on 64-bit machines for the same reason.
+
+This is an example showing how to use SHA-512:
+
+    >>> from Crypto.Hash import SHA512
+    >>>
+    >>> h = SHA512.new()
+    >>> h.update(b'Hello')
+    >>> print(h.hexdigest())
+    3615f80c9d293ed7402687f94b22d58e529b8cc7916f8fac7fddf7fbd5af4cf777d3d795a7a00a16bf7e7f3fb9561ee9baae480da9fe7a18769e71886b03f315
+
+This is an example showing how to use SHA-512/256:
+
+    >>> from Crypto.Hash import SHA512
+    >>>
+    >>> h = SHA512.new(truncate="256")
+    >>> h.update(b'Hello')
+    >>> print(h.hexdigest())
+    7e75b18b88d2cb8be95b05ec611e54e2460408a2dcf858f945686446c9d07aac
+
+
+*SHA* stands for Secure Hash Algorithm.
+
+.. warning::
+    SHA-512 is vulnerable to `length-extension attacks <https://crypto.stackexchange.com/questions/3978/understanding-the-length-extension-attack>`_,
+    which are relevant if you are computing the hash of a secret message.
+    
+    For instance, let's say you were planning to build a cheap MAC by concatenating a secret *key* to
+    a public message *m* (bad idea!):
+   
+    .. math::
+        h = \text{SHA-512}(m || k)
+    
+    By only knowing the digest *h* and the length of *m* and *k*, the attacker can easily compute a second digest *h'*:
+    
+    .. math::
+        h' = \text{SHA-512}(m || p || z)
+    
+    where *p* is a well-known bit string and the attacker can pick a bit string *z* at will.
+
+    The two variants SHA-512/224 and SHA-512/256 are **not** vulnerable to
+    length-extension attacks.
+
+.. _SHA-2: http://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.180-4.pdf
+
+.. automodule:: Crypto.Hash.SHA512
+    :members:

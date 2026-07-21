@@ -1196,8 +1196,15 @@ class KoHTML5_html5libLinter:
             inputStream = StringIO.StringIO(text)
             parser = html5lib.HTMLParser()
             try:
+                # html5lib 1.1 renamed the "encoding" kwarg to
+                # "override_encoding" (part of a broader, deliberate rework
+                # of its encoding-detection algorithm to track the WHATWG
+                # spec more closely -- transport_encoding/
+                # same_origin_parent_encoding/likely_encoding/
+                # default_encoding were added alongside it); same semantics
+                # for our purposes (force this specific encoding).
                 doc = parser.parse(inputStream,
-                                   encoding=request.encoding.python_encoding_name)
+                                   override_encoding=request.encoding.python_encoding_name)
             finally:
                 inputStream.close()
             errors = parser.errors

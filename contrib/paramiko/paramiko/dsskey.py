@@ -99,14 +99,24 @@ class DSSKey (PKey):
 
     def sign_ssh_data(self, data):
         digest = sha1(data).digest()
-        dss = DSA.construct((long(self.y), long(self.g), long(self.p), long(self.q), long(self.x)))
         # generate a suitable k
         qsize = len(util.deflate_long(self.q, 0))
         while True:
             k = util.inflate_long(os.urandom(qsize), 1)
             if (k > 2) and (k < self.q):
                 break
-        r, s = dss.sign(util.inflate_long(digest, 1), k)
+        # pycryptodome's DsaKey no longer exposes raw sign()/verify()
+        # ("Use module Crypto.Signature.DSS instead") -- but that module
+        # generates its own k internally (deliberately, to avoid the
+        # well-known k-reuse/k-leakage class of DSA vulnerabilities) and
+        # has no way to accept the caller-supplied k paramiko generates
+        # above. Do the same raw DSA sign math pycrypto's dss.sign()
+        # did internally instead, using paramiko's own existing
+        # util.mod_inverse() (already used elsewhere in this codebase for
+        # private key encoding).
+        M = util.inflate_long(digest, 1)
+        r = pow(self.g, k, self.p) % self.q
+        s = (util.mod_inverse(k, self.q) * (M + self.x * r)) % self.q
         m = Message()
         m.add_string('ssh-dss')
         # apparently, in rare cases, r or s may be shorter than 20 bytes!
@@ -134,8 +144,15 @@ class DSSKey (PKey):
         sigS = util.inflate_long(sig[20:], 1)
         sigM = util.inflate_long(sha1(data).digest(), 1)
 
-        dss = DSA.construct((long(self.y), long(self.g), long(self.p), long(self.q)))
-        return dss.verify(sigM, (sigR, sigS))
+        # See sign_ssh_data() above for why this is raw modular arithmetic
+        # rather than dss.verify() (removed in pycryptodome).
+        if not (0 < sigR < self.q) or not (0 < sigS < self.q):
+            return False
+        w = util.mod_inverse(sigS, self.q)
+        u1 = (sigM * w) % self.q
+        u2 = (sigR * w) % self.q
+        v = ((pow(self.g, u1, self.p) * pow(self.y, u2, self.p)) % self.p) % self.q
+        return v == sigR
 
     def _encode_key(self):
         if self.x is None:
@@ -162,11 +179,14 @@ class DSSKey (PKey):
 
         :param int bits: number of bits the generated key should be.
         :param function progress_func:
-            an optional function to call at key points in key generation (used
-            by ``pyCrypto.PublicKey``).
+            unused -- accepted only for backwards API compatibility. pycrypto's
+            DSA.generate() took a progress callback as its 3rd positional arg;
+            pycryptodome's DSA.generate(bits, randfunc=None, domain=None) does
+            not (that 3rd slot is now domain parameters), so there is nothing
+            to forward it to any more.
         :return: new `.DSSKey` private key
         """
-        dsa = DSA.generate(bits, os.urandom, progress_func)
+        dsa = DSA.generate(bits, os.urandom)
         key = DSSKey(vals=(dsa.p, dsa.q, dsa.g, dsa.y))
         key.x = dsa.x
         return key

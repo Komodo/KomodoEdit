@@ -95,7 +95,16 @@ class RSAKey (PKey):
     def sign_ssh_data(self, data):
         digest = sha1(data).digest()
         rsa = RSA.construct((long(self.n), long(self.e), long(self.d)))
-        sig = util.deflate_long(rsa.sign(self._pkcs1imify(digest), bytes())[0], 0)
+        # pycryptodome's RsaKey no longer exposes raw sign()/verify()
+        # ("Use module Crypto.Signature.pkcs1_15 instead") -- but that
+        # module does its own PKCS1 padding internally, which doesn't
+        # compose with the hand-rolled EMSA-PKCS1-v1_5 padding
+        # _pkcs1imify() does below (this is SSH's own raw RSA signature
+        # format, not a generic PKCS1 signature). Do the same raw RSA
+        # private-key operation (m^d mod n) pycrypto's rsa.sign() did
+        # internally, directly.
+        padded = util.inflate_long(self._pkcs1imify(digest), True)
+        sig = util.deflate_long(pow(padded, rsa.d, rsa.n), 0)
         m = Message()
         m.add_string('ssh-rsa')
         m.add_string(sig)
@@ -110,7 +119,9 @@ class RSAKey (PKey):
         # hash into a string as long as the RSA key.
         hash_obj = util.inflate_long(self._pkcs1imify(sha1(data).digest()), True)
         rsa = RSA.construct((long(self.n), long(self.e)))
-        return rsa.verify(hash_obj, (sig,))
+        # See sign_ssh_data() above for why this is raw pow() rather than
+        # rsa.verify() (removed in pycryptodome).
+        return pow(sig, rsa.e, rsa.n) == hash_obj
 
     def _encode_key(self):
         if (self.p is None) or (self.q is None):
@@ -139,11 +150,14 @@ class RSAKey (PKey):
 
         :param int bits: number of bits the generated key should be.
         :param function progress_func:
-            an optional function to call at key points in key generation (used
-            by ``pyCrypto.PublicKey``).
+            unused -- accepted only for backwards API compatibility. pycrypto's
+            RSA.generate() took a progress callback as its 3rd positional arg;
+            pycryptodome's RSA.generate(bits, randfunc=None, e=65537) does not
+            (that 3rd slot is now the public exponent), so there is nothing to
+            forward it to any more.
         :return: new `.RSAKey` private key
         """
-        rsa = RSA.generate(bits, os.urandom, progress_func)
+        rsa = RSA.generate(bits, os.urandom)
         key = RSAKey(vals=(rsa.e, rsa.n))
         key.d = rsa.d
         key.p = rsa.p

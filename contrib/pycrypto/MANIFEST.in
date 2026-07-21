@@ -1,5 +1,0 @@
-include MANIFEST.in
-include ACKS ChangeLog COPYRIGHT Doc/* TODO
-graft LEGAL
-recursive-include src *.h *.c
-include *.py
