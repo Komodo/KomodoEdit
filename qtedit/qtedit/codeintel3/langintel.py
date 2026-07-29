@@ -825,7 +825,13 @@ class Arg(object):
     def append_default_ch(self, p, ch):
         self.default_chs.append(ch)
 
-    def __nonzero__(self):
+    def __bool__(self):
+        # Python 2's truthiness special method was named __nonzero__;
+        # Python 3 renamed it to __bool__ -- this was never renamed during
+        # the port, so Python 3 silently fell back to every Arg being
+        # truthy by default (no __len__ either), which broke the "drop the
+        # trailing empty Arg" cleanup in _parse_calltip() for any
+        # zero-argument signature (e.g. "foo()").
         return operator.truth(self.name_chs)
 
     def __repr__(self):

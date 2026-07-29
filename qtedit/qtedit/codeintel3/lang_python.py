@@ -949,7 +949,7 @@ class PythonBuffer(CitadelBuffer):
             if beforeChar and beforeChar in " \t":
                 if text.endswith("def"):
                     posttext = accessor.text_range(pos,
-                                                   min(accessor.length, pos+20)
+                                                   min(accessor.length(), pos+20)
                                                   ).replace(" ", "")
                     if DEBUG:
                         print("trg_from_pos:: magic-symbols - def")

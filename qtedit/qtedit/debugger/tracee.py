@@ -109,14 +109,34 @@ class Tracee(bdb.Bdb):
             if cmd == "set_breakpoints":
                 self._apply_breakpoints(msg)
                 continue
+            if cmd == "eval":
+                self._send_eval_result(msg.get("expr", ""), msg.get("frame_index", 0))
+                continue
+            if cmd == "set_local":
+                self._set_local(
+                    msg.get("frame_index", 0), msg.get("name", ""), msg.get("value_expr", "")
+                )
+                continue
             # Unknown command -- ignore and keep waiting rather than
             # silently resuming execution the user didn't ask for.
 
     def _apply_breakpoints(self, msg):
         self.clear_all_breaks()
         path = msg.get("path")
-        for line in msg.get("lines", []):
-            self.set_break(path, line)
+        for bp in msg.get("breakpoints", []):
+            line = bp["line"]
+            condition = bp.get("condition") or None
+            self.set_break(path, line, cond=condition)
+            ignore_count = bp.get("ignore_count") or 0
+            if ignore_count:
+                # set_break() creates the Breakpoint via bdb.Breakpoint's
+                # own registry -- get_breaks() looks it back up rather than
+                # set_break() returning it directly. Bdb.break_here()'s own
+                # stop-checking logic already auto-decrements .ignore and
+                # skips the stop while it's > 0, so no custom hit-counting
+                # is needed beyond setting this field.
+                for bpt in self.get_breaks(path, line):
+                    bpt.ignore = ignore_count
         protocol.send_message(self._sock, {"event": "breakpoints_set"})
 
     def _send_stopped(self, reason):
@@ -129,6 +149,63 @@ class Tracee(bdb.Bdb):
             for frame, lineno in self._frames
         ]
         protocol.send_message(self._sock, {"event": "stopped", "reason": reason, "stack": entries})
+
+    def _send_eval_result(self, expr, frame_index):
+        # Unlike DBGP's `eval` (see dbgp.py's module docstring -- Xdebug
+        # ignores the `-d` depth flag for eval, always evaluating in the
+        # innermost frame), bdb gives us the real frame object per index
+        # via self._frames, so watch expressions on the Python side can
+        # genuinely evaluate in whichever stack frame the user has
+        # selected.
+        if 0 <= frame_index < len(self._frames):
+            frame, _lineno = self._frames[frame_index]
+            try:
+                value = eval(expr, frame.f_globals, frame.f_locals)
+            except Exception as exc:
+                protocol.send_message(
+                    self._sock,
+                    {
+                        "event": "watch_result",
+                        "expr": expr,
+                        "value": None,
+                        "error": f"{type(exc).__name__}: {exc}",
+                    },
+                )
+                return
+            protocol.send_message(
+                self._sock,
+                {"event": "watch_result", "expr": expr, "value": _safe_repr(value), "error": None},
+            )
+        else:
+            protocol.send_message(
+                self._sock,
+                {"event": "watch_result", "expr": expr, "value": None, "error": "no such frame"},
+            )
+
+    def _set_local(self, frame_index, name, value_expr):
+        # Assigning into frame.f_locals[name] here actually writes back to
+        # the real fast-local variable (not just a disconnected snapshot
+        # dict), including inside a live function frame -- verified
+        # empirically against this project's Python 3.14 interpreter,
+        # which implements PEP 667's write-through f_locals proxy for
+        # optimized frames (this would need a ctypes
+        # PyFrame_LocalsToFast() workaround on pre-3.13 interpreters).
+        if not (0 <= frame_index < len(self._frames)):
+            protocol.send_message(
+                self._sock, {"event": "set_local_error", "message": "no such frame"}
+            )
+            return
+        frame, _lineno = self._frames[frame_index]
+        try:
+            value = eval(value_expr, frame.f_globals, frame.f_locals)
+            frame.f_locals[name] = value
+        except Exception as exc:
+            protocol.send_message(
+                self._sock,
+                {"event": "set_local_error", "message": f"{type(exc).__name__}: {exc}"},
+            )
+            return
+        self._send_locals(frame_index)
 
     def _send_locals(self, frame_index):
         if 0 <= frame_index < len(self._frames):

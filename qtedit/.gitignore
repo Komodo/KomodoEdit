@@ -2,3 +2,8 @@
 __pycache__/
 *.pyc
 *.snap
+.pytest_cache/
+tests/tmp-db-base-dir/
+# test_python.py's DefnTestCase/CatalogTestCase write scratch fixtures to
+# os.getcwd()/tmp -- same relative-to-cwd behavior as the legacy suite.
+/tmp/

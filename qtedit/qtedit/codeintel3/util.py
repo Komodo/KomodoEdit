@@ -429,10 +429,10 @@ def markup_text(text, pos=None, trg_pos=None, start_pos=None):
     if isinstance(text, str):
         # codeintel is now UTF-8 internally; use that for tests too
         text = text.encode("utf-8")
-    m_text = ""
+    m_text = b""
     m_pos = 0
     for position, marker in positions_and_markers:
-        m_text += text[m_pos:position] + marker
+        m_text += text[m_pos:position] + marker.encode("utf-8")
         m_pos = position
     m_text += text[m_pos:]
     return m_text.decode("utf-8")
@@ -621,6 +621,11 @@ def indent(s, width=4, skip_first_line=False):
     The optional "skip_first_line" argument is a boolean (default False)
     indicating if the first line should NOT be indented.
     """
+    if isinstance(s, bytes):
+        # codeintel is UTF-8 internally (e.g. Accessor.text) -- indent()
+        # itself always produces str, so decode up front rather than
+        # letting callers guess whether to encode/decode first.
+        s = s.decode("utf-8")
     lines = s.splitlines(1)
     indentstr = ' '*width
     if skip_first_line:

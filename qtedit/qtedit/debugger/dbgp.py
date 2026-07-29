@@ -84,6 +84,8 @@ class DbgpBuffer:
 class DbgpSession(QObject):
     stopped = Signal(str, list)  # reason, stack (list of dicts)
     localsReceived = Signal(int, list)  # frame_index, variables
+    watchResult = Signal(str, str, bool)  # expr, display text, is_error
+    localError = Signal(str)  # message, from a failed set_local
     output = Signal(str, bool)  # text, is_stderr
     terminated = Signal(int)  # exit_code
 
@@ -96,22 +98,38 @@ class DbgpSession(QObject):
         self._buffer = DbgpBuffer()
         self._next_transaction_id = 1
         self._pending = {}  # transaction_id -> callback(root_element)
-        self._pending_breakpoint_lines = []
+        self._pending_breakpoints = []
         self._script_uri = None
         self._got_init = False
 
         self._server = QTcpServer(self)
-        self._server.listen(QHostAddress.LocalHost, self.DEFAULT_PORT)
+        # An OS-assigned ephemeral port, not DEFAULT_PORT (Xdebug's own
+        # documented default) -- start() below always tells the php
+        # subprocess exactly which port to connect back to via
+        # -dxdebug.client_port, so nothing here actually depends on binding
+        # the well-known port, and using an ephemeral one instead is what
+        # lets multiple DbgpSession instances (multiple simultaneous PHP
+        # debug sessions) coexist. DEFAULT_PORT would only matter for a
+        # remote-attach flow where an externally launched Xdebug process
+        # connects using its own default ini setting without us telling it
+        # the port -- qtedit doesn't have that feature (see the plan doc's
+        # Debugger phase for why it's evaluated and deferred rather than
+        # built), so there's no reason to reserve the fixed port here.
+        self._server.listen(QHostAddress.LocalHost, 0)
         self._server.newConnection.connect(self._on_new_connection)
 
     def is_running(self):
         return self._proc is not None and self._proc.state() != QProcess.ProcessState.NotRunning
 
-    def start(self, script_path, breakpoint_lines):
+    def start(self, script_path, breakpoints):
+        """`breakpoints` is a list of dicts: {"line": int, "condition":
+        str|None, "ignore_count": int} -- same shape session.DebugSession
+        takes, so main_window.py doesn't need per-language branching here
+        either."""
         if self.is_running():
             return
         self._script_uri = _to_file_uri(script_path)
-        self._pending_breakpoint_lines = list(breakpoint_lines)
+        self._pending_breakpoints = list(breakpoints)
         self._got_init = False
 
         self._proc = QProcess(self)
@@ -146,6 +164,34 @@ class DbgpSession(QObject):
     def get_locals(self, frame_index):
         self._send("context_get", {"d": frame_index}, self._on_context_get_response, frame_index)
 
+    def evaluate(self, expr, frame_index=0):
+        # `frame_index` is accepted for API symmetry with
+        # session.DebugSession, but Xdebug's `eval` command ignores DBGP's
+        # `-d` depth flag and always evaluates in the innermost frame
+        # (empirically verified against a real php+Xdebug process -- see
+        # the plan doc's Debugger phase), so watch expressions on the PHP
+        # side only ever reflect the current (topmost) frame regardless of
+        # which stack frame is selected in the UI.
+        self._send("eval", {}, self._on_eval_response, expr, data=expr)
+
+    def set_local(self, frame_index, name, value_expr):
+        # property_set's data is evaluated as PHP code, same as eval's --
+        # verified empirically against real Xdebug (see the plan doc's
+        # Debugger phase), so a plain expression string works here exactly
+        # like it does for watch expressions. `name` must be the
+        # property's DBGP "fullname" (e.g. "$x", with the sigil) -- the
+        # same string context_get already reports and localsReceived
+        # forwards on to main_window.py, so no translation is needed at
+        # the call site. `-l` (byte length of the raw expression, not the
+        # base64-encoded form) is required or Xdebug rejects the command.
+        value_bytes = value_expr.encode("utf-8")
+        self._send(
+            "property_set",
+            {"n": name, "d": frame_index, "l": len(value_bytes)},
+            lambda root: self._on_property_set_response(root, frame_index),
+            data=value_expr,
+        )
+
     def stop(self):
         self._send("stop", {}, None)
         if self._proc is not None:
@@ -154,7 +200,13 @@ class DbgpSession(QObject):
     def _send_run_like(self, reason, command):
         self._send(command, {}, lambda root: self._on_run_or_step_response(root, reason))
 
-    def _send(self, command, flags, callback, *callback_extra_args):
+    def _send(self, command, flags, callback, *callback_extra_args, data=None):
+        # `data`, if given, is a str sent as a base64-encoded "-- <data>"
+        # trailer (DBGP's way of passing an arbitrary expression, e.g. a
+        # breakpoint condition) -- the transaction id must come *before*
+        # "--", not after, or Xdebug rejects the whole command with "invalid
+        # or missing options" (empirically verified against a real
+        # php+Xdebug process; see the plan doc's Debugger phase).
         if self._socket is None:
             return
         tid = self._next_transaction_id
@@ -164,7 +216,10 @@ class DbgpSession(QObject):
         parts = [command, "-i", str(tid)]
         for flag, value in flags.items():
             parts += [f"-{flag}", str(value)]
-        self._socket.write((" ".join(parts) + "\x00").encode("utf-8"))
+        text = " ".join(parts)
+        if data is not None:
+            text += " -- " + base64.b64encode(data.encode("utf-8")).decode("ascii")
+        self._socket.write((text + "\x00").encode("utf-8"))
 
     def _on_new_connection(self):
         self._socket = self._server.nextPendingConnection()
@@ -196,15 +251,36 @@ class DbgpSession(QObject):
         self._send_next_breakpoint()
 
     def _send_next_breakpoint(self):
-        if self._pending_breakpoint_lines:
-            line = self._pending_breakpoint_lines.pop(0)
-            self._send(
-                "breakpoint_set",
-                {"t": "line", "f": self._script_uri, "n": line},
-                lambda _root: self._send_next_breakpoint(),
-            )
-        else:
+        if not self._pending_breakpoints:
             self._send_run_like("breakpoint", "run")
+            return
+        bp = self._pending_breakpoints.pop(0)
+        condition = bp.get("condition") or None
+        ignore_count = bp.get("ignore_count") or 0
+        flags = {"f": self._script_uri, "n": bp["line"]}
+        # bdb's set_break(cond=...) semantics (skip the first `ignore`
+        # hits, stop starting on hit ignore+1 -- see tracee.py) are what
+        # qtedit's ignore_count field means everywhere else; DBGP's own
+        # hit_value/hit_condition instead means "stop once hit_count
+        # satisfies the comparison", so hit_value = ignore_count + 1 with
+        # ">=" reproduces the same "skip N, then always break" behavior
+        # (verified empirically against real Xdebug -- see the plan doc's
+        # Debugger phase).
+        if ignore_count:
+            flags["h"] = ignore_count + 1
+            flags["o"] = ">="
+        if condition:
+            flags["t"] = "conditional"
+            data = condition
+        else:
+            flags["t"] = "line"
+            data = None
+        self._send(
+            "breakpoint_set",
+            flags,
+            lambda _root: self._send_next_breakpoint(),
+            data=data,
+        )
 
     def _on_run_or_step_response(self, root, reason):
         status = root.get("status")
@@ -249,6 +325,33 @@ class DbgpSession(QObject):
             variables.append({"name": name, "type": var_type, "value": text})
         self.localsReceived.emit(frame_index, variables)
 
+    def _on_eval_response(self, root, expr):
+        error_elem = root.find(f"{{{DBGP_NS}}}error")
+        if error_elem is not None:
+            message_elem = error_elem.find(f"{{{DBGP_NS}}}message")
+            message = (message_elem.text or "").strip() if message_elem is not None else "eval error"
+            self.watchResult.emit(expr, f"<error: {message}>", True)
+            return
+        prop = root.find(f"{{{DBGP_NS}}}property")
+        if prop is None:
+            self.watchResult.emit(expr, "", False)
+            return
+        text = prop.text or ""
+        if prop.get("encoding") == "base64":
+            try:
+                text = base64.b64decode(text).decode("utf-8", errors="replace")
+            except Exception:
+                pass
+        self.watchResult.emit(expr, text, False)
+
+    def _on_property_set_response(self, root, frame_index):
+        if root.get("success") == "1":
+            self.get_locals(frame_index)
+        else:
+            self.localError.emit(
+                "Konnte Wert nicht setzen (ungültiger Ausdruck oder nicht änderbare Property)"
+            )
+
     def _on_stdout(self):
         if self._proc is not None:
             text = bytes(self._proc.readAllStandardOutput()).decode("utf-8", errors="replace")
@@ -263,10 +366,5 @@ class DbgpSession(QObject):
         self._socket = None
         self._buffer = DbgpBuffer()
         self._pending = {}
-        # Release port 9003 so a later debug run's fresh DbgpSession can
-        # bind it again -- unlike session.py's ephemeral-port DebugSession,
-        # this port is fixed (Xdebug's own default), so a lingering bound
-        # QTcpServer here would make every subsequent PHP debug run fail
-        # to bind silently.
         self._server.close()
         self.terminated.emit(exit_code)

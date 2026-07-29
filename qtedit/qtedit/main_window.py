@@ -3,14 +3,19 @@ import os
 from PySide6.QtCore import QDir, QPoint, QProcess, QStandardPaths, Qt
 from PySide6.QtGui import QAction, QIcon, QKeySequence, QShortcut
 from PySide6.QtWidgets import (
+    QComboBox,
+    QDialog,
     QDockWidget,
     QFileDialog,
     QFileSystemModel,
+    QHBoxLayout,
     QInputDialog,
+    QLineEdit,
     QMainWindow,
     QMenu,
     QMessageBox,
     QPlainTextEdit,
+    QPushButton,
     QTabWidget,
     QToolBar,
     QTreeView,
@@ -23,10 +28,13 @@ from PySide6.QtWidgets import (
 from qtedit import icons
 from qtedit.codeintel_client import CodeIntelClient
 from qtedit.completion_popup import CompletionPopup
+from qtedit.debugger import breakpoint_store
+from qtedit.debugger.breakpoint_dialog import BreakpointConditionDialog
 from qtedit.debugger.dbgp import DbgpSession
 from qtedit.debugger.session import DebugSession
 from qtedit.editor import UDL_LANGUAGES, CodeEditor
 from qtedit.find_bar import FindBar
+from qtedit import find_in_files
 from qtedit.find_in_files_dialog import FindInFilesDialog
 from qtedit.prefs_dialog import PreferencesDialog
 from qtedit.projects import model as project_model
@@ -79,6 +87,7 @@ class MainWindow(QMainWindow):
 
         self._prefs_dialog = None
         self._find_in_files_dialog = None
+        self._last_replace_undo = []
         self._running_processes = []
         self._build_menu()
         self._build_project_tree(project_dir or os.getcwd())
@@ -142,6 +151,11 @@ class MainWindow(QMainWindow):
         self._find_in_files_action.triggered.connect(self.open_find_in_files)
         edit_menu.addAction(self._find_in_files_action)
 
+        self._undo_replace_action = QAction("&Undo Last Replace All", self)
+        self._undo_replace_action.setEnabled(False)
+        self._undo_replace_action.triggered.connect(self.undo_last_find_replace)
+        edit_menu.addAction(self._undo_replace_action)
+
         set_language_action = QAction("Set &Language...", self)
         set_language_action.triggered.connect(self.open_set_language)
         edit_menu.addAction(set_language_action)
@@ -164,6 +178,10 @@ class MainWindow(QMainWindow):
         toggle_bp_action.setShortcut(QKeySequence("F9"))
         toggle_bp_action.triggered.connect(self.toggle_breakpoint)
         debug_menu.addAction(toggle_bp_action)
+
+        edit_bp_condition_action = QAction("Edit Breakpoint &Condition...", self)
+        edit_bp_condition_action.triggered.connect(self.edit_breakpoint_condition)
+        debug_menu.addAction(edit_bp_condition_action)
 
         debug_menu.addSeparator()
 
@@ -246,12 +264,24 @@ class MainWindow(QMainWindow):
             QWidget.setFocus(editor)
 
     def _build_find_results(self):
+        self._all_find_hits = []  # unfiltered, so the filter box can re-apply without re-searching
+
+        self._results_filter_edit = QLineEdit()
+        self._results_filter_edit.setPlaceholderText("Filter results...")
+        self._results_filter_edit.textChanged.connect(self._apply_find_results_filter)
+
         self._results_view = QTreeWidget()
         self._results_view.setHeaderLabels(["File", "Line", "Text"])
         self._results_view.itemDoubleClicked.connect(self._on_find_result_double_clicked)
 
+        container = QWidget()
+        layout = QVBoxLayout(container)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.addWidget(self._results_filter_edit)
+        layout.addWidget(self._results_view)
+
         dock = QDockWidget("Find Results", self)
-        dock.setWidget(self._results_view)
+        dock.setWidget(container)
         self.addDockWidget(Qt.BottomDockWidgetArea, dock)
 
     def _build_vcs(self):
@@ -291,8 +321,20 @@ class MainWindow(QMainWindow):
         self._diff_dock.raise_()
 
     def _build_debugger(self):
-        self._debug_session = None
-        self._debug_current_editor = None  # editor currently showing the execution-line marker
+        # Multiple simultaneous debug sessions: keyed by script path, since
+        # only one session per file makes sense (matches start_debugging's
+        # own "already running for this file" guard). Only the "active"
+        # session's stack/locals/watch panels are shown at a time --
+        # switching the combo box changes which one; a background session
+        # keeps running and auto-activates itself the next time it stops
+        # (see _on_debug_stopped), same as most IDEs bring a breakpoint hit
+        # to the foreground.
+        self._debug_sessions = {}  # path -> DebugSession|DbgpSession
+        self._active_debug_path = None
+        self._debug_current_editors = {}  # path -> editor showing that session's execution-line marker
+
+        self._debug_session_combo = QComboBox()
+        self._debug_session_combo.currentIndexChanged.connect(self._on_debug_session_switched)
 
         self._stack_view = QTreeWidget()
         self._stack_view.setHeaderLabels(["Function", "Line"])
@@ -300,12 +342,30 @@ class MainWindow(QMainWindow):
 
         self._locals_view = QTreeWidget()
         self._locals_view.setHeaderLabels(["Name", "Type", "Value"])
+        self._debug_locals_frame_index = 0
+        self._locals_view.itemChanged.connect(self._on_locals_item_changed)
+
+        self._watch_view = QTreeWidget()
+        self._watch_view.setHeaderLabels(["Expression", "Value"])
+        self._watch_expressions = []  # list[str], in display order
+
+        self._watch_add_edit = QLineEdit()
+        self._watch_add_edit.setPlaceholderText("Add watch expression...")
+        self._watch_add_edit.returnPressed.connect(self._on_add_watch)
+        remove_watch_btn = QPushButton("Remove")
+        remove_watch_btn.clicked.connect(self._on_remove_watch)
+        watch_add_row = QHBoxLayout()
+        watch_add_row.addWidget(self._watch_add_edit, 1)
+        watch_add_row.addWidget(remove_watch_btn)
 
         panel = QWidget()
         layout = QVBoxLayout(panel)
         layout.setContentsMargins(0, 0, 0, 0)
+        layout.addWidget(self._debug_session_combo)
         layout.addWidget(self._stack_view, 1)
         layout.addWidget(self._locals_view, 1)
+        layout.addLayout(watch_add_row)
+        layout.addWidget(self._watch_view, 1)
 
         self._debug_dock = QDockWidget("Debug", self)
         self._debug_dock.setWidget(panel)
@@ -317,6 +377,33 @@ class MainWindow(QMainWindow):
         if editor is None:
             return
         editor.toggle_breakpoint(editor.lineFromPosition(editor.currentPos()))
+
+    def _save_breakpoints_for(self, editor):
+        if not editor.filepath:
+            return
+        abspath = os.path.abspath(editor.filepath)
+        breakpoints = [
+            {
+                "line": line,
+                "condition": editor.breakpoint_conditions.get(line),
+                "ignore_count": editor.breakpoint_ignore_counts.get(line, 0),
+            }
+            for line in sorted(editor.breakpoints)
+        ]
+        breakpoint_store.save_breakpoints(self._breakpoints_path, abspath, breakpoints)
+
+    def edit_breakpoint_condition(self):
+        editor = self.tabs.currentWidget()
+        if editor is None:
+            return
+        line = editor.lineFromPosition(editor.currentPos())
+        dialog = BreakpointConditionDialog(
+            condition=editor.breakpoint_conditions.get(line, ""),
+            ignore_count=editor.breakpoint_ignore_counts.get(line, 0),
+            parent=self,
+        )
+        if dialog.exec() == QDialog.DialogCode.Accepted:
+            editor.set_breakpoint_condition(line, dialog.condition(), dialog.ignore_count())
 
     def start_debugging(self):
         editor = self.tabs.currentWidget()
@@ -333,26 +420,72 @@ class MainWindow(QMainWindow):
                 4000,
             )
             return
-        if self._debug_session is not None and self._debug_session.is_running():
-            self.statusBar().showMessage("Debug-Sitzung läuft bereits", 3000)
+        existing = self._debug_sessions.get(path)
+        if existing is not None and existing.is_running():
+            self.statusBar().showMessage("Für diese Datei läuft bereits eine Debug-Sitzung", 3000)
             return
 
-        self._debug_session = session_cls(self)
-        self._debug_session.stopped.connect(self._on_debug_stopped)
-        self._debug_session.localsReceived.connect(self._on_debug_locals)
-        self._debug_session.output.connect(self._on_debug_output)
-        self._debug_session.terminated.connect(self._on_debug_terminated)
+        sess = session_cls(self)
+        self._debug_sessions[path] = sess
+        self._connect_session_signals(path, sess)
+
+        self._debug_session_combo.blockSignals(True)
+        self._debug_session_combo.addItem(os.path.basename(path), path)
+        self._debug_session_combo.setCurrentIndex(self._debug_session_combo.count() - 1)
+        self._debug_session_combo.blockSignals(False)
+        self._active_debug_path = path
+        self._stack_view.clear()
+        self._locals_view.clear()
 
         # bdb (Python) and DBGP (PHP) both use 1-based line numbers;
         # Scintilla's own line indices (editor.breakpoints) are 0-based.
-        breakpoint_lines = sorted(line + 1 for line in editor.breakpoints)
-        self._debug_session.start(path, breakpoint_lines)
+        breakpoints = [
+            {
+                "line": line + 1,
+                "condition": editor.breakpoint_conditions.get(line),
+                "ignore_count": editor.breakpoint_ignore_counts.get(line, 0),
+            }
+            for line in sorted(editor.breakpoints)
+        ]
+        sess.start(path, breakpoints)
 
         self._set_debug_actions_running(True)
         self._debug_dock.setVisible(True)
 
+    def _connect_session_signals(self, path, sess):
+        # Every handler below is path-tagged (via the `p=path` default-arg
+        # trick, since PySide6 signals don't carry any sender identity on
+        # their own) so a background session's events don't clobber the
+        # currently active session's panels -- only `stopped` is allowed to
+        # change which session is active (see _on_debug_stopped).
+        sess.stopped.connect(lambda reason, stack, p=path: self._on_debug_stopped(p, reason, stack))
+        sess.localsReceived.connect(
+            lambda frame_index, variables, p=path: self._on_debug_locals(p, frame_index, variables)
+        )
+        sess.watchResult.connect(
+            lambda expr, text, is_error, p=path: self._on_watch_result(p, expr, text, is_error)
+        )
+        sess.localError.connect(lambda message, p=path: self._on_debug_local_error(p, message))
+        sess.output.connect(lambda text, is_stderr, p=path: self._on_debug_output(p, text, is_stderr))
+        sess.terminated.connect(lambda exit_code, p=path: self._on_debug_terminated(p, exit_code))
+
+    def _current_session(self):
+        return self._debug_sessions.get(self._active_debug_path)
+
+    def _on_debug_session_switched(self, index):
+        self._active_debug_path = self._debug_session_combo.itemData(index) if index >= 0 else None
+        # v1 doesn't cache each session's last-known stack/locals across a
+        # switch -- panels go blank until that session's own next `stopped`
+        # (or a manual stack-item click) repopulates them.
+        self._stack_view.clear()
+        self._locals_view.blockSignals(True)
+        self._locals_view.clear()
+        self._locals_view.blockSignals(False)
+        for i in range(self._watch_view.topLevelItemCount()):
+            self._watch_view.topLevelItem(i).setText(1, "")
+
     def _set_debug_actions_running(self, running):
-        self._start_debug_action.setEnabled(not running)
+        self._start_debug_action.setEnabled(True)  # starting a session for a *different* file is fine
         self._continue_action.setEnabled(running)
         self._step_over_action.setEnabled(running)
         self._step_into_action.setEnabled(running)
@@ -360,67 +493,168 @@ class MainWindow(QMainWindow):
         self._stop_debug_action.setEnabled(running)
 
     def _debug_continue(self):
-        if self._debug_session is not None:
-            self._debug_session.continue_()
+        session = self._current_session()
+        if session is not None:
+            session.continue_()
 
     def _debug_step_over(self):
-        if self._debug_session is not None:
-            self._debug_session.step_over()
+        session = self._current_session()
+        if session is not None:
+            session.step_over()
 
     def _debug_step_into(self):
-        if self._debug_session is not None:
-            self._debug_session.step_into()
+        session = self._current_session()
+        if session is not None:
+            session.step_into()
 
     def _debug_step_out(self):
-        if self._debug_session is not None:
-            self._debug_session.step_out()
+        session = self._current_session()
+        if session is not None:
+            session.step_out()
 
     def _debug_stop(self):
-        if self._debug_session is not None:
-            self._debug_session.stop()
+        session = self._current_session()
+        if session is not None:
+            session.stop()
 
-    def _on_debug_stopped(self, _reason, stack):
+    def _on_debug_stopped(self, path, _reason, stack):
+        if self._active_debug_path != path:
+            # Bring a background session's breakpoint hit to the front,
+            # same as most IDEs -- without re-triggering
+            # _on_debug_session_switched's panel-clearing (redundant, since
+            # this method repopulates them immediately below anyway).
+            idx = self._debug_session_combo.findData(path)
+            if idx != -1:
+                self._debug_session_combo.blockSignals(True)
+                self._debug_session_combo.setCurrentIndex(idx)
+                self._debug_session_combo.blockSignals(False)
+            self._active_debug_path = path
+
         self._stack_view.clear()
         for entry in stack:
             self._stack_view.addTopLevelItem(
                 QTreeWidgetItem([entry["function"], str(entry["line"])])
             )
-        if self._debug_current_editor is not None:
-            self._debug_current_editor.clear_current_line()
-            self._debug_current_editor = None
+        old_editor = self._debug_current_editors.get(path)
+        if old_editor is not None:
+            old_editor.clear_current_line()
+            del self._debug_current_editors[path]
         if stack:
             top = stack[0]
             self.open_file(top["filename"])
             editor = self.tabs.currentWidget()
             if editor is not None:
                 editor.set_current_line(top["line"] - 1)  # bdb is 1-based
-                self._debug_current_editor = editor
-            self._debug_session.get_locals(0)
+                self._debug_current_editors[path] = editor
+            session = self._debug_sessions.get(path)
+            if session is not None:
+                session.get_locals(0)
+                self._refresh_watches(0)
 
     def _on_stack_item_clicked(self, _item, _column):
-        if self._debug_session is not None:
-            self._debug_session.get_locals(self._stack_view.indexOfTopLevelItem(_item))
+        session = self._current_session()
+        if session is not None:
+            frame_index = self._stack_view.indexOfTopLevelItem(_item)
+            session.get_locals(frame_index)
+            self._refresh_watches(frame_index)
 
-    def _on_debug_locals(self, _frame_index, variables):
+    def _on_debug_locals(self, path, frame_index, variables):
+        if path != self._active_debug_path:
+            return
+        self._debug_locals_frame_index = frame_index
+        # blockSignals so repopulating the tree doesn't re-trigger
+        # itemChanged (and thus a spurious set_local() round-trip) for
+        # every row -- only a real user edit should do that.
+        self._locals_view.blockSignals(True)
         self._locals_view.clear()
         for var in variables:
-            self._locals_view.addTopLevelItem(
-                QTreeWidgetItem([var["name"], var["type"], var["value"]])
-            )
+            item = QTreeWidgetItem([var["name"], var["type"], var["value"]])
+            # Editable as a whole (Qt has no clean per-column editable
+            # flag for QTreeWidgetItem) -- _on_locals_item_changed ignores
+            # edits to columns other than Value, so an accidental edit to
+            # Name/Type is a harmless no-op that a subsequent refresh
+            # overwrites.
+            item.setFlags(item.flags() | Qt.ItemIsEditable)
+            self._locals_view.addTopLevelItem(item)
+        self._locals_view.blockSignals(False)
 
-    def _on_debug_output(self, text, _is_stderr):
+    def _on_locals_item_changed(self, item, column):
+        session = self._current_session()
+        if column != 2 or session is None:
+            return
+        name = item.text(0)
+        value_expr = item.text(2)
+        session.set_local(self._debug_locals_frame_index, name, value_expr)
+
+    def _on_debug_local_error(self, path, message):
+        if path != self._active_debug_path:
+            return
+        self.statusBar().showMessage(message, 5000)
+
+    def _on_add_watch(self):
+        expr = self._watch_add_edit.text().strip()
+        if not expr or expr in self._watch_expressions:
+            self._watch_add_edit.clear()
+            return
+        self._watch_add_edit.clear()
+        self._watch_expressions.append(expr)
+        self._watch_view.addTopLevelItem(QTreeWidgetItem([expr, ""]))
+        session = self._current_session()
+        if session is not None and session.is_running():
+            session.evaluate(expr, 0)
+
+    def _on_remove_watch(self):
+        item = self._watch_view.currentItem()
+        if item is None:
+            return
+        expr = item.text(0)
+        if expr in self._watch_expressions:
+            self._watch_expressions.remove(expr)
+        self._watch_view.takeTopLevelItem(self._watch_view.indexOfTopLevelItem(item))
+
+    def _refresh_watches(self, frame_index):
+        session = self._current_session()
+        if session is None:
+            return
+        for expr in self._watch_expressions:
+            session.evaluate(expr, frame_index)
+
+    def _on_watch_result(self, path, expr, text, _is_error):
+        if path != self._active_debug_path:
+            return
+        for i in range(self._watch_view.topLevelItemCount()):
+            item = self._watch_view.topLevelItem(i)
+            if item.text(0) == expr:
+                item.setText(1, text)
+
+    def _on_debug_output(self, path, text, _is_stderr):
         stripped = text.rstrip("\n")
-        if stripped:
-            self._output_view.appendPlainText(stripped)
+        if not stripped:
+            return
+        # Prefix with the originating script only when more than one
+        # session is (or, at the moment this fires, was still) running --
+        # keeps the common single-session case's output uncluttered.
+        if len(self._debug_sessions) > 1:
+            stripped = f"[{os.path.basename(path)}] {stripped}"
+        self._output_view.appendPlainText(stripped)
 
-    def _on_debug_terminated(self, exit_code):
-        if self._debug_current_editor is not None:
-            self._debug_current_editor.clear_current_line()
-            self._debug_current_editor = None
-        self._stack_view.clear()
-        self._locals_view.clear()
-        self._set_debug_actions_running(False)
-        self.statusBar().showMessage(f"Debuggee exited with code {exit_code}", 5000)
+    def _on_debug_terminated(self, path, exit_code):
+        editor = self._debug_current_editors.pop(path, None)
+        if editor is not None:
+            editor.clear_current_line()
+        self._debug_sessions.pop(path, None)
+        idx = self._debug_session_combo.findData(path)
+        if idx != -1:
+            # If `path` was the active selection, removeItem's own
+            # currentIndexChanged fires _on_debug_session_switched, which
+            # clears the panels (or repopulates the combo box's newly
+            # current session's -- empty -- panel state); if it wasn't
+            # active, nothing else needs to happen here.
+            self._debug_session_combo.removeItem(idx)
+        self._set_debug_actions_running(bool(self._debug_sessions))
+        self.statusBar().showMessage(
+            f"{os.path.basename(path)}: Debuggee exited with code {exit_code}", 5000
+        )
 
     def _default_search_dir(self):
         if self._project is not None:
@@ -428,24 +662,72 @@ class MainWindow(QMainWindow):
         return self._project_root_path
 
     def open_find_in_files(self):
-        if self._find_in_files_dialog is None:
-            self._find_in_files_dialog = FindInFilesDialog(self._default_search_dir(), self)
-            self._find_in_files_dialog.hits_found.connect(self._on_find_in_files_hits)
+        # Recreated every time rather than cached: the open-files list and
+        # project scope can change between invocations (tabs opened/closed,
+        # project opened/closed), and this dialog is cheap to build.
+        open_files = [
+            self.tabs.widget(i).filepath
+            for i in range(self.tabs.count())
+            if self.tabs.widget(i).filepath
+        ]
+        project_base_dir = self._project.base_dir if self._project is not None else None
+        self._find_in_files_dialog = FindInFilesDialog(
+            self._default_search_dir(),
+            self,
+            open_files=open_files,
+            project_base_dir=project_base_dir,
+        )
+        self._find_in_files_dialog.hits_found.connect(self._on_find_in_files_hits)
+        self._find_in_files_dialog.replacements_applied.connect(
+            self._on_find_in_files_replaced
+        )
         self._find_in_files_dialog.show()
         self._find_in_files_dialog.raise_()
         self._find_in_files_dialog.activateWindow()
 
+    def _on_find_in_files_replaced(self, undo_record):
+        self._last_replace_undo = undo_record
+        self._undo_replace_action.setEnabled(bool(undo_record))
+
+    def undo_last_find_replace(self):
+        if not self._last_replace_undo:
+            return
+        find_in_files.undo_replacements(self._last_replace_undo)
+        # Reload any of the restored files that happen to be open so the
+        # editor doesn't keep showing the (now reverted) replaced text.
+        restored_paths = {path for path, _ in self._last_replace_undo}
+        for i in range(self.tabs.count()):
+            editor = self.tabs.widget(i)
+            if editor.filepath in restored_paths:
+                try:
+                    with open(editor.filepath, "r", encoding="utf-8", errors="replace") as f:
+                        editor.setText(f.read())
+                except OSError:
+                    continue
+        self.statusBar().showMessage(
+            f"Reverted {len(self._last_replace_undo)} file(s)", 4000
+        )
+        self._last_replace_undo = []
+        self._undo_replace_action.setEnabled(False)
+
     def _on_find_in_files_hits(self, hits):
+        self._all_find_hits = hits
+        self._results_filter_edit.clear()  # also triggers _apply_find_results_filter
+        self.statusBar().showMessage(f"{len(hits)} match(es) found", 5000)
+
+    def _apply_find_results_filter(self, text):
         self._results_view.clear()
-        for hit in hits:
-            item = QTreeWidgetItem(
-                [os.path.relpath(hit.path, self._default_search_dir()), str(hit.line_no), hit.line_text.strip()]
-            )
+        needle = text.strip().lower()
+        base_dir = self._default_search_dir()
+        for hit in self._all_find_hits:
+            rel_path = os.path.relpath(hit.path, base_dir)
+            if needle and needle not in rel_path.lower() and needle not in hit.line_text.lower():
+                continue
+            item = QTreeWidgetItem([rel_path, str(hit.line_no), hit.line_text.strip()])
             item.setData(0, Qt.ItemDataRole.UserRole, hit)
             self._results_view.addTopLevelItem(item)
         for column in range(3):
             self._results_view.resizeColumnToContents(column)
-        self.statusBar().showMessage(f"{len(hits)} match(es) found", 5000)
 
     def _on_find_result_double_clicked(self, item, _column):
         hit = item.data(0, Qt.ItemDataRole.UserRole)
@@ -626,6 +908,7 @@ class MainWindow(QMainWindow):
         self._toolbox_root = os.path.join(config_dir, "toolbox")
         toolbox_model.ensure_default_toolbox(self._toolbox_root)
         self._session_path = os.path.join(config_dir, session.FILENAME)
+        self._breakpoints_path = os.path.join(config_dir, breakpoint_store.FILENAME)
 
         self._toolbox_view = QTreeView()
         self._toolbox_view.setHeaderHidden(True)
@@ -910,8 +1193,9 @@ class MainWindow(QMainWindow):
     def closeEvent(self, event):
         if self._project is not None:
             self._save_session()
-        if self._debug_session is not None and self._debug_session.is_running():
-            self._debug_session.stop()
+        for sess in list(self._debug_sessions.values()):
+            if sess.is_running():
+                sess.stop()
         self.codeintel.shutdown()
         super().closeEvent(event)
 
@@ -982,6 +1266,9 @@ class MainWindow(QMainWindow):
         editor.setText(text)
         editor.set_lexer_for_filename(path, text)
         editor.filepath = path
+        abspath = os.path.abspath(path)
+        editor.restore_breakpoints(breakpoint_store.load_breakpoints(self._breakpoints_path, abspath))
+        editor.breakpointsChanged.connect(lambda ed=editor: self._save_breakpoints_for(ed))
 
         index = self.tabs.addTab(editor, os.path.basename(path))
         self.tabs.setTabToolTip(index, path)

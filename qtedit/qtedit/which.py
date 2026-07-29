@@ -190,7 +190,7 @@ def whichgen(command, path=None, verbose=0, exts=None):
                 exts = ['.com', '.exe', '.bat', '.cmd']
         elif not isinstance(exts, list):
             raise TypeError("'exts' argument must be a list or None")
-        exts = map(os.path.normcase, exts)
+        exts = list(map(os.path.normcase, exts))
     elif sys.platform == "darwin":
         if exts is None:
             exts = [".app"]
@@ -225,7 +225,7 @@ def whichgen(command, path=None, verbose=0, exts=None):
                     names = os.listdir(dirName)
                 except OSError:
                     names = []
-                names = map(os.path.normcase, names)  # lowercase for Windows.
+                names = list(map(os.path.normcase, names))  # lowercase for Windows.
                 g_listdir_cache[dirName] = { "timestamp": time_now, "names": names }
             else:
                 names = g_listdir_cache.get(dirName).get("names")

@@ -265,7 +265,14 @@ def _node_citdl(node):
             type = type.split(None,1)[0]
         # Don't emit None types, it does not help us. Fix for bug:
         #  http://bugs.activestate.com/show_bug.cgi?id=71989
-        if type != "None":
+        # _guessTypes() actually produces "NoneType" (type(None).__name__)
+        # for a bare `None` literal, never the string "None" -- checking
+        # only "None" here never matched anything, silently defeating the
+        # bug-71989 fix ever since (a real, previously-undiscovered
+        # regression). visit_Return()'s own return-type-inference filter a
+        # little further down in this file already gets this right by
+        # checking both spellings -- matched here.
+        if type not in ("None", "NoneType"):
             if score > max_score:
                 max_type = type
                 max_score = score
@@ -500,8 +507,19 @@ class AST2CIXVisitor(ast.NodeVisitor):
         if node.lineno: namespace["line"] = node.lineno
         if node.body:
             lastNode = node.body[-1]
-            if getattr(lastNode, "lineno", None):
-                namespace["lineend"] = lastNode.lineno
+            # end_lineno (Python 3.8+) is the last line of lastNode's own
+            # full extent, including any nested block it contains (e.g. a
+            # multi-line nested def/class/if/for/...) -- lastNode.lineno
+            # alone is only that node's *start* line, which under-reports
+            # lineend whenever the class's last statement is itself a
+            # compound statement spanning further lines than its own
+            # header (this was a real, previously-undiscovered bug: it
+            # made scoperef_from_pos() miss any position inside such a
+            # nested tail scope, since the enclosing class looked like it
+            # ended too early).
+            end_lineno = getattr(lastNode, "end_lineno", None) or getattr(lastNode, "lineno", None)
+            if end_lineno:
+                namespace["lineend"] = end_lineno
 
         attributes = []
         if name.startswith("__") and name.endswith("__"):
@@ -551,8 +569,12 @@ class AST2CIXVisitor(ast.NodeVisitor):
         if node.lineno: namespace["line"] = node.lineno
         if node.body:
             lastNode = node.body[-1]
-            if getattr(lastNode, "lineno", None):
-                namespace["lineend"] = lastNode.lineno
+            # See the matching comment in visit_ClassDef -- end_lineno
+            # (not lineno) is needed so a function whose last statement is
+            # itself a multi-line nested block reports its real extent.
+            end_lineno = getattr(lastNode, "end_lineno", None) or getattr(lastNode, "lineno", None)
+            if end_lineno:
+                namespace["lineend"] = end_lineno
 
         name = node.name
 

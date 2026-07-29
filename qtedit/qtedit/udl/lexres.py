@@ -186,6 +186,19 @@ class LookBackTests:
 
 
 @dataclass
+class Flipper:
+    """One folding rule (LexUDL.cxx's `Flipper` class, 601-654): matching
+    `string` while lexed with `style` changes the running fold level by
+    `direction` (+1 opens a fold, -1 closes one). Global across the whole
+    `.lexres` (MainInfo::pp_Flippers), disambiguated only by `style` --
+    not scoped per-family despite `fold` directives being written inside a
+    `family` block in the .udl source."""
+    string: str
+    style: int
+    direction: int
+
+
+@dataclass
 class FamilyInfo:
     start_state: int = -1
     keywords: frozenset = field(default_factory=frozenset)
@@ -201,6 +214,7 @@ class LexRes:
     family_default_state: dict = field(default_factory=dict)  # family idx -> start state
     family_info: dict = field(default_factory=dict)  # family idx -> FamilyInfo
     states: list = field(default_factory=list)  # index -> TransitionInfo
+    flippers: list = field(default_factory=list)  # list[Flipper], for folding
 
 
 class LexResParseError(Exception):
@@ -212,9 +226,7 @@ def parse_lexres(path):
 
     Mirrors MainInfo::Init (LexUDL.cxx:1286) line-by-line, but keeps the
     result in a plain Python object graph instead of C++ MainInfo/
-    TransitionTable/FamilyInfo objects. Lookback tests (ASTC_LBT_*) and
-    flippers/folding (ASTC_F_FLIPPER) are parsed enough to skip cleanly but
-    not retained -- neither is needed for this MVP's plain colorizing pass.
+    TransitionTable/FamilyInfo objects.
     """
     result = LexRes()
     scratch = []
@@ -265,7 +277,7 @@ def parse_lexres(path):
             elif opcode in (ASTC_F_COLOR, ASTC_F_STYLE, ASTC_F_OPERATOR):
                 pass  # presentation metadata (Komodo scheme colors), not styling logic
             elif opcode == ASTC_FLIPPER_COUNT:
-                pass  # folding; not implemented in this MVP
+                result.flippers = [None] * args[0]
             elif opcode == ASTC_CURRENT_FAMILY:
                 current_family = args[0]
                 current_family_info = result.family_info.setdefault(
@@ -277,7 +289,10 @@ def parse_lexres(path):
                 current_family_info.start_state = args[0]
                 result.family_default_state[current_family] = args[0]
             elif opcode == ASTC_F_FLIPPER:
-                pass  # folding; not implemented in this MVP
+                index, style, direction = args
+                result.flippers[index] = Flipper(
+                    string="".join(scratch), style=style, direction=direction
+                )
             elif opcode == ASTC_F_WORDLIST:
                 current_family_info.keywords = frozenset(
                     "".join(scratch).split()

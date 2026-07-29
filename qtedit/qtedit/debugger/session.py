@@ -21,6 +21,8 @@ QTEDIT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(qtedit.__file__)))
 class DebugSession(QObject):
     stopped = Signal(str, list)  # reason, stack (list of dicts)
     localsReceived = Signal(int, list)  # frame_index, variables
+    watchResult = Signal(str, str, bool)  # expr, display text, is_error
+    localError = Signal(str)  # message, from a failed set_local
     output = Signal(str, bool)  # text, is_stderr
     terminated = Signal(int)  # exit_code
 
@@ -29,7 +31,7 @@ class DebugSession(QObject):
         self._proc = None
         self._socket = None
         self._buffer = protocol.MessageBuffer()
-        self._pending_start = None  # (script_path, breakpoint_lines) until "ready"
+        self._pending_start = None  # (script_path, breakpoints) until "ready"
         self._debuggee_exit_code = None
 
         self._server = QTcpServer(self)
@@ -39,10 +41,13 @@ class DebugSession(QObject):
     def is_running(self):
         return self._proc is not None and self._proc.state() != QProcess.ProcessState.NotRunning
 
-    def start(self, script_path, breakpoint_lines):
+    def start(self, script_path, breakpoints):
+        """`breakpoints` is a list of dicts: {"line": int, "condition":
+        str|None, "ignore_count": int} (0-based line numbers, matching
+        editor.py's CodeEditor.breakpoints)."""
         if self.is_running():
             return
-        self._pending_start = (script_path, list(breakpoint_lines))
+        self._pending_start = (script_path, list(breakpoints))
 
         env = QProcessEnvironment.systemEnvironment()
         env.insert("QTEDIT_DEBUG_PORT", str(self._server.serverPort()))
@@ -77,6 +82,14 @@ class DebugSession(QObject):
     def get_locals(self, frame_index):
         self._send({"cmd": "get_locals", "frame_index": frame_index})
 
+    def evaluate(self, expr, frame_index=0):
+        self._send({"cmd": "eval", "expr": expr, "frame_index": frame_index})
+
+    def set_local(self, frame_index, name, value_expr):
+        self._send(
+            {"cmd": "set_local", "frame_index": frame_index, "name": name, "value_expr": value_expr}
+        )
+
     def stop(self):
         self._send({"cmd": "stop"})
         if self._proc is not None:
@@ -97,13 +110,21 @@ class DebugSession(QObject):
     def _handle_message(self, msg):
         event = msg.get("event")
         if event == "ready":
-            script_path, lines = self._pending_start
-            self._send({"cmd": "set_breakpoints", "path": script_path, "lines": lines})
+            script_path, breakpoints = self._pending_start
+            self._send(
+                {"cmd": "set_breakpoints", "path": script_path, "breakpoints": breakpoints}
+            )
             self._send({"cmd": "start"})
         elif event == "stopped":
             self.stopped.emit(msg.get("reason", ""), msg.get("stack", []))
         elif event == "locals":
             self.localsReceived.emit(msg.get("frame_index", 0), msg.get("variables", []))
+        elif event == "watch_result":
+            error = msg.get("error")
+            text = f"<error: {error}>" if error else msg.get("value", "")
+            self.watchResult.emit(msg.get("expr", ""), text, error is not None)
+        elif event == "set_local_error":
+            self.localError.emit(msg.get("message", ""))
         elif event == "terminated":
             # Recorded, not emitted here: QProcess.finished() is guaranteed
             # to fire only after all buffered stdout/stderr has already

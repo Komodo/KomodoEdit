@@ -9,6 +9,17 @@ dependencies = [
     "pygments>=2.18",
 ]
 
+[project.optional-dependencies]
+test = ["pytest>=8"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# Only classes ending in "TestCase" (this codebase's own convention,
+# inherited from the ported legacy suite) are test classes -- otherwise
+# pytest's default *Test*/Test* heuristic also tries to collect
+# tests/testlib.py's TestError/TestSkipped/TestFailed exception shims.
+python_classes = ["*TestCase"]
+
 [build-system]
 requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"

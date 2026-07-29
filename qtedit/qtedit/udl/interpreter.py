@@ -3,20 +3,40 @@
 container-lexing mode instead of a compiled C++ lexer. See lexres.py's
 docstring for context.
 
-Deliberately out of scope for this first pass (see plan doc): `at_eol`
-deferred transitions, incremental re-lex (`synchronizeDocStart` in the
-original) -- this always re-lexes the whole document from position 0, which
-is the same tradeoff editor.py's Pygments-based highlighting already makes.
-Folding is a separate pass in the original and isn't attempted here.
-Delimiter capture (heredocs etc.) uses the whole matched text rather than a
-specific PCRE capture group -- the original supports capturing an arbitrary
-numbered group, which isn't replicated here.
+`compute_fold_levels` ports `FoldUDLDoc`/`MainInfo::GetFoldChangeForLine`
+(LexUDL.cxx:3491-3625, 1949-2225) -- the generic "flipper" mechanism only
+(a global, style-keyed table of literal strings that open/close a fold
+level, e.g. `fold ">" M_STAGC +` / `fold ">" M_ETAGC -" in the .udl
+source). The HTML/markup-specific optional-close-tag stack heuristic
+(GetFoldChangeForLine's `p_tagStack` handling, only active for XML-flavored
+lexers) is NOT ported -- it's a hand-coded HTML tag-omission heuristic
+layered on top of the generic mechanism, not part of the core UDL bytecode
+format, and every non-markup UDL language (templates, embedded script
+families) only needs the generic flipper mechanism.
+
+Deliberately out of scope for this pass (see plan doc): incremental re-lex
+(`synchronizeDocStart` in the original) -- this always re-lexes the whole
+document from position 0, which is the same tradeoff editor.py's
+Pygments-based highlighting already makes.
 """
 import re
 
 from . import lexres as L
 
 _REDO_LIMIT = 1000
+
+# Port of getOpposite() (LexUDL.cxx:3048-3057), used by the "match the
+# opposite bracket" form of delimiter capture (e.g. a captured "(" means
+# the closing delimiter to scan for is ")").
+_OPPOSITE_BRACKET = {"[": "]", "{": "}", "(": ")", "<": ">"}
+
+# SC_FOLDLEVEL* (Scintilla.h) -- same numeric values as
+# Scintilla.FoldLevel.{Base,WhiteFlag,HeaderFlag} in pyside6-scintilla, so
+# the ints this module returns can be passed to setFoldLevel() as-is
+# without editor.py needing to import/translate anything UDL-specific.
+FOLD_LEVEL_BASE = 0x400
+FOLD_LEVEL_WHITE_FLAG = 0x1000
+FOLD_LEVEL_HEADER_FLAG = 0x2000
 
 
 class UDLInterpreter:
@@ -52,6 +72,17 @@ class UDLInterpreter:
         current_delimiter = ""
         last_styled = 0
         redo_count = 0
+        # Pending (state,family) pair to jump to once the current line ends
+        # -- port of BufferStateInfo::curr_eol_transition (LexUDL.cxx:1263).
+        # 0 means "nothing pending"; once set, nothing can override it until
+        # it fires (see the at_eol handling in the main loop below).
+        curr_eol_transition = 0
+
+        def line_start_after(pos):
+            """Position of the start of the line following the one
+            containing `pos` -- port of styler.LineStart(GetLine(pos)+1)."""
+            nl = text.find("\n", pos)
+            return length_doc if nl == -1 else nl + 1
 
         def paint(upto_pos, style_num, no_keyword):
             nonlocal last_styled
@@ -150,9 +181,11 @@ class UDLInterpreter:
             state_info = states[istate]
 
             matched_tran = None
+            matched_regex = None
             new_pos = i
             for tran in state_info.transitions:
                 m_end = None
+                m = None
                 if tran.search_type == L.TRAN_SEARCH_STRING:
                     if text.startswith(tran.search_string, i):
                         m_end = i + len(tran.search_string)
@@ -170,6 +203,7 @@ class UDLInterpreter:
                             current_delimiter = ""
                 if m_end is not None and lookback_test_passes(tran, i):
                     matched_tran = tran
+                    matched_regex = m
                     new_pos = m_end
                     break
 
@@ -206,13 +240,70 @@ class UDLInterpreter:
             if (
                 matched_tran.search_type == L.TRAN_SEARCH_REGEX
                 and matched_tran.target_delimiter
+                and matched_regex is not None
             ):
-                current_delimiter = text[orig_old_pos:new_pos]
+                # Port of setNewDelimiter (LexUDL.cxx:3076-3107). Packed as
+                # (use_opposite, group_num) via the same SF_MAKE_PAIR scheme
+                # as push_pop_state/eol_target_state -- group_num=0 means
+                # "the whole match" (re.Match.group(0)), same as PCRE's
+                # ovector[0]; a specific N captures that numbered group
+                # instead of always taking the whole matched text.
+                use_opposite = L.sf_get_state(matched_tran.target_delimiter)
+                group_num = L.sf_get_family(matched_tran.target_delimiter)
+                try:
+                    captured = matched_regex.group(group_num)
+                except IndexError:
+                    # group_num beyond what this pattern actually captures
+                    # -- malformed grammar; LexUDL.cxx's equivalent bounds
+                    # check (group_num <= num_captured_groups) just leaves
+                    # current_delimiter unchanged in this case too.
+                    captured = None
+                if captured is not None:
+                    if use_opposite:
+                        if len(captured) == 1:
+                            current_delimiter = _OPPOSITE_BRACKET.get(
+                                captured, captured
+                            )
+                        # else: malformed grammar (opposite-delimiter capture
+                        # must be exactly 1 char) -- LexUDL.cxx just logs and
+                        # leaves current_delimiter unchanged; same here.
+                    else:
+                        current_delimiter = captured
 
+            # ---- at_eol: determine whether a previously-staged pending
+            # transition fires now (LexUDL.cxx:2749-2773, 2795-2803) ----
+            eol_fired = False
             new_state = 0
             new_family = curr_family
+            if curr_eol_transition:
+                start_line = text.count("\n", 0, orig_old_pos)
+                end_line = text.count("\n", 0, new_pos)
+                next_line_start = line_start_after(orig_old_pos)
+                if end_line > start_line or (
+                    orig_old_pos >= next_line_start - 1 and new_pos >= next_line_start
+                ):
+                    eol_fired = True
+                    new_state = L.sf_get_state(curr_eol_transition)
+                    new_family = L.sf_get_family(curr_eol_transition)
+                    curr_eol_transition = 0
+                    # Snap the resume position to the start of the next
+                    # line, overriding wherever the triggering transition's
+                    # own match actually ended (LexUDL.cxx:2755-2759).
+                    i = next_line_start
+
+            # ---- stage a new pending eol-transition, if this transition
+            # carries one (LexUDL.cxx:2783-2794) -- "once one is set,
+            # nothing can override it" until it fires above. ----
+            if matched_tran.eol_target_state and not curr_eol_transition:
+                curr_eol_transition = matched_tran.eol_target_state
+
+            # eol firing deliberately squelches any push/pop/replace that
+            # this same transition would otherwise have done
+            # (LexUDL.cxx:2795-2812).
             push_pop = matched_tran.push_pop_state
-            if push_pop > 0:
+            if eol_fired:
+                pass
+            elif push_pop > 0:
                 state_stack.append(push_pop)
             elif push_pop == -1:
                 popped = state_stack.pop() if state_stack else 0
@@ -252,3 +343,77 @@ class UDLInterpreter:
         if last_styled < length_doc:
             spans.append((last_styled, length_doc, 0))
         return spans
+
+    def compute_fold_levels(self, text, spans, fold_at_else=True, fold_compact=True):
+        """Return one Scintilla fold-level int per line of `text`, given the
+        (start, end, style) spans already produced by `colorize()`. Port of
+        FoldUDLDoc's per-line loop (LexUDL.cxx:3578-3611) plus the generic
+        flipper-scan half of GetFoldChangeForLine (LexUDL.cxx:2172-2221) --
+        see the module docstring for what's not ported.
+        """
+        flippers_by_style = {}
+        for fl in self.lexres.flippers:
+            if fl is not None:
+                flippers_by_style.setdefault(fl.style, []).append(fl)
+
+        lines = text.split("\n")
+        num_lines = len(lines)
+        line_starts = [0] * num_lines
+        pos = 0
+        for idx, line in enumerate(lines):
+            line_starts[idx] = pos
+            pos += len(line) + 1
+        has_non_space = [bool(line.strip()) for line in lines]
+
+        # net_change/min_change are per-line quantities (reset at each line
+        # boundary, LexUDL.cxx re-creates them per GetFoldChangeForLine
+        # call) -- computed here in one forward pass over `spans` rather
+        # than one pass per line, tracking which line we're currently in.
+        net_changes = [0] * num_lines
+        min_changes = [0] * num_lines
+        cur_line = 0
+        net_change = 0
+        min_change = 0
+
+        def flush_line():
+            net_changes[cur_line] = net_change
+            min_changes[cur_line] = min_change
+
+        for start, end, style in spans:
+            flippers = flippers_by_style.get(style)
+            p = start
+            while p < end:
+                while cur_line + 1 < num_lines and p >= line_starts[cur_line + 1]:
+                    flush_line()
+                    cur_line += 1
+                    net_change = 0
+                    min_change = 0
+                matched = None
+                if flippers:
+                    for fl in flippers:
+                        fstr = fl.string
+                        if text.startswith(fstr, p) and p + len(fstr) <= end:
+                            matched = fl
+                            break
+                if matched is not None:
+                    if matched.direction > 0:
+                        min_change = min(min_change, net_change)
+                    net_change += matched.direction
+                    p += len(matched.string)
+                else:
+                    p += 1
+        flush_line()
+
+        levels = []
+        level_prev = 0
+        for ln in range(num_lines):
+            level_current = max(0, level_prev + net_changes[ln])
+            level_use = max(0, level_prev + min_changes[ln]) if fold_at_else else level_prev
+            lev = level_use
+            if fold_compact and not has_non_space[ln]:
+                lev |= FOLD_LEVEL_WHITE_FLAG
+            if level_current > level_use and has_non_space[ln]:
+                lev |= FOLD_LEVEL_HEADER_FLAG
+            levels.append(lev | FOLD_LEVEL_BASE)
+            level_prev = level_current
+        return levels

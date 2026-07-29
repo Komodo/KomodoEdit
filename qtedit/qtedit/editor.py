@@ -11,6 +11,7 @@ to revisit once this grows beyond a spike.
 """
 import os
 
+from PySide6.QtCore import Signal
 from pygments.lexers import get_lexer_for_filename, get_lexer_by_name
 from pygments.util import ClassNotFound
 from pygments.token import Token
@@ -18,7 +19,7 @@ from pyside6_scintilla import ScintillaEdit, Scintilla
 
 from qtedit.prefs import get_global_prefs
 from qtedit.udl import styles as udl_styles
-from qtedit.udl.interpreter import UDLInterpreter
+from qtedit.udl.interpreter import FOLD_LEVEL_BASE, UDLInterpreter
 from qtedit.udl.lexres import LexResParseError, find_lexres_for_language, parse_lexres
 
 # File extensions that should try a UDL language definition before falling
@@ -120,8 +121,11 @@ FOREGROUND = 0xFFFFFF  # identifiers / default_fixed.fore
 BREAKPOINT_MARGIN = 1
 MARKER_BREAKPOINT = 1
 MARKER_CURRENT_LINE = 2
+MARKER_BREAKPOINT_COND = 3  # has a condition and/or ignore count set
 BREAKPOINT_COLOR = 0x2020E0  # a clear, conventional breakpoint red
+BREAKPOINT_COND_COLOR = 0x20A0E0  # orange -- visually distinct from a plain breakpoint
 CURRENT_LINE_COLOR = 0x30B8E0  # amber execution-line highlight
+FOLD_MARGIN = 2
 
 MARGIN_BACKGROUND = 0x242020  # linenumbers.back == Colors.caretLineBack
 MARGIN_FOREGROUND = 0x969896  # linenumbers.fore
@@ -154,6 +158,11 @@ def _style_id_for(token_type):
 
 
 class CodeEditor(ScintillaEdit):
+    breakpointsChanged = Signal()  # emitted after a real user edit to
+    # breakpoints/conditions/ignore counts -- NOT emitted by
+    # restore_breakpoints(), so main_window.py's persistence hook doesn't
+    # immediately re-save the same data it just loaded on file open.
+
     def __init__(self, parent=None):
         super().__init__(parent)
         self._lexer = None
@@ -203,10 +212,15 @@ class CodeEditor(ScintillaEdit):
         self.setMarginTypeN(BREAKPOINT_MARGIN, Scintilla.MarginType.Symbol)
         self.setMarginWidthN(BREAKPOINT_MARGIN, 16)
         self.setMarginSensitiveN(BREAKPOINT_MARGIN, True)
-        self.setMarginMaskN(BREAKPOINT_MARGIN, 1 << MARKER_BREAKPOINT)
+        self.setMarginMaskN(
+            BREAKPOINT_MARGIN, (1 << MARKER_BREAKPOINT) | (1 << MARKER_BREAKPOINT_COND)
+        )
         self.markerDefine(Scintilla.MarkerSymbol.Circle, MARKER_BREAKPOINT)
         self.markerSetBack(MARKER_BREAKPOINT, BREAKPOINT_COLOR)
         self.markerSetFore(MARKER_BREAKPOINT, FOREGROUND)
+        self.markerDefine(Scintilla.MarkerSymbol.Circle, MARKER_BREAKPOINT_COND)
+        self.markerSetBack(MARKER_BREAKPOINT_COND, BREAKPOINT_COND_COLOR)
+        self.markerSetFore(MARKER_BREAKPOINT_COND, FOREGROUND)
 
         # Current-execution-line highlight: a full-line background marker,
         # not tied to any margin -- set/cleared by main_window.py while a
@@ -214,7 +228,34 @@ class CodeEditor(ScintillaEdit):
         self.markerDefine(Scintilla.MarkerSymbol.Background, MARKER_CURRENT_LINE)
         self.markerSetBack(MARKER_CURRENT_LINE, CURRENT_LINE_COLOR)
 
+        # Margin 2: folding gutter, driven by udl/interpreter.py's
+        # compute_fold_levels() for UDL-lexed buffers (see _rehighlight
+        # below) -- Pygments-lexed buffers just get an empty margin, since
+        # Pygments has no fold-flipper data to draw from. Only the classic
+        # two-marker +/- style is set up, not Scintilla's flattened-tree
+        # connector markers (FolderSub/FolderTail/etc.) -- simpler and
+        # sufficient for a first pass.
+        self.setMarginTypeN(FOLD_MARGIN, Scintilla.MarginType.Symbol)
+        self.setMarginWidthN(FOLD_MARGIN, 16)
+        self.setMarginMaskN(FOLD_MARGIN, Scintilla.MaskFolders)
+        self.markerDefine(Scintilla.MarkerSymbol.Plus, Scintilla.MarkerOutline.Folder)
+        self.markerDefine(Scintilla.MarkerSymbol.Minus, Scintilla.MarkerOutline.FolderOpen)
+        for marker in (Scintilla.MarkerOutline.Folder, Scintilla.MarkerOutline.FolderOpen):
+            self.markerSetBack(marker, MARGIN_FOREGROUND)
+            self.markerSetFore(marker, MARGIN_BACKGROUND)
+        # Let Scintilla handle margin clicks/line show-hide itself instead
+        # of routing SCN_MARGINCLICK through marginClicked (which this
+        # class already uses for the breakpoint margin) -- no container-side
+        # fold-toggle code needed.
+        self.setAutomaticFold(
+            Scintilla.AutomaticFold.Click
+            | Scintilla.AutomaticFold.Show
+            | Scintilla.AutomaticFold.Change
+        )
+
         self.breakpoints = set()  # 0-based line numbers
+        self.breakpoint_conditions = {}  # line -> condition expression string
+        self.breakpoint_ignore_counts = {}  # line -> int, 0 means unset
         self.marginClicked.connect(self._on_margin_clicked)
 
         self.modified.connect(self._on_modified)
@@ -305,15 +346,19 @@ class CodeEditor(ScintillaEdit):
             self.startStyling(0, 0)
             self.setStyling(data_len, STYLE_DEFAULT)
             if self._udl_interpreter is not None:
+                # Materialized (not left as a generator) since it's also
+                # needed below for fold-level computation.
+                udl_spans = self._udl_interpreter.colorize(text)
                 # UDLInterpreter.colorize() works in Python string (character)
                 # offsets, so slice out each span's text rather than reusing
                 # its offsets directly -- like the Pygments branch below, byte
                 # length (not char count) is what startStyling/setStyling want.
                 pieces = (
                     (text[start:end], udl_styles.scintilla_style_id(style_num))
-                    for start, end, style_num in self._udl_interpreter.colorize(text)
+                    for start, end, style_num in udl_spans
                 )
             else:
+                udl_spans = None
                 pieces = (
                     (value, _style_id_for(token_type))
                     for token_type, value in self._lexer.get_tokens(text)
@@ -325,6 +370,16 @@ class CodeEditor(ScintillaEdit):
                     self.startStyling(pos, 0)
                     self.setStyling(length, style_id)
                 pos += length
+
+            if udl_spans is not None:
+                levels = self._udl_interpreter.compute_fold_levels(text, udl_spans)
+            else:
+                # Pygments-lexed buffers have no fold-flipper data to draw
+                # from -- reset to a flat, headerless margin instead of
+                # leaving stale fold markers from a previously UDL-lexed tab.
+                levels = [FOLD_LEVEL_BASE] * (self.current_text().count("\n") + 1)
+            for line, level in enumerate(levels):
+                self.setFoldLevel(line, level)
         finally:
             self._rehighlighting = False
 
@@ -336,10 +391,56 @@ class CodeEditor(ScintillaEdit):
     def toggle_breakpoint(self, line):
         if line in self.breakpoints:
             self.breakpoints.discard(line)
+            self.breakpoint_conditions.pop(line, None)
+            self.breakpoint_ignore_counts.pop(line, None)
             self.markerDelete(line, MARKER_BREAKPOINT)
+            self.markerDelete(line, MARKER_BREAKPOINT_COND)
         else:
             self.breakpoints.add(line)
             self.markerAdd(line, MARKER_BREAKPOINT)
+        self.breakpointsChanged.emit()
+
+    def set_breakpoint_condition(self, line, condition, ignore_count):
+        """Attach a condition expression and/or ignore count to `line`,
+        adding it as a plain breakpoint first if it isn't one already.
+        Passing an empty condition and a zero ignore_count clears both and
+        reverts the marker to the plain breakpoint look."""
+        if line not in self.breakpoints:
+            self.breakpoints.add(line)
+        if condition:
+            self.breakpoint_conditions[line] = condition
+        else:
+            self.breakpoint_conditions.pop(line, None)
+        if ignore_count:
+            self.breakpoint_ignore_counts[line] = ignore_count
+        else:
+            self.breakpoint_ignore_counts.pop(line, None)
+        self.markerDelete(line, MARKER_BREAKPOINT)
+        self.markerDelete(line, MARKER_BREAKPOINT_COND)
+        marker = (
+            MARKER_BREAKPOINT_COND
+            if (line in self.breakpoint_conditions or line in self.breakpoint_ignore_counts)
+            else MARKER_BREAKPOINT
+        )
+        self.markerAdd(line, marker)
+        self.breakpointsChanged.emit()
+
+    def restore_breakpoints(self, saved):
+        """Set the editor's breakpoint state from persisted data (see
+        debugger/breakpoint_store.py) -- deliberately does not emit
+        breakpointsChanged, since this is initial state being loaded, not
+        a user edit that needs to be re-persisted."""
+        for bp in saved:
+            line = bp["line"]
+            self.breakpoints.add(line)
+            condition = bp.get("condition")
+            ignore_count = bp.get("ignore_count") or 0
+            if condition:
+                self.breakpoint_conditions[line] = condition
+            if ignore_count:
+                self.breakpoint_ignore_counts[line] = ignore_count
+            marker = MARKER_BREAKPOINT_COND if (condition or ignore_count) else MARKER_BREAKPOINT
+            self.markerAdd(line, marker)
 
     def set_current_line(self, line):
         self.markerDeleteAll(MARKER_CURRENT_LINE)
