@@ -12,6 +12,13 @@ dependencies = [
 [project.optional-dependencies]
 test = ["pytest>=8"]
 
+[tool.setuptools.packages.find]
+# Explicit scope, statt setuptools' Flat-Layout-Autoerkennung: die sah durch
+# das lokale tmp/-Verzeichnis (Codeintel-Testfixtures) zwei Top-Level-Pakete
+# und brach den editable install ab ("Multiple top-level packages
+# discovered").
+include = ["qtedit*"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 # Only classes ending in "TestCase" (this codebase's own convention,
