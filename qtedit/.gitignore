@@ -2,6 +2,7 @@
 __pycache__/
 *.pyc
 *.snap
+*.egg-info/
 .pytest_cache/
 tests/tmp-db-base-dir/
 # test_python.py's DefnTestCase/CatalogTestCase write scratch fixtures to
